@@ -1,0 +1,194 @@
+@import url(../chameleon-blue/styles.css);
+
+
+.v-colorpicker-button {
+        width: 22px !important;
+        height: 22px !important;
+        border: 1px solid #151515 !important;
+        cursor: pointer;
+        margin: 0 3px 0 0 !important;
+        background-image: url(../chameleon/img/grad-light-top2.png) !important;
+        float: left;
+        }
+.v-ie6 .v-colorpicker-button {
+        background-image: none !important;
+        }
+body .v-colorpicker-popup .v-tabsheet-content {
+        background: transparent;
+        }
+body .v-colorpicker-popup .v-tabsheet-tabitem {
+        background-color: transparent;
+        }
+body .v-colorpicker-popup .rgb-sliders,
+body .v-colorpicker-popup .hsv-sliders {
+        color: inherit;
+        text-shadow: none;
+        }
+.v-generated-body {
+        background: #fff url(app-bg.png);
+        }
+.v-generated-body .v-window-editor {
+        background-color: #2d2d2d;
+        background-color: rgba(45,45,45,.85);
+        border-color: #444;
+        }
+html body.v-ie .v-window-editor {
+        background: #2d2d2d;
+        }
+.v-generated-body .editor .v-window-wrap {
+        background-image: url(../chameleon/img/grad-light-top2.png) !important;
+        }
+.v-ie6 .editor .v-window-wrap {
+        background-image: none !important;
+        }
+.v-generated-body .editor .v-window-header {
+        text-shadow: 0 -1px 0 #000;
+        font-weight: bold;
+        color: #fff;
+        }
+.v-generated-body .editor,
+.v-generated-body .editor .v-nativebutton-link {
+        color: #b0b0b0;
+        font-size: 12px;
+        text-shadow: 0 1px 0 #151515;
+        margin-left: 4px;
+        white-space: nowrap;
+        }
+.v-generated-body .editor .v-textfield {
+        font-size: 11px;
+        line-height: normal;
+        color: #b0b0b0;
+        background: #222;
+        border: 1px solid #151515;
+        margin: 0;
+        }
+.v-generated-body .editor .v-checkbox {
+        float: right;
+        text-align: left;
+        width: 50px;
+        margin-top: 2px;
+        }
+.editor .v-link {
+        width: 171px;
+        height: 32px;
+        }
+.editor .v-link a {
+        display: block;
+        width: 171px;
+        height: 32px;
+        overflow: hidden;
+        background: transparent url(download-btn.png);
+        }
+.editor .v-link span {
+        display: none;
+        }
+.editor .v-link a:active {
+        background-position: left bottom;
+        }
+.v-colorpicker-popup .v-horizontallayout .v-button {
+        height: auto !important;
+        margin-bottom: 5px;
+        }
+.v-caption-preview-grid .v-captiontext {
+        font-weight: bold;
+        font-size: 1.2em;
+        padding: 15px 10px 5px;
+        }
+.sidebar-menu .hide-selection .tab-selected {
+        background: transparent;
+        color: inherit;
+        text-shadow: none;
+        font-weight: normal;
+        }
+/* Welcome screen */
+#welcome {
+        position: absolute;
+        padding: 34px 0 0 160px;
+        width: 450px;
+        height: 440px;
+        top: 50%;
+        left: 50%;
+        margin: -255px 0 0 -340px;
+        background: transparent url(geWorkbench-banner.png) no-repeat;
+        font-family: Helvetica, Arial, sans-serif;
+        }
+.v-sa #welcome {
+        font-family: Helvetica, Arial, sans-serif;
+        }
+#welcome h2,
+#welcome h1 {
+        padding: 0;
+        margin: 0;
+        font-size: 30px;
+        line-height: .95;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        white-space: nowrap;
+        }
+#welcome h1 {
+        font-size: 48px;
+        }
+#welcome #slogan {
+        padding: 0 0 2em;
+        margin: 0;
+        font-size: 14px;
+        float: right;
+        line-height: 2.3;
+        opacity: .8;
+        }
+#welcome p {
+        clear: both;
+        margin: 1em 0;
+        font-weight: bold;
+        font-size: 14px;
+        }
+#welcome ul {
+        clear: both;
+        list-style: none;
+        margin: 2em 0 0 0;
+        padding: 0;
+        width: 100%;
+        overflow: hidden;       
+        }
+#welcome li {
+        float: left;
+        display: inline;
+        margin: 0;
+        padding: 0 0 0 11%;
+        font-size: 13px;
+        line-height: 21px;
+        width: 38%;
+        background: transparent url(brush.png) no-repeat;
+        }
+#welcome .download {
+        background: transparent url(download-big.png) no-repeat 5% 0;
+        }
+#welcome em {
+        position: absolute;
+        top: 148px;
+        left: -30px;
+        width: 140px;
+        font-style: normal;
+        margin-top: 2em;
+        padding-left: 25px;
+        background: transparent url(info.png) no-repeat 0 0;
+        }
+/* Tweaks */
+.v-csslayout .toolbar {
+        margin-bottom: 1em;
+        }
+        
+/*Spinner*/
+.v-loading-indicator, .v-loading-indicator-delay, .v-loading-indicator-wait {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url(img/16.gif) no-repeat center;
+    background-position: 50%; 
+    background-color: #ccc; 
+    opacity: .5;
+    filter: alpha(opacity=50);
+    -ms-filter: alpha(opacity=50);
+    background-repeat: no-repeat; 
+}
