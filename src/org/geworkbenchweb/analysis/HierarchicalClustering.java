@@ -16,12 +16,12 @@ import org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis;
 public class HierarchicalClustering {
 	
 	
-	public HierClusterTestResult doHierClusterAnalysis(DSMicroarray dataSet) {
+	public HierClusterTestResult doHierClusterAnalysis(DSMicroarraySet dataSet) {
 		
 
 		FastHierClustAnalysis analysis = new FastHierClustAnalysis();
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet) dataSet);
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 
 		AlgorithmExecutionResults analysisResult = analysis.execute(dataSetView);
 
@@ -45,7 +45,7 @@ public class HierarchicalClustering {
 				for(Cluster c: cluster.getLeafChildren()) {
 					if(c instanceof MarkerHierCluster) {
 						MarkerHierCluster m = (MarkerHierCluster)c;
-						System.out.print(m.getMarkerInfo()+";");
+						System.out.println(m.getMarkerInfo()+";");
 					}
 				}
 				System.out.println();
