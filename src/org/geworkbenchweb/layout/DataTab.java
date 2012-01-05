@@ -2,32 +2,45 @@ package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbenchweb.analysis.ClusterNode;
 import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.analysis.HierarchicalClustering;
 
+import com.github.wolfie.refresher.Refresher;
+import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class DataTab extends VerticalLayout {
 
 	private static final long serialVersionUID = -1888971408170241086L;
-
+    private static Window analysisWindow;
+    private static DSMicroarraySet dataSet; 	
+    private static HierClusterTestResult results;
+    
 	public DataTab(DSMicroarraySet maSet) {
 		
 		setSizeFull();
 		
-		final DSMicroarraySet dataSet 	= 	maSet;
+		dataSet  =   maSet;
+		
 		final Form operationsForm 		= 	new Form();
 		final String[] operations 		= 	new String[] { "Analyze Data", "Normalize Data", "Filter Data"};
 		final Panel formPanel 			= 	new Panel();
 		final ComboBox typeCombo 		= 	new ComboBox("Type :");
         ComboBox operationCombo 		= 	new ComboBox();
+        
 		
 		formPanel.setStyleName("bubble");
 		formPanel.setCaption("Data Operations Panel");
@@ -96,19 +109,20 @@ public class DataTab extends VerticalLayout {
             			public void buttonClick(ClickEvent event) {
                             try {
                             	
-                            	HierarchicalClustering hS 		= 	new HierarchicalClustering();
-                            	HierClusterTestResult results 	= 	hS.doHierClusterAnalysis((DSMicroarray) dataSet);
+                            	analysisWindow = new Window("Analysis");
+                            	analysisWindow.setModal(true);
+                            	analysisWindow.addStyleName("opaque");
+                            	analysisWindow.setHeight("200px");
+                            	analysisWindow.setWidth("400px");
+                            	analysisWindow.setClosable(false);
+                            	analysisWindow.addComponent(new Label("Running Analysis"));
                             	
-                            	if(results.equals(null)) {
-                            		
-                            		System.out.println("Analysis Failed !!");
+                            	getApplication().getMainWindow().addWindow(analysisWindow);
+                            	final Refresher refresher = new Refresher();
+                            	refresher.addListener(new AnalysisListener());
+                            	getApplication().getMainWindow().addComponent(refresher);
                             	
-                            	} else {
-                            		
-                            		System.out.println("Clustering is done");
-                            		System.out.println("Root Node : " + results.getRoot());
-                            	
-                            	}
+                            	new AnalysisProcess().start();
                             	
                             } catch (Exception e) {	
                             	
@@ -175,4 +189,42 @@ public class DataTab extends VerticalLayout {
 		setComponentAlignment(formPanel, Alignment.TOP_CENTER);
 	
 	}
+	
+	public class AnalysisListener implements RefreshListener {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void refresh(Refresher source) {
+			
+			if (results != null) {
+		        // stop polling
+		        source.setEnabled(false);
+		        
+		        analysisWindow.removeAllComponents();
+		        double max = results.getMaxValue();
+		        double min = results.getMinValue();
+		        
+		        analysisWindow.setClosable(true);
+            	analysisWindow.addComponent(new Label("Maximum Value = " + max));
+            	analysisWindow.addComponent(new Label("Minimum Value = " + min));
+            	analysisWindow.requestRepaint();
+            	results = null;
+		      }
+			
+		}
+		
+	}
+	
+	public class AnalysisProcess extends Thread {
+		@Override
+		public void run() {
+			
+			HierarchicalClustering hS 		 = 	new HierarchicalClustering();
+			results 						 = 	hS.doHierClusterAnalysis(dataSet);
+		
+		}
+	}
 }
+
+
