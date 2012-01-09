@@ -7,12 +7,15 @@ import java.util.Map;
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
 import com.vaadin.terminal.ThemeResource;
@@ -144,6 +147,8 @@ public class MainLayout extends AbsoluteLayout {
 					dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
 					
 					dataTree = new Tree();
+					dataTree.areChildrenAllowed(true);
+					
 					dataTree.addContainerProperty("DataSet Name", String.class, "");
 					dataTree.setContainerDataSource(getDataContainer());
 					dataSets.addComponent(dataTree);
@@ -210,6 +215,8 @@ public class MainLayout extends AbsoluteLayout {
 		public void handleAction(Action action, Object sender, Object target) {
 			
 			if (action == ACTION_DELETE) {
+				
+				
 				String dataName 				=	(target.toString());
 				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
 				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -218,17 +225,32 @@ public class MainLayout extends AbsoluteLayout {
 				parameters.put("owner", user.getId());
 				
 				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-				FacadeFactory.getFacade().delete(dataSet);
-				dataTree.removeItem(target);
 				
+				if(dataSet != null) {
+					
+					FacadeFactory.getFacade().delete(dataSet);
+					dataTree.removeItem(target);
+				
+				} else {
+					
+					String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+					Map<String, Object> params 			= 	new HashMap<String, Object>();
+					
+					params.put("name", dataName);
+					params.put("owner", user.getId());
+					ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+					FacadeFactory.getFacade().delete(resultSet);
+					dataTree.removeItem(target);
+					
+				}
 			}
 			
 		}
 	}
 	
-	public IndexedContainer getDataContainer() {
+	public HierarchicalContainer getDataContainer() {
 		
-		IndexedContainer dataSets 		= 	new IndexedContainer();
+		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
 		parameters.put("owner", user.getId());
@@ -237,8 +259,24 @@ public class MainLayout extends AbsoluteLayout {
 		
 		for(int i=0; i<data.size(); i++) {
 			
-			String id =  (String) data.get(i);
-		    dataSets.addItem(id);	   
+			String id = (String) data.get(i);
+		    dataSets.addItem(id);
+
+		    
+		    Map<String, Object> params 	= 	new HashMap<String, Object>();
+		    params.put("owner", user.getId());
+		    params.put("parent", id);
+		    String wClause = "p.owner = :owner and p.parent = :parent" ;
+		    List<?> results = FacadeFactory.getFacade().getFieldValues(ResultSet.class, "name", wClause, params);
+		    
+		    for(int j=0; j<results.size(); j++) {
+		    	
+		    	String subId = (String) results.get(j);
+		    	dataSets.addItem(subId);
+		    	dataSets.setChildrenAllowed(subId, false);
+		    	dataSets.setParent(subId, id);
+		    	
+		    }
 		
 		}
 		

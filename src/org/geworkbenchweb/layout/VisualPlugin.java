@@ -4,15 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
@@ -34,7 +38,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		addListener(this);
 		setSizeFull();
-		dataTable 						= 	new Table();
+		
 		String dataPeru					= 	dataSetName;
 		String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -43,18 +47,44 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 		parameters.put("owner", user.getId());
 		
 		DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-		byte[] dataByte 				= 	dataSet.getData();
-		maSet 							= 	(DSMicroarraySet) toObject(dataByte);
-		DataTab dataOp					= 	new DataTab(maSet);
 		
-		dataOp.setCaption(DATA_OPERATIONS);
-		dataTable.setStyleName("small striped");
-		dataTable.setSizeFull();
-		dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
+		if(dataSet != null) {
+			
+			byte[] dataByte 				= 	dataSet.getData();
+			maSet 							= 	(DSMicroarraySet) toObject(dataByte);
+			DataTab dataOp					= 	new DataTab(maSet);
+			dataTable 						= 	new Table();
+			dataOp.setCaption(DATA_OPERATIONS);
+			dataTable.setStyleName("small striped");
+			dataTable.setSizeFull();
+			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
 		
-	    addTab(dataOp);
-		addTab(dataTable);
+			addTab(dataOp);
+			addTab(dataTable);
 		
+		} else {
+			
+			String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+			Map<String, Object> params 	= 	new HashMap<String, Object>();
+			
+			params.put("name", dataPeru);
+			params.put("owner", user.getId());
+			
+			ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+			byte[] dataByte 					= 	resultSet.getData();
+			HierClusterTestResult resultData 	= 	(HierClusterTestResult) toObject(dataByte);
+			
+			double max = resultData.getMaxValue();
+			double min = resultData.getMinValue();
+			
+			VerticalLayout dataRes = new VerticalLayout();
+			dataRes.setSizeFull();
+			dataRes.setCaption("Analysis Results");
+			dataRes.addComponent(new Label("Maximum Value - " + max));
+			dataRes.addComponent(new Label("Minimum Value - " + min));
+			addComponent(dataRes);
+			
+		}
 	}
 	
 	@SuppressWarnings("deprecation")

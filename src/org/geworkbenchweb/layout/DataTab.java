@@ -1,8 +1,18 @@
 package org.geworkbenchweb.layout;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.analysis.HierarchicalClustering;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.refresher.Refresher;
 import com.github.wolfie.refresher.Refresher.RefreshListener;
@@ -22,7 +32,7 @@ public class DataTab extends VerticalLayout {
     private static DSMicroarraySet dataSet; 	
     private static HierClusterTestResult results;
     private static String analysisType;
-    
+    User user 		= 	SessionHandler.get();
 	public DataTab(DSMicroarraySet maSet) {
 		
 		setSizeFull();
@@ -32,7 +42,7 @@ public class DataTab extends VerticalLayout {
 		final Form operationsForm 		= 	new Form();
 		final String[] operations 		= 	new String[] { "Analyze Data", "Normalize Data"};
 		final Panel formPanel 			= 	new Panel();
-		final ComboBox typeCombo 		= 	new ComboBox("Type :");
+		final ComboBox typeCombo 		= 	new ComboBox("Type");
         ComboBox operationCombo 		= 	new ComboBox();
         
 		
@@ -44,7 +54,7 @@ public class DataTab extends VerticalLayout {
 		operationCombo.setImmediate(true);
 		operationCombo.setInputPrompt("Please select Data Operation");
         operationCombo.addStyleName("select-button");
-        operationCombo.setCaption("Select Operation : ");
+        operationCombo.setCaption("Select Operation");
         
         for (int i = 0; i < operations.length; i++) {
             operationCombo.addItem(operations[i]);
@@ -63,7 +73,8 @@ public class DataTab extends VerticalLayout {
                 
 				try {
 					if (analysisType == "Hierarchical Clustering" ) {
-
+						
+						analysisType = null;
 						removeAllComponents();
 						addComponent(formPanel);
 						setComponentAlignment(formPanel, Alignment.TOP_LEFT);
@@ -79,7 +90,7 @@ public class DataTab extends VerticalLayout {
 						parameterPanel.setWidth("50%");
 
 						clusterMethod.addStyleName("select-button");
-						clusterMethod.setCaption("Clustering Method : ");
+						clusterMethod.setCaption("Clustering Method");
 						clusterMethod.addItem("Single Linkage");
 						clusterMethod.addItem("Average Linkage");
 						clusterMethod.addItem("total linkage");
@@ -87,7 +98,7 @@ public class DataTab extends VerticalLayout {
 						paramForm.addField("clusterMethod", clusterMethod);
 
 						clusterDim.addStyleName("select-button");
-						clusterDim.setCaption("Clustering Dimension : ");
+						clusterDim.setCaption("Clustering Dimension");
 						clusterDim.addItem("Marker");
 						clusterDim.addItem("Microarray");
 						clusterDim.addItem("Both");
@@ -95,7 +106,7 @@ public class DataTab extends VerticalLayout {
 						paramForm.addField("clusterDim", clusterDim);
 
 						clusterMetric.addStyleName("select-button");
-						clusterMetric.setCaption("Clustering Metric : ");
+						clusterMetric.setCaption("Clustering Metric");
 						clusterMetric.addItem("Eucledian Distance");
 						clusterMetric.addItem("Pearson's Correlation");
 						clusterMetric.addItem("Spearman's Rank Correlation");
@@ -153,16 +164,17 @@ public class DataTab extends VerticalLayout {
         		
         		typeCombo.removeAllItems();
         		typeCombo.setEnabled(true);
+        		typeCombo.setRequired(true);
        
         		if (selectedOperation.equals("Analyze Data")) {
                     
-        			typeCombo.setCaption("Analysis Type:");
+        			typeCombo.setCaption("Analysis Type");
         			typeCombo.setInputPrompt("Select Analysis Type");
                     typeCombo.addItem("Hierarchical Clustering");
                 
         		} else if (selectedOperation.equals("Normalize Data")) {
                 	
-        			typeCombo.setCaption("Normalization Type:");
+        			typeCombo.setCaption("Normalization Type");
         			typeCombo.setInputPrompt("Select Normalization Type");
                 	typeCombo.addItem("Housekeeping Gene Normalizer");
                 	typeCombo.addItem("Log2 Normalizer");
@@ -223,12 +235,40 @@ public class DataTab extends VerticalLayout {
 			if (results != null) {
 		        
 		        source.setEnabled(false);
-		    	
+		        GeworkbenchApplication app = new GeworkbenchApplication();
+		        app.initView(getApplication().getMainWindow());
+			    
             }
 			
 		}
 		
 	}
+	
+	private byte[] convertToByte(Object object) {
+
+		byte[] byteData = null;
+		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
+
+		try {
+
+			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
+
+			oos.writeObject(object);
+			oos.flush(); 
+			oos.close(); 
+			bos.close();
+			byteData 				= 	bos.toByteArray();
+
+		} catch (IOException ex) {
+
+			System.out.println("Exception with in convertToByte");
+
+		}
+
+		return byteData;
+
+	}
+	
 	
 	public class AnalysisProcess extends Thread {
 		@Override
@@ -237,6 +277,19 @@ public class DataTab extends VerticalLayout {
 			HierarchicalClustering hS 		 = 	new HierarchicalClustering();
 			results 						 = 	hS.doHierClusterAnalysis(dataSet);
 		
+			if(results != null) {
+				
+				
+				ResultSet resultSet = 	new ResultSet();
+				java.util.Date date= new java.util.Date();
+				resultSet.setName("HC - " + date);
+				resultSet.setType(analysisType);
+				resultSet.setParent(dataSet.getDataSetName());
+				resultSet.setOwner(user.getId());	
+				resultSet.setData(convertToByte(results));
+				FacadeFactory.getFacade().store(resultSet);	
+			
+			}
 		}
 	}
 }
