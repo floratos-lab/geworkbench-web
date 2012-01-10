@@ -91,6 +91,8 @@ public class DataTab extends VerticalLayout {
 
 						clusterMethod.addStyleName("select-button");
 						clusterMethod.setCaption("Clustering Method");
+						clusterMethod.setInputPrompt("Please select Clustering Method");
+						clusterMethod.setRequired(true);
 						clusterMethod.addItem("Single Linkage");
 						clusterMethod.addItem("Average Linkage");
 						clusterMethod.addItem("total linkage");
@@ -99,6 +101,8 @@ public class DataTab extends VerticalLayout {
 
 						clusterDim.addStyleName("select-button");
 						clusterDim.setCaption("Clustering Dimension");
+						clusterDim.setInputPrompt("Please select Clustering Dimension");
+						clusterDim.setRequired(true);
 						clusterDim.addItem("Marker");
 						clusterDim.addItem("Microarray");
 						clusterDim.addItem("Both");
@@ -107,6 +111,8 @@ public class DataTab extends VerticalLayout {
 
 						clusterMetric.addStyleName("select-button");
 						clusterMetric.setCaption("Clustering Metric");
+						clusterMetric.setRequired(true);
+						clusterMetric.setInputPrompt("Please select Clustering Metric");
 						clusterMetric.addItem("Eucledian Distance");
 						clusterMetric.addItem("Pearson's Correlation");
 						clusterMetric.addItem("Spearman's Rank Correlation");
