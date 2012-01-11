@@ -8,7 +8,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.analysis.HierarchicalClustering;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
