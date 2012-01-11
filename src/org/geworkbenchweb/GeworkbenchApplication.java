@@ -5,7 +5,6 @@ import org.geworkbenchweb.layout.MainLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
-import com.github.wolfie.sessionguard.SessionGuard;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 
