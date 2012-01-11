@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.GeworkbenchApplication;
+import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -206,9 +207,6 @@ public class MainLayout extends AbsoluteLayout {
 						//TODO
 				
 				} else {
-				
-					VisualPlugin tabSheet = new VisualPlugin((String) event.getProperty().getValue());
-					mainPanel.setSecondComponent(tabSheet);
 					
 					String dataPeru					= 	(String) event.getProperty().getValue();
 					String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
@@ -220,15 +218,36 @@ public class MainLayout extends AbsoluteLayout {
 					DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 					
 					if(dataSet != null) {
+						/*
+						 * if this is a dataSet
+						 */
 						
 						byte[] dataByte 			= 	dataSet.getData();
 						DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
-
 						
 						markerTable.setContainerDataSource(markerTableView(maSet));
 						arrayTable.setContainerDataSource(arrayTableView(maSet));
+						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType());
+						mainPanel.setSecondComponent(tabSheet);
+					
+					} else {
 						
-					} 
+						//it should be analysis results
+						
+						String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+						Map<String, Object> params 			= 	new HashMap<String, Object>();
+
+						params.put("name", dataPeru);
+						params.put("owner", user.getId());
+						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+						
+						byte[] dataByte 			= 	resultSet.getData();
+						HierClusterTestResult maSet = 	(HierClusterTestResult) toObject(dataByte);
+
+						VisualPlugin tabSheet = new VisualPlugin(maSet, resultSet.getType());
+						mainPanel.setSecondComponent(tabSheet);
+						
+					}
 					
 					mainPanel.requestRepaint();		
 				}
