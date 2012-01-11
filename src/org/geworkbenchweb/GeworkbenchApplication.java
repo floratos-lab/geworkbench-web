@@ -19,7 +19,6 @@ public class GeworkbenchApplication extends Application {
 		SessionHandler.initialize(this);
 		
 		Window mainWindow 			= 	new Window("geWorkbench");
-		
 		User user 					= 	SessionHandler.get();
 		
 		mainWindow.setSizeFull();
@@ -44,9 +43,6 @@ public class GeworkbenchApplication extends Application {
 	
 	public void initView(Window mainWindow)  {
 		
-		SessionGuard sessionGuard 	= 	new SessionGuard();
-		sessionGuard.setKeepalive(true);
-		mainWindow.addComponent(sessionGuard);
 		mainWindow.setContent(new MainLayout(this));
 	
 	}
