@@ -1,16 +1,9 @@
 package org.geworkbenchweb.layout;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.analysis.HierClusterTestResult;
-import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Label;
@@ -26,56 +19,34 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 	
 	private Table dataTable;
 	
-	private DSMicroarraySet maSet;
-	
 	private static final String DATA_OPERATIONS 			= 	"Data Operations";
 	
 	private static final String MICROARRAY_TABLE_CAPTION 	= 	"Tabular Microarray Viewer";
 	
 	private static final String MARKER_HEADER 				= 	"Marker";
 	
-	public VisualPlugin(String dataSetName) {
+	public VisualPlugin(Object dataSet, String dataType) {
 
 		addListener(this);
 		setSizeFull();
 		
-		String dataPeru					= 	dataSetName;
-		String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		
-		parameters.put("name", dataPeru);
-		parameters.put("owner", user.getId());
-		
-		DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-		
-		if(dataSet != null) {
+		if(dataType.contentEquals("Expression File")) {
 			
-			byte[] dataByte 				= 	dataSet.getData();
-			maSet 							= 	(DSMicroarraySet) toObject(dataByte);
-			DataTab dataOp					= 	new DataTab(maSet);
+			DataTab dataOp					= 	new DataTab((DSMicroarraySet) dataSet);
 			dataTable 						= 	new Table();
 			dataOp.setCaption(DATA_OPERATIONS);
 			dataTable.setStyleName("small striped");
 			dataTable.setSizeFull();
 			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
-		
+			dataTable.setContainerDataSource(tabularView((DSMicroarraySet) dataSet));
+			
 			addTab(dataOp);
 			addTab(dataTable);
 		
 		} else {
 			
-			String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-			Map<String, Object> params 	= 	new HashMap<String, Object>();
-			
-			params.put("name", dataPeru);
-			params.put("owner", user.getId());
-			
-			ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
-			byte[] dataByte 					= 	resultSet.getData();
-			HierClusterTestResult resultData 	= 	(HierClusterTestResult) toObject(dataByte);
-			
-			double max = resultData.getMaxValue();
-			double min = resultData.getMinValue();
+			double max = ((HierClusterTestResult) dataSet).getMaxValue();
+			double min = ((HierClusterTestResult) dataSet).getMinValue();
 			
 			VerticalLayout dataRes = new VerticalLayout();
 			dataRes.setSizeFull();
@@ -86,39 +57,13 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			
 		}
 	}
-	
-	@SuppressWarnings("deprecation")
-	public static Object toObject(byte[] bytes){ 
-		
-		Object object = null; 
-		
-		try{ 
-			
-			object = new java.io.ObjectInputStream(new 
-					java.io.ByteArrayInputStream(bytes)).readObject(); 
-		
-		}catch(java.io.IOException ioe){ 
-			
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					ioe.getMessage()); 
-		
-		}catch(java.lang.ClassNotFoundException cnfe){ 
-			
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					cnfe.getMessage()); 
-		
-		} 
-		
-		return object; 
-	
-	}
 
 	@Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
 		
 		if(event.getTabSheet().getSelectedTab().getCaption() == MICROARRAY_TABLE_CAPTION){
 		
-			dataTable.setContainerDataSource(tabularView(maSet));
+			
 			
 		}
 	} 
