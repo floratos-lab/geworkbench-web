@@ -27,7 +27,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -172,6 +171,7 @@ public class MainLayout extends AbsoluteLayout {
 			markerTable.setSizeFull();
 			markerTable.setSelectable(true);
 			markerTable.setMultiSelect(true);
+			markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 			
 			Tab t1 = addTab(markerTable);
 			t1.setCaption("Makers");
@@ -182,6 +182,7 @@ public class MainLayout extends AbsoluteLayout {
 			arrayTable.setSizeFull();
 			arrayTable.setSelectable(true);
 			arrayTable.setMultiSelect(true);
+			arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 			
 			Tab t2 = addTab(arrayTable);
 			t2.setCaption("Phenotypes");
@@ -223,10 +224,8 @@ public class MainLayout extends AbsoluteLayout {
 						byte[] dataByte 			= 	dataSet.getData();
 						DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
 
-						markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-						markerTable.setContainerDataSource(markerTableView(maSet));
 						
-						arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+						markerTable.setContainerDataSource(markerTableView(maSet));
 						arrayTable.setContainerDataSource(arrayTableView(maSet));
 						
 					} 
@@ -345,7 +344,7 @@ public class MainLayout extends AbsoluteLayout {
 				if(dataSet != null) {
 
 					FacadeFactory.getFacade().delete(dataSet);
-					dataTree.removeItem(target + " - Analysis");
+					dataTree.removeItem(target + " - Analysis Results");
 					dataTree.removeItem(target + " - SubSets");
 					dataTree.removeItem(target);
 					
@@ -383,7 +382,7 @@ public class MainLayout extends AbsoluteLayout {
 			String id = (String) data.get(i);
 		    dataSets.addItem(id);
 		    
-		    String analysisDone = id + " - Analysis";
+		    String analysisDone = id + " - Analysis Results";
 		    
 		    dataSets.addItem(analysisDone);
 		    dataSets.setChildrenAllowed(analysisDone, true);
@@ -410,7 +409,6 @@ public class MainLayout extends AbsoluteLayout {
 		    dataSets.setParent(subSets, id);
 		 
 		}
-		
 		
 	    return dataSets;
 	
