@@ -71,6 +71,7 @@ public class MainLayout extends AbsoluteLayout {
 		welcome 						= 	new CustomLayout("welcome");
 		Label headerText 				=  	new Label("<h4><b>geWorkbench</b></h4>");
 		CssLayout mainHeader 			= 	new CssLayout();
+		Label welcomeUser 				= 	new Label("<h4><b>" + "Welcome  " + user.getUsername() + "  |</h4></b>");
 		
 		setSizeFull();
 		toolPanel.setSizeFull();
@@ -102,7 +103,8 @@ public class MainLayout extends AbsoluteLayout {
         
         toolbar.setSizeUndefined();
         toolbar.addStyleName("right");
-        toolbar.addComponent(new Label( "Welcome " + user.getUsername() + "     |") );
+        welcomeUser.setContentMode(Label.CONTENT_XHTML);
+        toolbar.addComponent(welcomeUser);
         toolbar.addComponent(logoutButton);
         mainHeader.addComponent(toolbar);
         
