@@ -3,12 +3,26 @@ package org.geworkbenchweb.layout;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.cytographer.client.ui.VCytographer;
+import org.vaadin.cytographer.client.ui.VFocusDrawingArea;
+import org.vaadin.cytographer.client.ui.VGraph;
+import org.vaadin.cytographer.client.ui.VVisualStyle;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+
+import cytoscape.CyEdge;
+import cytoscape.CyNetwork;
+import cytoscape.CyNode;
+import cytoscape.Cytoscape;
+import cytoscape.data.Semantics;
+import cytoscape.view.CyNetworkView;
+import cytoscape.visual.VisualPropertyType;
 
 public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
@@ -28,32 +42,31 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		addListener(this);
 		setSizeFull();
-		try {
-			if(dataType.contentEquals("Expression File")) {
+	
+		if(dataType.contentEquals("Expression File")) {
 
-				DataTab dataOp					= 	new DataTab((DSMicroarraySet) dataSet);
-				dataTable 						= 	new Table();
-				dataOp.setCaption(DATA_OPERATIONS);
-				dataTable.setStyleName("small striped");
-				dataTable.setSizeFull();
-				dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
-				dataTable.setContainerDataSource(tabularView((DSMicroarraySet) dataSet));
+			DataTab dataOp					= 	new DataTab((DSMicroarraySet) dataSet);
+			dataTable 						= 	new Table();
+			dataOp.setCaption(DATA_OPERATIONS);
+			dataTable.setStyleName("small striped");
+			dataTable.setSizeFull();
+			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
+			dataTable.setContainerDataSource(tabularView((DSMicroarraySet) dataSet));
 
-				addTab(dataOp);
-				addTab(dataTable);
+			addTab(dataOp);
+			addTab(dataTable);
 
-			} else {
+		} else {
 
-				VerticalLayout dataRes = new VerticalLayout();
-				dataRes.setSizeFull();
-				dataRes.setCaption("Analysis Results");
-				dataRes.addComponent(new Label("Implementing the visualization for the results is pending !!"));
-				addTab(dataRes);
+			VerticalLayout dataRes = new VerticalLayout();
+			dataRes.setSizeFull();
+			dataRes.setCaption("Analysis Results");
+			dataRes.addComponent(new Label("Implementing the visualization for the results is pending !!"));
 
-			}
-		}catch (Exception e) {
-			System.out.println(e.toString());
+			addTab(dataRes);
+
 		}
+		
 	}
 
 	@Override
