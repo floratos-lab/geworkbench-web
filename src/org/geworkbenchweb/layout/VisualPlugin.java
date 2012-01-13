@@ -1,7 +1,6 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.data.Item;
@@ -29,32 +28,31 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		addListener(this);
 		setSizeFull();
-		
-		if(dataType.contentEquals("Expression File")) {
-			
-			DataTab dataOp					= 	new DataTab((DSMicroarraySet) dataSet);
-			dataTable 						= 	new Table();
-			dataOp.setCaption(DATA_OPERATIONS);
-			dataTable.setStyleName("small striped");
-			dataTable.setSizeFull();
-			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
-			dataTable.setContainerDataSource(tabularView((DSMicroarraySet) dataSet));
-			
-			addTab(dataOp);
-			addTab(dataTable);
-		
-		} else {
-			
-			double max = ((HierClusterTestResult) dataSet).getMaxValue();
-			double min = ((HierClusterTestResult) dataSet).getMinValue();
-			
-			VerticalLayout dataRes = new VerticalLayout();
-			dataRes.setSizeFull();
-			dataRes.setCaption("Analysis Results");
-			dataRes.addComponent(new Label("Maximum Value - " + max));
-			dataRes.addComponent(new Label("Minimum Value - " + min));
-			addComponent(dataRes);
-			
+		try {
+			if(dataType.contentEquals("Expression File")) {
+
+				DataTab dataOp					= 	new DataTab((DSMicroarraySet) dataSet);
+				dataTable 						= 	new Table();
+				dataOp.setCaption(DATA_OPERATIONS);
+				dataTable.setStyleName("small striped");
+				dataTable.setSizeFull();
+				dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
+				dataTable.setContainerDataSource(tabularView((DSMicroarraySet) dataSet));
+
+				addTab(dataOp);
+				addTab(dataTable);
+
+			} else {
+
+				VerticalLayout dataRes = new VerticalLayout();
+				dataRes.setSizeFull();
+				dataRes.setCaption("Analysis Results");
+				dataRes.addComponent(new Label("Implementing the visualization for the results is pending !!"));
+				addTab(dataRes);
+
+			}
+		}catch (Exception e) {
+			System.out.println(e.toString());
 		}
 	}
 
