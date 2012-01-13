@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.analysis.HierClusterTestResult;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -26,8 +26,10 @@ import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -48,6 +50,8 @@ public class MainLayout extends AbsoluteLayout {
 	
 	private CustomLayout welcome;
 	
+	private VerticalSplitPanel toolPanel;
+	
 	User user = SessionHandler.get();
 	
 	// Actions for the context menu
@@ -60,20 +64,25 @@ public class MainLayout extends AbsoluteLayout {
 		
 		
 		this.app 						= 	app;
+		toolPanel 						=   new VerticalSplitPanel();
 		mainPanel 						= 	new HorizontalSplitPanel();
 		Accordion tabs 					= 	new AccordionPanels(true);
-		VerticalLayout toolbar 			= 	new VerticalLayout();
+		CssLayout toolbar 				= 	new CssLayout();
 		welcome 						= 	new CustomLayout("welcome");
-		VerticalSplitPanel dataPanel 	=	new VerticalSplitPanel();
+		Label headerText 				=  	new Label("<h4><b>geWorkbench</b></h4>");
+		CssLayout mainHeader 			= 	new CssLayout();
 		
 		setSizeFull();
-        mainPanel.setSizeFull();
-        mainPanel.setStyleName("small previews");
-        mainPanel.setSplitPosition(20);        
-              
-        tabs.setStyleName("opaque");
-        tabs.setSizeFull();
-            
+		toolPanel.setSizeFull();
+		toolPanel.setStyleName("small previews");
+		toolPanel.setSplitPosition(37, UNITS_PIXELS);
+		toolPanel.setLocked(true);
+		
+        mainHeader.setWidth("100%");
+        mainHeader.addStyleName("toolbar-invert");
+		headerText.setContentMode(Label.CONTENT_XHTML);
+		mainHeader.addComponent(headerText);
+    
         Button logoutButton = new Button("Logout", new ClickListener() {
 			
         	private static final long serialVersionUID = 1L;
@@ -88,24 +97,29 @@ public class MainLayout extends AbsoluteLayout {
 
 		});
         
-        logoutButton.setStyleName("wide");
+        logoutButton.addStyleName("borderless");
         logoutButton.setIcon(new ThemeResource("../runo/icons/16/user.png"));
-        toolbar.setWidth("100%");
-        toolbar.setStyleName("toolbar");
+        
+        toolbar.setSizeUndefined();
+        toolbar.addStyleName("right");
+        toolbar.addComponent(new Label( "Welcome " + user.getUsername() + "     |") );
         toolbar.addComponent(logoutButton);
-        toolbar.setComponentAlignment(logoutButton, Alignment.BOTTOM_CENTER);
-
-        dataPanel.setSplitPosition(27, UNITS_PIXELS, true);
-        dataPanel.setStyleName("small previews");
-        dataPanel.setLocked(true);
-        dataPanel.setFirstComponent(tabs);
-        dataPanel.setSecondComponent(toolbar);
+        mainHeader.addComponent(toolbar);
+        
+        tabs.setStyleName("opaque");
+        tabs.setSizeFull();
         
 		welcome.setSizeFull();
-		mainPanel.setFirstComponent(dataPanel);
+		mainPanel.setSizeFull();
+        mainPanel.setStyleName("small previews");
+        mainPanel.setSplitPosition(20);   
+		mainPanel.setFirstComponent(tabs);
 		mainPanel.setSecondComponent(welcome);
 		
-        addComponent(mainPanel);
+		toolPanel.setFirstComponent(mainHeader);
+        toolPanel.setSecondComponent(mainPanel);
+		
+        addComponent(toolPanel);
 	
 	}
 
@@ -239,12 +253,11 @@ public class MainLayout extends AbsoluteLayout {
 
 						params.put("name", dataPeru);
 						params.put("owner", user.getId());
-						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
 						
-						byte[] dataByte 			= 	resultSet.getData();
-						HierClusterTestResult maSet = 	(HierClusterTestResult) toObject(dataByte);
-
-						VisualPlugin tabSheet = new VisualPlugin(maSet, resultSet.getType());
+						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+						byte[] dataByte 					= 	resultSet.getData();
+						HierCluster[] hierResults 			= 	(HierCluster[]) toObject(dataByte);
+						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType());
 						mainPanel.setSecondComponent(tabSheet);
 						
 					}
