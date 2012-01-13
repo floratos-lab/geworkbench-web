@@ -46,7 +46,7 @@ public class DataTab extends VerticalLayout {
 		final Form operationsForm 		= 	new Form();
 		final String[] operations 		= 	new String[] { "Analyze Data", "Normalize Data"};
 		final Panel formPanel 			= 	new Panel();
-		final ComboBox typeCombo 		= 	new ComboBox("Type");
+		final ComboBox typeCombo 		= 	new ComboBox("Type"); 
         ComboBox operationCombo 		= 	new ComboBox();
         
 		
