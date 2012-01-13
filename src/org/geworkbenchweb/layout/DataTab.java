@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis;
 import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.analysis.HierClusterTestResult;
-import org.geworkbenchweb.analysis.HierarchicalClustering;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -27,11 +27,16 @@ import com.vaadin.ui.Window.Notification;
 
 public class DataTab extends VerticalLayout {
 
-	private static final long serialVersionUID = -1888971408170241086L;
-    private static DSMicroarraySet dataSet; 	
-    private static HierClusterTestResult results;
-    private static String analysisType;
-    User user 		= 	SessionHandler.get();
+	private static final long serialVersionUID 		= 		-1888971408170241086L;
+	User user 										= 		SessionHandler.get();
+	
+	private static DSMicroarraySet 	dataSet; 	
+    private static HierCluster[] 	results;
+    private static String			analysisType;
+    private static String 			clustMetric;
+    private static String 			clustMethod;
+    private static String 			clustDim;
+    
 	public DataTab(DSMicroarraySet maSet) {
 		
 		setSizeFull();
@@ -56,8 +61,11 @@ public class DataTab extends VerticalLayout {
         operationCombo.setCaption("Select Operation");
         
         for (int i = 0; i < operations.length; i++) {
+        	
             operationCombo.addItem(operations[i]);
+        
         }
+        
         operationCombo.setWidth("70%");
         operationsForm.addField("operation", operationCombo);
         
@@ -71,9 +79,9 @@ public class DataTab extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
                 
 				try {
+					
 					if (analysisType == "Hierarchical Clustering" ) {
 						
-						analysisType = null;
 						removeAllComponents();
 						addComponent(formPanel);
 						setComponentAlignment(formPanel, Alignment.TOP_LEFT);
@@ -96,6 +104,23 @@ public class DataTab extends VerticalLayout {
 						clusterMethod.addItem("Average Linkage");
 						clusterMethod.addItem("total linkage");
 						clusterMethod.setWidth("70%");
+						clusterMethod.addListener(new Property.ValueChangeListener() {
+		                	
+		        			private static final long serialVersionUID = 1L;
+
+		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+		                		
+		        				try {
+		        					
+		                			clustMethod = valueChangeEvent.getProperty().getValue().toString();
+		                		
+		                		}catch(NullPointerException e) {
+		                			
+		                			System.out.println("let us worry about this later");
+		                			
+		        				}
+		                	}
+		                });
 						paramForm.addField("clusterMethod", clusterMethod);
 
 						clusterDim.addStyleName("select-button");
@@ -106,6 +131,23 @@ public class DataTab extends VerticalLayout {
 						clusterDim.addItem("Microarray");
 						clusterDim.addItem("Both");
 						clusterDim.setWidth("70%");
+						clusterDim.addListener(new Property.ValueChangeListener() {
+		                	
+		        			private static final long serialVersionUID = 1L;
+
+		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+		                		
+		        				try {
+		        					
+		                			clustDim = valueChangeEvent.getProperty().getValue().toString();
+		                		
+		                		}catch(NullPointerException e) {
+		                			
+		                			System.out.println("let us worry about this later");
+		                			
+		        				}
+		                	}
+		                });
 						paramForm.addField("clusterDim", clusterDim);
 
 						clusterMetric.addStyleName("select-button");
@@ -116,6 +158,24 @@ public class DataTab extends VerticalLayout {
 						clusterMetric.addItem("Pearson's Correlation");
 						clusterMetric.addItem("Spearman's Rank Correlation");
 						clusterMetric.setWidth("70%");
+						clusterMetric.addListener(new Property.ValueChangeListener() {
+		                	
+		        			private static final long serialVersionUID = 1L;
+
+		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+		                		
+		        				try {
+		        					
+		                			clustMetric = valueChangeEvent.getProperty().getValue().toString();
+		                		
+		                		}catch(NullPointerException e) {
+		                			
+		                			System.out.println("let us worry about this later");
+		                			
+		        				}
+		                	}
+		                });
+						
 						paramForm.addField("clusterMetric", clusterMetric);
 
 						Button submitAnalysis = new Button("Submit", new Button.ClickListener() {
@@ -141,6 +201,7 @@ public class DataTab extends VerticalLayout {
 						parameterPanel.addComponent(paramForm);
 						addComponent(parameterPanel);
 						setComponentAlignment(parameterPanel, Alignment.TOP_LEFT);
+					
 					} else {
 						
 						removeAllComponents();
@@ -156,8 +217,6 @@ public class DataTab extends VerticalLayout {
 			}
             
         });
-        
-        
         
         operationCombo.addListener(new Property.ValueChangeListener() {
         	
@@ -209,9 +268,7 @@ public class DataTab extends VerticalLayout {
             
         	}
         });
-        
-        
-        
+           
         typeCombo.setWidth("70%");
         operationsForm.addField("type", typeCombo);
         operationsForm.addField("submitButton", submitButton);
@@ -279,20 +336,21 @@ public class DataTab extends VerticalLayout {
 		@Override
 		public void run() {
 			
-			HierarchicalClustering hS 		 = 	new HierarchicalClustering();
-			results 						 = 	hS.doHierClusterAnalysis(dataSet);
-		
+			FastHierClustAnalysis analysis 	= 	new FastHierClustAnalysis();
+			results							=	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
+			 
 			if(results != null) {
-				
-				
+			
 				ResultSet resultSet = 	new ResultSet();
 				java.util.Date date= new java.util.Date();
 				resultSet.setName("HC - " + date);
 				resultSet.setType(analysisType);
+				analysisType = null;
 				resultSet.setParent(dataSet.getDataSetName());
 				resultSet.setOwner(user.getId());	
 				resultSet.setData(convertToByte(results));
 				FacadeFactory.getFacade().store(resultSet);	
+				
 			
 			}
 		}
