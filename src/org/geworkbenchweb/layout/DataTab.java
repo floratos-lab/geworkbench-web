@@ -42,7 +42,7 @@ public class DataTab extends VerticalLayout {
 	public DataTab(DSMicroarraySet maSet, String action) {
 		
 		setSizeFull();
-		
+	
 		dataSet  =   maSet;
 		VerticalSplitPanel mainPanel		= 	new VerticalSplitPanel();
 		HorizontalSplitPanel dataPanel 		= 	new HorizontalSplitPanel();
@@ -65,7 +65,7 @@ public class DataTab extends VerticalLayout {
 		historyPanel.addComponent(new Label("Name of the DataSet : " + maSet.getLabel()));
 		historyPanel.addComponent(new Label("Number of Markers : " + maSet.getMarkers().size()));
 		historyPanel.addComponent(new Label("Number of Arrays : " + maSet.size()));
-		historyPanel.addComponent(new Label("-------------------------"));
+		historyPanel.addComponent(new Label("--------------------------------------------------"));
 		historyPanel.addComponent(new Label("All the randon dataset history and what kind of analysis performed should be displayed here. " +
 				"It should also accompany parameters used to perform the analysis."));
 		
@@ -93,7 +93,7 @@ public class DataTab extends VerticalLayout {
 			}
 		});
 		analysisBox.setWidth("60%");
-		analysisBox.setCaption("Select Analyis Type : ");
+		analysisBox.setCaption("Select Analyis Type");
 		analysisBox.addItem("Hierarchical Clustering");
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new Property.ValueChangeListener() {
@@ -187,8 +187,8 @@ public class DataTab extends VerticalLayout {
 	                });
 					
 					paramDetails.setStyleName("bubble");
-					
-					
+					paramDetails.removeAllComponents();
+
 					Form dataForm = new Form();
 					dataForm.setImmediate(true);
 					
@@ -212,7 +212,7 @@ public class DataTab extends VerticalLayout {
         });
 		
 		operationsBox.setWidth("60%");
-		operationsBox.setCaption("Select Data Operation : ");
+		operationsBox.setCaption("Select Data Operation");
 		operationsBox.addItem("Analyze Data");
 		operationsBox.addItem("Normalize Data");
 		operationsBox.addItem("Filter Data");

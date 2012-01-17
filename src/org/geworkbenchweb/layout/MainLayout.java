@@ -34,6 +34,7 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
 import org.geworkbenchweb.layout.VisualPlugin;
@@ -75,7 +76,7 @@ public class MainLayout extends AbsoluteLayout {
 		Accordion tabs 					= 	new AccordionPanels(true);
 		CssLayout toolbar 				= 	new CssLayout();
 		welcome 						= 	new CustomLayout("welcome");
-		Label headerText 				=  	new Label("<h4><b>geWorkbench</b></h4>");
+		Label headerText 				=  	new Label("<h4><b>geWorkbench-Web 1.0</b></h4>");
 		CssLayout mainHeader 			= 	new CssLayout();
 		Label welcomeUser 				= 	new Label("<h4><b>" + "Welcome  " + user.getUsername() + "  |</h4></b>");
 		
@@ -134,12 +135,16 @@ public class MainLayout extends AbsoluteLayout {
 	class AccordionPanels extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
 
 		private Tree dataTree;
-		
+
 		private static final long serialVersionUID = 4523693969296820932L;
-		
+
 		private Table markerTable;
-		
+
 		private Table arrayTable;
+
+		final Action ACTION_SUBSET = new Action("Create SubSet");
+
+		final Action[] ACTIONS_CREATE = new Action[] { ACTION_SUBSET };
 		
 		AccordionPanels(boolean closable) {
 			
@@ -176,6 +181,7 @@ public class MainLayout extends AbsoluteLayout {
 			dataTree = new Tree();
 			dataTree.areChildrenAllowed(true);
 
+			dataTree.expandItemsRecursively(0);
 			dataTree.addContainerProperty("DataSet Name", String.class, "");
 			dataTree.setContainerDataSource(getDataContainer());
 			dataSets.addComponent(dataTree);
@@ -196,6 +202,30 @@ public class MainLayout extends AbsoluteLayout {
 			markerTable.setMultiSelect(true);
 			markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 			
+			markerTable.addActionHandler(new Action.Handler() {
+				
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+					
+	            	return ACTIONS_CREATE;
+	                
+	            }
+	            
+	            public void handleAction(Action action, Object sender, Object target) {
+	            	
+	            	Window nameWindow = new Window();
+	            	nameWindow.setModal(true);
+	            	nameWindow.setClosable(true);
+	            	nameWindow.setWidth("400px");
+	            	nameWindow.setHeight("200px");
+	            	nameWindow.setResizable(false);
+	            	getApplication().getMainWindow().addWindow(nameWindow);
+	            
+	            }
+	                
+	        });
+			
 			Tab t1 = addTab(markerTable);
 			t1.setCaption("Makers");
 			t1.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
@@ -206,7 +236,30 @@ public class MainLayout extends AbsoluteLayout {
 			arrayTable.setSelectable(true);
 			arrayTable.setMultiSelect(true);
 			arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-			
+			arrayTable.addActionHandler(new Action.Handler() {
+				
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+					
+	            	return ACTIONS_CREATE;
+	                
+	            }
+	            
+	            public void handleAction(Action action, Object sender, Object target) {
+	            	
+	            	Window nameWindow = new Window();
+	            	nameWindow.setModal(true);
+	            	nameWindow.setClosable(true);
+	            	nameWindow.setWidth("400px");
+	            	nameWindow.setHeight("200px");
+	            	nameWindow.setResizable(false);
+	            	
+	            	getApplication().getMainWindow().addWindow(nameWindow);
+	            	
+	            }
+	                
+	        });
 			Tab t2 = addTab(arrayTable);
 			t2.setCaption("Phenotypes");
 			t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
