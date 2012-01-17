@@ -95,8 +95,6 @@ public class DataTab extends VerticalLayout {
 		analysisBox.setWidth("60%");
 		analysisBox.setCaption("Select Analyis Type : ");
 		analysisBox.addItem("Hierarchical Clustering");
-		analysisBox.addItem("T-Test Analysis");
-		analysisBox.addItem("ARACne");
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new Property.ValueChangeListener() {
         	
@@ -104,8 +102,11 @@ public class DataTab extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
         		
-				try {
+				try {	
 					
+					VerticalLayout dataLayout = new VerticalLayout();
+					dataLayout.setSizeFull();
+					dataLayout.removeAllComponents();
 					analysisType = "Hierarchical Clustering";
 					ComboBox clusterMethod 	= 	new ComboBox();
 					ComboBox clusterDim 	= 	new ComboBox();
@@ -187,8 +188,7 @@ public class DataTab extends VerticalLayout {
 					
 					paramDetails.setStyleName("bubble");
 					
-					VerticalLayout dataLayout = new VerticalLayout();
-					dataLayout.setSizeFull();
+					
 					Form dataForm = new Form();
 					dataForm.setImmediate(true);
 					
