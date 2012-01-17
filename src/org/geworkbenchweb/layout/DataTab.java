@@ -21,9 +21,11 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.VerticalSplitPanel;
 
 public class DataTab extends VerticalLayout {
 
@@ -37,255 +39,232 @@ public class DataTab extends VerticalLayout {
     private static String 			clustMethod;
     private static String 			clustDim;
     
-	public DataTab(DSMicroarraySet maSet) {
+	public DataTab(DSMicroarraySet maSet, String action) {
 		
 		setSizeFull();
 		
 		dataSet  =   maSet;
+		VerticalSplitPanel mainPanel		= 	new VerticalSplitPanel();
+		HorizontalSplitPanel dataPanel 		= 	new HorizontalSplitPanel();
+		final Panel paramPanel 				=	new Panel();
+		Panel historyPanel					= 	new Panel();
+		final Form paramForm				= 	new Form();
+		ComboBox operationsBox				=   new ComboBox();
+		final ComboBox analysisBox			= 	new ComboBox();
+		final Panel paramDetails			= 	new Panel();
 		
-		final Form operationsForm 		= 	new Form();
-		final String[] operations 		= 	new String[] { "Analyze Data", "Normalize Data"};
-		final Panel formPanel 			= 	new Panel();
-		final ComboBox typeCombo 		= 	new ComboBox("Type"); 
-        ComboBox operationCombo 		= 	new ComboBox();
-        
+		paramForm.setImmediate(true);
 		
-		formPanel.setStyleName("bubble");
-		formPanel.setCaption("Data Operations Panel");
-		formPanel.setWidth("50%");
+		dataPanel.setImmediate(true);
+		dataPanel.setSplitPosition(70);
+		dataPanel.setStyleName("small previews");
 		
-		operationCombo.setRequired(true);
-		operationCombo.setImmediate(true);
-		operationCombo.setInputPrompt("Please select Data Operation");
-        operationCombo.addStyleName("select-button");
-        operationCombo.setCaption("Select Operation");
-        
-        for (int i = 0; i < operations.length; i++) {
-        	
-            operationCombo.addItem(operations[i]);
-        
-        }
-        
-        operationCombo.setWidth("70%");
-        operationsForm.addField("operation", operationCombo);
-        
-        typeCombo.addStyleName("select-button");
-        typeCombo.setEnabled(false);
-        
-        Button submitButton = new Button("Next", new Button.ClickListener() {
-          
+		historyPanel.setCaption("DataSet History");
+		historyPanel.setStyleName("bubble");
+		historyPanel.setSizeFull();
+		historyPanel.addComponent(new Label("Name of the DataSet : " + maSet.getLabel()));
+		historyPanel.addComponent(new Label("Number of Markers : " + maSet.getMarkers().size()));
+		historyPanel.addComponent(new Label("Number of Arrays : " + maSet.size()));
+		historyPanel.addComponent(new Label("-------------------------"));
+		historyPanel.addComponent(new Label("All the randon dataset history and what kind of analysis performed should be displayed here. " +
+				"It should also accompany parameters used to perform the analysis."));
+		
+		paramPanel.setImmediate(true);
+		paramPanel.setStyleName("bubble");
+		paramPanel.setCaption("Parameter Panel");
+		paramPanel.setSizeFull();		
+		
+		final Button submitAnalysis = new Button("Analyze", new Button.ClickListener() {
+
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
-                
+				try {
+
+					final Refresher refresher = new Refresher();
+					refresher.addListener(new AnalysisListener());
+					getApplication().getMainWindow().addComponent(refresher);
+
+					new AnalysisProcess().start();
+
+				} catch (Exception e) {	
+
+				}		
+			}
+		});
+		analysisBox.setWidth("60%");
+		analysisBox.setCaption("Select Analyis Type : ");
+		analysisBox.addItem("Hierarchical Clustering");
+		analysisBox.addItem("T-Test Analysis");
+		analysisBox.addItem("ARACne");
+		analysisBox.setInputPrompt("Choose Analysis from the list");
+		analysisBox.addListener(new Property.ValueChangeListener() {
+        	
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+        		
 				try {
 					
-					if (analysisType == "Hierarchical Clustering" ) {
-						
-						removeAllComponents();
-						addComponent(formPanel);
-						setComponentAlignment(formPanel, Alignment.TOP_LEFT);
-
-						Panel parameterPanel 	= 	new Panel();
-						final Form paramForm 	= 	new Form();
-						ComboBox clusterMethod 	= 	new ComboBox();
-						ComboBox clusterDim 	= 	new ComboBox();
-						ComboBox clusterMetric  = 	new ComboBox();
-
-						parameterPanel.setStyleName("bubble");
-						parameterPanel.setCaption("Heirarchical Clustering Parameter Panel");
-						parameterPanel.setWidth("50%");
-
-						clusterMethod.addStyleName("select-button");
-						clusterMethod.setCaption("Clustering Method");
-						clusterMethod.setInputPrompt("Please select Clustering Method");
-						clusterMethod.setRequired(true);
-						clusterMethod.addItem("Single Linkage");
-						clusterMethod.addItem("Average Linkage");
-						clusterMethod.addItem("total linkage");
-						clusterMethod.setWidth("70%");
-						clusterMethod.addListener(new Property.ValueChangeListener() {
-		                	
-		        			private static final long serialVersionUID = 1L;
-
-		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-		                		
-		        				try {
-		        					
-		                			clustMethod = valueChangeEvent.getProperty().getValue().toString();
-		                		
-		                		}catch(NullPointerException e) {
-		                			
-		                			System.out.println("let us worry about this later");
-		                			
-		        				}
-		                	}
-		                });
-						paramForm.addField("clusterMethod", clusterMethod);
-
-						clusterDim.addStyleName("select-button");
-						clusterDim.setCaption("Clustering Dimension");
-						clusterDim.setInputPrompt("Please select Clustering Dimension");
-						clusterDim.setRequired(true);
-						clusterDim.addItem("Marker");
-						clusterDim.addItem("Microarray");
-						clusterDim.addItem("Both");
-						clusterDim.setWidth("70%");
-						clusterDim.addListener(new Property.ValueChangeListener() {
-		                	
-		        			private static final long serialVersionUID = 1L;
-
-		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-		                		
-		        				try {
-		        					
-		                			clustDim = valueChangeEvent.getProperty().getValue().toString();
-		                		
-		                		}catch(NullPointerException e) {
-		                			
-		                			System.out.println("let us worry about this later");
-		                			
-		        				}
-		                	}
-		                });
-						paramForm.addField("clusterDim", clusterDim);
-
-						clusterMetric.addStyleName("select-button");
-						clusterMetric.setCaption("Clustering Metric");
-						clusterMetric.setRequired(true);
-						clusterMetric.setInputPrompt("Please select Clustering Metric");
-						clusterMetric.addItem("Eucledian Distance");
-						clusterMetric.addItem("Pearson's Correlation");
-						clusterMetric.addItem("Spearman's Rank Correlation");
-						clusterMetric.setWidth("70%");
-						clusterMetric.addListener(new Property.ValueChangeListener() {
-		                	
-		        			private static final long serialVersionUID = 1L;
-
-		        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-		                		
-		        				try {
-		        					
-		                			clustMetric = valueChangeEvent.getProperty().getValue().toString();
-		                		
-		                		}catch(NullPointerException e) {
-		                			
-		                			System.out.println("let us worry about this later");
-		                			
-		        				}
-		                	}
-		                });
-						
-						paramForm.addField("clusterMetric", clusterMetric);
-
-						Button submitAnalysis = new Button("Submit", new Button.ClickListener() {
-
-							private static final long serialVersionUID = 1L;
-
-							public void buttonClick(ClickEvent event) {
-								try {
-
-									final Refresher refresher = new Refresher();
-									refresher.addListener(new AnalysisListener());
-									getApplication().getMainWindow().addComponent(refresher);
-
-									new AnalysisProcess().start();
-
-								} catch (Exception e) {	
-
-								}		
-							}
-						});
-
-						paramForm.addField("submitAnalysis", submitAnalysis);
-						parameterPanel.addComponent(paramForm);
-						addComponent(parameterPanel);
-						setComponentAlignment(parameterPanel, Alignment.TOP_LEFT);
+					analysisType = "Hierarchical Clustering";
+					ComboBox clusterMethod 	= 	new ComboBox();
+					ComboBox clusterDim 	= 	new ComboBox();
+					ComboBox clusterMetric 	= 	new ComboBox();
 					
-					} else {
-						
-						removeAllComponents();
-						addComponent(formPanel);
-						getApplication().getMainWindow().showNotification("Selected Operation is not Implemented",  
-								Notification.TYPE_ERROR_MESSAGE );
-						
-					}
+					clusterMethod.setCaption("Clustering Method");
+					clusterMethod.addItem("Single Linkage");
+					clusterMethod.addItem("Average Linkage");
+					clusterMethod.addItem("total linkage");
+					clusterMethod.select(clusterMethod.getItemIds().iterator().next());
+					clusterMethod.setWidth("50%");
+					clusterMethod.addListener(new Property.ValueChangeListener() {
+	                	
+	        			private static final long serialVersionUID = 1L;
 
-				} catch (Exception e) {
+	        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+	                		
+	        				try {
+	        					
+	                			clustMethod = valueChangeEvent.getProperty().getValue().toString();
+	                		
+	                		}catch(NullPointerException e) {
+	                			
+	                			System.out.println("let us worry about this later");
+	                			
+	        				}
+	                	}
+	                });
 
+					clusterDim.setCaption("Clustering Dimension");
+					clusterDim.setInputPrompt("Please select Clustering Dimension");
+					clusterDim.addItem("Marker");
+					clusterDim.addItem("Microarray");
+					clusterDim.addItem("Both");
+					clusterDim.select(clusterDim.getItemIds().iterator().next());
+					clusterDim.setWidth("50%");
+					clusterDim.addListener(new Property.ValueChangeListener() {
+	                	
+	        			private static final long serialVersionUID = 1L;
+
+	        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+	                		
+	        				try {
+	        					
+	                			clustDim = valueChangeEvent.getProperty().getValue().toString();
+	                		
+	                		}catch(NullPointerException e) {
+	                			
+	                			System.out.println("let us worry about this later");
+	                			
+	        				}
+	                	}
+	                });
+
+					clusterMetric.setCaption("Clustering Metric");
+					clusterMetric.setInputPrompt("Please select Clustering Metric");
+					clusterMetric.addItem("Eucledian Distance");
+					clusterMetric.addItem("Pearson's Correlation");
+					clusterMetric.addItem("Spearman's Rank Correlation");
+					clusterMetric.select(clusterMetric.getItemIds().iterator().next());
+					clusterMetric.setWidth("50%");
+					clusterMetric.addListener(new Property.ValueChangeListener() {
+	                	
+	        			private static final long serialVersionUID = 1L;
+
+	        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+	                		
+	        				try {
+	        					
+	                			clustMetric = valueChangeEvent.getProperty().getValue().toString();
+	                		
+	                		}catch(NullPointerException e) {
+	                			
+	                			System.out.println("let us worry about this later");
+	                			
+	        				}
+	                	}
+	                });
+					
+					paramDetails.setStyleName("bubble");
+					
+					VerticalLayout dataLayout = new VerticalLayout();
+					dataLayout.setSizeFull();
+					Form dataForm = new Form();
+					dataForm.setImmediate(true);
+					
+					dataForm.addField("cluster method", clusterMethod);
+					dataForm.addField("cluster dimension", clusterDim);
+					dataForm.addField("cluster metric", clusterMetric);
+					dataForm.addField("submitAnalysis", submitAnalysis);
+					
+					dataLayout.addComponent(dataForm);
+					dataLayout.setComponentAlignment(dataForm, Alignment.BOTTOM_CENTER);
+					
+					paramDetails.addComponent(dataLayout);
+					paramPanel.addComponent(paramDetails);
+					
+        		}catch(NullPointerException e) {
+        			
+        			System.out.println("let us worry about this later");
+        			
 				}
-			}
-            
-        });
-        
-        operationCombo.addListener(new Property.ValueChangeListener() {
-        	
-        	private static final long serialVersionUID = 1L;
-			
-        	public void valueChange(Property.ValueChangeEvent valueChangeEvent) { 	
-                
-        		String selectedOperation = valueChangeEvent.getProperty().getValue().toString();
-        		
-        		typeCombo.removeAllItems();
-        		typeCombo.setEnabled(true);
-        		typeCombo.setRequired(true);
-       
-        		if (selectedOperation.equals("Analyze Data")) {
-                    
-        			typeCombo.setCaption("Analysis Type");
-        			typeCombo.setInputPrompt("Select Analysis Type");
-                    typeCombo.addItem("Hierarchical Clustering");
-                
-        		} else if (selectedOperation.equals("Normalize Data")) {
-                	
-        			typeCombo.setCaption("Normalization Type");
-        			typeCombo.setInputPrompt("Select Normalization Type");
-                	typeCombo.addItem("Housekeeping Gene Normalizer");
-                	typeCombo.addItem("Log2 Normalizer");
-                	typeCombo.addItem("Mean-Variance Normalizer");
-                
-        		}
-                
-        		typeCombo.addListener(new Property.ValueChangeListener() {
-                	
-        			private static final long serialVersionUID = 1L;
-
-        			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-                		
-        				try {
-        					
-                			analysisType = valueChangeEvent.getProperty().getValue().toString();
-                		
-                		}catch(NullPointerException e) {
-                			
-                			System.out.println("let us worry about this later");
-                			
-        				}
-                	}
-                });
-        		
-        		typeCombo.requestRepaint();
-            
         	}
         });
-           
-        typeCombo.setWidth("70%");
-        operationsForm.addField("type", typeCombo);
-        operationsForm.addField("submitButton", submitButton);
-        
-        typeCombo.addListener(new Property.ValueChangeListener() {
+		
+		operationsBox.setWidth("60%");
+		operationsBox.setCaption("Select Data Operation : ");
+		operationsBox.addItem("Analyze Data");
+		operationsBox.addItem("Normalize Data");
+		operationsBox.addItem("Filter Data");
+		operationsBox.setInputPrompt("Choose Data Operation from the list");
+		operationsBox.addListener(new Property.ValueChangeListener() {
         	
-        	private static final long serialVersionUID = 1L;
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) { 	
-            
-			}
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+        		
+				try {
+					
+        			paramForm.addField("analysis", analysisBox);
+        			
+        		
+        		}catch(NullPointerException e) {
+        			
+        			System.out.println("let us worry about this later");
+        			
+				}
+        	}
         });
-        
-        formPanel.addComponent(operationsForm);
-		addComponent(formPanel);
-		setComponentAlignment(formPanel, Alignment.TOP_LEFT);
-	
+		
+		
+		
+		paramForm.addField("operation", operationsBox);
+		
+		
+		if(action == null) {
+			
+			
+			
+		} else {
+			operationsBox.select(1);
+			operationsBox.setEnabled(false);
+			paramForm.addField("analysis", analysisBox);
+		}
+
+		paramPanel.addComponent(paramForm);
+		dataPanel.setFirstComponent(paramPanel);
+		dataPanel.setSecondComponent(historyPanel);
+		
+		mainPanel.setSplitPosition(60);
+		mainPanel.setStyleName("small previews");
+		mainPanel.setFirstComponent(dataPanel);
+		
+		addComponent(mainPanel);
+		
 	}
+	
+	
+
 	
 	public class AnalysisListener implements RefreshListener {
 
@@ -335,10 +314,36 @@ public class DataTab extends VerticalLayout {
 	public class AnalysisProcess extends Thread {
 		@Override
 		public void run() {
+			try {
+				
+				clustMethod.isEmpty();
+			
+			} catch (Exception e) {
+				
+				clustMethod = "Single Linkage";
+			
+			}
+			
+			try {
+				clustDim.isEmpty();
+				
+			} catch(Exception e) {
+				
+				clustDim = "Marker";
+			
+			}
+			try {
+				
+				clustMetric.isEmpty();
+				
+			} catch (Exception e) {
+				
+				clustMetric = "Eucledian Distance";
+			}
 			
 			FastHierClustAnalysis analysis 	= 	new FastHierClustAnalysis();
 			results							=	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
-			 
+			
 			if(results != null) {
 			
 				ResultSet resultSet = 	new ResultSet();

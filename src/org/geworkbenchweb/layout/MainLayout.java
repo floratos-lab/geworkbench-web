@@ -13,7 +13,6 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -35,6 +34,7 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
 import org.geworkbenchweb.layout.VisualPlugin;
 
@@ -58,7 +58,13 @@ public class MainLayout extends AbsoluteLayout {
 	
 	private static final Action ACTION_DELETE	 	= 	new Action("Delete");
 	
-    private static final Action[] ACTIONS 			= 	new Action[] { ACTION_DELETE };
+	private static final Action ACTION_ANALYZE		= 	new Action("Analyze Data"); 
+	
+	private static final Action ACTION_NORMALIZE	= 	new Action("Normalize Data");
+	
+	private static final Action ACTION_FILTER		= 	new Action("Filter Data");
+	
+    private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
 	
 	public MainLayout(GeworkbenchApplication app) {
 		
@@ -216,60 +222,58 @@ public class MainLayout extends AbsoluteLayout {
 		@Override
 		public void valueChange(ValueChangeEvent event) {
 			
+		
 			try {
-			
+
 				if (event.getProperty().getValue().toString().contains("Analysis") && event.getProperty().getValue().toString().contains("SubSets")) {
-				
-						//TODO
-				
+
 				} else {
-					
+
 					String dataPeru					= 	(String) event.getProperty().getValue();
 					String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
 					Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-					
+
 					parameters.put("name", dataPeru);
 					parameters.put("owner", user.getId());
-					
+
 					DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-					
+
 					if(dataSet != null) {
 						/*
 						 * if this is a dataSet
 						 */
-						
+
 						byte[] dataByte 			= 	dataSet.getData();
 						DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
-						
+
 						markerTable.setContainerDataSource(markerTableView(maSet));
 						arrayTable.setContainerDataSource(arrayTableView(maSet));
-						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType());
+						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), null);
 						mainPanel.setSecondComponent(tabSheet);
-					
+
 					} else {
-						
+
 						//it should be analysis results
-						
+
 						String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
 						Map<String, Object> params 			= 	new HashMap<String, Object>();
 
 						params.put("name", dataPeru);
 						params.put("owner", user.getId());
-						
+
 						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
 						byte[] dataByte 					= 	resultSet.getData();
 						HierCluster[] hierResults 			= 	(HierCluster[]) toObject(dataByte);
-						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType());
+						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
 						mainPanel.setSecondComponent(tabSheet);
-						
+
 					}
-					
+
 					mainPanel.requestRepaint();		
 				}
-				
-			} catch (NullPointerException e) {
-				
-				//TODO
+
+			} catch (Exception e) {
+				//TODO: handling non data nodes
 			}
 		}
 
@@ -322,8 +326,6 @@ public class MainLayout extends AbsoluteLayout {
 			return tableData;
 	
 		}
-
-
 
 
 		@SuppressWarnings("deprecation")
@@ -397,6 +399,47 @@ public class MainLayout extends AbsoluteLayout {
 
 				}
 
+			}else if(action == ACTION_ANALYZE) {
+
+				String dataPeru					= 	(target.toString());
+				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
+				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+
+				parameters.put("name", dataPeru);
+				parameters.put("owner", user.getId());
+
+				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+
+				if(dataSet != null) {
+					/*
+					 * if this is a dataSet
+					 */
+
+					byte[] dataByte 			= 	dataSet.getData();
+					DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
+
+					markerTable.setContainerDataSource(markerTableView(maSet));
+					arrayTable.setContainerDataSource(arrayTableView(maSet));
+					VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), ACTION_ANALYZE.toString());
+					mainPanel.setSecondComponent(tabSheet);
+				
+				}else {
+					
+					getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis",  
+							Notification.TYPE_ERROR_MESSAGE );
+					
+				}
+				
+			}else if(action == ACTION_NORMALIZE) {
+				
+				getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!",  
+						Notification.TYPE_ERROR_MESSAGE );
+				
+			}else if(action == ACTION_FILTER) {
+				
+				getApplication().getMainWindow().showNotification("No filters are implemented yet !!",  
+						Notification.TYPE_ERROR_MESSAGE );
+				
 			}
 			
 		}
