@@ -35,8 +35,10 @@ public class DataSetUpload extends Window {
     	this.setModal(true);
     	this.setStyleName("opaque");
     	this.setCaption("Upload Dataset");
-    	this.setWidth("600px");
+    	this.setWidth("700px");
     	this.setHeight("350px");
+    	this.setDraggable(false);
+    	this.setResizable(false);
 
     	dataWindow 			= 	this.getApplication().getMainWindow();
     	dataLayout 			= 	new VerticalLayout();
