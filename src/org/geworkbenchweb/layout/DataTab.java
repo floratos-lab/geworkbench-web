@@ -345,7 +345,7 @@ public class DataTab extends VerticalLayout {
 			results							=	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
 			
 			if(results != null) {
-			
+				
 				ResultSet resultSet = 	new ResultSet();
 				java.util.Date date= new java.util.Date();
 				resultSet.setName("HC - " + date);
