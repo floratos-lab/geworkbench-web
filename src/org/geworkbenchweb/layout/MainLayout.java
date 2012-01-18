@@ -307,7 +307,7 @@ public class MainLayout extends AbsoluteLayout {
 					} else {
 
 						//it should be analysis results
-
+						
 						String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
 						Map<String, Object> params 			= 	new HashMap<String, Object>();
 
@@ -433,8 +433,6 @@ public class MainLayout extends AbsoluteLayout {
 				if(dataSet != null) {
 
 					FacadeFactory.getFacade().delete(dataSet);
-					dataTree.removeItem(target + " - Analysis Results");
-					dataTree.removeItem(target + " - SubSets");
 					dataTree.removeItem(target);
 					
 
@@ -512,12 +510,6 @@ public class MainLayout extends AbsoluteLayout {
 			String id = (String) data.get(i);
 		    dataSets.addItem(id);
 		    
-		    String analysisDone = id + " - Analysis Results";
-		    
-		    dataSets.addItem(analysisDone);
-		    dataSets.setChildrenAllowed(analysisDone, true);
-		    dataSets.setParent(analysisDone, id);
-		    
 		    Map<String, Object> params 	= 	new HashMap<String, Object>();
 		    params.put("owner", user.getId());
 		    params.put("parent", id);
@@ -529,14 +521,9 @@ public class MainLayout extends AbsoluteLayout {
 		    	String subId = (String) results.get(j);
 		    	dataSets.addItem(subId);
 		    	dataSets.setChildrenAllowed(subId, false);
-		    	dataSets.setParent(subId, analysisDone);
+		    	dataSets.setParent(subId, id);
 		    	
 		    }
-		    
-		    String subSets = id + " - SubSets";
-			dataSets.addItem(subSets);
-		    dataSets.setChildrenAllowed(subSets, true);
-		    dataSets.setParent(subSets, id);
 		 
 		}
 		
