@@ -9,7 +9,7 @@
   </context-param>
   <servlet>
     <servlet-name>Geworkbench Application</servlet-name>
-    <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+    <servlet-class>org.geworkbenchweb.GeworkbenchApplicationServlet</servlet-class>
     <init-param>
       <description>
   		Vaadin application class to start</description>
@@ -20,7 +20,7 @@
       <description>
   		Application widgetset</description>
       <param-name>widgetset</param-name>
-      <param-value>org.geworkbenchweb.widgetset.Geworkbench_webWidgetset</param-value>
+      <param-value>org.geworkbenchweb.widgetset.GeworkbenchWidgetset</param-value>
     </init-param>
   </servlet>
   <listener>
