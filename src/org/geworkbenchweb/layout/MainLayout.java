@@ -115,7 +115,7 @@ public class MainLayout extends AbsoluteLayout {
         toolbar.addComponent(logoutButton);
         mainHeader.addComponent(toolbar);
         
-        tabs.setStyleName("opaque");
+        tabs.setStyleName("borderless");
         tabs.setSizeFull();
         
 		welcome.setSizeFull();
