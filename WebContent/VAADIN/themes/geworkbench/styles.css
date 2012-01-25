@@ -25,7 +25,7 @@ body .v-colorpicker-popup .hsv-sliders {
         text-shadow: none;
         }
 .v-generated-body {
-        background: #fff url(app-bg.png);
+        
         }
 .v-generated-body .v-window-editor {
         background-color: #2d2d2d;
@@ -170,7 +170,7 @@ html body.v-ie .v-window-editor {
         font-style: normal;
         margin-top: 2em;
         padding-left: 25px;
-        background: transparent url(info.png) no-repeat 0 0;
+        
         }
 /* Tweaks */
 .v-csslayout .toolbar {

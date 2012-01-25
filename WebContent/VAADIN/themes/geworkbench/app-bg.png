@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+  <!-- Custom match templates go here -->
+
+
+  <head>
+    <title>
+      app-bg.png in svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img
+     – Vaadin
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="search" href="/search" />
+        <link rel="help" href="/wiki/TracGuide" />
+        <link rel="alternate" href="/export/22758/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png" type="image/png; charset=iso-8859-15" title="Original Format" />
+        <link rel="start" href="/wiki" />
+        <link rel="stylesheet" href="/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/chrome/common/css/code.css" type="text/css" /><link rel="stylesheet" href="/chrome/common/css/browser.css" type="text/css" />
+        <link rel="shortcut icon" href="/chrome/site/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/chrome/site/favicon.ico" type="image/x-icon" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/search/opensearch" title="Search Vaadin" />
+    <script type="text/javascript" src="/chrome/common/js/jquery.js"></script><script type="text/javascript" src="/chrome/common/js/babel.js"></script><script type="text/javascript" src="/chrome/common/js/trac.js"></script><script type="text/javascript" src="/chrome/common/js/search.js"></script>
+    <!--[if lt IE 7]>
+    <script type="text/javascript" src="/chrome/common/js/ie_pre7_hacks.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/chrome/common/js/folding.js"></script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $(".trac-toggledeleted").show().click(function() {
+                  $(this).siblings().find(".trac-deleted").toggle();
+                  return false;
+        }).click();
+        $("#jumploc input").hide();
+        $("#jumploc select").change(function () {
+          this.parentNode.parentNode.submit();
+        });
+          $('#preview table.code').enableCollapsibleColumns($('#preview table.code thead th.content'));
+      });
+    </script>
+  </head>
+  <body>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://dev.vaadin.com/"><img src="/chrome/site/vaadin-trac.png" alt="Vaadin Trac" height="60" width="342" /></a>
+      </div>
+      <form id="search" action="/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/login">Login</a></li><li><a href="/wiki/TracGuide">Help/Guide</a></li><li><a href="/about">About Trac</a></li><li><a href="/prefs">Preferences</a></li><li class="last"><a href="/register">Register</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a></li><li><a href="/timeline">Timeline</a></li><li><a href="/roadmap">Roadmap</a></li><li class="active"><a href="/browser">Browse Source</a></li><li><a href="/report">View Tickets</a></li><li class="last"><a href="/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+          <ul>
+              <li class="first"><a href="/browser/svn/addons/PaintTheme/WebContent/VAADIN/themes/paint/img/app-bg.png?annotate=blame&amp;rev=11453" title="Annotate each line with the last changed revision (this can be time consuming...)">Annotate</a></li><li class="last"><a href="/log/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png">Revision Log</a></li>
+          </ul>
+        <hr />
+      </div>
+    <div id="content" class="browser">
+          <h1>
+<a class="pathentry first" href="/browser?order=name" title="Go to repository index">source:</a>
+<a class="pathentry" href="/browser/svn?order=name" title="View svn">svn</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons?order=name" title="View addons">addons</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme?order=name" title="View ChameleonTheme">ChameleonTheme</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent?order=name" title="View WebContent">WebContent</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent/VAADIN?order=name" title="View VAADIN">VAADIN</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent/VAADIN/themes?order=name" title="View themes">themes</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon?order=name" title="View chameleon">chameleon</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img?order=name" title="View img">img</a><span class="pathentry sep">/</span><a class="pathentry" href="/browser/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png?order=name" title="View app-bg.png">app-bg.png</a>
+<span class="pathentry sep">@</span>
+  <a class="pathentry" href="/changeset/11453/svn" title="View changeset 11453">11453</a>
+<br style="clear: both" />
+</h1>
+        <div id="jumprev">
+          <form action="" method="get">
+            <div>
+              <label for="rev">
+                View revision:</label>
+              <input type="text" id="rev" name="rev" size="6" />
+            </div>
+          </form>
+        </div>
+        <div id="jumploc">
+          <form action="" method="get">
+            <div class="buttons">
+              <label for="preselected">Visit:</label>
+              <select id="preselected" name="preselected">
+                <option selected="selected"></option>
+                <optgroup label="branches">
+                  <option value="/browser/svn/branches/embedding">branches/embedding</option><option value="/browser/svn/branches/jounis-layout-protos">branches/jounis-layout-protos</option><option value="/browser/svn/branches/sampler2">branches/sampler2</option><option value="/browser/svn/branches/visualeditor">branches/visualeditor</option><option value="/browser/svn/versions/4.1">versions/4.1</option><option value="/browser/svn/versions/5.2">versions/5.2</option><option value="/browser/svn/versions/5.3">versions/5.3</option><option value="/browser/svn/versions/5.4">versions/5.4</option><option value="/browser/svn/versions/6.0">versions/6.0</option><option value="/browser/svn/versions/6.1">versions/6.1</option><option value="/browser/svn/versions/6.2">versions/6.2</option><option value="/browser/svn/versions/6.3">versions/6.3</option><option value="/browser/svn/versions/6.4">versions/6.4</option><option value="/browser/svn/versions/6.5">versions/6.5</option><option value="/browser/svn/versions/6.6">versions/6.6</option><option value="/browser/svn/versions/6.7">versions/6.7</option><option value="/browser/svn/versions/6.8">versions/6.8</option><option value="/browser/svn/versions/7.0">versions/7.0</option>
+                </optgroup><optgroup label="tags">
+                  <option value="/browser/svn/tags/4.0.0?rev=985">releases/4.0.0</option><option value="/browser/svn/tags/4.0.0-rc1?rev=823">releases/4.0.0-rc1</option><option value="/browser/svn/tags/4.0.0-rc2?rev=838">releases/4.0.0-rc2</option><option value="/browser/svn/tags/4.0.0-rc3?rev=860">releases/4.0.0-rc3</option><option value="/browser/svn/tags/4.0.0-rc5?rev=891">releases/4.0.0-rc5</option><option value="/browser/svn/tags/4.0.0-rc6?rev=913">releases/4.0.0-rc6</option><option value="/browser/svn/tags/4.0.0-rc7?rev=940">releases/4.0.0-rc7</option><option value="/browser/svn/tags/4.0.0-rc8?rev=958">releases/4.0.0-rc8</option><option value="/browser/svn/tags/4.0.0-rc9?rev=974">releases/4.0.0-rc9</option><option value="/browser/svn/tags/4.0.0-rc10?rev=980">releases/4.0.0-rc10</option><option value="/browser/svn/tags/4.0.1?rev=1390">releases/4.0.1</option><option value="/browser/svn/tags/4.0.1-pre_mantis?rev=1157">releases/4.0.1-pre_mantis</option><option value="/browser/svn/tags/4.0.1-rc1?rev=1083">releases/4.0.1-rc1</option><option value="/browser/svn/tags/4.0.1-rc2?rev=1122">releases/4.0.1-rc2</option><option value="/browser/svn/tags/4.0.1-rc3?rev=1260">releases/4.0.1-rc3</option><option value="/browser/svn/tags/4.0.1-rc4?rev=1268">releases/4.0.1-rc4</option><option value="/browser/svn/tags/4.0.1-rc5?rev=1284">releases/4.0.1-rc5</option><option value="/browser/svn/tags/4.0.1-rc6?rev=1292">releases/4.0.1-rc6</option><option value="/browser/svn/tags/4.0.1-rc7?rev=1327">releases/4.0.1-rc7</option><option value="/browser/svn/tags/4.0.1-rc8?rev=1349">releases/4.0.1-rc8</option><option value="/browser/svn/tags/4.0.1-rc9?rev=1368">releases/4.0.1-rc9</option><option value="/browser/svn/tags/4.0.1-rc10?rev=1383">releases/4.0.1-rc10</option><option value="/browser/svn/tags/4.0.1-testing1?rev=1019">releases/4.0.1-testing1</option><option value="/browser/svn/tags/4.0.1-testing2?rev=1183">releases/4.0.1-testing2</option><option value="/browser/svn/tags/4.0.1-testing3?rev=1208">releases/4.0.1-testing3</option><option value="/browser/svn/tags/4.0.1-testing4?rev=1225">releases/4.0.1-testing4</option><option value="/browser/svn/tags/4.0.2?rev=1670">releases/4.0.2</option><option value="/browser/svn/tags/4.0.2-rc1?rev=1549">releases/4.0.2-rc1</option><option value="/browser/svn/tags/4.0.2-rc2?rev=1565">releases/4.0.2-rc2</option><option value="/browser/svn/tags/4.0.2-rc3?rev=1610">releases/4.0.2-rc3</option><option value="/browser/svn/tags/4.0.2-rc4?rev=1662">releases/4.0.2-rc4</option><option value="/browser/svn/tags/4.0.2-testing1?rev=1456">releases/4.0.2-testing1</option><option value="/browser/svn/tags/4.1.0?rev=3833">releases/4.1.0</option><option value="/browser/svn/tags/4.1.0-testing1?rev=1427">releases/4.1.0-testing1</option><option value="/browser/svn/tags/4.1.1?rev=4455">releases/4.1.1</option><option value="/browser/svn/tags/4.1.1-rc1?rev=4434">releases/4.1.1-rc1</option><option value="/browser/svn/tags/5.1.0?rev=3918">releases/5.1.0</option><option value="/browser/svn/tags/5.1.1?rev=4042">releases/5.1.1</option><option value="/browser/svn/tags/5.1.2?rev=4250">releases/5.1.2</option><option value="/browser/svn/tags/5.2.0?rev=4687">releases/5.2.0</option><option value="/browser/svn/tags/5.2.0-rc2?rev=4400">releases/5.2.0-rc2</option><option value="/browser/svn/tags/5.2.0-rc3?rev=4492">releases/5.2.0-rc3</option><option value="/browser/svn/tags/5.2.0-rc4?rev=4559">releases/5.2.0-rc4</option><option value="/browser/svn/tags/5.2.0-rc5?rev=4569">releases/5.2.0-rc5</option><option value="/browser/svn/tags/5.2.0-rc6?rev=4601">releases/5.2.0-rc6</option><option value="/browser/svn/tags/5.2.0-rc7?rev=4626">releases/5.2.0-rc7</option><option value="/browser/svn/tags/5.2.0-rc10?rev=4653">releases/5.2.0-rc10</option><option value="/browser/svn/tags/5.2.1?rev=4731">releases/5.2.1</option><option value="/browser/svn/tags/5.2.2?rev=4857">releases/5.2.2</option><option value="/browser/svn/tags/5.2.3?rev=4928">releases/5.2.3</option><option value="/browser/svn/tags/5.2.4?rev=4936">releases/5.2.4</option><option value="/browser/svn/tags/5.2.5?rev=5551">releases/5.2.5</option><option value="/browser/svn/tags/5.2.6?rev=5550">releases/5.2.6</option><option value="/browser/svn/tags/5.2.7?rev=5452">releases/5.2.7</option><option value="/browser/svn/tags/5.2.8?rev=5464">releases/5.2.8</option><option value="/browser/svn/tags/5.2.9?rev=5548">releases/5.2.9</option><option value="/browser/svn/tags/5.2.10?rev=5587">releases/5.2.10</option><option value="/browser/svn/tags/5.2.11?rev=5759">releases/5.2.11</option><option value="/browser/svn/tags/5.2.12?rev=5905">releases/5.2.12</option><option value="/browser/svn/tags/5.2.13?rev=6972">releases/5.2.13</option><option value="/browser/svn/tags/5.2.14?rev=6973">releases/5.2.14</option><option value="/browser/svn/tags/5.2.15?rev=6420">releases/5.2.15</option><option value="/browser/svn/releases/5.3.0?rev=7027">releases/5.3.0</option><option value="/browser/svn/tags/5.3.0-rc2?rev=6971">releases/5.3.0-rc2</option><option value="/browser/svn/tags/5.3.0-rc3?rev=6970">releases/5.3.0-rc3</option><option value="/browser/svn/tags/5.3.0-rc4?rev=6969">releases/5.3.0-rc4</option><option value="/browser/svn/tags/5.3.0-rc5?rev=6968">releases/5.3.0-rc5</option><option value="/browser/svn/tags/5.3.0-rc6?rev=6967">releases/5.3.0-rc6</option><option value="/browser/svn/tags/5.3.0-rc7?rev=6966">releases/5.3.0-rc7</option><option value="/browser/svn/tags/5.3.0-rc8?rev=6965">releases/5.3.0-rc8</option><option value="/browser/svn/tags/5.3.0-rc9?rev=6964">releases/5.3.0-rc9</option><option value="/browser/svn/tags/5.3.0-rc10?rev=6963">releases/5.3.0-rc10</option><option value="/browser/svn/tags/5.3.0-rc11?rev=6962">releases/5.3.0-rc11</option><option value="/browser/svn/tags/5.3.0-rc12?rev=6961">releases/5.3.0-rc12</option><option value="/browser/svn/releases/5.3.1?rev=8915">releases/5.3.1</option><option value="/browser/svn/releases/5.4.0?rev=8914">releases/5.4.0</option><option value="/browser/svn/releases/6.0.0?rev=8913">releases/6.0.0</option><option value="/browser/svn/releases/6.0.1?rev=8912">releases/6.0.1</option><option value="/browser/svn/releases/6.1.0?rev=8911">releases/6.1.0</option><option value="/browser/svn/releases/6.1.1?rev=8910">releases/6.1.1</option><option value="/browser/svn/releases/6.1.3?rev=9370">releases/6.1.3</option><option value="/browser/svn/releases/6.1.4?rev=9644">releases/6.1.4</option><option value="/browser/svn/releases/6.1.5?rev=9930">releases/6.1.5</option><option value="/browser/svn/releases/6.2.0?rev=10458">releases/6.2.0</option><option value="/browser/svn/releases/6.2.0.pre1?rev=10144">releases/6.2.0.pre1</option><option value="/browser/svn/releases/6.2.1?rev=10637">releases/6.2.1</option><option value="/browser/svn/releases/6.2.2?rev=11182">releases/6.2.2</option><option value="/browser/svn/releases/6.2.3?rev=11181">releases/6.2.3</option><option value="/browser/svn/releases/6.2.4?rev=11315">releases/6.2.4</option><option value="/browser/svn/releases/6.2.5?rev=11543">releases/6.2.5</option><option value="/browser/svn/releases/6.2.6?rev=11895">releases/6.2.6</option><option value="/browser/svn/releases/6.3.0?rev=13442">releases/6.3.0</option><option value="/browser/svn/releases/6.3.1?rev=12890">releases/6.3.1</option><option value="/browser/svn/releases/6.3.2?rev=13443">releases/6.3.2</option><option value="/browser/svn/releases/6.3.3?rev=13437">releases/6.3.3</option><option value="/browser/svn/releases/6.3.4?rev=13676">releases/6.3.4</option><option value="/browser/svn/releases/6.4.0?rev=14151">releases/6.4.0</option><option value="/browser/svn/releases/6.4.0.pre1?rev=13929">releases/6.4.0.pre1</option><option value="/browser/svn/releases/6.4.1?rev=14317">releases/6.4.1</option><option value="/browser/svn/releases/6.4.2?rev=14492">releases/6.4.2</option><option value="/browser/svn/releases/6.4.3?rev=14661">releases/6.4.3</option><option value="/browser/svn/releases/6.4.4?rev=14869">releases/6.4.4</option><option value="/browser/svn/releases/6.4.5?rev=15263">releases/6.4.5</option><option value="/browser/svn/releases/6.4.6?rev=15483">releases/6.4.6</option><option value="/browser/svn/releases/6.4.7?rev=15694">releases/6.4.7</option><option value="/browser/svn/releases/6.4.8?rev=15958">releases/6.4.8</option><option value="/browser/svn/releases/6.4.9?rev=16859">releases/6.4.9</option><option value="/browser/svn/releases/6.4.10?rev=17298">releases/6.4.10</option><option value="/browser/svn/releases/6.5.0?rev=17000">releases/6.5.0</option><option value="/browser/svn/releases/6.5.0.pre1?rev=16466">releases/6.5.0.pre1</option><option value="/browser/svn/releases/6.5.0.pre2?rev=16823">releases/6.5.0.pre2</option><option value="/browser/svn/releases/6.5.1?rev=17296">releases/6.5.1</option><option value="/browser/svn/releases/6.5.2?rev=17496">releases/6.5.2</option><option value="/browser/svn/releases/6.5.3?rev=17769">releases/6.5.3</option><option value="/browser/svn/releases/6.5.4?rev=17985">releases/6.5.4</option><option value="/browser/svn/releases/6.5.5?rev=18310">releases/6.5.5</option><option value="/browser/svn/releases/6.5.6?rev=18362">releases/6.5.6</option><option value="/browser/svn/releases/6.5.7?rev=18509">releases/6.5.7</option><option value="/browser/svn/releases/6.6.0?rev=18706">releases/6.6.0</option><option value="/browser/svn/releases/6.6.0.pre1?rev=18535">releases/6.6.0.pre1</option><option value="/browser/svn/releases/6.6.1?rev=19216">releases/6.6.1</option><option value="/browser/svn/releases/6.6.2?rev=19400">releases/6.6.2</option><option value="/browser/svn/releases/6.6.3?rev=19891">releases/6.6.3</option><option value="/browser/svn/releases/6.6.4?rev=20227">releases/6.6.4</option><option value="/browser/svn/releases/6.6.5?rev=20600">releases/6.6.5</option><option value="/browser/svn/releases/6.6.6?rev=20862">releases/6.6.6</option><option value="/browser/svn/releases/6.6.7?rev=21420">releases/6.6.7</option><option value="/browser/svn/releases/6.6.8?rev=21517">releases/6.6.8</option><option value="/browser/svn/releases/6.7.0?rev=21558">releases/6.7.0</option><option value="/browser/svn/releases/6.7.0.beta1?rev=20678">releases/6.7.0.beta1</option><option value="/browser/svn/releases/6.7.0.rc1?rev=21415">releases/6.7.0.rc1</option><option value="/browser/svn/releases/6.7.1?rev=21732">releases/6.7.1</option><option value="/browser/svn/releases/6.7.2?rev=22004">releases/6.7.2</option><option value="/browser/svn/releases/6.7.3?rev=22394">releases/6.7.3</option><option value="/browser/svn/releases/com.vaadin.integration.eclipse-1.0.0?rev=9150">releases/com.vaadin.integration.eclipse-1.0.0</option>
+                </optgroup>
+              </select>
+              <input type="submit" value="Go!" title="Jump to the chosen preselected path" />
+            </div>
+          </form>
+        </div>
+      <table id="info" summary="Revision info">
+        <tr>
+          <th scope="col">Revision <a href="/changeset/11453/svn">11453</a>,
+            <span title="212 bytes">212 bytes</span>
+            checked in by jouni.koivuviita@…, <a class="timeline" href="/timeline?from=2010-02-22T09%3A41%3A46Z&amp;precision=second" title="2010-02-22T09:41:46Z in Timeline">2 years</a> ago
+            (<a href="/changeset/11453/svn/addons/PaintTheme/WebContent/VAADIN/themes/paint/img/app-bg.png">diff</a>)</th>
+        </tr>
+        <tr>
+          <td class="message searchable">
+              <p>
+First commit for Paint theme, includes color editor sources.<br />
+</p>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <ul class="props">
+              <li>
+                  Property <strong>svn:mime-type</strong> set to
+                  <em><code>application/octet-stream</code></em>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+      <div id="preview" class="searchable">
+        
+  <div class="image-file"><img src="/export/22758/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png" alt="addons/PaintTheme/WebContent/VAADIN/themes/paint/img/app-bg.png" /></div>
+
+      </div>
+      <div id="help"><strong>Note:</strong> See <a href="/wiki/TracBrowser">TracBrowser</a>
+        for help on using the repository browser.</div>
+      <div id="anydiff">
+        <form action="/diff" method="get">
+          <div class="buttons">
+            <input type="hidden" name="new_path" value="/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png" />
+            <input type="hidden" name="old_path" value="/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png" />
+            <input type="hidden" name="new_rev" />
+            <input type="hidden" name="old_rev" />
+            <input type="submit" value="View changes..." title="Select paths and revs for Diff" />
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/export/22758/svn/addons/ChameleonTheme/WebContent/VAADIN/themes/chameleon/img/app-bg.png">Original Format</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/about"><strong>Trac 0.12.1</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right"></p>
+    </div>
+  </body>
+</html>
