@@ -1,8 +1,10 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.ThemeResource;
@@ -24,7 +26,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 	private static final String MARKER_HEADER 				= 	"Marker";
 	
 	private DSMicroarraySet maSet;
-	
+
 	public VisualPlugin(Object dataSet, String dataType, String action) {
 
 		addListener(this);
@@ -48,8 +50,10 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		} else {
 
-	
-
+			DendrogramTab dendrogramTab 	= 	new DendrogramTab();
+			
+			addTab(dendrogramTab, "Dendrogram", null);
+			
 		}
 		
 	}
