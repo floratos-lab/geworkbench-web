@@ -3,6 +3,7 @@ package org.geworkbenchweb.layout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.HierCluster;
@@ -10,6 +11,7 @@ import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.SetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -146,6 +148,10 @@ public class MainLayout extends AbsoluteLayout {
 
 		final Action[] ACTIONS_CREATE = new Action[] { ACTION_SUBSET };
 		
+		private String setType;
+
+		protected Set<?> selectedValues;
+		
 		AccordionPanels(boolean closable) {
 			
 			super();
@@ -195,7 +201,7 @@ public class MainLayout extends AbsoluteLayout {
 
 			t.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
-			markerTable 	= 	new Table();
+			markerTable = new Table();
 			markerTable.addStyleName("small striped");
 			markerTable.setSizeFull();
 			markerTable.setSelectable(true);
@@ -230,12 +236,27 @@ public class MainLayout extends AbsoluteLayout {
 			t1.setCaption("Makers");
 			t1.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
-			arrayTable 	= 	new Table();
+			arrayTable = new Table();
 			arrayTable.addStyleName("small striped");
 			arrayTable.setSizeFull();
 			arrayTable.setSelectable(true);
 			arrayTable.setMultiSelect(true);
 			arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+			arrayTable.addListener(new Table.ValueChangeListener() {
+	        
+				private static final long serialVersionUID = 1L;
+
+				public void valueChange(ValueChangeEvent event) {
+	      
+	                Set<?> value = (Set<?>) event.getProperty().getValue();
+	                setType = "Microarray";
+	                setSelectedValues(value);
+	                
+	            }
+
+				
+	        });
+			
 			arrayTable.addActionHandler(new Action.Handler() {
 				
 				private static final long serialVersionUID = 1L;
@@ -255,6 +276,14 @@ public class MainLayout extends AbsoluteLayout {
 	            	nameWindow.setHeight("200px");
 	            	nameWindow.setResizable(false);
 	            	
+	            	SetOperations setOp = new SetOperations();
+	    			
+	    			if( setOp.storeData(selectedValues, setType, "Nik", (long) 1 ) == true ) {
+	    				
+	    				System.out.println("Nikhil u r a fucking genius :) ");
+	    				
+	    			}
+	    			
 	            	getApplication().getMainWindow().addWindow(nameWindow);
 	            	
 	            }
@@ -264,6 +293,12 @@ public class MainLayout extends AbsoluteLayout {
 			t2.setCaption("Phenotypes");
 			t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
+		}
+
+		protected void setSelectedValues(Set<?> value) {
+			
+			this.selectedValues = value;
+		
 		}
 
 		@Override
