@@ -45,9 +45,9 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 
 	private static final int GRID_MAX_VAL_POS = 30;
 
-	private static final int BAR_WIDTH = 50;
+	private static final int BAR_WIDTH = 100;
 
-	private static final int BAR_SPACING = 20;
+	private static final int BAR_SPACING = 100;
 
 	/** The client side widget identifier */
 	protected String paintableId;
@@ -102,7 +102,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 		canvas = new DrawingArea(width, height);
 		setStyleName(CLASSNAME);
 
-		DOM.setStyleAttribute(canvas.getElement(), "border", "1px solid black");
+		DOM.setStyleAttribute(canvas.getElement(), "border", "0px solid black");
 		
 	}
 
@@ -139,8 +139,8 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 		min = uidl.getDoubleAttribute("gridminvalue");
 		uidl.getIntAttribute("gridmarklinecount");
 
-		width = 800;
-		height = 800;
+		width = 850;
+		height = 600;
 		
 		panel.setSize((50 + 1 + width) + "px", (25 + height) + "px");
 		canvas.setWidth(width);
@@ -236,7 +236,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 		if (verticalOrientation) {
 			label.setStyleName("vchart-bottom-label");
 			label.getElement().getStyle().setPropertyPx("width", BAR_WIDTH);
-			panel.add(label, 50 + coord, this.height);
+			panel.add(label, 150 + coord, this.height);
 		} else {
 			label.setStyleName("hchart-left-label");
 			label.getElement().getStyle().setPropertyPx("width", 50);
