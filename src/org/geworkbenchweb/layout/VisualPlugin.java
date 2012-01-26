@@ -51,7 +51,6 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 		} else {
 
 			DendrogramTab dendrogramTab 	= 	new DendrogramTab();
-			
 			addTab(dendrogramTab, "Dendrogram", null);
 			
 		}
