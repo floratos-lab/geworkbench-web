@@ -157,6 +157,9 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 			final UIDL optionUidl = (UIDL) options.next();
 			final UIDL valueUidl = (UIDL) values.next();
 			final String key = optionUidl.getStringAttribute("key");
+			
+			//drawing bars over here 
+			
 			drawBar(i, key, optionUidl.getStringAttribute("caption"), valueUidl
 					.getDoubleVariable("value_" + key), valueUidl
 					.getStringAttribute("color"), optionUidl
