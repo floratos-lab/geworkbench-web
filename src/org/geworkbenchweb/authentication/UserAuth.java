@@ -12,6 +12,8 @@ import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsExceptio
 import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
@@ -88,6 +90,9 @@ public class UserAuth extends AbsoluteLayout {
 			}
 		});
 
+		login.setClickShortcut(KeyCode.ENTER);
+		login.addStyleName("primary");
+		
 		Button register = new Button("Click here to register", new ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
