@@ -7,8 +7,12 @@
                 <provider>
                         org.eclipse.persistence.jpa.PersistenceProvider
                 </provider>
+                
                 <class>org.vaadin.appfoundation.authentication.data.User</class>
                 <class>org.geworkbenchweb.pojos.DataSet</class>
+                <class>org.geworkbenchweb.pojos.ResultSet</class>
+                <class>org.geworkbenchweb.pojos.SubSet</class>
+                
                 <exclude-unlisted-classes>false</exclude-unlisted-classes>
                 <properties>
                         <property name="eclipselink.logging.level" value="OFF" />
