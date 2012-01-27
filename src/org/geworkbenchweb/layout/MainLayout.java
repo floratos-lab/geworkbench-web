@@ -3,7 +3,6 @@ package org.geworkbenchweb.layout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.HierCluster;
@@ -12,6 +11,8 @@ import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.SetOperations;
+import org.geworkbenchweb.layout.VisualPlugin;
+
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -40,7 +41,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
-import org.geworkbenchweb.layout.VisualPlugin;
 
 public class MainLayout extends AbsoluteLayout {
 
@@ -210,6 +210,21 @@ public class MainLayout extends AbsoluteLayout {
 			markerTable.setMultiSelect(true);
 			markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 			
+			markerTable.addListener(new Table.ValueChangeListener() {
+		        
+				private static final long serialVersionUID = 1L;
+
+				public void valueChange(ValueChangeEvent event) {
+	      
+					String value = (event.getProperty().getValue()).toString();
+					System.out.println(value);
+					setType = "marker";
+	                setSelectedValues(value);
+	                
+	            }
+
+	        });
+			
 			markerTable.addActionHandler(new Action.Handler() {
 				
 				private static final long serialVersionUID = 1L;
@@ -221,17 +236,56 @@ public class MainLayout extends AbsoluteLayout {
 	            }
 	            
 	            public void handleAction(Action action, Object sender, Object target) {
-	            	
-	            	Window nameWindow = new Window();
-	            	nameWindow.setModal(true);
-	            	nameWindow.setClosable(true);
-	            	nameWindow.setWidth("400px");
-	            	nameWindow.setHeight("200px");
-	            	nameWindow.setResizable(false);
-	            	getApplication().getMainWindow().addWindow(nameWindow);
-	            
-	            }
-	                
+
+	            	if(selectedValues.isEmpty()) {
+
+	            		getApplication().getMainWindow().showNotification("Please select atleast one marker",  
+	            				Notification.TYPE_ERROR_MESSAGE );
+
+	            	} else {
+	            		
+	            		final Window nameWindow = new Window();
+		            	nameWindow.setModal(true);
+		            	nameWindow.setClosable(true);
+		            	nameWindow.setWidth("400px");
+		            	nameWindow.setHeight("200px");
+		            	nameWindow.setResizable(false);
+		            	nameWindow.setCaption("Add Markers to Set");
+		            	nameWindow.setImmediate(true);
+		            	
+		            	TextField setName = new TextField();
+		            	setName.setInputPrompt("Set Name (default - setName)");
+		            	setName.setEnabled(false);
+		            	setName.setImmediate(true);
+
+	            		Button addSet = new Button("Add Set", new ClickListener() {
+
+	            			private static final long serialVersionUID = 1L;
+
+	            			@Override
+	            			public void buttonClick(ClickEvent event) {
+
+	            				SetOperations setOp = new SetOperations();
+
+	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
+	      
+	            					getApplication().getMainWindow().removeWindow(nameWindow);
+	            					getApplication().getMainWindow().showNotification("Awesome, U've successfully added the set. " +
+	            							"Nik is thinking on how to display the sets for now." +
+	            							"If you have a creative idea, let him know :) ",  
+	        	            				Notification.TYPE_WARNING_MESSAGE);
+	            				}
+
+	            			}
+
+	            		});
+
+	            		nameWindow.addComponent(setName);
+	            		nameWindow.addComponent(addSet);
+	            		getApplication().getMainWindow().addWindow(nameWindow);
+	            		selectedValues = null;
+	            	}
+	            }	 
 	        });
 			
 			Tab t1 = addTab(markerTable);
@@ -304,6 +358,10 @@ public class MainLayout extends AbsoluteLayout {
 	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
 	      
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
+	            					getApplication().getMainWindow().showNotification("Awesome, U've successfully added the set. " +
+	            							"Nik is thinking on how to display the sets for now." +
+	            							"If you have a creative idea, let him know :) ",  
+	        	            				Notification.TYPE_WARNING_MESSAGE);
 
 	            				}
 
