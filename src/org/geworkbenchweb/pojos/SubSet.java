@@ -1,14 +1,12 @@
 package org.geworkbenchweb.pojos;
 
-import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 @Entity
-@Table(name="SubSet")
+@Table(name="subset")
 public class SubSet extends AbstractPojo {
 
 	private static final long serialVersionUID = -2720207271844335675L;
@@ -16,8 +14,9 @@ public class SubSet extends AbstractPojo {
 	private String name;
 	private String type;
 	private Long owner;
+	
 	private Long parent;
-	private Set<?> positions;
+	private String positions;
 
 
 	public String getName() {
@@ -52,11 +51,11 @@ public class SubSet extends AbstractPojo {
 		this.parent = parent;
 	}
 	
-	public Set<?> getPositions() {
+	public String getPositions() {
 		return positions;
 	}
 	
-	public void setPositions(Set<?> positions) {
+	public void setPositions(String positions) {
 		this.positions = positions;
 	}
 	
