@@ -32,6 +32,7 @@ import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
@@ -56,6 +57,8 @@ public class MainLayout extends AbsoluteLayout {
 	private VerticalSplitPanel toolPanel;
 	
 	User user = SessionHandler.get();
+
+	public Long dataSetId;
 	
 	// Actions for the context menu
 	
@@ -144,13 +147,13 @@ public class MainLayout extends AbsoluteLayout {
 
 		private Table arrayTable;
 
-		final Action ACTION_SUBSET = new Action("Create SubSet");
+		final Action ACTION_SUBSET 		= new Action("Create SubSet");
 
-		final Action[] ACTIONS_CREATE = new Action[] { ACTION_SUBSET };
+		final Action[] ACTIONS_CREATE 	= new Action[] { ACTION_SUBSET };
 		
 		private String setType;
 
-		protected Set<?> selectedValues;
+		protected String selectedValues = null;
 		
 		AccordionPanels(boolean closable) {
 			
@@ -186,8 +189,7 @@ public class MainLayout extends AbsoluteLayout {
 
 			dataTree = new Tree();
 			dataTree.areChildrenAllowed(true);
-
-			dataTree.expandItemsRecursively(0);
+			;
 			dataTree.addContainerProperty("DataSet Name", String.class, "");
 			dataTree.setContainerDataSource(getDataContainer());
 			dataSets.addComponent(dataTree);
@@ -248,13 +250,13 @@ public class MainLayout extends AbsoluteLayout {
 
 				public void valueChange(ValueChangeEvent event) {
 	      
-	                Set<?> value = (Set<?>) event.getProperty().getValue();
-	                setType = "Microarray";
+					String value = (event.getProperty().getValue()).toString();
+					System.out.println(value);
+					setType = "Microarray";
 	                setSelectedValues(value);
 	                
 	            }
 
-				
 	        });
 			
 			arrayTable.addActionHandler(new Action.Handler() {
@@ -268,34 +270,62 @@ public class MainLayout extends AbsoluteLayout {
 	            }
 	            
 	            public void handleAction(Action action, Object sender, Object target) {
-	            	
-	            	Window nameWindow = new Window();
-	            	nameWindow.setModal(true);
-	            	nameWindow.setClosable(true);
-	            	nameWindow.setWidth("400px");
-	            	nameWindow.setHeight("200px");
-	            	nameWindow.setResizable(false);
-	            	
-	            	SetOperations setOp = new SetOperations();
-	    			
-	    			if( setOp.storeData(selectedValues, setType, "Nik", (long) 1 ) == true ) {
-	    				
-	    				System.out.println("Nikhil u r a fucking genius :) ");
-	    				
-	    			}
-	    			
-	            	getApplication().getMainWindow().addWindow(nameWindow);
-	            	
-	            }
-	                
+
+	            	if(selectedValues.isEmpty()) {
+
+	            		getApplication().getMainWindow().showNotification("Please select atleast one phenotype",  
+	            				Notification.TYPE_ERROR_MESSAGE );
+
+	            	} else {
+	            		
+	            		final Window nameWindow = new Window();
+		            	nameWindow.setModal(true);
+		            	nameWindow.setClosable(true);
+		            	nameWindow.setWidth("400px");
+		            	nameWindow.setHeight("200px");
+		            	nameWindow.setResizable(false);
+		            	nameWindow.setCaption("Add Phenotypes to Set");
+		            	nameWindow.setImmediate(true);
+		            	
+		            	TextField setName = new TextField();
+		            	setName.setInputPrompt("Set Name (default - setName)");
+		            	setName.setEnabled(false);
+		            	setName.setImmediate(true);
+
+	            		Button addSet = new Button("Add Set", new ClickListener() {
+
+	            			private static final long serialVersionUID = 1L;
+
+	            			@Override
+	            			public void buttonClick(ClickEvent event) {
+
+	            				SetOperations setOp = new SetOperations();
+
+	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
+	      
+	            					getApplication().getMainWindow().removeWindow(nameWindow);
+
+	            				}
+
+	            			}
+
+	            		});
+
+	            		nameWindow.addComponent(setName);
+	            		nameWindow.addComponent(addSet);
+	            		getApplication().getMainWindow().addWindow(nameWindow);
+	            		selectedValues = null;
+	            	}
+	            }	 
 	        });
 			Tab t2 = addTab(arrayTable);
 			t2.setCaption("Phenotypes");
 			t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
 		}
+		
 
-		protected void setSelectedValues(Set<?> value) {
+		protected void setSelectedValues(String value) {
 			
 			this.selectedValues = value;
 		
@@ -331,6 +361,7 @@ public class MainLayout extends AbsoluteLayout {
 						 * if this is a dataSet
 						 */
 
+						dataSetId 					=	dataSet.getId();
 						byte[] dataByte 			= 	dataSet.getData();
 						DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
 
