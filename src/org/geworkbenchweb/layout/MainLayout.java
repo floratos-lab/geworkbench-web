@@ -10,6 +10,7 @@ import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SetOperations;
 import org.geworkbenchweb.layout.VisualPlugin;
 
@@ -35,6 +36,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -146,6 +148,10 @@ public class MainLayout extends AbsoluteLayout {
 		private Table markerTable;
 
 		private Table arrayTable;
+		
+		private TreeTable markerSets;
+		
+		private	TreeTable arraySets;
 
 		final Action ACTION_SUBSET 		= new Action("Create SubSet");
 
@@ -181,7 +187,7 @@ public class MainLayout extends AbsoluteLayout {
 
 			});
 
-			updateDataset.setStyleName("small");
+			updateDataset.setStyleName("small default");
 			updateDataset.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
 
 			dataSets.addComponent(updateDataset);
@@ -217,7 +223,6 @@ public class MainLayout extends AbsoluteLayout {
 				public void valueChange(ValueChangeEvent event) {
 	      
 					String value = (event.getProperty().getValue()).toString();
-					System.out.println(value);
 					setType = "marker";
 	                setSelectedValues(value);
 	                
@@ -270,10 +275,7 @@ public class MainLayout extends AbsoluteLayout {
 	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
 	      
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					getApplication().getMainWindow().showNotification("Awesome, U've successfully added the set. " +
-	            							"Nik is thinking on how to display the sets for now." +
-	            							"If you have a creative idea, let him know :) ",  
-	        	            				Notification.TYPE_WARNING_MESSAGE);
+	            					markerSets.requestRepaint();
 	            				}
 
 	            			}
@@ -283,7 +285,7 @@ public class MainLayout extends AbsoluteLayout {
 	            		nameWindow.addComponent(setName);
 	            		nameWindow.addComponent(addSet);
 	            		getApplication().getMainWindow().addWindow(nameWindow);
-	            		selectedValues = null;
+	            		//selectedValues = null;
 	            	}
 	            }	 
 	        });
@@ -305,7 +307,6 @@ public class MainLayout extends AbsoluteLayout {
 				public void valueChange(ValueChangeEvent event) {
 	      
 					String value = (event.getProperty().getValue()).toString();
-					System.out.println(value);
 					setType = "Microarray";
 	                setSelectedValues(value);
 	                
@@ -358,10 +359,7 @@ public class MainLayout extends AbsoluteLayout {
 	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
 	      
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					getApplication().getMainWindow().showNotification("Awesome, U've successfully added the set. " +
-	            							"Nik is thinking on how to display the sets for now." +
-	            							"If you have a creative idea, let him know :) ",  
-	        	            				Notification.TYPE_WARNING_MESSAGE);
+	            					arraySets.requestRepaint();
 
 	            				}
 
@@ -380,6 +378,19 @@ public class MainLayout extends AbsoluteLayout {
 			t2.setCaption("Phenotypes");
 			t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
+			
+			markerSets = new TreeTable();
+			markerSets.setImmediate(true);
+			Tab t3 = addTab(markerSets);
+			t3.setCaption("MarkerSets");
+			t3.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
+			
+			
+			arraySets = new TreeTable();
+			arraySets.setImmediate(true);
+			Tab t4 = addTab(arraySets);
+			t4.setCaption("ArraySets");
+			t4.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 		}
 		
 
@@ -425,6 +436,13 @@ public class MainLayout extends AbsoluteLayout {
 
 						markerTable.setContainerDataSource(markerTableView(maSet));
 						arrayTable.setContainerDataSource(arrayTableView(maSet));
+						
+						SetOperations setOp = new SetOperations();
+						
+						markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
+						arraySetContainer(setOp.getMarkerSets(dataSetId), maSet);
+						
+						
 						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), null);
 						mainPanel.setSecondComponent(tabSheet);
 
@@ -453,6 +471,58 @@ public class MainLayout extends AbsoluteLayout {
 				//TODO: handling non data nodes
 			}
 		}
+
+		private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
+			
+			arraySets.setSizeFull();
+			arraySets.addContainerProperty("Name", String.class, "");
+			arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+			
+			for(int i=0; i<list.size(); i++ ) {
+	
+				String name 		= 	((SubSet) list.get(i)).getName();
+				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+				Object item 		= 	arraySets.addItem(new Object[] { name }, null);
+				
+				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
+				
+				for(int j = 0; j<temp.length; j++) {
+					
+					Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
+					arraySets.setChildrenAllowed(subItem, false);
+					arraySets.setParent(subItem, item);
+				}
+				
+			}
+	
+		}
+
+
+		private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
+			
+			markerSets.setSizeFull();
+			markerSets.addContainerProperty("Name", String.class, "");
+			markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+			
+			for(int i=0; i<list.size(); i++ ) {
+
+				String name 		= 	((SubSet) list.get(i)).getName();
+				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+				Object item 		= 	markerSets.addItem(new Object[] { name }, null);
+				
+				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
+				
+				for(int j = 0; j<temp.length; j++) {
+					
+					Object subItem = markerSets.addItem(new Object[] { maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
+					markerSets.setChildrenAllowed(subItem, false);
+					markerSets.setParent(subItem, item);
+				}
+					
+			}
+			
+		}
+
 
 		/**
 		 * Method is used to populate Phenotype Panel
