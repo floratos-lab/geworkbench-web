@@ -474,6 +474,7 @@ public class MainLayout extends AbsoluteLayout {
 
 		private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
 			
+			arraySets.removeAllItems();
 			arraySets.setSizeFull();
 			arraySets.addContainerProperty("Name", String.class, "");
 			arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -500,6 +501,7 @@ public class MainLayout extends AbsoluteLayout {
 
 		private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
 			
+			markerSets.removeAllItems();
 			markerSets.setSizeFull();
 			markerSets.addContainerProperty("Name", String.class, "");
 			markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
