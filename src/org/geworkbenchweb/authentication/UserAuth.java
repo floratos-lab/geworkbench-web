@@ -177,7 +177,8 @@ public class UserAuth extends AbsoluteLayout {
 					app.getMainWindow().removeAllComponents();
 					app.getMainWindow().showNotification("Registration", 
 							"You have successfully registered.", 
-							Notification.POSITION_CENTERED_TOP);
+							Notification.TYPE_WARNING_MESSAGE);
+					
 					app.getMainWindow().addComponent(buildLoginForm());
 
 				} catch (TooShortPasswordException e) {
