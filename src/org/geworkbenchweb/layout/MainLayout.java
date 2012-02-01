@@ -195,7 +195,6 @@ public class MainLayout extends AbsoluteLayout {
 
 			dataTree = new Tree();
 			dataTree.areChildrenAllowed(true);
-			;
 			dataTree.addContainerProperty("DataSet Name", String.class, "");
 			dataTree.setContainerDataSource(getDataContainer());
 			dataSets.addComponent(dataTree);
@@ -381,12 +380,14 @@ public class MainLayout extends AbsoluteLayout {
 			
 			markerSets = new TreeTable();
 			markerSets.setImmediate(true);
+			markerSets.addStyleName("small striped");
 			Tab t3 = addTab(markerSets);
 			t3.setCaption("MarkerSets");
 			t3.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 			
 			
 			arraySets = new TreeTable();
+			arraySets.addStyleName("small striped");
 			arraySets.setImmediate(true);
 			Tab t4 = addTab(arraySets);
 			t4.setCaption("ArraySets");
