@@ -343,7 +343,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 
 	private double getDoubleValue(int barSize) {
 		int size = verticalOrientation ? height : width;
-		return barSize / ((size - GRID_MAX_VAL_POS) / (max - min));
+		return barSize / ((size - GRID_MAX_VAL_POS) / (max - min));  
 	}
 
 	private class ValueUpdater extends Timer {
