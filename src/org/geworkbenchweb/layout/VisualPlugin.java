@@ -1,6 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -129,84 +130,9 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		} else {
 
-			MenuBar menubar = new MenuBar();
-			menubar.setWidth("100%");
-			// Save reference to individual items so we can add sub-menu items to
-	        // them
-	        final MenuBar.MenuItem file = menubar.addItem("File", null);
-	        final MenuBar.MenuItem newItem = file.addItem("New", null);
-	        file.addItem("Open file...", menuCommand1);
-	        file.addSeparator();
-
-	        // Add a style name for a menu item, then use CSS to alter the visuals
-	        file.setStyleName("file");
-
-	        newItem.addItem("File", menuCommand1);
-	        newItem.addItem("Folder", menuCommand1);
-	        newItem.addItem("Project...", menuCommand1);
-
-	        file.addItem("Close", menuCommand1);
-	        file.addItem("Close All", menuCommand1).setStyleName("close-all");
-	        file.addSeparator();
-
-	        file.addItem("Save", menuCommand1);
-	        file.addItem("Save As...", menuCommand1);
-	        file.addItem("Save All", menuCommand1);
-
-	        final MenuBar.MenuItem edit = menubar.addItem("Edit", null);
-	        edit.addItem("Undo", menuCommand1);
-	        edit.addItem("Redo", menuCommand1).setEnabled(false);
-	        edit.addSeparator();
-
-	        edit.addItem("Cut", menuCommand1);
-	        edit.addItem("Copy", menuCommand1);
-	        edit.addItem("Paste", menuCommand1);
-	        edit.addSeparator();
-
-	        final MenuBar.MenuItem find = edit.addItem("Find/Replace", menuCommand);
-
-	        // Actions can be added inline as well, of course
-	        find.addItem("Google Search", new Command() {
-	            /**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				public void menuSelected(MenuItem selectedItem) {
-	                getWindow().open(new ExternalResource("http://www.google.com"));
-	            }
-	        });
-	        find.addSeparator();
-	        find.addItem("Find/Replace...", menuCommand1);
-	        find.addItem("Find Next", menuCommand1);
-	        find.addItem("Find Previous", menuCommand1);
-
-	        final MenuBar.MenuItem view = menubar.addItem("View", null);
-	        view.addItem("Show/Hide Status Bar", menuCommand1);
-	        view.addItem("Customize Toolbar...", menuCommand1);
-	        view.addSeparator();
-
-	        view.addItem("Actual Size", menuCommand1);
-	        view.addItem("Zoom In", menuCommand1);
-	        view.addItem("Zoom Out", menuCommand1);
-			
-	        DendrogramTab dendrogramTab 	= 	new DendrogramTab();
-			
-			
-	        VerticalSplitPanel newLayout = new VerticalSplitPanel();
-			//newLayout.setCaption(MICROARRAY_TABLE_CAPTION);
-			newLayout.setImmediate(true);
-			newLayout.setSizeFull();
-			newLayout.setLocked(true);
-			newLayout.setStyleName("small previews");
-			newLayout.setSplitPosition(22, UNITS_PIXELS);
-			
-			newLayout.setFirstComponent(menubar);
-			newLayout.setSecondComponent(dendrogramTab);
-			
-			addTab(newLayout, "Dendrogram", null);
-			
-			
+			HierCluster[] results 			=  	(HierCluster[]) dataSet;
+	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(dataSet, maSet);
+			addTab(dendrogramTab, "Dendrogram", null);		
 		}
 	}
 
