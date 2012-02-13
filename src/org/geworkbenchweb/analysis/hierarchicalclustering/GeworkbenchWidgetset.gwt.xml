@@ -18,4 +18,13 @@
     -->
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
+
+    <inherits name="com.github.wolfie.refresher.RefresherApplicationWidgetset" />
+
+    <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
+
+    <inherits name="org.vaadin.vaadinvisualizations.widgetset.VaadinvisualizationApplicationWidgetset" />
+    
+    <inherits name="org.vaadin.gwtgraphics.GWTGraphics" />
+
 </module>

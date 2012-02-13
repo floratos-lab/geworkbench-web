@@ -4,10 +4,15 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 
 import com.vaadin.ui.VerticalLayout;
 
+@SuppressWarnings("serial")
 public class DendrogramTab extends VerticalLayout{
 
 	public DendrogramTab(Object dataSet, DSMicroarraySet maSet) {
-		// TODO Auto-generated constructor stub
+		Dendrogram dendrogram = new Dendrogram();
+		//dendrogram.setCaption("Dendrogram");
+		dendrogram.setSizeFull();
+		
+		addComponent(dendrogram);
 	}
 
 }
