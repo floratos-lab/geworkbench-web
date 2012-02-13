@@ -125,11 +125,12 @@ public class MainLayout extends AbsoluteLayout {
         tabs.setStyleName("borderless");
         tabs.setSizeFull();
         
-		welcome.setSizeFull();
 		mainPanel.setSizeFull();
         mainPanel.setStyleName("small previews");
         mainPanel.setSplitPosition(20);   
 		mainPanel.setFirstComponent(tabs);
+		
+		welcome.setSizeFull();
 		mainPanel.setSecondComponent(welcome);
 		
 		toolPanel.setFirstComponent(mainHeader);
