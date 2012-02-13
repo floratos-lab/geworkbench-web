@@ -366,11 +366,4 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, M
 		}
 	} 
 
-
-
-
-
-
-
-
 }
