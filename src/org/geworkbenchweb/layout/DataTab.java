@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis;
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -32,12 +32,12 @@ public class DataTab extends VerticalLayout {
 	private static final long serialVersionUID 		= 		-1888971408170241086L;
 	User user 										= 		SessionHandler.get();
 	
-	private static DSMicroarraySet 	dataSet; 	
-    private static HierCluster[] 	results;
-    private static String			analysisType;
-    private static String 			clustMetric;
-    private static String 			clustMethod;
-    private static String 			clustDim;
+	private static DSMicroarraySet 		dataSet; 	
+    private static CSHierClusterDataSet results;
+    private static String				analysisType;
+    private static String 				clustMetric;
+    private static String 				clustMethod;
+    private static String 				clustDim;
     
 	public DataTab(DSMicroarraySet maSet, String action) {
 		
@@ -311,6 +311,9 @@ public class DataTab extends VerticalLayout {
 	}
 	
 	
+	
+	
+	
 	public class AnalysisProcess extends Thread {
 		@Override
 		public void run() {
@@ -342,7 +345,8 @@ public class DataTab extends VerticalLayout {
 			}
 			
 			FastHierClustAnalysis analysis 	= 	new FastHierClustAnalysis();
-			results							=	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
+			results 						= 	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
+			
 			
 			if(results != null) {
 				

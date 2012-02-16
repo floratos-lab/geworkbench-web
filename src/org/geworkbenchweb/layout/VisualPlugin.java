@@ -1,7 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -130,8 +130,8 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		} else {
 
-			HierCluster[] results 			=  	(HierCluster[]) dataSet;
-	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(dataSet, maSet);
+			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
+	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
 			addTab(dendrogramTab, "Dendrogram", null);		
 		}
 	}

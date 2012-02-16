@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
@@ -460,7 +460,7 @@ public class MainLayout extends AbsoluteLayout {
 
 						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
 						byte[] dataByte 					= 	resultSet.getData();
-						HierCluster[] hierResults 			= 	(HierCluster[]) toObject(dataByte);
+						CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
 						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
 						mainPanel.setSecondComponent(tabSheet);
 
