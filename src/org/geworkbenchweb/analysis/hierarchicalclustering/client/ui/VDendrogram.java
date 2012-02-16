@@ -1,23 +1,35 @@
 package org.geworkbenchweb.analysis.hierarchicalclustering.client.ui;
 
+import org.vaadin.gwtgraphics.client.DrawingArea;
+import org.vaadin.gwtgraphics.client.shape.Rectangle;
+
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
 
 /**
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VDendrogram extends Widget implements Paintable, ClickHandler {
+public class VDendrogram extends Composite implements Paintable, ClickHandler {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-dendrogram";
 
+	/**
+     * Value for height of marker in pixels
+     */
+    static int geneHeight = 20;
+
+    /**
+     * Value for width of marker in pixels
+     */
+    static int geneWidth = 20;
+	
 	public static final String CLICK_EVENT_IDENTIFIER = "click";
 
 	/** The client side widget identifier */
@@ -26,51 +38,76 @@ public class VDendrogram extends Widget implements Paintable, ClickHandler {
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 
+	private DrawingArea canvas;
+	
+	private int width = 0;
+	
+	private int height = 0;
+	
+	private AbsolutePanel panel;
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
 	 */
+	
 	public VDendrogram() {
-		// TODO This example code is extending the GWT Widget class so it must set a root element.
-		// Change to a proper element or remove this line if extending another widget.
-		setElement(Document.get().createDivElement());
-		
-		// This method call of the Paintable interface sets the component
-		// style name in DOM tree
-		setStyleName(CLASSNAME);
-		
-		// Tell GWT we are interested in receiving click events
-		sinkEvents(Event.ONCLICK);
-		// Add a handler for the click events (this is similar to FocusWidget.addClickHandler())
-		addDomHandler(this, ClickEvent.getType());
+		panel = new AbsolutePanel();
+		initWidget(panel);
+		canvas = new DrawingArea(width, height);
+        setStyleName(CLASSNAME);
+       
 	}
 
+	
     /**
      * Called whenever an update is received from the server 
      */
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-		// This call should be made first. 
-		// It handles sizes, captions, tooltips, etc. automatically.
+		
 		if (client.updateComponent(this, uidl, true)) {
-		    // If client.updateComponent returns true there has been no changes and we
-		    // do not need to update anything.
 			return;
 		}
-
-		// Save reference to server connection object to be able to send
-		// user interaction later
+		
 		this.client = client;
 
-		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
-
-		// Process attributes/variables from the server
-		// The attribute names are the same as we used in 
-		// paintContent on the server-side
-		int clicks = uidl.getIntAttribute("clicks");
-		String message = uidl.getStringAttribute("message");
+		canvas.clear();
 		
-		getElement().setInnerHTML("After <b>"+clicks+"</b> mouse clicks:\n" + message);
+		width = 3000;
+		height = 2000;
+		panel.add(canvas, 100, 100);
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+        canvas.getElement().getStyle().setPropertyPx("width", width);
+        canvas.getElement().getStyle().setPropertyPx("height", height);
+
+        
+        int arrayNumber = uidl.getIntVariable("arrayNumber");
+        int counter = 0;
+        int ycord 	= 0;
+        for(int i=0; i<(uidl.getStringArrayVariable("color")).length; i++) {
+        	
+        	
+        	if(counter%arrayNumber == 0) {
+
+        		ycord = ycord + 20;
+        		Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
+        		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
+        		geneBox.setStrokeColor(null);
+        		geneBox.setStrokeWidth(0);
+        		canvas.add(geneBox);
+        	
+        	} else {
+        		
+        		Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
+        		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
+        		geneBox.setStrokeColor(null);
+        		geneBox.setStrokeWidth(0);
+        		canvas.add(geneBox);
+        		
+        	}
+        	counter++;
+        }
 		
 	}
 
@@ -80,11 +117,12 @@ public class VDendrogram extends Widget implements Paintable, ClickHandler {
      * @param event
      *            the {@link ClickEvent} that was fired
      */
-     public void onClick(ClickEvent event) {
+    public void onClick(ClickEvent event) {
 		// Send a variable change to the server side component so it knows the widget has been clicked
 		String button = "left click";
 		// The last parameter (immediate) tells that the update should be sent to the server
 		// right away
 		client.updateVariable(paintableId, CLICK_EVENT_IDENTIFIER, button, true);
-	}
+    }
+	     
 }
