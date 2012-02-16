@@ -11,23 +11,19 @@ import com.vaadin.ui.AbstractComponent;
  */
 @com.vaadin.ui.ClientWidget(org.geworkbenchweb.analysis.hierarchicalclustering.client.ui.VDendrogram.class)
 public class Dendrogram extends AbstractComponent {
-
-	private String message = "Click here.";
-	private int clicks = 0;
-
+	
+	private static final long serialVersionUID = 1L;
+	private String[] colors;
+	private int numArrays;
+	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
-
-		// Paint any component specific content by setting attributes
-		// These attributes can be read in updateFromUIDL in the widget.
-		target.addAttribute("clicks", clicks);
-		target.addAttribute("message", message);
-
-		// We could also set variables in which values can be returned
-		// but declaring variables here is not required
+		target.addVariable(this, "color", getColors());
+		target.addVariable(this, "arrayNumber", getArrayNumber());
 	}
 
+	
 	/**
 	 * Receive and handle events and other variable changes from the client.
 	 * 
@@ -37,18 +33,27 @@ public class Dendrogram extends AbstractComponent {
 	public void changeVariables(Object source, Map<String, Object> variables) {
 		super.changeVariables(source, variables);
 
-		// Variables set by the widget are returned in the "variables" map.
+		//TODO
+	}
+	
+	public void setColors(String[] colors) {
+        this.colors = colors;
+        requestRepaint();
+	}
 
-		if (variables.containsKey("click")) {
+	public String[] getColors() {
+        
+		return colors;
+	
+	}
+	
+	public void setArrayNumber(int numArrays) {
+        this.numArrays = numArrays;
+        requestRepaint();
+	}
 
-			// When the user has clicked the component we increase the 
-			// click count, update the message and request a repaint so 
-			// the changes are sent back to the client.
-			clicks++;
-			message += "<br/>" + variables.get("click");
-
-			requestRepaint();
-		}
+	public int getArrayNumber() {
+		return numArrays;
 	}
 
 }
