@@ -145,17 +145,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
         }
     };
 	
-    private Command menuCommand1 = new Command() {
-        
-		private static final long serialVersionUID = 1L;
-
-		public void menuSelected(MenuItem selectedItem) {
-            getWindow().showNotification("U clicked dendrogram action : " + selectedItem.getText(), Notification.TYPE_WARNING_MESSAGE);
-        }
-    };
-    
-    
-	@Override
+    @Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
 		
 		if(event.getTabSheet().getSelectedTab().getCaption() == MICROARRAY_TABLE_CAPTION){
