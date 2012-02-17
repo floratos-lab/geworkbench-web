@@ -2,6 +2,7 @@ package org.geworkbenchweb.analysis.hierarchicalclustering.client.ui;
 
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Rectangle;
+import org.vaadin.gwtgraphics.client.shape.Text;
 
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
@@ -23,7 +24,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler {
 	/**
      * Value for height of marker in pixels
      */
-    static int geneHeight = 20;
+    static int geneHeight = 8;
 
     /**
      * Value for width of marker in pixels
@@ -81,34 +82,35 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler {
         canvas.getElement().getStyle().setPropertyPx("width", width);
         canvas.getElement().getStyle().setPropertyPx("height", height);
 
-        
         int arrayNumber = uidl.getIntVariable("arrayNumber");
         int counter = 0;
         int ycord 	= 0;
+        int n = 0;
+        
         for(int i=0; i<(uidl.getStringArrayVariable("color")).length; i++) {
         	
-        	
         	if(counter%arrayNumber == 0) {
-
-        		ycord = ycord + 20;
-        		Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
-        		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
-        		geneBox.setStrokeColor(null);
-        		geneBox.setStrokeWidth(0);
-        		canvas.add(geneBox);
-        	
-        	} else {
-        		
-        		Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
-        		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
-        		geneBox.setStrokeColor(null);
-        		geneBox.setStrokeWidth(0);
-        		canvas.add(geneBox);
-        		
+        		if(counter != 0) {
+        			ycord = ycord + geneHeight;
+        		}	
         	}
-        	counter++;
+        	
+        	Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
+    		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
+    		geneBox.setStrokeColor(null);
+    		geneBox.setStrokeWidth(0);
+    		canvas.add(geneBox);
+    		
+    		if((counter+1)%arrayNumber == 0) {
+    			
+    			Text markerName = new Text(((i%arrayNumber)*geneWidth) + 50, ycord+5, uidl.getStringArrayVariable("markerLabels")[n]);
+    			markerName.setFontSize(5);
+    			canvas.add(markerName);
+    			n++;
+    			
+    		}
+    		counter++;
         }
-		
 	}
 
     /**
