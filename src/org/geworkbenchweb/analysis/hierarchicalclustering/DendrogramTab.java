@@ -102,7 +102,8 @@ public class DendrogramTab extends VerticalLayout{
 		
 		}
 		
-		String[] colors = new String[chipNo*geneNo];
+		String[] markerNames 	= 	new String[geneNo];
+		String[] colors 		= 	new String[chipNo*geneNo];
 		int k = 0;
 		
 		for (int i = 0; i < geneNo; i++) {
@@ -114,7 +115,7 @@ public class DendrogramTab extends VerticalLayout{
 				stats = microarraySet.markers().get(i);
 			}
 
-
+			markerNames[i] = stats.getLabel();
 			for (int j = 0; j < chipNo; j++) {
 				
 				DSMicroarray mArray = null;
@@ -141,6 +142,7 @@ public class DendrogramTab extends VerticalLayout{
 		dendrogram.setWidth("3000px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
+		dendrogram.setMarkerLabels(markerNames);
 		setWidth("3000px");
 		addComponent(dendrogram);
 	}
