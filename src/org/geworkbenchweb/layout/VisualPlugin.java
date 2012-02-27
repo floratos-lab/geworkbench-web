@@ -123,7 +123,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			newLayout.setSecondComponent(dataTable);
 			
 			dataOp.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
-			addTab(dataOp);
+			addTab(dataOp); 
 		
 			newLayout.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(newLayout);
@@ -132,6 +132,8 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
+	        setWidth("3000px");
+	        setHeight("1500px");
 			addTab(dendrogramTab, "Dendrogram", null);		
 		}
 	}

@@ -23,8 +23,14 @@
 
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
 
-    <inherits name="org.vaadin.vaadinvisualizations.widgetset.VaadinvisualizationApplicationWidgetset" />
-    
     <inherits name="org.vaadin.gwtgraphics.GWTGraphics" />
-
+	
+	<inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
+	
+	<script  src="js/src/json2.js" />
+        
+    <script  src="js/src/AC_OETags.js" />
+        
+    <script  src="js/src/cytoscapeweb.js" />
+    
 </module>

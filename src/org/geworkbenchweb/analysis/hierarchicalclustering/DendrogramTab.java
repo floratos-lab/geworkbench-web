@@ -2,6 +2,9 @@ package org.geworkbenchweb.analysis.hierarchicalclustering;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -10,11 +13,12 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-
 import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
@@ -47,7 +51,11 @@ public class DendrogramTab extends VerticalLayout{
      */
     private Cluster[] leafArrays = null;
 
+   
+    
     private double intensity = 1.0;
+    
+    
     
     User user = SessionHandler.get();
 
@@ -58,6 +66,7 @@ public class DendrogramTab extends VerticalLayout{
 	@SuppressWarnings("unchecked")
 	public DendrogramTab(CSHierClusterDataSet dataSet) {
 		
+		setSizeFull();
         microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
         
         currentMarkerCluster = (MarkerHierCluster)dataSet.getCluster(0);
@@ -137,13 +146,14 @@ public class DendrogramTab extends VerticalLayout{
 			}
 		}
 		
+		//dataSet.get
+		
 		Dendrogram dendrogram = new Dendrogram();
-		dendrogram.setHeight("2000px");
+		dendrogram.setHeight("1500px");
 		dendrogram.setWidth("3000px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerLabels(markerNames);
-		setWidth("3000px");
 		addComponent(dendrogram);
 	}
 	
@@ -203,5 +213,8 @@ public class DendrogramTab extends VerticalLayout{
 	
 	}
 	
+	
 
+    
+	
 }

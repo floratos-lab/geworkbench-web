@@ -1,4 +1,4 @@
-package org.geworkbenchweb.analysis.hierarchicalclustering;
+package org.geworkbenchweb.visualizations;
 
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import com.vaadin.ui.AbstractComponent;
 /**
  * Server side component for the VDendrogram widget.
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.analysis.hierarchicalclustering.client.ui.VDendrogram.class)
+@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VDendrogram.class)
 public class Dendrogram extends AbstractComponent {
 	
 	private static final long serialVersionUID = 1L;

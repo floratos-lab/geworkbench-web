@@ -1,5 +1,15 @@
-package org.geworkbenchweb.analysis.hierarchicalclustering.client.ui;
+package org.geworkbenchweb.visualizations.client.ui;
 
+import java.util.Comparator;
+
+import org.thechiselgroup.choosel.protovis.client.PV;
+import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
+import org.thechiselgroup.choosel.protovis.client.PVDom;
+import org.thechiselgroup.choosel.protovis.client.PVDomNode;
+import org.thechiselgroup.choosel.protovis.client.PVPanel;
+import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
+import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
+import org.thechiselgroup.choosel.protovis.client.jsutil.JsStringFunction;
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Rectangle;
 import org.vaadin.gwtgraphics.client.shape.Text;
@@ -7,8 +17,6 @@ import org.vaadin.gwtgraphics.client.shape.Text;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -16,7 +24,7 @@ import com.google.gwt.user.client.ui.Composite;
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VDendrogram extends Composite implements Paintable, ClickHandler {
+public class VDendrogram extends Composite implements Paintable {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-dendrogram";
@@ -52,6 +60,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler {
 	 */
 	
 	public VDendrogram() {
+		
 		panel = new AbsolutePanel();
 		initWidget(panel);
 		canvas = new DrawingArea(width, height);
@@ -71,60 +80,68 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler {
 		
 		this.client = client;
 
+		panel.add(new ProtovisWidget() {
+		    protected void onAttach() {
+		      super.onAttach();
+		      initPVPanel();
+		      PVPanel vis = getPVPanel().width(500).height(968).left(0).right(0).top(0).bottom(0);
+		      PVClusterLayout layout = vis
+		    		  .add(PV.Layout.Cluster())
+		    		  .nodes(PVDom.create(FlareData.data(), new FlareData.UnitDomAdapter())
+		    				  .sort(new Comparator<PVDomNode>() {
+		    					  public int compare(PVDomNode o1, PVDomNode o2) {
+		    						  return o1.nodeName().compareTo(o2.nodeName());
+		    					  }
+		    				  }).nodes()).group(true).orient("bottom");
+
+		      layout.link().add(PV.Line).strokeStyle("#ccc").lineWidth(1)
+		      .antialias(false);
+
+		      getPVPanel().render();
+		    }
+		}, 100, 100);
+		
 		paintableId = uidl.getId();
 		canvas.clear();
 		
 		width = 3000;
-		height = 2000;
-		panel.add(canvas, 100, 100);
+		height = 1500;
+		panel.add(canvas, 600, 100);
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.getElement().getStyle().setPropertyPx("width", width);
         canvas.getElement().getStyle().setPropertyPx("height", height);
 
         int arrayNumber = uidl.getIntVariable("arrayNumber");
-        int counter = 0;
         int ycord 	= 0;
         int n = 0;
         
         for(int i=0; i<(uidl.getStringArrayVariable("color")).length; i++) {
         	
-        	if(counter%arrayNumber == 0) {
-        		if(counter != 0) {
+        	if(i%arrayNumber == 0) {
+        		
+        		if(i != 0) {
+        			
         			ycord = ycord + geneHeight;
+        		
         		}	
+        	
         	}
         	
-        	Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
+        	final Rectangle geneBox = new Rectangle((i%arrayNumber)*geneWidth, ycord, geneWidth, geneHeight);
     		geneBox.setFillColor((uidl.getStringArrayVariable("color"))[i]);
     		geneBox.setStrokeColor(null);
     		geneBox.setStrokeWidth(0);
     		canvas.add(geneBox);
-    		
-    		if((counter+1)%arrayNumber == 0) {
+    	
+    		if((i+1)%arrayNumber == 0) {
     			
-    			Text markerName = new Text(((i%arrayNumber)*geneWidth) + 50, ycord+5, uidl.getStringArrayVariable("markerLabels")[n]);
+    			Text markerName = new Text(((i%arrayNumber) +1)*geneWidth + 50, ycord+5, uidl.getStringArrayVariable("markerLabels")[n]);
     			markerName.setFontSize(5);
     			canvas.add(markerName);
     			n++;
     			
     		}
-    		counter++;
         }
-	}
-
-    /**
-     * Called when a native click event is fired.
-     * 
-     * @param event
-     *            the {@link ClickEvent} that was fired
-     */
-    public void onClick(ClickEvent event) {
-		// Send a variable change to the server side component so it knows the widget has been clicked
-		String button = "left click";
-		// The last parameter (immediate) tells that the update should be sent to the server
-		// right away
-		client.updateVariable(paintableId, CLICK_EVENT_IDENTIFIER, button, true);
-    }
-	     
+	}    
 }
