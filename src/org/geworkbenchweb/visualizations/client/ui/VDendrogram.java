@@ -2,14 +2,13 @@ package org.geworkbenchweb.visualizations.client.ui;
 
 import java.util.Comparator;
 
+import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
 import org.thechiselgroup.choosel.protovis.client.PVDom;
 import org.thechiselgroup.choosel.protovis.client.PVDomNode;
 import org.thechiselgroup.choosel.protovis.client.PVPanel;
 import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
-import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
-import org.thechiselgroup.choosel.protovis.client.jsutil.JsStringFunction;
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.shape.Rectangle;
 import org.vaadin.gwtgraphics.client.shape.Text;
@@ -17,6 +16,8 @@ import org.vaadin.gwtgraphics.client.shape.Text;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.terminal.gwt.client.VConsole;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -80,25 +81,22 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		this.client = client;
 
+		final String treeString =  "(())";//uidl.getStringVariable("cluster").trim();
+		
 		panel.add(new ProtovisWidget() {
-		    protected void onAttach() {
-		      super.onAttach();
-		      initPVPanel();
-		      PVPanel vis = getPVPanel().width(500).height(968).left(0).right(0).top(0).bottom(0);
-		      PVClusterLayout layout = vis
-		    		  .add(PV.Layout.Cluster())
-		    		  .nodes(PVDom.create(FlareData.data(), new FlareData.UnitDomAdapter())
-		    				  .sort(new Comparator<PVDomNode>() {
-		    					  public int compare(PVDomNode o1, PVDomNode o2) {
-		    						  return o1.nodeName().compareTo(o2.nodeName());
-		    					  }
-		    				  }).nodes()).group(true).orient("bottom");
+			protected void onAttach() {
+				super.onAttach();
+				initPVPanel();
+				PVPanel vis = getPVPanel().width(300).height(968).left(0).right(0).top(0).bottom(0);
+				PVClusterLayout layout = vis
+				.add(PV.Layout.Cluster())
+				.nodes(PVDom.create(FlareData.data(treeString), new FlareData.UnitDomAdapter())
+						.nodes()).group(false).orient("left");
 
-		      layout.link().add(PV.Line).strokeStyle("#ccc").lineWidth(1)
-		      .antialias(false);
-
-		      getPVPanel().render();
-		    }
+				layout.link().add(PV.Line).strokeStyle("#ccc").lineWidth(1)
+				.antialias(false);
+				getPVPanel().render();
+			}
 		}, 100, 100);
 		
 		paintableId = uidl.getId();
@@ -106,7 +104,7 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		width = 3000;
 		height = 1500;
-		panel.add(canvas, 600, 100);
+		panel.add(canvas, 400, 100);
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.getElement().getStyle().setPropertyPx("width", width);
