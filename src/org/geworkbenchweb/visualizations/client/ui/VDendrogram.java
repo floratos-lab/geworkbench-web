@@ -2,7 +2,7 @@ package org.geworkbenchweb.visualizations.client.ui;
 
 import java.util.Comparator;
 
-import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
+import org.geworkbenchweb.visualizations.client.ui.FlareData.Unit;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
 import org.thechiselgroup.choosel.protovis.client.PVDom;
@@ -16,8 +16,6 @@ import org.vaadin.gwtgraphics.client.shape.Text;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.VConsole;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -81,7 +79,7 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		this.client = client;
 
-		final String treeString =  "(())";//uidl.getStringVariable("cluster").trim();
+		final String treeString =  "((())())";//uidl.getStringVariable("cluster").trim();
 		
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
@@ -91,10 +89,15 @@ public class VDendrogram extends Composite implements Paintable {
 				PVClusterLayout layout = vis
 				.add(PV.Layout.Cluster())
 				.nodes(PVDom.create(FlareData.data(treeString), new FlareData.UnitDomAdapter())
-						.nodes()).group(false).orient("left");
+                        .sort(new Comparator<PVDomNode>() {
+                            public int compare(PVDomNode o1, PVDomNode o2) {
+                                return o1.nodeName().compareTo(o2.nodeName());
+                            }
+                        }).nodes()).group(true).orient("left");
 
 				layout.link().add(PV.Line).strokeStyle("#ccc").lineWidth(1)
 				.antialias(false);
+			
 				getPVPanel().render();
 			}
 		}, 100, 100);
@@ -141,5 +144,12 @@ public class VDendrogram extends Composite implements Paintable {
     			
     		}
         }
-	}    
+	}
+	
+	protected native Iterable<Unit> data(String treeString)/*-{
+	
+		
+		
+	}-*/;
+
 }

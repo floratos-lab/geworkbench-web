@@ -51,11 +51,9 @@ public class DendrogramTab extends VerticalLayout{
      */
     private Cluster[] leafArrays = null;
 
-   
-    
     private double intensity = 1.0;
     
-    
+    private static String treeString = null; 
     
     User user = SessionHandler.get();
 
@@ -146,7 +144,17 @@ public class DendrogramTab extends VerticalLayout{
 			}
 		}
 		
-		//dataSet.get
+		int size = dataSet.getNumberOfClusters();
+		// size should always be 2
+		ClusterNode clusterNode = null; // TODO try one cluster first
+		for(int index=0; index<size; index++) {
+			HierCluster cluster = dataSet.getCluster(index);
+			if(cluster==null) {
+				
+			} else {
+				clusterNode = convert(cluster);
+			}
+		}
 		
 		Dendrogram dendrogram = new Dendrogram();
 		dendrogram.setHeight("1500px");
@@ -154,7 +162,29 @@ public class DendrogramTab extends VerticalLayout{
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerLabels(markerNames);
+		dendrogram.setCluster(treeString);
 		addComponent(dendrogram);
+	}
+	
+	private static ClusterNode convert(Cluster hierCluster) {
+		if(hierCluster==null) return null;
+
+		treeString = treeString + "(";
+		if(! (hierCluster instanceof MarkerHierCluster) ){
+			// TODO
+			return new ClusterNode("not implemented for array cluster yet");
+		}
+		ClusterNode cluster = null;
+		if(hierCluster.isLeaf()) {
+			treeString = treeString + ")";
+		} else {	
+			Cluster[] child = hierCluster.getChildrenNodes();
+			ClusterNode c1 = convert(child[0]);
+			ClusterNode c2 = convert(child[1]);
+			cluster = new ClusterNode(c1, c2);
+			treeString = treeString + ")";
+		}
+		return cluster;
 	}
 	
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {

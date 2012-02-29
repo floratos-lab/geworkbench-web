@@ -1,5 +1,7 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
+import java.util.Stack;
+
 import org.thechiselgroup.choosel.protovis.client.PVDomAdapter;
 
 import com.vaadin.terminal.gwt.client.VConsole;
@@ -22,6 +24,7 @@ public final class FlareData {
             this.children = children;
             this.name = name;
         }
+        
     }
 
     public static class UnitDomAdapter implements PVDomAdapter<Unit> {
@@ -40,25 +43,45 @@ public final class FlareData {
 		}
     }
 
+   
+    
     public static Unit data(String treeString) {
-        
-    	String dataString = "\"root\", new Unit(";
+    	
+    	Unit parent 			= 	null;   
+    	Stack<Unit> prevParent 	= 	new Stack<Unit>();
+    	Unit newRoot 			= 	null;
+    	Unit root 				= 	new Unit("root");
+    	
+    	parent = root;
+    	VConsole.log(treeString);
+    	
     	for(int i = 0; i<treeString.length(); i++ ) {
     		
     		if(treeString.charAt(i) == '(' ) {
-    			if(i == 0) {
-    				dataString = dataString + "\"" + i +"\"";
-    			}else {
-    				dataString = dataString + ", new Unit(\"" + i +"\"";
-    			}
-    		}else {
     			
-    			dataString = dataString + ")";
+    			newRoot = new Unit( "node"+i, parent);
+    			prevParent.push(parent);
+    			parent = newRoot;
+    			
+    		} else if(treeString.charAt(i) == ')') {
+    			
+    			prevParent.pop();
+    			
+    			try {
+    				parent = prevParent.firstElement();
+    				
+    			}catch(Exception e) {
+    				
+    				VConsole.log("Exception here = " + i);
+    			}
+    			
+    		} else {
+    			
+    			VConsole.log("other characters");
     			
     		}
     	}
-    	VConsole.log(dataString);
-    	return new Unit("root", new Unit("0", new Unit("1")), new Unit("2"));
+    	return newRoot;
     }
 
 }

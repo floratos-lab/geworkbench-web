@@ -2,6 +2,8 @@ package org.geworkbenchweb.visualizations;
 
 import java.util.Map;
 
+import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
+
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
@@ -16,6 +18,7 @@ public class Dendrogram extends AbstractComponent {
 	private String[] colors;
 	private int numArrays;
 	private String[] markerLabels;
+	private String cluster;
 	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -23,6 +26,7 @@ public class Dendrogram extends AbstractComponent {
 		target.addVariable(this, "color", getColors());
 		target.addVariable(this, "arrayNumber", getArrayNumber());
 		target.addVariable(this, "markerLabels", getMarkerLabels());
+		target.addVariable(this, "cluster", getCluster());
 	}
 
 	
@@ -67,5 +71,13 @@ public class Dendrogram extends AbstractComponent {
 		return markerLabels;
 	}
 	
+	public void setCluster(String cluster) {
+        this.cluster = cluster;
+        requestRepaint();
+	}
+
+	public String getCluster() {
+		return cluster;
+	}
 
 }
