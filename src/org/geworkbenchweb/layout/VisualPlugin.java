@@ -1,5 +1,6 @@
 package org.geworkbenchweb.layout;
 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
@@ -132,8 +133,9 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
-	        setWidth("3000px");
-	        setHeight("1500px");
+	        CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
+	        setHeight(((data.getMarkers().size()*5) + 400) + "px");
+	        setWidth(((data.size()*20) + 600) + "px");
 			addTab(dendrogramTab, "Dendrogram", null);		
 		}
 	}

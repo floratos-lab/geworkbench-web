@@ -49,7 +49,17 @@ public class DendrogramTab extends VerticalLayout{
 
     private double intensity = 1.0;
     
-    private static String treeString = null; 
+    /**
+     * The String is passed to the client side
+     * Marker String
+     */
+    private static String markerString = null; 
+    
+    /**
+     * The string is passed to the client side
+     * Array String
+     */
+    private static String arrayString = null; 
     
     User user = SessionHandler.get();
 
@@ -151,34 +161,37 @@ public class DendrogramTab extends VerticalLayout{
 				clusterNode = convert(cluster);
 			}
 		}
-		
 		Dendrogram dendrogram = new Dendrogram();
-		dendrogram.setHeight("1500px");
-		dendrogram.setWidth("3000px");
+		dendrogram.setHeight(((geneNo*5) + 400) + "px");
+        dendrogram.setWidth(((chipNo*20) + 600) + "px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
+		dendrogram.setMarkerNumber(geneNo);
 		dendrogram.setMarkerLabels(markerNames);
-		dendrogram.setCluster(treeString);
+
+		if(markerString != null) {
+			dendrogram.setMarkerCluster(markerString);
+		}
 		addComponent(dendrogram);
 	}
-	
+
 	private static ClusterNode convert(Cluster hierCluster) {
 		if(hierCluster==null) return null;
 
-		treeString = treeString + "(";
+		markerString = markerString + "(";
 		if(! (hierCluster instanceof MarkerHierCluster) ){
 			// TODO
 			return new ClusterNode("not implemented for array cluster yet");
 		}
 		ClusterNode cluster = null;
 		if(hierCluster.isLeaf()) {
-			treeString = treeString + ")";
+			markerString = markerString + ")";
 		} else {	
 			Cluster[] child = hierCluster.getChildrenNodes();
 			ClusterNode c1 = convert(child[0]);
 			ClusterNode c2 = convert(child[1]);
 			cluster = new ClusterNode(c1, c2);
-			treeString = treeString + ")";
+			markerString = markerString + ")";
 		}
 		return cluster;
 	}
