@@ -9,6 +9,7 @@ import com.vaadin.ui.AbstractComponent;
 /**
  * Server side component for the VCytoscape widget.
  */
+@SuppressWarnings("serial")
 @com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VCytoscape.class)
 public class Cytoscape extends AbstractComponent {
 

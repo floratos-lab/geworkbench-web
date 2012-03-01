@@ -2,8 +2,6 @@ package org.geworkbenchweb.visualizations;
 
 import java.util.Map;
 
-import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
-
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractComponent;

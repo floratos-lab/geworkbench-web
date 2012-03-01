@@ -2,10 +2,6 @@ package org.geworkbenchweb.analysis.hierarchicalclustering;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
@@ -61,7 +57,7 @@ public class DendrogramTab extends VerticalLayout{
     
     private transient Object lock = new Object();
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	public DendrogramTab(CSHierClusterDataSet dataSet) {
 		
 		setSizeFull();

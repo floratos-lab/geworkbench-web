@@ -1,11 +1,7 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import java.util.Comparator;
-
-import org.geworkbenchweb.visualizations.client.ui.FlareData.Unit;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
-import org.thechiselgroup.choosel.protovis.client.PVDom;
 import org.thechiselgroup.choosel.protovis.client.PVDomNode;
 import org.thechiselgroup.choosel.protovis.client.PVPanel;
 import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
@@ -79,7 +75,8 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		this.client = client;
 
-		final String treeString =  "((())())";//uidl.getStringVariable("cluster").trim();
+		final String treeString =  uidl.getStringVariable("cluster").trim();
+		
 		
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
@@ -88,12 +85,7 @@ public class VDendrogram extends Composite implements Paintable {
 				PVPanel vis = getPVPanel().width(300).height(968).left(0).right(0).top(0).bottom(0);
 				PVClusterLayout layout = vis
 				.add(PV.Layout.Cluster())
-				.nodes(PVDom.create(FlareData.data(treeString), new FlareData.UnitDomAdapter())
-                        .sort(new Comparator<PVDomNode>() {
-                            public int compare(PVDomNode o1, PVDomNode o2) {
-                                return o1.nodeName().compareTo(o2.nodeName());
-                            }
-                        }).nodes()).group(true).orient("left");
+				.nodes(((PVDomNode) TreeData.data(treeString)).nodes()).group(false).orient("left");
 
 				layout.link().add(PV.Line).strokeStyle("#ccc").lineWidth(1)
 				.antialias(false);
@@ -146,10 +138,6 @@ public class VDendrogram extends Composite implements Paintable {
         }
 	}
 	
-	protected native Iterable<Unit> data(String treeString)/*-{
 	
-		
-		
-	}-*/;
-
+	
 }
