@@ -171,6 +171,7 @@ public class DendrogramTab extends VerticalLayout{
 
 		if(markerString != null) {
 			dendrogram.setMarkerCluster(markerString);
+			markerString = null;
 		}
 		addComponent(dendrogram);
 	}
