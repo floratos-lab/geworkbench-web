@@ -5,7 +5,13 @@ import java.util.Stack;
 import org.thechiselgroup.choosel.protovis.client.PVDomNode;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.vaadin.terminal.gwt.client.VConsole;
+
+/**
+ * This class converts cluster strings into object strucure so that it can 
+ * be used by protovis
+ * 
+ * @author Nikhil Reddy
+ */
 
 public final class TreeData {
     
@@ -24,7 +30,6 @@ public final class TreeData {
 				parentNode.appendChild(childNode);
 				prevNode.push(parentNode);
 				parentNode = childNode;
-				VConsole.log(parentNode.nodeName());
 				
 			} else if(treeString.charAt(i) == ')') {
 				
