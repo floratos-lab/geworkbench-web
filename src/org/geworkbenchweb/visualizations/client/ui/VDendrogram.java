@@ -84,12 +84,12 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler, D
 		panel = new AbsolutePanel();
 		initWidget(panel);
 		
-        canvas.addMouseMoveHandler(this);
+        /*canvas.addMouseMoveHandler(this);
         canvas.addDoubleClickHandler(this);
         canvas.addMouseUpHandler(this);
         canvas.addMouseDownHandler(this);
         canvas.addClickHandler(this);
-        canvas.addMouseWheelHandler(this);
+        canvas.addMouseWheelHandler(this);*/
 
 		canvas = new DrawingArea(width, height);
         setStyleName(CLASSNAME);
