@@ -14,11 +14,12 @@ public class Dendrogram extends AbstractComponent {
 	
 	private static final long serialVersionUID = 1L;
 	private String[] colors;
-	private int numArrays;
+	private String[] arrayLabels;
 	private String[] markerLabels;
 	private String markerCluster;
 	private String arrayCluster;
 	private int numMarkers;
+	private int numArrays;
 	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -27,6 +28,7 @@ public class Dendrogram extends AbstractComponent {
 		target.addVariable(this, "arrayNumber", getArrayNumber());
 		target.addVariable(this, "markerNumber", getMarkerNumber());
 		target.addVariable(this, "markerLabels", getMarkerLabels());
+		target.addVariable(this, "arrayLabels", getArrayLabels());
 		target.addVariable(this, "markerCluster", getMarkerCluster());
 		target.addVariable(this, "arrayCluster", getArrayCluster());
 	}
@@ -80,6 +82,15 @@ public class Dendrogram extends AbstractComponent {
 
 	public String[] getMarkerLabels() {
 		return markerLabels;
+	}
+	
+	public void setArrayLabels(String[] arrayLabels) {
+        this.arrayLabels = arrayLabels;
+        requestRepaint();
+	}
+
+	public String[] getArrayLabels() {
+		return arrayLabels;
 	}
 	
 	public void setMarkerCluster(String markerCluster) {

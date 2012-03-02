@@ -115,7 +115,7 @@ public class DataTab extends VerticalLayout {
 					clusterMethod.setCaption("Clustering Method");
 					clusterMethod.addItem("Single Linkage");
 					clusterMethod.addItem("Average Linkage");
-					clusterMethod.addItem("total linkage");
+					clusterMethod.addItem("Total linkage");
 					clusterMethod.select(clusterMethod.getItemIds().iterator().next());
 					clusterMethod.setWidth("50%");
 					clusterMethod.addListener(new Property.ValueChangeListener() {

@@ -134,7 +134,9 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
 	        CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
-	        setHeight(((data.getMarkers().size()*5) + 400) + "px");
+	        
+	        //Height and width of the visualization are calculted based on number of phenotypes and markers
+	        setHeight(((data.getMarkers().size()*5) + 600) + "px");
 	        setWidth(((data.size()*20) + 600) + "px");
 			addTab(dendrogramTab, "Dendrogram", null);		
 		}

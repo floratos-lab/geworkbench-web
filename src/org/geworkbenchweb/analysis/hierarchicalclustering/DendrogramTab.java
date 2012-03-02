@@ -116,6 +116,7 @@ public class DendrogramTab extends VerticalLayout{
 		}
 		
 		String[] markerNames 	= 	new String[geneNo];
+		String[] arrayNames		= 	new String[chipNo];
 		String[] colors 		= 	new String[chipNo*geneNo];
 		int k = 0;
 		
@@ -132,12 +133,18 @@ public class DendrogramTab extends VerticalLayout{
 			for (int j = 0; j < chipNo; j++) {
 				
 				DSMicroarray mArray = null;
-
+				
 				if (leafArrays != null) {
 					mArray = ((MicroarrayHierCluster) leafArrays[j])
 							.getMicroarray();
 				} else {
 					mArray = microarraySet.get(j);
+				}
+				
+				if(i == 0) {
+					
+					arrayNames[j] = mArray.getLabel();
+					
 				}
 				
 				DSMarkerValue marker = mArray.getMarkerValue(stats);
@@ -150,49 +157,69 @@ public class DendrogramTab extends VerticalLayout{
 			}
 		}
 		
-		int size = dataSet.getNumberOfClusters();
-		// size should always be 2
-		ClusterNode clusterNode = null; // TODO try one cluster first
-		for(int index=0; index<size; index++) {
-			HierCluster cluster = dataSet.getCluster(index);
-			if(cluster==null) {
-				
-			} else {
-				clusterNode = convert(cluster);
-			}
+		HierCluster markerCluster 		= 	dataSet.getCluster(0);
+		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
+		if(markerCluster != null) {
+			
+			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
+		
+		}
+		
+		if(arrayCluster != null) {
+			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
 		}
 		Dendrogram dendrogram = new Dendrogram();
-		dendrogram.setHeight(((geneNo*5) + 400) + "px");
+		
+		dendrogram.setHeight(((geneNo*5) + 600) + "px");
         dendrogram.setWidth(((chipNo*20) + 600) + "px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerNumber(geneNo);
 		dendrogram.setMarkerLabels(markerNames);
-
+		dendrogram.setArrayLabels(arrayNames);
+		
 		if(markerString != null) {
 			dendrogram.setMarkerCluster(markerString);
 			markerString = null;
 		}
+		
+		if(arrayString != null) {
+			dendrogram.setArrayCluster(arrayString);
+			arrayString = null;
+		}
+		
 		addComponent(dendrogram);
 	}
 
-	private static ClusterNode convert(Cluster hierCluster) {
-		if(hierCluster==null) return null;
+	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {
 
 		markerString = markerString + "(";
-		if(! (hierCluster instanceof MarkerHierCluster) ){
-			// TODO
-			return new ClusterNode("not implemented for array cluster yet");
-		}
 		ClusterNode cluster = null;
 		if(hierCluster.isLeaf()) {
 			markerString = markerString + ")";
 		} else {	
 			Cluster[] child = hierCluster.getChildrenNodes();
-			ClusterNode c1 = convert(child[0]);
-			ClusterNode c2 = convert(child[1]);
+			ClusterNode c1 = convertMarkerCluster(child[0]);
+			ClusterNode c2 = convertMarkerCluster(child[1]);
 			cluster = new ClusterNode(c1, c2);
 			markerString = markerString + ")";
+		}
+		return cluster;
+	}
+	
+	private static ClusterNode convertArrayCluster(Cluster hierCluster) {
+
+		arrayString = arrayString + "(";
+		
+		ClusterNode cluster = null;
+		if(hierCluster.isLeaf()) {
+			arrayString = arrayString + ")";
+		} else {	
+			Cluster[] child = hierCluster.getChildrenNodes();
+			ClusterNode c1 = convertArrayCluster(child[0]);
+			ClusterNode c2 = convertArrayCluster(child[1]);
+			cluster = new ClusterNode(c1, c2);
+			arrayString = arrayString + ")";
 		}
 		return cluster;
 	}
