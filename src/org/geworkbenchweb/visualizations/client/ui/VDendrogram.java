@@ -83,7 +83,7 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		final String treeString 	=  	uidl.getStringVariable("markerCluster").trim();
 		final String treeString1	= 	uidl.getStringVariable("arrayCluster").trim();
-		int arrayNumber 			= 	uidl.getIntVariable("arrayNumber");
+		final int arrayNumber 		= 	uidl.getIntVariable("arrayNumber");
 		final int markerNumber 		=	uidl.getIntVariable("markerNumber");
 		
 		panel.add(new ProtovisWidget() {
@@ -107,7 +107,7 @@ public class VDendrogram extends Composite implements Paintable {
 
 				layout.link().add(PV.Line).lineWidth(1)
 				.antialias(false);
-				
+		        
 				/** Update the x- and y-scale domains per the new transform. */
 		        PVEventHandler transform = new PVEventHandler() {
 		            public void onEvent(Event e, String pvEventType, JsArgs args) {
@@ -120,7 +120,7 @@ public class VDendrogram extends Composite implements Paintable {
 		                getPVPanel().render();
 		            }
 		        };
-			
+				
 				/* Use an invisible panel to capture pan & zoom events. */
 		        vis.add(PV.Panel).events(PV.Events.ALL)
 		                .event(PV.Event.MOUSEDOWN, PV.Behavior.pan())
@@ -131,12 +131,30 @@ public class VDendrogram extends Composite implements Paintable {
 			}
 		}, 100, 100);
 		
+		panel.add(new ProtovisWidget() {
+			protected void onAttach() {
+				super.onAttach();
+
+				PVPanel arrayTree = getPVPanel().width(arrayNumber*geneWidth).height(200).left(0).right(0).top(0).bottom(0);
+				PVClusterLayout arrayTreeLayout = arrayTree
+				.add(PV.Layout.Cluster())
+				.nodes(((PVDomNode) TreeData.data(treeString)).nodes()).group(false).orient("top");
+
+				arrayTreeLayout.link().add(PV.Line).lineWidth(1)
+				.antialias(false); 
+
+				getPVPanel().render();
+			}
+		}, 400, 100);
+
+		
+		
 		canvas.clear();
 		
 		width = ((arrayNumber*geneWidth) + 600);
 		height = ((markerNumber*geneHeight) + 400);
 		
-		panel.add(canvas, 400, 100);
+		panel.add(canvas, 400, 300);
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.getElement().getStyle().setPropertyPx("width", width);
