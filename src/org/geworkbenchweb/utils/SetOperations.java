@@ -67,4 +67,15 @@ public class SetOperations {
 		return data;
 	}
 
+	/**
+	 * This method is used to delete all the Marker and Array sets for given dataSet
+	 * @input dataSet ID
+	 * 
+	 */
+	
+	public void deleteAllSets(Long dataSetId) {
+		
+		
+		
+	}
 }
