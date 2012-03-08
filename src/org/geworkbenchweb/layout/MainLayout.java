@@ -242,7 +242,7 @@ public class MainLayout extends AbsoluteLayout {
 	            
 	            public void handleAction(Action action, Object sender, Object target) {
 
-	            	if(selectedValues.isEmpty()) {
+	            	if(selectedValues == null) {
 
 	            		getApplication().getMainWindow().showNotification("Please select atleast one marker",  
 	            				Notification.TYPE_ERROR_MESSAGE );
@@ -252,32 +252,39 @@ public class MainLayout extends AbsoluteLayout {
 	            		final Window nameWindow = new Window();
 		            	nameWindow.setModal(true);
 		            	nameWindow.setClosable(true);
-		            	nameWindow.setWidth("400px");
-		            	nameWindow.setHeight("200px");
+		            	nameWindow.setWidth("300px");
+		            	nameWindow.setHeight("150px");
 		            	nameWindow.setResizable(false);
 		            	nameWindow.setCaption("Add Markers to Set");
 		            	nameWindow.setImmediate(true);
 		            	
-		            	TextField setName = new TextField();
-		            	setName.setInputPrompt("Set Name (default - setName)");
-		            	setName.setEnabled(false);
+		            	final TextField setName = new TextField();
+		            	setName.setInputPrompt("Please enter set name");
 		            	setName.setImmediate(true);
-
+		            	
 	            		Button addSet = new Button("Add Set", new ClickListener() {
 
 	            			private static final long serialVersionUID = 1L;
 
 	            			@Override
 	            			public void buttonClick(ClickEvent event) {
+	            				
+	            				String setN = (String) setName.getValue();
+	            				if(setN != "") {
 
-	            				SetOperations setOp = new SetOperations();
+	            					SetOperations setOp = new SetOperations();
 
-	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
-	      
+	            					if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+
+	            						getApplication().getMainWindow().removeWindow(nameWindow);
+	            						markerSets.requestRepaint();
+	            					}
+	            				} else {
+
+	            					getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
+	            							Notification.TYPE_ERROR_MESSAGE );
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					markerSets.requestRepaint();
 	            				}
-
 	            			}
 
 	            		});
@@ -323,10 +330,9 @@ public class MainLayout extends AbsoluteLayout {
 	            	return ACTIONS_CREATE;
 	                
 	            }
-	            
 	            public void handleAction(Action action, Object sender, Object target) {
 
-	            	if(selectedValues.isEmpty()) {
+	            	if(selectedValues == null) {
 
 	            		getApplication().getMainWindow().showNotification("Please select atleast one phenotype",  
 	            				Notification.TYPE_ERROR_MESSAGE );
@@ -336,41 +342,48 @@ public class MainLayout extends AbsoluteLayout {
 	            		final Window nameWindow = new Window();
 		            	nameWindow.setModal(true);
 		            	nameWindow.setClosable(true);
-		            	nameWindow.setWidth("400px");
-		            	nameWindow.setHeight("200px");
+		            	nameWindow.setWidth("300px");
+		            	nameWindow.setHeight("150px");
 		            	nameWindow.setResizable(false);
 		            	nameWindow.setCaption("Add Phenotypes to Set");
 		            	nameWindow.setImmediate(true);
 		            	
-		            	TextField setName = new TextField();
-		            	setName.setInputPrompt("Set Name (default - setName)");
-		            	setName.setEnabled(false);
+		            	final TextField setName = new TextField();
+		            	setName.setInputPrompt("Please enter set name");
 		            	setName.setImmediate(true);
+		            	
+		            	Button addSet = new Button("Add Set", new ClickListener() {
 
-	            		Button addSet = new Button("Add Set", new ClickListener() {
+		            		private static final long serialVersionUID = 1L;
 
-	            			private static final long serialVersionUID = 1L;
+		            		@Override
+		            		public void buttonClick(ClickEvent event) {
 
-	            			@Override
-	            			public void buttonClick(ClickEvent event) {
+		            			String setN = (String) setName.getValue();
+		            			if(setN != "") {
+		            				
+		            				SetOperations setOp = new SetOperations();
 
-	            				SetOperations setOp = new SetOperations();
+		            				if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
-	            				if( setOp.storeData(selectedValues, setType, "setName", dataSetId ) == true ) {
-	      
-	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					arraySets.requestRepaint();
+		            					getApplication().getMainWindow().removeWindow(nameWindow);
+		            					arraySets.requestRepaint();
+		            				}
+		            			} else {
 
-	            				}
+		            				getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
+		            						Notification.TYPE_ERROR_MESSAGE );
+		            				getApplication().getMainWindow().removeWindow(nameWindow);
+		            			}
+	            					            				
+		            		}
 
-	            			}
-
-	            		});
+		            	});
 
 	            		nameWindow.addComponent(setName);
 	            		nameWindow.addComponent(addSet);
 	            		getApplication().getMainWindow().addWindow(nameWindow);
-	            		selectedValues = null;
+	            		//selectedValues = null;
 	            	}
 	            }	 
 	        });
@@ -411,91 +424,82 @@ public class MainLayout extends AbsoluteLayout {
 		@Override
 		public void valueChange(ValueChangeEvent event) {
 			
-		
-			try {
+			String dataPeru					= 	(String) event.getProperty().getValue();
+			String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
+			Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-				if (event.getProperty().getValue().toString().contains("Analysis") && event.getProperty().getValue().toString().contains("SubSets")) {
+			parameters.put("name", dataPeru);
+			parameters.put("owner", user.getId());
 
-				} else {
+			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-					String dataPeru					= 	(String) event.getProperty().getValue();
-					String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-					Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+			if(dataSet != null) {
+				/*
+				 * if this is a dataSet
+				 */
 
-					parameters.put("name", dataPeru);
-					parameters.put("owner", user.getId());
+				dataSetId 					=	dataSet.getId();
+				byte[] dataByte 			= 	dataSet.getData();
+				DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
 
-					DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+				markerTable.setContainerDataSource(markerTableView(maSet));
+				arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-					if(dataSet != null) {
-						/*
-						 * if this is a dataSet
-						 */
+				SetOperations setOp = new SetOperations();
 
-						dataSetId 					=	dataSet.getId();
-						byte[] dataByte 			= 	dataSet.getData();
-						DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
+				markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
+				arraySetContainer(setOp.getArraySets(dataSetId), maSet);
 
-						markerTable.setContainerDataSource(markerTableView(maSet));
-						arrayTable.setContainerDataSource(arrayTableView(maSet));
-						
-						SetOperations setOp = new SetOperations();
-						
-						markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
-						arraySetContainer(setOp.getMarkerSets(dataSetId), maSet);
-						
-						
-						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), null);
-						mainPanel.setSecondComponent(tabSheet);
 
-					} else {
+				VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), null);
+				mainPanel.setSecondComponent(tabSheet);
 
-						//it should be analysis results
-						
-						String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-						Map<String, Object> params 			= 	new HashMap<String, Object>();
+			} else {
+ 
+				String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+				Map<String, Object> params 			= 	new HashMap<String, Object>();
 
-						params.put("name", dataPeru);
-						params.put("owner", user.getId());
+				params.put("name", dataPeru);
+				params.put("owner", user.getId());
 
-						ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
-						byte[] dataByte 					= 	resultSet.getData();
-						CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
-						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
-						mainPanel.setSecondComponent(tabSheet);
-
-					}
-
-					mainPanel.requestRepaint();		
+				ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+				if(resultSet != null) {
+					
+					byte[] dataByte 					= 	resultSet.getData();
+					CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
+					VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
+					mainPanel.setSecondComponent(tabSheet);
+				
 				}
-
-			} catch (Exception e) {
-				//TODO: handling non data nodes
 			}
+
+			mainPanel.requestRepaint();		
 		}
 
 		private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
 			
-			arraySets.removeAllItems();
-			arraySets.setSizeFull();
-			arraySets.addContainerProperty("Name", String.class, "");
-			arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-			
-			for(int i=0; i<list.size(); i++ ) {
-	
-				String name 		= 	((SubSet) list.get(i)).getName();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	arraySets.addItem(new Object[] { name }, null);
-				
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-				
-				for(int j = 0; j<temp.length; j++) {
-					
-					Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
-					arraySets.setChildrenAllowed(subItem, false);
-					arraySets.setParent(subItem, item);
+			if(!list.isEmpty()) {
+				arraySets.removeAllItems();
+				arraySets.setSizeFull();
+				arraySets.addContainerProperty("Name", String.class, "");
+				arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+
+				for(int i=0; i<list.size(); i++ ) {
+
+					String name 		= 	((SubSet) list.get(i)).getName();
+					String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+					Object item 		= 	arraySets.addItem(new Object[] { name }, null);
+
+					String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
+
+					for(int j = 0; j<temp.length; j++) {
+
+						Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
+						arraySets.setChildrenAllowed(subItem, false);
+						arraySets.setParent(subItem, item);
+					}
+
 				}
-				
 			}
 	
 		}
@@ -503,26 +507,28 @@ public class MainLayout extends AbsoluteLayout {
 
 		private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
 			
-			markerSets.removeAllItems();
-			markerSets.setSizeFull();
-			markerSets.addContainerProperty("Name", String.class, "");
-			markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-			
-			for(int i=0; i<list.size(); i++ ) {
+			if(list.size() != 0) {
+				markerSets.removeAllItems();
+				markerSets.setSizeFull();
+				markerSets.addContainerProperty("Name", String.class, "");
+				markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 
-				String name 		= 	((SubSet) list.get(i)).getName();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	markerSets.addItem(new Object[] { name }, null);
-				
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-				
-				for(int j = 0; j<temp.length; j++) {
-					
-					Object subItem = markerSets.addItem(new Object[] { maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
-					markerSets.setChildrenAllowed(subItem, false);
-					markerSets.setParent(subItem, item);
+				for(int i=0; i<list.size(); i++ ) {
+
+					String name 		= 	((SubSet) list.get(i)).getName();
+					String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+					Object item 		= 	markerSets.addItem(new Object[] { name }, null);
+
+					String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
+
+					for(int j = 0; j<temp.length; j++) {
+
+						Object subItem = markerSets.addItem(new Object[] { maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
+						markerSets.setChildrenAllowed(subItem, false);
+						markerSets.setParent(subItem, item);
+					}
+
 				}
-					
 			}
 			
 		}
