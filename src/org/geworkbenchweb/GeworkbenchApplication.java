@@ -8,6 +8,14 @@ import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 
+/**
+ * This is the application entry point.
+ * Have to implement ThreadLocal pattern for Application to keep track of 
+ * application instances. Also look at "Toolkit Productivity Tools" addon for further idea.
+ * 
+ * @author Nikhil Reddy
+ */
+
 @SuppressWarnings("serial")
 public class GeworkbenchApplication extends Application {
 	
