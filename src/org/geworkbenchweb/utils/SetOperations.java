@@ -9,6 +9,11 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+/**
+ * Purpose of this class is to have all the operations on the subset table
+ * @author Nikhil
+ */
+
 public class SetOperations {
 
 	User user 		= 	SessionHandler.get();
