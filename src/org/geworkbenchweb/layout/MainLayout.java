@@ -83,19 +83,22 @@ public class MainLayout extends AbsoluteLayout {
 		Accordion tabs 					= 	new AccordionPanels(true);
 		CssLayout toolbar 				= 	new CssLayout();
 		welcome 						= 	new CustomLayout("welcome");
-		Label headerText 				=  	new Label("<h4><b>geWorkbench-Web 1.0</b></h4>");
+		Label headerText 				=  	new Label("geWorkbench-Web 1.0");
 		CssLayout mainHeader 			= 	new CssLayout();
-		Label welcomeUser 				= 	new Label("<h4><b>" + "Welcome  " + user.getUsername() + "  |</h4></b>");
+		Label welcomeUser 				= 	new Label("Welcome  " + user.getUsername() + "  |");
+		
+		
+		headerText.addStyleName("h4");
+		welcomeUser.addStyleName("h4");
 		
 		setSizeFull();
 		toolPanel.setSizeFull();
 		toolPanel.setStyleName("small previews");
-		toolPanel.setSplitPosition(37, UNITS_PIXELS);
+		toolPanel.setSplitPosition(33, UNITS_PIXELS);
 		toolPanel.setLocked(true);
 		
         mainHeader.setWidth("100%");
         mainHeader.addStyleName("toolbar-invert");
-		headerText.setContentMode(Label.CONTENT_XHTML);
 		mainHeader.addComponent(headerText);
     
         Button logoutButton = new Button("Logout", new ClickListener() {
@@ -117,7 +120,6 @@ public class MainLayout extends AbsoluteLayout {
         
         toolbar.setSizeUndefined();
         toolbar.addStyleName("right");
-        welcomeUser.setContentMode(Label.CONTENT_XHTML);
         toolbar.addComponent(welcomeUser);
         toolbar.addComponent(logoutButton);
         mainHeader.addComponent(toolbar);

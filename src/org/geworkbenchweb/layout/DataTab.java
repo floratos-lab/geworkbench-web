@@ -346,8 +346,7 @@ public class DataTab extends VerticalLayout {
 			
 			FastHierClustAnalysis analysis 	= 	new FastHierClustAnalysis();
 			results 						= 	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
-			
-			
+		
 			if(results != null) {
 				
 				ResultSet resultSet = 	new ResultSet();
