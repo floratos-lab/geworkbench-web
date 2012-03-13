@@ -179,12 +179,12 @@ public class DendrogramTab extends VerticalLayout{
 		dendrogram.setArrayLabels(arrayNames);
 		
 		if(markerString != null) {
-			dendrogram.setMarkerCluster(markerString);
+			dendrogram.setMarkerCluster(markerString.substring(4));
 			markerString = null;
 		}
 		
-		if(arrayString != null) {
-			dendrogram.setArrayCluster(arrayString);
+		if(arrayString != null) { 
+			dendrogram.setArrayCluster(arrayString.substring(4));
 			arrayString = null;
 		}
 		
@@ -200,6 +200,7 @@ public class DendrogramTab extends VerticalLayout{
 		} else {	
 			Cluster[] child = hierCluster.getChildrenNodes();
 			ClusterNode c1 = convertMarkerCluster(child[0]);
+			
 			ClusterNode c2 = convertMarkerCluster(child[1]);
 			cluster = new ClusterNode(c1, c2);
 			markerString = markerString + ")";
@@ -217,6 +218,7 @@ public class DendrogramTab extends VerticalLayout{
 		} else {	
 			Cluster[] child = hierCluster.getChildrenNodes();
 			ClusterNode c1 = convertArrayCluster(child[0]);
+			
 			ClusterNode c2 = convertArrayCluster(child[1]);
 			cluster = new ClusterNode(c1, c2);
 			arrayString = arrayString + ")";
@@ -279,9 +281,5 @@ public class DendrogramTab extends VerticalLayout{
 		return object; 
 	
 	}
-	
-	
-
-    
 	
 }
