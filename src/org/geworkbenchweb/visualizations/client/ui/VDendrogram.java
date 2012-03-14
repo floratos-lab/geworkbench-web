@@ -85,62 +85,58 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 		
 		final String[] colorArray 		=	uidl.getStringArrayVariable("color");
 		
-		/**
-		 * This is where we draw Marker Cluster Dendrogram.
-		 * only if exists.
-		 */
-		
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
 				super.onAttach();
 
 				initPVPanel();
-
-				//marker dendrogram
+				
 				final PVPanel vis = getPVPanel().width(width).height(height).left(0).right(0).top(0).bottom(0);
 				
+				/* Marker Dendrogram */
 				if(markerTreeString.contains("(")) {
 					PVClusterLayout layout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(markerTreeString)).nodes()).group(false).orient("left")
-							.left(100).top(300).height(markerNumber*geneHeight).width(300);
+							.left(25).top(175).height(markerNumber*geneHeight).width(200);
 					layout.link().add(PV.Line).lineWidth(1)
 					.antialias(false);
 				}
 				
+				/* Array Dendrogram*/
 				if(arrayTreeString.contains("(")) {
 					PVClusterLayout arrayTreeLayout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(arrayTreeString)).nodes()).group(false).orient("top")
-							.left(400).top(100).width(arrayNumber*geneWidth).height(200);
+							.left(225).top(25).width(arrayNumber*geneWidth).height(150);
 					arrayTreeLayout.link().add(PV.Line).lineWidth(1)
 					.antialias(false); 
 				}
-				int topCordinate 	=  	300;
-				int leftCordinate	= 	400; 
-				for(int i=0; i<12100; i++) {
+				
+				/* Heatmap*/
+				int topCordinate 	=  	175;
+				int leftCordinate	= 	225; 
+				for(int i=0; i<colorArray.length; i++) {
 					if(i%arrayNumber == 0) {
 						if(i != 0) {
 							topCordinate 	= 	topCordinate + geneHeight;
-							leftCordinate 	=	400;
+							leftCordinate 	=	225;
 						}	
 					} else {
 						
 						leftCordinate = leftCordinate + geneWidth;
 						
 					}
+					@SuppressWarnings("unused")
 					PVBar bar = vis.add(PV.Bar)
 							.top(topCordinate)
 							.left(leftCordinate)
 							.height(geneHeight)
 							.width(geneWidth)
 							.fillStyle("#" + colorArray[i]);
-					
-					/* capture pan & zoom events on main panel */
-			        getPVPanel().event(PV.Event.MOUSEWHEEL, PV.Behavior.zoom());
-				
 				}
-		        
+				/* capture pan & zoom events on main panel */
+		        //getPVPanel().event(PV.Event.MOUSEWHEEL, PV.Behavior.zoom());
 		        getPVPanel().render();
 			}
 		}, 0, 0);
