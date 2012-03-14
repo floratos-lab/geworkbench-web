@@ -42,13 +42,15 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 	
 	public static final String CLICK_EVENT_IDENTIFIER = "click";
 
-	/** The client side widget identifier */
+	/** The client side widget identifier. */
 	protected String paintableId;
 
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 	
+	/** Abolute panel to hold the Clustergram. */
 	private AbsolutePanel panel;
+	
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
@@ -57,12 +59,10 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 		
 		panel = new AbsolutePanel();
 		initWidget(panel);
-		
 		setStyleName(CLASSNAME);
        
 	}
 
-	
     /**
      * Called whenever an update is received from the server 
      */
