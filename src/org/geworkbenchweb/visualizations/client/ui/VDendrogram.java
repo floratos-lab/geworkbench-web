@@ -136,7 +136,7 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 							.fillStyle("#" + colorArray[i]);
 				}
 				/* capture pan & zoom events on main panel */
-		        //getPVPanel().event(PV.Event.MOUSEWHEEL, PV.Behavior.zoom());
+		        getPVPanel().event(PV.Event.MOUSEWHEEL, PV.Behavior.zoom());
 		        getPVPanel().render();
 			}
 		}, 0, 0);
