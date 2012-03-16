@@ -339,7 +339,6 @@ public class DataTab extends VerticalLayout {
 		}
 	}
 	private static int parseDimension(String dim) {
-		Integer.parseInt(dim);
 		if(dim.equals("Marker")) {
 			return 0;
 		} else if(dim.equals("Microarray")) {
