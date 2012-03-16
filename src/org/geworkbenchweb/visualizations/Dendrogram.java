@@ -43,7 +43,20 @@ public class Dendrogram extends AbstractComponent {
 	public void changeVariables(Object source, Map<String, Object> variables) {
 		super.changeVariables(source, variables);
 
-		//TODO
+		
+		if (variables.containsKey("marker")) {
+
+			markerCluster = (String) variables.get("marker");
+			requestRepaint();
+			
+		}
+		
+		if (variables.containsKey("array")) {
+
+			arrayCluster = (String) variables.get("array");
+			requestRepaint();
+			
+		}
 	}
 	
 	public void setColors(String[] colors) {

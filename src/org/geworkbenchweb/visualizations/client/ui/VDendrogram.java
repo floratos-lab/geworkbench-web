@@ -4,15 +4,16 @@ import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVBar;
 import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
 import org.thechiselgroup.choosel.protovis.client.PVDomNode;
+import org.thechiselgroup.choosel.protovis.client.PVEventHandler;
+import org.thechiselgroup.choosel.protovis.client.PVLink;
 import org.thechiselgroup.choosel.protovis.client.PVPanel;
 import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
+import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
+
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -24,8 +25,7 @@ import com.google.gwt.user.client.ui.Composite;
  * @Note Don't even think of making any changes with out asking Nikhil
  *
  */
-public class VDendrogram extends Composite implements Paintable, ClickHandler, 
-					MouseMoveHandler {
+public class VDendrogram extends Composite implements Paintable {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-dendrogram";
@@ -39,8 +39,6 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
      * Value for width of marker in pixels
      */
     static int geneWidth = 20;
-	
-	public static final String CLICK_EVENT_IDENTIFIER = "click";
 
 	/** The client side widget identifier. */
 	protected String paintableId;
@@ -51,6 +49,28 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 	/** Abolute panel to hold the Clustergram. */
 	private AbsolutePanel panel;
 	
+	
+	/**
+	 * Marker Cluster Tree String
+	 */
+	private String markerTreeString;
+	
+	/**
+	 * Array Cluster Tree String
+	 */
+	private String arrayTreeString;
+	
+	/**
+	 * Number of arrays/phenotypes 
+	 */
+	private int arrayNumber;
+	
+	/**
+	 * Number of markers
+	 */
+	private int markerNumber;
+	
+	private String[] colorArray;
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
@@ -74,16 +94,19 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 		
 		this.client	= client;
 		paintableId = uidl.getId();
+		panel.clear();
+		/* All the variables from the server are handled here */
+		markerTreeString 		=  	uidl.getStringVariable("markerCluster").trim();
+		arrayTreeString			= 	uidl.getStringVariable("arrayCluster").trim();
+		arrayNumber 			= 	uidl.getIntVariable("arrayNumber");
+		markerNumber 			=	uidl.getIntVariable("markerNumber");
+		colorArray 				=	uidl.getStringArrayVariable("color");
 		
-		final String markerTreeString 	=  	uidl.getStringVariable("markerCluster").trim();
-		final String arrayTreeString	= 	uidl.getStringVariable("arrayCluster").trim();
-		final int arrayNumber 			= 	uidl.getIntVariable("arrayNumber");
-		final int markerNumber 			=	uidl.getIntVariable("markerNumber");
-		
+		/* Width of the dendrogram panel*/
 		final int width 	= 	((arrayNumber*geneWidth) + 600);
-		final int height 	= 	((markerNumber*geneHeight) + 600);
 		
-		final String[] colorArray 		=	uidl.getStringArrayVariable("color");
+		/* height of the dendrogram panel*/
+		final int height 	= 	((markerNumber*geneHeight) + 600);
 		
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
@@ -99,8 +122,19 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(markerTreeString)).nodes()).group(false).orient("left")
 							.left(25).top(175).height(markerNumber*geneHeight).width(200);
-					layout.link().add(PV.Line).lineWidth(1)
-					.antialias(false);
+					layout.link().add(PV.Line).lineWidth(2)
+					.antialias(false)
+					.event(PV.Event.CLICK, new PVEventHandler() {
+
+						@Override
+						public void onEvent(Event e, String pvEventType,
+								JsArgs args) {
+							
+							PVLink link = args.getObject(1);
+							markerDendrogramUpdate(link.sourceNode().nodeName());
+						}
+						
+					});
 				}
 				
 				/* Array Dendrogram*/
@@ -109,8 +143,18 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(arrayTreeString)).nodes()).group(false).orient("top")
 							.left(225).top(25).width(arrayNumber*geneWidth).height(150);
-					arrayTreeLayout.link().add(PV.Line).lineWidth(1)
-					.antialias(false); 
+					arrayTreeLayout.link().add(PV.Line).lineWidth(2)
+					.antialias(false).event(PV.Event.CLICK, new PVEventHandler() {
+
+						@Override
+						public void onEvent(Event e, String pvEventType,
+								JsArgs args) {
+							
+							PVLink link = args.getObject(1);
+							arrayDendrogramUpdate(link.sourceNode().nodeName());
+						}
+						
+					}); 
 				}
 				
 				/* Heatmap*/
@@ -142,17 +186,64 @@ public class VDendrogram extends Composite implements Paintable, ClickHandler,
 		}, 0, 0);
         
 	}
-
-	@Override
-	public void onClick(ClickEvent event) {
-		// TODO Auto-generated method stub
+	/**
+	 * Handles selecting marker subclusters 
+	 * @param selected Marker Node name
+	 */
+	public void markerDendrogramUpdate(String string) {
 		
+		int selectedNodeIndex = Integer.parseInt(string);
+		boolean flag = false;
+		int counter = 1;
+		int positionIncrement = 1;
+		StringBuffer updatedString = new StringBuffer("(");
+		while(!flag) {
+			
+			if(markerTreeString.charAt(selectedNodeIndex+positionIncrement) == '(' ) {
+				updatedString.append("(");
+				counter++; 
+				
+			}else {
+				updatedString.append(")");
+				counter--;
+				
+			}
+			if(counter == 0) {
+				flag = true;
+			}
+			positionIncrement++;
+		}
+		client.updateVariable(paintableId, "marker", updatedString.toString(), true);
 	}
-
-
-	@Override
-	public void onMouseMove(MouseMoveEvent event) {
+	
+	/**
+	 * Handles selecting arraysubclusters
+	 * @param Selected Array Node Name 
+	 */
+	public void arrayDendrogramUpdate(String string) {
 		
-		
+		int selectedNodeIndex = Integer.parseInt(string);
+		boolean flag = false;
+		int counter = 1;
+		int positionIncrement = 1;
+		StringBuffer updatedString = new StringBuffer("(");
+		while(!flag) {
+			
+			if(arrayTreeString.charAt(selectedNodeIndex+positionIncrement) == '(' ) {
+				updatedString.append("(");
+				counter++; 
+				
+			}else {
+				updatedString.append(")");
+				counter--;
+				
+			}
+			if(counter == 0) {
+				flag = true;
+			}
+			positionIncrement++;
+		}
+		client.updateVariable(paintableId, "array", updatedString.toString() , true);
 	}
+	
 }

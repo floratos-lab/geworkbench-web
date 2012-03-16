@@ -25,14 +25,14 @@ public final class TreeData {
 
 			if(i == 0) {
 
-				rootObject 		=	PVDomNode.create(new Object(), "root",  0);
+				rootObject 		=	PVDomNode.create(new Object(), i + "",  0);
 				parentNode		=	rootObject; 
 
 			} else {
 
 				if(treeString.charAt(i) == '(' ) {
 
-					PVDomNode childNode  	= 	PVDomNode.create(new Object(), "child"+i, 0);
+					PVDomNode childNode  	= 	PVDomNode.create(new Object(), i + "", 0);
 					parentNode.appendChild(childNode);
 					prevNode.push(parentNode);
 					parentNode = childNode;
