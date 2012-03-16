@@ -5,9 +5,14 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.components.hierarchicalclustering.FastHierClustAnalysis;
+import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.GeworkbenchApplication;
+import org.geworkbenchweb.analysis.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -309,10 +314,42 @@ public class DataTab extends VerticalLayout {
 		return byteData;
 
 	}
-	
-	
-	
-	
+
+	// TODO these are temporary code. enum (or int) should be used instead String
+	private static int parseDistanceMetric(String d) {
+		if(d.equals("Eucledian Distance")) {
+			return 0;
+		} else if(d.equals("Pearson's Correlation")) {
+			return 1;
+		} else if(d.equals("Spearman's Rank Correlation")) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+	private static int parseMethod(String method) {
+		if(method.equals("Single Linkage")) {
+			return 0;
+		} else if(method.equals("Average Linkage")) {
+			return 1;
+		} else if(method.equals("Total linkage")) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+	private static int parseDimension(String dim) {
+		Integer.parseInt(dim);
+		if(dim.equals("Marker")) {
+			return 0;
+		} else if(dim.equals("Microarray")) {
+			return 1;
+		} else if(dim.equals("Both")) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
 	
 	public class AnalysisProcess extends Thread {
 		@Override
@@ -344,8 +381,15 @@ public class DataTab extends VerticalLayout {
 				clustMetric = "Eucledian Distance";
 			}
 			
-			FastHierClustAnalysis analysis 	= 	new FastHierClustAnalysis();
-			results 						= 	analysis.analyze(dataSet, clustMethod, clustDim, clustMetric);
+			int metric = parseDistanceMetric(clustMetric);
+			int method = parseMethod(clustMethod);
+			int dimension = parseDimension(clustDim);
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> data
+			 = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+			HierarchicalClusteringWrapper analysis 	= 	new HierarchicalClusteringWrapper(data, metric, method, dimension );
+			HierCluster[] resultClusters = analysis.execute();
+			results = new CSHierClusterDataSet(resultClusters, null, false,
+					"Hierarchical Clustering", data);
 		
 			if(results != null) {
 				
