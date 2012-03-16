@@ -53,13 +53,13 @@ public class DendrogramTab extends VerticalLayout{
      * The String is passed to the client side
      * Marker String
      */
-    private static String markerString = null; 
+    private static StringBuffer markerString = new StringBuffer(); 
     
     /**
      * The string is passed to the client side
      * Array String
      */
-    private static String arrayString = null; 
+    private static StringBuffer arrayString = new StringBuffer(); 
     
     User user = SessionHandler.get();
 
@@ -159,15 +159,7 @@ public class DendrogramTab extends VerticalLayout{
 		
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
-		if(markerCluster != null) {
-			
-			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
 		
-		}
-		
-		if(arrayCluster != null) {
-			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
-		}
 		Dendrogram dendrogram = new Dendrogram();
 		
 		dendrogram.setHeight(((geneNo*5) + 600) + "px");
@@ -178,52 +170,74 @@ public class DendrogramTab extends VerticalLayout{
 		dendrogram.setMarkerLabels(markerNames);
 		dendrogram.setArrayLabels(arrayNames);
 		
-		if(markerString != null) {
-			dendrogram.setMarkerCluster(markerString.substring(4));
-			markerString = null;
-		}
 		
-		if(arrayString != null) { 
-			dendrogram.setArrayCluster(arrayString.substring(4));
-			arrayString = null;
+		if(markerCluster != null) {
+				
+			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
+			dendrogram.setMarkerCluster(markerString.toString());
+			
+			/*since this is the member variable I have to reset it. Have to find a way to make it non-member variable*/
+			markerString.delete(0, markerString.length());
+			
+		}
+			
+		if(arrayCluster != null) {
+			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
+			dendrogram.setArrayCluster(arrayString.toString());
+			
+			/*since this is the member variable I have to reset it. Have to find a way to make it non-member variable*/
+			arrayString.delete(0, arrayString.length());
 		}
 		
 		addComponent(dendrogram);
 	}
 
 	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {
-
-		markerString = markerString + "(";
+	
+		markerString.append("(");
 		ClusterNode cluster = null;
+		
 		if(hierCluster.isLeaf()) {
-			markerString = markerString + ")";
-		} else {	
-			Cluster[] child = hierCluster.getChildrenNodes();
-			ClusterNode c1 = convertMarkerCluster(child[0]);
 			
-			ClusterNode c2 = convertMarkerCluster(child[1]);
-			cluster = new ClusterNode(c1, c2);
-			markerString = markerString + ")";
+			markerString.append(")");
+		
+		} else {	
+			
+			Cluster[] child 	= 	hierCluster.getChildrenNodes();
+			ClusterNode c1 		= 	convertMarkerCluster(child[0]);
+			ClusterNode c2 		= 	convertMarkerCluster(child[1]);
+			cluster 			= 	new ClusterNode(c1, c2);
+			
+			markerString.append(")");
+		
 		}
+		
 		return cluster;
+	
 	}
 	
 	private static ClusterNode convertArrayCluster(Cluster hierCluster) {
 
-		arrayString = arrayString + "(";
-		
+		arrayString.append("(");
 		ClusterNode cluster = null;
+		
 		if(hierCluster.isLeaf()) {
-			arrayString = arrayString + ")";
-		} else {	
-			Cluster[] child = hierCluster.getChildrenNodes();
-			ClusterNode c1 = convertArrayCluster(child[0]);
 			
-			ClusterNode c2 = convertArrayCluster(child[1]);
-			cluster = new ClusterNode(c1, c2);
-			arrayString = arrayString + ")";
+			arrayString.append(")");
+		
+		} else {	
+			
+			Cluster[] child 	= 	hierCluster.getChildrenNodes();
+			ClusterNode c1 		= 	convertArrayCluster(child[0]);	
+			ClusterNode c2 		= 	convertArrayCluster(child[1]);
+			cluster 			= 	new ClusterNode(c1, c2);
+			
+			arrayString.append(")");
+		
 		}
+		
 		return cluster;
+	
 	}
 	
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {
@@ -253,33 +267,6 @@ public class DendrogramTab extends VerticalLayout{
 			}
 		}
 
-	}
-	
-	
-	@SuppressWarnings("deprecation")
-	public Object toObject(byte[] bytes){ 
-		
-		Object object = null; 
-		
-		try{ 
-			
-			object = new java.io.ObjectInputStream(new 
-					java.io.ByteArrayInputStream(bytes)).readObject(); 
-		
-		}catch(java.io.IOException ioe){ 
-			
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					ioe.getMessage()); 
-		
-		}catch(java.lang.ClassNotFoundException cnfe){ 
-			
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					cnfe.getMessage()); 
-		
-		} 
-		
-		return object; 
-	
 	}
 	
 }
