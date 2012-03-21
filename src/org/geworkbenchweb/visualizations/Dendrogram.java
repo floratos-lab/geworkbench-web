@@ -47,6 +47,9 @@ public class Dendrogram extends AbstractComponent {
 		if (variables.containsKey("marker")) {
 
 			markerCluster = (String) variables.get("marker");
+			colors  = (String[]) variables.get("markerColor");
+			numMarkers = (Integer) variables.get("markerNumber");
+			
 			requestRepaint();
 			
 		}
@@ -54,6 +57,9 @@ public class Dendrogram extends AbstractComponent {
 		if (variables.containsKey("array")) {
 
 			arrayCluster = (String) variables.get("array");
+			colors  = (String[]) variables.get("arrayColor");
+			numArrays = (Integer) variables.get("arrayNumber");
+			
 			requestRepaint();
 			
 		}

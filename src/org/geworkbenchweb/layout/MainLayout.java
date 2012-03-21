@@ -1,4 +1,4 @@
-package org.geworkbenchweb.layout;
+ package org.geworkbenchweb.layout;
 
 import java.util.HashMap;
 import java.util.List;

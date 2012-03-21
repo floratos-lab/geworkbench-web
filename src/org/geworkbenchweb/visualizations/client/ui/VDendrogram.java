@@ -13,6 +13,7 @@ import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.terminal.gwt.client.VConsole;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
@@ -69,7 +70,9 @@ public class VDendrogram extends Composite implements Paintable {
 	 * Number of markers
 	 */
 	private int markerNumber;
-	
+	/**
+	 * Gene Color Array
+	 */
 	private String[] colorArray;
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -213,7 +216,37 @@ public class VDendrogram extends Composite implements Paintable {
 			}
 			positionIncrement++;
 		}
+		
+		
+		String[] newColorArray = new String[arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
+		
+		for (int i = 0 ; i < arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); i++) {
+			
+			newColorArray[i] = colorArray[(arrayNumber * countMatches(markerTreeString.substring(0, selectedNodeIndex), "()")) + (i)];
+		
+		}
+		  
+		client.updateVariable(paintableId, "markerColor", newColorArray, false);
+		client.updateVariable(paintableId, "markerNumber", countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"), false);
 		client.updateVariable(paintableId, "marker", updatedString.toString(), true);
+		
+	}
+	
+	public static int countMatches(String str, String sub) {
+		if (isEmpty(str) || isEmpty(sub)) {
+			return 0;
+		}
+		int count = 0;
+		int idx = 0;
+		while ((idx = str.indexOf(sub, idx)) != -1) {
+			count++;
+			idx += sub.length();
+		}
+		return count;
+	}
+	
+	public static boolean isEmpty(String str) {
+		return str == null || str.length() == 0;
 	}
 	
 	/**
@@ -243,7 +276,24 @@ public class VDendrogram extends Composite implements Paintable {
 			}
 			positionIncrement++;
 		}
-		client.updateVariable(paintableId, "array", updatedString.toString() , true);
+		
+		String[] newColorArray = new String[markerNumber * countMatches(arrayTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
+		int j = 0;
+		for (int i = 0 ; i < colorArray.length; i++) {
+			
+			if(i%markerNumber == 0){
+				for(int k = 0; k<countMatches(arrayTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); k++) {
+					
+					newColorArray[j] = colorArray[i + (countMatches(arrayTreeString.substring(0, selectedNodeIndex), "()")-1) + k];
+					j++;
+				}
+			}
+		}
+		VConsole.log(newColorArray.length + " ");
+		client.updateVariable(paintableId, "arayColor", newColorArray, false);
+		client.updateVariable(paintableId, "arrayNumber", countMatches(arrayTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"), false);
+		client.updateVariable(paintableId, "array", updatedString.toString(), true);
+		
 	}
 	
 }
