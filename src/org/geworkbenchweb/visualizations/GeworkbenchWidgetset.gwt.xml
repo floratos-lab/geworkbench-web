@@ -25,10 +25,13 @@
 
 	<inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
 	
+	<inherits name="com.vaadin.lazyloadwrapper.widgetset.LazyLoadWrapperWidgetset" />
+	
 	<script  src="js/src/json2.js" />
         
     <script  src="js/src/AC_OETags.js" />
         
     <script  src="js/src/cytoscapeweb.js" />
 
+    
 </module>
