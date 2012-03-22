@@ -3,12 +3,14 @@ package org.geworkbenchweb.visualizations.client.ui;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVBar;
 import org.thechiselgroup.choosel.protovis.client.PVClusterLayout;
+import org.thechiselgroup.choosel.protovis.client.PVColor;
 import org.thechiselgroup.choosel.protovis.client.PVDomNode;
 import org.thechiselgroup.choosel.protovis.client.PVEventHandler;
 import org.thechiselgroup.choosel.protovis.client.PVLink;
 import org.thechiselgroup.choosel.protovis.client.PVPanel;
 import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
 import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
+import org.thechiselgroup.choosel.protovis.client.jsutil.JsFunction;
 
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
@@ -117,7 +119,16 @@ public class VDendrogram extends Composite implements Paintable {
 
 				initPVPanel();
 				
-				final PVPanel vis = getPVPanel().width(width).height(height).left(0).right(0).top(0).bottom(0);
+				final String selectedNodeIndexProperty = "selectedNodeIndex";
+		        final String selectedArcIndexProperty = "selectedArcIndex";
+				
+		        final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
+		        final PVColor emphasizedArcColor = PV.color("red");
+		        final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.075)");
+		        
+		        final PVPanel vis = getPVPanel().width(width).height(height).left(0).right(0).top(0).bottom(0)
+						.def(selectedNodeIndexProperty, -1)
+		                .def(selectedArcIndexProperty, null);;
 				
 				/* Marker Dendrogram */
 				if(markerTreeString.contains("(")) {
@@ -125,7 +136,7 @@ public class VDendrogram extends Composite implements Paintable {
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(markerTreeString)).nodes()).group(false).orient("left")
 							.left(25).top(175).height(markerNumber*geneHeight).width(200);
-					layout.link().add(PV.Line).lineWidth(2)
+					layout.link().add(PV.Line).lineWidth(1)
 					.antialias(false)
 					.event(PV.Event.CLICK, new PVEventHandler() {
 
@@ -137,27 +148,96 @@ public class VDendrogram extends Composite implements Paintable {
 							markerDendrogramUpdate(link.sourceNode().nodeName());
 						}
 						
+					})
+					.strokeStyle(new JsFunction<PVColor>() {
+						public PVColor f(JsArgs args) {
+							PVLink d = args.getObject(1); // 0 is PVNode
+
+							PVLink selectedArc = vis.getObject(selectedArcIndexProperty);
+							if (selectedArc != null) {
+								return (d == selectedArc) ? emphasizedArcColor
+										: deemphasizedArcColor;
+							}
+
+							int selectedNodeIndex = vis.getInt(selectedNodeIndexProperty);
+							if (selectedNodeIndex == -1) {
+								return arcColor;
+							}
+
+							if (d.source() == selectedNodeIndex
+									|| d.target() == selectedNodeIndex) {
+								return emphasizedArcColor;
+							}
+							return deemphasizedArcColor;
+						}
+					})
+					.event(PV.Event.MOUSEOVER, new PVEventHandler() {
+						public void onEvent(Event e, String pvEventType, JsArgs args) {
+							PVLink d = args.getObject(1);
+							vis.set(selectedArcIndexProperty, d);
+							vis.render();
+						}
+					}).event(PV.Event.MOUSEOUT, new PVEventHandler() {
+						public void onEvent(Event e, String pvEventType, JsArgs args) {
+							vis.set(selectedArcIndexProperty, null);
+							vis.render();
+						}
 					});
 				}
 				
 				/* Array Dendrogram*/
 				if(arrayTreeString.contains("(")) {
+					
 					PVClusterLayout arrayTreeLayout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(arrayTreeString)).nodes()).group(false).orient("top")
 							.left(225).top(25).width(arrayNumber*geneWidth).height(150);
-					arrayTreeLayout.link().add(PV.Line).lineWidth(2)
-					.antialias(false).event(PV.Event.CLICK, new PVEventHandler() {
+					
+					arrayTreeLayout.link().add(PV.Line).lineWidth(1)
+					.antialias(false)
+					.event(PV.Event.CLICK, new PVEventHandler() {
 
 						@Override
 						public void onEvent(Event e, String pvEventType,
-								JsArgs args) {
-							
+								JsArgs args) {	
 							PVLink link = args.getObject(1);
 							arrayDendrogramUpdate(link.sourceNode().nodeName());
+						}	
+					})
+					.strokeStyle(new JsFunction<PVColor>() {
+						public PVColor f(JsArgs args) {
+							PVLink d = args.getObject(1); // 0 is PVNode
+
+							PVLink selectedArc = vis.getObject(selectedArcIndexProperty);
+							if (selectedArc != null) {
+								return (d == selectedArc) ? emphasizedArcColor
+										: deemphasizedArcColor;
+							}
+
+							int selectedNodeIndex = vis.getInt(selectedNodeIndexProperty);
+							if (selectedNodeIndex == -1) {
+								return arcColor;
+							}
+
+							if (d.source() == selectedNodeIndex
+									|| d.target() == selectedNodeIndex) {
+								return emphasizedArcColor;
+							}
+							return deemphasizedArcColor;
 						}
-						
-					}); 
+					})
+					.event(PV.Event.MOUSEOVER, new PVEventHandler() {
+						public void onEvent(Event e, String pvEventType, JsArgs args) {
+							PVLink d = args.getObject(1);
+							vis.set(selectedArcIndexProperty, d);
+							vis.render();
+						}
+					}).event(PV.Event.MOUSEOUT, new PVEventHandler() {
+						public void onEvent(Event e, String pvEventType, JsArgs args) {
+							vis.set(selectedArcIndexProperty, null);
+							vis.render();
+						}
+					});
 				}
 				
 				/* Heatmap*/
