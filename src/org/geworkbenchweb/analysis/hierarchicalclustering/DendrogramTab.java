@@ -16,7 +16,6 @@ import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
-import com.vaadin.lazyloadwrapper.LazyLoadWrapper;
 import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
@@ -191,7 +190,7 @@ public class DendrogramTab extends VerticalLayout{
 			arrayString.delete(0, arrayString.length());
 		}
 		
-		addComponent(new LazyLoadWrapper(dendrogram, "50px", "50px", false));
+		addComponent(dendrogram);
 	}
 
 	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {
