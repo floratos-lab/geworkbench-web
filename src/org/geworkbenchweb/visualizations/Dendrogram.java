@@ -8,6 +8,7 @@ import com.vaadin.ui.AbstractComponent;
 
 /**
  * Server side component for the VDendrogram widget.
+ * @author Nikhil Reddy
  */
 @com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VDendrogram.class)
 public class Dendrogram extends AbstractComponent {
@@ -46,6 +47,7 @@ public class Dendrogram extends AbstractComponent {
 		
 		if (variables.containsKey("marker")) {
 
+			markerLabels	= 	(String[]) variables.get("markerLabels");
 			markerCluster 	= 	(String) variables.get("marker");
 			colors  		= 	(String[]) variables.get("markerColor");
 			numMarkers 		= 	(Integer) variables.get("markerNumber");
@@ -56,6 +58,7 @@ public class Dendrogram extends AbstractComponent {
 		
 		if (variables.containsKey("array")) {
 
+			arrayLabels 	= 	(String[]) variables.get("arrayLabels");
 			arrayCluster 	= 	(String) variables.get("array");
 			colors  		=	(String[]) variables.get("arrayColor");
 			numArrays 		= 	(Integer) variables.get("arrayNumber");
