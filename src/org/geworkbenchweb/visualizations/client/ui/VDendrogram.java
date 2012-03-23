@@ -35,71 +35,71 @@ public class VDendrogram extends Composite implements Paintable {
 	public static final String CLASSNAME = "v-dendrogram";
 
 	/**
-     * Value for height of marker in pixels
-     */
-    static int geneHeight = 5;
+	 * Value for height of marker in pixels
+	 */
+	static int geneHeight = 5;
 
-    /**
-     * Value for width of marker in pixels
-     */
-    static int geneWidth = 20;
+	/**
+	 * Value for width of marker in pixels
+	 */
+	static int geneWidth = 20;
 
 	/** The client side widget identifier. */
 	protected String paintableId;
 
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
-	
+
 	/** Abolute panel to hold the Clustergram. */
 	private AbsolutePanel panel;
-	
-	
+
+
 	/** Marker Cluster Tree String */
 	private String markerTreeString;
-	
+
 	/** Array Cluster Tree String */
 	private String arrayTreeString;
-	
+
 	/** Number of arrays/phenotypes */
 	private int arrayNumber;
-	
+
 	/** Number of markers */
 	private int markerNumber;
-	
+
 	/** Gene Color Array */
 	private String[] colorArray;
-	
+
 	/** Marker Labels */
 	private String[] markerLabels;
-	
+
 	/** Array Labels */
 	private String[] arrayLabels;
-	
+
 	/**
 	 * The constructor should first call super() to initialize the component and 
 	 * then handle any initialization relevant to Vaadin. 
 	 */	
 	public VDendrogram() {
-		
+
 		panel = new AbsolutePanel();
 		initWidget(panel);
 		setStyleName(CLASSNAME);
-       
+
 	}
 
-    /**
-     * Called whenever an update is received from the server 
-     */
+	/**
+	 * Called whenever an update is received from the server 
+	 */
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-		
+
 		if (client.updateComponent(this, uidl, true)) {
 			return;
 		}
-		
+
 		this.client	= client;
 		paintableId = uidl.getId();
 		panel.clear();
-		
+
 		/* All the variables from the server are retrieved here */
 		markerTreeString 		=  	uidl.getStringVariable("markerCluster").trim();
 		arrayTreeString			= 	uidl.getStringVariable("arrayCluster").trim();
@@ -108,30 +108,30 @@ public class VDendrogram extends Composite implements Paintable {
 		colorArray 				=	uidl.getStringArrayVariable("color");
 		markerLabels			= 	uidl.getStringArrayVariable("markerLabels");
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
-		
-		panel.add(new ProtovisWidget() {
-			protected void onAttach() {
-				super.onAttach();
+		if(markerTreeString.contains("(")) {
+			panel.add(new ProtovisWidget() {
+				protected void onAttach() {
+					super.onAttach();
 
-				initPVPanel();
-				
-				final String selectedNodeIndexProperty = "selectedNodeIndex";
-		        final String selectedArcIndexProperty = "selectedArcIndex";
-				
-		        final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
-		        final PVColor emphasizedArcColor = PV.color("red");
-		        final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
-		        
-		        final PVPanel vis = getPVPanel().width(150).height(markerNumber*geneHeight).left(0).right(0).top(0).bottom(0)
-						.def(selectedNodeIndexProperty, -1)
-		                .def(selectedArcIndexProperty, null);
-				
-				/* Marker Dendrogram */
-				if(markerTreeString.contains("(")) {
+					initPVPanel();
+
+					final String selectedNodeIndexProperty = "selectedNodeIndex";
+					final String selectedArcIndexProperty = "selectedArcIndex";
+
+					final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
+					final PVColor emphasizedArcColor = PV.color("red");
+					final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
+
+					final PVPanel vis = getPVPanel().width(150).height(markerNumber*geneHeight).left(2).right(0).top(0).bottom(0)
+							.def(selectedNodeIndexProperty, -1)
+							.def(selectedArcIndexProperty, null);
+
+					/* Marker Dendrogram */
+
 					PVClusterLayout layout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(markerTreeString)).nodes()).group(false).orient("left");
-					
+
 					layout.link().add(PV.Line).lineWidth(1)
 					.antialias(false)
 					.event(PV.Event.CLICK, new PVEventHandler() {
@@ -139,11 +139,11 @@ public class VDendrogram extends Composite implements Paintable {
 						@Override
 						public void onEvent(Event e, String pvEventType,
 								JsArgs args) {
-							
+
 							PVLink link = args.getObject(1);
 							markerDendrogramUpdate(link.sourceNode().nodeName());
 						}
-						
+
 					})
 					.strokeStyle(new JsFunction<PVColor>() {
 						public PVColor f(JsArgs args) {
@@ -179,35 +179,35 @@ public class VDendrogram extends Composite implements Paintable {
 							vis.render();
 						}
 					});
+					getPVPanel().render();
 				}
-				getPVPanel().render();
-			}
-		}, 50, 200);
-		
-		panel.add(new ProtovisWidget() {
-			protected void onAttach() {
-				super.onAttach();
+			}, 50, 200);
+		}
+		/* Array Dendrogram*/
+		if(arrayTreeString.contains("(")) {
+			panel.add(new ProtovisWidget() {
+				protected void onAttach() {
+					super.onAttach();
 
-				initPVPanel();
-				
-				final String selectedNodeIndexProperty = "selectedNodeIndex";
-		        final String selectedArcIndexProperty = "selectedArcIndex";
-				
-		        final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
-		        final PVColor emphasizedArcColor = PV.color("red");
-		        final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
-		        
-		        final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(150).left(0).right(0).top(0).bottom(0)
-						.def(selectedNodeIndexProperty, -1)
-		                .def(selectedArcIndexProperty, null);
-				
-				/* Array Dendrogram*/
-				if(arrayTreeString.contains("(")) {
-					
+					initPVPanel();
+
+					final String selectedNodeIndexProperty = "selectedNodeIndex";
+					final String selectedArcIndexProperty = "selectedArcIndex";
+
+					final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
+					final PVColor emphasizedArcColor = PV.color("red");
+					final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
+
+					final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(150).left(0).right(0).top(0).bottom(0)
+							.def(selectedNodeIndexProperty, -1)
+							.def(selectedArcIndexProperty, null);
+
+
+
 					PVClusterLayout arrayTreeLayout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(arrayTreeString)).nodes()).group(false).orient("top");
-					
+
 					arrayTreeLayout.link().add(PV.Line).lineWidth(1)
 					.antialias(false)
 					.event(PV.Event.CLICK, new PVEventHandler() {
@@ -253,11 +253,10 @@ public class VDendrogram extends Composite implements Paintable {
 							vis.render();
 						}
 					});
-				}
-				getPVPanel().render();
-			}
-		}, 200, 50);
-				
+					getPVPanel().render();
+				}	
+			}, 200, 50);
+		}		
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
 				super.onAttach();
@@ -274,23 +273,23 @@ public class VDendrogram extends Composite implements Paintable {
 							leftCordinate 	=	0;
 						}	
 					} else {
-						
+
 						leftCordinate = leftCordinate + geneWidth;
-						
+
 					}
 					@SuppressWarnings("unused")
 					PVBar bar = vis.add(PV.Bar)
-							.top(topCordinate)
-							.left(leftCordinate)
-							.height(geneHeight)
-							.width(geneWidth)
-							.fillStyle("#" + colorArray[i]);
+					.top(topCordinate)
+					.left(leftCordinate)
+					.height(geneHeight)
+					.width(geneWidth)
+					.fillStyle("#" + colorArray[i]);
 				}
-		        getPVPanel().render();
+				getPVPanel().render();
 			}
 		}, 200, 200);
-        
-	
+
+
 		/* Marker Labels are printed here */
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
@@ -298,7 +297,7 @@ public class VDendrogram extends Composite implements Paintable {
 
 				initPVPanel();
 				final PVPanel vis = getPVPanel().width(400).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
-			
+
 				int markerPosition = 7;
 				for(int i=0; i<markerLabels.length; i++) {
 					@SuppressWarnings("unused")
@@ -308,7 +307,7 @@ public class VDendrogram extends Composite implements Paintable {
 				getPVPanel().render();
 			}
 		}, (225+geneWidth*arrayNumber), 200);
-		
+
 		/* Array Labels are printed here */
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
@@ -316,7 +315,7 @@ public class VDendrogram extends Composite implements Paintable {
 
 				initPVPanel();
 				final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(400).left(0).right(0).top(0).bottom(0);
-			
+
 				int arrayPosition = 5;
 				for(int i=0; i<arrayLabels.length; i++) {
 					@SuppressWarnings("unused")
@@ -325,7 +324,7 @@ public class VDendrogram extends Composite implements Paintable {
 					.top(5)
 					.textAngle(Math.PI/2)
 					.text(arrayLabels[i]);
-					
+
 					arrayPosition = arrayPosition + 20;
 				}
 				getPVPanel().render();
@@ -337,35 +336,35 @@ public class VDendrogram extends Composite implements Paintable {
 	 * @param selected Marker Node name  
 	 */
 	public void markerDendrogramUpdate(String string) {
-		
+
 		int selectedNodeIndex = Integer.parseInt(string);
 		boolean flag = false;
 		int counter = 1;
 		int positionIncrement = 1;
 		StringBuffer updatedString = new StringBuffer("(");
 		while(!flag) {
-			
+
 			if(markerTreeString.charAt(selectedNodeIndex+positionIncrement) == '(' ) {
 				updatedString.append("(");
 				counter++; 
-				
+
 			}else {
 				updatedString.append(")");
 				counter--;
-				
+
 			}
 			if(counter == 0) {
 				flag = true;
 			}
 			positionIncrement++;
 		}
-		
-		
+
+
 		String[] newColorArray 		= 	new String[arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
 		String[] newMarkerLabels 	= 	new String[countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
-		
+
 		for (int i = 0 ; i < arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); i++) {
-			
+
 			if (i == 0) {
 				int n = 0;
 				for(int k=0; k<countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); k++) {	
@@ -374,16 +373,16 @@ public class VDendrogram extends Composite implements Paintable {
 				}
 			}
 			newColorArray[i] = colorArray[(arrayNumber * countMatches(markerTreeString.substring(0, selectedNodeIndex), "()")) + (i)];
-		
+
 		}
-		  
+
 		client.updateVariable(paintableId, "markerLabels", newMarkerLabels, false);
 		client.updateVariable(paintableId, "markerColor", newColorArray, false);
 		client.updateVariable(paintableId, "markerNumber", countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"), false);
 		client.updateVariable(paintableId, "marker", updatedString.toString(), true);
-		
+
 	}
-	
+
 	/**
 	 * This method is used to find the number of patterns in a given string.
 	 * @param String and Pattern
@@ -401,39 +400,39 @@ public class VDendrogram extends Composite implements Paintable {
 		}
 		return count;
 	}
-	
+
 	public static boolean isEmpty(String str) {
 		return str == null || str.length() == 0;
 	}
-	
+
 	/**
 	 * Handles selecting arraysubclusters
 	 * @param Selected Array Node Name 
 	 */
 	public void arrayDendrogramUpdate(String string) {
-		
+
 		int selectedNodeIndex = Integer.parseInt(string);
 		boolean flag = false;
 		int counter = 1;
 		int positionIncrement = 1;
 		StringBuffer updatedString = new StringBuffer("(");
 		while(!flag) {
-			
+
 			if(arrayTreeString.charAt(selectedNodeIndex+positionIncrement) == '(' ) {
 				updatedString.append("(");
 				counter++; 
-				
+
 			}else {
 				updatedString.append(")");
 				counter--;
-				
+
 			}
 			if(counter == 0) {
 				flag = true;
 			}
 			positionIncrement++;
 		}
-		
+
 		int nodesInSelectedCluster 	= 	countMatches(arrayTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()");
 		int nodesBeforeCluster 		= 	countMatches(arrayTreeString.substring(0, selectedNodeIndex), "()");
 		String[] newColorArray 		= 	new String[markerNumber * nodesInSelectedCluster];
@@ -442,22 +441,22 @@ public class VDendrogram extends Composite implements Paintable {
 		int j = 0;
 		int m = 0;
 		try {
-		for (int i = 0 ; i < colorArray.length; i++) {
-			
-			if(i%arrayNumber == 0){
-				
-				if(i == 0) {
+			for (int i = 0 ; i < colorArray.length; i++) {
+
+				if(i%arrayNumber == 0){
+
+					if(i == 0) {
+						for(int k = 0; k<nodesInSelectedCluster; k++) {
+							newArrayLabels[m] = arrayLabels[nodesBeforeCluster + k];
+							m++;
+						}
+					}
 					for(int k = 0; k<nodesInSelectedCluster; k++) {
-						newArrayLabels[m] = arrayLabels[nodesBeforeCluster + k];
-						m++;
+						newColorArray[j] = colorArray[i + nodesBeforeCluster + k];
+						j++;
 					}
 				}
-				for(int k = 0; k<nodesInSelectedCluster; k++) {
-					newColorArray[j] = colorArray[i + nodesBeforeCluster + k];
-					j++;
-				}
 			}
-		}
 		} catch (Exception e) {
 			VConsole.log(e);
 		}
@@ -465,7 +464,7 @@ public class VDendrogram extends Composite implements Paintable {
 		client.updateVariable(paintableId, "arrayColor", newColorArray, false);
 		client.updateVariable(paintableId, "arrayNumber", nodesInSelectedCluster, false);
 		client.updateVariable(paintableId, "array", updatedString.toString(), true);
-		
+
 	}
-	
+
 }
