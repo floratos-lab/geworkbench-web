@@ -108,6 +108,8 @@ public class VDendrogram extends Composite implements Paintable {
 		colorArray 				=	uidl.getStringArrayVariable("color");
 		markerLabels			= 	uidl.getStringArrayVariable("markerLabels");
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
+		
+		/* Marker Dendrogram */
 		if(markerTreeString.contains("(")) {
 			panel.add(new ProtovisWidget() {
 				protected void onAttach() {
@@ -125,8 +127,6 @@ public class VDendrogram extends Composite implements Paintable {
 					final PVPanel vis = getPVPanel().width(150).height(markerNumber*geneHeight).left(2).right(0).top(0).bottom(0)
 							.def(selectedNodeIndexProperty, -1)
 							.def(selectedArcIndexProperty, null);
-
-					/* Marker Dendrogram */
 
 					PVClusterLayout layout = vis
 							.add(PV.Layout.Cluster())
@@ -183,6 +183,7 @@ public class VDendrogram extends Composite implements Paintable {
 				}
 			}, 50, 200);
 		}
+		
 		/* Array Dendrogram*/
 		if(arrayTreeString.contains("(")) {
 			panel.add(new ProtovisWidget() {
@@ -257,15 +258,17 @@ public class VDendrogram extends Composite implements Paintable {
 				}	
 			}, 200, 50);
 		}		
+		/* Heat Map */
 		panel.add(new ProtovisWidget() {
 			protected void onAttach() {
 				super.onAttach();
 
 				initPVPanel();
 				final PVPanel vis = getPVPanel().width((arrayNumber*geneWidth)).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
-				/* Heatmap*/
+				
 				int topCordinate 	=  	0;
 				int leftCordinate	= 	0; 
+				
 				for(int i=0; i<colorArray.length; i++) {
 					if(i%arrayNumber == 0) {
 						if(i != 0) {
@@ -331,6 +334,7 @@ public class VDendrogram extends Composite implements Paintable {
 			}
 		}, 200, (225 + (geneHeight*markerNumber)));
 	}
+	
 	/**
 	 * Handles selecting marker subclusters 
 	 * @param selected Marker Node name  
@@ -359,23 +363,26 @@ public class VDendrogram extends Composite implements Paintable {
 			positionIncrement++;
 		}
 
-
-		String[] newColorArray 		= 	new String[arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
+		int nodesInSelectedCluster 	= 	countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()");
+		int nodesBeforeCluster		=  	countMatches(markerTreeString.substring(0, selectedNodeIndex), "()");
+		String[] newColorArray 		= 	new String[arrayNumber * nodesInSelectedCluster];
 		String[] newMarkerLabels 	= 	new String[countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()")];
 
-		for (int i = 0 ; i < arrayNumber * countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); i++) {
+		for (int i = 0 ; i < arrayNumber * nodesInSelectedCluster; i++) {
 
 			if (i == 0) {
 				int n = 0;
-				for(int k=0; k<countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"); k++) {	
-					newMarkerLabels[n] 	=	markerLabels[countMatches(markerTreeString.substring(0, selectedNodeIndex), "()") + k]; 
+				for(int k=0; k<nodesInSelectedCluster; k++) {	
+					newMarkerLabels[n] 	=	markerLabels[nodesBeforeCluster + k]; 
 					n++;
 				}
 			}
-			newColorArray[i] = colorArray[(arrayNumber * countMatches(markerTreeString.substring(0, selectedNodeIndex), "()")) + (i)];
+			newColorArray[i] = colorArray[(arrayNumber * nodesBeforeCluster) + i];
 
 		}
 
+		/* Variables that are to be updated are sent to the server counterpart here */
+		
 		client.updateVariable(paintableId, "markerLabels", newMarkerLabels, false);
 		client.updateVariable(paintableId, "markerColor", newColorArray, false);
 		client.updateVariable(paintableId, "markerNumber", countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"), false);
@@ -460,6 +467,9 @@ public class VDendrogram extends Composite implements Paintable {
 		} catch (Exception e) {
 			VConsole.log(e);
 		}
+		
+		/* Variables that are to be updated are sent to the server counterpart here */
+		
 		client.updateVariable(paintableId, "arrayLabels", newArrayLabels, false);
 		client.updateVariable(paintableId, "arrayColor", newColorArray, false);
 		client.updateVariable(paintableId, "arrayNumber", nodesInSelectedCluster, false);
