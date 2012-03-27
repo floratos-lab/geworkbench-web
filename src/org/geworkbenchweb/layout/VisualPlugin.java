@@ -41,12 +41,11 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			dataTable 						= 	new Table();
 			
 			dataOp.setCaption(DATA_OPERATIONS);
-			dataTable.setStyleName("small striped");
-			dataTable.setSizeFull();
-			
 			dataOp.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataOp); 
 		
+			dataTable.setStyleName("small striped");
+			dataTable.setSizeFull();
 			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
 			dataTable.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataTable);

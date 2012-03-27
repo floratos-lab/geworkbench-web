@@ -32,6 +32,12 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 
+/**
+ * Have to refactor this code so that this handles only basic data operations.
+ * Each analysis, normalization should have their own param panel.
+ * @author Nikhil Reddy
+ *
+ */
 public class DataTab extends VerticalLayout {
 
 	private static final long serialVersionUID 		= 		-1888971408170241086L;
