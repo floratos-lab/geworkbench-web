@@ -12,12 +12,9 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbenchweb.visualizations.Cytoscape;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.hezamu.canvas.Canvas;
-
 import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
@@ -194,34 +191,7 @@ public class DendrogramTab extends VerticalLayout{
 		
        
 		setSizeFull();
-		
-		Canvas canvas = new Canvas();
-        canvas.setWidth("400px");
-        canvas.setHeight("400px");
-        // Draw some shapes to the canvas
-        canvas.saveContext();
-        canvas.clear();
-        canvas.translate(175, 175);
-        canvas.scale(1.6f, 1.6f);
-        for (int i = 1; i < 6; ++i) {
-                canvas.saveContext();
-                canvas.setFillStyle("rgb(" + (51 * i) + "," + (255 - 51 * i)
-                                + ",255)");
-                for (int j = 0; j < i * 6; ++j) {
-                        canvas.rotate((float) (Math.PI * 2 / (i * 6)));
-                        canvas.beginPath();
-                        canvas.arc(0, i * 12.5f, 5, 0, (float) (Math.PI * 2), true);
-                        canvas.fill();
-                }
-                canvas.restoreContext();
-        }
-        canvas.restoreContext();
-       
-        canvas.drawImage(
-                        "http://www.google.ru/intl/en_com/images/srpr/logo1w.png", 50,
-                        50);
-		
-		addComponent(canvas);
+		addComponent(dendrogram);
 	}
 
 	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {
