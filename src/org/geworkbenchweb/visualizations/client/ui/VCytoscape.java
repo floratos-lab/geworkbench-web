@@ -3,10 +3,14 @@ package org.geworkbenchweb.visualizations.client.ui;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.google.gwt.canvas.client.Canvas;
+import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -26,6 +30,17 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 
+	static final String holderId = "canvasholder";
+
+	static final String upgradeMessage = "Your browser does not support the HTML5 Canvas. Please upgrade your browser to view this demo.";
+	  
+	
+	 Canvas canvas;
+	 Canvas backBuffer;
+	 
+	 final CssColor redrawColor = CssColor.make("rgba(255,255,255,0.6)");
+	 Context2d context;
+	 Context2d backBufferContext;
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
@@ -39,10 +54,7 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 		// style name in DOM tree
 		setStyleName(CLASSNAME);
 		
-		// Tell GWT we are interested in receiving click events
-		sinkEvents(Event.ONCLICK);
-		// Add a handler for the click events (this is similar to FocusWidget.addClickHandler())
-		addDomHandler(this, ClickEvent.getType());
+		
 	}
 
     /**
@@ -63,14 +75,22 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 
 		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
-
-		// Process attributes/variables from the server
-		// The attribute names are the same as we used in 
-		// paintContent on the server-side
-		int clicks = uidl.getIntAttribute("clicks");
-		String message = uidl.getStringAttribute("message");
 		
-		getElement().setInnerHTML("After <b>"+clicks+"</b> mouse clicks:\n" + message);
+		int width = 600;
+		int height = 600;
+		
+		 // init the canvases
+	    canvas.setWidth(width + "px");
+	    canvas.setHeight(height + "px");
+	    canvas.setCoordinateSpaceWidth(width);
+	    canvas.setCoordinateSpaceHeight(height);
+	    backBuffer.setCoordinateSpaceWidth(width);
+	    backBuffer.setCoordinateSpaceHeight(height);
+	    RootPanel.get(holderId).add(canvas);
+	    context = canvas.getContext2d();
+	    backBufferContext = backBuffer.getContext2d();
+	    context = canvas.getContext2d();
+	    backBufferContext = backBuffer.getContext2d();
 		
 	}
 
@@ -81,10 +101,6 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
      *            the {@link ClickEvent} that was fired
      */
      public void onClick(ClickEvent event) {
-		// Send a variable change to the server side component so it knows the widget has been clicked
-		String button = "left click";
-		// The last parameter (immediate) tells that the update should be sent to the server
-		// right away
-		client.updateVariable(paintableId, CLICK_EVENT_IDENTIFIER, button, true);
+		
 	}
 }

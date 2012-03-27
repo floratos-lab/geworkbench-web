@@ -1,4 +1,4 @@
-package org.geworkbenchweb.analysis;
+package org.geworkbenchweb.analysis.hierarchicalclustering;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
