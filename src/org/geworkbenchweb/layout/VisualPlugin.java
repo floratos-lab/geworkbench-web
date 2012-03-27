@@ -9,15 +9,9 @@ import org.vaadin.appfoundation.authentication.data.User;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.Window.Notification;
 
 public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
@@ -46,88 +40,16 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			DataTab dataOp					= 	new DataTab(maSet, action);
 			dataTable 						= 	new Table();
 			
-			
 			dataOp.setCaption(DATA_OPERATIONS);
 			dataTable.setStyleName("small striped");
 			dataTable.setSizeFull();
-			//dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
-			MenuBar menubar = new MenuBar();
-			menubar.setWidth("100%");
-			// Save reference to individual items so we can add sub-menu items to
-	        // them
-	        final MenuBar.MenuItem file = menubar.addItem("File", null);
-	        final MenuBar.MenuItem newItem = file.addItem("New", null);
-	        file.addItem("Open file...", menuCommand);
-	        file.addSeparator();
-
-	        // Add a style name for a menu item, then use CSS to alter the visuals
-	        file.setStyleName("file");
-
-	        newItem.addItem("File", menuCommand);
-	        newItem.addItem("Folder", menuCommand);
-	        newItem.addItem("Project...", menuCommand);
-
-	        file.addItem("Close", menuCommand);
-	        file.addItem("Close All", menuCommand).setStyleName("close-all");
-	        file.addSeparator();
-
-	        file.addItem("Save", menuCommand);
-	        file.addItem("Save As...", menuCommand);
-	        file.addItem("Save All", menuCommand);
-
-	        final MenuBar.MenuItem edit = menubar.addItem("Edit", null);
-	        edit.addItem("Undo", menuCommand);
-	        edit.addItem("Redo", menuCommand).setEnabled(false);
-	        edit.addSeparator();
-
-	        edit.addItem("Cut", menuCommand);
-	        edit.addItem("Copy", menuCommand);
-	        edit.addItem("Paste", menuCommand);
-	        edit.addSeparator();
-
-	        final MenuBar.MenuItem find = edit.addItem("Find/Replace", menuCommand);
-
-	        // Actions can be added inline as well, of course
-	        find.addItem("Google Search", new Command() {
-	            /**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				public void menuSelected(MenuItem selectedItem) {
-	                getWindow().open(new ExternalResource("http://www.google.com"));
-	            }
-	        });
-	        find.addSeparator();
-	        find.addItem("Find/Replace...", menuCommand);
-	        find.addItem("Find Next", menuCommand);
-	        find.addItem("Find Previous", menuCommand);
-
-	        final MenuBar.MenuItem view = menubar.addItem("View", null);
-	        view.addItem("Show/Hide Status Bar", menuCommand);
-	        view.addItem("Customize Toolbar...", menuCommand);
-	        view.addSeparator();
-
-	        view.addItem("Actual Size", menuCommand);
-	        view.addItem("Zoom In", menuCommand);
-	        view.addItem("Zoom Out", menuCommand);
-			
-			VerticalSplitPanel newLayout = new VerticalSplitPanel();
-			newLayout.setCaption(MICROARRAY_TABLE_CAPTION);
-			newLayout.setImmediate(true);
-			newLayout.setSizeFull();
-			newLayout.setLocked(true);
-			newLayout.setStyleName("small previews");
-			newLayout.setSplitPosition(22, UNITS_PIXELS);
-			
-			newLayout.setFirstComponent(menubar);
-			newLayout.setSecondComponent(dataTable);
 			
 			dataOp.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataOp); 
 		
-			newLayout.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
-			addTab(newLayout);
+			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
+			dataTable.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
+			addTab(dataTable);
 
 		} else {
 
@@ -141,15 +63,6 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			addTab(dendrogramTab, "Dendrogram", null);		
 		}
 	}
-
-	private Command menuCommand = new Command() {
-     
-		private static final long serialVersionUID = 1L;
-
-		public void menuSelected(MenuItem selectedItem) {
-            getWindow().showNotification("U clicked microarray table action : " + selectedItem.getText(), Notification.TYPE_WARNING_MESSAGE);
-        }
-    };
 	
     @Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
