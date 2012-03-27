@@ -12,7 +12,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.analysis.HierarchicalClusteringWrapper;
+import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
