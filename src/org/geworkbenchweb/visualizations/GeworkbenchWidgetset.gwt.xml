@@ -24,9 +24,37 @@
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
 
 	<inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
-    
 
-    
+	<!-- CytoscapeWeb lib  -->
+	<script src="js/lib/jquery-1.3.2.min.js"></script>
+	<script src="js/lib/jquery-1.7.2.js"></script>
+	<script src="js/lib/2D.js"></script>
+	<script src="js/lib/arbor.js"></script>
+	<script src="js/lib/jquery.color.js"></script>
+	<script src="js/lib/jquery.mousewheel.js"></script>
+	<script src="js/lib/jquery.svg.js"></script>
+	
 
+	<!-- Cytoscape web Core-->
+	<script src="js/jquery.cytoscapeweb.all.js"></script>
+	<script src="js/jquery.cytoscapeweb.js"></script>
+	
+	<!-- Cytoscape web extensions-->
+	<script src="js/extensions/jquery.cytoscapeweb.layout.arbor.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.layout.grid.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.layout.null.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.layout.preset.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.layout.random.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.layout.springy.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.renderer.null.js"></script>
+	<script src="js/extensions/jquery.cytoscapeweb.renderer.svg.js"></script>
+    
+    <!-- Cytoscape Web Plugins -->
+    <script src="js/plugins/jquery.cytoscapeweb-edgehandles.js"></script>
+    <script src="js/plugins/jquery.cytoscapeweb-panzoom.js"></script>
+    
+    <!-- Cytoscape Web Pan Zoom Plugin Stylesheet -->
+	<stylesheet src="js/plugins/jquery.cytoscapeweb-panzoom.css" />
+	
     
 </module>
