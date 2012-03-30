@@ -72,7 +72,9 @@ public class MainLayout extends AbsoluteLayout {
 	
 	private static final Action ACTION_FILTER		= 	new Action("Filter Data");
 	
-    private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
+	private static final Action ACTION_INTERACTIONS =	new Action("Get Interactions");
+	
+    private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
 	
 	public MainLayout(GeworkbenchApplication app) {
 		
@@ -656,7 +658,7 @@ public class MainLayout extends AbsoluteLayout {
 
 				}
 
-			}else if(action == ACTION_ANALYZE) {
+			}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
 				String dataPeru					= 	(target.toString());
 				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
@@ -677,7 +679,7 @@ public class MainLayout extends AbsoluteLayout {
 
 					markerTable.setContainerDataSource(markerTableView(maSet));
 					arrayTable.setContainerDataSource(arrayTableView(maSet));
-					VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), ACTION_ANALYZE.toString());
+					VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), action.toString());
 					mainPanel.setSecondComponent(tabSheet);
 				
 				}else {

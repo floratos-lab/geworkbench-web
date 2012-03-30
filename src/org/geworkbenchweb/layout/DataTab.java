@@ -123,6 +123,21 @@ public class DataTab extends VerticalLayout {
 	    	}
 	    });
 		
+		if(action != null) {
+			if(action == "Analyze Data") {
+				
+				operationsBox.select(1);
+				
+			}else if(action == "Get Interactions") {
+				
+				operationsBox.select(2);
+			}
+			
+			operationsBox.setEnabled(false);
+			paramForm.addField("analysis", analysisBox);
+		
+		}
+		
 		paramForm.addField("operations", operationsBox);
 		
 		/* Data history Tab */
