@@ -33,7 +33,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 
 		addListener(this);
 		setSizeFull();
-	
+		
 		if(dataType.contentEquals("Expression File")) {
 
 			maSet 							= 	(DSMicroarraySet) dataSet;

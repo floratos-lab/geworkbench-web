@@ -679,8 +679,14 @@ public class MainLayout extends AbsoluteLayout {
 
 					markerTable.setContainerDataSource(markerTableView(maSet));
 					arrayTable.setContainerDataSource(arrayTableView(maSet));
-					VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), action.toString());
-					mainPanel.setSecondComponent(tabSheet);
+					
+					if(action == ACTION_ANALYZE) {
+						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), "Analyze Data");
+						mainPanel.setSecondComponent(tabSheet);
+					}else {
+						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), "Get Interactions");
+						mainPanel.setSecondComponent(tabSheet);
+					}
 				
 				}else {
 					

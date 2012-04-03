@@ -18,15 +18,12 @@ public class HierarchicalClusteringParamForm extends Form {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 	
-	@SuppressWarnings("unused")
 	private String clustMethod;
 	private String clustDimension;
 	private String clustMetric;
 	
 	public HierarchicalClusteringParamForm() {
-			
 		
-
 		ComboBox clusterMethod 	= 	new ComboBox();
 		ComboBox clusterDim 	= 	new ComboBox();
 		ComboBox clusterMetric 	= 	new ComboBox();
@@ -118,5 +115,9 @@ public class HierarchicalClusteringParamForm extends Form {
 				}		
 			}
 		});
+		addField("clusterMethod", clusterMethod);
+		addField("clusterMethod", clusterDim);
+		addField("clusterMethod", clusterMetric);
+		addField("submit", submitAnalysis);
 	}
 }

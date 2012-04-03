@@ -1,29 +1,11 @@
 package org.geworkbenchweb.layout;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringWrapper;
-import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringParamForm;
+import org.geworkbenchweb.interactions.CNKB.CNKBParamForm;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
-import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.vaadin.data.Property;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -53,13 +35,19 @@ public class DataTab extends VerticalLayout {
 		VerticalSplitPanel mainSplitPanel		= 	new VerticalSplitPanel();
 		HorizontalSplitPanel dataSplitPanel 	= 	new HorizontalSplitPanel();
 		Panel historyPanel						= 	new Panel();
-		Panel dataPanel							= 	new Panel();
+		final Panel dataPanel					= 	new Panel();
 		final Form paramForm 					= 	new Form();
 		final ComboBox operationsBox			=   new ComboBox();
 		final ComboBox analysisBox				= 	new ComboBox();
 		final ComboBox interactionsBox			= 	new ComboBox();
-				
+		final Panel paramPanel					= 	new Panel();
+		
+		paramPanel.setImmediate(true);	
+		paramPanel.setStyleName("bubble");
+		
 		paramForm.setImmediate(true);
+		paramForm.addField("operations", operationsBox);
+		
 		dataPanel.setImmediate(true);
 		dataPanel.setSizeFull();
 		dataPanel.setCaption("Parameter Panel");
@@ -75,12 +63,27 @@ public class DataTab extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-	    		
+				
+				try {
+					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Hierarchical Clustering")) {	
+						
+						paramPanel.removeAllComponents();
+						paramPanel.setCaption("Hierarchical Clustering Parameters");
+						paramPanel.addComponent(new HierarchicalClusteringParamForm());
+					
+						dataPanel.addComponent(paramPanel);
+						
+					}
+				}catch (Exception e){
+					
+					dataPanel.removeComponent(paramPanel);
+				
+				}
 			}
 		});
 		
 		interactionsBox.setWidth("60%");
-		interactionsBox.setCaption("Select Available Interactions Database");
+		interactionsBox.setCaption("Select Interactions Database");
 		interactionsBox.addItem("CNKB");
 		interactionsBox.setInputPrompt("Choose Interaction Database from the list");
 		interactionsBox.addListener(new Property.ValueChangeListener() {
@@ -88,7 +91,15 @@ public class DataTab extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-	    		
+				
+				try {
+					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
+						paramPanel.removeAllComponents();
+						paramPanel.addComponent(new CNKBParamForm());
+					}
+				}catch (Exception e){
+					paramPanel.removeAllComponents();
+				}
 			}
 		});
 		
@@ -103,42 +114,50 @@ public class DataTab extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if(valueChangeEvent.getProperty().getValue().toString() == "Analyze Data") {
-					try {
+				
+				try {
+					dataPanel.removeComponent(paramPanel);
+				}catch (Exception e){
+					//TODO
+				}
+				
+				try {
+					if(valueChangeEvent.getProperty().getValue().toString() == "Analyze Data") {
+
+						interactionsBox.unselect(interactionsBox.getValue());
 						interactionsBox.setVisible(false);
 						analysisBox.setVisible(true);
 						paramForm.addField("analysis", analysisBox);
-					}catch(NullPointerException e) {
-						System.out.println("let us worry about this later");
-					}
-				}else {
-					try {
+
+					}else {
+
+						analysisBox.unselect(analysisBox.getValue());
 						analysisBox.setVisible(false);
-						interactionsBox.setVisible(true);
+						interactionsBox.setVisible(true);						
 						paramForm.addField("interactions", interactionsBox);
-					}catch(NullPointerException e) {
-						System.out.println("let us worry about this later");
+
 					}
+				}catch(NullPointerException e) {
+					System.out.println("let us worry about this later");
 				}
-	    	}
-	    });
+			}
+		});
 		
 		if(action != null) {
 			if(action == "Analyze Data") {
 				
 				operationsBox.select(1);
+				paramForm.addField("analysis", analysisBox);
 				
 			}else if(action == "Get Interactions") {
 				
 				operationsBox.select(2);
+				paramForm.addField("interactions", interactionsBox);
 			}
 			
 			operationsBox.setEnabled(false);
-			paramForm.addField("analysis", analysisBox);
 		
 		}
-		
-		paramForm.addField("operations", operationsBox);
 		
 		/* Data history Tab */
 		historyPanel.setCaption("DataSet History");
