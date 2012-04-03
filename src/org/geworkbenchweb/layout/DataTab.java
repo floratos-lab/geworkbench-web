@@ -72,12 +72,9 @@ public class DataTab extends VerticalLayout {
 						paramPanel.addComponent(new HierarchicalClusteringParamForm());
 					
 						dataPanel.addComponent(paramPanel);
-						
 					}
 				}catch (Exception e){
-					
 					dataPanel.removeComponent(paramPanel);
-				
 				}
 			}
 		});
@@ -95,10 +92,13 @@ public class DataTab extends VerticalLayout {
 				try {
 					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
 						paramPanel.removeAllComponents();
+						paramPanel.setCaption("CNKB Parameters");
 						paramPanel.addComponent(new CNKBParamForm());
+						
+						dataPanel.addComponent(paramPanel);
 					}
 				}catch (Exception e){
-					paramPanel.removeAllComponents();
+					dataPanel.removeComponent(paramPanel);
 				}
 			}
 		});
