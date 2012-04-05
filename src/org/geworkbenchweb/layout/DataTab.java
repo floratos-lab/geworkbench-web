@@ -3,8 +3,6 @@ package org.geworkbenchweb.layout;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringParamForm;
 import org.geworkbenchweb.interactions.CNKB.CNKBParamForm;
-import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
@@ -23,14 +21,13 @@ import com.vaadin.ui.VerticalSplitPanel;
 public class DataTab extends VerticalLayout {
 
 	private static final long serialVersionUID 		= 		-1888971408170241086L;
-	User user 										= 		SessionHandler.get();
-    
-	public DataTab(DSMicroarraySet maSet, String action) {
-		
-		setSizeFull();
 	
-		@SuppressWarnings("unused")
-		DSMicroarraySet dataSet  =   maSet;
+	private DSMicroarraySet dataSet;
+	
+	public DataTab(DSMicroarraySet maSet, String action) {
+	
+		this.dataSet = maSet;
+		setSizeFull();
 		
 		VerticalSplitPanel mainSplitPanel		= 	new VerticalSplitPanel();
 		HorizontalSplitPanel dataSplitPanel 	= 	new HorizontalSplitPanel();
@@ -53,7 +50,7 @@ public class DataTab extends VerticalLayout {
 		dataPanel.setCaption("Parameter Panel");
 		dataPanel.setStyleName("bubble");
 		dataPanel.addComponent(paramForm);
-		
+	
 		analysisBox.setWidth("60%");
 		analysisBox.setCaption("Select Analyis Type");
 		analysisBox.addItem("Hierarchical Clustering");
@@ -69,9 +66,11 @@ public class DataTab extends VerticalLayout {
 						
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("Hierarchical Clustering Parameters");
-						paramPanel.addComponent(new HierarchicalClusteringParamForm());
-					
+						
+						HierarchicalClusteringParamForm hsParamForm = new HierarchicalClusteringParamForm(dataSet);
+						paramPanel.addComponent(hsParamForm);
 						dataPanel.addComponent(paramPanel);
+
 					}
 				}catch (Exception e){
 					dataPanel.removeComponent(paramPanel);
@@ -98,7 +97,9 @@ public class DataTab extends VerticalLayout {
 						dataPanel.addComponent(paramPanel);
 					}
 				}catch (Exception e){
+					
 					dataPanel.removeComponent(paramPanel);
+					
 				}
 			}
 		});
@@ -184,99 +185,7 @@ public class DataTab extends VerticalLayout {
 		addComponent(mainSplitPanel);
 		
 	}
-	
-	/*
-	// TODO these are temporary code. enum (or int) should be used instead String
-	private static int parseDistanceMetric(String d) {
-		if(d.equals("Eucledian Distance")) {
-			return 0;
-		} else if(d.equals("Pearson's Correlation")) {
-			return 1;
-		} else if(d.equals("Spearman's Rank Correlation")) {
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-	private static int parseMethod(String method) {
-		if(method.equals("Single Linkage")) {
-			return 0;
-		} else if(method.equals("Average Linkage")) {
-			return 1;
-		} else if(method.equals("Total linkage")) {
-			return 2;
-		} else {
-			return 0;
-		}
-	}
-	private static int parseDimension(String dim) {
-		if(dim.equals("Marker")) {
-			return 0;
-		} else if(dim.equals("Microarray")) {
-			return 1;
-		} else if(dim.equals("Both")) {
-			return 2;
-		} else {
-			return 0;
-		}
-	}*/
-	
-	/*public class AnalysisProcess extends Thread {
-		@Override
-		public void run() {
-			try {
-				
-				clustMethod.isEmpty();
-			
-			} catch (Exception e) {
-				
-				clustMethod = "Single Linkage";
-			
-			}
-			
-			try {
-				clustDim.isEmpty();
-				
-			} catch(Exception e) {
-				
-				clustDim = "Marker";
-			
-			}
-			try {
-				
-				clustMetric.isEmpty();
-				
-			} catch (Exception e) {
-				
-				clustMetric = "Eucledian Distance";
-			}
-			
-			int metric = parseDistanceMetric(clustMetric);
-			int method = parseMethod(clustMethod);
-			int dimension = parseDimension(clustDim);
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> data
-			 = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
-			HierarchicalClusteringWrapper analysis 	= 	new HierarchicalClusteringWrapper(data, metric, method, dimension );
-			HierCluster[] resultClusters = analysis.execute();
-			results = new CSHierClusterDataSet(resultClusters, null, false,
-					"Hierarchical Clustering", data);
-		
-			if(results != null) {
-				
-				ResultSet resultSet = 	new ResultSet();
-				java.util.Date date= new java.util.Date();
-				resultSet.setName("HC - " + date);
-				resultSet.setType(analysisType);
-				analysisType = null;
-				resultSet.setParent(dataSet.getDataSetName());
-				resultSet.setOwner(user.getId());	
-				resultSet.setData(convertToByte(results));
-				FacadeFactory.getFacade().store(resultSet);	
-				
-			
-			}
-		}
-	}*/
+
 }
 
 
