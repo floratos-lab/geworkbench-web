@@ -92,7 +92,7 @@ public class DataTab extends VerticalLayout {
 					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("CNKB Parameters");
-						paramPanel.addComponent(new CNKBParamForm());
+						paramPanel.addComponent(new CNKBParamForm(dataSet));
 						
 						dataPanel.addComponent(paramPanel);
 					}
