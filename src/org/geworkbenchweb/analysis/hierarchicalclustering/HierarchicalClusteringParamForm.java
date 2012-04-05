@@ -1,5 +1,7 @@
 package org.geworkbenchweb.analysis.hierarchicalclustering;
 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -17,12 +19,21 @@ import com.vaadin.ui.Button.ClickEvent;
 public class HierarchicalClusteringParamForm extends Form {
 	
 	private static final long serialVersionUID = 988711785863720384L;
-	
+
 	private String clustMethod;
-	private String clustDimension;
+	
+	private String clustDim;
+	
 	private String clustMetric;
 	
-	public HierarchicalClusteringParamForm() {
+	private DSMicroarraySet dataSet;
+	
+	public HierarchicalClusteringParamForm(DSMicroarraySet maSet) {
+		
+		this.dataSet = maSet;
+		setImmediate(true);
+		
+		final String[] params = new String[3];
 		
 		ComboBox clusterMethod 	= 	new ComboBox();
 		ComboBox clusterDim 	= 	new ComboBox();
@@ -41,8 +52,9 @@ public class HierarchicalClusteringParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
-
+					
 					clustMethod = valueChangeEvent.getProperty().getValue().toString();
+					params[0] = clustMethod;
 
 				}catch(NullPointerException e) {
 
@@ -67,7 +79,8 @@ public class HierarchicalClusteringParamForm extends Form {
 
 				try {
 
-					clustDimension = valueChangeEvent.getProperty().getValue().toString();
+					clustDim 	= 	valueChangeEvent.getProperty().getValue().toString();
+					params[1] 	=	clustDim;
 
 				}catch(NullPointerException e) {
 
@@ -92,7 +105,8 @@ public class HierarchicalClusteringParamForm extends Form {
 
 				try {
 
-					clustMetric = valueChangeEvent.getProperty().getValue().toString();
+					clustMetric 	= 	valueChangeEvent.getProperty().getValue().toString();
+					params[2]		=	clustMetric;	
 
 				}catch(NullPointerException e) {
 
@@ -102,22 +116,31 @@ public class HierarchicalClusteringParamForm extends Form {
 			}
 		});
 		
-		final Button submitAnalysis = new Button("Analyze", new Button.ClickListener() {
+		final Button submitButton 	= 	new Button("Submit", new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
 				try {
-
-
+				
+					new HierarchicalClusteringAnalysis(dataSet, params);
+						
 				} catch (Exception e) {	
+					
+					System.out.println(e);
 
 				}		
 			}
 		});
+		submitButton.addStyleName("wide default");
+
 		addField("clusterMethod", clusterMethod);
 		addField("clusterMethod", clusterDim);
 		addField("clusterMethod", clusterMetric);
-		addField("submit", submitAnalysis);
+		addField("submitAnalysis", submitButton);
+		
 	}
 }
+
+
+
