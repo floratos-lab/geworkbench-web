@@ -19,7 +19,7 @@
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
 
-    <inherits name="com.github.wolfie.refresher.RefresherApplicationWidgetset" />
+    
 
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
 
@@ -55,6 +55,7 @@
     
     <!-- Cytoscape Web Pan Zoom Plugin Stylesheet -->
 	<stylesheet src="js/plugins/jquery.cytoscapeweb-panzoom.css" />
-	
-    
+
+
+    <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
 </module>
