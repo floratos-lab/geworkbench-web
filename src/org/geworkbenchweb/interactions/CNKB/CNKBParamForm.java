@@ -21,7 +21,10 @@ public class CNKBParamForm extends Form {
 	
 	private DSMicroarraySet dataSet;
 	
-	 private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA",
+	private static final String[] interactomes = new String[] { "BCi (66193 interactions)", "BIND (45454 interactions)",
+    "Geneways (26931 interactions)", "HGi (672786 interactions)" };
+	
+	private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA",
          "Protein-Protein" };
 	
 	public CNKBParamForm(DSMicroarraySet maSet) {
@@ -34,10 +37,9 @@ public class CNKBParamForm extends Form {
 		TwinColSelect interactionTypes 	= 	new TwinColSelect();
 	
 		interactomeBox.setCaption("Interactome");
-		interactomeBox.addItem("BCI - Human B-Cell Interactome");
-		interactomeBox.addItem("BIND - Biomolecular interaction Net DB");
-		interactomeBox.addItem("Geneways - Mined from various literature sources");
-		interactomeBox.addItem("HGi - Integrated version of the HGi-TCGA, HGi-Phillips and HGi-Sun interactomes");
+		for (int j = 0; j < interactomes.length; j++) {
+            interactomeBox.addItem(interactomes[j]);
+        }
 		interactomeBox.select(interactomeBox.getItemIds().iterator().next());
 		interactomeBox.setWidth("50%");
 		interactomeBox.addListener(new Property.ValueChangeListener() {
