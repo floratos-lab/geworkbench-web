@@ -8,6 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TwinColSelect;
 
 /**
@@ -35,7 +36,9 @@ public class CNKBParamForm extends Form {
 		
 		ComboBox interactomeBox 		= 	new ComboBox();
 		TwinColSelect interactionTypes 	= 	new TwinColSelect();
-	
+		OptionGroup columnDispPref		= 	new OptionGroup("Column Display Preferences");
+		OptionGroup networkGenPref		= 	new OptionGroup("Network Generation Preferences");
+		
 		interactomeBox.setCaption("Interactome");
 		for (int j = 0; j < interactomes.length; j++) {
             interactomeBox.addItem(interactomes[j]);
@@ -63,6 +66,11 @@ public class CNKBParamForm extends Form {
 		for (int i = 0; i < interactions.length; i++) {
             interactionTypes.addItem(interactions[i]);
         }
+		
+		columnDispPref.setMultiSelect(true);
+		columnDispPref.setNullSelectionAllowed(false);
+		columnDispPref.setImmediate(true);
+		
 		
 		interactionTypes.setWidth("50%");
 		interactionTypes.setRows(3);

@@ -29,6 +29,10 @@ public class CNKBInteractions {
 	
 	public CNKBInteractions() {
 		
+		//These are loaded from geWorkbench Swing version
+		
+		loadApplicationProperty();
+		
 		Runnable r = new Runnable() {
 			public void run() {
 
