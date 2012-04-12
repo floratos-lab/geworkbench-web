@@ -24,6 +24,7 @@ public class DataSetUpload extends Window {
     private TextArea dataArea;			
     private UploadField uploadField; 		
     private Window dataWindow;
+    private UploadField annotUploadField;
     
     public DataSetUpload() {
     	  
@@ -36,7 +37,7 @@ public class DataSetUpload extends Window {
     	this.setStyleName("opaque");
     	this.setCaption("Upload Dataset");
     	this.setWidth("700px");
-    	this.setHeight("350px");
+    	this.setHeight("500px");
     	this.setDraggable(false);
     	this.setResizable(false);
 
@@ -45,6 +46,7 @@ public class DataSetUpload extends Window {
         fileCombo 			= 	new ComboBox("Please select type of file");
         dataArea 			= 	new TextArea(null, initialText);
         uploadField 		= 	new UploadField();
+        annotUploadField	=	new UploadField();
         
         dataLayout.setSpacing(true);
         
@@ -77,9 +79,25 @@ public class DataSetUpload extends Window {
           	}     
         });
         
+        annotUploadField.setFieldType(FieldType.FILE);
+        annotUploadField.setImmediate(false);
+        annotUploadField.setRequired(true);
+        annotUploadField.setFileFactory(new FileFactory() {
+            
+        	public File createFile(String fileName, String mimeType) {
+                
+                File f = new File(System.getProperty("user.home") + "/temp/", fileName);
+                return f;
+                
+          	}     
+        });
+        
+        dataLayout.setSpacing(true);
+        annotUploadField.setButtonCaption("Add Annotation File");
         addComponent(dataLayout);       
         Button uploadButton = new Button("Upload");
         dataLayout.addComponent(uploadField);
+        dataLayout.addComponent(annotUploadField);
         dataLayout.addComponent(uploadButton);
         uploadButton.addListener(Button.ClickEvent.class, this, "theButtonClick");
     	
@@ -92,8 +110,10 @@ public class DataSetUpload extends Window {
         String dataDescription 	= 	(String) dataArea.getValue();
     	File dataFile 			= 	(File) uploadField.getValue();
     	
-    	parseInit(dataFile, fileType, dataDescription);
-        dataFile.delete();
+    	parseInit(dataFile, (File) annotUploadField.getValue(), fileType, dataDescription);
+    		
+    	dataFile.delete();
+    	//annotFile.delete();
     	
     	GeworkbenchApplication app = new GeworkbenchApplication();
     	dataWindow.removeAllComponents();
@@ -101,9 +121,9 @@ public class DataSetUpload extends Window {
     	
     }
     
-	protected void parseInit(File dataFile, String fileType,  String dataDescription) {
-		
-		new DataSetParser(dataFile, fileType, dataDescription);
+	protected void parseInit(File dataFile, File annotFile, String fileType,  String dataDescription) {
+
+		new DataSetParser(dataFile, annotFile, fileType, dataDescription);
 		this.close();
 		
 	}
