@@ -1,11 +1,15 @@
  package org.geworkbenchweb.layout;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.geworkbenchweb.components.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.dataset.DataSetUpload;
@@ -18,6 +22,7 @@ import org.geworkbenchweb.layout.VisualPlugin;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -468,7 +473,10 @@ public class MainLayout extends AbsoluteLayout {
 				dataSetId 					=	dataSet.getId();
 				byte[] dataByte 			= 	dataSet.getData();
 				DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
-
+				
+				File annotFile = new File(maSet.getAnnotationFileName());
+				AnnotationParser.loadAnnotationFile(maSet, annotFile);
+				
 				markerTable.setContainerDataSource(markerTableView(maSet));
 				arrayTable.setContainerDataSource(arrayTableView(maSet));
 
@@ -493,9 +501,23 @@ public class MainLayout extends AbsoluteLayout {
 				if(resultSet != null) {
 					
 					byte[] dataByte 					= 	resultSet.getData();
-					CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
-					VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
-					mainPanel.setSecondComponent(tabSheet);
+				
+					if(resultSet.getType().equalsIgnoreCase("CNKB")) {
+						
+						@SuppressWarnings("unchecked")
+						Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
+						VisualPlugin tabSheet 							= 	new VisualPlugin(hits, resultSet.getType(), null);
+						
+						mainPanel.setSecondComponent(tabSheet);
+						
+					}else {
+						
+						CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
+						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
+						mainPanel.setSecondComponent(tabSheet);
+						
+					}
+					
 				
 				}
 			}
