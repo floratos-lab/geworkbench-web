@@ -8,8 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.ui.Label;
 
 /**
  * Parameter panel for CNKB
@@ -25,8 +24,7 @@ public class CNKBParamForm extends Form {
 	private static final String[] interactomes = new String[] { "BCi (66193 interactions)", "BIND (45454 interactions)",
     "Geneways (26931 interactions)", "HGi (672786 interactions)" };
 	
-	private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA",
-         "Protein-Protein" };
+	//private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA", "Protein-Protein" };
 	
 	public CNKBParamForm(DSMicroarraySet maSet) {
 		
@@ -35,9 +33,10 @@ public class CNKBParamForm extends Form {
 		final String[] params 	=	new String[3];
 		
 		ComboBox interactomeBox 		= 	new ComboBox();
-		TwinColSelect interactionTypes 	= 	new TwinColSelect();
-		OptionGroup columnDispPref		= 	new OptionGroup("Column Display Preferences");
-		OptionGroup networkGenPref		= 	new OptionGroup("Network Generation Preferences");
+		final Label interactomeDes		= 	new Label("Human B-Cell Interactome");
+		
+		interactomeDes.addStyleName("tiny color");
+		interactomeDes.setImmediate(true);
 		
 		interactomeBox.setCaption("Interactome");
 		for (int j = 0; j < interactomes.length; j++) {
@@ -45,6 +44,7 @@ public class CNKBParamForm extends Form {
         }
 		interactomeBox.select(interactomeBox.getItemIds().iterator().next());
 		interactomeBox.setWidth("50%");
+		interactomeBox.setImmediate(true);
 		interactomeBox.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -52,9 +52,17 @@ public class CNKBParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
+					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("BCi (66193 interactions)")) {
+						//TODO
+					}else if(valueChangeEvent.getProperty().getValue().toString() .equalsIgnoreCase("BIND (45454 interactions)")) {
+						interactomeDes.setValue("Biomoecular Interaction Network Database");
+					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Geneways (26931 interactions)")) {
+						interactomeDes.setValue("Mined from various literature sources");
+					}else {
+						interactomeDes.setValue("Integrated Version of the HGi-TCGA, HGi-Phillips and HGi-Sun interactome");
+					}
 					
-		
-
+					interactomeDes.requestRepaint();
 				}catch(NullPointerException e) {
 
 					System.out.println("let us worry about this later");
@@ -63,39 +71,7 @@ public class CNKBParamForm extends Form {
 			}
 		});
 		
-		for (int i = 0; i < interactions.length; i++) {
-            interactionTypes.addItem(interactions[i]);
-        }
 		
-		columnDispPref.setMultiSelect(true);
-		columnDispPref.setNullSelectionAllowed(false);
-		columnDispPref.setImmediate(true);
-		
-		
-		interactionTypes.setWidth("50%");
-		interactionTypes.setRows(3);
-		interactionTypes.setNullSelectionAllowed(false);
-		interactionTypes.setMultiSelect(true);
-		interactionTypes.setImmediate(true);
-		interactionTypes.setLeftColumnCaption("Available Interaction Types");
-		interactionTypes.setRightColumnCaption("Selected Interaction Types");
-		interactionTypes.addListener(new Property.ValueChangeListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-
-				try {
-					
-		
-
-				}catch(NullPointerException e) {
-
-					System.out.println("let us worry about this later");
-
-				}
-			}
-		});
 		
 		final Button submitButton 	= 	new Button("Submit", new Button.ClickListener() {
 
@@ -104,7 +80,7 @@ public class CNKBParamForm extends Form {
 			public void buttonClick(ClickEvent event) {
 				try {
 				
-					new HierarchicalClusteringAnalysis(dataSet, params);
+					new CNKBInteractions(dataSet, params);
 						
 				} catch (Exception e) {	
 					
@@ -116,7 +92,13 @@ public class CNKBParamForm extends Form {
 		submitButton.addStyleName("wide default");
 
 		addField("interactomeBox", interactomeBox);
-		addField("interactionTypes", interactionTypes);
+		getLayout().addComponent(interactomeDes);
+		
+		Label note = new Label("NOTE: Using all markers in dataset for now.");
+		note.addStyleName("tiny color");
+		note.setImmediate(true);
+		getLayout().addComponent(note);
+		
 		addField("submitAnalysis", submitButton);
 	}
 

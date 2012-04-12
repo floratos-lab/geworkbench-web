@@ -1,109 +1,127 @@
 package org.geworkbenchweb.interactions.CNKB;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.Properties;
 import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class CNKBInteractions {
 	
 	private Vector<CellularNetWorkElementInformation> hits = null;
 	
-	private int timeout = 0;
+	private int timeout = 3000;
 	
 	private int interaction_flag = 1;
 	
-	public Vector<CellularNetWorkElementInformation> getHits() {
-		return hits;
-	}
+	User user 	= 	SessionHandler.get();
 	
-	public CNKBInteractions() {
-		
-		//These are loaded from geWorkbench Swing version
+	public CNKBInteractions(DSMicroarraySet dataSet, String[] params) {
 		
 		loadApplicationProperty();
+
+		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+
+		String context = "BCi (66193 interactions)".split(" \\(")[0].trim();
+
+		String version = "1.0";
+			
+			
+		hits = new Vector<CellularNetWorkElementInformation>();
 		
-		Runnable r = new Runnable() {
-			public void run() {
-
-				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-
-				try {
-
-					String context = null;
-
-					String version = null;
+		for(int i=0; i<dataSet.getMarkers().size(); i++) {
+				
+			hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(i)));
+			
+		} 
+			
 		
-					int retrievedQueryNumber = 0;
-					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-						retrievedQueryNumber++;
+		try {
+			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {	
 
-						DSGeneMarker marker = cellularNetWorkElementInformation
-								.getdSGeneMarker();
-						
+				DSGeneMarker marker = cellularNetWorkElementInformation
+						.getdSGeneMarker();
+				
+				if (marker != null && marker.getGeneId() != 0
+						&& cellularNetWorkElementInformation.isDirty()) {
+					
+					List<InteractionDetail> interactionDetails = null;
+					
+					
+					try {
 
-						if (marker != null && marker.getGeneId() != 0
-								&& cellularNetWorkElementInformation.isDirty()) {
-							List<InteractionDetail> interactionDetails = null;
-
-							try {
-
-								if (interaction_flag == 0) {
-									interactionDetails = interactionsConnection
-											.getInteractionsByEntrezIdOrGeneSymbol_1(
-													marker, context, version);
-								} else {
-									interactionDetails = interactionsConnection
-											.getInteractionsByEntrezIdOrGeneSymbol_2(
-													marker, context, version);
-								}
-
-							} catch (UnAuthenticatedException uae) {
-								
-							} catch (ConnectException ce) {
-								
-
-							} catch (SocketTimeoutException se) {
-								
-
-							} catch (IOException ie) {
-								
-
-							}
-							cellularNetWorkElementInformation.setDirty(false);
-							cellularNetWorkElementInformation
-									.setInteractionDetails(interactionDetails);
-
+						if (interaction_flag == 0) {
+							interactionDetails = interactionsConnection
+									.getInteractionsByEntrezIdOrGeneSymbol_1(
+											marker, context, version);
+						} else {
+							interactionDetails = interactionsConnection
+									.getInteractionsByEntrezIdOrGeneSymbol_2(
+											marker, context, version);
 						}
 
-					}
+					} catch (UnAuthenticatedException uae) {
+						
+						System.out.println("uae");
 
-				} catch (java.util.ConcurrentModificationException ce) {
-					
-				} catch (Exception e) {
-								 
+					} catch (ConnectException ce) {
 
-				} finally {
-					
-					interactionsConnection.closeDbConnection();
-				
-				}
+						System.out.println("ce");
+
+					} catch (SocketTimeoutException se) {
+
+						System.out.println("se");
+
+					} catch (IOException ie) {
+
+						System.out.println("ie");
+					} 
+					cellularNetWorkElementInformation.setDirty(false);
+					cellularNetWorkElementInformation
+					.setInteractionDetails(interactionDetails);
+					System.out.println(cellularNetWorkElementInformation.getGeneType());
+					System.out.println(cellularNetWorkElementInformation.getGoInfoStr());
+				}	
 			}
-		};
 
-		// SwingUtilities.invokeLater(r);
-		Thread thread = new Thread(r);
-		thread.start();
+		} catch (java.util.ConcurrentModificationException ce) {
+
+			System.out.println("ie - 1");
+				
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+		} finally {
+
+			interactionsConnection.closeDbConnection();
+
+		}
+		
+		
+		ResultSet resultSet = 	new ResultSet();
+		java.util.Date date= new java.util.Date();
+		resultSet.setName("CNKB - " + date);
+		resultSet.setType("CNKB");
+		resultSet.setParent(dataSet.getDataSetName());
+		resultSet.setOwner(user.getId());	
+		resultSet.setData(convertToByte(hits));
+		FacadeFactory.getFacade().store(resultSet);	
 		
 	}
 
@@ -112,35 +130,35 @@ public class CNKBInteractions {
 	 * Create a connection with the server.
 	 */
 	private void loadApplicationProperty() {
-		Properties iteractionsProp = new Properties();
+		
+		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+		ResultSetlUtil.setUrl(interactionsServletUrl);
+		ResultSetlUtil.setTimeout(timeout);
+		
+	}
+	
+	private byte[] convertToByte(Object object) {
+
+		byte[] byteData = null;
+		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
+
 		try {
-			iteractionsProp
-					.load(new FileInputStream(Constants.PROPERTIES_FILE));
 
-			timeout = new Integer(
-					iteractionsProp
-							.getProperty(Constants.INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
-		 
-			interaction_flag = new Integer(iteractionsProp
-					.getProperty(Constants.INTERACTIONS_FLAG));
+			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
 
-			String interactionsServletUrl = PropertiesManager.getInstance().getProperty(this.getClass(),
-					"url", "");
-			if (interactionsServletUrl == null
-					|| interactionsServletUrl.trim().equals("")) {
+			oos.writeObject(object);
+			oos.flush(); 
+			oos.close(); 
+			bos.close();
+			byteData 				= 	bos.toByteArray();
 
-				interactionsServletUrl = iteractionsProp
-						.getProperty(Constants.INTERACTIONS_SERVLET_URL);
-			}
-			ResultSetlUtil.setUrl(interactionsServletUrl);
-			ResultSetlUtil.setTimeout(timeout);
-		} catch (java.io.IOException ie) {
-			
-		} catch (Exception e) {
-			
+		} catch (IOException ex) {
+
+			System.out.println("Exception with in convertToByte");
+
 		}
 
-	}
+		return byteData;
 
-	
+	}
 }

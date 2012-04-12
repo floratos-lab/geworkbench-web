@@ -21,11 +21,8 @@ public class Constants  {
 	public static final String CNKB_HITS = "CNKB_HITS";
 
 	public static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
-	
 	public static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
-	
 	public static final String MAX_INTERACTIONS_NUMBER = "max_interaction_number";
-	
 	public static final String INTERACTIONS_FLAG = "interaction_flag";
 	
 	public static final String GOTERMCOLUMN = "GO Annotation";
@@ -77,19 +74,12 @@ public class Constants  {
 	public static final String  PHOSPHATASE= "Phosphatase";
 
 	public static final String SIF_FORMAT = "sif format";
-	
 	public static final String ADJ_FORMAT = "adj format";	 
-	
 	public static final String GENE_SYMBOL_ONLY = "Gene Symbol Only";
-	
 	public static final String GENE_SYMBOL_PREFERRED = "Gene Symbol Preferred";
-	
 	public static final String ENTREZ_ID_ONLY = "Entrez ID Only";
-	
 	public static final String ENTREZ_ID_PREFERRED = "Entrez ID Preferred";
-	
 	public static final String PROJECT = "project ";
-	
 	public static final String FILE = "file";
 	
 }
