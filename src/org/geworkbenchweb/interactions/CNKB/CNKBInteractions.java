@@ -75,25 +75,24 @@ public class CNKBInteractions {
 
 					} catch (UnAuthenticatedException uae) {
 						
-						System.out.println("uae");
+						uae.printStackTrace();
 
 					} catch (ConnectException ce) {
 
-						System.out.println("ce");
+						ce.printStackTrace();
 
 					} catch (SocketTimeoutException se) {
 
-						System.out.println("se");
+						se.printStackTrace();
 
 					} catch (IOException ie) {
 
-						System.out.println("ie");
+						ie.printStackTrace();
 					} 
 					cellularNetWorkElementInformation.setDirty(false);
 					cellularNetWorkElementInformation
 					.setInteractionDetails(interactionDetails);
-					System.out.println(cellularNetWorkElementInformation.getGeneType());
-					System.out.println(cellularNetWorkElementInformation.getGoInfoStr());
+
 				}	
 			}
 
