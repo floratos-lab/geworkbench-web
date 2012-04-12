@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
+import org.geworkbenchweb.analysis.hierarchicalclustering.ClustergramTab;
 import org.geworkbenchweb.interactions.CNKB.CNKBTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -65,7 +65,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 		} else {
 			
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
-	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
+	        ClustergramTab dendrogramTab 	= 	new ClustergramTab(results);
 	        CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
 	        
 	        //Height and width of the visualization are calculted based on number of phenotypes and markers

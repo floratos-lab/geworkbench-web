@@ -12,13 +12,13 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbenchweb.visualizations.Dendrogram;
+import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
-public class DendrogramTab extends VerticalLayout{
+public class ClustergramTab extends VerticalLayout{
 
 	
 	 /**
@@ -68,7 +68,7 @@ public class DendrogramTab extends VerticalLayout{
     private transient Object lock = new Object();
 	
 	@SuppressWarnings({ "unchecked", "unused" })
-	public DendrogramTab(CSHierClusterDataSet dataSet) {
+	public ClustergramTab(CSHierClusterDataSet dataSet) {
 		
         microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
         
@@ -159,7 +159,7 @@ public class DendrogramTab extends VerticalLayout{
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
 		
-		Dendrogram dendrogram = new Dendrogram();
+		Clustergram dendrogram = new Clustergram();
 		
 		dendrogram.setHeight(((geneNo*5) + 600) + "px");
         dendrogram.setWidth(((chipNo*20) + 600) + "px");

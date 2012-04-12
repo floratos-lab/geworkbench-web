@@ -10,8 +10,8 @@ import com.vaadin.ui.AbstractComponent;
  * Server side component for the VDendrogram widget.
  * @author Nikhil Reddy
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VDendrogram.class)
-public class Dendrogram extends AbstractComponent {
+@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VClustergram.class)
+public class Clustergram extends AbstractComponent {
 	
 	private static final long serialVersionUID = 1L;
 	private String[] colors;

@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.Composite;
  * @Note Don't even think of making any changes with out asking Nikhil
  *
  */
-public class VDendrogram extends Composite implements Paintable {
+public class VClustergram extends Composite implements Paintable {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-dendrogram";
@@ -79,7 +79,7 @@ public class VDendrogram extends Composite implements Paintable {
 	 * The constructor should first call super() to initialize the component and 
 	 * then handle any initialization relevant to Vaadin. 
 	 */	
-	public VDendrogram() {
+	public VClustergram() {
 
 		panel = new AbsolutePanel();
 		initWidget(panel);
