@@ -1,9 +1,13 @@
 package org.geworkbenchweb.layout;
 
+import java.util.Vector;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.analysis.hierarchicalclustering.DendrogramTab;
+import org.geworkbenchweb.interactions.CNKB.CNKBTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
@@ -50,8 +54,16 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 			dataTable.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataTable);
 
+		} else if (dataType.equalsIgnoreCase("CNKB")) {
+			
+			@SuppressWarnings("unchecked")
+			Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) dataSet;
+	        CNKBTab cnkbTab 								= 	new CNKBTab(hits);
+	        
+			addTab(cnkbTab, "CNKB Results", null);		
+			
 		} else {
-
+			
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 	        DendrogramTab dendrogramTab 	= 	new DendrogramTab(results);
 	        CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
