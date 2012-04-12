@@ -11,7 +11,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.components.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -53,8 +52,6 @@ import com.vaadin.ui.VerticalSplitPanel;
 public class MainLayout extends AbsoluteLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
-	
-	private GenSpaceWindow genSpaceWindow;
 	
 	private GeworkbenchApplication app;
 	
@@ -128,29 +125,9 @@ public class MainLayout extends AbsoluteLayout {
         logoutButton.addStyleName("borderless");
         logoutButton.setIcon(new ThemeResource("../runo/icons/16/user.png"));
         
-        genSpaceWindow = new GenSpaceWindow();
-        Button genspaceButton = new Button("genSpace", new ClickListener() {
-			
-        	private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(!getApplication().getMainWindow().getChildWindows().contains(genSpaceWindow))
-					getApplication().getMainWindow().addWindow(genSpaceWindow);
-				genSpaceWindow.setWidth(600,UNITS_PIXELS);
-				genSpaceWindow.setHeight(400,UNITS_PIXELS);
-				genSpaceWindow.setPositionX((int) (getApplication().getMainWindow().getWidth()/2 - genSpaceWindow.getWidth()));
-				genSpaceWindow.setPositionY((int) (getApplication().getMainWindow().getHeight()/2 - genSpaceWindow.getHeight()));
-			}
-
-		});
-        
-        genspaceButton.addStyleName("borderless");
-        
         toolbar.setSizeUndefined();
         toolbar.addStyleName("right");
         toolbar.addComponent(welcomeUser);
-        toolbar.addComponent(genspaceButton);
         toolbar.addComponent(logoutButton);
         mainHeader.addComponent(toolbar);
         
