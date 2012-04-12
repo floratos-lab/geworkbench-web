@@ -10,8 +10,6 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;

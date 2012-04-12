@@ -1,8 +1,6 @@
 package org.geworkbenchweb.interactions.CNKB;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringAnalysis;
-
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
