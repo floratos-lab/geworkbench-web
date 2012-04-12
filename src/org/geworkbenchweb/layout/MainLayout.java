@@ -15,7 +15,7 @@ import org.geworkbenchweb.dataset.DataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.SetOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.layout.VisualPlugin;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -281,7 +281,7 @@ public class MainLayout extends AbsoluteLayout {
 	            				String setN = (String) setName.getValue();
 	            				if(setN != "") {
 
-	            					SetOperations setOp = new SetOperations();
+	            					SubSetOperations setOp = new SubSetOperations();
 
 	            					if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
@@ -371,7 +371,7 @@ public class MainLayout extends AbsoluteLayout {
 		            			String setN = (String) setName.getValue();
 		            			if(setN != "") {
 		            				
-		            				SetOperations setOp = new SetOperations();
+		            				SubSetOperations setOp = new SubSetOperations();
 
 		            				if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
@@ -457,7 +457,7 @@ public class MainLayout extends AbsoluteLayout {
 				markerTable.setContainerDataSource(markerTableView(maSet));
 				arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-				SetOperations setOp = new SetOperations();
+				SubSetOperations setOp = new SubSetOperations();
 
 				markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
 				arraySetContainer(setOp.getArraySets(dataSetId), maSet);

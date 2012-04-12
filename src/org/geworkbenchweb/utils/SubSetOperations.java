@@ -14,7 +14,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
  * @author Nikhil
  */
 
-public class SetOperations {
+public class SubSetOperations {
 
 	User user 		= 	SessionHandler.get();
 	
