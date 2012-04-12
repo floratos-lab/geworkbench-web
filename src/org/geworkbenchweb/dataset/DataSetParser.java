@@ -46,7 +46,7 @@ public class DataSetParser {
 		DSMicroarraySet dataSet 	= 	parser.parseCSMicroarraySet(dataFile, null);
 		
 		/* Here we are parsing Annotation file */
-		if(annotFile.getName() != null) {
+		if(annotFile != null) {
 			
 			AnnotationParser.loadAnnotationFile(dataSet, annotFile);
 		
