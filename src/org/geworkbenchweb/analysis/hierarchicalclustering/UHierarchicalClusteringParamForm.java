@@ -16,7 +16,7 @@ import com.vaadin.ui.Button.ClickEvent;
  *
  */
 
-public class HierarchicalClusteringParamForm extends Form {
+public class UHierarchicalClusteringParamForm extends Form {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
@@ -28,7 +28,7 @@ public class HierarchicalClusteringParamForm extends Form {
 	
 	private DSMicroarraySet dataSet;
 	
-	public HierarchicalClusteringParamForm(DSMicroarraySet maSet) {
+	public UHierarchicalClusteringParamForm(DSMicroarraySet maSet) {
 		
 		this.dataSet = maSet;
 		setImmediate(true);

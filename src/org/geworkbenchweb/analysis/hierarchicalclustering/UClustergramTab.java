@@ -17,11 +17,11 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.ui.VerticalLayout;
 
-@SuppressWarnings("serial")
-public class ClustergramTab extends VerticalLayout{
+public class UClustergramTab extends VerticalLayout{
 
-	
-	 /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * The underlying micorarray set used in the hierarchical clustering
      * analysis.
      */
@@ -68,7 +68,7 @@ public class ClustergramTab extends VerticalLayout{
     private transient Object lock = new Object();
 	
 	@SuppressWarnings({ "unchecked", "unused" })
-	public ClustergramTab(CSHierClusterDataSet dataSet) {
+	public UClustergramTab(CSHierClusterDataSet dataSet) {
 		
         microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
         

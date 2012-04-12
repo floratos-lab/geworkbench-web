@@ -1,7 +1,7 @@
 package org.geworkbenchweb;
 
-import org.geworkbenchweb.authentication.UserAuth;
-import org.geworkbenchweb.layout.MainLayout;
+import org.geworkbenchweb.authentication.UUserAuth;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
@@ -44,13 +44,13 @@ public class GeworkbenchApplication extends Application {
 	
 	public void loginView(Window mainWindow) {
 	
-		mainWindow.setContent(new UserAuth(this));
+		mainWindow.setContent(new UUserAuth(this));
 	
 	}
 	
 	public void initView(Window mainWindow)  {
 		
-		mainWindow.setContent(new MainLayout(this));
+		mainWindow.setContent(new UMainLayout(this));
 	
 	}
 

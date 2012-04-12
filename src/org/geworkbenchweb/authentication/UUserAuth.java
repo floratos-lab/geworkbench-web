@@ -31,13 +31,13 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 
-public class UserAuth extends AbsoluteLayout {
+public class UUserAuth extends AbsoluteLayout {
 
 	private static final long serialVersionUID = 1L;
 	
 	private GeworkbenchApplication app;
 
-	public UserAuth(GeworkbenchApplication app) {
+	public UUserAuth(GeworkbenchApplication app) {
 		
 		this.app = app;
 		this.app.getMainWindow().setCaption("geWorkbench");

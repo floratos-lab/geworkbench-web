@@ -11,12 +11,12 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchApplication;
-import org.geworkbenchweb.dataset.DataSetUpload;
+import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.layout.VisualPlugin;
+import org.geworkbenchweb.layout.UVisualPlugin;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -49,13 +49,13 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.VerticalSplitPanel;
 
-public class MainLayout extends AbsoluteLayout {
+public class UMainLayout extends AbsoluteLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
 	
 	private GeworkbenchApplication app;
 	
-	private DataSetUpload dataWindow;
+	private UDataSetUpload dataWindow;
 	
 	private HorizontalSplitPanel mainPanel;
 	
@@ -81,7 +81,7 @@ public class MainLayout extends AbsoluteLayout {
 	
     private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
 	
-	public MainLayout(GeworkbenchApplication app) {
+	public UMainLayout(GeworkbenchApplication app) {
 		
 		
 		this.app 						= 	app;
@@ -190,7 +190,7 @@ public class MainLayout extends AbsoluteLayout {
 				@Override
 				public void buttonClick(ClickEvent event) {
 
-					dataWindow = new DataSetUpload();
+					dataWindow = new UDataSetUpload();
 					app.getMainWindow().addWindow(dataWindow);
 					app.initView(getApplication().getMainWindow());
 				}
@@ -463,7 +463,7 @@ public class MainLayout extends AbsoluteLayout {
 				arraySetContainer(setOp.getArraySets(dataSetId), maSet);
 
 
-				VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), null);
+				UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), null);
 				mainPanel.setSecondComponent(tabSheet);
 
 			} else {
@@ -483,14 +483,14 @@ public class MainLayout extends AbsoluteLayout {
 						
 						@SuppressWarnings("unchecked")
 						Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
-						VisualPlugin tabSheet 							= 	new VisualPlugin(hits, resultSet.getType(), null);
+						UVisualPlugin tabSheet 							= 	new UVisualPlugin(hits, resultSet.getType(), null);
 						
 						mainPanel.setSecondComponent(tabSheet);
 						
 					}else {
 						
 						CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
-						VisualPlugin tabSheet 				= 	new VisualPlugin(hierResults, resultSet.getType(), null);
+						UVisualPlugin tabSheet 				= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
 						mainPanel.setSecondComponent(tabSheet);
 						
 					}
@@ -703,10 +703,10 @@ public class MainLayout extends AbsoluteLayout {
 					arrayTable.setContainerDataSource(arrayTableView(maSet));
 					
 					if(action == ACTION_ANALYZE) {
-						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), "Analyze Data");
+						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
 						mainPanel.setSecondComponent(tabSheet);
 					}else {
-						VisualPlugin tabSheet = new VisualPlugin(maSet, dataSet.getType(), "Get Interactions");
+						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
 						mainPanel.setSecondComponent(tabSheet);
 					}
 				

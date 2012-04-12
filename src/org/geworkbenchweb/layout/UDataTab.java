@@ -1,7 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringParamForm;
+import org.geworkbenchweb.analysis.hierarchicalclustering.UHierarchicalClusteringParamForm;
 import org.geworkbenchweb.interactions.CNKB.CNKBParamForm;
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
@@ -18,13 +18,13 @@ import com.vaadin.ui.VerticalSplitPanel;
  * @author Nikhil Reddy
  *
  */
-public class DataTab extends VerticalLayout {
+public class UDataTab extends VerticalLayout {
 
 	private static final long serialVersionUID 		= 		-1888971408170241086L;
 	
 	private DSMicroarraySet dataSet;
 	
-	public DataTab(DSMicroarraySet maSet, String action) {
+	public UDataTab(DSMicroarraySet maSet, String action) {
 	
 		this.dataSet = maSet;
 		setSizeFull();
@@ -67,7 +67,7 @@ public class DataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("Hierarchical Clustering Parameters");
 						
-						HierarchicalClusteringParamForm hsParamForm = new HierarchicalClusteringParamForm(dataSet);
+						UHierarchicalClusteringParamForm hsParamForm = new UHierarchicalClusteringParamForm(dataSet);
 						paramPanel.addComponent(hsParamForm);
 						dataPanel.addComponent(paramPanel);
 

@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbenchweb.analysis.hierarchicalclustering.ClustergramTab;
+import org.geworkbenchweb.analysis.hierarchicalclustering.UClustergramTab;
 import org.geworkbenchweb.interactions.CNKB.CNKBTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -17,7 +17,7 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 
-public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
+public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
 	private static final long serialVersionUID 				= 	1L;
 	
@@ -33,7 +33,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 	
 	private DSMicroarraySet maSet;
 
-	public VisualPlugin(Object dataSet, String dataType, String action) {
+	public UVisualPlugin(Object dataSet, String dataType, String action) {
 
 		addListener(this);
 		setSizeFull();
@@ -41,7 +41,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 		if(dataType.contentEquals("Expression File")) {
 
 			maSet 							= 	(DSMicroarraySet) dataSet;
-			DataTab dataOp					= 	new DataTab(maSet, action);
+			UDataTab dataOp					= 	new UDataTab(maSet, action);
 			dataTable 						= 	new Table();
 			
 			dataOp.setCaption(DATA_OPERATIONS);
@@ -65,7 +65,7 @@ public class VisualPlugin extends TabSheet implements TabSheet.SelectedTabChange
 		} else {
 			
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
-	        ClustergramTab dendrogramTab 	= 	new ClustergramTab(results);
+	        UClustergramTab dendrogramTab 	= 	new UClustergramTab(results);
 	        CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
 	        
 	        //Height and width of the visualization are calculted based on number of phenotypes and markers
