@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.vaadin.vaadinvisualizations.PieChart;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 
 /**
  * This class displays CNKB results in a Table and also a graph
@@ -18,12 +20,39 @@ public class UCNKBTab extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
+	private VerticalSplitPanel tabPanel;
+	
 	public UCNKBTab(Vector<CellularNetWorkElementInformation> hits) {
 	
-		//  GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
+		setSizeFull();
+		setImmediate(true);
 		
+		tabPanel = new VerticalSplitPanel();
+		tabPanel.setSizeFull();
+		tabPanel.setSplitPosition(40);
+		tabPanel.setStyleName("small previews");
+		tabPanel.setLocked(true);
+
+		VerticalLayout graphLayout = new VerticalLayout();
+		graphLayout.setSizeFull();
+		
+		PieChart pc = new PieChart();
+        
+        pc.setSizeFull();
+        
+        pc.add("Work", 7);
+        pc.add("Play", 3);
+        pc.add("Eat", 1);
+        pc.add("Sleep", 6);
+        pc.add("Do Vaadin", 7);
+        pc.setOption("width", 400);
+        pc.setOption("height", 400);
+        pc.setOption("is3D", true);
+		graphLayout.addComponent(pc);
+		
+		
+		/* Results Table Code */
 		Table dataTable = new Table();
-		
 		dataTable.setColumnCollapsingAllowed(true);
 		dataTable.setColumnReorderingAllowed(true);
 		dataTable.setSizeFull();
@@ -70,7 +99,10 @@ public class UCNKBTab extends VerticalLayout {
 		dataTable.setColumnWidth("Annotation", 150);
 		dataTable.setColumnHeaders(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
 				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
-		setSizeFull();
-		addComponent(dataTable);
+		
+		
+		tabPanel.setFirstComponent(graphLayout);
+		tabPanel.setSecondComponent(dataTable);
+		addComponent(tabPanel);
 	}
 }

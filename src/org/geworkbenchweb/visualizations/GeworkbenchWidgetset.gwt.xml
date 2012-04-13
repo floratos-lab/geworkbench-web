@@ -55,7 +55,8 @@
     
     <!-- Cytoscape Web Pan Zoom Plugin Stylesheet -->
 	<stylesheet src="js/plugins/jquery.cytoscapeweb-panzoom.css" />
-
-
+	
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
+
+    <inherits name="org.vaadin.vaadinvisualizations.widgetset.VaadinvisualizationApplicationWidgetset" />
 </module>
