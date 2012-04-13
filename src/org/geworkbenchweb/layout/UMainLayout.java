@@ -105,9 +105,13 @@ public class UMainLayout extends AbsoluteLayout {
 	 */
 	public static void setMainPanelSecondComponent(Component component) {
 		
+		mainPanel.removeComponent(mainPanel.getSecondComponent());
 		mainPanel.setSecondComponent(component);
 	
 	}
+	/**
+	 * Repaint the Main Panel
+	 */
 	public static void mainPanelRequestRepaint() {
 		
 		mainPanel.requestRepaint();

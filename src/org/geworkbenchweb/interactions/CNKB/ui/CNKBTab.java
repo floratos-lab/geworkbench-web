@@ -1,4 +1,4 @@
-package org.geworkbenchweb.interactions.CNKB;
+package org.geworkbenchweb.interactions.CNKB.ui;
 
 import java.util.HashMap;
 import java.util.Vector;

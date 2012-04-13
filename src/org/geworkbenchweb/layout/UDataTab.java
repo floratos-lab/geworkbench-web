@@ -1,8 +1,8 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.analysis.hierarchicalclustering.UHierarchicalClusteringParamForm;
-import org.geworkbenchweb.interactions.CNKB.CNKBParamForm;
+import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
+import org.geworkbenchweb.interactions.CNKB.ui.CNKBParamForm;
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;

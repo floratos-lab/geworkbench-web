@@ -1,4 +1,4 @@
-package org.geworkbenchweb.analysis.aracne;
+package org.geworkbenchweb.analysis.aracne.ui;
 
 import com.vaadin.ui.Form;
 

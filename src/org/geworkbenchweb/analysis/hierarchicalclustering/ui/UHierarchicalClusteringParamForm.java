@@ -1,6 +1,7 @@
-package org.geworkbenchweb.analysis.hierarchicalclustering;
+package org.geworkbenchweb.analysis.hierarchicalclustering.ui;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClusteringAnalysis;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;

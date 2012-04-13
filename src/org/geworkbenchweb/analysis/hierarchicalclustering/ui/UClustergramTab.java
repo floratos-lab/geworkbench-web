@@ -1,4 +1,4 @@
-package org.geworkbenchweb.analysis.hierarchicalclustering;
+package org.geworkbenchweb.analysis.hierarchicalclustering.ui;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
@@ -12,6 +12,7 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
 import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;

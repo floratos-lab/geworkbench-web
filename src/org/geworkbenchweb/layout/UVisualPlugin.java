@@ -6,8 +6,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbenchweb.analysis.hierarchicalclustering.UClustergramTab;
-import org.geworkbenchweb.interactions.CNKB.CNKBTab;
+import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
+import org.geworkbenchweb.interactions.CNKB.ui.CNKBTab;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
