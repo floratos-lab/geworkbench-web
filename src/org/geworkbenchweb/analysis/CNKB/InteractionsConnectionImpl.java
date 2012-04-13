@@ -1,4 +1,4 @@
-package org.geworkbenchweb.interactions.CNKB;
+package org.geworkbenchweb.analysis.CNKB;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

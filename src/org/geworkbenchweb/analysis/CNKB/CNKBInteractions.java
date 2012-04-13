@@ -1,4 +1,4 @@
-package org.geworkbenchweb.interactions.CNKB;
+package org.geworkbenchweb.analysis.CNKB;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

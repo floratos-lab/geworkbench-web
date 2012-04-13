@@ -1,4 +1,4 @@
-package org.geworkbenchweb.interactions.CNKB;
+package org.geworkbenchweb.analysis.CNKB;
 
 /**
  * Created by Min You  

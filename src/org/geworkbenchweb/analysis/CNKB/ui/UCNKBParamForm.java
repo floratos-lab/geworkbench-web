@@ -1,8 +1,8 @@
-package org.geworkbenchweb.interactions.CNKB.ui;
+package org.geworkbenchweb.analysis.CNKB.ui;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbenchweb.interactions.CNKB.CNKBInteractions;
+import org.geworkbenchweb.analysis.CNKB.CNKBInteractions;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
@@ -16,7 +16,7 @@ import com.vaadin.ui.Label;
  * @author Nikhil
  * 
  */
-public class CNKBParamForm extends Form {
+public class UCNKBParamForm extends Form {
 
 	private static final long serialVersionUID = -1221913812891134388L;
 	
@@ -29,7 +29,7 @@ public class CNKBParamForm extends Form {
 	
 	//private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA", "Protein-Protein" };
 	
-	public CNKBParamForm(DSMicroarraySet maSet) {
+	public UCNKBParamForm(DSMicroarraySet maSet) {
 		
 		loadApplicationProperty();
 		

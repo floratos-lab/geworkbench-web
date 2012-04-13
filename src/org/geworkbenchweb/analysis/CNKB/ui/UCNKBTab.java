@@ -1,4 +1,4 @@
-package org.geworkbenchweb.interactions.CNKB.ui;
+package org.geworkbenchweb.analysis.CNKB.ui;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -14,11 +14,11 @@ import com.vaadin.ui.VerticalLayout;
  * This class displays CNKB results in a Table and also a graph
  * @author np2417
  */
-public class CNKBTab extends VerticalLayout {
+public class UCNKBTab extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-	public CNKBTab(Vector<CellularNetWorkElementInformation> hits) {
+	public UCNKBTab(Vector<CellularNetWorkElementInformation> hits) {
 	
 		//  GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
 		

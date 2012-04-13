@@ -1,8 +1,8 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
-import org.geworkbenchweb.interactions.CNKB.ui.CNKBParamForm;
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
@@ -92,7 +92,7 @@ public class UDataTab extends VerticalLayout {
 					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("CNKB Parameters");
-						paramPanel.addComponent(new CNKBParamForm(dataSet));
+						paramPanel.addComponent(new UCNKBParamForm(dataSet));
 						
 						dataPanel.addComponent(paramPanel);
 					}
