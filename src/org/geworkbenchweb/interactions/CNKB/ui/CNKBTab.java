@@ -66,8 +66,8 @@ public class CNKBTab extends VerticalLayout {
 		}
 		
 		dataTable.setContainerDataSource(dataIn);
-		dataTable.setColumnWidth("Marker", 300);
-		dataTable.setColumnWidth("Annotation", 300);
+		dataTable.setColumnWidth("Marker", 150);
+		dataTable.setColumnWidth("Annotation", 150);
 		dataTable.setColumnHeaders(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
 				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
 		setSizeFull();

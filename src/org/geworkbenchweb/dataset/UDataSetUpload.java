@@ -2,7 +2,6 @@ package org.geworkbenchweb.dataset;
 
 import java.io.File;
 
-import org.geworkbenchweb.GeworkbenchApplication;
 import org.vaadin.easyuploads.FileFactory;
 import org.vaadin.easyuploads.UploadField;
 import org.vaadin.easyuploads.UploadField.FieldType;
@@ -23,7 +22,6 @@ public class UDataSetUpload extends Window {
     private ComboBox fileCombo; 			
     private TextArea dataArea;			
     private UploadField uploadField; 		
-    private Window dataWindow;
     private UploadField annotUploadField;
     
     public UDataSetUpload() {
@@ -41,7 +39,7 @@ public class UDataSetUpload extends Window {
     	this.setDraggable(false);
     	this.setResizable(false);
 
-    	dataWindow 			= 	this.getApplication().getMainWindow();
+    	getApplication().getMainWindow();
     	dataLayout 			= 	new VerticalLayout();
         fileCombo 			= 	new ComboBox("Please select type of file");
         dataArea 			= 	new TextArea(null, initialText);
@@ -113,11 +111,10 @@ public class UDataSetUpload extends Window {
     	parseInit(dataFile, (File) annotUploadField.getValue(), fileType, dataDescription);
     		
     	dataFile.delete();
-    	//annotFile.delete();
     	
-    	GeworkbenchApplication app = new GeworkbenchApplication();
-    	dataWindow.removeAllComponents();
-    	app.initView(dataWindow);
+    	/* We are keeping annotation file because we CSMicroarraySet doesn't save any annotation information */
+    	
+    	//annotFile.delete();
     	
     }
     

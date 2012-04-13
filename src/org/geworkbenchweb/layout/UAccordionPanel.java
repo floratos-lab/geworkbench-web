@@ -42,12 +42,12 @@ import com.vaadin.ui.Window.Notification;
 
 public class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
 	
-	private Tree dataTree;
-
 	private static final long serialVersionUID = 4523693969296820932L;
 
 	private Table markerTable;
 
+	private static Tree dataTree;
+	
 	private Table arrayTable;
 	
 	private TreeTable markerSets;
@@ -64,7 +64,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	
 	public Long dataSetId;
 	
-	User user	=	SessionHandler.get();
+	static User user	=	SessionHandler.get();
 	
 	// Actions for the context menu
 
@@ -80,7 +80,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 	private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
 	
-	UAccordionPanel(boolean closable) {
+	public UAccordionPanel(boolean closable) {
 		
 		super();
 		VerticalLayout l 	= 	new VerticalLayout();
@@ -113,6 +113,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
 
 		dataTree = new Tree();
+		dataTree.setImmediate(true);
 		dataTree.areChildrenAllowed(true);
 		dataTree.addContainerProperty("DataSet Name", String.class, "");
 		dataTree.setContainerDataSource(getDataContainer());
@@ -120,7 +121,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 		dataTree.addActionHandler(this);
 		dataTree.addListener(this);
-		dataTree.setImmediate(true);
 
 		l.addComponent(dataSets);
 		l.setHeight("100%");
@@ -645,7 +645,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		
 	}
 	
-	public HierarchicalContainer getDataContainer() {
+	public static HierarchicalContainer getDataContainer() {
 		
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -678,5 +678,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		
 	    return dataSets;
 	
+	}
+
+	public static void resetDataContainer() {
+		
+		dataTree.removeAllItems();
+		dataTree.setContainerDataSource(getDataContainer());
+		
 	}
 }

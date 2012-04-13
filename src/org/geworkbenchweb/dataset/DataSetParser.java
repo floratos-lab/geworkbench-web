@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.parsers.GeoSeriesMatrixParser;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.parsers.MicroarraySetParser;
+import org.geworkbenchweb.layout.UAccordionPanel;
 import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -59,6 +60,7 @@ public class DataSetParser {
 		}else {
 			
 			storeData(dataSet);
+			UAccordionPanel.resetDataContainer();
 			
 		}
 		
@@ -81,6 +83,7 @@ public class DataSetParser {
 			}else {
 				
 				storeData(dataSet);
+				UAccordionPanel.resetDataContainer();
 				
 			}
 		} catch (InputFileFormatException e) {
@@ -105,6 +108,8 @@ public class DataSetParser {
 	    dataset.setOwner(user.getId());	
 	    dataset.setData(convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
+	    
+	    UAccordionPanel.resetDataContainer();
 	    
 	}
 	

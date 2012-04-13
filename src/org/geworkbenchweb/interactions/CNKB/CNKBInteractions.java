@@ -14,6 +14,7 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.layout.UAccordionPanel;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -119,6 +120,8 @@ public class CNKBInteractions {
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
+		
+		UAccordionPanel.resetDataContainer();
 		
 	}
 
