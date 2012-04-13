@@ -1,6 +1,7 @@
 package org.geworkbenchweb.interactions.CNKB.ui;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.interactions.CNKB.CNKBInteractions;
 
 import com.vaadin.data.Property;
@@ -21,12 +22,16 @@ public class CNKBParamForm extends Form {
 	
 	private DSMicroarraySet dataSet;
 	
+	private int timeout = 3000;
+	
 	private static final String[] interactomes = new String[] { "BCi (66193 interactions)", "BIND (45454 interactions)",
     "Geneways (26931 interactions)", "HGi (672786 interactions)" };
 	
 	//private static final String[] interactions = new String[] { "Modular-TF", "Protein-DNA", "Protein-Protein" };
 	
 	public CNKBParamForm(DSMicroarraySet maSet) {
+		
+		loadApplicationProperty();
 		
 		this.dataSet = maSet;
 	
@@ -102,4 +107,15 @@ public class CNKBParamForm extends Form {
 		addField("submitAnalysis", submitButton);
 	}
 
+	/**
+	 * Create a connection with the server.
+	 */
+	private void loadApplicationProperty() {
+		
+		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+		ResultSetlUtil.setUrl(interactionsServletUrl);
+		ResultSetlUtil.setTimeout(timeout);
+		
+	}
+	
 }

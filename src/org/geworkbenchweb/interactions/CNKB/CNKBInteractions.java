@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
@@ -24,16 +23,12 @@ public class CNKBInteractions {
 	
 	private Vector<CellularNetWorkElementInformation> hits = null;
 	
-	private int timeout = 3000;
-	
 	private int interaction_flag = 1;
 	
 	User user 	= 	SessionHandler.get();
 	
 	public CNKBInteractions(DSMicroarraySet dataSet, String[] params) {
 		
-		loadApplicationProperty();
-
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
 		String context = "BCi (66193 interactions)".split(" \\(")[0].trim();
@@ -125,18 +120,7 @@ public class CNKBInteractions {
 		
 	}
 
-	
-	/**
-	 * Create a connection with the server.
-	 */
-	private void loadApplicationProperty() {
-		
-		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-		ResultSetlUtil.setUrl(interactionsServletUrl);
-		ResultSetlUtil.setTimeout(timeout);
-		
-	}
-	
+
 	private byte[] convertToByte(Object object) {
 
 		byte[] byteData = null;
