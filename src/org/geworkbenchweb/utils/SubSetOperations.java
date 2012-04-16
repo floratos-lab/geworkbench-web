@@ -42,6 +42,17 @@ public class SubSetOperations {
 		return true;
 	}
 
+	public List<?> getMarkerSet(String setName) {
+		
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		
+		parameters.put("name", setName);
+		parameters.put("type", "marker");
+		
+		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name and p.type=:type ", parameters);
+		return data;
+	}
+	
 	public List<?> getMarkerSets(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();

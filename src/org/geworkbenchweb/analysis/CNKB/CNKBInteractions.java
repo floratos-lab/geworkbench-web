@@ -31,16 +31,19 @@ public class CNKBInteractions {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
-		String context = "BCi (66193 interactions)".split(" \\(")[0].trim();
+		String context = params[0];
 
-		String version = "1.0";
+		String version = params[1];
 			
+		String positions = params[2];
+		
+		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
 			
 		hits = new Vector<CellularNetWorkElementInformation>();
 		
-		for(int i=0; i<dataSet.getMarkers().size(); i++) {
+		for(int i=0; i<temp.length; i++) {
 				
-			hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(i)));
+			hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(Integer.parseInt(temp[i].trim()))));
 			
 		} 
 			

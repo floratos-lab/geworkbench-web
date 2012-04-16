@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.vaadin.vaadinvisualizations.PieChart;
+import com.google.gwt.visualization.*;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;

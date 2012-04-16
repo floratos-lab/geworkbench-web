@@ -147,12 +147,12 @@ public class UDataTab extends VerticalLayout {
 		if(action != null) {
 			if(action == "Analyze Data") {
 				
-				operationsBox.select(1);
+				operationsBox.select("Analyze Data");
 				paramForm.addField("analysis", analysisBox);
 				
 			}else if(action == "Get Interactions") {
 				
-				operationsBox.select(2);
+				operationsBox.select("Get Interactions");
 				paramForm.addField("interactions", interactionsBox);
 			}
 			

@@ -44,16 +44,16 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	
 	private static final long serialVersionUID = 4523693969296820932L;
 
-	private Table markerTable;
-
 	private static Tree dataTree;
-	
-	private Table arrayTable;
-	
+		
 	private TreeTable markerSets;
 	
 	private	TreeTable arraySets;
-
+	
+	private Table arrayTable;
+	
+	private Table markerTable;
+	
 	final Action ACTION_SUBSET 		= new Action("Create SubSet");
 
 	final Action[] ACTIONS_CREATE 	= new Action[] { ACTION_SUBSET };
@@ -63,6 +63,8 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	protected String selectedValues = null;
 	
 	public Long dataSetId;
+	
+	public DSMicroarraySet maSet;
 	
 	static User user	=	SessionHandler.get();
 	
@@ -195,6 +197,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
             					if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
             						getApplication().getMainWindow().removeWindow(nameWindow);
+            						markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
             						markerSets.requestRepaint();
             					}
             				} else {
@@ -285,6 +288,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	            				if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
+	            					arraySetContainer(setOp.getArraySets(dataSetId), maSet);
 	            					arraySets.requestRepaint();
 	            				}
 	            			} else {
@@ -358,7 +362,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			dataSetId 					=	dataSet.getId();
 			byte[] dataByte 			= 	dataSet.getData();
-			DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
+			maSet 						= 	(DSMicroarraySet) toObject(dataByte);
 			
 			if(maSet.getAnnotationFileName() != null){
 			
@@ -686,4 +690,5 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		dataTree.setContainerDataSource(getDataContainer());
 		
 	}
+
 }
