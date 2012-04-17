@@ -31,11 +31,11 @@ public class CNKBInteractions {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
-		String context = params[0];
+		String context 		= 	params[0];
 
-		String version = params[1];
+		String version 		=	params[1];
 			
-		String positions = params[2];
+		String positions 	= 	params[2];
 		
 		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
 			

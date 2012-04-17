@@ -119,7 +119,7 @@ public class UCNKBParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params[2] = getMarkerData(valueChangeEvent.getProperty().getValue().toString(), dataSet);
-				addField("submitAnalysis", submitButton);
+				addField("interactomeBox", interactomeBox);
 				
 			}
 		});
@@ -137,7 +137,7 @@ public class UCNKBParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params[1] = valueChangeEvent.getProperty().getValue().toString();
-				addField("markerSets", markerSetBox);
+				addField("submitAnalysis", submitButton);
 				
 			}
 		});
@@ -181,8 +181,8 @@ public class UCNKBParamForm extends Form {
 				
 			}
 		});
-	
-		addField("interactomeBox", interactomeBox);
+		
+		addField("markerSets", markerSetBox);
 		
 	}
 
@@ -202,8 +202,8 @@ public class UCNKBParamForm extends Form {
 	 */
 	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
 
-		DSMicroarraySet data = null;
-		List subSet = setOp.getMarkerSet(setName);
+		@SuppressWarnings("rawtypes")
+		List subSet 		= 	setOp.getMarkerSet(setName);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;
