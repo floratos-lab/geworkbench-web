@@ -40,7 +40,6 @@ public class CNKBInteractions {
 		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
 			
 		hits = new Vector<CellularNetWorkElementInformation>();
-		
 		for(int i=0; i<temp.length; i++) {
 				
 			hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(Integer.parseInt(temp[i].trim()))));

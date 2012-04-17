@@ -197,10 +197,10 @@ public class UCNKBTab extends VerticalLayout {
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
 		Double x 			= 	null;
 		Double y 			=	null;
-		int[] distribution 	= 	new int[100];
+		int[] distribution 	= 	new int[101];
 		for(int m=0; m<ppConfidence.size(); m++) {
 			int confidence = (int) ((ppConfidence.get(m)) * 100);
-			if (confidence < distribution.length && confidence >= 0) {
+			if (confidence <= distribution.length && confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
@@ -224,10 +224,10 @@ public class UCNKBTab extends VerticalLayout {
 
 		Double x 			= 	null;
 		Double y 			=	null;
-		int[] distribution 	= 	new int[100];
+		int[] distribution 	= 	new int[101];
 		for(int m=0; m<pdnaConfidence.size(); m++) {
 			int confidence = (int) ((pdnaConfidence.get(m)) * 100);
-			if (confidence < distribution.length && confidence >= 0) {
+			if (confidence <= distribution.length && confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
@@ -250,10 +250,10 @@ public class UCNKBTab extends VerticalLayout {
 
 		Double x 			= 	null;
 		Double y 			=	null;
-		int[] distribution 	= 	new int[100];
+		int[] distribution 	= 	new int[101];
 		for(int m=0; m<mtfConfidence.size(); m++) {
 			int confidence = (int) ((mtfConfidence.get(m)) * 100);
-			if (confidence < distribution.length && confidence >= 0) {
+			if (confidence <= distribution.length && confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
@@ -277,11 +277,11 @@ public class UCNKBTab extends VerticalLayout {
 		
 		Double x 			= 	null;
 		Double y 			=	null;
-		int[] distribution 	= 	new int[100];
+		int[] distribution 	= 	new int[101];
 		
 		for(int m=0; m<interactionConfidence.size(); m++) {
 			int confidence = (int) ((interactionConfidence.get(m)) * 100);
-			if (confidence < distribution.length && confidence >= 0) {
+			if (confidence <= distribution.length && confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
