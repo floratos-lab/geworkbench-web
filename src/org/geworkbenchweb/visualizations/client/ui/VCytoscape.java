@@ -3,16 +3,18 @@ package org.geworkbenchweb.visualizations.client.ui;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
 
 /**
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VCytoscape extends Widget implements Paintable, ClickHandler {
+public class VCytoscape extends Composite implements Paintable, ClickHandler {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-cytoscape";
@@ -25,15 +27,19 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 
+	
+	private AbsolutePanel panel;
+	
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
 	 */
 	public VCytoscape() {
-		// TODO This example code is extending the GWT Widget class so it must set a root element.
-		// Change to a proper element or remove this line if extending another widget.
-		setElement(Document.get().createDivElement());
+		
+		panel = new AbsolutePanel();
+		initWidget(panel);
 		setStyleName(CLASSNAME);
+	
 	}
 
     /**
@@ -54,16 +60,12 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 
 		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
-
-		getElement().setId("cy");
-		
-		cytoscape();
-	}
-
-	public static native void cytoscape() /*-{
-	  
-	}-*/;
 	
+		Element e = DOM.createDiv();
+		e.setId("cytoscapeweb");
+		Visualization vis = Visualization.create(e.getId());
+	
+	}
 	
     /**
      * Called when a native click event is fired.
