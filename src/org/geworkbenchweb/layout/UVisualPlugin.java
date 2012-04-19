@@ -8,6 +8,7 @@ import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
+import org.geworkbenchweb.visualizations.Cytoscape;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
@@ -61,6 +62,10 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	        UCNKBTab cnkbTab 								= 	new UCNKBTab(hits);
 	        
 			addTab(cnkbTab, "CNKB Results", null);		
+			
+			Cytoscape cy = new Cytoscape();
+			cy.setCaption("Cytoscape");
+			addTab(cy);
 			
 		} else {
 			
