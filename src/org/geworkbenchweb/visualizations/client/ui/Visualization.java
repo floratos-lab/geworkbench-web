@@ -13,7 +13,7 @@ import com.google.gwt.core.client.JsArrayMixed;
  * be provided in the form of interfaces that implement a given function; it is
  * easiest to implement an anonymous class that implements the interface to
  * specify the callback behavior.
- * @author Casey Kenley
+ * @author Nikhil Reddy
  *
  */
 public class Visualization extends JavaScriptObject{
@@ -49,9 +49,9 @@ public class Visualization extends JavaScriptObject{
 	 * @return The Visualization instance.
 	 */
 	public static final native Visualization create(String containerId)/*-{
-		var moduleName = @com.google.gwt.core.client.GWT::getModuleName()();
+		
 		var options = new $wnd.Object();
-		options.swfPath = moduleName + "/swf/CytoscapeWeb";
+		options.swfPath =  "/swf/CytoscapeWeb";
 		options.flashInstallerPath = moduleName + "/swf/playerProductInstall";
         
         var vis = new $wnd.org.cytoscapeweb.Visualization(containerId, options);
