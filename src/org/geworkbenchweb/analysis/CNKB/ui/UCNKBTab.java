@@ -55,7 +55,7 @@ public class UCNKBTab extends VerticalLayout {
 		tabPanel.setSizeFull();
 		tabPanel.setSplitPosition(40);
 		tabPanel.setStyleName("small previews");
-		tabPanel.setLocked(true);
+		tabPanel.setLocked(false);
 		
 		/* Results Table Code */
 		Table dataTable = new Table();
