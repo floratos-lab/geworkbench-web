@@ -616,6 +616,13 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 				byte[] dataByte 			= 	dataSet.getData();
 				DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
+				
+				if(maSet.getAnnotationFileName() != null){
+					
+					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+					AnnotationParser.loadAnnotationFile(maSet, annotFile);
+					
+				}
 
 				markerTable.setContainerDataSource(markerTableView(maSet));
 				arrayTable.setContainerDataSource(arrayTableView(maSet));
