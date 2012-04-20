@@ -1,12 +1,10 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import org.cytoscapeweb.Visualization;
+import org.geworkbenchweb.visualizations.client.ui.Visualization;
 
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.google.gwt.dom.client.DivElement;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
