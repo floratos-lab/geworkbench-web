@@ -1,4 +1,4 @@
-package org.geworkbenchweb.visualizations.client.ui;
+package org.cytoscapeweb;
 
 import com.google.gwt.core.client.JavaScriptObject;
 

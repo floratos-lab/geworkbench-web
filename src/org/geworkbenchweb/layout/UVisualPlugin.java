@@ -64,6 +64,8 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			addTab(cnkbTab, "CNKB Results", null);		
 			
 			Cytoscape cy = new Cytoscape();
+			cy.setImmediate(true);
+			cy.setSizeFull();
 			cy.setCaption("Cytoscape");
 			addTab(cy);
 			

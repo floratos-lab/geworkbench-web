@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.3.0//EN" "http://google-web-toolkit.googlecode.com/svn/tags/2.3.0/distro-source/core/src/gwt-module.dtd">
+<module>
+	<inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
+	
+	<!-- Javascript libraries -->
+	<!-- JSON support for IE (needed to use JS API) -->
+	<script src="js/src/json2.js" />
+	<!-- Flash embedding utility (needed to embed Cytoscape Web) -->
+	<script src="js/src/AC_OETags.js" />
+	<!-- Cytoscape Web JS API (needed to reference org.cytoscapeweb.Visualization) -->
+	<script src="js/src/cytoscapeweb.js" />
+	<!-- REMOVED: utility functions defined in the main window that get around casting problems -->
+	
+	<source path=""/>
+</module>

@@ -1,20 +1,23 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
+import org.cytoscapeweb.Visualization;
+
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VCytoscape extends Composite implements Paintable, ClickHandler {
+public class VCytoscape extends Widget implements Paintable, ClickHandler {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-cytoscape";
@@ -26,20 +29,17 @@ public class VCytoscape extends Composite implements Paintable, ClickHandler {
 
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
-
 	
-	private AbsolutePanel panel;
-	
+	private Element placeholder;
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
 	 */
-	public VCytoscape() {
+	public VCytoscape() {   
 		
-		panel = new AbsolutePanel();
-		initWidget(panel);
+		placeholder = DOM.createDiv();
+		setElement(placeholder);
 		setStyleName(CLASSNAME);
-	
 	}
 
     /**
@@ -60,11 +60,10 @@ public class VCytoscape extends Composite implements Paintable, ClickHandler {
 
 		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
-	
-		Element e = DOM.createDiv();
-		e.setId("cytoscapeweb");
-		Visualization vis = Visualization.create(e.getId());
-	
+		
+		placeholder.setId(paintableId + "-swupph");
+		Visualization vis = Visualization.create(placeholder.getId());
+		vis.draw2();
 	}
 	
     /**

@@ -1,4 +1,4 @@
-package org.geworkbenchweb.visualizations.client.ui;
+package org.cytoscapeweb;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayMixed;
@@ -13,7 +13,7 @@ import com.google.gwt.core.client.JsArrayMixed;
  * be provided in the form of interfaces that implement a given function; it is
  * easiest to implement an anonymous class that implements the interface to
  * specify the callback behavior.
- * @author Nikhil Reddy
+ * @author Casey Kenley
  *
  */
 public class Visualization extends JavaScriptObject{
@@ -21,21 +21,21 @@ public class Visualization extends JavaScriptObject{
 	
 	private static final native JavaScriptObject wrap(ReadyCallback c)/*-{
 		var f = function(){
-			c.@org.geworkbenchweb.visualizations.client.ui.ReadyCallback::invoke()();
+			c.@org.cytoscapeweb.ReadyCallback::invoke()();
 		};
 		return f;
 	}-*/;
 	
 	private static final native JavaScriptObject wrap(EventCallback c)/*-{
 		var f = function(e){
-			c.@org.geworkbenchweb.visualizations.client.ui.EventCallback::invoke(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+			c.@org.cytoscapeweb.EventCallback::invoke(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
 		};
 		return f;
 	}-*/;
 	
 	private static final native JavaScriptObject wrap(FilterCallback c)/*-{
 		var f = function(e){
-			return c.@org.geworkbenchweb.visualizations.client.ui.FilterCallback::invoke(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+			return c.@org.cytoscapeweb.FilterCallback::invoke(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
 		};
 		return f;
 	}-*/;
@@ -49,9 +49,9 @@ public class Visualization extends JavaScriptObject{
 	 * @return The Visualization instance.
 	 */
 	public static final native Visualization create(String containerId)/*-{
-		
+		var moduleName = @com.google.gwt.core.client.GWT::getModuleBaseURL()();
 		var options = new $wnd.Object();
-		options.swfPath =  "/swf/CytoscapeWeb";
+		options.swfPath = moduleName + "/swf/CytoscapeWeb";
 		options.flashInstallerPath = moduleName + "/swf/playerProductInstall";
         
         var vis = new $wnd.org.cytoscapeweb.Visualization(containerId, options);
@@ -64,12 +64,12 @@ public class Visualization extends JavaScriptObject{
 	}-*/;
 	
 	public final native void addContextMenuItem(String lbl, String gr, EventCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/EventCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/EventCallback;)(callback);
 		this.addContextMenuItem(lbl, gr, fn);
 	}-*/;
 	
 	public final native void addContextMenuItem(String lbl, EventCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/EventCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/EventCallback;)(callback);
 		this.addContextMenuItem(lbl, fn);
 	}-*/;
 	
@@ -90,13 +90,13 @@ public class Visualization extends JavaScriptObject{
 	}-*/;
 	
 	public final native JavaScriptObject addListener(String evt, String gr, EventCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/EventCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/EventCallback;)(callback);
 		this.addListener(evt, gr, fn);
 		return fn;
 	}-*/;
 	
 	public final native JavaScriptObject addListener(String evt, EventCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/EventCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/EventCallback;)(callback);
 		this.addListener(evt, fn);
 		return fn;
 	}-*/;
@@ -190,22 +190,22 @@ public class Visualization extends JavaScriptObject{
 	}-*/;
 
 	public final native void filter(String gr, FilterCallback callback, boolean updateVisualMappers)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/FilterCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/FilterCallback;)(callback);
 		this.filter(gr, fn, updateVisualMappers);
 	}-*/;
 	
 	public final native void filter(String gr, FilterCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/FilterCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/FilterCallback;)(callback);
 		this.filter(gr, fn);
 	}-*/;
 	
 	public final native void filter(FilterCallback callback, boolean updateVisualMappers)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/FilterCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/FilterCallback;)(callback);
 		this.filter(fn, updateVisualMappers);
 	}-*/;
 	
 	public final native void filter(FilterCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/FilterCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/FilterCallback;)(callback);
 		this.filter(fn);
 	}-*/;
 	
@@ -311,7 +311,7 @@ public class Visualization extends JavaScriptObject{
 	
 	
 	public final native void ready(ReadyCallback callback)/*-{
-		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/ReadyCallback;)(callback);
+		var fn = @org.cytoscapeweb.Visualization::wrap(Lorg/cytoscapeweb/ReadyCallback;)(callback);
 		this.ready(fn);
 	}-*/;
 	
