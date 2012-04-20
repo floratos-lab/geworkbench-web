@@ -13,7 +13,7 @@ import com.google.gwt.core.client.JsArrayMixed;
  * be provided in the form of interfaces that implement a given function; it is
  * easiest to implement an anonymous class that implements the interface to
  * specify the callback behavior.
- * @author Casey Kenley
+ * @author Nikhil Reddy
  *
  */
 public class Visualization extends JavaScriptObject{
