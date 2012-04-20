@@ -18,30 +18,24 @@
     -->
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
-
-    
-
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
 
 	<inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
 	
 	<inherits name="org.cytoscapeweb.CytoscapeWeb" />
    	
+   	<!-- Invient charts JavaScript Libraries -->
    	<script src="js/jquery-1.4.4.min.js" />
-   	
    	<script src="js/highcharts.js" />
-   	
    	<script src="js/exporting.js" />
 	
-    <inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
+	<!-- Invient Charts Addon -->
+   	<inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
     
-    <!-- Javascript libraries -->
-	<!-- JSON support for IE (needed to use JS API) -->
+    <!-- Cytoscape-Web Javascript libraries -->
 	<script src="js/src/json2.js" />
-	<!-- Flash embedding utility (needed to embed Cytoscape Web) -->
 	<script src="js/src/AC_OETags.js" />
-	<!-- Cytoscape Web JS API (needed to reference org.cytoscapeweb.Visualization) -->
 	<script src="js/src/cytoscapeweb.js" />
-	<!-- REMOVED: utility functions defined in the main window that get around casting problems -->
+	
 
 </module>
