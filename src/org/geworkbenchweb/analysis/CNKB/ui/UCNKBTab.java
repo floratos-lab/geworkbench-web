@@ -23,6 +23,7 @@ import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
@@ -53,7 +54,7 @@ public class UCNKBTab extends VerticalLayout {
 		
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
-		tabPanel.setSplitPosition(40);
+		tabPanel.setSplitPosition(400, Sizeable.UNITS_PIXELS);
 		tabPanel.setStyleName("small previews");
 		tabPanel.setLocked(false);
 		
@@ -128,13 +129,17 @@ public class UCNKBTab extends VerticalLayout {
 				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
 		
 		
-		tabPanel.setFirstComponent(showLine());
+		tabPanel.setFirstComponent(drawPlot());
 		tabPanel.setSecondComponent(dataTable);
 		addComponent(tabPanel);
 	}
 	
-	
-	private InvientCharts showLine() {
+	/**
+	 * This method draws the Throttle Graph using Invient Charts Add-on.
+	 * 
+	 */
+	private InvientCharts drawPlot() {
+		
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
         chartConfig.getGeneralChartConfig().setMargin(new Margin());
         chartConfig.getGeneralChartConfig().getMargin().setRight(30);
@@ -166,7 +171,10 @@ public class UCNKBTab extends VerticalLayout {
                 .getTooltip()
                 .setFormatterJsFunc(
                         "function() { "
-                                + " return '<b>' + this.series.name + '</b><br/>' +  Math.round( ( (this.x-0.005)*100))/100 + ' to ' + Math.round(((this.x+0.005)*100))/100 + ', '+ this.y + ' interactions'"
+                                + " return '<b>' + this.series.name + '</b><br/>' +  " +
+                                "Math.round( ( (this.x-0.005)*100))/100 + ' to ' + " +
+                                "Math.round(((this.x+0.005)*100))/100 + ', '+ " +
+                                "this.y + ' interactions'"
                                 + "}");
 
         InvientCharts chart = new InvientCharts(chartConfig);
