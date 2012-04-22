@@ -166,7 +166,8 @@ public class UCNKBTab extends VerticalLayout {
         // Series data label formatter
         LineConfig lineCfg = new LineConfig();
         chartConfig.addSeriesConfig(lineCfg);
-        // Tooltip formatter
+        
+        /* Tooltip formatter */
         chartConfig
                 .getTooltip()
                 .setFormatterJsFunc(
