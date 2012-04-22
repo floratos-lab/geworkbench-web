@@ -30,7 +30,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 
 /**
  * This class displays CNKB results in a Table and also a graph
- * @author np2417
+ * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
 public class UCNKBTab extends VerticalLayout {
