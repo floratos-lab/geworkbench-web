@@ -72,30 +72,44 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			for(CellularNetWorkElementInformation cellular: hits) {
 
 				try {
-					
+
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
 					for(InteractionDetail interaction: interactions) {
 
-						edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						System.out.println(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						
+						if(edges.isEmpty()) {
+							
+							edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						
+						}else if(!edges.contains(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2())){
+							
+							edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						}
 						
 						if(nodes.isEmpty()) {
-							
+
 							nodes.add(interaction.getdSGeneName1());
 							nodes.add(interaction.getdSGeneName2());
-						
-						} else if(!nodes.contains(interaction.getdSGeneName1())) {
-							
-							nodes.add(interaction.getdSGeneName1());
+
+						} else { 
+
+							if(!nodes.contains(interaction.getdSGeneName1())) {
+
+								nodes.add(interaction.getdSGeneName1());
+
+							}
+
 							if(!nodes.contains(interaction.getdSGeneName2())) {
-								
+
 								nodes.add(interaction.getdSGeneName2());
-								
+
 							}
 						}
 					}
-					
+
 				}catch (Exception e) {
-					
+
 					//TODO: Handle Null pointer exception
 				}
 			}	

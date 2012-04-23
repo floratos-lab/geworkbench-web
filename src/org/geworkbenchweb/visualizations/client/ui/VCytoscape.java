@@ -5,6 +5,8 @@ import org.geworkbenchweb.visualizations.client.ui.Visualization;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,6 +28,7 @@ public class VCytoscape extends Widget implements Paintable {
 	
 	/** DIV place holder which will be replaced by cytoscape flash object */
 	private Element placeholder;
+	
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
@@ -55,11 +58,32 @@ public class VCytoscape extends Widget implements Paintable {
 
 		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
-		
 		placeholder.setId(paintableId + "-swupph");
-		Visualization vis = Visualization.create(placeholder.getId());
-		vis.draw2();
 		
+		String[] nodes = new String[uidl.getStringArrayVariable("nodes").length];
+		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
+		
+		nodes = uidl.getStringArrayVariable("nodes");
+		edges = uidl.getStringArrayVariable("edges");
+		
+		Visualization vis = Visualization.create(placeholder.getId());
+		vis.constructNetwork(wrapArray(nodes), wrapArray(edges));
+	}
+
+	
+
+	/**
+	 * Wraps a Java String Array to a JsArrayString for dev mode.
+	 * 
+	 * @param srcArray the array to wrap
+	 * @return the wrapped array
+	 */
+	public static JsArrayString wrapArray(String[] srcArray) {
+		JsArrayString result = JavaScriptObject.createArray().cast();
+		for (int i = 0; i < srcArray.length; i++) {
+			result.set(i, srcArray[i]);
+		}
+		return result;
 	}
 	
 }

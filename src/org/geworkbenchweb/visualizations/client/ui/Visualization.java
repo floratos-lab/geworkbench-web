@@ -2,6 +2,7 @@ package org.geworkbenchweb.visualizations.client.ui;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayMixed;
+import com.google.gwt.core.client.JsArrayString;
 
 /**
  * Wraps a Cytoscape Web Visualization instance.  This is a JSNI overlay type:
@@ -574,6 +575,47 @@ public class Visualization extends JavaScriptObject{
 		var toDraw = new $wnd.Object();
 		toDraw.network = network_json;
         this.draw(toDraw);
+	}-*/;
+	
+	public final native void constructNetwork(JsArrayString nodes, JsArrayString edges) /*-{
+
+	var realNodes = new $wnd.Array();
+	var realEdges = new $wnd.Array();
+
+	for (i=0;i<nodes.length;i++)
+	{
+		realNodes[i] 		= 	new Object();
+		realNodes[i].id		=	nodes[i];
+
+	}
+
+	for (j=0;j<edges.length;j++)
+	{
+		realEdges[j] 		= 	new Object();
+		realEdges[j].id		= 	j + " ";
+
+		var ss 	= new $wnd.Array();
+		ss = edges[j].split(",");
+
+		realEdges[j].source = ss[0];
+		realEdges[j].target = ss[1];
+
+	}
+
+	var network_json = new Object(); 
+	network_json.data = {
+		"nodes": realNodes,
+		"edges": realEdges
+	};
+
+	var toDraw = new $wnd.Object();
+	toDraw.network = network_json;
+	
+	this.draw(toDraw);
+	this.nodeLabelsVisible(true);
+	//this.layout("ForceDirected");
+	this.zoomToFit();
+
 	}-*/;
 	
 }
