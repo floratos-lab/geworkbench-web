@@ -1,11 +1,13 @@
 package org.geworkbenchweb.layout;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
@@ -63,10 +65,57 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	        
 			addTab(cnkbTab, "CNKB Results", null);		
 			
+			/* Preparing data for cytoscape */
+			ArrayList<String> nodes = new ArrayList<String>();
+			ArrayList<String> edges = new ArrayList<String>();
+			
+			for(CellularNetWorkElementInformation cellular: hits) {
+
+				try {
+					
+					InteractionDetail[] interactions = cellular.getInteractionDetails();
+					for(InteractionDetail interaction: interactions) {
+
+						edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						
+						if(nodes.isEmpty()) {
+							
+							nodes.add(interaction.getdSGeneName1());
+							nodes.add(interaction.getdSGeneName2());
+						
+						} else if(!nodes.contains(interaction.getdSGeneName1())) {
+							
+							nodes.add(interaction.getdSGeneName1());
+							if(!nodes.contains(interaction.getdSGeneName2())) {
+								
+								nodes.add(interaction.getdSGeneName2());
+								
+							}
+						}
+					}
+					
+				}catch (Exception e) {
+					
+					//TODO: Handle Null pointer exception
+				}
+			}	
+			
+			
 			Cytoscape cy = new Cytoscape();
+			
 			cy.setImmediate(true);
 			cy.setSizeFull();
 			cy.setCaption("Cytoscape");
+			
+			String[] nodeArray = new String[nodes.size()];
+			String[] edgeArray = new String[edges.size()];
+
+			nodeArray = nodes.toArray(nodeArray);
+		    edgeArray = edges.toArray(edgeArray);
+		    
+			cy.setNodes(nodeArray);
+			cy.setEdges(edgeArray);
+			
 			addTab(cy);
 			
 		} else {
