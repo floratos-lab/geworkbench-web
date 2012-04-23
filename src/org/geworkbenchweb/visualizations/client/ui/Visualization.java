@@ -555,7 +555,6 @@ public class Visualization extends JavaScriptObject{
 		nodes[1] = new Object();
 		nodes[0].id = "1";
 		nodes[1].id = "2";
-		nodes[2].id = "3";
 		
 		edges[0] = new Object();
 		edges[0].id = "2to1";
