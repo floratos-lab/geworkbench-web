@@ -66,8 +66,9 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	
 	public DSMicroarraySet maSet;
 	
-	static User user	=	SessionHandler.get();
+	User user	=	SessionHandler.get();
 	
+	private static Long userId; 
 	// Actions for the context menu
 
 	private static final Action ACTION_DELETE	 	= 	new Action("Delete");
@@ -89,6 +90,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		l.setMargin(true);
 		Tab t = addTab(l);
 
+		userId = user.getId();
 
 		t.setCaption("DataSets");
 		t.setStyleName("sidebar-menu");
@@ -661,7 +663,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
-		parameters.put("owner", user.getId());
+		parameters.put("owner", userId);
 		String whereClause = "p.owner = :owner";
 		List<?> data = FacadeFactory.getFacade().getFieldValues(DataSet.class, "name", whereClause, parameters);
 		
@@ -671,7 +673,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		    dataSets.addItem(id);
 		    
 		    Map<String, Object> params 	= 	new HashMap<String, Object>();
-		    params.put("owner", user.getId());
+		    params.put("owner", userId);
 		    params.put("parent", id);
 		    String wClause = "p.owner = :owner and p.parent = :parent" ;
 		    List<?> results = FacadeFactory.getFacade().getFieldValues(ResultSet.class, "name", wClause, params);
