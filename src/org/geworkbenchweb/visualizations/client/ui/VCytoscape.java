@@ -6,8 +6,6 @@ import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -15,12 +13,10 @@ import com.google.gwt.user.client.ui.Widget;
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VCytoscape extends Widget implements Paintable, ClickHandler {
+public class VCytoscape extends Widget implements Paintable {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-cytoscape";
-
-	public static final String CLICK_EVENT_IDENTIFIER = "click";
 
 	/** The client side widget identifier */
 	protected String paintableId;
@@ -28,6 +24,7 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 	
+	/** DIV place holder which will be replaced by cytoscape flash object */
 	private Element placeholder;
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -62,19 +59,7 @@ public class VCytoscape extends Widget implements Paintable, ClickHandler {
 		placeholder.setId(paintableId + "-swupph");
 		Visualization vis = Visualization.create(placeholder.getId());
 		vis.draw2();
+		
 	}
 	
-    /**
-     * Called when a native click event is fired.
-     * 
-     * @param event
-     *            the {@link ClickEvent} that was fired
-     */
-     public void onClick(ClickEvent event) {
-		// Send a variable change to the server side component so it knows the widget has been clicked
-		String button = "left click";
-		// The last parameter (immediate) tells that the update should be sent to the server
-		// right away
-		client.updateVariable(paintableId, CLICK_EVENT_IDENTIFIER, button, true);
-	}
 }

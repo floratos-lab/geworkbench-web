@@ -548,43 +548,20 @@ public class Visualization extends JavaScriptObject{
 	}-*/;
 	
 	public final native void draw2()/*-{
-		var xml = '\
-                <graphml>\
-                  <key id="label" for="all" attr.name="label" attr.type="string"/>\
-                  <key id="weight" for="node" attr.name="weight" attr.type="double"/>\
-                  <graph edgedefault="directed">\
-                    <node id="1">\
-                        <data key="label">A</data>\
-                        <data key="weight">2.0</data>\
-                    </node>\
-                    <node id="2">\
-                        <data key="label">B</data>\
-                        <data key="weight">1.5</data>\
-                    </node>\
-                    <node id="3">\
-                        <data key="label">C</data>\
-                        <data key="weight">1.0</data>\
-                    </node>\
-                    <edge source="1" target="2">\
-                        <data key="label">A to B</data>\
-                    </edge>\
-                    <edge source="1" target="3">\
-                        <data key="label">A to C</data>\
-                    </edge>\
-                  </graph>\
-                </graphml>\
-                ';
 		
-		var nodes = new $wnd.Array();//[ { id: "1" }, { id: "2" } ];
-		var edges = new $wnd.Array();//[ { id: "2to1", target: "1", source: "2" } ];
+		var nodes = new $wnd.Array();
+		var edges = new $wnd.Array();
 		nodes[0] = new Object();
 		nodes[1] = new Object();
 		nodes[0].id = "1";
 		nodes[1].id = "2";
+		nodes[2].id = "3";
+		
 		edges[0] = new Object();
 		edges[0].id = "2to1";
 		edges[0].target = "1";
 		edges[0].source = "2";
+		
 		
 		var network_json = new Object(); 
 		
