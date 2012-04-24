@@ -44,7 +44,7 @@ public class DataSetParser {
 	private void ExpressionDataSet(File dataFile, File annotFile) {
 		
 		MicroarraySetParser parser 	= 	new MicroarraySetParser();
-		DSMicroarraySet dataSet 	= 	parser.parseCSMicroarraySet(dataFile, null);
+		DSMicroarraySet dataSet 	= 	parser.parseCSMicroarraySet(dataFile);
 		
 		/* Here we are parsing Annotation file */
 		if(annotFile != null) {
