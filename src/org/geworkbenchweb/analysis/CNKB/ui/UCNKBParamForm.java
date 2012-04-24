@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
+import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.analysis.CNKB.CNKBInteractions;
-import org.geworkbenchweb.analysis.CNKB.InteractionsConnectionImpl;
-import org.geworkbenchweb.analysis.CNKB.VersionDescriptor;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
