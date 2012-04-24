@@ -75,8 +75,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
 					for(InteractionDetail interaction: interactions) {
-
-						System.out.println(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
 						
 						if(edges.isEmpty()) {
 							

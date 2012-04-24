@@ -577,32 +577,68 @@ public class Visualization extends JavaScriptObject{
         this.draw(toDraw);
 	}-*/;
 	
-	public final native void constructNetwork(JsArrayString nodes, JsArrayString edges) /*-{
+	public final native void constructNetwork(JsArrayString javaNodes, JsArrayString javaEdges) /*-{
 
-	var realNodes = new $wnd.Array();
-	var realEdges = new $wnd.Array();
+	var realNodes 			= 	new $wnd.Array();
+	var realEdges 			= 	new $wnd.Array();
+	var nodeSchema			=	new $wnd.Array();
+	var visualStyle 		=	new Object();
+	var nodeVisualStyle 	= 	new Object();
+	var edgeVisualStyle		=	new Object();
+	var edgeSchema			=	new $wnd.Array();
+	var globalVisualStyle	= 	new Object();
+	
+	globalVisualStyle.backgroundColor = "#ffffff";
+	
+	nodeVisualStyle.shape = "OCTAGON";
+	nodeVisualStyle.borderWidth = 1;
+	nodeVisualStyle.labelHorizontalAnchor =  "center";
+	nodeVisualStyle.size = 32;
+	
+	edgeVisualStyle.color = "#aaaaff";
+	
+	visualStyle.global 	= 	globalVisualStyle;
+	visualStyle.nodes 	= 	nodeVisualStyle;
+	visualStyle.edges	=	edgeVisualStyle;
 
-	for (i=0;i<nodes.length;i++)
+	for (i=0;i<javaNodes.length;i++)
 	{
 		realNodes[i] 		= 	new Object();
-		realNodes[i].id		=	nodes[i];
+		realNodes[i].id		=	javaNodes[i];
+		realNodes[i].label	=	javaNodes[i];
 
 	}
 
-	for (j=0;j<edges.length;j++)
+	for (j=0;j<javaEdges.length;j++)
 	{
 		realEdges[j] 		= 	new Object();
 		realEdges[j].id		= 	j + " ";
 
 		var ss 	= new $wnd.Array();
-		ss = edges[j].split(",");
+		ss = javaEdges[j].split(",");
 
 		realEdges[j].source = ss[0];
 		realEdges[j].target = ss[1];
+		realEdges[j].directed = true;
 
 	}
 
-	var network_json = new Object(); 
+	var network_json 	= 	new Object(); 
+	var Schema			=	new Object();
+	
+	nodeSchema[0]		= 	new Object();
+	nodeSchema[0].name 	= 	"label";
+	nodeSchema[0].type	=	"string";
+	
+	edgeSchema[0]		=	new Object();
+	edgeSchema[0].name	= 	"directed";
+	edgeSchema[0].type	=	"boolean";
+	
+	Schema.nodes 	= 	nodeSchema;
+	Schema.edges	=	edgeSchema;
+	
+	network_json.dataSchema = Schema;
+	
 	network_json.data = {
 		"nodes": realNodes,
 		"edges": realEdges
@@ -610,12 +646,29 @@ public class Visualization extends JavaScriptObject{
 
 	var toDraw = new $wnd.Object();
 	toDraw.network = network_json;
+	toDraw.layout = "ForceDirected";
+	toDraw.visualStyle = visualStyle;
+
+	
+	
+	this.ready(function () {
+         this.addContextMenuItem("Select first neighbors", "nodes", 
+                  function (evt) {
+                     
+                      var rootNode = evt.target;
+                  
+                     
+                      var fNeighbors = this.firstNeighbors([rootNode]);
+                      var neighborNodes = this.fNeighbors.neighbors;
+                  
+            
+                      this.select([rootNode]).select(neighborNodes);
+                  }
+              );
+          });
 	
 	this.draw(toDraw);
-	this.nodeLabelsVisible(true);
-	//this.layout("ForceDirected");
-	this.zoomToFit();
-
+	
 	}-*/;
 	
 }
