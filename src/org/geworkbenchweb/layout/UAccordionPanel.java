@@ -30,6 +30,7 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
@@ -578,8 +579,10 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			parameters.put("owner", user.getId());
 
 			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-
-
+			
+			CustomLayout welcome = new CustomLayout("welcome");
+			welcome.setSizeFull();
+			
 			if(dataSet != null) {
 
 				FacadeFactory.getFacade().delete(dataSet);
@@ -599,7 +602,9 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 				
 
 			}
-
+			
+			UMainLayout.setMainPanelSecondComponent(welcome);
+			
 		}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
 			String dataPeru					= 	(target.toString());
