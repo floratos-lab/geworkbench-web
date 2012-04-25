@@ -648,24 +648,6 @@ public class Visualization extends JavaScriptObject{
 	toDraw.network = network_json;
 	toDraw.layout = "ForceDirected";
 	toDraw.visualStyle = visualStyle;
-
-	
-	
-	this.ready(function () {
-         this.addContextMenuItem("Select first neighbors", "nodes", 
-                  function (evt) {
-                     
-                      var rootNode = evt.target;
-                  
-                     
-                      var fNeighbors = this.firstNeighbors([rootNode]);
-                      var neighborNodes = this.fNeighbors.neighbors;
-                  
-            
-                      this.select([rootNode]).select(neighborNodes);
-                  }
-              );
-          });
 	
 	this.draw(toDraw);
 	
