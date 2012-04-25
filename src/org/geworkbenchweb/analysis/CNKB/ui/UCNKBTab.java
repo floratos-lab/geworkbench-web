@@ -171,9 +171,9 @@ public class UCNKBTab extends VerticalLayout {
         chartConfig
                 .getTooltip()
                 .setFormatterJsFunc(
-                        "function() { "
+                        "function() { " 
                                 + " return '<b>' + this.series.name + '</b><br/>' +  " +
-                                "Math.round( ( (this.x-0.005)*100))/100 + ' to ' + " +
+                                "' 0 to ' + " +
                                 "Math.round(((this.x+0.005)*100))/100 + ', '+ " +
                                 "this.y + ' interactions'"
                                 + "}");
