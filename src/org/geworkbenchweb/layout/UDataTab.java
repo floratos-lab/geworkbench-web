@@ -2,6 +2,7 @@ package org.geworkbenchweb.layout;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
+import org.geworkbenchweb.analysis.aracne.ui.UAracneParamForm;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
 import com.vaadin.data.Property;
 import com.vaadin.ui.ComboBox;
@@ -53,6 +54,7 @@ public class UDataTab extends VerticalLayout {
 	
 		analysisBox.setWidth("60%");
 		analysisBox.setCaption("Select Analyis Type");
+		analysisBox.addItem("ARACne");
 		analysisBox.addItem("Hierarchical Clustering");
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new Property.ValueChangeListener() {
@@ -71,6 +73,15 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.addComponent(hsParamForm);
 						dataPanel.addComponent(paramPanel);
 
+					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("ARACne")) {
+						
+						paramPanel.removeAllComponents();
+						paramPanel.setCaption("ARACne Parameters");
+						
+						UAracneParamForm aracneParamForm = new UAracneParamForm(dataSet);
+						paramPanel.addComponent(aracneParamForm);
+						dataPanel.addComponent(paramPanel);
+						
 					}
 				}catch (Exception e){
 					dataPanel.removeComponent(paramPanel);
