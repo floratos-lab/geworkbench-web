@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
@@ -408,15 +409,20 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					
 					UMainLayout.setMainPanelSecondComponent(tabSheet);
 					
-				}else {
+				}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
 					
 					CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
 					UVisualPlugin tabSheet 				= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
 					UMainLayout.setMainPanelSecondComponent(tabSheet);
 					
+				}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
+					
+					AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) toObject(dataByte);
+					UVisualPlugin tabSheet 			= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+					UMainLayout.setMainPanelSecondComponent(tabSheet);
+					
 				}
 				
-			
 			}
 		}
 

@@ -1,5 +1,8 @@
 package org.geworkbenchweb.analysis.aracne;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -11,6 +14,11 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbenchweb.layout.UAccordionPanel;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import edu.columbia.c2b2.aracne.Parameter;
 import wb.plugins.aracne.GraphEdge;
@@ -27,6 +35,8 @@ public class AracneAnalysisWeb {
 	
 	final Parameter p = new Parameter();
 
+	User user = SessionHandler.get();
+	
 	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params) {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
@@ -75,12 +85,16 @@ public class AracneAnalysisWeb {
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
 			
-			for(int i=0; i<dSet.getMatrix().getNodes().size(); i++) {
-				
-				System.out.println(dSet.getMatrix().getNodes().get(i).getMarker().getGeneName());
-				System.out.println(dSet.getMatrix().getEdges().get(i).node1.marker.getGeneName() + " - " 
-						+ dSet.getMatrix().getEdges().get(i).node1.marker.getGeneName()) ;
-			}
+			ResultSet resultSet = 	new ResultSet();
+			java.util.Date date= new java.util.Date();
+			resultSet.setName("ARACne - " + date);
+			resultSet.setType("ARACne");
+			resultSet.setParent(dataSet.getDataSetName());
+			resultSet.setOwner(user.getId());	
+			resultSet.setData(convertToByte(dSet));
+			FacadeFactory.getFacade().store(resultSet);	
+			
+			UAccordionPanel.resetDataContainer();
 			
 		}
 	}
@@ -105,9 +119,6 @@ public class AracneAnalysisWeb {
 		for (GraphEdge graphEdge : graph.getEdges()) {
 			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
 			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
-			
-			System.out.println(marker1.getGeneName());
-			System.out.println(marker2.getGeneName());
 			
 			if (!subnet.contains(marker1.getLabel())) {
 				DSGeneMarker m = marker1;
@@ -135,6 +146,31 @@ public class AracneAnalysisWeb {
 		}
 	
 		return matrix;
+	}
+	
+	private byte[] convertToByte(Object object) {
+
+		byte[] byteData = null;
+		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
+
+		try {
+
+			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
+
+			oos.writeObject(object);
+			oos.flush(); 
+			oos.close(); 
+			bos.close();
+			byteData 				= 	bos.toByteArray();
+
+		} catch (IOException ex) {
+
+			System.out.println("Exception with in convertToByte");
+
+		}
+
+		return byteData;
+
 	}
 
 }

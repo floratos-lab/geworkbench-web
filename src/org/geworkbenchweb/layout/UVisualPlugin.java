@@ -3,6 +3,7 @@ package org.geworkbenchweb.layout;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
@@ -57,7 +58,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			dataTable.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataTable);
 
-		} else if (dataType.equalsIgnoreCase("CNKB")) {
+		} else if(dataType.equalsIgnoreCase("CNKB")) {
 			
 			@SuppressWarnings("unchecked")
 			Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) dataSet;
@@ -76,34 +77,47 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
 					for(InteractionDetail interaction: interactions) {
 						
+						String edge = interaction.getdSGeneMarker1() 
+										+ ","
+										+ interaction.getdSGeneMarker2();
+						
+						String node1 = 	interaction.getdSGeneMarker1()
+											+ ","
+											+ interaction.getdSGeneName1();
+						
+						String node2 =	interaction.getdSGeneMarker2()
+											+ ","
+											+ interaction.getdSGeneName2();
+						
 						if(edges.isEmpty()) {
 							
-							edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+							edges.add(edge);
 						
-						}else if(!edges.contains(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2())){
+						}else if(!edges.contains(edge)) {
 							
-							edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+							edges.add(edge);
 						}
 						
 						if(nodes.isEmpty()) {
 
-							nodes.add(interaction.getdSGeneName1());
-							nodes.add(interaction.getdSGeneName2());
+							nodes.add(node1);
+							nodes.add(node2);
 
 						} else { 
 
-							if(!nodes.contains(interaction.getdSGeneName1())) {
+							if(!nodes.contains(node1)) {
 
-								nodes.add(interaction.getdSGeneName1());
+								nodes.add(node1);
 
 							}
 
-							if(!nodes.contains(interaction.getdSGeneName2())) {
+							if(!nodes.contains(node2)) {
 
-								nodes.add(interaction.getdSGeneName2());
+								nodes.add(node2);
 
 							}
 						}
+						
 					}
 
 				}catch (Exception e) {
@@ -130,7 +144,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			
 			addTab(cy);
 			
-		} else {
+		} else if(dataType.equalsIgnoreCase("Hierarchical Clustering")){
 			
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 	        UClustergramTab dendrogramTab 	= 	new UClustergramTab(results);
@@ -140,6 +154,78 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	        setHeight(((data.getMarkers().size()*5) + 600) + "px");
 	        setWidth(((data.size()*20) + 600) + "px");
 			addTab(dendrogramTab, "Dendrogram", null);		
+		
+		} else if(dataType.equalsIgnoreCase("ARACne")) {
+		
+			AdjacencyMatrixDataSet adjMatrix = (AdjacencyMatrixDataSet) dataSet; 
+			
+			/* Preparing data for cytoscape */
+			ArrayList<String> nodes = new ArrayList<String>();
+			ArrayList<String> edges = new ArrayList<String>();
+			
+			for(int i=0; i<adjMatrix.getMatrix().getEdges().size(); i++) {
+				
+				String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel() 
+										+ "," 
+										+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel(); 
+										
+				
+				String node1 	= adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel() 
+									+ "," 
+									+ adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName(); 
+				
+				String node2 	= adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel()
+									+ ","
+									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName(); 
+				
+				
+				if(edges.isEmpty()) {
+					
+					edges.add(edge);
+				
+				}else if(!edges.contains(edge)) {
+					
+					edges.add(edge);
+				}
+				
+				if(nodes.isEmpty()) {
+
+					nodes.add(node1);
+					nodes.add(node2);
+
+				} else { 
+
+					if(!nodes.contains(node1)) {
+
+						nodes.add(node1);
+
+					}
+
+					if(!nodes.contains(node2)) {
+
+						nodes.add(node2);
+
+					}
+				}
+				
+			}
+			
+			Cytoscape cy = new Cytoscape();
+			cy.setCaption("Cytoscape");
+			cy.setImmediate(true);
+			cy.setSizeFull();
+			
+			String[] nodeArray = new String[nodes.size()];
+			String[] edgeArray = new String[edges.size()];
+
+			nodeArray = nodes.toArray(nodeArray);
+		    edgeArray = edges.toArray(edgeArray);
+		    
+			cy.setNodes(nodeArray);
+			cy.setEdges(edgeArray);
+			
+			addTab(cy);
+			
 		}
 	}
 	

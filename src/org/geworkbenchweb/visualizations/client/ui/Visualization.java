@@ -579,77 +579,81 @@ public class Visualization extends JavaScriptObject{
 	
 	public final native void constructNetwork(JsArrayString javaNodes, JsArrayString javaEdges) /*-{
 
-	var realNodes 			= 	new $wnd.Array();
-	var realEdges 			= 	new $wnd.Array();
-	var nodeSchema			=	new $wnd.Array();
-	var visualStyle 		=	new Object();
-	var nodeVisualStyle 	= 	new Object();
-	var edgeVisualStyle		=	new Object();
-	var edgeSchema			=	new $wnd.Array();
-	var globalVisualStyle	= 	new Object();
+		var realNodes 			= 	new $wnd.Array();
+		var realEdges 			= 	new $wnd.Array();
+		var nodeSchema			=	new $wnd.Array();
+		var visualStyle 		=	new Object();
+		var nodeVisualStyle 	= 	new Object();
+		var edgeVisualStyle		=	new Object();
+		var edgeSchema			=	new $wnd.Array();
+		var globalVisualStyle	= 	new Object();
+		
+		globalVisualStyle.backgroundColor = "#ffffff";
+		
+		nodeVisualStyle.shape = "OCTAGON";
+		nodeVisualStyle.borderWidth = 1;
+		nodeVisualStyle.labelHorizontalAnchor =  "center";
+		nodeVisualStyle.size = 32;
+		
+		edgeVisualStyle.color = "#aaaaff";
+		
+		visualStyle.global 	= 	globalVisualStyle;
+		visualStyle.nodes 	= 	nodeVisualStyle;
+		visualStyle.edges	=	edgeVisualStyle;
 	
-	globalVisualStyle.backgroundColor = "#ffffff";
+		for (i=0;i<javaNodes.length;i++)
+		{
+			realNodes[i] 		= 	new Object();
+			
+			var sn 	= new $wnd.Array();
+			sn = javaNodes[i].split(",");
+			
+			realNodes[i].id		=	sn[0];
+			realNodes[i].label	=	sn[1];
 	
-	nodeVisualStyle.shape = "OCTAGON";
-	nodeVisualStyle.borderWidth = 1;
-	nodeVisualStyle.labelHorizontalAnchor =  "center";
-	nodeVisualStyle.size = 32;
+		}
 	
-	edgeVisualStyle.color = "#aaaaff";
+		for (j=0;j<javaEdges.length;j++)
+		{
+			realEdges[j] 		= 	new Object();
+			realEdges[j].id		= 	j + " ";
 	
-	visualStyle.global 	= 	globalVisualStyle;
-	visualStyle.nodes 	= 	nodeVisualStyle;
-	visualStyle.edges	=	edgeVisualStyle;
-
-	for (i=0;i<javaNodes.length;i++)
-	{
-		realNodes[i] 		= 	new Object();
-		realNodes[i].id		=	javaNodes[i];
-		realNodes[i].label	=	javaNodes[i];
-
-	}
-
-	for (j=0;j<javaEdges.length;j++)
-	{
-		realEdges[j] 		= 	new Object();
-		realEdges[j].id		= 	j + " ";
-
-		var ss 	= new $wnd.Array();
-		ss = javaEdges[j].split(",");
-
-		realEdges[j].source = ss[0];
-		realEdges[j].target = ss[1];
-		realEdges[j].directed = true;
-
-	}
-
-	var network_json 	= 	new Object(); 
-	var Schema			=	new Object();
+			var ss 	= new $wnd.Array();
+			ss = javaEdges[j].split(",");
 	
-	nodeSchema[0]		= 	new Object();
-	nodeSchema[0].name 	= 	"label";
-	nodeSchema[0].type	=	"string";
+			realEdges[j].source = ss[0];
+			realEdges[j].target = ss[1];
+			realEdges[j].directed = true;
 	
-	edgeSchema[0]		=	new Object();
-	edgeSchema[0].name	= 	"directed";
-	edgeSchema[0].type	=	"boolean";
+		}
 	
-	Schema.nodes 	= 	nodeSchema;
-	Schema.edges	=	edgeSchema;
+		var network_json 	= 	new Object(); 
+		var Schema			=	new Object();
+		
+		nodeSchema[0]		= 	new Object();
+		nodeSchema[0].name 	= 	"label";
+		nodeSchema[0].type	=	"string";
+		
+		edgeSchema[0]		=	new Object();
+		edgeSchema[0].name	= 	"directed";
+		edgeSchema[0].type	=	"boolean";
+		
+		Schema.nodes 	= 	nodeSchema;
+		Schema.edges	=	edgeSchema;
+		
+		network_json.dataSchema = Schema;
+		
+		network_json.data = {
+			"nodes": realNodes,
+			"edges": realEdges
+		};
 	
-	network_json.dataSchema = Schema;
-	
-	network_json.data = {
-		"nodes": realNodes,
-		"edges": realEdges
-	};
-
-	var toDraw = new $wnd.Object();
-	toDraw.network = network_json;
-	toDraw.layout = "ForceDirected";
-	toDraw.visualStyle = visualStyle;
-	
-	this.draw(toDraw);
+		var toDraw = new $wnd.Object();
+		toDraw.network = network_json;
+		toDraw.layout = "ForceDirected";
+		toDraw.visualStyle = visualStyle;
+		
+		this.draw(toDraw);
 	
 	}-*/;
 	
