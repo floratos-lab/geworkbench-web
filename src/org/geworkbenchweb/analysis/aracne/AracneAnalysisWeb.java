@@ -24,12 +24,12 @@ import wb.plugins.aracne.WeightedGraph;
  *
  */
 public class AracneAnalysisWeb {
+	
+	final Parameter p = new Parameter();
 
 	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params) {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
-		
-		final Parameter p = new Parameter();
 		
 		String positions  	=  	params.get(0);
 		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
@@ -64,17 +64,24 @@ public class AracneAnalysisWeb {
 		double  pt = 0.01; 
 		
 		AracneComputation aracneComputation = new AracneComputation(mSetView, p, bs , pt);
+		
 		WeightedGraph weightedGraph = aracneComputation.execute();
+		
+		
 		if (weightedGraph.getEdges().size() > 0) {
 			
 			AdjacencyMatrixDataSet dSet = new AdjacencyMatrixDataSet(
 					this.convert(weightedGraph, p, mSetView.getMicroarraySet(), false),
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
+			
 			for(int i=0; i<dSet.getMatrix().getNodes().size(); i++) {
-				System.out.println(dSet.getMatrix().getNodes().get(i).getStringId());
-				System.out.println(dSet.getMatrix().getEdges().get(i).node1.stringId + " - " + dSet.getMatrix().getEdges().get(i).node1.stringId) ;
+				
+				System.out.println(dSet.getMatrix().getNodes().get(i).getMarker().getGeneName());
+				System.out.println(dSet.getMatrix().getEdges().get(i).node1.marker.getGeneName() + " - " 
+						+ dSet.getMatrix().getEdges().get(i).node1.marker.getGeneName()) ;
 			}
+			
 		}
 	}
 	
@@ -90,12 +97,17 @@ public class AracneAnalysisWeb {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
 		Vector<String> subnet = p.getSubnet();
+		
+		
 
 		@SuppressWarnings("unused")
 		int nEdge = 0;
 		for (GraphEdge graphEdge : graph.getEdges()) {
 			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
 			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
+			
+			System.out.println(marker1.getGeneName());
+			System.out.println(marker2.getGeneName());
 			
 			if (!subnet.contains(marker1.getLabel())) {
 				DSGeneMarker m = marker1;
@@ -113,7 +125,11 @@ public class AracneAnalysisWeb {
 						marker1.getGeneName());
 				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 						marker2.getGeneName());
+				
+				
+				
 				matrix.add(node1, node2, graphEdge.getWeight());
+				
 			}
 			nEdge++;
 		}
