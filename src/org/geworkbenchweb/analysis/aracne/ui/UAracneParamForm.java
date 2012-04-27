@@ -1,9 +1,10 @@
 package org.geworkbenchweb.analysis.aracne.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.analysis.CNKB.CNKBInteractions;
+import org.geworkbenchweb.analysis.aracne.AracneAnalysisWeb;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -23,20 +24,26 @@ public class UAracneParamForm extends Form {
 
 	private static final long serialVersionUID = 1L;
 
-	private DSMicroarraySet dataSet;
-	
 	DataSetOperations dataOp  	= 	new DataSetOperations();
 	
 	SubSetOperations setOp		= 	new SubSetOperations();
 	
-	public UAracneParamForm(DSMicroarraySet maSet) {
+	public UAracneParamForm(final DSMicroarraySet maSet) {
 		
 		String dataSetName = maSet.getDataSetName();
 		
-		final String[] params 	=	new String[3];
+		final ArrayList<String> params 	=	new ArrayList<String>();
+		final ComboBox markerSetBox		= 	new ComboBox();
+		final ComboBox modeBox			=	new ComboBox();
+		final ComboBox algoBox			=	new ComboBox();
 		
-		final ComboBox markerSetBox			= 	new ComboBox();
-		markerSetBox.setCaption("Select Marker Set");
+		
+		/* Default values */
+		params.add(0," ");
+		params.add(1, "Complete");
+		params.add(2, "Adaptive Partitioning");
+		
+		markerSetBox.setCaption("Hub Marker(s) From Sets");
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
 		
@@ -54,20 +61,57 @@ public class UAracneParamForm extends Form {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
-				
+				params.remove(0);
+				params.add(0, getMarkerData(valueChangeEvent.getProperty().getValue().toString(), maSet));
 				
 			}
 		});
 		
-		final Button submitButton 			= 	new Button("Submit", new Button.ClickListener() {
+		modeBox.setCaption("Select Mode");
+		modeBox.setWidth("50%");
+		modeBox.setImmediate(true);
+		modeBox.addItem("Complete");
+		modeBox.addItem("Discovery");
+		modeBox.addItem("Preprocessing");
+		modeBox.select("Complete");
+		modeBox.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
-			final String[] params 	=	new String[3];
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				
+				params.remove(1);
+				params.add(1, valueChangeEvent.getProperty().getValue().toString());
+				
+			}
+		});
+		
+		algoBox.setCaption("Select Algorithm");
+		algoBox.setWidth("50%");
+		algoBox.setImmediate(true);
+		algoBox.addItem("Adaptive Partitioning");
+		algoBox.addItem("Fixed Bandwidth");
+		algoBox.select("Adaptive Partitioning");
+		algoBox.addListener(new Property.ValueChangeListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				
+				params.remove(2);
+				params.add(2, valueChangeEvent.getProperty().getValue().toString());
+				
+			}
+		});
+		
+		final Button submitButton 	= 	new Button("Submit", new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
 				try {
 
-					new CNKBInteractions(dataSet, params);
+					new AracneAnalysisWeb(maSet, params);
 
 				} catch (Exception e) {	
 
@@ -77,7 +121,22 @@ public class UAracneParamForm extends Form {
 			}
 		});
 		
+		addField("markerSetBox", markerSetBox);
+		addField("modeBox", modeBox);
+		addField("algoBox", algoBox);
 		addField("submitButton", submitButton);
+	}
+	
+	/**
+	 * Create Dataset for selected markerSet 
+	 */
+	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet 		= 	setOp.getMarkerSet(setName);
+		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
+		
+		return positions;
 	}
 	
 }
