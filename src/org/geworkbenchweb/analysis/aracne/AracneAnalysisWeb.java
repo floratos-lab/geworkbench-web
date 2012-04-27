@@ -72,7 +72,8 @@ public class AracneAnalysisWeb {
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
 			for(int i=0; i<dSet.getMatrix().getNodes().size(); i++) {
-				System.out.println(dSet.getMatrix().getNodes().get(i));
+				System.out.println(dSet.getMatrix().getNodes().get(i).getStringId());
+				System.out.println(dSet.getMatrix().getEdges().get(i).node1.stringId + " - " + dSet.getMatrix().getEdges().get(i).node1.stringId) ;
 			}
 		}
 	}
