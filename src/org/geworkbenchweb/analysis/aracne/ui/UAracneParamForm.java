@@ -44,6 +44,7 @@ public class UAracneParamForm extends Form {
 		params.add(2, "Adaptive Partitioning");
 		
 		markerSetBox.setCaption("Hub Marker(s) From Sets");
+		markerSetBox.setInputPrompt("Select Marker Set");
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
 		
