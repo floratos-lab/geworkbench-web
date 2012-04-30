@@ -44,19 +44,13 @@ public class VCytoscape extends Widget implements Paintable {
      * Called whenever an update is received from the server 
      */
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-		// This call should be made first. 
-		// It handles sizes, captions, tooltips, etc. automatically.
+		
 		if (client.updateComponent(this, uidl, true)) {
-		    // If client.updateComponent returns true there has been no changes and we
-		    // do not need to update anything.
 			return;
 		}
 
-		// Save reference to server connection object to be able to send
-		// user interaction later
 		this.client = client;
 
-		// Save the client side identifier (paintable id) for the widget
 		paintableId = uidl.getId();
 		placeholder.setId(paintableId + "-swupph");
 		

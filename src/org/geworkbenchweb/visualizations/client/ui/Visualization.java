@@ -52,8 +52,8 @@ public class Visualization extends JavaScriptObject{
 	public static final native Visualization create(String containerId)/*-{
 		var moduleName = @com.google.gwt.core.client.GWT::getModuleBaseURL()();
 		var options = new $wnd.Object();
-		options.swfPath = moduleName + "/swf/CytoscapeWeb";
-		options.flashInstallerPath = moduleName + "/swf/playerProductInstall";
+		options.swfPath = moduleName + "swf/CytoscapeWeb";
+		options.flashInstallerPath = moduleName + "swf/playerProductInstall";
         
         var vis = new $wnd.org.cytoscapeweb.Visualization(containerId, options);
         return vis;
@@ -550,20 +550,20 @@ public class Visualization extends JavaScriptObject{
 	
 	public final native void draw2()/*-{
 		
-		var nodes = new $wnd.Array();
-		var edges = new $wnd.Array();
-		nodes[0] = new Object();
-		nodes[1] = new Object();
+		var nodes = $wnd.eval("new Array()");
+		var edges = $wnd.eval("new Array()");
+		nodes[0] = new $wnd.Object();
+		nodes[1] = new $wnd.Object();
 		nodes[0].id = "1";
 		nodes[1].id = "2";
 		
-		edges[0] = new Object();
+		edges[0] = new $wnd.Object();
 		edges[0].id = "2to1";
 		edges[0].target = "1";
 		edges[0].source = "2";
 		
 		
-		var network_json = new Object(); 
+		var network_json = new $wnd.Object(); 
 		
 		network_json.data = {
 			"nodes": nodes,
@@ -579,14 +579,14 @@ public class Visualization extends JavaScriptObject{
 	
 	public final native void constructNetwork(JsArrayString javaNodes, JsArrayString javaEdges) /*-{
 
-		var realNodes 			= 	new $wnd.Array();
-		var realEdges 			= 	new $wnd.Array();
-		var nodeSchema			=	new $wnd.Array();
-		var visualStyle 		=	new Object();
-		var nodeVisualStyle 	= 	new Object();
-		var edgeVisualStyle		=	new Object();
-		var edgeSchema			=	new $wnd.Array();
-		var globalVisualStyle	= 	new Object();
+		var realNodes 			= 	$wnd.eval("new Array()");
+		var realEdges 			= 	$wnd.eval("new Array()");
+		var nodeSchema			=	$wnd.eval("new Array()");
+		var visualStyle 		=	new $wnd.Object();
+		var nodeVisualStyle 	= 	new $wnd.Object();
+		var edgeVisualStyle		=	new $wnd.Object();
+		var edgeSchema			=	$wnd.eval("new Array()");
+		var globalVisualStyle	= 	new $wnd.Object();
 		
 		globalVisualStyle.backgroundColor = "#ffffff";
 		
@@ -603,9 +603,9 @@ public class Visualization extends JavaScriptObject{
 	
 		for (i=0;i<javaNodes.length;i++)
 		{
-			realNodes[i] 		= 	new Object();
+			realNodes[i] 		= 	new $wnd.Object();
 			
-			var sn 	= new $wnd.Array();
+			var sn 	= $wnd.eval("new Array()");;
 			sn = javaNodes[i].split(",");
 			
 			realNodes[i].id		=	sn[0];
@@ -615,10 +615,10 @@ public class Visualization extends JavaScriptObject{
 	
 		for (j=0;j<javaEdges.length;j++)
 		{
-			realEdges[j] 		= 	new Object();
+			realEdges[j] 		= 	new $wnd.Object();
 			realEdges[j].id		= 	j + " ";
 	
-			var ss 	= new $wnd.Array();
+			var ss 	= $wnd.eval("new Array()");
 			ss = javaEdges[j].split(",");
 	
 			realEdges[j].source = ss[0];
@@ -627,14 +627,14 @@ public class Visualization extends JavaScriptObject{
 	
 		}
 	
-		var network_json 	= 	new Object(); 
-		var Schema			=	new Object();
+		var network_json 	= 	new $wnd.Object(); 
+		var Schema			=	new $wnd.Object();
 		
-		nodeSchema[0]		= 	new Object();
+		nodeSchema[0]		= 	new $wnd.Object();
 		nodeSchema[0].name 	= 	"label";
 		nodeSchema[0].type	=	"string";
 		
-		edgeSchema[0]		=	new Object();
+		edgeSchema[0]		=	new $wnd.Object();
 		edgeSchema[0].name	= 	"directed";
 		edgeSchema[0].type	=	"boolean";
 		
