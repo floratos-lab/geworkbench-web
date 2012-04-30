@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
