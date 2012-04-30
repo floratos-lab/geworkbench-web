@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
@@ -16,16 +15,15 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class SubSetOperations {
 
-	User user 		= 	SessionHandler.get();
 	
-	public boolean storeData(String selectedValues, String setType,
+	public static boolean storeData(String selectedValues, String setType,
 			String name, long l) {
 		
 		SubSet subset  	= 	new SubSet();
 		
 		subset.setName(name);
 		subset.setType(setType);
-		subset.setOwner(user.getId());
+		subset.setOwner(SessionHandler.get().getId());
 	    subset.setParent(l);
 	    subset.setPositions(selectedValues);
 		
@@ -42,7 +40,7 @@ public class SubSetOperations {
 		return true;
 	}
 
-	public List<?> getMarkerSet(String setName) {
+	public static List<?> getMarkerSet(String setName) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
@@ -53,7 +51,7 @@ public class SubSetOperations {
 		return data;
 	}
 	
-	public List<?> getMarkerSets(Long dataSetId) {
+	public static List<?> getMarkerSets(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
@@ -66,7 +64,7 @@ public class SubSetOperations {
 	}
 	
 
-	public List<?> getArraySets(Long dataSetId) {
+	public static List<?> getArraySets(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
@@ -83,7 +81,7 @@ public class SubSetOperations {
 	 * @input dataSet ID
 	 * 
 	 */
-	public void deleteAllSets(Long dataSetId) {
+	public static void deleteAllSets(Long dataSetId) {
 		
 		
 		

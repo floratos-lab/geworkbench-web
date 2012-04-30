@@ -23,10 +23,6 @@ import com.vaadin.ui.Button.ClickEvent;
 public class UAracneParamForm extends Form {
 
 	private static final long serialVersionUID = 1L;
-
-	DataSetOperations dataOp  	= 	new DataSetOperations();
-	
-	SubSetOperations setOp		= 	new SubSetOperations();
 	
 	public UAracneParamForm(final DSMicroarraySet maSet) {
 		
@@ -48,8 +44,8 @@ public class UAracneParamForm extends Form {
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
 		
-		List<?> data 		=	dataOp.getDataSet(dataSetName);
-		List<?> subSets	= 	setOp.getMarkerSets(((DataSet) data.get(0)).getId());
+		List<?> data 		=	DataSetOperations.getDataSet(dataSetName);
+		List<?> subSets		= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
 		
 		for(int m=0; m<(subSets).size(); m++){
 			
@@ -134,7 +130,7 @@ public class UAracneParamForm extends Form {
 	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	setOp.getMarkerSet(setName);
+		List subSet 		= 	SubSetOperations.getMarkerSet(setName);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;
