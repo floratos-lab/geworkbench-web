@@ -196,12 +196,10 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
             				String setN = (String) setName.getValue();
             				if(setN != "") {
 
-            					SubSetOperations setOp = new SubSetOperations();
-
-            					if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+            					if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
             						getApplication().getMainWindow().removeWindow(nameWindow);
-            						markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
+            						markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
             						markerSets.requestRepaint();
             					}
             				} else {
@@ -286,13 +284,11 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 	            			String setN = (String) setName.getValue();
 	            			if(setN != "") {
-	            				
-	            				SubSetOperations setOp = new SubSetOperations();
 
-	            				if( setOp.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+	            				if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					arraySetContainer(setOp.getArraySets(dataSetId), maSet);
+	            					arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
 	            					arraySets.requestRepaint();
 	            				}
 	            			} else {
@@ -379,10 +375,8 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			markerTable.setContainerDataSource(markerTableView(maSet));
 			arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-			SubSetOperations setOp = new SubSetOperations();
-
-			markerSetContainer(setOp.getMarkerSets(dataSetId), maSet);
-			arraySetContainer(setOp.getArraySets(dataSetId), maSet);
+			markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
+			arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
 
 
 			UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), null);
