@@ -53,6 +53,7 @@ public class UDataTab extends VerticalLayout {
 		dataPanel.addComponent(paramForm);
 	
 		analysisBox.setWidth("60%");
+		analysisBox.setNullSelectionAllowed(false);
 		analysisBox.setCaption("Select Analyis Type");
 		analysisBox.addItem("ARACne");
 		analysisBox.addItem("Hierarchical Clustering");
@@ -91,6 +92,7 @@ public class UDataTab extends VerticalLayout {
 		
 		interactionsBox.setWidth("60%");
 		interactionsBox.setCaption("Select Interactions Database");
+		interactionsBox.setNullSelectionAllowed(false);
 		interactionsBox.addItem("CNKB");
 		interactionsBox.setInputPrompt("Choose Interaction Database from the list");
 		interactionsBox.addListener(new Property.ValueChangeListener() {
@@ -116,6 +118,7 @@ public class UDataTab extends VerticalLayout {
 		});
 		
 		operationsBox.setWidth("60%");
+		operationsBox.setNullSelectionAllowed(false);
 		operationsBox.setCaption("Select Data Operation");
 		operationsBox.addItem("Analyze Data");
 		operationsBox.addItem("Get Interactions");

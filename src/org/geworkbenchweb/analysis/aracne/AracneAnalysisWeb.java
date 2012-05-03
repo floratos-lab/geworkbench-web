@@ -69,9 +69,8 @@ public class AracneAnalysisWeb {
 			p.setAlgorithm(Parameter.ALGORITHM.FIXED_BANDWIDTH);
 		}
 		
-		
-		int  bs = 1;
-		double  pt = 0.01; 
+		int  bs 	= 	Integer.valueOf(params.get(12));
+		double  pt 	= 	Double.valueOf(params.get(6)); 
 		
 		AracneComputation aracneComputation = new AracneComputation(mSetView, p, bs , pt);
 		
@@ -112,8 +111,6 @@ public class AracneAnalysisWeb {
 
 		Vector<String> subnet = p.getSubnet();
 		
-		
-
 		@SuppressWarnings("unused")
 		int nEdge = 0;
 		for (GraphEdge graphEdge : graph.getEdges()) {
