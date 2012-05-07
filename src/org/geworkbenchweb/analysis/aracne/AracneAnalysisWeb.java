@@ -17,13 +17,11 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbenchweb.layout.UAccordionPanel;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import edu.columbia.c2b2.aracne.Parameter;
 import wb.plugins.aracne.GraphEdge;
 import wb.plugins.aracne.WeightedGraph;
-
 
 /**
  * 
@@ -34,8 +32,6 @@ import wb.plugins.aracne.WeightedGraph;
 public class AracneAnalysisWeb {
 	
 	final Parameter p = new Parameter();
-
-	User user = SessionHandler.get();
 	
 	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params) {
 		
@@ -89,7 +85,7 @@ public class AracneAnalysisWeb {
 			resultSet.setName("ARACne - " + date);
 			resultSet.setType("ARACne");
 			resultSet.setParent(dataSet.getDataSetName());
-			resultSet.setOwner(user.getId());	
+			resultSet.setOwner(SessionHandler.get().getId());	
 			resultSet.setData(convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	
 			
