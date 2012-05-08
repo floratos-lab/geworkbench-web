@@ -30,7 +30,6 @@ public class UDataTab extends VerticalLayout {
 		this.dataSet = maSet;
 		setSizeFull();
 		
-		VerticalSplitPanel mainSplitPanel		= 	new VerticalSplitPanel();
 		HorizontalSplitPanel dataSplitPanel 	= 	new HorizontalSplitPanel();
 		Panel historyPanel						= 	new Panel();
 		final Panel dataPanel					= 	new Panel();
@@ -192,11 +191,7 @@ public class UDataTab extends VerticalLayout {
 		dataSplitPanel.setFirstComponent(dataPanel);
 		dataSplitPanel.setSecondComponent(historyPanel);
 		
-		mainSplitPanel.setSplitPosition(60);
-		mainSplitPanel.setStyleName("small previews");
-		mainSplitPanel.setFirstComponent(dataSplitPanel);
-		
-		addComponent(mainSplitPanel);
+		addComponent(dataSplitPanel);
 		
 	}
 

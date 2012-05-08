@@ -37,6 +37,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -378,9 +379,19 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
 			arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
 
+			VerticalSplitPanel splitDataPanel = new VerticalSplitPanel();
+			
+			splitDataPanel.addStyleName("small previews");
+			splitDataPanel.setSplitPosition(25);
+			splitDataPanel.setImmediate(true);
 
-			UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), null);
-			UMainLayout.setMainPanelSecondComponent(tabSheet);
+			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(); 
+			UVisualPlugin tabSheet 	= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+			
+			splitDataPanel.setFirstComponent(setsTabSheet);
+			splitDataPanel.setSecondComponent(tabSheet);
+			
+			UMainLayout.setMainPanelSecondComponent(splitDataPanel);
 
 		} else {
 
