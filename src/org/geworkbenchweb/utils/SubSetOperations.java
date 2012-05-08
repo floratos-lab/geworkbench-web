@@ -86,4 +86,20 @@ public class SubSetOperations {
 		
 		
 	}
+	
+	public static boolean checkForDataSet(String subSetName) {
+		
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		
+		parameters.put("name", subSetName);
+		
+		List<?> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name", parameters);
+		
+		if(data.isEmpty()) {
+			return false;
+		}else {
+			return true;
+		}
+	
+	}
 }
