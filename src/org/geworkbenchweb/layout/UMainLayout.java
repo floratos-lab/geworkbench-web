@@ -1,4 +1,4 @@
- package org.geworkbenchweb.layout;
+package org.geworkbenchweb.layout;
 
 import org.geworkbenchweb.GeworkbenchApplication;
 import org.vaadin.appfoundation.authentication.SessionHandler;

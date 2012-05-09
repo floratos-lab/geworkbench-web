@@ -47,7 +47,6 @@ public class UDataTab extends VerticalLayout {
 		
 		dataPanel.setImmediate(true);
 		dataPanel.setSizeFull();
-		dataPanel.setCaption("Parameter Panel");
 		dataPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		dataPanel.addComponent(paramForm);
 	
@@ -174,7 +173,6 @@ public class UDataTab extends VerticalLayout {
 		}
 		
 		/* Data history Tab */
-		historyPanel.setCaption("DataSet History");
 		historyPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		historyPanel.setSizeFull();
 		historyPanel.addComponent(new Label("Name of the DataSet : " + maSet.getLabel()));

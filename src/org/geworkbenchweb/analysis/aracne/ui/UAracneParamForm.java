@@ -352,7 +352,6 @@ public class UAracneParamForm extends Form {
 				}		
 			}
 		});
-		submitButton.addStyleName("wide");
 		
 		formLayout.addComponent(markerSetBox, 0, 0);
 		formLayout.addComponent(modeBox, 0, 1);

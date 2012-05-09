@@ -133,7 +133,6 @@ public class UHierarchicalClusteringParamForm extends Form {
 				}		
 			}
 		});
-		submitButton.addStyleName("wide default");
 
 		addField("clusterMethod", clusterMethod);
 		addField("clusterMethod", clusterDim);

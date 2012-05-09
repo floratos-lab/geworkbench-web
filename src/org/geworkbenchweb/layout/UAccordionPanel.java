@@ -14,7 +14,6 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -35,7 +34,6 @@ import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
@@ -49,10 +47,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	private static final long serialVersionUID = 4523693969296820932L;
 
 	private static Tree dataTree;
-		
-	private TreeTable markerSets;
-	
-	private	TreeTable arraySets;
 	
 	private Table arrayTable;
 	
@@ -199,8 +193,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
             					if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
             						getApplication().getMainWindow().removeWindow(nameWindow);
-            						markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
-            						markerSets.requestRepaint();
+            						
             					}
             				} else {
 
@@ -288,8 +281,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	            				if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            					arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
-	            					arraySets.requestRepaint();
+	            				
 	            				}
 	            			} else {
 
@@ -313,21 +305,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		t2.setCaption("Phenotypes");
 		t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 		
-		
-		markerSets = new TreeTable();
-		markerSets.setImmediate(true);
-		markerSets.setStyleName(Reindeer.TABLE_BORDERLESS);
-		Tab t3 = addTab(markerSets);
-		t3.setCaption("MarkerSets");
-		t3.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
-		
-		
-		arraySets = new TreeTable();
-		arraySets.setStyleName(Reindeer.TABLE_BORDERLESS);
-		arraySets.setImmediate(true);
-		Tab t4 = addTab(arraySets);
-		t4.setCaption("ArraySets");
-		t4.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 	}
 	
 
@@ -375,16 +352,13 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			markerTable.setContainerDataSource(markerTableView(maSet));
 			arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-			markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
-			arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
-
 			VerticalSplitPanel splitDataPanel = new VerticalSplitPanel();
 			
 			splitDataPanel.setSplitPosition(25);
 			splitDataPanel.setImmediate(true);
 			splitDataPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
 
-			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(); 
+			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(maSet); 
 			UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
 			
 			splitDataPanel.setFirstComponent(setsTabSheet);
@@ -431,63 +405,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		}
 
 		UMainLayout.mainPanelRequestRepaint();		
-	}
-
-	private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
-		
-		if(!list.isEmpty()) {
-			arraySets.removeAllItems();
-			arraySets.setSizeFull();
-			arraySets.addContainerProperty("Name", String.class, "");
-			arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-
-			for(int i=0; i<list.size(); i++ ) {
-
-				String name 		= 	((SubSet) list.get(i)).getName();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	arraySets.addItem(new Object[] { name }, null);
-
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-
-				for(int j = 0; j<temp.length; j++) {
-
-					Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
-					arraySets.setChildrenAllowed(subItem, false);
-					arraySets.setParent(subItem, item);
-				}
-
-			}
-		}
-
-	}
-
-
-	private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
-		
-		if(list.size() != 0) {
-			markerSets.removeAllItems();
-			markerSets.setSizeFull();
-			markerSets.addContainerProperty("Name", String.class, "");
-			markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-
-			for(int i=0; i<list.size(); i++ ) {
-
-				String name 		= 	((SubSet) list.get(i)).getName();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	markerSets.addItem(new Object[] { name }, null);
-
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-
-				for(int j = 0; j<temp.length; j++) {
-
-					Object subItem = markerSets.addItem(new Object[] { maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
-					markerSets.setChildrenAllowed(subItem, false);
-					markerSets.setParent(subItem, item);
-				}
-
-			}
-		}
-		
 	}
 
 

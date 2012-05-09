@@ -24,6 +24,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Parameter panel for CNKB
@@ -92,7 +93,6 @@ public class UCNKBParamForm extends Form {
 				}		
 			}
 		});
-		submitButton.addStyleName("wide default");
 		
 		markerSetBox.setCaption("Select Marker Set");
 		markerSetBox.setWidth("50%");
@@ -118,7 +118,7 @@ public class UCNKBParamForm extends Form {
 			}
 		});
 		
-		interactomeDes.addStyleName("tiny color");
+		interactomeDes.setStyleName(Reindeer.LABEL_SMALL);
 		interactomeDes.setImmediate(true);
 		
 		versionBox.setCaption("Select Version");
