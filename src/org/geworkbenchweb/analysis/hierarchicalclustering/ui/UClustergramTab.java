@@ -17,6 +17,7 @@ import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class UClustergramTab extends VerticalLayout{
 
@@ -71,6 +72,7 @@ public class UClustergramTab extends VerticalLayout{
 	@SuppressWarnings({ "unchecked", "unused" })
 	public UClustergramTab(CSHierClusterDataSet dataSet) {
 		
+		setStyleName(Reindeer.LAYOUT_WHITE);
         microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
         
         currentMarkerCluster = (MarkerHierCluster)dataSet.getCluster(0);

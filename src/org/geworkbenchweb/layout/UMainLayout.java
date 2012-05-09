@@ -4,8 +4,6 @@ import org.geworkbenchweb.GeworkbenchApplication;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
-import sun.tools.jstat.Alignment;
-
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
