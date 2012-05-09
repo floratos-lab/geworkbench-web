@@ -51,6 +51,17 @@ public class SubSetOperations {
 		return data;
 	}
 	
+	public static List<?> getArraySet(String setName) {
+		
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		
+		parameters.put("name", setName);
+		parameters.put("type", "microarray");
+		
+		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name and p.type=:type ", parameters);
+		return data;
+	}
+	
 	public static List<?> getMarkerSets(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();

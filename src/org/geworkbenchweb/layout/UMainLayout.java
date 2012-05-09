@@ -79,7 +79,13 @@ public class UMainLayout extends HorizontalLayout {
 	public static void setMainPanelSecondComponent(Component component) {
 		
 		mainPanel.removeComponent(mainPanel.getSecondComponent());
-		mainPanel.setSecondComponent(component);
+		
+		HorizontalLayout welcomeLayout1 = new HorizontalLayout();
+		welcomeLayout1.setStyleName(Reindeer.LAYOUT_WHITE);
+		welcomeLayout1.setSizeFull();
+		welcomeLayout1.addComponent(component);
+		
+		mainPanel.setSecondComponent(welcomeLayout1);
 	
 	}
 	/**

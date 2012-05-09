@@ -46,7 +46,6 @@ public class USetsTabSheet extends TabSheet{
 		
 		markerSets = new TreeTable();
 		markerSets.setImmediate(true);
-		markerSets.addStyleName("borderless");
 		markerSets.setSelectable(true);
 		markerSets.addListener(new Property.ValueChangeListener() {
 		     
@@ -54,55 +53,98 @@ public class USetsTabSheet extends TabSheet{
 
 			public void valueChange(ValueChangeEvent event) {
 
-				Item itemSelected = markerSets.getItem(event.getProperty().getValue());
-				
-				if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
-					
-					String positions 			=	 getMarkerData(itemSelected.toString(), maSet);
-					String[] temp 				=   (positions.substring(1, positions.length()-1)).split(",");
-					String[] colHeaders 		= 	new String[(maSet.size())+1];
-					IndexedContainer dataIn 	= 	new IndexedContainer();
+				try {
+					Item itemSelected = markerSets.getItem(event.getProperty().getValue());
 
-					for(int j=0; j<temp.length; j++) {
+					if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
 
-						Item item 				= 	dataIn.addItem(j);
+						String positions 			=	 getMarkerData(itemSelected.toString(), maSet);
+						String[] temp 				=   (positions.substring(1, positions.length()-1)).split(",");
+						String[] colHeaders 		= 	new String[(maSet.size())+1];
+						IndexedContainer dataIn 	= 	new IndexedContainer();
 
-						for(int k=0;k<=maSet.size();k++) {
+						for(int j=0; j<temp.length; j++) {
 
-							if(k == 0) {
+							Item item 				= 	dataIn.addItem(j);
 
-								colHeaders[k] 	= 	MARKER_HEADER;
-								dataIn.addContainerProperty(colHeaders[k], String.class, null);
-								item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(Integer.parseInt(temp[j].trim())));
+							for(int k=0;k<=maSet.size();k++) {
+
+								if(k == 0) {
+
+									colHeaders[k] 	= 	MARKER_HEADER;
+									dataIn.addContainerProperty(colHeaders[k], String.class, null);
+									item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(Integer.parseInt(temp[j].trim())));
 
 
-							} else {
+								} else {
 
-								colHeaders[k] 	= 	maSet.get(k-1).toString();
-								dataIn.addContainerProperty(colHeaders[k], Float.class, null);
-								item.getItemProperty(colHeaders[k]).setValue(maSet.getValue(Integer.parseInt(temp[j].trim()), k-1));
+									colHeaders[k] 	= 	maSet.get(k-1).toString();
+									dataIn.addContainerProperty(colHeaders[k], Float.class, null);
+									item.getItemProperty(colHeaders[k]).setValue(maSet.getValue(Integer.parseInt(temp[j].trim()), k-1));
 
+								}
 							}
 						}
+						UVisualPlugin.resetTableContainer(dataIn);
 					}
-		
+				}catch (Exception e) {
+
+					UVisualPlugin.resetOriginalView(maSet);
+
 				}
-            }
+			}
         });
 		
 		arraySets = new TreeTable();
 		arraySets.setImmediate(true);
-		arraySets.addStyleName("borderless");
 		arraySets.setSelectable(true);
 		arraySets.addListener(new Property.ValueChangeListener() {
-     
+
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(ValueChangeEvent event) {
 
-            	System.out.println(event.getProperty().getValue().toString());
-            }
-        });
+				try {
+					Item itemSelected = arraySets.getItem(event.getProperty().getValue());
+
+					if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
+
+						String positions 		=	 getArrayData(itemSelected.toString(), maSet);
+						String[] temp 			=   (positions.substring(1, positions.length()-1)).split(",");
+
+						String[] colHeaders 			= 	new String[(temp.length)+1];
+						IndexedContainer dataIn 		= 	new IndexedContainer();
+
+						for(int j=0; j<maSet.getMarkers().size();j++) {
+
+							Item item 					= 	dataIn.addItem(j);
+
+							for(int i=0; i<=temp.length; i++) {
+
+								if(i == 0) {
+
+									colHeaders[i] 		= 	MARKER_HEADER;
+									dataIn.addContainerProperty(colHeaders[i], String.class, null);
+									item.getItemProperty(colHeaders[i]).setValue(maSet.getMarkers().get(j));
+
+								} else {
+
+									colHeaders[i] 		= 	maSet.get(Integer.parseInt(temp[i-1].trim())).toString();
+									dataIn.addContainerProperty(colHeaders[i], Float.class, null);
+									item.getItemProperty(colHeaders[i]).setValue(maSet.getValue(j, Integer.parseInt(temp[i-1].trim())));
+
+								}
+							}
+						}
+
+						UVisualPlugin.resetTableContainer(dataIn);
+					}
+				}catch (Exception e) {
+
+					UVisualPlugin.resetOriginalView(maSet);
+				}
+			}
+		});
 		
 		markerSetContainer(SubSetOperations.getMarkerSets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
 		arraySetContainer(SubSetOperations.getArraySets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
@@ -193,4 +235,15 @@ public class USetsTabSheet extends TabSheet{
 		return positions;
 	}
 
+	/**
+	 * Create Dataset for selected markerSet 
+	 */
+	public String getArrayData(String setName, DSMicroarraySet parentSet) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet 		= 	SubSetOperations.getArraySet(setName);
+		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
+		
+		return positions;
+	}
 }

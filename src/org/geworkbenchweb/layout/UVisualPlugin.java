@@ -14,28 +14,28 @@ import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.Reindeer;
 
-public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
+public class UVisualPlugin extends TabSheet {
 
 	private static final long serialVersionUID 				= 	1L;
-
-	private Table dataTable;
 
 	private static final String DATA_OPERATIONS 			= 	"Data Operations";
 
 	private static final String MICROARRAY_TABLE_CAPTION 	= 	"Tabular Microarray Viewer";
 
 	private static final String MARKER_HEADER 				= 	"Marker";
+	
+	private static final String HEAT_MAP 					= 	"Heat Map";
+	
+	private static Table dataTable;
 
 	private DSMicroarraySet maSet;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
 
-		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
 		
@@ -43,18 +43,25 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			maSet 							= 	(DSMicroarraySet) dataSet;
 			UDataTab dataOp					= 	new UDataTab(maSet, action);
+			UHeatMap heatMap				=	new UHeatMap(maSet);
 			dataTable 						= 	new Table();
 
 			
 			dataOp.setCaption(DATA_OPERATIONS);
-			dataOp.setIcon(new ThemeResource("../runo/icons/16/document-web.png"));
 			addTab(dataOp); 
 			
 			dataTable.setSizeFull();
 			dataTable.setImmediate(true);
 			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
+			dataTable.setContainerDataSource(tabularView(maSet));
+			dataTable.setColumnWidth(MARKER_HEADER, 150);
 			
 			addTab(dataTable);
+			
+			heatMap.setCaption(HEAT_MAP);
+			heatMap.setStyleName(Reindeer.LAYOUT_WHITE);
+			
+			addTab(heatMap);
 
 		} else if(dataType.equalsIgnoreCase("CNKB")) {
 
@@ -227,18 +234,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		}
 	}
 
-	@Override
-	public void selectedTabChange(SelectedTabChangeEvent event) {
-
-		if(event.getTabSheet().getSelectedTab().getCaption() == MICROARRAY_TABLE_CAPTION){
-
-			dataTable.setContainerDataSource(tabularView(maSet));
-			dataTable.setColumnWidth(MARKER_HEADER, 150);
-
-		}
-	} 
-
-	public IndexedContainer tabularView(DSMicroarraySet maSet) {
+	public static IndexedContainer tabularView(DSMicroarraySet maSet) {
 
 		String[] colHeaders 			= 	new String[(maSet.size())+1];
 		IndexedContainer dataIn 		= 	new IndexedContainer();
@@ -268,5 +264,20 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		return dataIn;
 
 	}
+	
+	public static void resetTableContainer(IndexedContainer data) {
+		
+		dataTable.removeAllItems();
+		dataTable.setContainerDataSource(data);
+		dataTable.setColumnWidth(MARKER_HEADER, 150);
+		
+	}
 
+	public static void resetOriginalView(DSMicroarraySet dSet) {
+		
+		dataTable.removeAllItems();
+		dataTable.setContainerDataSource(tabularView(dSet));
+		dataTable.setColumnWidth(MARKER_HEADER, 150);
+		
+	}
 }

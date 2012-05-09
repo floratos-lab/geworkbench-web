@@ -115,6 +115,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		dataTree = new Tree();
 		dataTree.setImmediate(true);
 		dataTree.areChildrenAllowed(true);
+		dataTree.setStyleName(Reindeer.TABLE_BORDERLESS);
 		dataTree.addContainerProperty("DataSet Name", String.class, "");
 		dataTree.setContainerDataSource(getDataContainer());
 		dataSets.addComponent(dataTree);

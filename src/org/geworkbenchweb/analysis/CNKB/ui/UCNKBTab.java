@@ -55,7 +55,7 @@ public class UCNKBTab extends VerticalLayout {
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
 		tabPanel.setSplitPosition(400, Sizeable.UNITS_PIXELS);
-		tabPanel.setStyleName("small previews");
+		tabPanel.setStyleName("small");
 		tabPanel.setLocked(false);
 		
 		/* Results Table Code */
@@ -63,7 +63,6 @@ public class UCNKBTab extends VerticalLayout {
 		dataTable.setColumnCollapsingAllowed(true);
 		dataTable.setColumnReorderingAllowed(true);
 		dataTable.setSizeFull();
-		dataTable.addStyleName("small striped");
 		dataTable.setImmediate(true);
 		
 		IndexedContainer dataIn  = 	new IndexedContainer();
