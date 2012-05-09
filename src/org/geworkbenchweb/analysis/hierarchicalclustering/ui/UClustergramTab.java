@@ -164,13 +164,14 @@ public class UClustergramTab extends VerticalLayout{
 		
 		Clustergram dendrogram = new Clustergram();
 		
-		dendrogram.setHeight(((geneNo*5) + 600) + "px");
-        dendrogram.setWidth(((chipNo*20) + 600) + "px");
+		setHeight(((geneNo*5) + 600) + "px");
+        setWidth(((chipNo*20) + 600) + "px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerNumber(geneNo);
 		dendrogram.setMarkerLabels(markerNames);
 		dendrogram.setArrayLabels(arrayNames);
+		dendrogram.setSizeFull();
 		
 		
 		if(markerCluster != null) {
@@ -190,10 +191,6 @@ public class UClustergramTab extends VerticalLayout{
 			//since this is the member variable I have to reset it. Have to find a way to make it non-member variable
 			arrayString.delete(0, arrayString.length());
 		}
-		
-		
-       
-		setSizeFull();
 		addComponent(dendrogram);
 	}
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
@@ -153,11 +152,7 @@ public class UVisualPlugin extends TabSheet {
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 			UClustergramTab dendrogramTab 	= 	new UClustergramTab(results);
-			CSMicroarraySet	data			= 	(CSMicroarraySet) results.getParentDataSet();
 
-			//Height and width of the visualization are calculted based on number of phenotypes and markers
-			setHeight(((data.getMarkers().size()*5) + 600) + "px");
-			setWidth(((data.size()*20) + 600) + "px");
 			addTab(dendrogramTab, "Dendrogram", null);		
 
 		} else if(dataType.equalsIgnoreCase("ARACne")) {
