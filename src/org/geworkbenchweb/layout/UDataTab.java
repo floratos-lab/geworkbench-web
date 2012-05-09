@@ -11,7 +11,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Have to refactor this code so that this handles only basic data operations.
@@ -29,6 +29,7 @@ public class UDataTab extends VerticalLayout {
 	
 		this.dataSet = maSet;
 		setSizeFull();
+		setStyleName(Reindeer.LAYOUT_WHITE);
 		
 		HorizontalSplitPanel dataSplitPanel 	= 	new HorizontalSplitPanel();
 		Panel historyPanel						= 	new Panel();
@@ -40,7 +41,6 @@ public class UDataTab extends VerticalLayout {
 		final Panel paramPanel					= 	new Panel();
 		
 		paramPanel.setImmediate(true);	
-		paramPanel.setStyleName("bubble");
 		
 		paramForm.setImmediate(true);
 		paramForm.addField("operations", operationsBox);
@@ -48,7 +48,7 @@ public class UDataTab extends VerticalLayout {
 		dataPanel.setImmediate(true);
 		dataPanel.setSizeFull();
 		dataPanel.setCaption("Parameter Panel");
-		dataPanel.setStyleName("bubble");
+		dataPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		dataPanel.addComponent(paramForm);
 	
 		analysisBox.setWidth("60%");
@@ -175,7 +175,7 @@ public class UDataTab extends VerticalLayout {
 		
 		/* Data history Tab */
 		historyPanel.setCaption("DataSet History");
-		historyPanel.setStyleName("bubble");
+		historyPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		historyPanel.setSizeFull();
 		historyPanel.addComponent(new Label("Name of the DataSet : " + maSet.getLabel()));
 		historyPanel.addComponent(new Label("Number of Markers : " + maSet.getMarkers().size()));
@@ -187,7 +187,7 @@ public class UDataTab extends VerticalLayout {
 				
 		dataSplitPanel.setImmediate(true);
 		dataSplitPanel.setSplitPosition(70);
-		dataSplitPanel.setStyleName("small previews");
+		dataSplitPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
 		dataSplitPanel.setFirstComponent(dataPanel);
 		dataSplitPanel.setSecondComponent(historyPanel);
 		

@@ -42,6 +42,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.Reindeer;
 
 public class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
 	
@@ -96,7 +97,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		userId = user.getId();
 
 		t.setCaption("DataSets");
-		t.setStyleName("sidebar-menu");
 
 		VerticalLayout dataSets = 	new VerticalLayout();
 		Button updateDataset 	= 	new Button("Upload DataSet", new ClickListener() {
@@ -113,7 +113,6 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 		});
 
-		updateDataset.setStyleName("small default");
 		updateDataset.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
 
 		dataSets.addComponent(updateDataset);
@@ -135,7 +134,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		t.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 		
 		markerTable = new Table();
-		markerTable.addStyleName("small striped");
+		markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
 		markerTable.setSizeFull();
 		markerTable.setSelectable(true);
 		markerTable.setMultiSelect(true);
@@ -226,7 +225,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		t1.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 		
 		arrayTable = new Table();
-		arrayTable.addStyleName("small striped");
+		arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
 		arrayTable.setSizeFull();
 		arrayTable.setSelectable(true);
 		arrayTable.setMultiSelect(true);
@@ -317,14 +316,14 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		
 		markerSets = new TreeTable();
 		markerSets.setImmediate(true);
-		markerSets.addStyleName("small striped");
+		markerSets.setStyleName(Reindeer.TABLE_BORDERLESS);
 		Tab t3 = addTab(markerSets);
 		t3.setCaption("MarkerSets");
 		t3.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 		
 		
 		arraySets = new TreeTable();
-		arraySets.addStyleName("small striped");
+		arraySets.setStyleName(Reindeer.TABLE_BORDERLESS);
 		arraySets.setImmediate(true);
 		Tab t4 = addTab(arraySets);
 		t4.setCaption("ArraySets");
@@ -381,12 +380,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			VerticalSplitPanel splitDataPanel = new VerticalSplitPanel();
 			
-			splitDataPanel.addStyleName("small previews");
 			splitDataPanel.setSplitPosition(25);
 			splitDataPanel.setImmediate(true);
+			splitDataPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
 
 			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(); 
-			UVisualPlugin tabSheet 	= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+			UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
 			
 			splitDataPanel.setFirstComponent(setsTabSheet);
 			splitDataPanel.setSecondComponent(tabSheet);

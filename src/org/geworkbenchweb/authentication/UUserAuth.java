@@ -15,11 +15,11 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
@@ -30,8 +30,9 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
+import com.vaadin.ui.themes.Reindeer;
 
-public class UUserAuth extends AbsoluteLayout {
+public class UUserAuth extends HorizontalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -42,6 +43,7 @@ public class UUserAuth extends AbsoluteLayout {
 		this.app = app;
 		this.app.getMainWindow().setCaption("geWorkbench");
 		setSizeFull();	
+		setStyleName(Reindeer.LAYOUT_BLUE);
 		addComponent(buildLoginForm());
 	}
 
@@ -57,8 +59,7 @@ public class UUserAuth extends AbsoluteLayout {
 		final TextField usernameField 		= 	new TextField("Username");
 		final PasswordField passwordField 	= 	new PasswordField("Password");
 		
-		loginPanel.setStyleName("bubble");
-		loginPanel.setCaption("Login to geWorkbench");
+		loginPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		loginPanel.setWidth("270px");
 		
 		Button login = new Button("Login", new ClickListener() {
@@ -141,8 +142,7 @@ public class UUserAuth extends AbsoluteLayout {
 		final TextField email 				= 	new TextField("Email address");
 		FormLayout layout 					=	new FormLayout();
 		
-		registrationPanel.setStyleName("bubble");
-		registrationPanel.setCaption("Registration Form");
+		registrationPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		registrationPanel.setWidth("300px");
 		
 		username.setNullRepresentation("");

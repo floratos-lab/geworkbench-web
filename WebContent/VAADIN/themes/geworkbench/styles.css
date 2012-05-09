@@ -1,4 +1,4 @@
-@import url(../chameleon-blue/styles.css);
+@import url(../reindeer/styles.css);
 
 .v-colorpicker-button {
         width: 22px !important;
@@ -6,7 +6,6 @@
         border: 1px solid #151515 !important;
         cursor: pointer;
         margin: 0 3px 0 0 !important;
-        background-image: url(../chameleon/img/grad-light-top2.png) !important;
         float: left;
         }
 .v-ie6 .v-colorpicker-button {
@@ -35,7 +34,7 @@ html body.v-ie .v-window-editor {
         background: #2d2d2d;
         }
 .v-generated-body .editor .v-window-wrap {
-        background-image: url(../chameleon/img/grad-light-top2.png) !important;
+        
         }
 .v-ie6 .editor .v-window-wrap {
         background-image: none !important;

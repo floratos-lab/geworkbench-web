@@ -27,6 +27,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.themes.Reindeer;
 
 public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
@@ -50,7 +51,8 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		addListener(this);
 		setSizeFull();
-
+		setStyleName(Reindeer.TABSHEET_SMALL);
+		
 		if(dataType.contentEquals("Expression File")) {
 
 			HorizontalSplitPanel viewPanel 	= 	new HorizontalSplitPanel(); 
@@ -67,7 +69,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			setLayout.setImmediate(true);
 			setLayout.setSizeFull();
 			setLayout.setSplitPosition(50);
-			setLayout.addStyleName("small previews");
 			setLayout.setLocked(true);
 			
 			markerSets = new TreeTable();
