@@ -8,7 +8,6 @@ import org.thechiselgroup.choosel.protovis.client.ProtovisWidget;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.VConsole;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -50,9 +49,11 @@ public class VHeatMap extends Composite implements Paintable {
 	private String[] colorArray;
 
 	/** Marker Labels */
+	@SuppressWarnings("unused")
 	private String[] markerLabels;
 
 	/** Array Labels */
+	@SuppressWarnings("unused")
 	private String[] arrayLabels;
 
 

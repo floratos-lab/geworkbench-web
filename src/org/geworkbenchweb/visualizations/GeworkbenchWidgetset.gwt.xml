@@ -38,4 +38,6 @@
 	<script src="js/src/cytoscapeweb.js" />
 	
 
+
+    <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 </module>

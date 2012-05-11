@@ -26,6 +26,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
@@ -324,6 +325,17 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	@Override
 	public void valueChange(ValueChangeEvent event) {
 		
+		VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
+		menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+		menuPanel.setImmediate(true);
+		menuPanel.setLocked(true);
+		menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
+		
+		UMenuBar toolBar 	= 	UMenuBar.getMenuBarObject();
+		toolBar.setImmediate(true);
+		
+		menuPanel.setFirstComponent(toolBar);
+		
 		String dataPeru					= 	(String) event.getProperty().getValue();
 		String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -362,8 +374,11 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(maSet); 
 			UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
 			
+			menuPanel.setSecondComponent(tabSheet);
+			
 			splitDataPanel.setFirstComponent(setsTabSheet);
-			splitDataPanel.setSecondComponent(tabSheet);
+			splitDataPanel.setSecondComponent(menuPanel);
+			
 			
 			UMainLayout.setMainPanelSecondComponent(splitDataPanel);
 
@@ -379,29 +394,28 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			if(resultSet != null) {
 				
 				byte[] dataByte 					= 	resultSet.getData();
+				UVisualPlugin tabSheet = null;
 			
 				if(resultSet.getType().equalsIgnoreCase("CNKB")) {
 					
 					@SuppressWarnings("unchecked")
 					Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
-					UVisualPlugin tabSheet 							= 	new UVisualPlugin(hits, resultSet.getType(), null);
-					
-					UMainLayout.setMainPanelSecondComponent(tabSheet);
+					tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
 					
 				}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
 					
 					CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
-					UVisualPlugin tabSheet 				= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
-					UMainLayout.setMainPanelSecondComponent(tabSheet);
+					tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
 					
 				}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
 					
 					AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) toObject(dataByte);
-					UVisualPlugin tabSheet 			= 	new UVisualPlugin(dSet, resultSet.getType(), null);
-					UMainLayout.setMainPanelSecondComponent(tabSheet);
+					tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
 					
 				}
-				
+			
+				menuPanel.setSecondComponent(tabSheet);
+				UMainLayout.setMainPanelSecondComponent(menuPanel);
 			}
 		}
 

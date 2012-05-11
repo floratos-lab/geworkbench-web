@@ -122,17 +122,21 @@ public class UCNKBParamForm extends Form {
 		interactomeDes.setImmediate(true);
 		
 		versionBox.setCaption("Select Version");
-		versionBox.setWidth("50%");
+		versionBox.setWidth("50%");   
 		versionBox.setImmediate(true);
 		versionBox.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				
-				params[1] = valueChangeEvent.getProperty().getValue().toString();
-				addField("submitAnalysis", submitButton);
-				
+				try {
+					params[1] = valueChangeEvent.getProperty().getValue().toString();
+					addField("submitAnalysis", submitButton);
+				}catch (Exception e) {
+					
+					//TODO
+					
+				}
 			}
 		});
 		

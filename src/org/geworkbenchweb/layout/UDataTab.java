@@ -26,7 +26,7 @@ public class UDataTab extends VerticalLayout {
 	private DSMicroarraySet dataSet;
 	
 	public UDataTab(DSMicroarraySet maSet, String action) {
-	
+		
 		this.dataSet = maSet;
 		setSizeFull();
 		setStyleName(Reindeer.LAYOUT_WHITE);

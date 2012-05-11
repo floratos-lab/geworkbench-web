@@ -164,8 +164,8 @@ public class UClustergramTab extends VerticalLayout{
 		
 		Clustergram dendrogram = new Clustergram();
 		
-		setHeight(((geneNo*5) + 600) + "px");
-        setWidth(((chipNo*20) + 600) + "px");
+		setHeight(((geneNo*5) + 300) + "px");
+        setWidth(((chipNo*20) + 500) + "px");
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerNumber(geneNo);

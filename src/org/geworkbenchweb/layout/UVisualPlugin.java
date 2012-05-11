@@ -11,13 +11,17 @@ import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
+
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.Reindeer;
 
-public class UVisualPlugin extends TabSheet {
+public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
 
 	private static final long serialVersionUID 				= 	1L;
 
@@ -32,18 +36,23 @@ public class UVisualPlugin extends TabSheet {
 	private static Table dataTable;
 
 	private DSMicroarraySet maSet;
+	
+	private UDataTab dataOp;
+	
+	private UHeatMap heatMap;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
 
+		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
 		
 		if(dataType.contentEquals("Expression File")) {
 
-			maSet 							= 	(DSMicroarraySet) dataSet;
-			UDataTab dataOp					= 	new UDataTab(maSet, action);
-			UHeatMap heatMap				=	new UHeatMap(maSet);
-			dataTable 						= 	new Table();
+			maSet 			= 	(DSMicroarraySet) dataSet;
+			dataOp			= 	new UDataTab(maSet, action);
+			heatMap			=	new UHeatMap(maSet);
+			dataTable 		= 	new Table();
 
 			
 			dataOp.setCaption(DATA_OPERATIONS);
@@ -275,4 +284,46 @@ public class UVisualPlugin extends TabSheet {
 		dataTable.setColumnWidth(MARKER_HEADER, 150);
 		
 	}
+
+	@Override
+	public void selectedTabChange(SelectedTabChangeEvent event) {
+
+		UMenuBar menu = UMenuBar.getMenuBarObject();
+		menu.removeItems();
+		
+		try {
+			TabSheet tabsheet = event.getTabSheet();
+			Tab tab = tabsheet.getTab(tabsheet.getSelectedTab());
+			if (tab.getCaption().equalsIgnoreCase("Tabular Microarray Viewer")) {
+				 
+				 menu.addItem("Export TableData", exportTable);
+			
+			}else if(tab.getCaption().equalsIgnoreCase("Data Operations")) {
+				
+	
+				
+			}else if(tab.getCaption().equalsIgnoreCase("Heat Map")) {
+				
+				 menu.addItem("HeatMap Item", null);
+				
+			}
+		}catch (Exception e) {
+			//TODO
+		}
+		
+	}
+	
+	private Command exportTable = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		public void menuSelected(MenuItem selectedItem) {
+			
+			ExcelExport excelExport = new ExcelExport(dataTable);
+            excelExport.excludeCollapsedColumns();
+            excelExport.setReportTitle("Demo Report");
+            excelExport.export();
+
+		}
+	};
 }
