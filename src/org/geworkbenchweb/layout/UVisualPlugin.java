@@ -308,7 +308,22 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			}else if(tab.getCaption().equalsIgnoreCase("Heat Map")) {
 				
 				
+			}else if(tab.getCaption().equalsIgnoreCase("Cytoscape")) {
+				
+				final MenuBar.MenuItem save = menu.addItem("Save Network As", null);
+				save.addItem("SVG", null);
+				save.addItem("PNG", null);
+				save.addItem("GraphML", null);
+				
+			}else if(tab.getCaption().equalsIgnoreCase("CNKB Results")) {
+				
+				final MenuBar.MenuItem save = menu.addItem("Save", null);
+				save.addItem("Throttle Graph", null);
+				save.addItem("Table Data", null);
+				
 			}
+			
+			
 		}catch (Exception e) {
 			//TODO
 		}
