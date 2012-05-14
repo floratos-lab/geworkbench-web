@@ -12,11 +12,13 @@ import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
+import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.Reindeer;
@@ -296,15 +298,15 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			Tab tab = tabsheet.getTab(tabsheet.getSelectedTab());
 			if (tab.getCaption().equalsIgnoreCase("Tabular Microarray Viewer")) {
 				 
-				 menu.addItem("Export TableData", exportTable);
+				 final MenuBar.MenuItem save = menu.addItem("Save As", null);
+				 save.addItem("Excel Sheet", exportTable);
+				 save.addItem("CSV File", exportTableCSV);
 			
 			}else if(tab.getCaption().equalsIgnoreCase("Data Operations")) {
 				
 	
-				
 			}else if(tab.getCaption().equalsIgnoreCase("Heat Map")) {
 				
-				 menu.addItem("HeatMap Item", null);
 				
 			}
 		}catch (Exception e) {
@@ -321,8 +323,21 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			
 			ExcelExport excelExport = new ExcelExport(dataTable);
             excelExport.excludeCollapsedColumns();
-            excelExport.setReportTitle("Demo Report");
             excelExport.export();
+
+		}
+	};
+	
+	private Command exportTableCSV = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		public void menuSelected(MenuItem selectedItem) {
+			
+			CsvExport csvExport = new CsvExport(dataTable);
+			csvExport.excludeCollapsedColumns();
+			csvExport.setExportFileName("MicroarrayTableData.csv");
+			csvExport.export();
 
 		}
 	};
