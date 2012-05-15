@@ -194,6 +194,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
+									USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
 									getApplication().getMainWindow().removeWindow(nameWindow);
 
 								}
@@ -283,6 +284,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 									getApplication().getMainWindow().removeWindow(nameWindow);
+									USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
 
 								}
 							} else {

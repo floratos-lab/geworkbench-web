@@ -179,6 +179,7 @@ public class USetsTabSheet extends TabSheet{
 			l2.addComponent(arraySets);
 		
 	}
+	
 	private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
 
 		arraySets.removeAllItems();
