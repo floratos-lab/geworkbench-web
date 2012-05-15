@@ -35,7 +35,7 @@ public class UDataSetUpload extends Window {
     	this.setStyleName("opaque");
     	this.setCaption("Upload Dataset");
     	this.setWidth("700px");
-    	this.setHeight("500px");
+    	this.setHeight("400px");
     	this.setDraggable(false);
     	this.setResizable(false);
 
@@ -95,7 +95,7 @@ public class UDataSetUpload extends Window {
         addComponent(dataLayout);       
         Button uploadButton = new Button("Upload");
         dataLayout.addComponent(uploadField);
-        dataLayout.addComponent(annotUploadField);
+        //dataLayout.addComponent(annotUploadField);
         dataLayout.addComponent(uploadButton);
         uploadButton.addListener(Button.ClickEvent.class, this, "theButtonClick");
     	
@@ -108,7 +108,7 @@ public class UDataSetUpload extends Window {
         String dataDescription 	= 	(String) dataArea.getValue();
     	File dataFile 			= 	(File) uploadField.getValue();
     	
-    	parseInit(dataFile, (File) annotUploadField.getValue(), fileType, dataDescription);
+    	parseInit(dataFile, null, fileType, dataDescription);
     		
     	dataFile.delete();
     	
