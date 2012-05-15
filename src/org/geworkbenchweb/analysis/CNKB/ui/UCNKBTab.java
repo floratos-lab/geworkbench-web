@@ -189,8 +189,8 @@ public class UCNKBTab extends VerticalLayout {
                 .setFormatterJsFunc(
                         "function() { " 
                                 + " return '<b>' + this.series.name + '</b><br/>' +  " +
-                                "' 0 to ' + " +
-                                "Math.round(((this.x+0.005)*100))/100 + ', '+ " +
+                                "Math.round(((this.x+0.005)*100))/100 + ' '+ " +
+                                "' to 1 - ' + " +
                                 "this.y + ' interactions'"
                                 + "}");
 
