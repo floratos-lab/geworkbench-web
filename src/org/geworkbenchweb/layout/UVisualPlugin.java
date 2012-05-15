@@ -12,6 +12,8 @@ import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
+import com.invient.vaadin.charts.InvientCharts;
+import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
@@ -300,7 +302,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				 
 				 final MenuBar.MenuItem save = menu.addItem("Save As", null);
 				 save.addItem("Excel Sheet", exportTable);
-				 save.addItem("CSV File", exportTableCSV);
+				 save.addItem("CSV File", exportTable);
 			
 			}else if(tab.getCaption().equalsIgnoreCase("Data Operations")) {
 				
@@ -317,9 +319,18 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				
 			}else if(tab.getCaption().equalsIgnoreCase("CNKB Results")) {
 				
-				final MenuBar.MenuItem save = menu.addItem("Save", null);
-				save.addItem("Throttle Graph", null);
-				save.addItem("Table Data", null);
+				final MenuBar.MenuItem save 	= 	menu.addItem("Save", null);
+				final MenuBar.MenuItem graph 	= 	save.addItem("Throttle Graph As", null);
+				
+				graph.addItem("SVG", exportGraph);
+				graph.addItem("PNG", null);
+				
+				menu.addItem("Print Graph", exportGraph);
+				save.addSeparator();
+				
+				final MenuBar.MenuItem table = save.addItem("TableData As", null);
+				table.addItem("Excel Sheet", null);
+				table.addItem("CSV File", null);
 				
 			}
 			
@@ -336,23 +347,49 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		public void menuSelected(MenuItem selectedItem) {
 			
-			ExcelExport excelExport = new ExcelExport(dataTable);
-            excelExport.excludeCollapsedColumns();
-            excelExport.export();
-
+			if(selectedItem.getText().equalsIgnoreCase("Excel Sheet")) {
+			
+				ExcelExport excelExport = new ExcelExport(dataTable);
+				excelExport.excludeCollapsedColumns();
+				excelExport.export();
+			
+			}else {
+				
+				CsvExport csvExport = new CsvExport(dataTable);
+				csvExport.excludeCollapsedColumns();
+				csvExport.setExportFileName("MicroarrayTableData.csv");
+				csvExport.export();
+			
+			}
 		}
 	};
 	
-	private Command exportTableCSV = new Command() {
+	private Command exportGraph = new Command() {
 
 		private static final long serialVersionUID = 1L;
 
 		public void menuSelected(MenuItem selectedItem) {
 			
-			CsvExport csvExport = new CsvExport(dataTable);
-			csvExport.excludeCollapsedColumns();
-			csvExport.setExportFileName("MicroarrayTableData.csv");
-			csvExport.export();
+			System.out.println(selectedItem.getText());
+			if(selectedItem.getText().equalsIgnoreCase("SVG")) {
+			
+				UCNKBTab.plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void svgAvailable(
+							ChartSVGAvailableEvent chartSVGAvailableEvent) {
+
+						chartSVGAvailableEvent.getSVG();
+					}
+				});
+			
+			}else {
+				
+				UCNKBTab.plot.print();
+				
+			}
 
 		}
 	};

@@ -116,7 +116,7 @@ public class UUserAuth extends HorizontalLayout {
 		layout.addComponent(usernameField);
 		layout.addComponent(passwordField);
 		layout.addComponent(login);
-		//layout.addComponent(register);
+		layout.addComponent(register);
 		
 		layout.addComponent(feedbackLabel);
 		loginPanel.addComponent(layout);

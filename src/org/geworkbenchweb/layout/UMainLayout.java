@@ -15,6 +15,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UMainLayout extends HorizontalLayout {
@@ -41,6 +42,17 @@ public class UMainLayout extends HorizontalLayout {
 		welcomeLayout					=	new HorizontalLayout();
 		welcome 						= 	new CustomLayout("welcome");
 		VerticalLayout mainLayout		=	new VerticalLayout();
+		VerticalSplitPanel setLayout	=	new VerticalSplitPanel();
+		USetsTabSheet setTabs			= 	USetsTabSheet.getSetsTabSheetObject();
+		
+		setTabs.removeData();
+		setTabs.setImmediate(true);
+		
+		setLayout.setSplitPosition(60);
+		setLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
+		setLayout.setImmediate(true);
+		setLayout.setFirstComponent(tabs);
+		setLayout.setSecondComponent(setTabs);
 		
 		mainLayout.setSizeFull();
         mainLayout.addComponent(getHeader());
@@ -61,7 +73,9 @@ public class UMainLayout extends HorizontalLayout {
 		mainPanel.setSizeFull();
         mainPanel.setImmediate(true);
         mainPanel.setSplitPosition(20);   
-		mainPanel.setFirstComponent(tabs);
+		mainPanel.setFirstComponent(setLayout);
+		
+	
 		
 		welcome.setSizeFull();
 		welcomeLayout.setStyleName(Reindeer.LAYOUT_WHITE);

@@ -7,8 +7,10 @@ import java.util.Vector;
 
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.layout.UMenuBar;
 
 import com.invient.vaadin.charts.InvientCharts;
+import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
 import com.invient.vaadin.charts.InvientCharts.XYSeries;
 import com.invient.vaadin.charts.InvientChartsConfig;
@@ -21,12 +23,16 @@ import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 
 /**
  * This class displays CNKB results in a Table and also a graph
@@ -46,6 +52,16 @@ public class UCNKBTab extends VerticalLayout {
 	ArrayList<Double> pdnaConfidence 		= 	new ArrayList<Double>();
 	
 	ArrayList<Double> mtfConfidence 		= 	new ArrayList<Double>();
+	
+	public static InvientCharts plot;
+	
+	private static UCNKBTab menuBarInstance;
+	
+	public static UCNKBTab getCNKBTabObject() {
+		
+		return menuBarInstance;
+		
+	}
 	
 	public UCNKBTab(Vector<CellularNetWorkElementInformation> hits) {
 	
@@ -128,7 +144,8 @@ public class UCNKBTab extends VerticalLayout {
 				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
 		
 		
-		tabPanel.setFirstComponent(drawPlot());
+		plot = drawPlot();
+		tabPanel.setFirstComponent(plot);
 		tabPanel.setSecondComponent(dataTable);
 		addComponent(tabPanel);
 	}
@@ -303,4 +320,27 @@ public class UCNKBTab extends VerticalLayout {
 		}
 		return points;
 	}
+	
+	public void plotExportSVG() {
+
+		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void svgAvailable(
+					ChartSVGAvailableEvent chartSVGAvailableEvent) {
+
+				chartSVGAvailableEvent.getSVG();
+			}
+		});
+
+	}
+
+	public void plotPrint() {
+
+		plot.print();
+
+	}
+	
 }

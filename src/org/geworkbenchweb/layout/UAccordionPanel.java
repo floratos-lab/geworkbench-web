@@ -44,29 +44,29 @@ import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
-	
+
 	private static final long serialVersionUID = 4523693969296820932L;
 
 	private static Tree dataTree;
-	
+
 	private Table arrayTable;
-	
+
 	private Table markerTable;
-	
+
 	final Action ACTION_SUBSET 		= new Action("Create SubSet");
 
 	final Action[] ACTIONS_CREATE 	= new Action[] { ACTION_SUBSET };
-	
+
 	private String setType;
 
 	protected String selectedValues = null;
-	
+
 	public Long dataSetId;
-	
+
 	public DSMicroarraySet maSet;
-	
+
 	User user	=	SessionHandler.get();
-	
+
 	private static Long userId; 
 	// Actions for the context menu
 
@@ -81,9 +81,9 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	private static final Action ACTION_INTERACTIONS =	new Action("Get Interactions");
 
 	private static final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
-	
+
 	public UAccordionPanel(boolean closable) {
-		
+
 		super();
 		VerticalLayout l 	= 	new VerticalLayout();
 		l.setMargin(true);
@@ -103,7 +103,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 				UDataSetUpload dataWindow = new UDataSetUpload();
 				getApplication().getMainWindow().addWindow(dataWindow);
-				
+
 			}
 
 		});
@@ -128,97 +128,97 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		l.setHeight("100%");
 
 		t.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
-		
+
 		markerTable = new Table();
 		markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
 		markerTable.setSizeFull();
 		markerTable.setSelectable(true);
 		markerTable.setMultiSelect(true);
 		markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-		
+
 		markerTable.addListener(new Table.ValueChangeListener() {
-	        
+
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(ValueChangeEvent event) {
-      
+
 				String value = (event.getProperty().getValue()).toString();
 				setType = "marker";
-                setSelectedValues(value);
-                
-            }
+				setSelectedValues(value);
 
-        });
-		
+			}
+
+		});
+
 		markerTable.addActionHandler(new Action.Handler() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public Action[] getActions(Object target, Object sender) {
-				
-            	return ACTIONS_CREATE;
-                
-            }
-            
-            public void handleAction(Action action, Object sender, Object target) {
 
-            	if(selectedValues == null) {
+				return ACTIONS_CREATE;
 
-            		getApplication().getMainWindow().showNotification("Please select atleast one marker",  
-            				Notification.TYPE_ERROR_MESSAGE );
+			}
 
-            	} else {
-            		
-            		final Window nameWindow = new Window();
-	            	nameWindow.setModal(true);
-	            	nameWindow.setClosable(true);
-	            	nameWindow.setWidth("300px");
-	            	nameWindow.setHeight("150px");
-	            	nameWindow.setResizable(false);
-	            	nameWindow.setCaption("Add Markers to Set");
-	            	nameWindow.setImmediate(true);
-	            	
-	            	final TextField setName = new TextField();
-	            	setName.setInputPrompt("Please enter set name");
-	            	setName.setImmediate(true);
-	            	
-            		Button addSet = new Button("Add Set", new ClickListener() {
+			public void handleAction(Action action, Object sender, Object target) {
 
-            			private static final long serialVersionUID = 1L;
+				if(selectedValues == null) {
 
-            			@Override
-            			public void buttonClick(ClickEvent event) {
-            				
-            				String setN = (String) setName.getValue();
-            				if(setN != "") {
+					getApplication().getMainWindow().showNotification("Please select atleast one marker",  
+							Notification.TYPE_ERROR_MESSAGE );
 
-            					if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+				} else {
 
-            						getApplication().getMainWindow().removeWindow(nameWindow);
-            						
-            					}
-            				} else {
+					final Window nameWindow = new Window();
+					nameWindow.setModal(true);
+					nameWindow.setClosable(true);
+					nameWindow.setWidth("300px");
+					nameWindow.setHeight("150px");
+					nameWindow.setResizable(false);
+					nameWindow.setCaption("Add Markers to Set");
+					nameWindow.setImmediate(true);
 
-            					getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
-            							Notification.TYPE_ERROR_MESSAGE );
-            					getApplication().getMainWindow().removeWindow(nameWindow);
-            				}
-            			}
+					final TextField setName = new TextField();
+					setName.setInputPrompt("Please enter set name");
+					setName.setImmediate(true);
 
-            		});
+					Button addSet = new Button("Add Set", new ClickListener() {
 
-            		nameWindow.addComponent(setName);
-            		nameWindow.addComponent(addSet);
-            		getApplication().getMainWindow().addWindow(nameWindow);
-            		//selectedValues = null;
-            	}
-            }	 
-        });
-		
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void buttonClick(ClickEvent event) {
+
+							String setN = (String) setName.getValue();
+							if(setN != "") {
+
+								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+
+									getApplication().getMainWindow().removeWindow(nameWindow);
+
+								}
+							} else {
+
+								getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
+										Notification.TYPE_ERROR_MESSAGE );
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						}
+
+					});
+
+					nameWindow.addComponent(setName);
+					nameWindow.addComponent(addSet);
+					getApplication().getMainWindow().addWindow(nameWindow);
+					//selectedValues = null;
+				}
+			}	 
+		});
+
 		Tab t1 = addTab(markerTable);
 		t1.setCaption("Makers");
 		t1.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
-		
+
 		arrayTable = new Table();
 		arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
 		arrayTable.setSizeFull();
@@ -226,200 +226,208 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		arrayTable.setMultiSelect(true);
 		arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 		arrayTable.addListener(new Table.ValueChangeListener() {
-        
+
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(ValueChangeEvent event) {
-      
+
 				String value = (event.getProperty().getValue()).toString();
 				setType = "Microarray";
-                setSelectedValues(value);
-                
-            }
+				setSelectedValues(value);
 
-        });
-		
+			}
+
+		});
+
 		arrayTable.addActionHandler(new Action.Handler() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public Action[] getActions(Object target, Object sender) {
-				
-            	return ACTIONS_CREATE;
-                
-            }
-            public void handleAction(Action action, Object sender, Object target) {
 
-            	if(selectedValues == null) {
+				return ACTIONS_CREATE;
 
-            		getApplication().getMainWindow().showNotification("Please select atleast one phenotype",  
-            				Notification.TYPE_ERROR_MESSAGE );
+			}
+			public void handleAction(Action action, Object sender, Object target) {
 
-            	} else {
-            		
-            		final Window nameWindow = new Window();
-	            	nameWindow.setModal(true);
-	            	nameWindow.setClosable(true);
-	            	nameWindow.setWidth("300px");
-	            	nameWindow.setHeight("150px");
-	            	nameWindow.setResizable(false);
-	            	nameWindow.setCaption("Add Phenotypes to Set");
-	            	nameWindow.setImmediate(true);
-	            	
-	            	final TextField setName = new TextField();
-	            	setName.setInputPrompt("Please enter set name");
-	            	setName.setImmediate(true);
-	            	
-	            	Button addSet = new Button("Add Set", new ClickListener() {
+				if(selectedValues == null) {
 
-	            		private static final long serialVersionUID = 1L;
+					getApplication().getMainWindow().showNotification("Please select atleast one phenotype",  
+							Notification.TYPE_ERROR_MESSAGE );
 
-	            		@Override
-	            		public void buttonClick(ClickEvent event) {
+				} else {
 
-	            			String setN = (String) setName.getValue();
-	            			if(setN != "") {
+					final Window nameWindow = new Window();
+					nameWindow.setModal(true);
+					nameWindow.setClosable(true);
+					nameWindow.setWidth("300px");
+					nameWindow.setHeight("150px");
+					nameWindow.setResizable(false);
+					nameWindow.setCaption("Add Phenotypes to Set");
+					nameWindow.setImmediate(true);
 
-	            				if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+					final TextField setName = new TextField();
+					setName.setInputPrompt("Please enter set name");
+					setName.setImmediate(true);
 
-	            					getApplication().getMainWindow().removeWindow(nameWindow);
-	            				
-	            				}
-	            			} else {
+					Button addSet = new Button("Add Set", new ClickListener() {
 
-	            				getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
-	            						Notification.TYPE_ERROR_MESSAGE );
-	            				getApplication().getMainWindow().removeWindow(nameWindow);
-	            			}
-            					            				
-	            		}
+						private static final long serialVersionUID = 1L;
 
-	            	});
+						@Override
+						public void buttonClick(ClickEvent event) {
 
-            		nameWindow.addComponent(setName);
-            		nameWindow.addComponent(addSet);
-            		getApplication().getMainWindow().addWindow(nameWindow);
-            		//selectedValues = null;
-            	}
-            }	 
-        });
+							String setN = (String) setName.getValue();
+							if(setN != "") {
+
+								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+
+									getApplication().getMainWindow().removeWindow(nameWindow);
+
+								}
+							} else {
+
+								getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
+										Notification.TYPE_ERROR_MESSAGE );
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+
+						}
+
+					});
+
+					nameWindow.addComponent(setName);
+					nameWindow.addComponent(addSet);
+					getApplication().getMainWindow().addWindow(nameWindow);
+					//selectedValues = null;
+				}
+			}	 
+		});
 		Tab t2 = addTab(arrayTable);
 		t2.setCaption("Phenotypes");
 		t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
-		
+
 	}
-	
+
 
 	protected void setSelectedValues(String value) {
-		
+
 		this.selectedValues = value;
-	
+
 	}
 
 	@Override
 	public void buttonClick(ClickEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void valueChange(ValueChangeEvent event) {
-		
-		VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
-		menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
-		menuPanel.setImmediate(true);
-		menuPanel.setLocked(true);
-		menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
-		
-		UMenuBar toolBar 	= 	UMenuBar.getMenuBarObject();
-		toolBar.setImmediate(true);
-		
-		menuPanel.setFirstComponent(toolBar);
-		
-		String dataPeru					= 	(String) event.getProperty().getValue();
-		String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		try {
 
-		parameters.put("name", dataPeru);
-		parameters.put("owner", user.getId());
+			if((String) event.getProperty().getValue() != null ) {
 
-		DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-		if(dataSet != null) {
-			/*
-			 * if this is a dataSet
-			 */
+				VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
+				menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+				menuPanel.setImmediate(true);
+				menuPanel.setLocked(true);
+				menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
 
-			dataSetId 					=	dataSet.getId();
-			byte[] dataByte 			= 	dataSet.getData();
-			maSet 						= 	(DSMicroarraySet) toObject(dataByte);
-			
-			if(maSet.getAnnotationFileName() != null){
-			
-				File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-				AnnotationParser.loadAnnotationFile(maSet, annotFile);
-				
-			}
-			
-			
-			markerTable.setContainerDataSource(markerTableView(maSet));
-			arrayTable.setContainerDataSource(arrayTableView(maSet));
+				UMenuBar toolBar 	= 	UMenuBar.getMenuBarObject();
+				toolBar.setImmediate(true);
 
-			VerticalSplitPanel splitDataPanel = new VerticalSplitPanel();
-			
-			splitDataPanel.setSplitPosition(25);
-			splitDataPanel.setImmediate(true);
-			splitDataPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+				menuPanel.setFirstComponent(toolBar);
 
-			USetsTabSheet setsTabSheet		= 	new USetsTabSheet(maSet); 
-			UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
-			
-			menuPanel.setSecondComponent(tabSheet);
-			
-			splitDataPanel.setFirstComponent(setsTabSheet);
-			splitDataPanel.setSecondComponent(menuPanel);
-			
-			
-			UMainLayout.setMainPanelSecondComponent(splitDataPanel);
+				String dataPeru					= 	(String) event.getProperty().getValue();
+				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
+				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-		} else {
+				parameters.put("name", dataPeru);
+				parameters.put("owner", user.getId());
 
-			String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-			Map<String, Object> params 			= 	new HashMap<String, Object>();
+				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-			params.put("name", dataPeru);
-			params.put("owner", user.getId());
+				if(dataSet != null) {
+					/*
+					 * if this is a dataSet
+					 */
 
-			ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
-			if(resultSet != null) {
-				
-				byte[] dataByte 					= 	resultSet.getData();
-				UVisualPlugin tabSheet = null;
-			
-				if(resultSet.getType().equalsIgnoreCase("CNKB")) {
-					
-					@SuppressWarnings("unchecked")
-					Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
-					tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
-					
-				}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
-					
-					CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
-					tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
-					
-				}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
-					
-					AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) toObject(dataByte);
-					tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
-					
+					dataSetId 					=	dataSet.getId();
+					byte[] dataByte 			= 	dataSet.getData();
+					maSet 						= 	(DSMicroarraySet) toObject(dataByte);
+
+					if(maSet.getAnnotationFileName() != null){
+
+						File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+						AnnotationParser.loadAnnotationFile(maSet, annotFile);
+
+					}
+
+
+					markerTable.setContainerDataSource(markerTableView(maSet));
+					arrayTable.setContainerDataSource(arrayTableView(maSet));
+
+					UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+
+					USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+
+					menuPanel.setSecondComponent(tabSheet);
+					UMainLayout.setMainPanelSecondComponent(menuPanel);
+
+				} else {
+
+					String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+					Map<String, Object> params 			= 	new HashMap<String, Object>();
+
+					params.put("name", dataPeru);
+					params.put("owner", user.getId());
+
+					ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+					if(resultSet != null) {
+
+						byte[] dataByte 					= 	resultSet.getData();
+						UVisualPlugin tabSheet = null;
+
+						if(resultSet.getType().equalsIgnoreCase("CNKB")) {
+
+							@SuppressWarnings("unchecked")
+							Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
+							tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
+
+						}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
+
+							CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
+							tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
+
+						}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
+
+							AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) toObject(dataByte);
+							tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+
+						}
+
+						menuPanel.setSecondComponent(tabSheet);
+						UMainLayout.setMainPanelSecondComponent(menuPanel);
+					}
 				}
-			
-				menuPanel.setSecondComponent(tabSheet);
-				UMainLayout.setMainPanelSecondComponent(menuPanel);
-			}
-		}
 
-		UMainLayout.mainPanelRequestRepaint();		
+				UMainLayout.mainPanelRequestRepaint();		
+
+			}else {
+				
+				USetsTabSheet.getSetsTabSheetObject().removeData();
+				CustomLayout welcome = new CustomLayout("welcome");
+				welcome.setSizeFull();
+				UMainLayout.setMainPanelSecondComponent(welcome);
+				
+			}
+		}catch(Exception e) {
+			
+			//USetsTabSheet.getSetsTabSheetObject().removeData();
+
+		}
 	}
 
 
@@ -428,20 +436,20 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	 * @param maSet
 	 * @return - Indexed container with array labels
 	 */
-	
+
 	private Container arrayTableView(DSMicroarraySet maSet) {
-		
+
 		IndexedContainer tableData 		= 	new IndexedContainer();
 
-			for(int k=0;k<maSet.size();k++) {
-				
-					Item item 					= 	tableData.addItem(k);
-					tableData.addContainerProperty("Labels", String.class, null);
-					item.getItemProperty("Labels").setValue(maSet.get(k));
-					 
-			}
-		
-		
+		for(int k=0;k<maSet.size();k++) {
+
+			Item item 					= 	tableData.addItem(k);
+			tableData.addContainerProperty("Labels", String.class, null);
+			item.getItemProperty("Labels").setValue(maSet.get(k));
+
+		}
+
+
 		return tableData;
 	}
 
@@ -450,22 +458,22 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 	 * @param maSet
 	 * @return - Indexed container with marker labels
 	 */
-	
+
 	private IndexedContainer markerTableView(DSMicroarraySet maSet) {
 
 		IndexedContainer tableData 		= 	new IndexedContainer();
 
 		for(int j=0; j<maSet.getMarkers().size();j++) {
-			
+
 			Item item 					= 	tableData.addItem(j);
-			
+
 			for(int k=0;k<=maSet.size();k++) {
-				
+
 				if(k == 0) {
-					
+
 					tableData.addContainerProperty("Labels", String.class, null);
 					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j));
-					
+
 				} 
 			}
 		}
@@ -476,40 +484,40 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 	@SuppressWarnings("deprecation")
 	public Object toObject(byte[] bytes){ 
-		
+
 		Object object = null; 
-		
+
 		try{ 
-			
+
 			object = new java.io.ObjectInputStream(new 
 					java.io.ByteArrayInputStream(bytes)).readObject(); 
-		
+
 		}catch(java.io.IOException ioe){ 
-			
+
 			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
 					ioe.getMessage()); 
-		
+
 		}catch(java.lang.ClassNotFoundException cnfe){ 
-			
+
 			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
 					cnfe.getMessage()); 
-		
+
 		} 
-		
+
 		return object; 
-	
+
 	}
-	
+
 	@Override
 	public Action[] getActions(Object target, Object sender) {
-		
+
 		return ACTIONS;
-	
+
 	}
 
 	@Override
 	public void handleAction(Action action, Object sender, Object target) {
-		
+
 		if (action == ACTION_DELETE) {
 
 			String dataName 				=	(target.toString());
@@ -521,15 +529,15 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			parameters.put("owner", user.getId());
 
 			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-			
+
 			CustomLayout welcome = new CustomLayout("welcome");
 			welcome.setSizeFull();
-			
+
 			if(dataSet != null) {
 
 				FacadeFactory.getFacade().delete(dataSet);
 				dataTree.removeItem(target);
-				
+
 
 			} else {
 
@@ -541,12 +549,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 				ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
 				FacadeFactory.getFacade().delete(resultSet);
 				dataTree.removeItem(target);
-				
+
 
 			}
-			
+
 			UMainLayout.setMainPanelSecondComponent(welcome);
-			
+
 		}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
 			String dataPeru					= 	(target.toString());
@@ -565,17 +573,17 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 				byte[] dataByte 			= 	dataSet.getData();
 				DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
-				
+
 				if(maSet.getAnnotationFileName() != null){
-					
+
 					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
 					AnnotationParser.loadAnnotationFile(maSet, annotFile);
-					
+
 				}
 
 				markerTable.setContainerDataSource(markerTableView(maSet));
 				arrayTable.setContainerDataSource(arrayTableView(maSet));
-				
+
 				if(action == ACTION_ANALYZE) {
 					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
 					UMainLayout.setMainPanelSecondComponent(tabSheet);
@@ -583,68 +591,68 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
 					UMainLayout.setMainPanelSecondComponent(tabSheet);
 				}
-			
+
 			}else {
-				
+
 				getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis",  
 						Notification.TYPE_ERROR_MESSAGE );
-				
+
 			}
-			
+
 		}else if(action == ACTION_NORMALIZE) {
-			
+
 			getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!",  
 					Notification.TYPE_ERROR_MESSAGE );
-			
+
 		}else if(action == ACTION_FILTER) {
-			
+
 			getApplication().getMainWindow().showNotification("No filters are implemented yet !!",  
 					Notification.TYPE_ERROR_MESSAGE );
-			
+
 		}
-		
+
 	}
-	
+
 	public static HierarchicalContainer getDataContainer() {
-		
+
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		
+
 		parameters.put("owner", userId);
 		String whereClause = "p.owner = :owner";
 		List<?> data = FacadeFactory.getFacade().getFieldValues(DataSet.class, "name", whereClause, parameters);
-		
+
 		for(int i=0; i<data.size(); i++) {
-			
+
 			String id = (String) data.get(i);
-		    dataSets.addItem(id);
-		    
-		    Map<String, Object> params 	= 	new HashMap<String, Object>();
-		    params.put("owner", userId);
-		    params.put("parent", id);
-		    String wClause = "p.owner = :owner and p.parent = :parent" ;
-		    List<?> results = FacadeFactory.getFacade().getFieldValues(ResultSet.class, "name", wClause, params);
-		    
-		    for(int j=0; j<results.size(); j++) {
-		    	
-		    	String subId = (String) results.get(j);
-		    	dataSets.addItem(subId);
-		    	dataSets.setChildrenAllowed(subId, false);
-		    	dataSets.setParent(subId, id);
-		    	
-		    }
-		 
+			dataSets.addItem(id);
+
+			Map<String, Object> params 	= 	new HashMap<String, Object>();
+			params.put("owner", userId);
+			params.put("parent", id);
+			String wClause = "p.owner = :owner and p.parent = :parent" ;
+			List<?> results = FacadeFactory.getFacade().getFieldValues(ResultSet.class, "name", wClause, params);
+
+			for(int j=0; j<results.size(); j++) {
+
+				String subId = (String) results.get(j);
+				dataSets.addItem(subId);
+				dataSets.setChildrenAllowed(subId, false);
+				dataSets.setParent(subId, id);
+
+			}
+
 		}
-		
-	    return dataSets;
-	
+
+		return dataSets;
+
 	}
 
 	public static void resetDataContainer() {
-		
+
 		dataTree.removeAllItems();
 		dataTree.setContainerDataSource(getDataContainer());
-		
+
 	}
 
 }
