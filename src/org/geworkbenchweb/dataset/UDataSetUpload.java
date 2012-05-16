@@ -15,7 +15,7 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class UDataSetUpload extends Window {
     
-    private static final String[] files		= 	new String[] { "Expression File", "GEO SOFT File", "FASTA File", "PDB File", "MAGE-TAB File"};
+    private static final String[] files		= 	new String[] { "Expression File" };
     private static final String initialText = 	"Enter description here.";
    
     private VerticalLayout dataLayout; 
