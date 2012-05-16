@@ -329,14 +329,16 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				save.addSeparator();
 				
 				final MenuBar.MenuItem table = save.addItem("TableData As", null);
-				table.addItem("Excel Sheet", null);
-				table.addItem("CSV File", null);
+				table.addItem("Excel Sheet", cnkbTableExport);
+				table.addItem("CSV File", cnkbTableExport);
 				
 			}
 			
 			
 		}catch (Exception e) {
+			
 			//TODO
+			
 		}
 		
 	}
@@ -359,6 +361,24 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				csvExport.excludeCollapsedColumns();
 				csvExport.setExportFileName("MicroarrayTableData.csv");
 				csvExport.export();
+			
+			}
+		}
+	};
+	
+	private Command cnkbTableExport = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		public void menuSelected(MenuItem selectedItem) {
+			
+			if(selectedItem.getText().equalsIgnoreCase("Excel Sheet")) {
+			
+				UCNKBTab.exportInteractionTable("excel");
+			
+			}else {
+
+				UCNKBTab.exportInteractionTable("csv");
 			
 			}
 		}
