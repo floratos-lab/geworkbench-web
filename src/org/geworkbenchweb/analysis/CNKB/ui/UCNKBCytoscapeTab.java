@@ -37,29 +37,29 @@ public class UCNKBCytoscapeTab extends VerticalLayout {
 					
 					if(edges.isEmpty()) {
 						
-						edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						edges.add(cellular.getdSGeneMarker().getGeneName() + "," + interaction.getdSGeneName());
 					
-					}else if(!edges.contains(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2())){
+					}else if(!edges.contains(cellular.getdSGeneMarker().getGeneName() + "," + interaction.getdSGeneName())){
 						
-						edges.add(interaction.getdSGeneName1() + "," + interaction.getdSGeneName2());
+						edges.add(cellular.getdSGeneMarker().getGeneName() + "," + interaction.getdSGeneName());
 					}
 					
 					if(nodes.isEmpty()) {
 
-						nodes.add(interaction.getdSGeneName1());
-						nodes.add(interaction.getdSGeneName2());
+						nodes.add(cellular.getdSGeneMarker().getGeneName());
+						nodes.add(interaction.getdSGeneName());
 
 					} else { 
 
-						if(!nodes.contains(interaction.getdSGeneName1())) {
+						if(!nodes.contains(cellular.getdSGeneMarker().getGeneName())) {
 
-							nodes.add(interaction.getdSGeneName1());
+							nodes.add(cellular.getdSGeneMarker().getGeneName());
 
 						}
 
-						if(!nodes.contains(interaction.getdSGeneName2())) {
+						if(!nodes.contains(interaction.getdSGeneName())) {
 
-							nodes.add(interaction.getdSGeneName2());
+							nodes.add(interaction.getdSGeneName());
 
 						}
 					}

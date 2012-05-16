@@ -77,11 +77,13 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		} else if(dataType.equalsIgnoreCase("CNKB")) {
 
+			System.out.println("Nikhil");
+			
 			@SuppressWarnings("unchecked")
 			Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) dataSet;
-			UCNKBTab cnkbTab 								= 	new UCNKBTab(hits);
+			//UCNKBTab cnkbTab 								= 	new UCNKBTab(hits);
 
-			addTab(cnkbTab, "CNKB Results", null);		
+			//addTab(cnkbTab, "CNKB Results", null);		
 
 			/* Preparing data for cytoscape */
 			ArrayList<String> nodes = new ArrayList<String>();
@@ -94,17 +96,17 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
 					for(InteractionDetail interaction: interactions) {
 
-						String edge = interaction.getdSGeneMarker1() 
+						String edge = cellular.getdSGeneMarker().getGeneName() 
 								+ ","
-								+ interaction.getdSGeneMarker2();
+								+ interaction.getdSGeneName();
 
-						String node1 = 	interaction.getdSGeneMarker1()
+						String node1 = 	cellular.getdSGeneMarker().getGeneName()
 								+ ","
-								+ interaction.getdSGeneName1();
+								+ cellular.getdSGeneMarker().getGeneName();
 
-						String node2 =	interaction.getdSGeneMarker2()
+						String node2 =	interaction.getdSGeneName()
 								+ ","
-								+ interaction.getdSGeneName2();
+								+ interaction.getdSGeneName();
 
 						if(edges.isEmpty()) {
 
@@ -137,8 +139,10 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 					}
 
+					System.out.println("Nikhil");
 				}catch (Exception e) {
 
+					e.printStackTrace();
 					//TODO: Handle Null pointer exception
 				}
 			}	

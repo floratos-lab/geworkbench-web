@@ -12,7 +12,6 @@ import com.vaadin.ui.VerticalLayout;
  * @author Nikhil
  *
  */
-
 public class UAracneCytoscapeTab extends VerticalLayout {
 
 
@@ -28,12 +27,12 @@ public class UAracneCytoscapeTab extends VerticalLayout {
 		
 		for(int i=0; i<adjMatrix.getMatrix().getEdges().size(); i++) {
 			
-			String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel() 
+			String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName() 
 									+ "," 
-									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
+									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName();
 			
-			String node1 	= adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel(); 
-			String node2 	= adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel()   ; 
+			String node1 	= adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName(); 
+			String node2 	= adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName(); 
 			
 			
 			if(edges.isEmpty()) {
