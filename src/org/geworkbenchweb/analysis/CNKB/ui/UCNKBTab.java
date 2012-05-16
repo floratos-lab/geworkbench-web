@@ -23,6 +23,7 @@ import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -57,6 +58,8 @@ public class UCNKBTab extends VerticalLayout {
 	
 	private static UCNKBTab menuBarInstance;
 	
+	private static Table dataTable;
+	
 	public static UCNKBTab getCNKBTabObject() {
 		
 		return menuBarInstance;
@@ -75,7 +78,7 @@ public class UCNKBTab extends VerticalLayout {
 		tabPanel.setLocked(false);
 		
 		/* Results Table Code */
-		Table dataTable = new Table();
+		dataTable = new Table();
 		dataTable.setColumnCollapsingAllowed(true);
 		dataTable.setColumnReorderingAllowed(true);
 		dataTable.setSizeFull();
@@ -321,6 +324,9 @@ public class UCNKBTab extends VerticalLayout {
 		return points;
 	}
 	
+	/**
+	 * Called to Export SVG of the Throttle Graph
+	 */
 	public void plotExportSVG() {
 
 		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
@@ -337,10 +343,34 @@ public class UCNKBTab extends VerticalLayout {
 
 	}
 
+	/**
+	 * Used to print the Throttle Graph of the CNKB Component
+	 */
 	public void plotPrint() {
 
 		plot.print();
 
 	}
 	
+	/**
+	 * Called to export Table to Excel sheet or CSV
+	 */
+	public static void exportInteractionTable(String format) {
+		
+		if(format.equalsIgnoreCase("excel")) {
+			
+			ExcelExport excelExport = new ExcelExport(dataTable);
+			excelExport.excludeCollapsedColumns();
+			excelExport.export();
+			
+		}else {
+			
+			CsvExport csvExport = new CsvExport(dataTable);
+			csvExport.excludeCollapsedColumns();
+			csvExport.setExportFileName("MicroarrayTableData.csv");
+			csvExport.export();
+		
+		}
+		
+	}
 }
