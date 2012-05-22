@@ -94,25 +94,24 @@ public class UCNKBTab extends VerticalLayout {
 			if(interactionDetail != null) {
 				
 				
-				
+		
 				for(InteractionDetail interaction : interactionDetail) {
-					
-					System.out.println(interaction.getConfidenceTypes().get(0));
-				/*	interactionConfidence.add(interaction.getConfidenceValue());
+									
+					interactionConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
 					
 					if(interaction.getInteractionType().equalsIgnoreCase("protein-protein")) {
 					
-						ppConfidence.add(interaction.getConfidence());
+						ppConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
 						
 					}else if(interaction.getInteractionType().equalsIgnoreCase("protein-dna")) {
 						
-						pdnaConfidence.add(interaction.getConfidence());
+						pdnaConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
 						
 					}else if(interaction.getInteractionType().equalsIgnoreCase("modulator-TF")) {
 						
-						mtfConfidence.add(interaction.getConfidence());
+						mtfConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
 						
-					}*/	
+					}	
 				}
 			}	
 			HashMap<String, Integer> interactionNumMap = hits.get(j).getInteractionNumMap();

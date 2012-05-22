@@ -310,7 +310,6 @@ public class Visualization extends JavaScriptObject{
 		return this.png();
 	}-*/;
 	
-	
 	public final native void ready(ReadyCallback callback)/*-{
 		var fn = @org.geworkbenchweb.visualizations.client.ui.Visualization::wrap(Lorg/geworkbenchweb/visualizations/client/ui/ReadyCallback;)(callback);
 		this.ready(fn);
@@ -587,29 +586,42 @@ public class Visualization extends JavaScriptObject{
 		var edgeVisualStyle		=	new $wnd.Object();
 		var edgeSchema			=	$wnd.eval("new Array()");
 		var globalVisualStyle	= 	new $wnd.Object();
+		var nodeColor			=	new $wnd.Object();
+		var nodeMapper			=	new $wnd.Object();
+		var nodeEntries			=	$wnd.eval("new Array()");
+		
+		var network_json 	= 	new $wnd.Object(); 
+		var Schema			=	new $wnd.Object();
+		
+		nodeSchema[0]		= 	new $wnd.Object();
+		nodeSchema[0].name 	= 	"label";
+		nodeSchema[0].type	=	"string"; 
+		
+		nodeSchema[1]		= 	new $wnd.Object();
+		nodeSchema[1].name 	= 	"source";
+		nodeSchema[1].type	=	"string"; 
+				
+		edgeSchema[0]		=	new $wnd.Object();
+		edgeSchema[0].name	= 	"directed";
+		edgeSchema[0].type	=	"boolean";
+		
+		Schema.nodes 	= 	nodeSchema;
+		Schema.edges	=	edgeSchema;
+		
+		network_json.dataSchema = Schema;
 		
 		globalVisualStyle.backgroundColor = "#ffffff";
 		
-		nodeVisualStyle.shape = "OCTAGON";
-		nodeVisualStyle.borderWidth = 1;
-		nodeVisualStyle.labelHorizontalAnchor =  "center";
-		nodeVisualStyle.size = 32;
-		
-		edgeVisualStyle.color = "#aaaaff";
-		
-		visualStyle.global 	= 	globalVisualStyle;
-		visualStyle.nodes 	= 	nodeVisualStyle;
-		visualStyle.edges	=	edgeVisualStyle;
-	
 		for (i=0;i<javaNodes.length;i++)
 		{
 			realNodes[i] 		= 	new $wnd.Object();
 			
-			var sn 	= $wnd.eval("new Array()");;
-			sn = javaNodes[i].split(",");
+			var sn 	= $wnd.eval("new Array()");
+			sn 		= javaNodes[i].split(",");
 			
 			realNodes[i].id		=	sn[0];
 			realNodes[i].label	=	sn[1];
+			realNodes[i].source =	sn[2];
 	
 		}
 	
@@ -626,23 +638,32 @@ public class Visualization extends JavaScriptObject{
 			realEdges[j].directed = true;
 	
 		}
+		
+		nodeColor.discreteMapper	=	nodeMapper;
+		
+		nodeEntries[0]				=	new $wnd.Object();
+		nodeEntries[0].attrValue	=	"0";
+		nodeEntries[0].value  		=	"#ffc31e";
+		
+		nodeEntries[1]				=	new $wnd.Object();
+		nodeEntries[1].attrValue	=	"1";
+		nodeEntries[1].value  		=	"#0B94B1";
+		
+		nodeMapper.attrName			=	"source";
+		nodeMapper.entries			=	nodeEntries;
+		
+		edgeVisualStyle.color = "#93b10a";
+		
+		nodeVisualStyle.borderWidth = 1;
+		nodeVisualStyle.labelHorizontalAnchor =  "center";
+		nodeVisualStyle.shape = "OCTAGON";
+		nodeVisualStyle.size = 38;
+		nodeVisualStyle.color 		= 	nodeColor;
+		
+		visualStyle.global 	= 	globalVisualStyle;
+		visualStyle.nodes 	= 	nodeVisualStyle;
+		visualStyle.edges	=	edgeVisualStyle;
 	
-		var network_json 	= 	new $wnd.Object(); 
-		var Schema			=	new $wnd.Object();
-		
-		nodeSchema[0]		= 	new $wnd.Object();
-		nodeSchema[0].name 	= 	"label";
-		nodeSchema[0].type	=	"string";
-		
-		edgeSchema[0]		=	new $wnd.Object();
-		edgeSchema[0].name	= 	"directed";
-		edgeSchema[0].type	=	"boolean";
-		
-		Schema.nodes 	= 	nodeSchema;
-		Schema.edges	=	edgeSchema;
-		
-		network_json.dataSchema = Schema;
-		
 		network_json.data = {
 			"nodes": realNodes,
 			"edges": realEdges
@@ -652,9 +673,16 @@ public class Visualization extends JavaScriptObject{
 		toDraw.network = network_json;
 		toDraw.layout = "ForceDirected";
 		toDraw.visualStyle = visualStyle;
-		
-		this.draw(toDraw);
 	
+		this.draw(toDraw);
+		
+	
+	}-*/;
+
+	public final native String export(String png)  /*-{
+		png = this.png();
+		return png;
+		alert("Nikhil");
 	}-*/;
 	
 }

@@ -5,11 +5,16 @@ import org.geworkbenchweb.visualizations.client.ui.Visualization;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.terminal.gwt.client.VConsole;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.server.Base64Utils;
 
 /**
  * Client side widget which communicates with the server. Messages from the
@@ -28,6 +33,10 @@ public class VCytoscape extends Widget implements Paintable {
 	
 	/** DIV place holder which will be replaced by cytoscape flash object */
 	private Element placeholder;
+	
+	private String networkPNG;
+	
+	private Visualization vis;
 	
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -57,14 +66,24 @@ public class VCytoscape extends Widget implements Paintable {
 		String[] nodes = new String[uidl.getStringArrayVariable("nodes").length];
 		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
 		
+		networkPNG 	= uidl.getStringVariable("networkPNG"); 
+		
 		nodes = uidl.getStringArrayVariable("nodes");
 		edges = uidl.getStringArrayVariable("edges");
 		
-		Visualization vis = Visualization.create(placeholder.getId());
-		vis.constructNetwork(wrapArray(nodes), wrapArray(edges));
+		
+		if(networkPNG == "true") {
+			
+			String dataPNG = null;
+			client.updateVariable(paintableId, "networkPNGData", vis.export(dataPNG), true);
+			
+		} else {
+			
+			
+			vis = Visualization.create(placeholder.getId());
+			vis.constructNetwork(wrapArray(nodes), wrapArray(edges));
+		}
 	}
-
-	
 
 	/**
 	 * Wraps a Java String Array to a JsArrayString for dev mode.
@@ -79,5 +98,10 @@ public class VCytoscape extends Widget implements Paintable {
 		}
 		return result;
 	}
-	
+
+	public void exportPNG(String data) {
+		
+		VConsole.log(data);
+		
+	}
 }

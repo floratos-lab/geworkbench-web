@@ -34,23 +34,25 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	private static final String MICROARRAY_TABLE_CAPTION 	= 	"Tabular Microarray Viewer";
 
 	private static final String MARKER_HEADER 				= 	"Marker";
-	
+
 	private static final String HEAT_MAP 					= 	"Heat Map";
-	
+
 	private static Table dataTable;
 
 	private DSMicroarraySet maSet;
-	
+
 	private UDataTab dataOp;
-	
+
 	private UHeatMap heatMap;
+	
+	private Cytoscape cy;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
 
 		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
-		
+
 		if(dataType.contentEquals("Expression File")) {
 
 			maSet 			= 	(DSMicroarraySet) dataSet;
@@ -58,32 +60,30 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			heatMap			=	new UHeatMap(maSet);
 			dataTable 		= 	new Table();
 
-			
+
 			dataOp.setCaption(DATA_OPERATIONS);
 			addTab(dataOp); 
-			
+
 			dataTable.setSizeFull();
 			dataTable.setImmediate(true);
 			dataTable.setCaption(MICROARRAY_TABLE_CAPTION);
 			dataTable.setContainerDataSource(tabularView(maSet));
 			dataTable.setColumnWidth(MARKER_HEADER, 150);
-			
+
 			addTab(dataTable);
-			
+
 			heatMap.setCaption(HEAT_MAP);
 			heatMap.setStyleName(Reindeer.LAYOUT_WHITE);
-			
+
 			addTab(heatMap);
 
 		} else if(dataType.equalsIgnoreCase("CNKB")) {
 
-			System.out.println("Nikhil");
-			
 			@SuppressWarnings("unchecked")
 			Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) dataSet;
-			//UCNKBTab cnkbTab 								= 	new UCNKBTab(hits);
+			UCNKBTab cnkbTab 								= 	new UCNKBTab(hits);
 
-			//addTab(cnkbTab, "CNKB Results", null);		
+			addTab(cnkbTab, "CNKB Results", null);		
 
 			/* Preparing data for cytoscape */
 			ArrayList<String> nodes = new ArrayList<String>();
@@ -93,62 +93,65 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 				try {
 
+
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
-					for(InteractionDetail interaction: interactions) {
 
-						String edge = cellular.getdSGeneMarker().getGeneName() 
-								+ ","
-								+ interaction.getdSGeneName();
+					if(interactions.length != 0) {
 
-						String node1 = 	cellular.getdSGeneMarker().getGeneName()
-								+ ","
-								+ cellular.getdSGeneMarker().getGeneName();
+						for(InteractionDetail interaction: interactions) {
 
-						String node2 =	interaction.getdSGeneName()
-								+ ","
-								+ interaction.getdSGeneName();
 
-						if(edges.isEmpty()) {
+							String edge = cellular.getdSGeneMarker().getGeneName() 
+									+ ","
+											+ interaction.getdSGeneName();
 
-							edges.add(edge);
+							String node1 = 	cellular.getdSGeneMarker().getGeneName()
+									+ ","
+									+ cellular.getdSGeneMarker().getGeneName()
+									+ ",1";
 
-						}else if(!edges.contains(edge)) {
+							String node2 =	interaction.getdSGeneName()
+									+ ","
+									+ interaction.getdSGeneName() 
+									+ ",0";
 
-							edges.add(edge);
-						}
+							if(edges.isEmpty()) {
 
-						if(nodes.isEmpty()) {
+								edges.add(edge);
 
-							nodes.add(node1);
-							nodes.add(node2);
+							}else if(!edges.contains(edge)) {
 
-						} else { 
+								edges.add(edge);
+							}
 
-							if(!nodes.contains(node1)) {
+							if(nodes.isEmpty()) {
 
 								nodes.add(node1);
-
-							}
-
-							if(!nodes.contains(node2)) {
-
 								nodes.add(node2);
 
+							} else { 
+
+								if(!nodes.contains(node1)) {
+
+									nodes.add(node1);
+
+								}
+
+								if(!nodes.contains(node2)) {
+
+									nodes.add(node2);
+
+								}
 							}
+
 						}
-
 					}
-
-					System.out.println("Nikhil");
 				}catch (Exception e) {
 
-					e.printStackTrace();
-					//TODO: Handle Null pointer exception
 				}
 			}	
 
-
-			Cytoscape cy = new Cytoscape();
+			cy = new Cytoscape();
 
 			cy.setImmediate(true);
 			cy.setSizeFull();
@@ -162,7 +165,8 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			cy.setNodes(nodeArray);
 			cy.setEdges(edgeArray);
-
+			cy.setNetwork("false");
+			
 			addTab(cy);
 
 		} else if(dataType.equalsIgnoreCase("Hierarchical Clustering")){
@@ -276,21 +280,21 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		return dataIn;
 
 	}
-	
+
 	public static void resetTableContainer(IndexedContainer data) {
-		
+
 		dataTable.removeAllItems();
 		dataTable.setContainerDataSource(data);
 		dataTable.setColumnWidth(MARKER_HEADER, 150);
-		
+
 	}
 
 	public static void resetOriginalView(DSMicroarraySet dSet) {
-		
+
 		dataTable.removeAllItems();
 		dataTable.setContainerDataSource(tabularView(dSet));
 		dataTable.setColumnWidth(MARKER_HEADER, 150);
-		
+
 	}
 
 	@Override
@@ -298,105 +302,119 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		UMenuBar menu = UMenuBar.getMenuBarObject();
 		menu.removeItems();
-		
+
 		try {
 			TabSheet tabsheet = event.getTabSheet();
 			Tab tab = tabsheet.getTab(tabsheet.getSelectedTab());
 			if (tab.getCaption().equalsIgnoreCase("Tabular Microarray Viewer")) {
-				 
-				 final MenuBar.MenuItem save = menu.addItem("Save As", null);
-				 save.addItem("Excel Sheet", exportTable);
-				 save.addItem("CSV File", exportTable);
-			
+
+				final MenuBar.MenuItem save = menu.addItem("Save As", null);
+				save.addItem("Excel Sheet", exportTable);
+				save.addItem("CSV File", exportTable);
+
 			}else if(tab.getCaption().equalsIgnoreCase("Data Operations")) {
-				
-	
+
+
 			}else if(tab.getCaption().equalsIgnoreCase("Heat Map")) {
-				
-				
+
+
 			}else if(tab.getCaption().equalsIgnoreCase("Cytoscape")) {
-				
+
 				final MenuBar.MenuItem save = menu.addItem("Save Network As", null);
 				save.addItem("SVG", null);
-				save.addItem("PNG", null);
+				save.addItem("PNG", exportCytoscape);
 				save.addItem("GraphML", null);
-				
+
 			}else if(tab.getCaption().equalsIgnoreCase("CNKB Results")) {
-				
+
 				final MenuBar.MenuItem save 	= 	menu.addItem("Save", null);
 				final MenuBar.MenuItem graph 	= 	save.addItem("Throttle Graph As", null);
-				
+
 				graph.addItem("SVG", exportGraph);
 				graph.addItem("PNG", null);
-				
+
 				menu.addItem("Print Graph", exportGraph);
 				save.addSeparator();
-				
+
 				final MenuBar.MenuItem table = save.addItem("TableData As", null);
 				table.addItem("Excel Sheet", cnkbTableExport);
 				table.addItem("CSV File", cnkbTableExport);
-				
+
 			}
-			
-			
+
+
 		}catch (Exception e) {
-			
+
 			//TODO
+
+		}
+
+	}
+	
+	
+	private Command exportCytoscape = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void menuSelected(MenuItem selectedItem) {
+			
+			cy.setNetwork("true");
 			
 		}
 		
-	}
-	
+	};
+
 	private Command exportTable = new Command() {
 
 		private static final long serialVersionUID = 1L;
 
 		public void menuSelected(MenuItem selectedItem) {
-			
+
 			if(selectedItem.getText().equalsIgnoreCase("Excel Sheet")) {
-			
+
 				ExcelExport excelExport = new ExcelExport(dataTable);
 				excelExport.excludeCollapsedColumns();
 				excelExport.export();
-			
+
 			}else {
-				
+
 				CsvExport csvExport = new CsvExport(dataTable);
 				csvExport.excludeCollapsedColumns();
 				csvExport.setExportFileName("MicroarrayTableData.csv");
 				csvExport.export();
-			
+
 			}
 		}
 	};
-	
+
 	private Command cnkbTableExport = new Command() {
 
 		private static final long serialVersionUID = 1L;
 
 		public void menuSelected(MenuItem selectedItem) {
-			
+
 			if(selectedItem.getText().equalsIgnoreCase("Excel Sheet")) {
-			
+
 				UCNKBTab.exportInteractionTable("excel");
-			
+
 			}else {
 
 				UCNKBTab.exportInteractionTable("csv");
-			
+
 			}
 		}
 	};
-	
+
 	private Command exportGraph = new Command() {
 
 		private static final long serialVersionUID = 1L;
 
 		public void menuSelected(MenuItem selectedItem) {
-			
+
 			System.out.println(selectedItem.getText());
 			if(selectedItem.getText().equalsIgnoreCase("SVG")) {
-			
+
 				UCNKBTab.plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
 
 					private static final long serialVersionUID = 1L;
@@ -408,11 +426,11 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 						chartSVGAvailableEvent.getSVG();
 					}
 				});
-			
+
 			}else {
-				
+
 				UCNKBTab.plot.print();
-				
+
 			}
 
 		}
