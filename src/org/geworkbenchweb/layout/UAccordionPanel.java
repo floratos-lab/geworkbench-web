@@ -53,9 +53,11 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 	private Table markerTable;
 
-	final Action ACTION_SUBSET 		= new Action("Create SubSet");
+	final Action ACTION_SUBSET 		= 	new Action("Create SubSet");
 
-	final Action[] ACTIONS_CREATE 	= new Action[] { ACTION_SUBSET };
+	final Action ACTION_LINKOUT		=	new Action("Link Out");
+
+	final Action[] ACTIONS_CREATE 	= 	new Action[] { ACTION_SUBSET, ACTION_LINKOUT };
 
 	private String setType;
 
@@ -162,56 +164,63 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			public void handleAction(Action action, Object sender, Object target) {
 
-				if(selectedValues == null) {
+				if(action == ACTION_LINKOUT) {
 
-					getApplication().getMainWindow().showNotification("Please select atleast one marker",  
-							Notification.TYPE_ERROR_MESSAGE );
+					getApplication().getMainWindow().addWindow(new ULinkOutWindow("Nikhil"));
+					
+				}else {
+					if(selectedValues == null) {
 
-				} else {
+						getApplication().getMainWindow().showNotification("Please select atleast one marker",  
+								Notification.TYPE_ERROR_MESSAGE );
 
-					final Window nameWindow = new Window();
-					nameWindow.setModal(true);
-					nameWindow.setClosable(true);
-					nameWindow.setWidth("300px");
-					nameWindow.setHeight("150px");
-					nameWindow.setResizable(false);
-					nameWindow.setCaption("Add Markers to Set");
-					nameWindow.setImmediate(true);
+					} else {
 
-					final TextField setName = new TextField();
-					setName.setInputPrompt("Please enter set name");
-					setName.setImmediate(true);
+						final Window nameWindow = new Window();
+						nameWindow.setModal(true);
+						nameWindow.setClosable(true);
+						nameWindow.setWidth("300px");
+						nameWindow.setHeight("150px");
+						nameWindow.setResizable(false);
+						nameWindow.setCaption("Add Markers to Set");
+						nameWindow.setImmediate(true);
 
-					Button addSet = new Button("Add Set", new ClickListener() {
+						final TextField setName = new TextField();
+						setName.setInputPrompt("Please enter set name");
+						setName.setImmediate(true);
 
-						private static final long serialVersionUID = 1L;
+						Button addSet = new Button("Add Set", new ClickListener() {
 
-						@Override
-						public void buttonClick(ClickEvent event) {
+							private static final long serialVersionUID = 1L;
 
-							String setN = (String) setName.getValue();
-							if(setN != "") {
+							@Override
+							public void buttonClick(ClickEvent event) {
 
-								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+								String setN = (String) setName.getValue();
+								if(setN != "") {
 
-									USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+
+										USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+										getApplication().getMainWindow().removeWindow(nameWindow);
+
+									}
+								} else {
+
+									getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
+											Notification.TYPE_ERROR_MESSAGE );
 									getApplication().getMainWindow().removeWindow(nameWindow);
-
 								}
-							} else {
-
-								getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
-										Notification.TYPE_ERROR_MESSAGE );
-								getApplication().getMainWindow().removeWindow(nameWindow);
 							}
-						}
 
-					});
+						});
 
-					nameWindow.addComponent(setName);
-					nameWindow.addComponent(addSet);
-					getApplication().getMainWindow().addWindow(nameWindow);
-					//selectedValues = null;
+						nameWindow.addComponent(setName);
+						nameWindow.addComponent(addSet);
+						getApplication().getMainWindow().addWindow(nameWindow);
+						//selectedValues = null;
+
+					}
 				}
 			}	 
 		});
@@ -413,15 +422,15 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 				UMainLayout.mainPanelRequestRepaint();		
 
 			}else {
-				
+
 				USetsTabSheet.getSetsTabSheetObject().removeData();
 				CustomLayout welcome = new CustomLayout("welcome");
 				welcome.setSizeFull();
 				UMainLayout.setMainPanelSecondComponent(welcome);
-				
+
 			}
 		}catch(Exception e) {
-			
+
 			//USetsTabSheet.getSetsTabSheetObject().removeData();
 
 		}
