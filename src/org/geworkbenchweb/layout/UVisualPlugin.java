@@ -1,5 +1,10 @@
 package org.geworkbenchweb.layout;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -16,6 +21,7 @@ import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
+import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.MenuBar.Command;
@@ -44,7 +50,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	private UDataTab dataOp;
 
 	private UHeatMap heatMap;
-	
+
 	private Cytoscape cy;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
@@ -100,20 +106,18 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 						for(InteractionDetail interaction: interactions) {
 
-
+							
 							String edge = cellular.getdSGeneMarker().getGeneName() 
 									+ ","
-											+ interaction.getdSGeneName();
+									+ interaction.getdSGeneName();
 
 							String node1 = 	cellular.getdSGeneMarker().getGeneName()
 									+ ","
-									+ cellular.getdSGeneMarker().getGeneName()
-									+ ",1";
+									+ cellular.getdSGeneMarker().getGeneName();
 
 							String node2 =	interaction.getdSGeneName()
 									+ ","
-									+ interaction.getdSGeneName() 
-									+ ",0";
+									+ interaction.getdSGeneName();
 
 							if(edges.isEmpty()) {
 
@@ -124,26 +128,47 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 								edges.add(edge);
 							}
 
-							if(nodes.isEmpty()) {
+							if(node1 == node2) {
 
-								nodes.add(node1);
-								nodes.add(node2);
+								if(!nodes.contains(node1 + ",1")){
+									
+									nodes.add(node1+",1");
+									
+									if(nodes.contains(node1+",0")) {
+										nodes.remove(node1 + ",0");
+									}
+								
+								}else if(!nodes.contains(node1 + ",0")) {
+									
+									nodes.add(node1+",0");
+								}
+								
+							}else if(nodes.isEmpty()) {
+
+
+								nodes.add(node1 + ",1");
+								nodes.add(node2 + ",0");
 
 							} else { 
 
-								if(!nodes.contains(node1)) {
+								if(!nodes.contains(node1 + ",1")) {
 
-									nodes.add(node1);
+									nodes.add(node1 + ",1");
+									if(nodes.contains(node1+",0")) {
+										nodes.remove(node1 + ",0");
+									}
 
 								}
 
-								if(!nodes.contains(node2)) {
+								if(!nodes.contains(node2 + ",1")) {	
 
-									nodes.add(node2);
+									if(!nodes.contains(node2 + ",0")) {
 
+										nodes.add(node2 + ",0");
+
+									}
 								}
 							}
-
 						}
 					}
 				}catch (Exception e) {
@@ -166,7 +191,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			cy.setNodes(nodeArray);
 			cy.setEdges(edgeArray);
 			cy.setNetwork("false");
-			
+
 			addTab(cy);
 
 		} else if(dataType.equalsIgnoreCase("Hierarchical Clustering")){
@@ -231,7 +256,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			}
 
-			Cytoscape cy = new Cytoscape();
+			cy = new Cytoscape();
 			cy.setCaption("Cytoscape");
 			cy.setImmediate(true);
 			cy.setSizeFull();
@@ -317,13 +342,14 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			}else if(tab.getCaption().equalsIgnoreCase("Heat Map")) {
 
+				//final MenuBar.MenuItem save = menu.addItem("Save As", null);
+				//save.addItem("SVG", null);
 
 			}else if(tab.getCaption().equalsIgnoreCase("Cytoscape")) {
 
 				final MenuBar.MenuItem save = menu.addItem("Save Network As", null);
-				save.addItem("SVG", null);
-				save.addItem("PNG", exportCytoscape);
-				save.addItem("GraphML", null);
+				save.addItem("SVG", exportCytoscapeSVG);
+				save.addItem("PNG", exportCytoscapePNG);
 
 			}else if(tab.getCaption().equalsIgnoreCase("CNKB Results")) {
 
@@ -331,7 +357,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				final MenuBar.MenuItem graph 	= 	save.addItem("Throttle Graph As", null);
 
 				graph.addItem("SVG", exportGraph);
-				graph.addItem("PNG", null);
 
 				menu.addItem("Print Graph", exportGraph);
 				save.addSeparator();
@@ -350,19 +375,31 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		}
 
 	}
-	
-	
-	private Command exportCytoscape = new Command() {
+
+	private Command exportCytoscapeSVG = new Command() {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
-			
-			cy.setNetwork("true");
-			
+
+			cy.setNetworkSVG("true");
+
 		}
-		
+
+	};
+
+	private Command exportCytoscapePNG = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void menuSelected(MenuItem selectedItem) {
+
+			cy.setNetwork("true");
+
+		}
+
 	};
 
 	private Command exportTable = new Command() {
@@ -412,7 +449,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		public void menuSelected(MenuItem selectedItem) {
 
-			System.out.println(selectedItem.getText());
 			if(selectedItem.getText().equalsIgnoreCase("SVG")) {
 
 				UCNKBTab.plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
@@ -423,7 +459,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 					public void svgAvailable(
 							ChartSVGAvailableEvent chartSVGAvailableEvent) {
 
-						chartSVGAvailableEvent.getSVG();
+						exportSVG(chartSVGAvailableEvent.getSVG());
 					}
 				});
 
@@ -435,4 +471,58 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		}
 	};
+
+	@SuppressWarnings("unused")
+	private Command exportHeatMap = new Command() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void menuSelected(MenuItem selectedItem) {
+
+			UHeatMap.exportHeat();
+
+		}
+
+	};
+
+	public void exportSVG(String image) {
+
+		BufferedWriter fos = null;
+		File tempFile = null;
+		try {
+			tempFile 	= 	File.createTempFile("tmp", ".svg");
+			fos 		= 	new BufferedWriter(new FileWriter(tempFile));
+
+			fos.write(image);
+			fos.flush();  
+
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		finally {
+			if (fos != null) {
+				try {
+					fos.flush();
+					fos.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		String downloadFileName = "ThrottleGraph.svg";
+		String contentType = "image/svg+xml";
+		try {
+			TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(getApplication(), downloadFileName, contentType, tempFile);
+			getWindow().open(resource, "_self");
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

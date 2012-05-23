@@ -669,9 +669,16 @@ public class Visualization extends JavaScriptObject{
 			"edges": realEdges
 		};
 	
+		var layout 		= 	new $wnd.Object();
+		layout.name 	=	"ForceDirected";
+		var options		= 	new $wnd.Object();
+		options.autoautoStabilize = true;
+		
+		layout.options 	=	options;
+	
 		var toDraw = new $wnd.Object();
 		toDraw.network = network_json;
-		toDraw.layout = "ForceDirected";
+		toDraw.layout = layout;
 		toDraw.visualStyle = visualStyle;
 	
 		this.draw(toDraw);
@@ -684,4 +691,8 @@ public class Visualization extends JavaScriptObject{
 		return png;
 	}-*/;
 	
+	public final native String exportSVG(String svg)  /*-{
+		svg = this.svg();
+		return svg;
+	}-*/;
 }

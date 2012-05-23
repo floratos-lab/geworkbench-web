@@ -23,6 +23,8 @@ public class UHeatMap extends HorizontalLayout {
     private double intensity = 1.0;
     
     private transient Object lock = new Object();
+    
+    private static HeatMap heatMap;
 	
 	public UHeatMap(DSMicroarraySet dataSet) {
 		
@@ -68,7 +70,7 @@ public class UHeatMap extends HorizontalLayout {
 			}
 		}
 		
-		HeatMap heatMap = new HeatMap();
+		heatMap = new HeatMap();
 		heatMap.setColors(colors);
 		heatMap.setArrayLabels(arrayNames);
 		heatMap.setMarkerLabels(markerNames);
@@ -80,6 +82,11 @@ public class UHeatMap extends HorizontalLayout {
 		addComponent(heatMap);
 	}
 	
+	public static void exportHeat() {
+		
+		heatMap.setExportSVG("true");
+		
+	}
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {
 
 		//      intensity *= 2;

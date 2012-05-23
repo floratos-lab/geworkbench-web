@@ -5,16 +5,11 @@ import org.geworkbenchweb.visualizations.client.ui.Visualization;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.VConsole;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.server.Base64Utils;
 
 /**
  * Client side widget which communicates with the server. Messages from the
@@ -37,6 +32,8 @@ public class VCytoscape extends Widget implements Paintable {
 	private String networkPNG;
 	
 	private Visualization vis;
+	
+	private String networkSVG;
 	
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -67,6 +64,7 @@ public class VCytoscape extends Widget implements Paintable {
 		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
 		
 		networkPNG 	= uidl.getStringVariable("networkPNG"); 
+		networkSVG 	= uidl.getStringVariable("networkSVG"); 
 		
 		nodes = uidl.getStringArrayVariable("nodes");
 		edges = uidl.getStringArrayVariable("edges");
@@ -75,10 +73,16 @@ public class VCytoscape extends Widget implements Paintable {
 		if(networkPNG == "true") {
 			
 			String dataPNG = null;
+			client.updateVariable(paintableId, "networkPNG", "false", false);
 			client.updateVariable(paintableId, "networkPNGData", vis.export(dataPNG), true);
 			
-		} else {
+		} else if(networkSVG == "true") {
 			
+			String dataSVG = null;
+			client.updateVariable(paintableId, "networkSVG", "false", false);
+			client.updateVariable(paintableId, "networkSVGData", vis.exportSVG(dataSVG), true);
+		
+		}else {	
 			
 			vis = Visualization.create(placeholder.getId());
 			vis.constructNetwork(wrapArray(nodes), wrapArray(edges));
@@ -99,9 +103,4 @@ public class VCytoscape extends Widget implements Paintable {
 		return result;
 	}
 
-	public void exportPNG(String data) {
-		
-		VConsole.log(data);
-		
-	}
 }

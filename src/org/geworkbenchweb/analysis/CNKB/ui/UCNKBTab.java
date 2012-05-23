@@ -340,7 +340,7 @@ public class UCNKBTab extends VerticalLayout {
 			public void svgAvailable(
 					ChartSVGAvailableEvent chartSVGAvailableEvent) {
 
-				chartSVGAvailableEvent.getSVG();
+				System.out.println(chartSVGAvailableEvent.getSVG());
 			}
 		});
 
@@ -364,13 +364,14 @@ public class UCNKBTab extends VerticalLayout {
 			
 			ExcelExport excelExport = new ExcelExport(dataTable);
 			excelExport.excludeCollapsedColumns();
+			excelExport.setExportFileName("CNKBInteractions.xls");
 			excelExport.export();
 			
 		}else {
 			
 			CsvExport csvExport = new CsvExport(dataTable);
 			csvExport.excludeCollapsedColumns();
-			csvExport.setExportFileName("MicroarrayTableData.csv");
+			csvExport.setExportFileName("CNKBInteractions.csv");
 			csvExport.export();
 		
 		}

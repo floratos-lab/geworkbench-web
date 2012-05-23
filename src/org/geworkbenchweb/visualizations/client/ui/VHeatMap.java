@@ -56,7 +56,8 @@ public class VHeatMap extends Composite implements Paintable {
 	@SuppressWarnings("unused")
 	private String[] arrayLabels;
 
-
+	private String exportSVG;
+	
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
@@ -79,48 +80,57 @@ public class VHeatMap extends Composite implements Paintable {
 		}
 		this.client	= client;
 		paintableId = uidl.getId();
-		panel.clear();
+		
 
 		arrayNumber 			= 	uidl.getIntVariable("arrayNumber");
 		markerNumber 			=	uidl.getIntVariable("markerNumber");
 		colorArray 				=	uidl.getStringArrayVariable("color");
 		markerLabels			= 	uidl.getStringArrayVariable("markerLabels");
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
+		exportSVG				=	uidl.getStringVariable("exportSVG");
 		
-		/* Heat Map */
-		panel.add(new ProtovisWidget() {
-			protected void onAttach() {
-				super.onAttach();
+		if(exportSVG == "true") {
+		
+			client.updateVariable(paintableId, "exportSVG", "false", false);
+			client.updateVariable(paintableId, "svgdata", panel.getElement().getInnerHTML(), true);
+		
+		} else {
+			panel.clear();
+			/* Heat Map */
+			panel.add(new ProtovisWidget() {
+				protected void onAttach() {
+					super.onAttach();
 
-				initPVPanel();
-				final PVPanel vis = getPVPanel().width((arrayNumber*geneWidth)).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
-				
-				int topCordinate 	=  	0;
-				int leftCordinate	= 	0; 
-				
-				for(int i=0; i<colorArray.length; i++) {
-					if(i%arrayNumber == 0) {
-						if(i != 0) {
-							topCordinate 	= 	topCordinate + geneHeight;
-							leftCordinate 	=	0;
-						}	
-					} else {
+					initPVPanel();
+					final PVPanel vis = getPVPanel().width((arrayNumber*geneWidth)).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
 
-						leftCordinate = leftCordinate + geneWidth;
+					int topCordinate 	=  	0;
+					int leftCordinate	= 	0; 
 
+					for(int i=0; i<colorArray.length; i++) {
+						if(i%arrayNumber == 0) {
+							if(i != 0) {
+								topCordinate 	= 	topCordinate + geneHeight;
+								leftCordinate 	=	0;
+							}	
+						} else {
+
+							leftCordinate = leftCordinate + geneWidth;
+
+						}
+						@SuppressWarnings("unused")
+						PVBar bar = vis.add(PV.Bar)
+						.top(topCordinate)
+						.left(leftCordinate)
+						.height(geneHeight)
+						.width(geneWidth)
+						.fillStyle("#" + colorArray[i]);
 					}
-					@SuppressWarnings("unused")
-					PVBar bar = vis.add(PV.Bar)
-					.top(topCordinate)
-					.left(leftCordinate)
-					.height(geneHeight)
-					.width(geneWidth)
-					.fillStyle("#" + colorArray[i]);
+					getPVPanel().render();
 				}
-				getPVPanel().render();
-			}
-		}, 0, 0);
-				
-	}
+			}, 0, 0);
 
+
+		}
+	}
 }
