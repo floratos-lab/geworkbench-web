@@ -682,7 +682,6 @@ public class Visualization extends JavaScriptObject{
 	public final native String export(String png)  /*-{
 		png = this.png();
 		return png;
-		alert("Nikhil");
 	}-*/;
 	
 }
