@@ -165,9 +165,22 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			public void handleAction(Action action, Object sender, Object target) {
 
 				if(action == ACTION_LINKOUT) {
-
-					getApplication().getMainWindow().addWindow(new ULinkOutWindow("Nikhil"));
 					
+					if(selectedValues == null) {
+					
+						getApplication().getMainWindow().showNotification("Please select marker with Gene Name", 
+								Notification.TYPE_ERROR_MESSAGE );
+						
+					}else if(selectedValues.contains(",")) {
+						
+						getApplication().getMainWindow().showNotification("Please select only one marker with Gene Name", 
+								Notification.TYPE_ERROR_MESSAGE );
+						
+					}else {
+
+						int positionValue = Integer.parseInt(selectedValues.substring(1, 2));
+						getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
+					}
 				}else {
 					if(selectedValues == null) {
 
