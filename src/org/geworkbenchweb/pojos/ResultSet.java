@@ -1,5 +1,6 @@
 package org.geworkbenchweb.pojos;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -16,6 +17,8 @@ public class ResultSet extends AbstractPojo {
 	private String parent;
 	private String type;
 	private Long owner;
+	@Column(name = "DATE_FIELD")
+	private java.sql.Date date;
 	
 	
 	@Lob
@@ -60,6 +63,14 @@ public class ResultSet extends AbstractPojo {
 
 	public void setOwner(Long owner) {
 		this.owner = owner;
+	}
+
+	public java.sql.Date getDateField() {
+		return date;
+	}
+
+	public void setDateField(java.sql.Date dateField) {
+		this.date = dateField;
 	}
 	
 }

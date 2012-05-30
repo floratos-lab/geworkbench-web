@@ -49,7 +49,22 @@ public class AracneAnalysisWeb {
 		}
 		
 		p.setSubnet(new Vector<String>(hubGeneList));
-		p.setPvalue(0.01);
+		if(params.get(5).equalsIgnoreCase("Mutual Info")) {
+			
+			p.setThreshold(Double.valueOf(params.get(6).toString()));
+			
+		} else {
+			
+			p.setPvalue(Double.valueOf(params.get(6).toString()));
+			
+		}
+		if(params.get(8).equalsIgnoreCase("Apply")) {
+		
+			p.setEps(Double.valueOf(params.get(9).toString()));
+		
+		}
+		
+		
 		
 		if(params.get(1).equalsIgnoreCase("Complete")) {
 			p.setMode(Parameter.MODE.COMPLETE);
@@ -81,8 +96,9 @@ public class AracneAnalysisWeb {
 							.getMicroarraySet());
 			
 			ResultSet resultSet = 	new ResultSet();
-			java.util.Date date= new java.util.Date();
-			resultSet.setName("ARACne - " + date);
+			java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+			resultSet.setDateField(date);
+			resultSet.setName("ARACne - " + new java.util.Date());
 			resultSet.setType("ARACne");
 			resultSet.setParent(dataSet.getDataSetName());
 			resultSet.setOwner(SessionHandler.get().getId());	

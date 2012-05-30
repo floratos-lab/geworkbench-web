@@ -140,8 +140,13 @@ public class UMainLayout extends HorizontalLayout {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         
-        Button help 	=	new Button("Help");
-        help.setStyleName(Reindeer.BUTTON_SMALL);
+       // Button help 	=	new Button("Help");
+       // help.setStyleName(Reindeer.BUTTON_SMALL);
+
+
+        Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
+        help.setWidth(null);
+        
         buttons.addComponent(help);
         buttons.setComponentAlignment(help, "right");
         
@@ -155,7 +160,7 @@ public class UMainLayout extends HorizontalLayout {
 				getApplication().close();
 			}
         });
-        logout.setStyleName(Reindeer.BUTTON_SMALL);
+        //logout.setStyleName(Reindeer.BUTTON_SMALL);
         buttons.addComponent(logout);
         titleLayout.addComponent(buttons);
 

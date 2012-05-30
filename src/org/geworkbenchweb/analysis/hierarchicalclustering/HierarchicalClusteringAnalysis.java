@@ -3,7 +3,6 @@ package org.geworkbenchweb.analysis.hierarchicalclustering;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -62,8 +61,9 @@ public class HierarchicalClusteringAnalysis {
 				"Hierarchical Clustering", data);
 
 		ResultSet resultSet = 	new ResultSet();
-		java.util.Date date= new java.util.Date();
-		resultSet.setName("HC - " + date);
+		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		resultSet.setName("HC - " + new java.util.Date());
 		resultSet.setType("Hierarchical Clustering");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	

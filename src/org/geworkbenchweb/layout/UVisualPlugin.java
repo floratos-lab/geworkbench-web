@@ -52,9 +52,15 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	private UHeatMap heatMap;
 
 	private Cytoscape cy;
+	
+	private UClustergramTab dendrogramTab;
+	
+	private Object dataSet;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
-
+		
+		this.dataSet = dataSet;
+		
 		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
@@ -197,7 +203,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		} else if(dataType.equalsIgnoreCase("Hierarchical Clustering")){
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
-			UClustergramTab dendrogramTab 	= 	new UClustergramTab(results);
+			dendrogramTab 	= 	new UClustergramTab(results);
 
 			addTab(dendrogramTab, "Dendrogram", null);		
 
@@ -365,6 +371,11 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				table.addItem("Excel Sheet", cnkbTableExport);
 				table.addItem("CSV File", cnkbTableExport);
 
+			}else if(tab.getCaption().equalsIgnoreCase("Dendrogram")) {
+				
+				@SuppressWarnings("unused")
+				final MenuBar.MenuItem save 	= 	menu.addItem("Reset Dendrogram", resetDendrogram);
+
 			}
 
 
@@ -375,7 +386,25 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		}
 
 	}
+	
+	private Command resetDendrogram = new Command() {
 
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void menuSelected(MenuItem selectedItem) {
+			
+			removeComponent(dendrogramTab);
+
+			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
+			dendrogramTab 					= 	new UClustergramTab(results);
+
+			addTab(dendrogramTab, "Dendrogram", null);	
+
+		}
+
+	};
+	
 	private Command exportCytoscapeSVG = new Command() {
 
 		private static final long serialVersionUID = 1L;

@@ -236,6 +236,17 @@ public class UAracneParamForm extends Form {
 		tolerance.setCaption(" ");
 		tolerance.setValue(0.1);
 		tolerance.setNullSettingAllowed(false);
+		tolerance.addListener(new Property.ValueChangeListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				
+				params.remove(9);
+				params.add(9, valueChangeEvent.getProperty().getValue().toString());
+			}
+				
+		});
 		
 		dpiTolerance.setCaption("DPI Tolerance");
 		dpiTolerance.setImmediate(true);
@@ -254,7 +265,8 @@ public class UAracneParamForm extends Form {
 				} else {
 					tolerance.setEnabled(false);
 				}
-				
+				params.remove(8);
+				params.add(8, valueChangeEvent.getProperty().getValue().toString());
 			}
 		});
 		

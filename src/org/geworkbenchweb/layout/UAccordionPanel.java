@@ -168,12 +168,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					
 					if(selectedValues == null) {
 					
-						getApplication().getMainWindow().showNotification("Please select marker with Gene Name", 
+						getApplication().getMainWindow().showNotification("Select marker with Gene Name", 
 								Notification.TYPE_ERROR_MESSAGE );
 						
 					}else if(selectedValues.contains(",")) {
 						
-						getApplication().getMainWindow().showNotification("Please select only one marker with Gene Name", 
+						getApplication().getMainWindow().showNotification("Select marker only one marker", 
 								Notification.TYPE_ERROR_MESSAGE );
 						
 					}else {
@@ -444,7 +444,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			}
 		}catch(Exception e) {
 
-			//USetsTabSheet.getSetsTabSheetObject().removeData();
+			e.printStackTrace();
 
 		}
 	}
@@ -638,23 +638,22 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("owner", userId);
-		String whereClause = "p.owner = :owner";
-		List<?> data = FacadeFactory.getFacade().getFieldValues(DataSet.class, "name", whereClause, parameters);
+		
+		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
 
 		for(int i=0; i<data.size(); i++) {
 
-			String id = (String) data.get(i);
+			String id = ((DataSet) data.get(i)).getName();
 			dataSets.addItem(id);
 
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
 			params.put("owner", userId);
 			params.put("parent", id);
-			String wClause = "p.owner = :owner and p.parent = :parent" ;
-			List<?> results = FacadeFactory.getFacade().getFieldValues(ResultSet.class, "name", wClause, params);
+			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
 
 			for(int j=0; j<results.size(); j++) {
 
-				String subId = (String) results.get(j);
+				String subId = ((ResultSet) results.get(j)).getName();
 				dataSets.addItem(subId);
 				dataSets.setChildrenAllowed(subId, false);
 				dataSets.setParent(subId, id);

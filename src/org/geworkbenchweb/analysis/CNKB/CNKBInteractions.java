@@ -111,8 +111,9 @@ public class CNKBInteractions {
 		
 		
 		ResultSet resultSet = 	new ResultSet();
-		java.util.Date date= new java.util.Date();
-		resultSet.setName("CNKB - " + date);
+		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		resultSet.setName("CNKB - " + new java.util.Date());
 		resultSet.setType("CNKB");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	
