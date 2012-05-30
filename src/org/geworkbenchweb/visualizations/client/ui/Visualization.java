@@ -683,7 +683,14 @@ public class Visualization extends JavaScriptObject{
 	
 		this.draw(toDraw);
 		
-	
+		this.ready( 
+			
+			function() {
+				this.addContextMenuItem("NCBI Gene", "nodes", function() {
+				
+				});
+		});
+		
 	}-*/;
 
 	public final native String export(String png)  /*-{

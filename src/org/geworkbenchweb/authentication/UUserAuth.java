@@ -18,6 +18,7 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -59,8 +60,13 @@ public class UUserAuth extends HorizontalLayout {
 		final TextField usernameField 		= 	new TextField("Username");
 		final PasswordField passwordField 	= 	new PasswordField("Password");
 		
+		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
+	    Embedded image = new Embedded("", resource);
+		
+		
 		loginPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		loginPanel.setWidth("270px");
+		loginPanel.setHeight("200px");
 		
 		Button login = new Button("Login", new ClickListener() {
 
@@ -116,13 +122,15 @@ public class UUserAuth extends HorizontalLayout {
 		layout.addComponent(usernameField);
 		layout.addComponent(passwordField);
 		layout.addComponent(login);
-		layout.addComponent(register);
+		//layout.addComponent(register);
 		
 		layout.addComponent(feedbackLabel);
 		loginPanel.addComponent(layout);
 		content.setSizeFull();
+		content.addComponent(image);
+		content.setComponentAlignment(image, Alignment.BOTTOM_CENTER);	
 		content.addComponent(loginPanel);
-		content.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);		
+		content.setComponentAlignment(loginPanel, Alignment.TOP_CENTER);		
 		return content;
 		
 	}

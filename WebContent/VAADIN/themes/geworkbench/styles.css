@@ -165,10 +165,9 @@ html body.v-ie .v-window-editor {
         top: 148px;
         left: -30px;
         width: 140px;
-        font-style: normal;
         margin-top: 2em;
         padding-left: 25px;
-        
+        font-size: 11px;
         }
 /* Tweaks */
 .v-csslayout .toolbar {
