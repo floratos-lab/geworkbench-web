@@ -686,8 +686,11 @@ public class Visualization extends JavaScriptObject{
 		this.ready( 
 			
 			function() {
-				this.addContextMenuItem("NCBI Gene", "nodes", function() {
+				this.addContextMenuItem("Search NCBI", "nodes", function(evt) {
 				
+					window.open("http://www.ncbi.nlm.nih.gov/gene?term=" + evt.target.data.label)
+					
+					
 				});
 		});
 		
