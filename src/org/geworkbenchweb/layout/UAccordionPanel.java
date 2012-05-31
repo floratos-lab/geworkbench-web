@@ -178,7 +178,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 						
 					}else {
 
-						int positionValue = Integer.parseInt(selectedValues.substring(1, 2));
+						int positionValue = Integer.parseInt((selectedValues.substring(1)).substring(0, selectedValues.length() - 2));
 						getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
 					}
 				}else {

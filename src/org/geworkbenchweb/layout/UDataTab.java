@@ -179,10 +179,8 @@ public class UDataTab extends VerticalLayout {
 		historyPanel.addComponent(new Label("Number of Markers : " + maSet.getMarkers().size()));
 		historyPanel.addComponent(new Label("Number of Arrays : " + maSet.size()));
 		historyPanel.addComponent(new Label("--------------------------------------------------"));
-		historyPanel.addComponent(new Label("All the randon dataset history and what kind of analysis performed should be displayed here. " +
-				"It should also accompany parameters used to perform the analysis."));
-		
-				
+		historyPanel.addComponent(new Label("Data set history"));
+			
 		dataSplitPanel.setImmediate(true);
 		dataSplitPanel.setSplitPosition(70);
 		dataSplitPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
