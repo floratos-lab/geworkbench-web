@@ -122,7 +122,7 @@ public class UMainLayout extends HorizontalLayout {
         header.setSpacing(true);
 
         CssLayout titleLayout = new CssLayout();
-        H2 title = new H2("geWorkbench-Web");
+        H2 title = new H2("geWorkbench");
         titleLayout.addComponent(title);
 
         SmallText description = new SmallText(
@@ -187,7 +187,7 @@ public class UMainLayout extends HorizontalLayout {
 		public H2(String caption) {
             super(caption);
             setSizeUndefined();
-            setStyleName(Reindeer.LABEL_H1);
+            setStyleName(Reindeer.LABEL_H2);
         }
     }
 
