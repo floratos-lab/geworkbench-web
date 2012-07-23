@@ -2,7 +2,6 @@ package org.geworkbenchweb.layout;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.MenuBar.Command;
@@ -203,7 +201,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		} else if(dataType.equalsIgnoreCase("Hierarchical Clustering")){
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
-			dendrogramTab 	= 	new UClustergramTab(results);
+			dendrogramTab 					= 	new UClustergramTab(results);
 
 			addTab(dendrogramTab, "Dendrogram", null);		
 
@@ -296,13 +294,13 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 					colHeaders[k] 		= 	MARKER_HEADER;
 					dataIn.addContainerProperty(colHeaders[k], String.class, null);
-					item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(j));
+					item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(j).getLabel());
 
 				} else {
 
 					colHeaders[k] 		= 	maSet.get(k-1).toString();
 					dataIn.addContainerProperty(colHeaders[k], Float.class, null);
-					item.getItemProperty(colHeaders[k]).setValue(maSet.getValue(j, k-1));
+					item.getItemProperty(colHeaders[k]).setValue((float) maSet.getValue(j, k-1));
 
 				}
 			}
@@ -331,8 +329,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	@Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
 
-		UMenuBar menu = UMenuBar.getMenuBarObject();
-		menu.removeItems();
+		UMenuBar menu = new UMenuBar();
 
 		try {
 			TabSheet tabsheet = event.getTabSheet();
@@ -542,15 +539,14 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 				}
 			}
 		}
+		@SuppressWarnings("unused")
 		String downloadFileName = "ThrottleGraph.svg";
+		@SuppressWarnings("unused")
 		String contentType = "image/svg+xml";
-		try {
-			TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(getApplication(), downloadFileName, contentType, tempFile);
-			getWindow().open(resource, "_self");
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		
+			//TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(getApplication(), downloadFileName, contentType, tempFile);
+			//Root..open(resource, "_self");
+		
 
 	}
 

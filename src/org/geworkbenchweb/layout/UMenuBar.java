@@ -9,21 +9,19 @@ import com.vaadin.ui.MenuBar;
 public class UMenuBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
-	
-	private static UMenuBar menuBarInstance;
 
-	private UMenuBar() {
+	UMenuBar() {
 		
 		setImmediate(true);
 		setSizeFull();
 		
 	}
-	
+	/*
 	public static UMenuBar getMenuBarObject() {
 		if (menuBarInstance == null) {
 			menuBarInstance = new UMenuBar();
 		}
 		return menuBarInstance;
-	}
+	}*/
 	
 }

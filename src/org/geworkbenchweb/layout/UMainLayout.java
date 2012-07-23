@@ -1,10 +1,11 @@
 package org.geworkbenchweb.layout;
 
-import org.geworkbenchweb.GeworkbenchApplication;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 
 import com.vaadin.ui.Accordion;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -28,31 +29,36 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private HorizontalLayout welcomeLayout;
 	
-	@SuppressWarnings("unused")
-	private GeworkbenchApplication app;
+	private static USetsTabSheet setTabs;
 	
 	User user = SessionHandler.get();
 	
-	public UMainLayout(GeworkbenchApplication app) {
+	public UMainLayout() {
 		
 		setStyleName(Reindeer.LAYOUT_BLUE);
-		this.app 						= 	app;
+		
 		mainPanel 						= 	new HorizontalSplitPanel();
-		Accordion tabs 					= 	new UAccordionPanel(true);
 		welcomeLayout					=	new HorizontalLayout();
 		welcome 						= 	new CustomLayout("welcome");
+		setTabs							= 	new USetsTabSheet();
+		Accordion tabs 					= 	new UAccordionPanel(true);
 		VerticalLayout mainLayout		=	new VerticalLayout();
 		VerticalSplitPanel setLayout	=	new VerticalSplitPanel();
-		USetsTabSheet setTabs			= 	USetsTabSheet.getSetsTabSheetObject();
+		VerticalLayout setTabLayout		= 	new VerticalLayout();	
+		
+		setTabLayout.setSizeFull();
+		setTabLayout.setImmediate(true);
+		setTabLayout.setStyleName(Reindeer.LAYOUT_WHITE);
 		
 		setTabs.removeData();
 		setTabs.setImmediate(true);
+		setTabLayout.addComponent(setTabs);
 		
 		setLayout.setSplitPosition(60);
 		setLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
 		setLayout.setImmediate(true);
 		setLayout.setFirstComponent(tabs);
-		setLayout.setSecondComponent(setTabs);
+		setLayout.setSecondComponent(setTabLayout);
 		
 		mainLayout.setSizeFull();
         mainLayout.addComponent(getHeader());
@@ -75,9 +81,6 @@ public class UMainLayout extends HorizontalLayout {
         mainPanel.setSplitPosition(20);   
 		mainPanel.setFirstComponent(setLayout);
 		
-	
-		
-		welcome.setSizeFull();
 		welcomeLayout.setStyleName(Reindeer.LAYOUT_WHITE);
 		welcomeLayout.setSizeFull();
 		welcomeLayout.addComponent(welcome);
@@ -111,7 +114,6 @@ public class UMainLayout extends HorizontalLayout {
 		
 	}
 	
-	@SuppressWarnings("deprecation")
 	Layout getHeader() {
 		
         HorizontalLayout header = new HorizontalLayout();
@@ -139,16 +141,12 @@ public class UMainLayout extends HorizontalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
-        
-       // Button help 	=	new Button("Help");
-       // help.setStyleName(Reindeer.BUTTON_SMALL);
-
 
         Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
         help.setWidth(null);
         
         buttons.addComponent(help);
-        buttons.setComponentAlignment(help, "right");
+        buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
         
         Button logout 	= 	new Button("Logout", new Button.ClickListener() {
             
@@ -158,17 +156,29 @@ public class UMainLayout extends HorizontalLayout {
                 
 				SessionHandler.logout();
 				getApplication().close();
+				
+				/**
+				 * Vaadin 7
+				 * Application.getCurrent().close(); 
+				 */
+				
 			}
         });
-        //logout.setStyleName(Reindeer.BUTTON_SMALL);
+     
         buttons.addComponent(logout);
         titleLayout.addComponent(buttons);
 
         header.addComponent(titleLayout);
-        header.setComponentAlignment(titleLayout, "right");
+        header.setComponentAlignment(titleLayout, Alignment.MIDDLE_RIGHT);
 
         return header;
     }
+	
+	public static void populateSets(DSMicroarraySet maSet) {
+
+		setTabs.populateTabSheet(maSet);
+		
+	}
 	
 	class H2 extends Label {
    
@@ -177,7 +187,7 @@ public class UMainLayout extends HorizontalLayout {
 		public H2(String caption) {
             super(caption);
             setSizeUndefined();
-            setStyleName(Reindeer.LABEL_H2);
+            setStyleName(Reindeer.LABEL_H1);
         }
     }
 

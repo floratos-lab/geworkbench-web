@@ -1,7 +1,6 @@
 package org.geworkbenchweb.layout;
 
 import java.util.List;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -32,25 +31,15 @@ public class USetsTabSheet extends TabSheet{
 	private VerticalLayout l1;
 	
 	private VerticalLayout l2;
-	
-	private static USetsTabSheet setsTabSheetInstance;
-	
-	public static USetsTabSheet getSetsTabSheetObject() {
-		if (setsTabSheetInstance == null) {
-			setsTabSheetInstance= new USetsTabSheet();
-		}
-		
-		return setsTabSheetInstance;
-	}
 
 	public USetsTabSheet() {
 		
 		setStyleName(Reindeer.TABSHEET_SMALL);
 		setSizeFull();
-		
-		l1 = new VerticalLayout();
-		l2 = new VerticalLayout();
-
+	
+		l1 	= 	new VerticalLayout();
+		l2 	= 	new VerticalLayout();
+	
 		l1.setSizeFull();
 		l1.setImmediate(true);
 		l1.setStyleName(Reindeer.LAYOUT_WHITE);
@@ -185,7 +174,12 @@ public class USetsTabSheet extends TabSheet{
 		arraySets.removeAllItems();
 		arraySets.setSizeFull();
 		arraySets.addContainerProperty("Name", String.class, "");
+		
 		arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+		/**
+		 * Vaadin 7
+		 * arraySets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
+		 */
 		
 		if(!list.isEmpty()) {
 
@@ -211,13 +205,17 @@ public class USetsTabSheet extends TabSheet{
 
 	}
 
-
 	private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
 
 		markerSets.removeAllItems();
 		markerSets.setSizeFull();
 		markerSets.addContainerProperty("Name", String.class, "");
+		
 		markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+		/**
+		 * Vaadin 7
+		 * markerSets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
+		 */
 		
 		if(list.size() != 0) {	
 
