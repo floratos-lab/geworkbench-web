@@ -124,7 +124,7 @@ public class UCNKBTab extends VerticalLayout {
 			dataIn.addContainerProperty("Protein-DNA #", Integer.class, null);
 			dataIn.addContainerProperty("Protein-Protein #", Integer.class, null);
 
-			item.getItemProperty("Marker").setValue(hits.get(j).getdSGeneMarker());
+			item.getItemProperty("Marker").setValue(hits.get(j).getdSGeneMarker().getLabel());
 			if(hits.get(j).getdSGeneMarker().getShortName() == hits.get(j).getdSGeneMarker().getGeneName()) {
 
 				item.getItemProperty("Gene").setValue("--");
