@@ -16,6 +16,7 @@ import org.geworkbenchweb.analysis.hierarchicalclustering.ClusterNode;
 import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
