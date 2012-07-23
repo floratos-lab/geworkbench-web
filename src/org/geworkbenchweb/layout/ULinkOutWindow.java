@@ -14,7 +14,6 @@ public class ULinkOutWindow extends Window {
 	
 	private String gene;
 	
-	@SuppressWarnings("deprecation")
 	public ULinkOutWindow(String geneName) {
 		
 		this.gene = geneName;
@@ -25,7 +24,7 @@ public class ULinkOutWindow extends Window {
 		setHeight("200px");
 		setWidth("300px");
 		setDraggable(false);
-		setScrollable(false);
+		//setScrollable(false);
 		this.setResizable(false);
 	
 		ComboBox dataBase = new ComboBox();
@@ -75,7 +74,6 @@ public class ULinkOutWindow extends Window {
 		});
 		
 		addComponent(dataBase);
-		((VerticalLayout) this.getLayout()).setSpacing(true);
 		addComponent(lay);
 		
 	}
