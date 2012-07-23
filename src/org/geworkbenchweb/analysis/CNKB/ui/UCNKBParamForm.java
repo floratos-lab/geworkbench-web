@@ -21,9 +21,9 @@ import org.vaadin.appfoundation.authentication.data.User;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -31,7 +31,7 @@ import com.vaadin.ui.themes.Reindeer;
  * @author Nikhil
  * 
  */
-public class UCNKBParamForm extends Form {
+public class UCNKBParamForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -1221913812891134388L;
 	
@@ -45,10 +45,11 @@ public class UCNKBParamForm extends Form {
 	
 	User user = SessionHandler.get();
 	
-	@SuppressWarnings("rawtypes")
 	public UCNKBParamForm(DSMicroarraySet maSet) {
 		
 		this.dataSet = maSet;
+
+		this.setSpacing(true);
 		
 		loadApplicationProperty();
 		
@@ -97,9 +98,10 @@ public class UCNKBParamForm extends Form {
 		markerSetBox.setCaption("Select Marker Set");
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
+
 		
-		List data 		=	DataSetOperations.getDataSet(dataSetName);
-		List subSets	= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
+		List<?> data 		=	DataSetOperations.getDataSet(dataSetName);
+		List<?> subSets	= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
 		
 		for(int m=0; m<(subSets).size(); m++){
 			
@@ -113,7 +115,7 @@ public class UCNKBParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params[2] = getMarkerData(valueChangeEvent.getProperty().getValue().toString(), dataSet);
-				addField("interactomeBox", interactomeBox);
+				addComponent(interactomeBox);
 				
 			}
 		});
@@ -131,7 +133,7 @@ public class UCNKBParamForm extends Form {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				try {
 					params[1] = valueChangeEvent.getProperty().getValue().toString();
-					addField("submitAnalysis", submitButton);
+					addComponent(submitButton);
 				}catch (Exception e) {
 					
 					//TODO
@@ -163,8 +165,8 @@ public class UCNKBParamForm extends Form {
 					for(int k=0; k<versionList.size(); k++) {
 						versionBox.addItem(versionList.get(k).getVersion());
 					}
-					getLayout().addComponent(interactomeDes);
-					addField("version", versionBox);
+					addComponent(interactomeDes);
+					addComponent(versionBox);
 					
 				} catch (ConnectException e) {
 					// TODO Auto-generated catch block
@@ -180,7 +182,7 @@ public class UCNKBParamForm extends Form {
 			}
 		});
 		
-		addField("markerSets", markerSetBox);
+		addComponent(markerSetBox);
 		
 	}
 
