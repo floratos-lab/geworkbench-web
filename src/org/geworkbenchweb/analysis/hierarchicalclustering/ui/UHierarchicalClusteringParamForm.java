@@ -6,8 +6,8 @@ import org.geworkbenchweb.analysis.hierarchicalclustering.HierarchicalClustering
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * 
@@ -17,7 +17,7 @@ import com.vaadin.ui.Button.ClickEvent;
  *
  */
 
-public class UHierarchicalClusteringParamForm extends Form {
+public class UHierarchicalClusteringParamForm extends VerticalLayout {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
@@ -33,6 +33,7 @@ public class UHierarchicalClusteringParamForm extends Form {
 		
 		this.dataSet = maSet;
 		setImmediate(true);
+		setSpacing(true);
 		
 		final String[] params = new String[3];
 		
@@ -134,10 +135,10 @@ public class UHierarchicalClusteringParamForm extends Form {
 			}
 		});
 
-		addField("clusterMethod", clusterMethod);
-		addField("clusterMethod", clusterDim);
-		addField("clusterMethod", clusterMetric);
-		addField("submitAnalysis", submitButton);
+		addComponent(clusterMethod);
+		addComponent(clusterDim);
+		addComponent(clusterMetric);
+		addComponent(submitButton);
 		
 	}
 }
