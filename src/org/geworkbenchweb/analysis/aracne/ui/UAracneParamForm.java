@@ -13,7 +13,6 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
@@ -22,7 +21,7 @@ import com.vaadin.ui.TextField;
  * Builds the Parameter Form for ARACne Analysis
  * @author Nikhil Reddy
  */
-public class UAracneParamForm extends Form {
+public class UAracneParamForm extends GridLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -30,11 +29,10 @@ public class UAracneParamForm extends Form {
 		
 		String dataSetName = maSet.getDataSetName();
 		
-		GridLayout formLayout			= 	new GridLayout(4, 10);
-		formLayout.setSpacing(true);
-		formLayout.setImmediate(true);
-		
-		setLayout(formLayout);
+		setColumns(4);
+		setRows(10);
+		setSpacing(true);
+		setImmediate(true);
 		
 		final ArrayList<String> params 	=	new ArrayList<String>();
 		final ComboBox markerSetBox		= 	new ComboBox();
@@ -136,7 +134,7 @@ public class UAracneParamForm extends Form {
 		});
 		
 		widthValue.setCaption(" ");
-		widthValue.setValue(0.1);
+		widthValue.setValue("0.1");
 		widthValue.setEnabled(false);
 		widthValue.setNullSettingAllowed(false);
 		widthValue.addListener(new Property.ValueChangeListener() {
@@ -150,7 +148,7 @@ public class UAracneParamForm extends Form {
 				
 			}
 		});
-		
+			
 		kernelWidth.setCaption("Kernel Width");
 		kernelWidth.setImmediate(true);
 		kernelWidth.setNullSelectionAllowed(false);
@@ -175,8 +173,6 @@ public class UAracneParamForm extends Form {
 			}
 		});
 		
-		
-		
 		correction.setCaption(" ");
 		correction.setNullSelectionAllowed(false);
 		correction.addItem("No Correction");
@@ -196,7 +192,7 @@ public class UAracneParamForm extends Form {
 		});
 		
 		threshold.setCaption(" ");
-		threshold.setValue(0.01);
+		threshold.setValue("0.01");
 		threshold.setNullSettingAllowed(false);
 		threshold.addListener(new Property.ValueChangeListener() {
 
@@ -234,7 +230,7 @@ public class UAracneParamForm extends Form {
 		});
 		
 		tolerance.setCaption(" ");
-		tolerance.setValue(0.1);
+		tolerance.setValue("0.1");
 		tolerance.setNullSettingAllowed(false);
 		tolerance.addListener(new Property.ValueChangeListener() {
 
@@ -316,7 +312,7 @@ public class UAracneParamForm extends Form {
 		});
 		
 		bootStrapNumber.setCaption("Bootstrap Number");
-		bootStrapNumber.setValue(1);
+		bootStrapNumber.setValue("1");
 		bootStrapNumber.setNullSettingAllowed(false);
 		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 
@@ -359,27 +355,28 @@ public class UAracneParamForm extends Form {
 
 				} catch (Exception e) {	
 
-					System.out.println(e);
+					e.printStackTrace();
+					//System.out.println(e);
 
 				}		
 			}
 		});
 		
-		formLayout.addComponent(markerSetBox, 0, 0);
-		formLayout.addComponent(modeBox, 0, 1);
-		formLayout.addComponent(algoBox, 0, 2);
-		formLayout.addComponent(kernelWidth, 0, 3);
-		formLayout.addComponent(widthValue, 1, 3);
-		formLayout.addComponent(thresholdType, 0, 4);
-		formLayout.addComponent(threshold, 1, 4);
-		formLayout.addComponent(correction, 2, 4);
-		formLayout.addComponent(dpiTolerance, 0, 5);
-		formLayout.addComponent(tolerance, 1, 5);
-		formLayout.addComponent(dpiTargetList, 0, 6);
-		formLayout.addComponent(dpiSetBox, 1, 6);
-		formLayout.addComponent(bootStrapNumber, 0, 7);
-		formLayout.addComponent(mergeProbeSets, 0, 8);
-		formLayout.addComponent(submitButton, 0, 9);
+		addComponent(markerSetBox, 0, 0);
+		addComponent(modeBox, 0, 1);
+		addComponent(algoBox, 0, 2);
+		addComponent(kernelWidth, 0, 3);
+		addComponent(widthValue, 1, 3);
+		addComponent(thresholdType, 0, 4);
+		addComponent(threshold, 1, 4);
+		addComponent(correction, 2, 4);
+		addComponent(dpiTolerance, 0, 5);
+		addComponent(tolerance, 1, 5);
+		addComponent(dpiTargetList, 0, 6);
+		addComponent(dpiSetBox, 1, 6);
+		addComponent(bootStrapNumber, 0, 7);
+		addComponent(mergeProbeSets, 0, 8);
+		addComponent(submitButton, 0, 9);
 		
 	}
 	
