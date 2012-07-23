@@ -37,8 +37,6 @@
 	<script src="js/src/AC_OETags.js" />
 	<script src="js/src/cytoscapeweb.js" />
 	
-
-
     <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
