@@ -1,6 +1,6 @@
 package org.geworkbenchweb.authentication;
 
-import org.geworkbenchweb.GeworkbenchApplication;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -29,20 +29,14 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UUserAuth extends HorizontalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
-	private GeworkbenchApplication app;
 
-	public UUserAuth(GeworkbenchApplication app) {
-		
-		this.app = app;
-		this.app.getMainWindow().setCaption("geWorkbench");
+	public UUserAuth() {
 		setSizeFull();	
 		setStyleName(Reindeer.LAYOUT_BLUE);
 		addComponent(buildLoginForm());
@@ -66,7 +60,7 @@ public class UUserAuth extends HorizontalLayout {
 		
 		loginPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		loginPanel.setWidth("270px");
-		loginPanel.setHeight("200px");
+		loginPanel.setHeight("220px");
 		
 		Button login = new Button("Login", new ClickListener() {
 
@@ -81,9 +75,14 @@ public class UUserAuth extends HorizontalLayout {
 					
 					AuthenticationUtil.authenticate(username,
 							password);
-					getApplication().getMainWindow().removeAllComponents();		
-					app.initView(getApplication().getMainWindow());
-
+					
+					getApplication().getMainWindow().removeAllComponents();
+					getApplication().getMainWindow().setContent(new UMainLayout());
+					
+					/**
+					 *	Vaadin 7
+					 *	Root.getCurrent().setContent(new UMainLayout());
+					 */
 				} catch (InvalidCredentialsException e) {
 					
 					feedbackLabel
@@ -93,6 +92,10 @@ public class UUserAuth extends HorizontalLayout {
 					
 					feedbackLabel.setValue("The given account has been locked");
 				
+				} catch (Exception e) {
+					
+					feedbackLabel.setValue("Some other exception");
+					
 				}
 			}
 		});
@@ -122,7 +125,7 @@ public class UUserAuth extends HorizontalLayout {
 		layout.addComponent(usernameField);
 		layout.addComponent(passwordField);
 		layout.addComponent(login);
-		//layout.addComponent(register);
+		layout.addComponent(register);
 		
 		layout.addComponent(feedbackLabel);
 		loginPanel.addComponent(layout);
@@ -182,12 +185,14 @@ public class UUserAuth extends HorizontalLayout {
 					user.setEmail	((String) email.getValue());
 
 					FacadeFactory.getFacade().store(user);
-					app.getMainWindow().removeAllComponents();
-					app.getMainWindow().showNotification("Registration", 
-							"You have successfully registered.", 
-							Notification.TYPE_WARNING_MESSAGE);
+					getApplication().getMainWindow().showNotification( "You have successfully registered.");
+					getApplication().getMainWindow().setContent(buildLoginForm());
+					/**
+					 * Vaadin 7
+					 * Root.getCurrent().setContent(buildLoginForm());
+					 */
 					
-					app.getMainWindow().addComponent(buildLoginForm());
+					
 
 				} catch (TooShortPasswordException e) {
 					
@@ -232,7 +237,7 @@ public class UUserAuth extends HorizontalLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				
-				app.close();
+				getApplication().close();
 			
 			}
 
