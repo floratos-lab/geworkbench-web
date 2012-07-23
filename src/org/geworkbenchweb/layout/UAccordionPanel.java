@@ -40,7 +40,6 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
@@ -105,6 +104,11 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 				UDataSetUpload dataWindow = new UDataSetUpload();
 				getApplication().getMainWindow().addWindow(dataWindow);
+		
+				/** 
+				 * Vaadin 7
+				 * Root.getCurrent().addWindow(dataWindow);
+				 */
 
 			}
 
@@ -168,25 +172,39 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					
 					if(selectedValues == null) {
 					
-						getApplication().getMainWindow().showNotification("Select marker with Gene Name", 
-								Notification.TYPE_ERROR_MESSAGE );
+						getApplication().getMainWindow().showNotification("Select marker with Gene Name");
+						/**
+						 * Vaadin 7
+						 * Notification.show("Select marker with Gene Name",  
+						 *		Notification.TYPE_ERROR_MESSAGE );
+						 */
 						
 					}else if(selectedValues.contains(",")) {
-						
-						getApplication().getMainWindow().showNotification("Select marker only one marker", 
-								Notification.TYPE_ERROR_MESSAGE );
+						getApplication().getMainWindow().showNotification("Select marker only one marker");
+						/**
+						 * Vaadin 7
+						 * Notification.show("Select marker only one marker",  
+						 *		Notification.TYPE_ERROR_MESSAGE );
+						 */
 						
 					}else {
 
 						int positionValue = Integer.parseInt((selectedValues.substring(1)).substring(0, selectedValues.length() - 2));
 						getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
+						/**
+						 * Vaadin 7
+						 * Root.getCurrent().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
+						 */
 					}
 				}else {
 					if(selectedValues == null) {
 
-						getApplication().getMainWindow().showNotification("Please select atleast one marker",  
-								Notification.TYPE_ERROR_MESSAGE );
-
+						getApplication().getMainWindow().showNotification("Please select atleast one marker");
+						/**
+						 * Vaadin 7
+						 * Notification.show("Please select atleast one marker",  
+						 *		Notification.TYPE_ERROR_MESSAGE );
+						 */
 					} else {
 
 						final Window nameWindow = new Window();
@@ -214,15 +232,24 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
-										USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+										UMainLayout.populateSets(maSet); 
 										getApplication().getMainWindow().removeWindow(nameWindow);
+										/**
+										 * Vaadin 7
+										 * Root.getCurrent().removeWindow(nameWindow);
+										 */
 
 									}
 								} else {
 
-									getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
-											Notification.TYPE_ERROR_MESSAGE );
 									getApplication().getMainWindow().removeWindow(nameWindow);
+									/**
+									 *  Vaadin 7
+									 * Notification.show("Set Name cannot be empty.",
+									 *	Notification.TYPE_ERROR_MESSAGE );
+									 * Root.getCurrent().removeWindow(nameWindow);
+									 */
+									
 								}
 							}
 
@@ -230,7 +257,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 						nameWindow.addComponent(setName);
 						nameWindow.addComponent(addSet);
+						
 						getApplication().getMainWindow().addWindow(nameWindow);
+						/**
+						 * Vaadin 7
+						 * Root.getCurrent().addWindow(nameWindow);
+						 */
 						//selectedValues = null;
 
 					}
@@ -274,10 +306,15 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			public void handleAction(Action action, Object sender, Object target) {
 
 				if(selectedValues == null) {
-
-					getApplication().getMainWindow().showNotification("Please select atleast one phenotype",  
-							Notification.TYPE_ERROR_MESSAGE );
-
+				
+					getApplication().getMainWindow().showNotification("Please select atleast one phenotype");	
+					
+					/**
+					 * Vaadin 7
+					 * Notification.show("Please select atleast one phenotype",  
+					 *			Notification.TYPE_ERROR_MESSAGE ); 
+					 */
+					
 				} else {
 
 					final Window nameWindow = new Window();
@@ -306,14 +343,25 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 									getApplication().getMainWindow().removeWindow(nameWindow);
-									USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+									/**
+									 * Vaadin 7
+									 * Root.getCurrent().removeWindow(nameWindow);
+									 */
+									UMainLayout.populateSets(maSet);
 
 								}
 							} else {
-
-								getApplication().getMainWindow().showNotification("Set Name cannot be empty.",
-										Notification.TYPE_ERROR_MESSAGE );
+								
+								getApplication().getMainWindow().showNotification("Set Name cannot be empty.");
 								getApplication().getMainWindow().removeWindow(nameWindow);
+								
+								/**
+								 * Vaadin 7
+								 * 
+								 * Notification.show("Set Name cannot be empty.",
+								 * 		Notification.TYPE_ERROR_MESSAGE );
+								 * Root.getCurrent().removeWindow(nameWindow);
+								 */
 							}
 
 						}
@@ -322,7 +370,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 					nameWindow.addComponent(setName);
 					nameWindow.addComponent(addSet);
+					
 					getApplication().getMainWindow().addWindow(nameWindow);
+					/**
+					 * Vaadin 7
+					 * Root.getCurrent().addWindow(nameWindow);
+					 */
 					//selectedValues = null;
 				}
 			}	 
@@ -345,13 +398,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 		// TODO Auto-generated method stub
 
 	}
-
+	
 	@Override
 	public void valueChange(ValueChangeEvent event) {
 		try {
 
 			if((String) event.getProperty().getValue() != null ) {
-
 
 				VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
 				menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
@@ -359,7 +411,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 				menuPanel.setLocked(true);
 				menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
 
-				UMenuBar toolBar 	= 	UMenuBar.getMenuBarObject();
+				UMenuBar toolBar 	= 	new UMenuBar();
 				toolBar.setImmediate(true);
 
 				menuPanel.setFirstComponent(toolBar);
@@ -391,8 +443,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					arrayTable.setContainerDataSource(arrayTableView(maSet));
 
 					UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
-
-					USetsTabSheet.getSetsTabSheetObject().populateTabSheet(maSet);
+					UMainLayout.populateSets(maSet);
 
 					menuPanel.setSecondComponent(tabSheet);
 					UMainLayout.setMainPanelSecondComponent(menuPanel);
@@ -438,7 +489,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			}else {
 
-				USetsTabSheet.getSetsTabSheetObject().removeData();
+				//USetsTabSheet.getSetsTabSheetObject().removeData();
 				CustomLayout welcome = new CustomLayout("welcome");
 				welcome.setSizeFull();
 				UMainLayout.setMainPanelSecondComponent(welcome);
@@ -466,7 +517,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			Item item 					= 	tableData.addItem(k);
 			tableData.addContainerProperty("Labels", String.class, null);
-			item.getItemProperty("Labels").setValue(maSet.get(k));
+			item.getItemProperty("Labels").setValue(maSet.get(k).getLabel());
 
 		}
 
@@ -489,12 +540,12 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			Item item 					= 	tableData.addItem(j);
 
 			for(int k=0;k<=maSet.size();k++) {
-
 				if(k == 0) {
-
 					tableData.addContainerProperty("Labels", String.class, null);
-					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j));
-
+					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
+							+ " (" 
+							+ maSet.getMarkers().get(j).getGeneName()
+							+ ")");
 				} 
 			}
 		}
@@ -615,21 +666,32 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 			}else {
 
-				getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis",  
-						Notification.TYPE_ERROR_MESSAGE );
-
+				getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis");
+				/** 
+				 * Vaadin 7
+				 * Notification.show("Please select dataSet node or subset node for analysis",  
+				 *		Notification.TYPE_ERROR_MESSAGE );
+				 */
 			}
 
 		}else if(action == ACTION_NORMALIZE) {
 
-			getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!",  
-					Notification.TYPE_ERROR_MESSAGE );
+			getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!");
+			/**
+			 * Vaadin 7
+			 * Notification.show("No normalizers are implemented yet !!",  
+			 *		Notification.TYPE_ERROR_MESSAGE );
+			 */
 
 		}else if(action == ACTION_FILTER) {
 
-			getApplication().getMainWindow().showNotification("No filters are implemented yet !!",  
-					Notification.TYPE_ERROR_MESSAGE );
-
+			getApplication().getMainWindow().showNotification("No filters are implemented yet !!");
+			/**
+			 * Vaadin 7
+			 * Notification.show("No filters are implemented yet !!",  
+			 *		Notification.TYPE_ERROR_MESSAGE );
+			 */
+			
 		}
 
 	}
