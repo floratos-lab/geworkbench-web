@@ -103,8 +103,8 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 			public void buttonClick(ClickEvent event) {
 
 				UDataSetUpload dataWindow = new UDataSetUpload();
+				
 				getApplication().getMainWindow().addWindow(dataWindow);
-		
 				/** 
 				 * Vaadin 7
 				 * Root.getCurrent().addWindow(dataWindow);
@@ -359,7 +359,7 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 								 * Vaadin 7
 								 * 
 								 * Notification.show("Set Name cannot be empty.",
-								 * 		Notification.TYPE_ERROR_MESSAGE );
+								 * 		Notification.TYPE_ERROR_MESSAGE ); 
 								 * Root.getCurrent().removeWindow(nameWindow);
 								 */
 							}
