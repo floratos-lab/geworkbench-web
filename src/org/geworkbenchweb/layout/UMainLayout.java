@@ -19,6 +19,10 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
+/**
+ * UMainLayout sets up the basic layout and style of the application.
+ * @author Nikhil Reddy
+ */
 public class UMainLayout extends HorizontalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
@@ -35,6 +39,7 @@ public class UMainLayout extends HorizontalLayout {
 	
 	public UMainLayout() {
 		
+		setSizeFull();
 		setStyleName(Reindeer.LAYOUT_BLUE);
 		
 		mainPanel 						= 	new HorizontalSplitPanel();
@@ -59,19 +64,16 @@ public class UMainLayout extends HorizontalLayout {
 		setLayout.setImmediate(true);
 		setLayout.setFirstComponent(tabs);
 		setLayout.setSecondComponent(setTabLayout);
-		
-		mainLayout.setSizeFull();
-        mainLayout.addComponent(getHeader());
-
+	
         CssLayout margin = new CssLayout();
         margin.setMargin(false, true, true, true);
         margin.setSizeFull();
-        
         margin.addComponent(mainPanel);
+
+		mainLayout.setSizeFull();
+        mainLayout.addComponent(getHeader());
         mainLayout.addComponent(margin);
         mainLayout.setExpandRatio(margin, 1);
-		
-		setSizeFull();
         
         tabs.setStyleName(Reindeer.TABSHEET_SMALL);
         tabs.setSizeFull();
@@ -87,34 +89,35 @@ public class UMainLayout extends HorizontalLayout {
 		mainPanel.setSecondComponent(welcomeLayout);
 		
         addComponent(mainLayout);
-	
 	}
+	
 	/**
 	 * Sets the second Component of the Main Panel
 	 * @param Component
 	 */
 	public static void setMainPanelSecondComponent(Component component) {
 		
-		mainPanel.removeComponent(mainPanel.getSecondComponent());
-		
 		HorizontalLayout welcomeLayout1 = new HorizontalLayout();
 		welcomeLayout1.setStyleName(Reindeer.LAYOUT_WHITE);
 		welcomeLayout1.setSizeFull();
 		welcomeLayout1.addComponent(component);
 		
+		mainPanel.removeComponent(mainPanel.getSecondComponent());
 		mainPanel.setSecondComponent(welcomeLayout1);
-	
 	}
+	
 	/**
-	 * Repaint the Main Panel
+	 * Repaints the Main Panel
 	 */
 	public static void mainPanelRequestRepaint() {
-		
 		mainPanel.requestRepaint();
-		
 	}
 	
-	Layout getHeader() {
+	/**
+	 * Method sets up the title and basic headers of the application
+	 * @return Layout
+	 */
+	private Layout getHeader() {
 		
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
@@ -174,12 +177,18 @@ public class UMainLayout extends HorizontalLayout {
         return header;
     }
 	
+	/**
+	 * Populates the Marker and Phenotype sets of the particulat Dataset if there are any.
+	 * @param maSet
+	 */
 	public static void populateSets(DSMicroarraySet maSet) {
-
 		setTabs.populateTabSheet(maSet);
-		
 	}
 	
+	/**
+	 * Sets the style for the title of the application
+	 * @author np2417
+	 */
 	class H2 extends Label {
    
 		private static final long serialVersionUID = 1L;
@@ -191,6 +200,10 @@ public class UMainLayout extends HorizontalLayout {
         }
     }
 
+	/**
+	 * Sets the style for the Sub-title of the application
+	 * @author np2417
+	 */
     class SmallText extends Label {
        
 		private static final long serialVersionUID = 1L;
