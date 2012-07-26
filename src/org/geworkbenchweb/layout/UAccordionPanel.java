@@ -8,7 +8,9 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.dataset.UDataSetUpload;
@@ -433,11 +435,11 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 					dataSetId 					=	dataSet.getId();
 					byte[] dataByte 			= 	dataSet.getData();
 					maSet 						= 	(DSMicroarraySet) toObject(dataByte);
-
+					
+					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
 					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
 					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-					AnnotationParser.loadAnnotationFile(maSet, annotFile);
-					
+					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
 
 					markerTable.setContainerDataSource(markerTableView(maSet));
 					arrayTable.setContainerDataSource(arrayTableView(maSet));
@@ -648,8 +650,9 @@ public class UAccordionPanel extends  Accordion implements Property.ValueChangeL
 
 				if(maSet.getAnnotationFileName() != null){
 
+					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
 					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-					AnnotationParser.loadAnnotationFile(maSet, annotFile);
+					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
 
 				}
 
