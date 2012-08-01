@@ -41,7 +41,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 	private static final String HEAT_MAP 					= 	"Heat Map";
 
-	private static Table dataTable;
+	private Table dataTable;
 
 	private DSMicroarraySet maSet;
 
@@ -310,7 +310,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 	}
 
-	public static void resetTableContainer(IndexedContainer data) {
+	/*public static void resetTableContainer(IndexedContainer data) {
 
 		dataTable.removeAllItems();
 		dataTable.setContainerDataSource(data);
@@ -324,7 +324,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		dataTable.setContainerDataSource(tabularView(dSet));
 		dataTable.setColumnWidth(MARKER_HEADER, 150);
 
-	}
+	}*/
 
 	@Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {

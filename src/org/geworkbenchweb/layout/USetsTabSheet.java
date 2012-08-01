@@ -100,11 +100,11 @@ public class USetsTabSheet extends TabSheet{
 									}
 								}
 							}
-							UVisualPlugin.resetTableContainer(dataIn);
+							//UVisualPlugin.resetTableContainer(dataIn);
 						}
 					}catch (Exception e) {
 
-						UVisualPlugin.resetOriginalView(maSet);
+						//UVisualPlugin.resetOriginalView(maSet);
 
 					}
 				}
@@ -152,11 +152,11 @@ public class USetsTabSheet extends TabSheet{
 								}
 							}
 
-							UVisualPlugin.resetTableContainer(dataIn);
+							//UVisualPlugin.resetTableContainer(dataIn);
 						}
 					}catch (Exception e) {
 
-						UVisualPlugin.resetOriginalView(maSet);
+						//UVisualPlugin.resetOriginalView(maSet);
 					}
 				}
 			});

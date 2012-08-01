@@ -14,7 +14,6 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbenchweb.layout.UAccordionPanel;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -105,7 +104,7 @@ public class AracneAnalysisWeb {
 			resultSet.setData(convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	
 			
-			UAccordionPanel.resetDataContainer();
+			//UAccordionPanel.resetDataContainer();
 			
 		}
 	}
