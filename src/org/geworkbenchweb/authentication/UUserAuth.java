@@ -37,8 +37,6 @@ public class UUserAuth extends HorizontalLayout {
 	private static final long serialVersionUID = 1L;
 
 	public UUserAuth() {
-		setSizeFull();	
-		setStyleName(Reindeer.LAYOUT_BLUE);
 		addComponent(buildLoginForm());
 	}
 
@@ -47,6 +45,9 @@ public class UUserAuth extends HorizontalLayout {
 	 */
 	public Layout buildLoginForm() {
 
+		this.setSizeFull();	
+		this.setStyleName(Reindeer.LAYOUT_BLUE);
+		
 		final VerticalLayout content 		= 	new VerticalLayout();
 		final Panel loginPanel 				= 	new Panel();
 		final FormLayout layout 			= 	new FormLayout();
@@ -186,14 +187,13 @@ public class UUserAuth extends HorizontalLayout {
 
 					FacadeFactory.getFacade().store(user);
 					getApplication().getMainWindow().showNotification( "You have successfully registered.");
-					getApplication().getMainWindow().setContent(buildLoginForm());
+					getApplication().getMainWindow().removeAllComponents();
+					getApplication().getMainWindow().setContent(new UUserAuth());
 					/**
 					 * Vaadin 7
 					 * Root.getCurrent().setContent(buildLoginForm());
 					 */
 					
-					
-
 				} catch (TooShortPasswordException e) {
 					
 					feedbackLabel
