@@ -1,8 +1,6 @@
 package org.geworkbenchweb.analysis.CNKB;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -15,6 +13,7 @@ import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -116,36 +115,10 @@ public class CNKBInteractions {
 		resultSet.setType("CNKB");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	
-		resultSet.setData(convertToByte(hits));
+		resultSet.setData(ObjectConversion.convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
 		
 		//UAccordionPanel.resetDataContainer();
 		
-	}
-
-
-	private byte[] convertToByte(Object object) {
-
-		byte[] byteData = null;
-		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
-
-		try {
-
-			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
-
-			oos.writeObject(object);
-			oos.flush(); 
-			oos.close(); 
-			bos.close();
-			byteData 				= 	bos.toByteArray();
-
-		} catch (IOException ex) {
-
-			System.out.println("Exception with in convertToByte");
-
-		}
-
-		return byteData;
-
 	}
 }

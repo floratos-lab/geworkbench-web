@@ -1,8 +1,5 @@
 package org.geworkbenchweb.analysis.aracne;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -15,6 +12,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -101,7 +99,7 @@ public class AracneAnalysisWeb {
 			resultSet.setType("ARACne");
 			resultSet.setParent(dataSet.getDataSetName());
 			resultSet.setOwner(SessionHandler.get().getId());	
-			resultSet.setData(convertToByte(dSet));
+			resultSet.setData(ObjectConversion.convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	
 			
 			//UAccordionPanel.resetDataContainer();
@@ -154,31 +152,6 @@ public class AracneAnalysisWeb {
 		}
 	
 		return matrix;
-	}
-	
-	private byte[] convertToByte(Object object) {
-
-		byte[] byteData = null;
-		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
-
-		try {
-
-			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
-
-			oos.writeObject(object);
-			oos.flush(); 
-			oos.close(); 
-			bos.close();
-			byteData 				= 	bos.toByteArray();
-
-		} catch (IOException ex) {
-
-			System.out.println("Exception with in convertToByte");
-
-		}
-
-		return byteData;
-
 	}
 
 }

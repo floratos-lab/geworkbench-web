@@ -16,6 +16,7 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -235,8 +236,13 @@ public class UMainLayout extends HorizontalLayout {
         }
     }
     
+    /**
+     * UAccordionPanel builds the DataSet area of geWorkbench.
+     * It inlcudes dataset & resultset tree, Markers table, Phenotypes table and Sets Tab sheet. 
+     * @author Nikhil Reddy
+     */
     
-    class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Button.ClickListener, Action.Handler {
+    class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Action.Handler {
 
     	private static final long serialVersionUID = 4523693969296820932L;
 
@@ -582,17 +588,14 @@ public class UMainLayout extends HorizontalLayout {
     		this.selectedValues = value;
 
     	}
-
-    	@Override
-    	public void buttonClick(ClickEvent event) {
-    		// TODO Auto-generated method stub
-
-    	}
     	
+    	/**
+    	 * This method handles data tree click events (data set nodes and result set nodes)
+    	 * @param Tree event
+    	 */
     	@Override
     	public void valueChange(ValueChangeEvent event) {
     		try {
-
     			if((String) event.getProperty().getValue() != null ) {
 
     				VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
@@ -616,13 +619,10 @@ public class UMainLayout extends HorizontalLayout {
     				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
     				if(dataSet != null) {
-    					/*
-    					 * if this is a dataSet
-    					 */
 
     					dataSetId 					=	dataSet.getId();
     					byte[] dataByte 			= 	dataSet.getData();
-    					maSet 						= 	(DSMicroarraySet) toObject(dataByte);
+    					maSet 						= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
     					
     					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
     					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
@@ -655,17 +655,17 @@ public class UMainLayout extends HorizontalLayout {
     						if(resultSet.getType().equalsIgnoreCase("CNKB")) {
 
     							@SuppressWarnings("unchecked")
-    							Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) toObject(dataByte);
+    							Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(dataByte);
     							tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
 
     						}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
 
-    							CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) toObject(dataByte);
+    							CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(dataByte);
     							tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
 
     						}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
 
-    							AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) toObject(dataByte);
+    							AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) ObjectConversion.toObject(dataByte);
     							tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
 
     						}
@@ -717,7 +717,6 @@ public class UMainLayout extends HorizontalLayout {
     	 * @param maSet
     	 * @return - Indexed container with marker labels
     	 */
-
     	private IndexedContainer markerTableView(DSMicroarraySet maSet) {
 
     		IndexedContainer tableData 		= 	new IndexedContainer();
@@ -740,33 +739,6 @@ public class UMainLayout extends HorizontalLayout {
 
     	}
 
-
-    	@SuppressWarnings("deprecation")
-    	public Object toObject(byte[] bytes){ 
-
-    		Object object = null; 
-
-    		try{ 
-
-    			object = new java.io.ObjectInputStream(new 
-    					java.io.ByteArrayInputStream(bytes)).readObject(); 
-
-    		}catch(java.io.IOException ioe){ 
-
-    			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-    					ioe.getMessage()); 
-
-    		}catch(java.lang.ClassNotFoundException cnfe){ 
-
-    			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-    					cnfe.getMessage()); 
-
-    		} 
-
-    		return object; 
-
-    	}
-
     	@Override
     	public Action[] getActions(Object target, Object sender) {
 
@@ -774,6 +746,9 @@ public class UMainLayout extends HorizontalLayout {
 
     	}
 
+    	/**
+    	 * Method handles Actions of the context menu on the dataset tree.
+    	 */
     	@Override
     	public void handleAction(Action action, Object sender, Object target) {
 
@@ -790,19 +765,18 @@ public class UMainLayout extends HorizontalLayout {
     			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
     			if(dataSet != null) {
-
+    				
     				FacadeFactory.getFacade().delete(dataSet);
     				dataTree.removeItem(target);
 
-
     			} else {
 
-    				String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-    				Map<String, Object> params 			= 	new HashMap<String, Object>();
+    				String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+    				Map<String, Object> params 	= 	new HashMap<String, Object>();
 
     				params.put("name", dataName);
     				params.put("owner", user.getId());
-    				ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+    				ResultSet resultSet 		= 	FacadeFactory.getFacade().find(querySub, params);
     				FacadeFactory.getFacade().delete(resultSet);
     				dataTree.removeItem(target);
 
@@ -823,19 +797,14 @@ public class UMainLayout extends HorizontalLayout {
     			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
     			if(dataSet != null) {
-    				/*
-    				 * if this is a dataSet
-    				 */
 
     				byte[] dataByte 			= 	dataSet.getData();
-    				DSMicroarraySet maSet 		= 	(DSMicroarraySet) toObject(dataByte);
+    				DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
 
     				if(maSet.getAnnotationFileName() != null){
-
     					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
     					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
     					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-
     				}
 
     				markerTable.setContainerDataSource(markerTableView(maSet));
@@ -880,7 +849,11 @@ public class UMainLayout extends HorizontalLayout {
     		}
 
     	}
-
+    	
+    	/**
+    	 * Supplies the container for the dataset and result tree to display. 
+    	 * @return dataset and resultset container 
+    	 */
     	public HierarchicalContainer getDataContainer() {
 
     		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
@@ -910,9 +883,7 @@ public class UMainLayout extends HorizontalLayout {
     			}
 
     		}
-
     		return dataSets;
-
     	}
     
     }

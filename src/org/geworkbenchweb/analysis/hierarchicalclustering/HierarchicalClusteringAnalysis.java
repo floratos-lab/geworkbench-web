@@ -1,8 +1,5 @@
 package org.geworkbenchweb.analysis.hierarchicalclustering;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -11,6 +8,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
+
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -66,7 +65,7 @@ public class HierarchicalClusteringAnalysis {
 		resultSet.setType("Hierarchical Clustering");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	
-		resultSet.setData(convertToByte(results));
+		resultSet.setData(ObjectConversion.convertToByte(results));
 		FacadeFactory.getFacade().store(resultSet);	
 		
 		//UAccordionPanel.resetDataContainer();
@@ -108,28 +107,4 @@ public class HierarchicalClusteringAnalysis {
 		}
 	}
 	
-	private byte[] convertToByte(Object object) {
-
-		byte[] byteData = null;
-		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
-
-		try {
-
-			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
-
-			oos.writeObject(object);
-			oos.flush(); 
-			oos.close(); 
-			bos.close();
-			byteData 				= 	bos.toByteArray();
-
-		} catch (IOException ex) {
-
-			System.out.println("Exception with in convertToByte");
-
-		}
-
-		return byteData;
-
-	}
 }
