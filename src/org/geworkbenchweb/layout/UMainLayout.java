@@ -16,6 +16,7 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -765,9 +766,38 @@ public class UMainLayout extends HorizontalLayout {
     			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
     			if(dataSet != null) {
+    				dataSet.getId();
     				
+    				/* Deleting result sets if there are any */
+    				if(dataTree.hasChildren(target)) {
+    					String querySub 			= 	"Select p from ResultSet as p where p.owner=:owner";
+    					Map<String, Object> params 	= 	new HashMap<String, Object>();
+
+    					params.put("owner", user.getId());
+    					List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
+
+    					for(ResultSet result : resultSets) {
+    						FacadeFactory.getFacade().delete(result);
+    						dataTree.removeItem(result.getName());
+    					}
+    				}
+    				
+    				/* Deleting subsets if there are any */
+    				String querySub 			= 	"Select p from SubSet as p where p.owner=:owner and p.parent=:parent";
+					Map<String, Object> params 	= 	new HashMap<String, Object>();
+
+					params.put("owner", user.getId());
+					params.put("parent", dataSet.getId());
+					List<SubSet> subSets 		= 	FacadeFactory.getFacade().list(querySub, params);
+    				if(!subSets.isEmpty()) {
+    					for(SubSet set : subSets) {
+    						FacadeFactory.getFacade().delete(set);
+    					}
+    					setTabs.populateTabSheet(null);
+    				}
     				FacadeFactory.getFacade().delete(dataSet);
     				dataTree.removeItem(target);
+    				
 
     			} else {
 
@@ -779,8 +809,6 @@ public class UMainLayout extends HorizontalLayout {
     				ResultSet resultSet 		= 	FacadeFactory.getFacade().find(querySub, params);
     				FacadeFactory.getFacade().delete(resultSet);
     				dataTree.removeItem(target);
-
-
     			}
 
     			setMainPanelSecondComponent(welcome);

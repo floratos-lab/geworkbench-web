@@ -19,27 +19,27 @@ import com.vaadin.ui.themes.Reindeer;
 public class USetsTabSheet extends TabSheet{
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private DSMicroarraySet maSet;
 
 	private TreeTable markerSets;
 
 	private TreeTable arraySets;
-	
+
 	private static final String MARKER_HEADER 	= 	"Marker";
-	
+
 	private VerticalLayout l1;
-	
+
 	private VerticalLayout l2;
 
 	public USetsTabSheet() {
-		
+
 		setStyleName(Reindeer.TABSHEET_SMALL);
 		setSizeFull();
-	
+
 		l1 	= 	new VerticalLayout();
 		l2 	= 	new VerticalLayout();
-	
+
 		l1.setSizeFull();
 		l1.setImmediate(true);
 		l1.setStyleName(Reindeer.LAYOUT_WHITE);
@@ -49,16 +49,20 @@ public class USetsTabSheet extends TabSheet{
 
 		addTab(l1, "Marker Sets");
 		addTab(l2, "Array Sets");
-	
+
 	}
-	
+
 	public void populateTabSheet(DSMicroarraySet dataSet) {
+
+		this.l1.removeAllComponents();
+		this.l2.removeAllComponents();
 		
+		if(dataSet == null) {
+			//TODO
+		}else {
+			
 			this.maSet = dataSet;
 			
-			this.l1.removeAllComponents();
-			this.l2.removeAllComponents();
-
 			markerSets = new TreeTable();
 			markerSets.setImmediate(true);
 			markerSets.setSelectable(true);
@@ -163,24 +167,25 @@ public class USetsTabSheet extends TabSheet{
 
 			markerSetContainer(SubSetOperations.getMarkerSets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
 			arraySetContainer(SubSetOperations.getArraySets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
-		
+
 			l1.addComponent(markerSets);
 			l2.addComponent(arraySets);
-		
+		}
+
 	}
-	
+
 	private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
 
 		arraySets.removeAllItems();
 		arraySets.setSizeFull();
 		arraySets.addContainerProperty("Name", String.class, "");
-		
+
 		arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 		/**
 		 * Vaadin 7
 		 * arraySets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
 		 */
-		
+
 		if(!list.isEmpty()) {
 
 			for(int i=0; i<list.size(); i++ ) {
@@ -200,7 +205,7 @@ public class USetsTabSheet extends TabSheet{
 				}
 
 			}
-		
+
 		}
 
 	}
@@ -210,13 +215,13 @@ public class USetsTabSheet extends TabSheet{
 		markerSets.removeAllItems();
 		markerSets.setSizeFull();
 		markerSets.addContainerProperty("Name", String.class, "");
-		
+
 		markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
 		/**
 		 * Vaadin 7
 		 * markerSets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
 		 */
-		
+
 		if(list.size() != 0) {	
 
 			for(int i=0; i<list.size(); i++ ) {
@@ -233,21 +238,21 @@ public class USetsTabSheet extends TabSheet{
 							+ " (" 
 							+ maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getGeneName()
 							+ ")" 
-								}, null);
+					}, null);
 					markerSets.setChildrenAllowed(subItem, false);
 					markerSets.setParent(subItem, item);
 				}
 
 			}
-			
+
 		}
 
 	}
 	public void removeData() {
-		
+
 		l1.removeAllComponents();
 		l2.removeAllComponents();
-		
+
 	}
 	/**
 	 * Create Dataset for selected markerSet 
@@ -257,7 +262,7 @@ public class USetsTabSheet extends TabSheet{
 		@SuppressWarnings("rawtypes")
 		List subSet 		= 	SubSetOperations.getMarkerSet(setName);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-		
+
 		return positions;
 	}
 
@@ -269,7 +274,7 @@ public class USetsTabSheet extends TabSheet{
 		@SuppressWarnings("rawtypes")
 		List subSet 		= 	SubSetOperations.getArraySet(setName);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-		
+
 		return positions;
 	}
 }
