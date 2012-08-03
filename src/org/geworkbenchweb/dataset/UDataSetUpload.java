@@ -15,7 +15,7 @@ import com.vaadin.ui.Window;
 @SuppressWarnings("serial")
 public class UDataSetUpload extends Window {
     
-    private static final String[] files		= 	new String[] { "Expression File" };
+    private static final String[] files		= 	new String[] { "Expression File", "PDB File" };
     private static final String initialText = 	"Enter description here.";
    
     private VerticalLayout dataLayout; 
@@ -109,7 +109,8 @@ public class UDataSetUpload extends Window {
     	
     	parseInit(dataFile, null, fileType, dataDescription);
     		
-    	dataFile.delete();
+    	if (!fileType.equals("PDB File"))
+    		dataFile.delete();
     	
     }
     

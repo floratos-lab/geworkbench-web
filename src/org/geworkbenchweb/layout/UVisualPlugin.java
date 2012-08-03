@@ -9,11 +9,14 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
+import org.geworkbenchweb.analysis.markus.ui.UMarkusDataTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
 import com.invient.vaadin.charts.InvientCharts;
@@ -22,11 +25,14 @@ import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.ExternalResource;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChangeListener {
@@ -56,9 +62,9 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	private Object dataSet;
 
 	public UVisualPlugin(Object dataSet, String dataType, String action) {
-		
+
 		this.dataSet = dataSet;
-		
+
 		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
@@ -276,8 +282,30 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			addTab(cy);
 
+		}else if(dataType.equals("PDB File")) {
+
+			DSProteinStructure prtset = (DSProteinStructure) dataSet;
+			UMarkusDataTab datatab = new UMarkusDataTab(prtset, action);
+			datatab.setCaption(DATA_OPERATIONS);
+			addTab(datatab); 
+
+		}else if (dataType.equals("MarkUs")){
+			MarkUsResultDataSet resultset = (MarkUsResultDataSet)dataSet;
+			String results = resultset.getResult();
+
+			VerticalLayout layout = new VerticalLayout();
+			Embedded browser = new Embedded("", new ExternalResource(MARKUS_RESULT_URL+results));
+			browser.setType(Embedded.TYPE_BROWSER);
+			browser.setSizeFull();
+			layout.addComponent(browser);
+			layout.setWidth("100%");
+			layout.setHeight("100%");
+			
+			addTab(layout);
 		}
 	}
+
+	private static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 
 	public static IndexedContainer tabularView(DSMicroarraySet maSet) {
 
@@ -359,8 +387,11 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			}
 
+
 		}catch (Exception e) {
+
 			//TODO
+
 		}
 
 	}

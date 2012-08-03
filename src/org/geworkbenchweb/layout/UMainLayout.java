@@ -7,10 +7,14 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -82,6 +86,8 @@ public class UMainLayout extends HorizontalLayout {
 	private Tree dataTree;
 	
 	private DSMicroarraySet maSet;
+	
+	private DSDataSet<? extends DSBioObject> parentSet = null;
 	
 	private VerticalSplitPanel menuPanel;
 	
@@ -666,18 +672,27 @@ public class UMainLayout extends HorizontalLayout {
 
     					dataSetId 					=	dataSet.getId();
     					byte[] dataByte 			= 	dataSet.getData();
-    					maSet 						= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
-    					
-    					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-    					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-    					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-    					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
 
-    					markerTable.setContainerDataSource(markerTableView(maSet));
-    					arrayTable.setContainerDataSource(arrayTableView(maSet));
-
-    					UVisualPlugin tabSheet 			= 	new UVisualPlugin(maSet, dataSet.getType(), null);
-    					setTabs.populateTabSheet(maSet);
+    					UVisualPlugin tabSheet = null;
+    					if (dataSet.getType().equals("PDB File")){
+    						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+    						parentSet				=	pSet;
+    						tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
+    					}else{
+	    					maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+	    					parentSet				=	maSet;
+	    					
+	    					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+	    					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+	    					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
+	    					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+	
+	    					markerTable.setContainerDataSource(markerTableView(maSet));
+	    					arrayTable.setContainerDataSource(arrayTableView(maSet));
+	
+	    					tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+	    					setTabs.populateTabSheet(maSet);
+    					}
 
     					menuPanel.setSecondComponent(tabSheet);
     					setMainPanelSecondComponent(menuPanel);
@@ -711,6 +726,11 @@ public class UMainLayout extends HorizontalLayout {
 
     							AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) ObjectConversion.toObject(dataByte);
     							tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+
+    						}else if(resultSet.getType().equalsIgnoreCase("MarkUs")) {
+
+    							MarkUsResultDataSet prtSet		= 	(MarkUsResultDataSet) ObjectConversion.toObject(dataByte);
+    							tabSheet 	= 	new UVisualPlugin(prtSet, resultSet.getType(), null);
 
     						}
 
@@ -840,8 +860,12 @@ public class UMainLayout extends HorizontalLayout {
     				}
     				FacadeFactory.getFacade().delete(dataSet);
     				dataTree.removeItem(target);
-    				
 
+    				if (dataSet.getType().equals("PDB File")){
+    					File dataFile = new File(System.getProperty("user.home") + "/temp/", dataName);
+    					if (dataFile.exists())  dataFile.delete();
+    				}
+    				
     			} else {
 
     				String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
@@ -870,7 +894,21 @@ public class UMainLayout extends HorizontalLayout {
     			if(dataSet != null) {
 
     				byte[] dataByte 			= 	dataSet.getData();
-    				DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+    				
+    				if (dataSet.getType().equals("PDB File")){
+    					if (action == ACTION_ANALYZE){
+    						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+    						parentSet				=	pSet;
+
+    						UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
+    						menuPanel.setSecondComponent(tabSheet);
+    						setMainPanelSecondComponent(menuPanel);
+    					}
+	    				return;
+					}
+
+					DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+					parentSet					=	maSet;
 
     				if(maSet.getAnnotationFileName() != null){
     					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
@@ -932,7 +970,8 @@ public class UMainLayout extends HorizontalLayout {
     		dataTree.addItem(event.getDataSetName());
     		if(event.getDataType() != "Data Node") {
         		dataTree.setChildrenAllowed(event.getDataSetName(), false);
-        		dataTree.setParent(event.getDataSetName(), maSet.getDataSetName());
+        		dataTree.setParent(event.getDataSetName(), parentSet.getDataSetName());
+        		dataTree.expandItem(parentSet.getDataSetName());
     		}
     		dataTree.select(event.getDataSetName());
     	}

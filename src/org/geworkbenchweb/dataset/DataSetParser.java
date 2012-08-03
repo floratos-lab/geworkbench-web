@@ -2,10 +2,14 @@ package org.geworkbenchweb.dataset;
 
 import java.io.File;
 import java.io.InterruptedIOException;
+
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.parsers.GeoSeriesMatrixParser;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.parsers.MicroarraySetParser;
+import org.geworkbench.parsers.PDBFileFormat;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
@@ -36,6 +40,9 @@ public class DataSetParser {
 			
 			ExpressionDataSet(dataFile, annotFile);
 			
+		} else if (fileType == "PDB File"){
+			
+			PDBDataSet(dataFile);
 		}
 	}
 	
@@ -87,6 +94,22 @@ public class DataSetParser {
 			
 			System.out.println("Interrupted by parser");
 		
+		}
+	}
+
+	private void PDBDataSet(File dataFile){
+		DSDataSet<? extends DSBioObject> dataSet = new PDBFileFormat().getDataFile(dataFile);
+
+		if(dataSet.getFile() == null) {
+			
+			System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
+		
+		}else {
+			
+			storeData(dataSet);
+			NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), "Data Node");
+			GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
 		}
 	}
 
