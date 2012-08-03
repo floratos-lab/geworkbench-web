@@ -108,81 +108,52 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			for(CellularNetWorkElementInformation cellular: hits) {
 
 				try {
-
-
 					InteractionDetail[] interactions = cellular.getInteractionDetails();
-
 					if(interactions.length != 0) {
-
-						for(InteractionDetail interaction: interactions) {
-
-							
+						for(InteractionDetail interaction: interactions) {		
 							String edge = cellular.getdSGeneMarker().getGeneName() 
 									+ ","
 									+ interaction.getdSGeneName();
-
 							String node1 = 	cellular.getdSGeneMarker().getGeneName()
 									+ ","
 									+ cellular.getdSGeneMarker().getGeneName();
-
 							String node2 =	interaction.getdSGeneName()
 									+ ","
 									+ interaction.getdSGeneName();
-
 							if(edges.isEmpty()) {
-
 								edges.add(edge);
-
 							}else if(!edges.contains(edge)) {
-
 								edges.add(edge);
 							}
-
 							if(node1 == node2) {
-
 								if(!nodes.contains(node1 + ",1")){
-									
 									nodes.add(node1+",1");
-									
 									if(nodes.contains(node1+",0")) {
 										nodes.remove(node1 + ",0");
 									}
-								
 								}else if(!nodes.contains(node1 + ",0")) {
-									
 									nodes.add(node1+",0");
 								}
-								
 							}else if(nodes.isEmpty()) {
-
-
 								nodes.add(node1 + ",1");
 								nodes.add(node2 + ",0");
-
 							} else { 
-
 								if(!nodes.contains(node1 + ",1")) {
-
 									nodes.add(node1 + ",1");
 									if(nodes.contains(node1+",0")) {
 										nodes.remove(node1 + ",0");
 									}
-
 								}
-
 								if(!nodes.contains(node2 + ",1")) {	
-
 									if(!nodes.contains(node2 + ",0")) {
-
 										nodes.add(node2 + ",0");
-
 									}
 								}
 							}
 						}
 					}
 				}catch (Exception e) {
-
+					e.printStackTrace();
 				}
 			}	
 
@@ -208,7 +179,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			CSHierClusterDataSet results 	=  	(CSHierClusterDataSet) dataSet;
 			dendrogramTab 					= 	new UClustergramTab(results);
-
 			addTab(dendrogramTab, "Dendrogram", null);		
 
 		} else if(dataType.equalsIgnoreCase("ARACne")) {
