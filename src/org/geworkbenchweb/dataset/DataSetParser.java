@@ -84,7 +84,8 @@ public class DataSetParser {
 			}else {
 				
 				storeData(dataSet);
-				//UAccordionPanel.resetDataContainer();
+				NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), "Data Node");
+				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 				
 			}
 		} catch (InputFileFormatException e) {
