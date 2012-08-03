@@ -85,8 +85,6 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private Tree dataTree;
 	
-	private DSMicroarraySet maSet;
-	
 	private DSDataSet<? extends DSBioObject> parentSet = null;
 	
 	private VerticalSplitPanel menuPanel;
@@ -316,6 +314,8 @@ public class UMainLayout extends HorizontalLayout {
     	protected String selectedValues = null;
 
     	public Long dataSetId;
+    	
+    	private DSMicroarraySet maSet;
 
     	private Action ACTION_DELETE	 	= 	new Action("Delete");
 
@@ -344,8 +344,7 @@ public class UMainLayout extends HorizontalLayout {
 			toolBar.setImmediate(true);
 
 			menuPanel.setFirstComponent(toolBar);
-
-    		
+			
     		VerticalLayout l 	= 	new VerticalLayout();
     		l.setMargin(true);
     		Tab t = addTab(l);
@@ -678,6 +677,7 @@ public class UMainLayout extends HorizontalLayout {
     						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
     						parentSet				=	pSet;
     						tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
+    					
     					}else{
 	    					maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
 	    					parentSet				=	maSet;

@@ -268,6 +268,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			browser.setType(Embedded.TYPE_BROWSER);
 			browser.setSizeFull();
 			layout.addComponent(browser);
+			layout.setCaption("MarkUs Results");
 			layout.setWidth("100%");
 			layout.setHeight("100%");
 			
@@ -285,27 +286,19 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		for(int j=0; j<maSet.getMarkers().size();j++) {
 
 			Item item 					= 	dataIn.addItem(j);
-
 			for(int k=0;k<=maSet.size();k++) {
-
 				if(k == 0) {
-
 					colHeaders[k] 		= 	MARKER_HEADER;
 					dataIn.addContainerProperty(colHeaders[k], String.class, null);
 					item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(j).getLabel());
-
 				} else {
-
 					colHeaders[k] 		= 	maSet.get(k-1).toString();
 					dataIn.addContainerProperty(colHeaders[k], Float.class, null);
 					item.getItemProperty(colHeaders[k]).setValue((float) maSet.getValue(j, k-1));
-
 				}
 			}
 		}
-
 		return dataIn;
-
 	}
 
 	@Override
