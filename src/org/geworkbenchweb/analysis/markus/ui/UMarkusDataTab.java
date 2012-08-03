@@ -39,7 +39,7 @@ public class UMarkusDataTab  extends VerticalLayout {
 		analysisBox.setWidth("60%");
 		analysisBox.setNullSelectionAllowed(false);
 		analysisBox.setCaption("Select Analyis Type");
-		analysisBox.addItem("MarkUs Parameters");
+		analysisBox.addItem("MarkUs");
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new changeListener(prtSet, paramPanel, dataPanel));
 	
