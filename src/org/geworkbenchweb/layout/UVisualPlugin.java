@@ -310,22 +310,6 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 	}
 
-	/*public static void resetTableContainer(IndexedContainer data) {
-
-		dataTable.removeAllItems();
-		dataTable.setContainerDataSource(data);
-		dataTable.setColumnWidth(MARKER_HEADER, 150);
-
-	}
-
-	public static void resetOriginalView(DSMicroarraySet dSet) {
-
-		dataTable.removeAllItems();
-		dataTable.setContainerDataSource(tabularView(dSet));
-		dataTable.setColumnWidth(MARKER_HEADER, 150);
-
-	}*/
-
 	@Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
 
@@ -375,11 +359,8 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 			}
 
-
 		}catch (Exception e) {
-
 			//TODO
-
 		}
 
 	}

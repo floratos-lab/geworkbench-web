@@ -1,10 +1,7 @@
 package org.geworkbenchweb.dataset;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.ObjectOutputStream;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.parsers.GeoSeriesMatrixParser;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -12,6 +9,7 @@ import org.geworkbench.parsers.MicroarraySetParser;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -45,13 +43,6 @@ public class DataSetParser {
 		
 		MicroarraySetParser parser 	= 	new MicroarraySetParser();
 		DSMicroarraySet dataSet 	= 	parser.parseCSMicroarraySet(dataFile);
-		
-		/* Here we are parsing Annotation file */
-		/*if(annotFile != null) {
-			
-			AnnotationParser.loadAnnotationFile(dataSet, annotFile);
-		
-		} */
 		
 		if(dataSet.isEmpty()) {
 			
@@ -108,36 +99,9 @@ public class DataSetParser {
 		dataset.setType(fileType);
 		dataset.setDescription(dataDescription);
 	    dataset.setOwner(user.getId());	
-	    dataset.setData(convertToByte(dataSet));
+	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
 	    
-	    //UAccordionPanel.resetDataContainer();
-	    
-	}
-	
-	private byte[] convertToByte(Object object) {
-		
-		byte[] byteData = null;
-		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
-		  
-		try {
-			
-			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
-		    
-			oos.writeObject(object);
-		    oos.flush(); 
-		    oos.close(); 
-		    bos.close();
-		    byteData 				= 	bos.toByteArray();
-		  
-		} catch (IOException ex) {
-			  
-			  System.out.println("Exception with in convertToByte");
-		  
-		}
-		  
-		return byteData;
-	
 	}
 }
 

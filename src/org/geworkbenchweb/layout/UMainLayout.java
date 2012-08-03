@@ -81,7 +81,9 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private Tree dataTree;
 	
-	public DSMicroarraySet maSet;
+	private DSMicroarraySet maSet;
+	
+	private VerticalSplitPanel menuPanel;
 	
 	User user = SessionHandler.get();
 	
@@ -322,8 +324,22 @@ public class UMainLayout extends HorizontalLayout {
     	private final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
 
     	public UAccordionPanel(boolean closable) {
-
+    		
     		super();
+    		
+    		/* Menu Bar initialization */
+    		menuPanel 	= 	new VerticalSplitPanel();
+			menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+			menuPanel.setImmediate(true);
+			menuPanel.setLocked(true);
+			menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
+
+			UMenuBar toolBar 	= 	new UMenuBar();
+			toolBar.setImmediate(true);
+
+			menuPanel.setFirstComponent(toolBar);
+
+    		
     		VerticalLayout l 	= 	new VerticalLayout();
     		l.setMargin(true);
     		Tab t = addTab(l);
@@ -637,17 +653,6 @@ public class UMainLayout extends HorizontalLayout {
     		try {
     			if((String) event.getProperty().getValue() != null ) {
 
-    				VerticalSplitPanel menuPanel 	= 	new VerticalSplitPanel();
-    				menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
-    				menuPanel.setImmediate(true);
-    				menuPanel.setLocked(true);
-    				menuPanel.setSplitPosition(23, Sizeable.UNITS_PIXELS);
-
-    				UMenuBar toolBar 	= 	new UMenuBar();
-    				toolBar.setImmediate(true);
-
-    				menuPanel.setFirstComponent(toolBar);
-
     				String dataPeru					= 	(String) event.getProperty().getValue();
     				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
     				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -875,15 +880,16 @@ public class UMainLayout extends HorizontalLayout {
 
     				markerTable.setContainerDataSource(markerTableView(maSet));
     				arrayTable.setContainerDataSource(arrayTableView(maSet));
-
+    				
     				if(action == ACTION_ANALYZE) {
     					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
-    					setMainPanelSecondComponent(tabSheet);
+    					menuPanel.setSecondComponent(tabSheet);
     				}else {
+    					
     					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
-    					setMainPanelSecondComponent(tabSheet);
+    					menuPanel.setSecondComponent(tabSheet);
     				}
-
+    				setMainPanelSecondComponent(menuPanel);
     			}else {
 
     				getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis");

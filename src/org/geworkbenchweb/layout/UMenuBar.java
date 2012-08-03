@@ -10,18 +10,11 @@ public class UMenuBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
 
-	UMenuBar() {
+	public UMenuBar() {
 		
 		setImmediate(true);
 		setSizeFull();
 		
 	}
-	/*
-	public static UMenuBar getMenuBarObject() {
-		if (menuBarInstance == null) {
-			menuBarInstance = new UMenuBar();
-		}
-		return menuBarInstance;
-	}*/
 	
 }
