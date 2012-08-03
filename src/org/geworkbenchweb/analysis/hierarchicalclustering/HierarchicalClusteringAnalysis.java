@@ -7,6 +7,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 
@@ -61,17 +63,20 @@ public class HierarchicalClusteringAnalysis {
 		ResultSet resultSet = 	new ResultSet();
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
-		resultSet.setName("HC - " + new java.util.Date());
+		String dataSetName = "HC - " + new java.util.Date();
+		resultSet.setName(dataSetName);
 		resultSet.setType("Hierarchical Clustering");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(results));
 		FacadeFactory.getFacade().store(resultSet);	
 		
-		//UAccordionPanel.resetDataContainer();
-		
+		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+	
 	}
 		
+
 	// TODO these are temporary code. enum (or int) should be used instead String
 	private static int parseDistanceMetric(String d) {
 		if(d.equals("Eucledian Distance")) {

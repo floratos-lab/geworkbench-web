@@ -16,7 +16,7 @@ import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class USetsTabSheet extends TabSheet{
+public class USetsTabSheet extends TabSheet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,7 +104,7 @@ public class USetsTabSheet extends TabSheet{
 									}
 								}
 							}
-							//UVisualPlugin.resetTableContainer(dataIn);
+						
 						}
 					}catch (Exception e) {
 
@@ -277,4 +277,5 @@ public class USetsTabSheet extends TabSheet{
 
 		return positions;
 	}
+	
 }

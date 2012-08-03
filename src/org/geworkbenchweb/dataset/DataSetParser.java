@@ -9,6 +9,8 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.parsers.GeoSeriesMatrixParser;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.parsers.MicroarraySetParser;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -58,7 +60,8 @@ public class DataSetParser {
 		}else {
 			
 			storeData(dataSet);
-			//UAccordionPanel.resetDataContainer();
+			NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), "Data Node");
+			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 			
 		}
 		

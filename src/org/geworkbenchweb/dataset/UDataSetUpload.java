@@ -95,7 +95,6 @@ public class UDataSetUpload extends Window {
         addComponent(dataLayout);       
         Button uploadButton = new Button("Upload");
         dataLayout.addComponent(uploadField);
-        //dataLayout.addComponent(annotUploadField);
         dataLayout.addComponent(uploadButton);
         uploadButton.addListener(Button.ClickEvent.class, this, "theButtonClick");
     	
@@ -111,10 +110,6 @@ public class UDataSetUpload extends Window {
     	parseInit(dataFile, null, fileType, dataDescription);
     		
     	dataFile.delete();
-    	
-    	/* We are keeping annotation file because we CSMicroarraySet doesn't save any annotation information */
-    	
-    	//annotFile.delete();
     	
     }
     

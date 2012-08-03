@@ -12,6 +12,8 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionsConne
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -111,14 +113,16 @@ public class CNKBInteractions {
 		ResultSet resultSet = 	new ResultSet();
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
-		resultSet.setName("CNKB - " + new java.util.Date());
+		String dataSetName	=	"CNKB - " + new java.util.Date(); 
+		resultSet.setName(dataSetName);
 		resultSet.setType("CNKB");
 		resultSet.setParent(dataSet.getDataSetName());
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
 		
-		//UAccordionPanel.resetDataContainer();
+		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		
 	}
 }

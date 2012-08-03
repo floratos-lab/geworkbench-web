@@ -13,7 +13,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.UDataSetUpload;
+import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -76,9 +79,17 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private VerticalLayout setTabLayout;
 	
+	private Tree dataTree;
+	
+	public DSMicroarraySet maSet;
+	
 	User user = SessionHandler.get();
 	
 	public UMainLayout() {
+		
+		/* Add listeners here */
+		NodeAddListener addNodeListener = new NodeAddListener();
+		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
 		
 		setSizeFull();
 		setStyleName(Reindeer.LAYOUT_BLUE);
@@ -238,16 +249,49 @@ public class UMainLayout extends HorizontalLayout {
     }
     
     /**
+	 * Supplies the container for the dataset and result tree to display. 
+	 * @return dataset and resultset container 
+	 */
+	public HierarchicalContainer getDataContainer() {
+
+		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+
+		parameters.put("owner", user.getId());
+		
+		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
+
+		for(int i=0; i<data.size(); i++) {
+
+			String id = ((DataSet) data.get(i)).getName();
+			dataSets.addItem(id);
+
+			Map<String, Object> params 	= 	new HashMap<String, Object>();
+			params.put("owner", user.getId());
+			params.put("parent", id);
+			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
+
+			for(int j=0; j<results.size(); j++) {
+
+				String subId = ((ResultSet) results.get(j)).getName();
+				dataSets.addItem(subId);
+				dataSets.setChildrenAllowed(subId, false);
+				dataSets.setParent(subId, id);
+
+			}
+
+		}
+		return dataSets;
+	}
+    
+    /**
      * UAccordionPanel builds the DataSet area of geWorkbench.
      * It inlcudes dataset & resultset tree, Markers table, Phenotypes table and Sets Tab sheet. 
      * @author Nikhil Reddy
      */
-    
     class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Action.Handler {
 
     	private static final long serialVersionUID = 4523693969296820932L;
-
-    	private Tree dataTree;
 
     	private Table arrayTable;
 
@@ -264,10 +308,6 @@ public class UMainLayout extends HorizontalLayout {
     	protected String selectedValues = null;
 
     	public Long dataSetId;
-
-    	public DSMicroarraySet maSet;
-
-    	private Long userId; 
 
     	private Action ACTION_DELETE	 	= 	new Action("Delete");
 
@@ -287,8 +327,6 @@ public class UMainLayout extends HorizontalLayout {
     		VerticalLayout l 	= 	new VerticalLayout();
     		l.setMargin(true);
     		Tab t = addTab(l);
-
-    		userId = user.getId();
 
     		t.setCaption("DataSets");
 
@@ -431,6 +469,7 @@ public class UMainLayout extends HorizontalLayout {
     									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
     										getApplication().getMainWindow().removeWindow(nameWindow);
+    										setTabs.populateTabSheet(maSet);
     										/**
     										 * Vaadin 7
     										 * Root.getCurrent().removeWindow(nameWindow);
@@ -540,12 +579,11 @@ public class UMainLayout extends HorizontalLayout {
     								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
     									getApplication().getMainWindow().removeWindow(nameWindow);
+    									setTabs.populateTabSheet(maSet);
     									/**
     									 * Vaadin 7
     									 * Root.getCurrent().removeWindow(nameWindow);
     									 */
-    									setTabs.populateTabSheet(maSet);
-
     								}
     							} else {
     								
@@ -877,43 +915,21 @@ public class UMainLayout extends HorizontalLayout {
     		}
 
     	}
-    	
-    	/**
-    	 * Supplies the container for the dataset and result tree to display. 
-    	 * @return dataset and resultset container 
-    	 */
-    	public HierarchicalContainer getDataContainer() {
-
-    		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
-    		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-
-    		parameters.put("owner", userId);
-    		
-    		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
-
-    		for(int i=0; i<data.size(); i++) {
-
-    			String id = ((DataSet) data.get(i)).getName();
-    			dataSets.addItem(id);
-
-    			Map<String, Object> params 	= 	new HashMap<String, Object>();
-    			params.put("owner", userId);
-    			params.put("parent", id);
-    			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
-
-    			for(int j=0; j<results.size(); j++) {
-
-    				String subId = ((ResultSet) results.get(j)).getName();
-    				dataSets.addItem(subId);
-    				dataSets.setChildrenAllowed(subId, false);
-    				dataSets.setParent(subId, id);
-
-    			}
-
-    		}
-    		return dataSets;
-    	}
+    }
     
+    /**
+     * Adds the node to the dataTree  
+     */
+    public class NodeAddListener implements NodeAddEventListener {
+    	@Override
+    	public void addNode(NodeAddEvent event) {	
+    		dataTree.addItem(event.getDataSetName());
+    		if(event.getDataType() != "Data Node") {
+        		dataTree.setChildrenAllowed(event.getDataSetName(), false);
+        		dataTree.setParent(event.getDataSetName(), maSet.getDataSetName());
+    		}
+    		dataTree.select(event.getDataSetName());
+    	}
     }
 
 }
