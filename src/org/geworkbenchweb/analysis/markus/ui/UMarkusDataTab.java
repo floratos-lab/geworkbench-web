@@ -76,7 +76,7 @@ public class UMarkusDataTab  extends VerticalLayout {
 			try {
 				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("MarkUs")) {	
 					paramPanel.removeAllComponents();
-					paramPanel.setCaption("MarkUs");
+					paramPanel.setCaption("MarkUs Parameters");
 
 					UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet);
 					paramPanel.addComponent(markusParamForm);
