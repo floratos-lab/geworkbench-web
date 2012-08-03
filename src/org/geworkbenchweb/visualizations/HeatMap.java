@@ -58,7 +58,6 @@ public class HeatMap extends AbstractComponent {
 	}
 	/**
 	 * Doesn't work for now
-	 * 
 	 */
 	private void exportSVG(String image) {
 		BufferedWriter fos = null;
