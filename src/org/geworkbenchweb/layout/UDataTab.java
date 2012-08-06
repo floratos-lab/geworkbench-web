@@ -1,10 +1,15 @@
 package org.geworkbenchweb.layout;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
 import org.geworkbenchweb.analysis.aracne.ui.UAracneParamForm;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
+import org.geworkbenchweb.analysis.markus.ui.UMarkusParamForm;
 import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -22,23 +27,67 @@ import com.vaadin.ui.themes.Reindeer;
 
 public class UDataTab extends VerticalLayout {
 
-	private static final long serialVersionUID 		= 		-1888971408170241086L;
+	private static final long serialVersionUID 		= 	-1888971408170241086L;
+
+	private HorizontalSplitPanel dataSplitPanel;
 	
-	private DSMicroarraySet dataSet;
+	private Panel historyPanel;
 	
-	public UDataTab(DSMicroarraySet maSet, String action) {
-		
-		this.dataSet = maSet;
+	private Panel dataPanel;
+	
+	public UDataTab(DSDataSet<? extends DSBioObject> inputDataSet, String action) {
+				
 		setSizeFull();
 		setStyleName(Reindeer.LAYOUT_WHITE);
 		
-		HorizontalSplitPanel dataSplitPanel 	= 	new HorizontalSplitPanel();
-		Panel historyPanel						= 	new Panel();
-		final Panel dataPanel					= 	new Panel();
-		final Form paramForm 					= 	new Form();
+		dataSplitPanel 		= 	new HorizontalSplitPanel();
+		historyPanel		= 	new Panel();
+		dataPanel			= 	new Panel();
+		
+		dataPanel.setImmediate(true);
+		dataPanel.setSizeFull();
+		dataPanel.setStyleName(Reindeer.PANEL_LIGHT);
+		
+		historyPanel.setImmediate(true);
+		historyPanel.setStyleName(Reindeer.PANEL_LIGHT);
+		historyPanel.setSizeFull();
+		
+		if(inputDataSet != null) {
+			if(inputDataSet instanceof DSMicroarraySet) {
+				
+				DSMicroarraySet maSet = (DSMicroarraySet) inputDataSet;
+				buildMicroarraySetPanel(maSet, action);
+			 
+			}else{
+				
+				DSProteinStructure pdbSet = (DSProteinStructure) inputDataSet;
+				buildPDBPanel(pdbSet);
+			
+			}
+		}
+		
+		dataSplitPanel.setImmediate(true);
+		dataSplitPanel.setSplitPosition(70);
+		dataSplitPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+		dataSplitPanel.setFirstComponent(dataPanel);
+		dataSplitPanel.setSecondComponent(historyPanel);
+		
+		addComponent(dataSplitPanel);
+		
+	}
+	
+	/**
+	 * Builds Panel for MicroarraySet Operations
+	 * @param action 
+	 */
+	private void buildMicroarraySetPanel(DSMicroarraySet maSet, String action) {
+		
+		final DSMicroarraySet dataSet = maSet;
+		
 		final ComboBox operationsBox			=   new ComboBox();
 		final ComboBox analysisBox				= 	new ComboBox();
 		final ComboBox interactionsBox			= 	new ComboBox();
+		final Form paramForm 					= 	new Form();
 		final Panel paramPanel					= 	new Panel();
 		
 		paramPanel.setImmediate(true);	
@@ -46,11 +95,6 @@ public class UDataTab extends VerticalLayout {
 		paramForm.setImmediate(true);
 		paramForm.addField("operations", operationsBox);
 		
-		dataPanel.setImmediate(true);
-		dataPanel.setSizeFull();
-		dataPanel.setStyleName(Reindeer.PANEL_LIGHT);
-		dataPanel.addComponent(paramForm);
-	
 		analysisBox.setWidth("60%");
 		analysisBox.setNullSelectionAllowed(false);
 		analysisBox.setCaption("Select Analyis Type");
@@ -174,24 +218,69 @@ public class UDataTab extends VerticalLayout {
 		}
 		
 		/* Data history Tab */
-		historyPanel.setStyleName(Reindeer.PANEL_LIGHT);
-		historyPanel.setSizeFull();
-		historyPanel.addComponent(new Label("Name of the DataSet : " + maSet.getLabel()));
-		historyPanel.addComponent(new Label("Number of Markers : " + maSet.getMarkers().size()));
-		historyPanel.addComponent(new Label("Number of Arrays : " + maSet.size()));
+		historyPanel.addComponent(new Label("Name of the DataSet : " + dataSet.getLabel()));
+		historyPanel.addComponent(new Label("Number of Markers : " + dataSet.getMarkers().size()));
+		historyPanel.addComponent(new Label("Number of Arrays : " + dataSet.size()));
 		historyPanel.addComponent(new Label("--------------------------------------------------"));
 		historyPanel.addComponent(new Label("Data set history"));
-			
-		dataSplitPanel.setImmediate(true);
-		dataSplitPanel.setSplitPosition(70);
-		dataSplitPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
-		dataSplitPanel.setFirstComponent(dataPanel);
-		dataSplitPanel.setSecondComponent(historyPanel);
-		
-		addComponent(dataSplitPanel);
+	
+		dataPanel.addComponent(paramForm);
 		
 	}
+	
+	/**
+	 * Builds Panel for protien structure analysis
+	 * @param pdbSet 
+	 * @return
+	 */
+	private void buildPDBPanel(DSProteinStructure pdbSet) {
+		
+		final DSProteinStructure dataSet 		= 	pdbSet;
+		final ComboBox analysisBox				= 	new ComboBox();
+		final Panel paramPanel					= 	new Panel();
+		final Form paramForm 					= 	new Form();
+		
+		paramPanel.setImmediate(true);	
+		
+		paramForm.setImmediate(true);
+		paramForm.addField("analysis", analysisBox);
+		
+		analysisBox.setWidth("60%");
+		analysisBox.setNullSelectionAllowed(false);
+		analysisBox.setCaption("Select Analyis Type");
+		analysisBox.addItem("MarkUs");
+		analysisBox.setInputPrompt("Choose Analysis from the list");
+		analysisBox.addListener(new Property.ValueChangeListener() {
+			
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				try {
+					if(event.getProperty().getValue().toString().equalsIgnoreCase("MarkUs")) {	
+						paramPanel.removeAllComponents();
+						paramPanel.setCaption("MarkUs Parameters");
+
+						UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet);
+						paramPanel.addComponent(markusParamForm);
+						dataPanel.addComponent(paramPanel);
+					}
+				}catch (Exception e){
+					dataPanel.removeComponent(paramPanel);
+				}
+				
+			}
+		
+		});
+		
+		/* Data history Tab */
+		historyPanel.addComponent(new Label("Name of the DataSet : " + pdbSet.getLabel()));
+		historyPanel.addComponent(new Label("--------------------------------------------------"));
+		historyPanel.addComponent(new Label("Data set history"));
+		
+		dataPanel.addComponent(paramForm);
+		
+	}
 }
 
 

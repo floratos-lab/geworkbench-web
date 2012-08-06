@@ -16,7 +16,6 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
-import org.geworkbenchweb.analysis.markus.ui.UMarkusDataTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
 import com.invient.vaadin.charts.InvientCharts;
@@ -254,10 +253,11 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 
 		}else if(dataType.equals("PDB File")) {
 
-			DSProteinStructure prtset = (DSProteinStructure) dataSet;
-			UMarkusDataTab datatab = new UMarkusDataTab(prtset, action);
-			datatab.setCaption(DATA_OPERATIONS);
-			addTab(datatab); 
+			DSProteinStructure prtset 	= 	(DSProteinStructure) dataSet;
+			dataOp						= 	new UDataTab(prtset, action);
+			
+			dataOp.setCaption(DATA_OPERATIONS);
+			addTab(dataOp); 
 
 		}else if (dataType.equals("MarkUs")){
 			MarkUsResultDataSet resultset = (MarkUsResultDataSet)dataSet;
