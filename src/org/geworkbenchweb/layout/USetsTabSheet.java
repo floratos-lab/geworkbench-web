@@ -16,6 +16,10 @@ import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
+/**
+ * USetsTabSheet loads the Marker and Phenotype sets for the dataSet selected
+ * @author np2417
+ */
 public class USetsTabSheet extends TabSheet {
 
 	private static final long serialVersionUID = 1L;
@@ -58,7 +62,7 @@ public class USetsTabSheet extends TabSheet {
 		this.l2.removeAllComponents();
 		
 		if(dataSet == null) {
-			//TODO
+			System.out.println("Some how dataset supplied is empty. Check the code !!");
 		}else {
 			
 			this.maSet = dataSet;
@@ -76,40 +80,28 @@ public class USetsTabSheet extends TabSheet {
 						Item itemSelected = markerSets.getItem(event.getProperty().getValue());
 
 						if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
-
 							String positions 			=	 getMarkerData(itemSelected.toString(), maSet);
 							String[] temp 				=   (positions.substring(1, positions.length()-1)).split(",");
 							String[] colHeaders 		= 	new String[(maSet.size())+1];
 							IndexedContainer dataIn 	= 	new IndexedContainer();
-
+							
 							for(int j=0; j<temp.length; j++) {
-
 								Item item 				= 	dataIn.addItem(j);
-
 								for(int k=0;k<=maSet.size();k++) {
-
 									if(k == 0) {
-
 										colHeaders[k] 	= 	MARKER_HEADER;
 										dataIn.addContainerProperty(colHeaders[k], String.class, null);
 										item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(Integer.parseInt(temp[j].trim())));
-
-
 									} else {
-
 										colHeaders[k] 	= 	maSet.get(k-1).toString();
 										dataIn.addContainerProperty(colHeaders[k], Float.class, null);
 										item.getItemProperty(colHeaders[k]).setValue(maSet.getValue(Integer.parseInt(temp[j].trim()), k-1));
-
 									}
 								}
 							}
-						
 						}
 					}catch (Exception e) {
-
-						//UVisualPlugin.resetOriginalView(maSet);
-
+						e.printStackTrace();
 					}
 				}
 			});
@@ -155,12 +147,9 @@ public class USetsTabSheet extends TabSheet {
 									}
 								}
 							}
-
-							//UVisualPlugin.resetTableContainer(dataIn);
 						}
 					}catch (Exception e) {
-
-						//UVisualPlugin.resetOriginalView(maSet);
+						e.printStackTrace();
 					}
 				}
 			});
@@ -201,13 +190,9 @@ public class USetsTabSheet extends TabSheet {
 					Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
 					arraySets.setChildrenAllowed(subItem, false);
 					arraySets.setParent(subItem, item);
-
 				}
-
 			}
-
 		}
-
 	}
 
 	private void markerSetContainer(List<?> list, DSMicroarraySet maSet) {
@@ -254,6 +239,7 @@ public class USetsTabSheet extends TabSheet {
 		l2.removeAllComponents();
 
 	}
+	
 	/**
 	 * Create Dataset for selected markerSet 
 	 */
