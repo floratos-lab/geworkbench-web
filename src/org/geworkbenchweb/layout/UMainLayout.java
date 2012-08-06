@@ -658,6 +658,8 @@ public class UMainLayout extends HorizontalLayout {
     		try {
     			if((String) event.getProperty().getValue() != null ) {
 
+    				setTabs.removeData();
+    				
     				String dataPeru					= 	(String) event.getProperty().getValue();
     				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
     				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
