@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructu
 import org.geworkbenchweb.analysis.markus.MarkusAnalysis;
 
 import com.vaadin.ui.Accordion;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
@@ -24,8 +25,8 @@ public class UMarkusParamForm extends VerticalLayout {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
-	private DSProteinStructure dataSet = null;
-	private ComboBox cbxChain = new ComboBox("Chain");
+	private DSProteinStructure dataSet 	= 	null;
+	private ComboBox cbxChain 			= 	new ComboBox("Chain");
 	private TextField email = new TextField("Email (optional)");
 	private TextField title = new TextField("Title (optional)");
 	private CheckBox cbkey = new CheckBox("Private Key");
@@ -106,13 +107,22 @@ public class UMarkusParamForm extends VerticalLayout {
 		cbxChain.setNullSelectionAllowed(false);
 		cbxChain.setValue(cbxChain.getItemIds().iterator().next());
 
-		GridLayout layout = new GridLayout(4, 1);
+		GridLayout layout = new GridLayout(4, 2);
+		layout.setSpacing(true);
 		layout.setSizeFull();
+		
 		layout.addComponent(cbxChain);
 		layout.addComponent(email);
 		layout.addComponent(title);
 		layout.addComponent(cbkey);
-
+		layout.newLine();
+		
+		layout.setComponentAlignment(cbxChain, Alignment.MIDDLE_CENTER);
+		layout.setComponentAlignment(email, Alignment.MIDDLE_CENTER);
+		layout.setComponentAlignment(title, Alignment.MIDDLE_CENTER);
+		layout.setComponentAlignment(cbkey, Alignment.MIDDLE_CENTER);
+		
+		vlayout.setSpacing(true);
 		vlayout.addComponent(layout);
 		return vlayout;
 	}
@@ -122,6 +132,7 @@ public class UMarkusParamForm extends VerticalLayout {
 	private Panel buildTopPanel() {
 		GridLayout grid = new GridLayout(3, 10);
 		//grid.setSizeFull();
+		grid.setSpacing(true);
 		grid.addComponent(new Label());
 		grid.addComponent(new Label("<b>Structure Analysis</b>", Label.CONTENT_XHTML), 1, 0, 2, 0);
 
@@ -186,6 +197,7 @@ public class UMarkusParamForm extends VerticalLayout {
 
 	private Panel buildDelphiPanel() {
 		GridLayout grid = new GridLayout(3, 4);
+		grid.setSpacing(true);
 		grid.setSizeFull();
 		gridsize.setValue(145);
 		grid.addComponent(gridsize);
@@ -225,6 +237,7 @@ public class UMarkusParamForm extends VerticalLayout {
 
 	private Panel buildConsurf3Panel() {
 		GridLayout grid = new GridLayout(2, 3);
+		grid.setSpacing(true);
 		grid.setSizeFull();
 		csftitle3.setValue("analysis 3");
 		grid.addComponent(csftitle3, 0, 0, 1, 0);
@@ -247,6 +260,7 @@ public class UMarkusParamForm extends VerticalLayout {
 
 	private Panel buildConsurf4Panel() {
 		GridLayout grid = new GridLayout(2, 3);
+		grid.setSpacing(true);
 		grid.setSizeFull();
 		csftitle4.setValue("analysis 4");
 		grid.addComponent(csftitle4, 0, 0, 1, 0);
@@ -269,6 +283,7 @@ public class UMarkusParamForm extends VerticalLayout {
 
 	private Panel buildPriorPanel() {
 		GridLayout grid = new GridLayout(3, 2);
+		grid.setSpacing(true);
 		grid.setSizeFull();
 		Label label = new Label("MarkUs results are retained for 90 days on the server.");
 		grid.addComponent(priorTf);
