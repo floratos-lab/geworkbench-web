@@ -78,9 +78,13 @@ public class MarkusAnalysis {
 			urlstat = checkUrlStatus(url);
 		}
 
+		return getResultSet(results);
+	}
+
+	public ResultSet getResultSet(String results){
 		MarkUsResultDataSet musresult = new MarkUsResultDataSet(dataSet, results);
 		musresult.setResult(results);
-
+		
 		ResultSet resultSet = 	new ResultSet();
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
@@ -94,10 +98,10 @@ public class MarkusAnalysis {
 
 		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
-
+		
 		return resultSet;
 	}
-
+	
     public static java.lang.String submitJob(java.lang.String string) {
     	HttpURLConnection conn = null;
     	BufferedReader in = null;

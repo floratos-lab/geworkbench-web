@@ -9,12 +9,14 @@ import java.util.Arrays;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbenchweb.analysis.markus.MarkusAnalysis;
 
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Form;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -62,9 +64,6 @@ public class UMarkusParamForm extends VerticalLayout {
 	private TextField iter4 = new TextField("Iterations");
 	private TextField filter4 = new TextField("Identity Filter Percentage");
 	private ComboBox msa4 = new ComboBox("Multiple Sequence Alignment", Arrays.asList("Muscle", "ClustalW"));
-	private TextField priorTf = new TextField("MarkUs ID");
-	private TextField keyTf = new TextField("Private Key");
-	private Button priorBtn = new Button("Retrieve Prior Result");
 
 	public UMarkusParamForm(DSProteinStructure prtSet) {
 		dataSet = prtSet;
@@ -77,7 +76,7 @@ public class UMarkusParamForm extends VerticalLayout {
 		tabs.addTab(buildDelphiPanel(), "DelPhi Parameters", null);
 		tabs.addTab(buildConsurf3Panel(), "Add Customized ConSurf analysis 3", null);
 		tabs.addTab(buildConsurf4Panel(), "Add Customized ConSurf analysis 4", null);
-		tabs.addTab(buildPriorPanel(), "Retrieve Prior", null);
+		tabs.addTab(buildPriorPanel(), "Retrieve Prior Result", null);
 
 		addComponent(tabs);
 		
@@ -109,6 +108,7 @@ public class UMarkusParamForm extends VerticalLayout {
 
 		GridLayout layout = new GridLayout(4, 2);
 		layout.setSpacing(true);
+		layout.setSpacing(true);
 		layout.setSizeFull();
 		
 		layout.addComponent(cbxChain);
@@ -131,8 +131,11 @@ public class UMarkusParamForm extends VerticalLayout {
 
 	private Panel buildTopPanel() {
 		GridLayout grid = new GridLayout(3, 10);
-		//grid.setSizeFull();
+		grid.setSizeFull();
 		grid.setSpacing(true);
+		grid.setColumnExpandRatio(0, 0.5f);
+		grid.setColumnExpandRatio(1, 0.25f);
+		grid.setColumnExpandRatio(2, 0.25f);
 		grid.addComponent(new Label());
 		grid.addComponent(new Label("<b>Structure Analysis</b>", Label.CONTENT_XHTML), 1, 0, 2, 0);
 
@@ -168,8 +171,9 @@ public class UMarkusParamForm extends VerticalLayout {
 		grid.addComponent(sh);
 		grid.addComponent(delphi, 1, 5, 2, 5);
 
+		grid.addComponent(new Label("<hr></hr>", Label.CONTENT_XHTML), 0, 6, 2, 6);
 		grid.addComponent(new Label());
-		grid.addComponent(new Label("<b>Sequence Analysis</b>", Label.CONTENT_XHTML), 1, 6, 2, 6);
+		grid.addComponent(new Label("<b>Sequence Analysis</b>", Label.CONTENT_XHTML), 1, 7, 2, 7);
 
 		sh = new Label("Sequence Neighbors");
 		sh.setDescription("Proteins sharing sequence similarity with the target protein are identified by running three PSI BLAST iterations (E-value\n0.001) against the UniProt reference database. Additionally sequence domain and motif databases are searched using the\nInterProScan service at the EBI.");
@@ -183,7 +187,7 @@ public class UMarkusParamForm extends VerticalLayout {
 		sh.setDescription("Highly conserved amino acids can indicate functionally relevant regions. To identify these amino acids sequences identified\nby BLAST sharing less than 80% identity are aligned using Muscle. For the resulting multiple sequence alignment ConSurf is\nused to estimate the conservation scores. If seeds and full Pfam alignments are available, these are used additionally for\nthe conservation analysis.\nTwo ConSurf analyses can be defined by the User specifying the number of PSI-BLAST iterations, the E-value threshold,\nand the sequence identity cutoff.");
 		consurf.setEnabled(false);
 		grid.addComponent(sh);
-		grid.addComponent(consurf, 1, 8, 2, 8);
+		grid.addComponent(consurf, 1, 9, 2, 9);
 
 		sh = new Label("Add Customized ConSurf");
 		grid.addComponent(sh);
@@ -282,35 +286,51 @@ public class UMarkusParamForm extends VerticalLayout {
 	}
 
 	private Panel buildPriorPanel() {
-		GridLayout grid = new GridLayout(3, 2);
-		grid.setSpacing(true);
-		grid.setSizeFull();
-		Label label = new Label("MarkUs results are retained for 90 days on the server.");
-		grid.addComponent(priorTf);
-		grid.addComponent(label, 1, 0, 2, 0);
-
-		grid.addComponent(keyTf);
-		grid.addComponent(priorBtn);
-
+		Form form = new Form();
+		form.setDescription("MarkUs results are retained for 90 days on the server.");
 		
-		/*priorBtn.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				String results = priorTf.getText().toUpperCase();
-				if (!pattern.matcher(results).find()){
-					JOptionPane.showMessageDialog(null, "Not a valid MarkUs ID!", "Invalid MUS ID", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String key = keyTf.getText();
-				if (key.length()>0) results = results+"&key="+key;
-				MarkUsResultDataSet resultset = new MarkUsResultDataSet(null, results);
-				resultset.setResult(results);			
-				ProjectPanel.getInstance().addDataSetSubNode(resultset);
-			}
-		});*/
+		TextField priorTf = new TextField("MarkUs ID");
+		form.addField("MarkUs ID", priorTf);
+
+		TextField keyTf = new TextField("Private Key");
+		form.addField("Private Key", keyTf);
+		
+		Button priorBtn = new Button("Retrieve Prior Result");
+		priorBtn.addListener(new PriorListener(form, priorTf, keyTf));
+		form.getFooter().addComponent(priorBtn);
+		form.setValidationVisible(true);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.addComponent(form);
 		return panel;
+	}
+	
+	private class PriorListener implements Button.ClickListener{
+		private static final long serialVersionUID = 2697121374034799868L;
+		private Form form;
+		private TextField priorTf, keyTf;
+		public PriorListener(Form f, TextField p, TextField k){
+			form = f;
+			priorTf = p;
+			keyTf = k;
+		}
+		@Override
+		public void buttonClick(ClickEvent event) {
+			form.setComponentError(null);
+			String results = priorTf.getValue().toString().toUpperCase();
+			if (results.length()==0)
+				priorTf.setComponentError(new UserError("MarkUs ID is missing"));
+			else if (!results.matches("^MUS\\d+"))
+				priorTf.setComponentError(new UserError("MarkUs ID must be 'MUS' followed by an integer"));
+			else {
+				String key = keyTf.getValue().toString();
+				if (key.length()>0) results = results+"&key="+key;
+
+				MarkusAnalysis analysis = new MarkusAnalysis(dataSet, null);
+				analysis.getResultSet(results);
+			}
+		}
+		
 	}
 
 	// markus parameters 1st part - totally 9

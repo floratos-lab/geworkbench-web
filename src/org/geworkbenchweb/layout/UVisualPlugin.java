@@ -25,7 +25,11 @@ import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.ExternalResource;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.MenuBar;
@@ -264,18 +268,40 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			String results = resultset.getResult();
 
 			VerticalLayout layout = new VerticalLayout();
+
+			Button refreshBtn = new Button("Refresh");
+			refreshBtn.setHeight("25px");
+			layout.addComponent(refreshBtn);
+			layout.setComponentAlignment(refreshBtn, Alignment.TOP_RIGHT);
+			
 			Embedded browser = new Embedded("", new ExternalResource(MARKUS_RESULT_URL+results));
 			browser.setType(Embedded.TYPE_BROWSER);
+			browser.setImmediate(true);
 			browser.setSizeFull();
 			layout.addComponent(browser);
 			layout.setCaption("MarkUs Results");
 			layout.setWidth("100%");
 			layout.setHeight("100%");
+
+			layout.setExpandRatio((Component)browser, 1.0f);			
+			refreshBtn.addListener(new RefreshListener(browser));
 			
 			addTab(layout);
 		}
 	}
 
+	private class RefreshListener implements Button.ClickListener{
+		private static final long serialVersionUID = 5620460689584816498L;
+		private Embedded browser = null;
+
+		public RefreshListener(Embedded b){
+			browser = b;
+		}
+		@Override
+		public void buttonClick(ClickEvent event) {
+			browser.requestRepaint();
+		}
+	}
 	private static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 
 	public static IndexedContainer tabularView(DSMicroarraySet maSet) {
