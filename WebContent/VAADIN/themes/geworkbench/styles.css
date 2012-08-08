@@ -1,5 +1,17 @@
 @import url(../reindeer/styles.css);
 
+.v-horizontallayout-background {
+	font: 'Helvetica Neue', Helvetica, Arial;
+	width: auto;
+	background: #EAEAEA url('bg.png');
+	color: #4D4D4D;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+}
+
 .v-colorpicker-button {
         width: 22px !important;
         height: 22px !important;

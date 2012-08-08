@@ -46,7 +46,7 @@ public class UUserAuth extends HorizontalLayout {
 	public Layout buildLoginForm() {
 
 		this.setSizeFull();	
-		this.setStyleName(Reindeer.LAYOUT_BLUE);
+		this.addStyleName("background");
 		
 		final VerticalLayout content 		= 	new VerticalLayout();
 		final Panel loginPanel 				= 	new Panel();

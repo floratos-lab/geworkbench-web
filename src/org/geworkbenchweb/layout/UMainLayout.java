@@ -39,6 +39,7 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -98,7 +99,7 @@ public class UMainLayout extends HorizontalLayout {
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
 		
 		setSizeFull();
-		setStyleName(Reindeer.LAYOUT_BLUE);
+		addStyleName("background");
 		
 		mainPanel 			= 	new HorizontalSplitPanel();
 		visualPluginLayout	=	new HorizontalLayout();
@@ -423,7 +424,8 @@ public class UMainLayout extends HorizontalLayout {
 
     			}
 
-    			public void handleAction(Action action, Object sender, Object target) {
+    			@SuppressWarnings("deprecation")
+				public void handleAction(Action action, Object sender, Object target) {
 
     				if(action == ACTION_LINKOUT) {
     					
@@ -467,6 +469,7 @@ public class UMainLayout extends HorizontalLayout {
     						final Window nameWindow = new Window();
     						nameWindow.setModal(true);
     						nameWindow.setClosable(true);
+    						((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
     						nameWindow.setWidth("300px");
     						nameWindow.setHeight("150px");
     						nameWindow.setResizable(false);
@@ -560,7 +563,8 @@ public class UMainLayout extends HorizontalLayout {
     				return ACTIONS_CREATE;
 
     			}
-    			public void handleAction(Action action, Object sender, Object target) {
+    			@SuppressWarnings("deprecation")
+				public void handleAction(Action action, Object sender, Object target) {
 
     				if(selectedValues == null) {
     				
@@ -576,6 +580,7 @@ public class UMainLayout extends HorizontalLayout {
 
     					final Window nameWindow = new Window();
     					nameWindow.setModal(true);
+    					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
     					nameWindow.setClosable(true);
     					nameWindow.setWidth("300px");
     					nameWindow.setHeight("150px");
