@@ -12,6 +12,7 @@ import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsExceptio
 import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+import org.vaadin.peter.buttongroup.ButtonGroup;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
@@ -29,7 +30,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 public class UUserAuth extends HorizontalLayout {
@@ -57,7 +57,6 @@ public class UUserAuth extends HorizontalLayout {
 		
 		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
 	    Embedded image = new Embedded("", resource);
-		
 		
 		loginPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		loginPanel.setWidth("270px");
@@ -102,9 +101,8 @@ public class UUserAuth extends HorizontalLayout {
 		});
 
 		login.setClickShortcut(KeyCode.ENTER);
-		login.addStyleName("primary");
 		
-		Button register = new Button("Click here to register", new ClickListener() {
+		Button register = new Button("Register", new ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -120,13 +118,13 @@ public class UUserAuth extends HorizontalLayout {
 
 		});
 		
-		register.setStyleName(BaseTheme.BUTTON_LINK);
-		register.setIcon(new ThemeResource("../runo/icons/32/note.png"));
+		ButtonGroup group = new ButtonGroup();
+		group.addButton(register);
+		group.addButton(login);
 		
 		layout.addComponent(usernameField);
 		layout.addComponent(passwordField);
-		layout.addComponent(login);
-		layout.addComponent(register);
+		layout.addComponent(group);
 		
 		layout.addComponent(feedbackLabel);
 		loginPanel.addComponent(layout);
@@ -145,6 +143,7 @@ public class UUserAuth extends HorizontalLayout {
 	 */
 	public Component buildRegisterForm() {
 
+		final VerticalLayout content 		= 	new VerticalLayout();
 		final Panel registrationPanel 		= 	new Panel();
 		final Label feedbackLabel 			= 	new Label();
 		final TextField username 			= 	new TextField("Username");
@@ -156,6 +155,9 @@ public class UUserAuth extends HorizontalLayout {
 		
 		registrationPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		registrationPanel.setWidth("300px");
+		
+		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
+	    Embedded image = new Embedded("", resource);
 		
 		username.setNullRepresentation("");
 		password.setNullRepresentation("");
@@ -228,9 +230,7 @@ public class UUserAuth extends HorizontalLayout {
 			}
 		});
 		
-		layout.addComponent(registerButton);	
-		
-		Button backLogin = new Button("Click here to login", new ClickListener() {
+		Button backLogin = new Button("Login", new ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -243,11 +243,19 @@ public class UUserAuth extends HorizontalLayout {
 
 		});
 		
-		backLogin.setStyleName(BaseTheme.BUTTON_LINK);
-		backLogin.setIcon(new ThemeResource("../runo/icons/32/note.png"));
-		layout.addComponent(backLogin);
+		ButtonGroup group = new ButtonGroup();
+		group.addButton(backLogin);
+		group.addButton(registerButton);
+		layout.addComponent(group);
 		registrationPanel.addComponent(layout);
-		return registrationPanel;
+		
+		content.setSizeFull();
+		content.addComponent(image);
+		content.setComponentAlignment(image, Alignment.BOTTOM_CENTER);	
+		content.addComponent(registrationPanel);
+		content.setComponentAlignment(registrationPanel, Alignment.TOP_CENTER);
+		
+		return content;
 	
 	}
 }

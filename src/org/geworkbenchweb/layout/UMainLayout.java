@@ -45,7 +45,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomLayout;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -70,7 +70,7 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private HorizontalSplitPanel mainPanel;
 	
-	private CustomLayout welcome;
+	private VerticalLayout welcome;
 	
 	private HorizontalLayout visualPluginLayout;
 	
@@ -103,7 +103,7 @@ public class UMainLayout extends HorizontalLayout {
 		
 		mainPanel 			= 	new HorizontalSplitPanel();
 		visualPluginLayout	=	new HorizontalLayout();
-		welcome 			= 	new CustomLayout("welcome");
+		welcome 			= 	new VerticalLayout();
 		setTabs				= 	new USetsTabSheet();
 		tabs 				= 	new UAccordionPanel(true);
 		mainLayout			=	new VerticalLayout();
@@ -145,7 +145,13 @@ public class UMainLayout extends HorizontalLayout {
 		visualPluginLayout.setStyleName(Reindeer.LAYOUT_WHITE);
 		visualPluginLayout.setSizeFull();
 		
-		setMainPanelSecondComponent(welcome);
+		ThemeResource resource = new ThemeResource("img/welcome.png");
+	    Embedded image = new Embedded("", resource);
+		
+	    welcome.setSizeFull();
+	    welcome.addComponent(image);
+	    welcome.setComponentAlignment(image, Alignment.MIDDLE_CENTER);	
+	    setMainPanelSecondComponent(welcome);
 		
         addComponent(mainLayout);
 	}
@@ -173,19 +179,16 @@ public class UMainLayout extends HorizontalLayout {
         header.setMargin(true);
         header.setSpacing(true);
 
+        HorizontalLayout titleHeaderLayout = new HorizontalLayout();
+       
+        ThemeResource resource = new ThemeResource("img/geWorkbench-Title.png");
+	    Embedded image = new Embedded("", resource);
+	    titleHeaderLayout.addComponent(image);
+	    titleHeaderLayout.setComponentAlignment(image, Alignment.TOP_LEFT);
+	    
+        header.addComponent(titleHeaderLayout);
+
         CssLayout titleLayout = new CssLayout();
-        H2 title = new H2("geWorkbench");
-        titleLayout.addComponent(title);
-
-        SmallText description = new SmallText(
-                "A Platform for Integrated Genomics");
-        
-        description.setSizeUndefined();
-        titleLayout.addComponent(description);
-        
-        header.addComponent(titleLayout);
-
-        titleLayout = new CssLayout();
         Label user = new Label("Welcome, " + SessionHandler.get().getUsername());
         user.setSizeUndefined();
         titleLayout.addComponent(user);
