@@ -800,6 +800,7 @@ public class UMainLayout extends HorizontalLayout {
 
     			parameters.put("name", dataName);
     			parameters.put("owner", user.getId());
+    			
 
     			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
@@ -808,10 +809,11 @@ public class UMainLayout extends HorizontalLayout {
     				
     				/* Deleting result sets if there are any */
     				if(dataTree.hasChildren(target)) {
-    					String querySub 			= 	"Select p from ResultSet as p where p.owner=:owner";
+    					String querySub 			= 	"Select p from ResultSet as p where p.parent=:parent and p.owner=:owner";
     					Map<String, Object> params 	= 	new HashMap<String, Object>();
 
     					params.put("owner", user.getId());
+    					params.put("parent", dataName);
     					List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
 
     					for(ResultSet result : resultSets) {
@@ -943,10 +945,11 @@ public class UMainLayout extends HorizontalLayout {
     	@Override
     	public void addNode(NodeAddEvent event) {	
     		dataTree.addItem(event.getDataSetName());
+    		dataTree.getContainerProperty(event.getDataSetName(), "My Projects").setValue(event.getDataSetName());
     		if(event.getDataType() != "Data Node") {
         		dataTree.setChildrenAllowed(event.getDataSetName(), false);
         		dataTree.setParent(event.getDataSetName(), parentSet.getDataSetName());
-        		//dataTree.expandItem(parentSet.getDataSetName());
+        		dataTree.setCollapsed(parentSet.getDataSetName(), false);
     		}
     		dataTree.select(event.getDataSetName());
     	}
