@@ -156,7 +156,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 						}
 					}
 				}catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}	
 

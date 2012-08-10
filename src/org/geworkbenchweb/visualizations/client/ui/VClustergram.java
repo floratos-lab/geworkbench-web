@@ -199,7 +199,7 @@ public class VClustergram extends Composite implements Paintable {
 					final PVColor emphasizedArcColor = PV.color("red");
 					final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
 
-					final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(150).left(0).right(0).top(0).bottom(0)
+					final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(149).left(0).right(0).top(0).bottom(0)
 							.def(selectedNodeIndexProperty, -1)
 							.def(selectedArcIndexProperty, null);
 
@@ -256,7 +256,7 @@ public class VClustergram extends Composite implements Paintable {
 					});
 					getPVPanel().render();
 				}	
-			}, 200, 50);
+			}, 200, 51);
 		}		
 		/* Heat Map */
 		panel.add(new ProtovisWidget() {

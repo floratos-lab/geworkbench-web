@@ -177,8 +177,6 @@ public class UMainLayout extends HorizontalLayout {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidth("100%");
         header.setMargin(true);
-        header.setSpacing(true);
-
         HorizontalLayout titleHeaderLayout = new HorizontalLayout();
        
         ThemeResource resource = new ThemeResource("img/geWorkbench-Title.png");
@@ -228,35 +226,6 @@ public class UMainLayout extends HorizontalLayout {
 
         return header;
     }
-	
-	/**
-	 * Sets the style for the title of the application
-	 * @author np2417
-	 */
-	class H2 extends Label {
-   
-		private static final long serialVersionUID = 1L;
-
-		public H2(String caption) {
-            super(caption);
-            setSizeUndefined();
-            setStyleName(Reindeer.LABEL_H2);
-        }
-    }
-
-	/**
-	 * Sets the style for the Sub-title of the application
-	 * @author np2417
-	 */
-    class SmallText extends Label {
-       
-		private static final long serialVersionUID = 1L;
-
-		public SmallText(String caption) {
-            super(caption);
-            setStyleName(Reindeer.LABEL_SMALL);
-        }
-    }
     
     /**
 	 * Supplies the container for the dataset and result tree to display. 
@@ -265,17 +234,24 @@ public class UMainLayout extends HorizontalLayout {
 	public HierarchicalContainer getDataContainer() {
 
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		Map<String, Object> parameters 		= 	new HashMap<String, Object>();
 
+		dataSets.addContainerProperty("name", String.class, null);
+		dataSets.addContainerProperty("icon", ThemeResource.class,
+                new ThemeResource("../runo/icons/16/document.png"));
+		
 		parameters.put("owner", user.getId());
 		
 		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
 
+		String myProjects = new String("My Projects");
+		dataSets.addItem(myProjects);
+		
 		for(int i=0; i<data.size(); i++) {
 
 			String id = ((DataSet) data.get(i)).getName();
 			dataSets.addItem(id);
-
+			dataSets.setParent(id, myProjects);
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
 			params.put("owner", user.getId());
 			params.put("parent", id);
@@ -352,8 +328,7 @@ public class UMainLayout extends HorizontalLayout {
     		VerticalLayout l 	= 	new VerticalLayout();
     		l.setMargin(true);
     		Tab t = addTab(l);
-
-    		t.setCaption("DataSets");
+    		t.setCaption("Project Manager");
 
     		VerticalLayout dataSets = 	new VerticalLayout();
     		Button updateDataset 	= 	new Button("Upload DataSet", new ClickListener() {
@@ -377,8 +352,8 @@ public class UMainLayout extends HorizontalLayout {
 
     		updateDataset.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
 
-    		dataSets.addComponent(updateDataset);
-    		dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
+    		//dataSets.addComponent(updateDataset);
+    		//dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
 
     		dataTree = new Tree();
     		dataTree.setImmediate(true);
@@ -393,8 +368,6 @@ public class UMainLayout extends HorizontalLayout {
 
     		l.addComponent(dataSets);
     		l.setHeight("100%");
-
-    		t.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 
     		markerTable = new Table();
     		markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
@@ -535,7 +508,6 @@ public class UMainLayout extends HorizontalLayout {
 
     		Tab t1 = addTab(markerTable);
     		t1.setCaption("Makers");
-    		t1.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 
     		arrayTable = new Table();
     		arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
@@ -646,7 +618,6 @@ public class UMainLayout extends HorizontalLayout {
     		});
     		Tab t2 = addTab(arrayTable);
     		t2.setCaption("Phenotypes");
-    		t2.setIcon(new ThemeResource("../runo/icons/16/folder.png"));
 
     	}
 
