@@ -51,7 +51,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
+import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -84,7 +84,7 @@ public class UMainLayout extends HorizontalLayout {
 	
 	private VerticalLayout setTabLayout;
 	
-	private Tree dataTree;
+	private TreeTable dataTree;
 	
 	private DSDataSet<? extends DSBioObject> parentSet = null;
 	
@@ -235,38 +235,30 @@ public class UMainLayout extends HorizontalLayout {
 
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		Map<String, Object> parameters 		= 	new HashMap<String, Object>();
-
-		dataSets.addContainerProperty("name", String.class, null);
-		dataSets.addContainerProperty("icon", ThemeResource.class,
-                new ThemeResource("../runo/icons/16/document.png"));
-		
 		parameters.put("owner", user.getId());
-		
+
+		dataSets.addContainerProperty("My Projects", String.class, null);
 		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
 
-		String myProjects = new String("My Projects");
-		dataSets.addItem(myProjects);
-		
 		for(int i=0; i<data.size(); i++) {
 
 			String id = ((DataSet) data.get(i)).getName();
 			dataSets.addItem(id);
-			dataSets.setParent(id, myProjects);
+			dataSets.getContainerProperty(id, "My Projects").setValue(id);
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
 			params.put("owner", user.getId());
 			params.put("parent", id);
 			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
 
 			for(int j=0; j<results.size(); j++) {
-
 				String subId = ((ResultSet) results.get(j)).getName();
 				dataSets.addItem(subId);
+				dataSets.getContainerProperty(subId, "My Projects").setValue(subId);
 				dataSets.setChildrenAllowed(subId, false);
 				dataSets.setParent(subId, id);
-
 			}
-
 		}
+		
 		return dataSets;
 	}
     
@@ -313,6 +305,7 @@ public class UMainLayout extends HorizontalLayout {
     		
     		super();
     		
+    		this.setStyleName(Reindeer.TABLE_STRONG);
     		/* Menu Bar initialization */
     		menuPanel 	= 	new VerticalSplitPanel();
 			menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
@@ -326,7 +319,6 @@ public class UMainLayout extends HorizontalLayout {
 			menuPanel.setFirstComponent(toolBar);
 			
     		VerticalLayout l 	= 	new VerticalLayout();
-    		l.setMargin(true);
     		Tab t = addTab(l);
     		t.setCaption("Project Manager");
 
@@ -354,20 +346,22 @@ public class UMainLayout extends HorizontalLayout {
 
     		//dataSets.addComponent(updateDataset);
     		//dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
-
-    		dataTree = new Tree();
+    		dataTree = new TreeTable();
     		dataTree.setImmediate(true);
+    		dataTree.setSizeFull();
+    		dataTree.setSortDisabled(true);
     		dataTree.areChildrenAllowed(true);
-    		dataTree.setStyleName(Reindeer.TABLE_BORDERLESS);
-    		dataTree.addContainerProperty("DataSet Name", String.class, "");
+    		dataTree.setStyleName("borderless strong");
     		dataTree.setContainerDataSource(getDataContainer());
+    		dataTree.setSelectable(true);
+    		dataTree.setMultiSelect(false);
     		dataSets.addComponent(dataTree);
 
     		dataTree.addActionHandler(this);
     		dataTree.addListener(this);
-
+    		
     		l.addComponent(dataSets);
-    		l.setHeight("100%");
+    		l.setSizeFull();
 
     		markerTable = new Table();
     		markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
@@ -952,7 +946,7 @@ public class UMainLayout extends HorizontalLayout {
     		if(event.getDataType() != "Data Node") {
         		dataTree.setChildrenAllowed(event.getDataSetName(), false);
         		dataTree.setParent(event.getDataSetName(), parentSet.getDataSetName());
-        		dataTree.expandItem(parentSet.getDataSetName());
+        		//dataTree.expandItem(parentSet.getDataSetName());
     		}
     		dataTree.select(event.getDataSetName());
     	}
