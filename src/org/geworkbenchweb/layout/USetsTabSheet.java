@@ -38,7 +38,6 @@ public class USetsTabSheet extends TabSheet {
 
 	public USetsTabSheet() {
 
-		setStyleName(Reindeer.TABSHEET_SMALL);
 		setSizeFull();
 
 		l1 	= 	new VerticalLayout();
@@ -58,8 +57,8 @@ public class USetsTabSheet extends TabSheet {
 
 	public void populateTabSheet(DSMicroarraySet dataSet) {
 
-		this.l1.removeAllComponents();
-		this.l2.removeAllComponents();
+		l1.removeAllComponents();
+		l2.removeAllComponents();
 		
 		if(dataSet == null) {
 			System.out.println("Some how dataset supplied is empty. Check the code !!");

@@ -42,4 +42,6 @@
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
 
     <inherits name="org.vaadin.peter.buttongroup.ButtongroupWidgetset" />
+
+    <inherits name="org.vaadin.peter.multibutton.MultibuttonWidgetset" />
 </module>

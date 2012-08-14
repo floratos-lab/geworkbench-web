@@ -29,7 +29,6 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -116,9 +115,12 @@ public class UMainLayout extends HorizontalLayout {
 		
 		setTabs.removeData();
 		setTabs.setImmediate(true);
-		setTabLayout.addComponent(setTabs);
+		setTabs.setVisible(false);
 		
-		setLayout.setSplitPosition(60);
+		 tabs.setStyleName(Reindeer.TABSHEET_SMALL);
+	     tabs.setSizeFull();
+		
+		setLayout.setSplitPosition(100);
 		setLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
 		setLayout.setImmediate(true);
 		setLayout.setFirstComponent(tabs);
@@ -133,9 +135,6 @@ public class UMainLayout extends HorizontalLayout {
         mainLayout.addComponent(getHeader());
         mainLayout.addComponent(margin);
         mainLayout.setExpandRatio(margin, 1);
-        
-        tabs.setStyleName(Reindeer.TABSHEET_SMALL);
-        tabs.setSizeFull();
         
 		mainPanel.setSizeFull();
         mainPanel.setImmediate(true);
@@ -197,6 +196,11 @@ public class UMainLayout extends HorizontalLayout {
 
         Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
         help.setWidth(null);
+        
+        UWorkspaceManager workspaceButtons = new UWorkspaceManager();
+        
+        buttons.addComponent(workspaceButtons);
+        buttons.setComponentAlignment(workspaceButtons, Alignment.MIDDLE_RIGHT);
         
         buttons.addComponent(help);
         buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
@@ -288,6 +292,10 @@ public class UMainLayout extends HorizontalLayout {
     	public Long dataSetId;
     	
     	private DSMicroarraySet maSet;
+    	
+    	private Tab markerTab;
+    	
+    	private Tab arrayTab;
 
     	private Action ACTION_DELETE	 	= 	new Action("Delete");
 
@@ -323,6 +331,8 @@ public class UMainLayout extends HorizontalLayout {
     		t.setCaption("Project Manager");
 
     		VerticalLayout dataSets = 	new VerticalLayout();
+    		dataSets.setSizeFull();
+    		
     		Button updateDataset 	= 	new Button("Upload DataSet", new ClickListener() {
 
     			private static final long serialVersionUID = 658137872256766310L;
@@ -344,8 +354,6 @@ public class UMainLayout extends HorizontalLayout {
 
     		updateDataset.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
 
-    		//dataSets.addComponent(updateDataset);
-    		//dataSets.setComponentAlignment(updateDataset, Alignment.TOP_CENTER);
     		dataTree = new TreeTable();
     		dataTree.setImmediate(true);
     		dataTree.setSizeFull();
@@ -357,6 +365,8 @@ public class UMainLayout extends HorizontalLayout {
     		dataTree.setMultiSelect(false);
     		dataSets.addComponent(dataTree);
 
+    		//dataSets.addComponent(updateDataset);
+    		//dataSets.setComponentAlignment(updateDataset, Alignment.BOTTOM_CENTER);
     		dataTree.addActionHandler(this);
     		dataTree.addListener(this);
     		
@@ -500,8 +510,9 @@ public class UMainLayout extends HorizontalLayout {
     			}	 
     		});
 
-    		Tab t1 = addTab(markerTable);
-    		t1.setCaption("Makers");
+    		markerTab = addTab(markerTable);
+    		markerTab.setCaption("Makers");
+    		markerTab.setVisible(false);
 
     		arrayTable = new Table();
     		arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
@@ -610,8 +621,9 @@ public class UMainLayout extends HorizontalLayout {
     				}
     			}	 
     		});
-    		Tab t2 = addTab(arrayTable);
-    		t2.setCaption("Phenotypes");
+    		arrayTab = addTab(arrayTable);
+    		arrayTab.setCaption("Phenotypes");
+    		arrayTab.setVisible(false);
 
     	}
 
@@ -630,8 +642,6 @@ public class UMainLayout extends HorizontalLayout {
     	public void valueChange(ValueChangeEvent event) {
     		try {
     			if((String) event.getProperty().getValue() != null ) {
-
-    				setTabs.removeData();
     				
     				String dataPeru					= 	(String) event.getProperty().getValue();
     				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
@@ -649,24 +659,41 @@ public class UMainLayout extends HorizontalLayout {
 
     					UVisualPlugin tabSheet = null;
     					if (dataSet.getType().equals("PDB File")){
+    						
+    						if(markerTab.isVisible()) {
+    							
+    							setLayout.setSplitPosition(100);
+            					setTabs.setVisible(false);
+            					markerTab.setVisible(false);
+            					arrayTab.setVisible(false);
+            				}
+    						
     						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
     						parentSet				=	pSet;
     						tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
     					
     					}else{
-	    					maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
-	    					parentSet				=	maSet;
-	    					
-	    					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-	    					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-	    					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-	    					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-	
-	    					markerTable.setContainerDataSource(markerTableView(maSet));
-	    					arrayTable.setContainerDataSource(arrayTableView(maSet));
-	
-	    					tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
-	    					setTabs.populateTabSheet(maSet);
+    						if(!setTabs.isVisible()) {
+    							setLayout.setSplitPosition(60);
+    							setTabs.setVisible(true);
+    							setTabLayout.addComponent(setTabs);
+    							markerTab.setVisible(true);
+    							arrayTab.setVisible(true);
+    						}
+    						
+    						maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+    						parentSet				=	maSet;
+
+    						AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+    						File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+    						AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
+    						AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+
+    						markerTable.setContainerDataSource(markerTableView(maSet));
+    						arrayTable.setContainerDataSource(arrayTableView(maSet));
+
+    						tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+    						setTabs.populateTabSheet(maSet);
     					}
 
     					menuPanel.setSecondComponent(tabSheet);
@@ -674,6 +701,13 @@ public class UMainLayout extends HorizontalLayout {
 
     				} else {
 
+    					if(markerTab.isVisible()) {
+    						setLayout.setSplitPosition(100);
+        					setTabs.setVisible(false);
+        					markerTab.setVisible(false);
+        					arrayTab.setVisible(false);
+        				}
+						
     					String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
     					Map<String, Object> params 			= 	new HashMap<String, Object>();
 
@@ -716,8 +750,10 @@ public class UMainLayout extends HorizontalLayout {
     				}		
 
     			}else {
-
-    				setTabs.removeData();
+    				setLayout.setSplitPosition(100);
+    				setTabs.setVisible(false);
+    				markerTab.setVisible(false);
+    				arrayTab.setVisible(false);
     				setMainPanelSecondComponent(welcome);
 
     			}
