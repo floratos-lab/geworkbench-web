@@ -18,7 +18,6 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultData
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.pojos.DataSet;
@@ -330,30 +329,6 @@ public class UMainLayout extends HorizontalLayout {
     		Tab t = addTab(l);
     		t.setCaption("Project Manager");
 
-    		VerticalLayout dataSets = 	new VerticalLayout();
-    		dataSets.setSizeFull();
-    		
-    		Button updateDataset 	= 	new Button("Upload DataSet", new ClickListener() {
-
-    			private static final long serialVersionUID = 658137872256766310L;
-
-    			@Override
-    			public void buttonClick(ClickEvent event) {
-
-    				UDataSetUpload dataWindow = new UDataSetUpload();
-    				
-    				getApplication().getMainWindow().addWindow(dataWindow);
-    				/** 
-    				 * Vaadin 7
-    				 * Root.getCurrent().addWindow(dataWindow);
-    				 */
-
-    			}
-
-    		});
-
-    		updateDataset.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
-
     		dataTree = new TreeTable();
     		dataTree.setImmediate(true);
     		dataTree.setSizeFull();
@@ -363,14 +338,10 @@ public class UMainLayout extends HorizontalLayout {
     		dataTree.setContainerDataSource(getDataContainer());
     		dataTree.setSelectable(true);
     		dataTree.setMultiSelect(false);
-    		dataSets.addComponent(dataTree);
-
-    		//dataSets.addComponent(updateDataset);
-    		//dataSets.setComponentAlignment(updateDataset, Alignment.BOTTOM_CENTER);
     		dataTree.addActionHandler(this);
     		dataTree.addListener(this);
     		
-    		l.addComponent(dataSets);
+    		l.addComponent(dataTree);
     		l.setSizeFull();
 
     		markerTable = new Table();
