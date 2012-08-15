@@ -43,10 +43,9 @@ public class UWorkspaceManager extends MultiButton {
 		addButton(importWorkspace);
 		addButton(switchWorkspace);
 		
-		
 		this.addListener(new Button.ClickListener() {
 
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L; 
 
 			public void buttonClick(ClickEvent event) {
 
