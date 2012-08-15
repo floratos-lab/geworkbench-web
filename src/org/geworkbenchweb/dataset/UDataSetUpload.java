@@ -109,8 +109,7 @@ public class UDataSetUpload extends Window {
     	
     	parseInit(dataFile, null, fileType, dataDescription);
     		
-    	if (!fileType.equals("PDB File"))
-    		dataFile.delete();
+    	dataFile.delete();
     	
     }
     

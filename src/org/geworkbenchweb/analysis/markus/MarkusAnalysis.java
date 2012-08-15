@@ -43,14 +43,19 @@ public class MarkusAnalysis {
 	public ResultSet execute(){
 
 		File prtfile = dataSet.getFile();
-		File pdbfile = prtfile.getAbsoluteFile();
 		String pdbname = prtfile.getName();
+		File pdbfile = new File(System.getProperty("user.home") + "/temp/",
+				user.getId() + "_" + new java.util.Date().getTime() + "_" + pdbname);
+		dataSet.writeToFile(pdbfile.getAbsolutePath());
 
 		String tmpfile = null;
 		try {
 			tmpfile = uploadFile(pdbfile);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if (pdbfile != null && pdbfile.exists())
+				pdbfile.delete();
 		}
 		log.info("uploaded file: "+tmpfile);
 

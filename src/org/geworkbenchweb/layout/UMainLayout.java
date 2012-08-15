@@ -845,11 +845,6 @@ public class UMainLayout extends HorizontalLayout {
     				FacadeFactory.getFacade().delete(dataSet);
     				dataTree.removeItem(target);
 
-    				if (dataSet.getType().equals("PDB File")){
-    					File dataFile = new File(System.getProperty("user.home") + "/temp/", dataName);
-    					if (dataFile.exists())  dataFile.delete();
-    				}
-    				
     			} else {
 
     				String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";

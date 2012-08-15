@@ -5,7 +5,9 @@ import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
+import java.util.HashSet;
 
+import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbenchweb.analysis.markus.MarkusAnalysis;
 
@@ -102,7 +104,7 @@ public class UMarkusParamForm extends VerticalLayout {
 		VerticalLayout vlayout = new VerticalLayout ();
 		vlayout.addComponent(buildTopPanel());
 
-		cbxChain = new ComboBox("Chain", dataSet.getChains().keySet());
+		cbxChain = new ComboBox("Chain", getChains());
 		cbxChain.setNullSelectionAllowed(false);
 		cbxChain.setValue(cbxChain.getItemIds().iterator().next());
 
@@ -127,7 +129,23 @@ public class UMarkusParamForm extends VerticalLayout {
 		return vlayout;
 	}
 
+	private int chainoffset = 21;
+	public HashSet<String> getChains() {
+		HashSet<String> chains = new HashSet<String>();
+		CSProteinStructure dataset = (CSProteinStructure)dataSet;
+		String str= dataset.getContent();
 
+		for (String line : str.split("\n")){
+			if (line.startsWith("ATOM  ") || line.startsWith("HETATM")){
+				chains.add(line.substring(chainoffset, chainoffset+1));
+			}
+		}
+		if (chains.contains(" ")) {
+			chains.remove(" ");
+			chains.add("_");
+		}
+		return chains;
+	}
 
 	private Panel buildTopPanel() {
 		GridLayout grid = new GridLayout(3, 10);
