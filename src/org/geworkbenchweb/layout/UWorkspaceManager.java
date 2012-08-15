@@ -6,8 +6,8 @@ import org.vaadin.peter.multibutton.MultiButton;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
@@ -87,10 +87,10 @@ public class UWorkspaceManager extends MultiButton {
 			workPanel.setSplitPosition(25);
 			workPanel.setMargin(false);
 			
-			ListSelect workspaces 			= 	new ListSelect();
+			ComboBox workspaces 			= 	new ComboBox();
 			VerticalLayout workSpaceLayout 	=	new VerticalLayout();
 			
-			workspaces.setCaption("Select Workspace");
+			workspaces.setInputPrompt("Select Workspace");
 			workspaces.setMultiSelect(false);
 			workspaces.setNullSelectionAllowed(false);
 			workspaces.addItem("Demo Workspace");	
