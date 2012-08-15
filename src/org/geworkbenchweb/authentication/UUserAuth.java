@@ -12,8 +12,6 @@ import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsExceptio
 import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.peter.buttongroup.ButtonGroup;
-
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
@@ -54,6 +52,9 @@ public class UUserAuth extends HorizontalLayout {
 		final Label feedbackLabel 			= 	new Label();        
 		final TextField usernameField 		= 	new TextField("Username");
 		final PasswordField passwordField 	= 	new PasswordField("Password");
+		
+		usernameField.setWidth("145px");
+		passwordField.setWidth("145px");
 		
 		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
 	    Embedded image = new Embedded("", resource);
@@ -118,9 +119,10 @@ public class UUserAuth extends HorizontalLayout {
 
 		});
 		
-		ButtonGroup group = new ButtonGroup();
-		group.addButton(register);
-		group.addButton(login);
+		HorizontalLayout group = new HorizontalLayout();
+		group.setSpacing(true);
+		group.addComponent(register);
+		group.addComponent(login);
 		
 		layout.addComponent(usernameField);
 		layout.addComponent(passwordField);
@@ -152,6 +154,12 @@ public class UUserAuth extends HorizontalLayout {
 		final TextField realName 			= 	new TextField("Real name");
 		final TextField email 				= 	new TextField("Email address");
 		FormLayout layout 					=	new FormLayout();
+		
+		username.setWidth("145px");
+		password.setWidth("145px");
+		verifyPassword.setWidth("145px");
+		realName.setWidth("145px");
+		email.setWidth("145px");
 		
 		registrationPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		registrationPanel.setWidth("300px");
@@ -242,10 +250,12 @@ public class UUserAuth extends HorizontalLayout {
 			}
 
 		});
+		registerButton.setClickShortcut(KeyCode.ENTER);
 		
-		ButtonGroup group = new ButtonGroup();
-		group.addButton(backLogin);
-		group.addButton(registerButton);
+		HorizontalLayout group = new HorizontalLayout();
+		group.setSpacing(true);
+		group.addComponent(backLogin);
+		group.addComponent(registerButton);
 		layout.addComponent(group);
 		registrationPanel.addComponent(layout);
 		
