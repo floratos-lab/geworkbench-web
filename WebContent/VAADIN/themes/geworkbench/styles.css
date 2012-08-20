@@ -1,6 +1,6 @@
 @import url(../reindeer/styles.css);
 
-.v-horizontallayout-background {
+.v-verticallayout-background {
 	font: 'Helvetica Neue', Helvetica, Arial;
 	width: auto;
 	background: #EAEAEA url('img/bg.png');
