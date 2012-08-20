@@ -62,7 +62,7 @@ import com.vaadin.ui.themes.Reindeer;
  * UMainLayout sets up the basic layout and style of the application.
  * @author Nikhil Reddy
  */
-public class UMainLayout extends HorizontalLayout {
+public class UMainLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
 	
