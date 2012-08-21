@@ -245,7 +245,7 @@ public class USetsTabSheet extends TabSheet {
 	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(setName);
+		List subSet 		= 	SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 
 		return positions;
@@ -257,7 +257,7 @@ public class USetsTabSheet extends TabSheet {
 	public String getArrayData(String setName, DSMicroarraySet parentSet) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getArraySet(setName);
+		List subSet 		= 	SubSetOperations.getArraySet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 
 		return positions;

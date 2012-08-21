@@ -386,7 +386,7 @@ public class UAracneParamForm extends GridLayout {
 	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(setName);
+		List subSet 		= 	SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;
