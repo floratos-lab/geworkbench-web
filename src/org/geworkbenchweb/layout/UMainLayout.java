@@ -975,7 +975,6 @@ public class UMainLayout extends VerticalLayout {
         		dataTree.setCollapsed(parentSet.getDataSetName(), false);
     		}else  {
         		dataTree.setParent(event.getDataSetName(), event.getDataType());
-        		dataTree.setCollapsed(parentSet.getDataSetName(), false);
     		}
     		dataTree.select(event.getDataSetName());
     	}
