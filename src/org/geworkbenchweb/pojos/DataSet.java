@@ -16,6 +16,24 @@ public class DataSet extends AbstractPojo {
 	private String description;
 	private String type;
 	private Long owner;
+	private Long project;
+	private Long workspace;
+	
+	public Long getProject() {
+		return project;
+	}
+
+	public void setProject(Long project) {
+		this.project = project;
+	}
+
+	public Long getWorkspace() {
+		return workspace;
+	}
+
+	public void setWorkspace(Long workspace) {
+		this.workspace = workspace;
+	}
 	
 	@Lob
 	private byte[] data;

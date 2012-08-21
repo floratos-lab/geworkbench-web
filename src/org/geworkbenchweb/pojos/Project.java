@@ -13,7 +13,16 @@ public class Project extends AbstractPojo {
 
 	private String name;
 	private String description;
+	private Long workspace;
 	private Long owner;
+
+	public Long getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Long owner) {
+		this.owner = owner;
+	}
 
 	public String getName() {
 		return name;
@@ -33,11 +42,11 @@ public class Project extends AbstractPojo {
 
 	
 	public Long getWorkspaceId() {
-		return owner;
+		return workspace;
 	}
 
-	public void setWorkspaceId(Long owner) {
-		this.owner = owner;
+	public void setWorkspaceId(Long workspace) {
+		this.workspace = workspace;
 	}
 	
 }
