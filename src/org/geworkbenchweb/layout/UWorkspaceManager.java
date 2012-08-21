@@ -1,6 +1,9 @@
 package org.geworkbenchweb.layout;
 
 import org.geworkbenchweb.dataset.UDataSetUpload;
+import org.geworkbenchweb.pojos.Workspace;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.peter.multibutton.MultiButton;
 
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -8,9 +11,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
@@ -70,6 +75,8 @@ public class UWorkspaceManager extends MultiButton {
 	private class WorkspaceWindow extends Window {
 	
 		private static final long serialVersionUID = 867444216969708459L;
+		
+		private HorizontalSplitPanel workPanel;
 
 		@SuppressWarnings("deprecation")
 		private WorkspaceWindow(){
@@ -85,7 +92,7 @@ public class UWorkspaceManager extends MultiButton {
 			setScrollable(false);
 			setResizable(false);
 			
-			final HorizontalSplitPanel workPanel = new HorizontalSplitPanel();
+			workPanel = new HorizontalSplitPanel();
 	
 			workPanel.setSizeFull();
 			workPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
@@ -98,7 +105,17 @@ public class UWorkspaceManager extends MultiButton {
 			VerticalLayout workSpaceLayout 	=	new VerticalLayout();
 			
 			Panel wActions 		= 	new Panel();
-			Button createNew	=	new Button("Create Workspace");
+			Button createNew	=	new Button("Create Workspace", new Button.ClickListener() {
+				
+				private static final long serialVersionUID = -6393819962372106745L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					
+					buildWorkSpaceForm();
+					
+				}
+			});
 			Button deleteWSpace = 	new Button("Delete Workspace");
 			Button importWSpace	=	new Button("Import WorkSpace");
 			
@@ -141,6 +158,40 @@ public class UWorkspaceManager extends MultiButton {
 			
 			workPanel.setFirstComponent(workSpaceLayout);
 			setContent(workPanel);
+		}
+
+		protected void buildWorkSpaceForm() {
+			
+			FormLayout workspaceForm = new FormLayout();
+			
+			final TextField name 	= 	new TextField();
+			Button submit 			= 	new Button("Submit", new Button.ClickListener() {
+				
+				private static final long serialVersionUID = -6393819962372106745L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+	
+					Workspace workspace = 	new Workspace();
+					
+					workspace.setOwner(SessionHandler.get().getId());	
+					workspace.setName(name.getValue().toString());
+				    FacadeFactory.getFacade().store(workspace);
+				    
+					
+				}
+			});
+			
+			name.setCaption("Enter Name");
+			
+			workspaceForm.setMargin(true);
+			workspaceForm.setImmediate(true);
+			workspaceForm.setSpacing(true);
+			workspaceForm.addComponent(name);
+			workspaceForm.addComponent(submit);
+			 
+			workPanel.setSecondComponent(workspaceForm);
+			
 		}
 	}
 	

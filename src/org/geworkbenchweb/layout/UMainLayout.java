@@ -21,10 +21,12 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -89,7 +91,7 @@ public class UMainLayout extends VerticalLayout {
 	private VerticalSplitPanel menuPanel;
 	
 	User user = SessionHandler.get();
-	
+
 	public UMainLayout() {
 		
 		/* Add listeners here */
@@ -237,31 +239,50 @@ public class UMainLayout extends VerticalLayout {
 	public HierarchicalContainer getDataContainer() {
 
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
-		Map<String, Object> parameters 		= 	new HashMap<String, Object>();
-		parameters.put("owner", user.getId());
-
 		dataSets.addContainerProperty("My Projects", String.class, null);
-		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner ", parameters);
+		
+		Map<String, Object> param 		= 	new HashMap<String, Object>();
+		param.put("owner", user.getId());
+		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
+		
+		List<?> projects =  FacadeFactory.getFacade().list("Select p from Project as p where p.owner=:owner and p.workspace =:workspace", param);
+		
+		for (int h=0; h<projects.size(); h++ ) {
+			
+			System.out.println(projects.size());
+			String projectName = ((Project) projects.get(h)).getName();
+			dataSets.addItem(projectName);
+			dataSets.getContainerProperty(projectName, "My Projects").setValue(projectName);
+			
+			Map<String, Object> parameters 		= 	new HashMap<String, Object>();
+			parameters.put("owner", user.getId());
+			parameters.put("project", ((Project) projects.get(h)).getId());
+			List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner and p.project=:project ", parameters);
 
-		for(int i=0; i<data.size(); i++) {
+			for(int i=0; i<data.size(); i++) {
 
-			String id = ((DataSet) data.get(i)).getName();
-			dataSets.addItem(id);
-			dataSets.getContainerProperty(id, "My Projects").setValue(id);
-			Map<String, Object> params 	= 	new HashMap<String, Object>();
-			params.put("owner", user.getId());
-			params.put("parent", id);
-			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
+				String id = ((DataSet) data.get(i)).getName();
+				
+				dataSets.addItem(id);
+				dataSets.getContainerProperty(id, "My Projects").setValue(id);
+				dataSets.setParent(id, projectName);
+				
+				Map<String, Object> params 	= 	new HashMap<String, Object>();
+				params.put("owner", user.getId());
+				params.put("parent", id);
+				List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
 
-			for(int j=0; j<results.size(); j++) {
-				String subId = ((ResultSet) results.get(j)).getName();
-				dataSets.addItem(subId);
-				dataSets.getContainerProperty(subId, "My Projects").setValue(subId);
-				dataSets.setChildrenAllowed(subId, false);
-				dataSets.setParent(subId, id);
+				for(int j=0; j<results.size(); j++) {
+					
+					String subId = ((ResultSet) results.get(j)).getName();
+					dataSets.addItem(subId);
+					dataSets.getContainerProperty(subId, "My Projects").setValue(subId);
+					dataSets.setChildrenAllowed(subId, false);
+					dataSets.setParent(subId, id);
+				
+				}
 			}
 		}
-		
 		return dataSets;
 	}
     
@@ -948,9 +969,12 @@ public class UMainLayout extends VerticalLayout {
     	public void addNode(NodeAddEvent event) {	
     		dataTree.addItem(event.getDataSetName());
     		dataTree.getContainerProperty(event.getDataSetName(), "My Projects").setValue(event.getDataSetName());
-    		if(event.getDataType() != "Data Node") {
+    		if(event.getDataType() == "Result Node") {
         		dataTree.setChildrenAllowed(event.getDataSetName(), false);
         		dataTree.setParent(event.getDataSetName(), parentSet.getDataSetName());
+        		dataTree.setCollapsed(parentSet.getDataSetName(), false);
+    		}else  {
+        		dataTree.setParent(event.getDataSetName(), event.getDataType());
         		dataTree.setCollapsed(parentSet.getDataSetName(), false);
     		}
     		dataTree.select(event.getDataSetName());
