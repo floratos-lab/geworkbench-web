@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
 import org.geworkbenchweb.analysis.aracne.ui.UAracneParamForm;
+import org.geworkbenchweb.analysis.anova.ui.UAnovaParamForm;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
 import org.geworkbenchweb.analysis.markus.ui.UMarkusParamForm;
 import com.vaadin.data.Property;
@@ -98,8 +99,11 @@ public class UDataTab extends VerticalLayout {
 		analysisBox.setWidth("60%");
 		analysisBox.setNullSelectionAllowed(false);
 		analysisBox.setCaption("Select Analyis Type");
+		
+		analysisBox.addItem("Anova");
 		analysisBox.addItem("ARACne");
 		analysisBox.addItem("Hierarchical Clustering");
+		
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new Property.ValueChangeListener() {
 	    	
@@ -126,7 +130,17 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.addComponent(aracneParamForm);
 						dataPanel.addComponent(paramPanel);
 						
+					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Anova")) {
+						
+						paramPanel.removeAllComponents();
+						paramPanel.setCaption("Anova Parameters");
+						
+						UAnovaParamForm aracneParamForm = new UAnovaParamForm(dataSet);
+						paramPanel.addComponent(aracneParamForm);
+						dataPanel.addComponent(paramPanel);
+						
 					}
+						
 				}catch (Exception e){
 					dataPanel.removeComponent(paramPanel);
 				}
