@@ -46,11 +46,10 @@ public class SubSetOperations {
 		
 		parameters.put("name", setName);
 		parameters.put("type", "marker");
-		parameters.put("owner", SessionHandler.get().getId());
 		parameters.put("parent", parentSetId);
 		
 		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name " +
-				"and p.type=:type and p.owner=:owner and p.parent=:parent", parameters);
+				"and p.type=:type and p.parent=:parent", parameters);
 		return data;
 	}
 	
@@ -60,11 +59,10 @@ public class SubSetOperations {
 		
 		parameters.put("name", setName);
 		parameters.put("type", "microarray");
-		parameters.put("owner", SessionHandler.get().getId());
 		parameters.put("parent", parentSetId);
 		
 		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name " +
-				"and p.type=:type and p.owner=:owner and p.parent=:parent", parameters);
+				"and p.type=:type and p.parent=:parent", parameters);
 		return data;
 	}
 	
