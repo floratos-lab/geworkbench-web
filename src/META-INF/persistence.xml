@@ -8,12 +8,16 @@
                         org.eclipse.persistence.jpa.PersistenceProvider
                 </provider>
                 
+                <class>org.geworkbenchweb.pojos.Workspace</class>
+                <class>org.geworkbenchweb.pojos.ActiveWorkspace</class>
+                <class>org.geworkbenchweb.pojos.Project</class>
                 <class>org.vaadin.appfoundation.authentication.data.User</class>
                 <class>org.geworkbenchweb.pojos.DataSet</class>
                 <class>org.geworkbenchweb.pojos.ResultSet</class>
                 <class>org.geworkbenchweb.pojos.SubSet</class>
-                
+              
                 <exclude-unlisted-classes>false</exclude-unlisted-classes>
+                
                 <properties>
                         <property name="eclipselink.logging.level" value="OFF" />
                         <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />

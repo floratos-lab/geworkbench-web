@@ -1,6 +1,9 @@
 package org.geworkbenchweb.authentication;
 
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.pojos.ActiveWorkspace;
+import org.geworkbenchweb.pojos.Project;
+import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -30,11 +33,13 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
-public class UUserAuth extends HorizontalLayout {
+public class UUserAuth extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
 	public UUserAuth() {
+		setSizeFull();
+		addStyleName("background");
 		addComponent(buildLoginForm());
 	}
 
@@ -43,9 +48,6 @@ public class UUserAuth extends HorizontalLayout {
 	 */
 	public Layout buildLoginForm() {
 
-		this.setSizeFull();	
-		this.addStyleName("background");
-		
 		final VerticalLayout content 		= 	new VerticalLayout();
 		final Panel loginPanel 				= 	new Panel();
 		final FormLayout layout 			= 	new FormLayout();
@@ -77,7 +79,9 @@ public class UUserAuth extends HorizontalLayout {
 					AuthenticationUtil.authenticate(username,
 							password);
 					
+					
 					getApplication().getMainWindow().removeAllComponents();
+					
 					getApplication().getMainWindow().setContent(new UMainLayout());
 					
 					/**
@@ -95,6 +99,7 @@ public class UUserAuth extends HorizontalLayout {
 				
 				} catch (Exception e) {
 					
+					e.printStackTrace();
 					feedbackLabel.setValue("Some other exception");
 					
 				}
@@ -188,7 +193,7 @@ public class UUserAuth extends HorizontalLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				try {
-					User user = UserUtil.registerUser((String) username
+					User user =  UserUtil.registerUser((String) username
 							.getValue(), (String) password.getValue(),
 							(String) verifyPassword.getValue());
 					
@@ -196,9 +201,30 @@ public class UUserAuth extends HorizontalLayout {
 					user.setEmail	((String) email.getValue());
 
 					FacadeFactory.getFacade().store(user);
+					
+					/* Creating default workspace */
+					Workspace workspace = 	new Workspace();
+					workspace.setOwner(user.getId());	
+					workspace.setName("Default Workspace");
+				    FacadeFactory.getFacade().store(workspace);
+					
+				    /* Creating default Project*/
+				    Project project = 	new Project();
+				    project.setOwner(user.getId());	
+				    project.setName("New Project");
+				    project.setWorkspaceId(workspace.getId());
+				    project.setDescription("Default Project created for the user");
+				    FacadeFactory.getFacade().store(project);
+				    
+				    /* Setting active workspace */
+				    ActiveWorkspace active = new ActiveWorkspace();
+				    active.setOwner(user.getId());
+				    active.setWorkspace(workspace.getId());
+				    FacadeFactory.getFacade().store(active);
+				    
 					getApplication().getMainWindow().showNotification( "You have successfully registered.");
 					getApplication().getMainWindow().removeAllComponents();
-					getApplication().getMainWindow().setContent(new UUserAuth());
+					getApplication().getMainWindow().addComponent(buildLoginForm());
 					/**
 					 * Vaadin 7
 					 * Root.getCurrent().setContent(buildLoginForm());
@@ -230,6 +256,9 @@ public class UUserAuth extends HorizontalLayout {
 				} catch (PasswordRequirementException e) {
 					feedbackLabel
 					.setValue("Password does not meet the set requirements");
+				
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 
 				password.setValue(null);

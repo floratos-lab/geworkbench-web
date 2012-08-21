@@ -121,7 +121,7 @@ public class CNKBInteractions {
 		resultSet.setData(ObjectConversion.convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
 		
-		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
+		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		
 	}

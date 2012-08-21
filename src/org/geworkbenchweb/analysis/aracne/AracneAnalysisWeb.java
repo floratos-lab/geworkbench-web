@@ -105,7 +105,7 @@ public class AracneAnalysisWeb {
 			resultSet.setData(ObjectConversion.convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	
 			
-			NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
+			NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
 			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 			
 		}

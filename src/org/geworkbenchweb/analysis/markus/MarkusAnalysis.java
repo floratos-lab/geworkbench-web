@@ -101,7 +101,7 @@ public class MarkusAnalysis {
 		resultSet.setData(ObjectConversion.convertToByte(musresult));
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "result");
+		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		
 		return resultSet;
