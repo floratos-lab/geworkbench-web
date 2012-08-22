@@ -12,9 +12,12 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
+import org.geworkbenchweb.analysis.anova.ui.UAnovaTab;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
@@ -287,7 +290,17 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 			refreshBtn.addListener(new RefreshListener(browser));
 			
 			addTab(layout);
+			
+		} else if (dataType.equals("Anova")){
+			@SuppressWarnings("unchecked")
+			CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) dataSet;
+			UAnovaTab anovaTab = new UAnovaTab(anovaResultSet);
+
+			addTab(anovaTab, "Anova Results", null);		
+
 		}
+		
+		
 	}
 
 	private class RefreshListener implements Button.ClickListener{
