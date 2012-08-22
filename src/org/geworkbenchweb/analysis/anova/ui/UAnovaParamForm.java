@@ -1,8 +1,10 @@
 package org.geworkbenchweb.analysis.anova.ui;
 
-import java.util.ArrayList;
+ 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
  
 import org.geworkbench.components.anova.PValueEstimation;
@@ -34,9 +36,9 @@ import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.UserError;
 
 /**
- * Builds the Parameter Form for ARACne Analysis
+ * Builds the Parameter Form for Anova Analysis
  * 
- * @author Nikhil Reddy
+ * @author Min You
  */
 public class UAnovaParamForm extends VerticalLayout {
 
@@ -64,6 +66,7 @@ public class UAnovaParamForm extends VerticalLayout {
 
 	public UAnovaParamForm(final DSMicroarraySet maSet) {
 
+	 
 		String dataSetName = maSet.getDataSetName();
 
 		final GridLayout gridLayout1 = new GridLayout(2, 2);
@@ -267,17 +270,7 @@ public class UAnovaParamForm extends VerticalLayout {
 
 	}
 
-	/**
-	 * Create Dataset for selected markerSet
-	 */
-	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
-
-		return positions;
-	}
+	
 
 	private class SubmitListener implements ClickListener {
 
@@ -305,17 +298,33 @@ public class UAnovaParamForm extends VerticalLayout {
 			 
 			
 			AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform);
-			//analysis.execute();
+			analysis.execute();
 		}
 	}
 	
 	
-	public  List<String> getSelectedMarkerSet() {		 
-		return (List<String>)markerSetSelect.getValue();
+	public  String[] getSelectedMarkerSet() {
+		String[] selectList = null;
+		String selectStr = markerSetSelect.getValue().toString();
+		if (!selectStr.equals("[]"))
+		{
+			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
+			
+		}
+			
+		return selectList;
 	}
 	
-	public  Object getSelectedArraySet() {		 
-		return arraySetSelect.getValue();
+	public  String[] getSelectedArraySet() {		 
+		String[] selectList = null;
+		String selectStr = arraySetSelect.getValue().toString();
+		if (!selectStr.equals("[]"))
+		{
+			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
+			
+		}
+			
+		return selectList;
 	}
 
 	public int getPValueEstimation() {		 
@@ -334,8 +343,8 @@ public class UAnovaParamForm extends VerticalLayout {
 		return ((Integer)og.getValue()).intValue();
 	}
 	
-	public String getFalseSignificantGenesLimit() {		 
-		return ((String)permNumber.getValue());
+	public float getFalseSignificantGenesLimit() {		 
+		return (((Float)permNumber.getValue()).floatValue());
 	}	 
 	
 }
