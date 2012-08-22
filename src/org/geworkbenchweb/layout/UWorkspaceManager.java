@@ -1,7 +1,12 @@
 package org.geworkbenchweb.layout;
 
+import java.util.List;
+
 import org.geworkbenchweb.dataset.UDataSetUpload;
+import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.Workspace;
+import org.geworkbenchweb.utils.ProjectOperations;
+import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.peter.multibutton.MultiButton;
@@ -15,11 +20,15 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.IndexedContainer;
 
 /**
  * UWorkspaceManager handles all the workspace details.
@@ -132,7 +141,14 @@ public class UWorkspaceManager extends MultiButton {
 			workspaces.setInputPrompt("Select Workspace");
 			workspaces.setMultiSelect(false);
 			workspaces.setNullSelectionAllowed(false);
-			workspaces.addItem("Demo Workspace");
+
+			/* Adding items to the combobox */
+			List<Workspace> spaces = WorkspaceUtils.getAvailableWorkspaces();
+			for(int i=0; i<spaces.size(); i++) {
+				workspaces.addItem(spaces.get(i).getId());
+				workspaces.setItemCaption(spaces.get(i).getId(), spaces.get(i).getName());
+			}
+
 			workspaces.setImmediate(true);
 			workspaces.addListener(new ComboBox.ValueChangeListener() {
 
@@ -141,8 +157,9 @@ public class UWorkspaceManager extends MultiButton {
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					
-					System.out.println("Nikhil");
-					workPanel.setSecondComponent(new ProjectLayout());
+					ProjectLayout layout = new ProjectLayout();
+					layout.addProjectTable((Long) event.getProperty().getValue());
+					workPanel.setSecondComponent(layout);
 					
 				}
 				
@@ -200,13 +217,45 @@ public class UWorkspaceManager extends MultiButton {
 		private static final long serialVersionUID = -1202432681409804573L;
 
 		public ProjectLayout() {
-			
-			setSizeFull();
 			setMargin(true);
 			setSpacing(true);
-			addComponent(new Label("Projects in the WorkSpace Selected"));
+			setImmediate(true);
+		}
+
+		public void addProjectTable(Long workspaceId) {
+			
+			VerticalSplitPanel projectPanel = new VerticalSplitPanel();
+			
+			projectPanel.setImmediate(true);
+			projectPanel.setSizeFull();
+			projectPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+			projectPanel.setSplitPosition(40);
+			projectPanel.setLocked(true);
+			
+			Table projectTable = new Table();
+			projectTable.setSizeFull();
+			projectTable.setStyleName(Reindeer.TABLE_STRONG);
+			
+			IndexedContainer dataContainer = new IndexedContainer();
+			dataContainer.addContainerProperty("Project Name", String.class, null);
+			dataContainer.addContainerProperty("Description", String.class, null);
+			
+			/* Adding projects to the Table */
+			List<Project> projects = ProjectOperations.getProjects(workspaceId);
+			for(int i=0; i<projects.size(); i++) {
+				Item item = dataContainer.addItem(projects.get(i).getId());
+				item.getItemProperty("Project Name").setValue(projects.get(i).getName());
+				item.getItemProperty("Description").setValue(projects.get(i).getDescription());
+			}
+			
+			projectTable.setContainerDataSource(dataContainer);
+			
+			projectPanel.setFirstComponent(projectTable);
+			//projectPanel.setSecondComponent(new Label("Nikhil"));
+			this.addComponent(projectPanel);
 			
 		}
+		
 	}
 	
 }

@@ -249,7 +249,6 @@ public class UMainLayout extends VerticalLayout {
 		
 		for (int h=0; h<projects.size(); h++ ) {
 			
-			System.out.println(projects.size());
 			String projectName = ((Project) projects.get(h)).getName();
 			dataSets.addItem(projectName);
 			dataSets.getContainerProperty(projectName, "My Projects").setValue(projectName);
