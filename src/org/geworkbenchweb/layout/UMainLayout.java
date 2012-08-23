@@ -283,7 +283,7 @@ public class UMainLayout extends VerticalLayout {
 
 					dataSets.addItem(subSetId);
 					dataSets.getContainerProperty(subSetId, "My Projects").setValue(subId);
-					dataSets.setChildrenAllowed(subId, false);
+					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
 
 				}
