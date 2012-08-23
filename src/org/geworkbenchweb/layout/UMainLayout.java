@@ -278,8 +278,8 @@ public class UMainLayout extends VerticalLayout {
 
 				for(int j=0; j<results.size(); j++) {
 
-					String subId 	=	((ResultSet) results.get(j)).getName();
-					String subSetId	=	((ResultSet) results.get(j)).getId() + "R";	
+					String subId 		=	((ResultSet) results.get(j)).getName();
+					String subSetId		=	((ResultSet) results.get(j)).getId() + "R";	
 
 					dataSets.addItem(subSetId);
 					dataSets.getContainerProperty(subSetId, "My Projects").setValue(subId);
@@ -821,59 +821,61 @@ public class UMainLayout extends VerticalLayout {
 		@Override
 		public void handleAction(Action action, Object sender, Object target) {
 
-			if (action == ACTION_DELETE) {
+			String dataName 	=	(String) target;
+			Long realItemId		=	Long.parseLong(dataName.substring(0, dataName.length() - 1));	
+			
+			if (action == ACTION_DELETE) {	
+				
+				if(dataName.contains("D")) {
+					String query 					= 	"Select p from DataSet as p where p.id=:id and p.owner=:owner";
+					Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-				String dataName 				=	(target.toString());
+					parameters.put("id", realItemId);
+					parameters.put("owner", user.getId());
 
-				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+					DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-				parameters.put("name", dataName);
-				parameters.put("owner", user.getId());
+					if(dataSet != null) {
 
+						/* Deleting result sets if there are any */
+						if(dataTree.hasChildren(target)) {
+							
+							String querySub 			= 	"Select p from ResultSet as p where p.parent=:parent and p.owner=:owner";
+							Map<String, Object> params 	= 	new HashMap<String, Object>();
 
-				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+							params.put("owner", user.getId());
+							params.put("parent", dataName);
+							List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
 
-				if(dataSet != null) {
-					dataSet.getId();
+							for(ResultSet result : resultSets) {
+								FacadeFactory.getFacade().delete(result);
+								dataTree.removeItem(result.getName());
+							}
+						}
 
-					/* Deleting result sets if there are any */
-					if(dataTree.hasChildren(target)) {
-						String querySub 			= 	"Select p from ResultSet as p where p.parent=:parent and p.owner=:owner";
+						/* Deleting subsets if there are any */
+						String querySub 			= 	"Select p from SubSet as p where p.owner=:owner and p.parent=:parent";
 						Map<String, Object> params 	= 	new HashMap<String, Object>();
 
 						params.put("owner", user.getId());
-						params.put("parent", dataName);
-						List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
-
-						for(ResultSet result : resultSets) {
-							FacadeFactory.getFacade().delete(result);
-							dataTree.removeItem(result.getName());
+						params.put("parent", dataSet.getId());
+						List<SubSet> subSets 		= 	FacadeFactory.getFacade().list(querySub, params);
+						if(!subSets.isEmpty()) {
+							for(SubSet set : subSets) {
+								FacadeFactory.getFacade().delete(set);
+							}
+							setTabs.populateTabSheet(null);
 						}
+						FacadeFactory.getFacade().delete(dataSet);
+						dataTree.removeItem(target);
 					}
 
-					/* Deleting subsets if there are any */
-					String querySub 			= 	"Select p from SubSet as p where p.owner=:owner and p.parent=:parent";
+				} else if(dataName.contains("R")) {
+
+					String querySub 			= 	"Select p from ResultSet as p where p.id=:id and p.owner=:owner";
 					Map<String, Object> params 	= 	new HashMap<String, Object>();
 
-					params.put("owner", user.getId());
-					params.put("parent", dataSet.getId());
-					List<SubSet> subSets 		= 	FacadeFactory.getFacade().list(querySub, params);
-					if(!subSets.isEmpty()) {
-						for(SubSet set : subSets) {
-							FacadeFactory.getFacade().delete(set);
-						}
-						setTabs.populateTabSheet(null);
-					}
-					FacadeFactory.getFacade().delete(dataSet);
-					dataTree.removeItem(target);
-
-				} else {
-
-					String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-					Map<String, Object> params 	= 	new HashMap<String, Object>();
-
-					params.put("name", dataName);
+					params.put("id", realItemId);
 					params.put("owner", user.getId());
 					ResultSet resultSet 		= 	FacadeFactory.getFacade().find(querySub, params);
 					FacadeFactory.getFacade().delete(resultSet);
@@ -884,48 +886,50 @@ public class UMainLayout extends VerticalLayout {
 
 			}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
-				String dataPeru					= 	(target.toString());
-				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+				if(dataName.contains("D")) {
+					
+					String query 					= 	"Select p from DataSet as p where p.id=:id and p.owner=:owner";
+					Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-				parameters.put("name", dataPeru);
-				parameters.put("owner", user.getId());
+					parameters.put("id", realItemId);
+					parameters.put("owner", user.getId());
 
-				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+					DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-				if(dataSet != null) {
+					if(dataSet != null) {
 
-					byte[] dataByte 			= 	dataSet.getData();
+						byte[] dataByte 			= 	dataSet.getData();
 
-					if (dataSet.getType().equals("PDB File")){
-						if (action == ACTION_ANALYZE){
-							DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
-							UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
-							menuPanel.setSecondComponent(tabSheet);
-							setMainPanelSecondComponent(menuPanel);
+						if (dataSet.getType().equals("PDB File")){
+							if (action == ACTION_ANALYZE){
+								DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+								UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
+								menuPanel.setSecondComponent(tabSheet);
+								setMainPanelSecondComponent(menuPanel);
+							}
+							return;
 						}
-						return;
+
+						DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+						if(maSet.getAnnotationFileName() != null){
+							AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+							File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+							AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+						}
+
+						markerTable.setContainerDataSource(markerTableView(maSet));
+						arrayTable.setContainerDataSource(arrayTableView(maSet));
+
+						if(action == ACTION_ANALYZE) {
+							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
+							menuPanel.setSecondComponent(tabSheet);
+						}else {
+
+							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
+							menuPanel.setSecondComponent(tabSheet);
+						}
+						setMainPanelSecondComponent(menuPanel);
 					}
-
-					DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
-					if(maSet.getAnnotationFileName() != null){
-						AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-						File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-						AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-					}
-
-					markerTable.setContainerDataSource(markerTableView(maSet));
-					arrayTable.setContainerDataSource(arrayTableView(maSet));
-
-					if(action == ACTION_ANALYZE) {
-						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
-						menuPanel.setSecondComponent(tabSheet);
-					}else {
-
-						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
-						menuPanel.setSecondComponent(tabSheet);
-					}
-					setMainPanelSecondComponent(menuPanel);
 				}else {
 
 					getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis");
