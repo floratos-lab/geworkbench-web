@@ -230,12 +230,12 @@ public class AnovaAnalysis {
 		String dataSetName = "Anova - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("Anova");
-		resultSet.setParent(dataSet.getDataSetName());
+		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
 		resultSet.setOwner(user.getId());
 		resultSet.setData(ObjectConversion.convertToByte(anovaResultSet));
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		return resultSet;
