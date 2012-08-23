@@ -14,7 +14,7 @@ public class ResultSet extends AbstractPojo {
 	private static final long serialVersionUID = -2720207271844335675L;
 
 	private String name;
-	private String parent;
+	private Long parent;
 	private String type;
 	private Long owner;
 	@Column(name = "DATE_FIELD")
@@ -41,11 +41,11 @@ public class ResultSet extends AbstractPojo {
 		this.name = name;
 	}
 	
-	public String getParent() {
+	public Long getParent() {
 		return parent;
 	}
 	
-	public void setParent(String parent) {
+	public void setParent(Long parent) {
 		this.parent = parent;
 	}
 	

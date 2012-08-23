@@ -63,11 +63,7 @@ public class DataSetParser {
 			System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
 		
 		}else {
-			
 			storeData(dataSet);
-			NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), projectName);
-			GeworkbenchRoot.getBlackboard().fire(resultEvent);
-			
 		}
 		
 	}
@@ -89,8 +85,6 @@ public class DataSetParser {
 			}else {
 				
 				storeData(dataSet);
-				NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), projectName);
-				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 				
 			}
 		} catch (InputFileFormatException e) {
@@ -114,13 +108,11 @@ public class DataSetParser {
 		}else {
 			
 			storeData(dataSet);
-			NodeAddEvent resultEvent = new NodeAddEvent(dataSet.getDataSetName(), projectName);
-			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		}
 	}
 
-	private void storeData(Object dataSet) {
+	private void storeData(DSDataSet<? extends DSBioObject> dataSet) {
 		
 		User user 		= 	SessionHandler.get();
 		DataSet dataset = 	new DataSet();
@@ -139,6 +131,9 @@ public class DataSetParser {
 	    dataset.setProject(((Project) projects.get(0)).getId());
 	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
+	    
+	    NodeAddEvent resultEvent = new NodeAddEvent(dataset.getId(), dataSet.getDataSetName(), String.valueOf(((Project) projects.get(0)).getId()));
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 	    
 	}
 }

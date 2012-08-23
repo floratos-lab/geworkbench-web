@@ -2,7 +2,9 @@ package org.geworkbenchweb.layout;
 
 import java.util.List;
 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.UDataSetUpload;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.ProjectOperations;
@@ -17,6 +19,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -25,10 +28,13 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 
 /**
  * UWorkspaceManager handles all the workspace details.
@@ -110,7 +116,7 @@ public class UWorkspaceManager extends MultiButton {
 			workPanel.setLocked(true);
 			workPanel.setImmediate(true);
 			
-			ComboBox workspaces 			= 	new ComboBox();
+			final ComboBox workspaces 			= 	new ComboBox();
 			VerticalLayout workSpaceLayout 	=	new VerticalLayout();
 			
 			Panel wActions 		= 	new Panel();
@@ -121,6 +127,7 @@ public class UWorkspaceManager extends MultiButton {
 				@Override
 				public void buttonClick(ClickEvent event) {
 					
+					workspaces.select(null);
 					buildWorkSpaceForm();
 					
 				}
@@ -140,6 +147,7 @@ public class UWorkspaceManager extends MultiButton {
 			
 			workspaces.setInputPrompt("Select Workspace");
 			workspaces.setMultiSelect(false);
+			workspaces.setImmediate(true);
 			workspaces.setNullSelectionAllowed(false);
 
 			/* Adding items to the combobox */
@@ -215,27 +223,42 @@ public class UWorkspaceManager extends MultiButton {
 	private class ProjectLayout extends VerticalLayout {
 
 		private static final long serialVersionUID = -1202432681409804573L;
+		
+		private VerticalSplitPanel ProjectPanelTop;
 
 		public ProjectLayout() {
+			setSizeFull();
 			setMargin(true);
 			setSpacing(true);
 			setImmediate(true);
 		}
-
+ 
 		public void addProjectTable(Long workspaceId) {
 			
-			VerticalSplitPanel projectPanel = new VerticalSplitPanel();
+			ProjectPanelTop = new VerticalSplitPanel();
 			
-			projectPanel.setImmediate(true);
-			projectPanel.setSizeFull();
-			projectPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
-			projectPanel.setSplitPosition(40);
-			projectPanel.setLocked(true);
+			ProjectPanelTop.setImmediate(true);
+			ProjectPanelTop.setSizeFull();
+			ProjectPanelTop.setStyleName(Reindeer.SPLITPANEL_SMALL);
+			ProjectPanelTop.setSplitPosition(40);
+			ProjectPanelTop.setLocked(true);
 			
 			Table projectTable = new Table();
 			projectTable.setSizeFull();
 			projectTable.setStyleName(Reindeer.TABLE_STRONG);
-			
+			projectTable.setSelectable(true);
+			projectTable.addListener(new ItemClickListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void itemClick(ItemClickEvent event) {
+					
+					projectOperations((Long) event.getItemId());
+					
+				}
+				
+			});
 			IndexedContainer dataContainer = new IndexedContainer();
 			dataContainer.addContainerProperty("Project Name", String.class, null);
 			dataContainer.addContainerProperty("Description", String.class, null);
@@ -249,11 +272,88 @@ public class UWorkspaceManager extends MultiButton {
 			}
 			
 			projectTable.setContainerDataSource(dataContainer);
+			ProjectPanelTop.setFirstComponent(projectTable);
 			
-			projectPanel.setFirstComponent(projectTable);
-			//projectPanel.setSecondComponent(new Label("Nikhil"));
-			this.addComponent(projectPanel);
+			this.addComponent(ProjectPanelTop);
+		}
+		
+		public void projectOperations(Long projectId) {
 			
+			final VerticalSplitPanel projectPanel = new VerticalSplitPanel();
+			
+			projectPanel.setImmediate(true);
+			projectPanel.setSplitPosition(20);
+			projectPanel.setLocked(true);
+			projectPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
+			
+			final HorizontalLayout projectLayout = new HorizontalLayout();
+			
+			projectLayout.setSizeFull();
+			projectLayout.setImmediate(true);
+			projectLayout.setSpacing(true);
+			projectLayout.setMargin(true);
+			
+			Button createNewProject 	= 	new Button("Create New Project", new Button.ClickListener() {
+	
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					
+					FormLayout newProject = new FormLayout();
+					
+					newProject.setImmediate(true);
+					
+					final TextField projectName 	= 	new TextField("Project Name");
+					final TextField projectDes 	= 	new TextField("Project Description");
+					
+					Button submitProject = new Button("Submit", new Button.ClickListener() {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void buttonClick(ClickEvent event) {
+							
+							if(projectName.getValue() == null || projectDes.getValue() == null) {
+								getApplication().getMainWindow().showNotification("Please Fill ProjectName and Description", 
+										Notification.TYPE_ERROR_MESSAGE);
+							} else {
+								
+								Project newData = new Project();
+								
+								newData.setName((String) projectName.getValue());
+								newData.setDescription((String) projectDes.getValue());
+								newData.setOwner(SessionHandler.get().getId());
+								newData.setWorkspaceId(WorkspaceUtils.getActiveWorkSpace());
+								
+								FacadeFactory.getFacade().store(newData);
+								
+								NodeAddEvent resultEvent = new NodeAddEvent(newData.getId(), newData.getName(), null);
+								GeworkbenchRoot.getBlackboard().fire(resultEvent);							}
+						}
+						
+					});
+					
+					newProject.addComponent(projectName);
+					newProject.addComponent(projectDes);
+					newProject.addComponent(submitProject);
+					
+					projectPanel.setSecondComponent(newProject);
+				}
+			});
+			Button deleteProject 		= 	new Button("Delete Selected Project");
+			Button uploadData			= 	new Button("Upload DataSet");
+			
+			createNewProject.setStyleName(Reindeer.BUTTON_LINK);
+			deleteProject.setStyleName(Reindeer.BUTTON_LINK);
+			uploadData.setStyleName(Reindeer.BUTTON_LINK);
+			
+			projectLayout.addComponent(createNewProject);
+			projectLayout.addComponent(deleteProject);
+			projectLayout.addComponent(uploadData);
+			
+			projectPanel.setFirstComponent(projectLayout);
+			ProjectPanelTop.setSecondComponent(projectPanel);
 		}
 		
 	}

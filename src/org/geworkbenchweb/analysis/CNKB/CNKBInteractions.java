@@ -15,6 +15,7 @@ import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -116,12 +117,12 @@ public class CNKBInteractions {
 		String dataSetName	=	"CNKB - " + new java.util.Date(); 
 		resultSet.setName(dataSetName);
 		resultSet.setType("CNKB");
-		resultSet.setParent(dataSet.getDataSetName());
+		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
 		
-		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		
 	}

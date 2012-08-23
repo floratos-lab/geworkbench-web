@@ -9,9 +9,16 @@ public class NodeAddEvent implements Event {
 
 	private final String dataType;
 	
-	public NodeAddEvent(final String dataSetName, final String dataType) {
+	private final Long dataSetId;
+	
+	public NodeAddEvent(final Long dataSetId, final String dataSetName, final String dataType) {
 		this.dataSetName 	= 	dataSetName;
 		this.dataType		=	dataType; 
+		this.dataSetId		=	dataSetId;
+	}
+	
+	public Long getDataSetId() {
+		return dataSetId;
 	}
 
 	public String getDataSetName() {

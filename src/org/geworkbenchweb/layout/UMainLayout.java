@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
@@ -32,11 +30,12 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -67,40 +66,40 @@ import com.vaadin.ui.themes.Reindeer;
 public class UMainLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
-	
+
 	private HorizontalSplitPanel mainPanel;
-	
+
 	private VerticalLayout welcome;
-	
+
 	private HorizontalLayout visualPluginLayout;
-	
+
 	private USetsTabSheet setTabs;
-	
+
 	private Accordion tabs;
-	
+
 	private VerticalLayout mainLayout;
-	
+
 	private VerticalSplitPanel setLayout;
-	
+
 	private VerticalLayout setTabLayout;
-	
+
 	private TreeTable dataTree;
-	
-	private DSDataSet<? extends DSBioObject> parentSet = null;
-	
+
 	private VerticalSplitPanel menuPanel;
 	
+	private String parentId;
+
 	User user = SessionHandler.get();
 
 	public UMainLayout() {
-		
+
 		/* Add listeners here */
 		NodeAddListener addNodeListener = new NodeAddListener();
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
-		
+
 		setSizeFull();
 		addStyleName("background");
-		
+
 		mainPanel 			= 	new HorizontalSplitPanel();
 		visualPluginLayout	=	new HorizontalLayout();
 		welcome 			= 	new VerticalLayout();
@@ -109,130 +108,130 @@ public class UMainLayout extends VerticalLayout {
 		mainLayout			=	new VerticalLayout();
 		setLayout			=	new VerticalSplitPanel();
 		setTabLayout		= 	new VerticalLayout();	
-		
+
 		setTabLayout.setSizeFull();
 		setTabLayout.setImmediate(true);
 		setTabLayout.setStyleName(Reindeer.LAYOUT_WHITE);
-		
+
 		setTabs.removeData();
 		setTabs.setImmediate(true);
 		setTabs.setVisible(false);
-		
-		 tabs.setStyleName(Reindeer.TABSHEET_SMALL);
-	     tabs.setSizeFull();
-		
+
+		tabs.setStyleName(Reindeer.TABSHEET_SMALL);
+		tabs.setSizeFull();
+
 		setLayout.setSplitPosition(100);
 		setLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
 		setLayout.setImmediate(true);
 		setLayout.setFirstComponent(tabs);
 		setLayout.setSecondComponent(setTabLayout);
-	
-        CssLayout margin = new CssLayout();
-        margin.setMargin(false, true, true, true);
-        margin.setSizeFull();
-        margin.addComponent(mainPanel);
+
+		CssLayout margin = new CssLayout();
+		margin.setMargin(false, true, true, true);
+		margin.setSizeFull();
+		margin.addComponent(mainPanel);
 
 		mainLayout.setSizeFull();
-        mainLayout.addComponent(getHeader());
-        mainLayout.addComponent(margin);
-        mainLayout.setExpandRatio(margin, 1);
-        
+		mainLayout.addComponent(getHeader());
+		mainLayout.addComponent(margin);
+		mainLayout.setExpandRatio(margin, 1);
+
 		mainPanel.setSizeFull();
-        mainPanel.setImmediate(true);
-        mainPanel.setSplitPosition(20);   
+		mainPanel.setImmediate(true);
+		mainPanel.setSplitPosition(20);   
 		mainPanel.setFirstComponent(setLayout);
-		
+
 		visualPluginLayout.setStyleName(Reindeer.LAYOUT_WHITE);
 		visualPluginLayout.setSizeFull();
-		
+
 		ThemeResource resource = new ThemeResource("img/welcome.png");
-	    Embedded image = new Embedded("", resource);
-		
-	    welcome.setSizeFull();
-	    welcome.addComponent(image);
-	    welcome.setComponentAlignment(image, Alignment.MIDDLE_CENTER);	
-	    setMainPanelSecondComponent(welcome);
-		
-        addComponent(mainLayout);
+		Embedded image = new Embedded("", resource);
+
+		welcome.setSizeFull();
+		welcome.addComponent(image);
+		welcome.setComponentAlignment(image, Alignment.MIDDLE_CENTER);	
+		setMainPanelSecondComponent(welcome);
+
+		addComponent(mainLayout);
 	}
-	
+
 	/**
 	 * This method clears and then resets the VisualPlugin area with the component provided.
 	 * @param Component
 	 */
 	private void setMainPanelSecondComponent(Component c) {
-		
+
 		visualPluginLayout.removeAllComponents();
 		visualPluginLayout.addComponent(c);
 		mainPanel.setSecondComponent(visualPluginLayout);
-		
+
 	}
-	
+
 	/**
 	 * Method sets up the title and basic headers of the application
 	 * @return Layout
 	 */
 	private Layout getHeader() {
-		
-        HorizontalLayout header = new HorizontalLayout();
-        header.setWidth("100%");
-        header.setMargin(true);
-        HorizontalLayout titleHeaderLayout = new HorizontalLayout();
-       
-        ThemeResource resource = new ThemeResource("img/geWorkbench-Title.png");
-	    Embedded image = new Embedded("", resource);
-	    titleHeaderLayout.addComponent(image);
-	    titleHeaderLayout.setComponentAlignment(image, Alignment.TOP_LEFT);
-	    
-        header.addComponent(titleHeaderLayout);
 
-        CssLayout titleLayout = new CssLayout();
-        Label user = new Label("Welcome, " + SessionHandler.get().getUsername());
-        user.setSizeUndefined();
-        titleLayout.addComponent(user);
+		HorizontalLayout header = new HorizontalLayout();
+		header.setWidth("100%");
+		header.setMargin(true);
+		HorizontalLayout titleHeaderLayout = new HorizontalLayout();
+
+		ThemeResource resource = new ThemeResource("img/geWorkbench-Title.png");
+		Embedded image = new Embedded("", resource);
+		titleHeaderLayout.addComponent(image);
+		titleHeaderLayout.setComponentAlignment(image, Alignment.TOP_LEFT);
+
+		header.addComponent(titleHeaderLayout);
+
+		CssLayout titleLayout = new CssLayout();
+		Label user = new Label("Welcome, " + SessionHandler.get().getUsername());
+		user.setSizeUndefined();
+		titleLayout.addComponent(user);
 
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
+		HorizontalLayout buttons = new HorizontalLayout();
+		buttons.setSpacing(true);
 
-        Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
-        help.setWidth(null);
-        
-        UWorkspaceManager workspaceButtons = new UWorkspaceManager();
-        
-        buttons.addComponent(workspaceButtons);
-        buttons.setComponentAlignment(workspaceButtons, Alignment.MIDDLE_RIGHT);
-        
-        buttons.addComponent(help);
-        buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
-        
-        Button logout 	= 	new Button("Logout", new Button.ClickListener() {
-            
+		Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
+		help.setWidth(null);
+
+		UWorkspaceManager workspaceButtons = new UWorkspaceManager();
+
+		buttons.addComponent(workspaceButtons);
+		buttons.setComponentAlignment(workspaceButtons, Alignment.MIDDLE_RIGHT);
+
+		buttons.addComponent(help);
+		buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
+
+		Button logout 	= 	new Button("Logout", new Button.ClickListener() {
+
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
-                
+
 				SessionHandler.logout();
 				getApplication().close();
-				
+
 				/**
 				 * Vaadin 7
 				 * Application.getCurrent().close(); 
 				 */
-				
+
 			}
-        });
-     
-        buttons.addComponent(logout);
-        titleLayout.addComponent(buttons);
+		});
 
-        header.addComponent(titleLayout);
-        header.setComponentAlignment(titleLayout, Alignment.MIDDLE_RIGHT);
+		buttons.addComponent(logout);
+		titleLayout.addComponent(buttons);
 
-        return header;
-    }
-    
-    /**
+		header.addComponent(titleLayout);
+		header.setComponentAlignment(titleLayout, Alignment.MIDDLE_RIGHT);
+
+		return header;
+	}
+
+	/**
 	 * Supplies the container for the dataset and result tree to display. 
 	 * @return dataset and resultset container 
 	 */
@@ -240,101 +239,109 @@ public class UMainLayout extends VerticalLayout {
 
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		dataSets.addContainerProperty("My Projects", String.class, null);
-		
+
 		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		param.put("owner", user.getId());
 		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
-		
+
 		List<?> projects =  FacadeFactory.getFacade().list("Select p from Project as p where p.owner=:owner and p.workspace =:workspace", param);
-		
+
 		for (int h=0; h<projects.size(); h++ ) {
-			
-			String projectName = ((Project) projects.get(h)).getName();
-			dataSets.addItem(projectName);
-			dataSets.getContainerProperty(projectName, "My Projects").setValue(projectName);
-			
+
+			String projectName 	=	((Project) projects.get(h)).getName();
+			Long realProjectId	= 	((Project) projects.get(h)).getId();
+			String projectId	=	((Project) projects.get(h)).getId() + "P";	
+
+			dataSets.addItem(projectId);
+			dataSets.getContainerProperty(projectId, "My Projects").setValue(projectName);
+
 			Map<String, Object> parameters 		= 	new HashMap<String, Object>();
 			parameters.put("owner", user.getId());
-			parameters.put("project", ((Project) projects.get(h)).getId());
+			parameters.put("project", realProjectId);
+
 			List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner and p.project=:project ", parameters);
 
 			for(int i=0; i<data.size(); i++) {
 
-				String id = ((DataSet) data.get(i)).getName();
-				
-				dataSets.addItem(id);
-				dataSets.getContainerProperty(id, "My Projects").setValue(id);
-				dataSets.setParent(id, projectName);
-				
+				String id 		=	((DataSet) data.get(i)).getName();
+				String dataId	=	((DataSet) data.get(i)).getId() + "D";	
+				Long realDataId =	((DataSet) data.get(i)).getId();
+
+				dataSets.addItem(dataId);
+				dataSets.getContainerProperty(dataId, "My Projects").setValue(id);
+				dataSets.setParent(dataId, projectId);
+
 				Map<String, Object> params 	= 	new HashMap<String, Object>();
 				params.put("owner", user.getId());
-				params.put("parent", id);
+				params.put("parent", realDataId);
 				List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
 
 				for(int j=0; j<results.size(); j++) {
-					
-					String subId = ((ResultSet) results.get(j)).getName();
-					dataSets.addItem(subId);
-					dataSets.getContainerProperty(subId, "My Projects").setValue(subId);
+
+					String subId 	=	((ResultSet) results.get(j)).getName();
+					String subSetId	=	((ResultSet) results.get(j)).getId() + "R";	
+
+					dataSets.addItem(subSetId);
+					dataSets.getContainerProperty(subSetId, "My Projects").setValue(subId);
 					dataSets.setChildrenAllowed(subId, false);
-					dataSets.setParent(subId, id);
-				
+					dataSets.setParent(subSetId, dataId);
+
 				}
 			}
 		}
 		return dataSets;
 	}
-    
-    /**
-     * UAccordionPanel builds the DataSet area of geWorkbench.
-     * It inlcudes dataset & resultset tree, Markers table, Phenotypes table and Sets Tab sheet. 
-     * @author Nikhil Reddy
-     */
-    class UAccordionPanel extends  Accordion implements Property.ValueChangeListener, Action.Handler {
 
-    	private static final long serialVersionUID = 4523693969296820932L;
+	/**
+	 * UAccordionPanel builds the DataSet area of geWorkbench.
+	 * It inlcudes dataset & resultset tree, Markers table, Phenotypes table and Sets Tab sheet. 
+	 * @author Nikhil Reddy
+	 */
+	class UAccordionPanel extends  Accordion implements Action.Handler {
 
-    	private Table arrayTable;
+		private static final long serialVersionUID = 4523693969296820932L;
 
-    	private Table markerTable;
+		private Table arrayTable;
 
-    	final Action ACTION_SUBSET 		= 	new Action("Create SubSet");
+		private Table markerTable;
 
-    	final Action ACTION_LINKOUT		=	new Action("Link Out");
+		final Action ACTION_SUBSET 		= 	new Action("Create SubSet");
 
-    	final Action[] ACTIONS_CREATE 	= 	new Action[] { ACTION_SUBSET, ACTION_LINKOUT };
+		final Action ACTION_LINKOUT		=	new Action("Link Out");
 
-    	private String setType;
+		final Action[] ACTIONS_CREATE 	= 	new Action[] { ACTION_SUBSET, ACTION_LINKOUT };
 
-    	protected String selectedValues = null;
+		private String setType;
 
-    	public Long dataSetId;
-    	
-    	private DSMicroarraySet maSet;
-    	
-    	private Tab markerTab;
-    	
-    	private Tab arrayTab;
+		protected String selectedValues = null;
 
-    	private Action ACTION_DELETE	 	= 	new Action("Delete");
+		public Long dataSetId;
 
-    	private final Action ACTION_ANALYZE		= 	new Action("Analyze Data"); 
+		private DSMicroarraySet maSet;
 
-    	private final Action ACTION_NORMALIZE	= 	new Action("Normalize Data");
+		private Tab markerTab;
 
-    	private final Action ACTION_FILTER		= 	new Action("Filter Data");
+		private Tab arrayTab;
 
-    	private final Action ACTION_INTERACTIONS =	new Action("Get Interactions");
+		private Action ACTION_DELETE	 	= 	new Action("Delete");
 
-    	private final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
+		private final Action ACTION_ANALYZE		= 	new Action("Analyze Data"); 
 
-    	public UAccordionPanel(boolean closable) {
-    		
-    		super();
-    		
-    		this.setStyleName(Reindeer.TABLE_STRONG);
-    		/* Menu Bar initialization */
-    		menuPanel 	= 	new VerticalSplitPanel();
+		private final Action ACTION_NORMALIZE	= 	new Action("Normalize Data");
+
+		private final Action ACTION_FILTER		= 	new Action("Filter Data");
+
+		private final Action ACTION_INTERACTIONS =	new Action("Get Interactions");
+
+		private final Action[] ACTIONS 			= 	new Action[] { ACTION_ANALYZE, ACTION_INTERACTIONS, ACTION_NORMALIZE, ACTION_FILTER, ACTION_DELETE };
+
+		public UAccordionPanel(boolean closable) {
+
+			super();
+
+			this.setStyleName(Reindeer.TABLE_STRONG);
+			/* Menu Bar initialization */
+			menuPanel 	= 	new VerticalSplitPanel();
 			menuPanel.setStyleName(Reindeer.SPLITPANEL_SMALL);
 			menuPanel.setImmediate(true);
 			menuPanel.setLocked(true);
@@ -344,639 +351,642 @@ public class UMainLayout extends VerticalLayout {
 			toolBar.setImmediate(true);
 
 			menuPanel.setFirstComponent(toolBar);
+
+			VerticalLayout l 	= 	new VerticalLayout();
+			Tab t = addTab(l);
+			t.setCaption("Project Manager");
+
+			dataTree = new TreeTable();
+			dataTree.setImmediate(true);
+			dataTree.setSizeFull();
+			dataTree.setSortDisabled(true);
+			dataTree.areChildrenAllowed(true);
+			dataTree.setStyleName("borderless strong");
+			dataTree.setContainerDataSource(getDataContainer());
+			dataTree.setSelectable(true);
+			dataTree.setMultiSelect(false);
+			dataTree.addActionHandler(this);
+
 			
-    		VerticalLayout l 	= 	new VerticalLayout();
-    		Tab t = addTab(l);
-    		t.setCaption("Project Manager");
+			dataTree.addListener(new ItemClickListener() {
 
-    		dataTree = new TreeTable();
-    		dataTree.setImmediate(true);
-    		dataTree.setSizeFull();
-    		dataTree.setSortDisabled(true);
-    		dataTree.areChildrenAllowed(true);
-    		dataTree.setStyleName("borderless strong");
-    		dataTree.setContainerDataSource(getDataContainer());
-    		dataTree.setSelectable(true);
-    		dataTree.setMultiSelect(false);
-    		dataTree.addActionHandler(this);
-    		dataTree.addListener(this);
-    		
-    		l.addComponent(dataTree);
-    		l.setSizeFull();
+				private static final long serialVersionUID = 1L;
 
-    		markerTable = new Table();
-    		markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
-    		markerTable.setSizeFull();
-    		markerTable.setSelectable(true);
-    		markerTable.setMultiSelect(true);
-    		markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+				@Override
+				public void itemClick(ItemClickEvent event) {
 
-    		markerTable.addListener(new Table.ValueChangeListener() {
+					try {
+						String itemId 	= 	(String) event.getItemId();
+						Long realId		=	Long.parseLong(itemId.substring(0, itemId.length() - 1));
 
-    			private static final long serialVersionUID = 1L;
+						if(itemId.contains("D")) {
 
-    			public void valueChange(ValueChangeEvent event) {
+							String query 					= 	"Select p from DataSet as p where p.id=:id";
+							Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-    				String value = (event.getProperty().getValue()).toString();
-    				setType = "marker";
-    				setSelectedValues(value);
+							parameters.put("id", realId);
 
-    			}
+							parentId = itemId;
+							
+							DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-    		});
+							if(dataSet != null) {
 
-    		markerTable.addActionHandler(new Action.Handler() {
+								dataSetId 					=	dataSet.getId();
+								byte[] dataByte 			= 	dataSet.getData();
 
-    			private static final long serialVersionUID = 1L;
+								UVisualPlugin tabSheet = null;
+								if (dataSet.getType().equals("PDB File")){
 
-    			public Action[] getActions(Object target, Object sender) {
+									if(markerTab.isVisible()) {
 
-    				return ACTIONS_CREATE;
+										setLayout.setSplitPosition(100);
+										setTabs.setVisible(false);
+										markerTab.setVisible(false);
+										arrayTab.setVisible(false);
+									}
 
-    			}
+									DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+									tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
 
-    			@SuppressWarnings("deprecation")
+								}else{
+									if(!setTabs.isVisible()) {
+										setLayout.setSplitPosition(60);
+										setTabs.setVisible(true);
+										setTabLayout.addComponent(setTabs);
+										markerTab.setVisible(true);
+										arrayTab.setVisible(true);
+									}
+
+									maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
+									AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+									File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+									AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
+									AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+
+									markerTable.setContainerDataSource(markerTableView(maSet));
+									arrayTable.setContainerDataSource(arrayTableView(maSet));
+
+									tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+									setTabs.populateTabSheet(maSet);
+								}
+
+								menuPanel.setSecondComponent(tabSheet);
+								setMainPanelSecondComponent(menuPanel);
+							}
+
+						}else if(itemId.contains("R")) {
+
+							if(markerTab.isVisible()) {
+								setLayout.setSplitPosition(100);
+								setTabs.setVisible(false);
+								markerTab.setVisible(false);
+								arrayTab.setVisible(false);
+							}
+
+							String querySub 					= 	"Select p from ResultSet as p where p.id=:id";
+							Map<String, Object> params 			= 	new HashMap<String, Object>();
+
+							params.put("id", realId);
+
+							ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
+							if(resultSet != null) {
+
+								byte[] dataByte 					= 	resultSet.getData();
+								UVisualPlugin tabSheet = null;
+
+								if(resultSet.getType().equalsIgnoreCase("CNKB")) {
+
+									@SuppressWarnings("unchecked")
+									Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(dataByte);
+									tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
+
+								}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
+
+									CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(dataByte);
+									tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
+
+								}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
+
+									AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) ObjectConversion.toObject(dataByte);
+									tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+
+								}else if(resultSet.getType().equalsIgnoreCase("MarkUs")) {
+
+									MarkUsResultDataSet prtSet		= 	(MarkUsResultDataSet) ObjectConversion.toObject(dataByte);
+									tabSheet 	= 	new UVisualPlugin(prtSet, resultSet.getType(), null);
+
+								}
+
+								menuPanel.setSecondComponent(tabSheet);
+								setMainPanelSecondComponent(menuPanel);
+
+							}	
+
+						}
+					}catch(Exception e) {
+
+						e.printStackTrace();
+
+					}
+
+				}
+
+			});
+
+			l.addComponent(dataTree);
+			l.setSizeFull();
+
+			markerTable = new Table();
+			markerTable.setStyleName(Reindeer.TABLE_BORDERLESS);
+			markerTable.setSizeFull();
+			markerTable.setSelectable(true);
+			markerTable.setMultiSelect(true);
+			markerTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+
+			markerTable.addListener(new Table.ValueChangeListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				public void valueChange(ValueChangeEvent event) {
+
+					String value = (event.getProperty().getValue()).toString();
+					setType = "marker";
+					setSelectedValues(value);
+
+				}
+
+			});
+
+			markerTable.addActionHandler(new Action.Handler() {
+
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+
+					return ACTIONS_CREATE;
+
+				}
+
+				@SuppressWarnings("deprecation")
 				public void handleAction(Action action, Object sender, Object target) {
 
-    				if(action == ACTION_LINKOUT) {
-    					
-    					if(selectedValues == null) {
-    					
-    						getApplication().getMainWindow().showNotification("Select marker with Gene Name");
-    						/**
-    						 * Vaadin 7
-    						 * Notification.show("Select marker with Gene Name",  
-    						 *		Notification.TYPE_ERROR_MESSAGE );
-    						 */
-    						
-    					}else if(selectedValues.contains(",")) {
-    						getApplication().getMainWindow().showNotification("Select marker only one marker");
-    						/**
-    						 * Vaadin 7
-    						 * Notification.show("Select marker only one marker",  
-    						 *		Notification.TYPE_ERROR_MESSAGE );
-    						 */
-    						
-    					}else {
+					if(action == ACTION_LINKOUT) {
 
-    						int positionValue = Integer.parseInt((selectedValues.substring(1)).substring(0, selectedValues.length() - 2));
-    						getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
-    						/**
-    						 * Vaadin 7
-    						 * Root.getCurrent().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
-    						 */
-    					}
-    				}else {
-    					if(selectedValues == null) {
+						if(selectedValues == null) {
 
-    						getApplication().getMainWindow().showNotification("Please select atleast one marker");
-    						/**
-    						 * Vaadin 7
-    						 * Notification.show("Please select atleast one marker",  
-    						 *		Notification.TYPE_ERROR_MESSAGE );
-    						 */
-    					} else {
+							getApplication().getMainWindow().showNotification("Select marker with Gene Name");
+							/**
+							 * Vaadin 7
+							 * Notification.show("Select marker with Gene Name",  
+							 *		Notification.TYPE_ERROR_MESSAGE );
+							 */
 
-    						final Window nameWindow = new Window();
-    						nameWindow.setModal(true);
-    						nameWindow.setClosable(true);
-    						((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-    						nameWindow.setWidth("300px");
-    						nameWindow.setHeight("150px");
-    						nameWindow.setResizable(false);
-    						nameWindow.setCaption("Add Markers to Set");
-    						nameWindow.setImmediate(true);
+						}else if(selectedValues.contains(",")) {
+							getApplication().getMainWindow().showNotification("Select marker only one marker");
+							/**
+							 * Vaadin 7
+							 * Notification.show("Select marker only one marker",  
+							 *		Notification.TYPE_ERROR_MESSAGE );
+							 */
 
-    						final TextField setName = new TextField();
-    						setName.setInputPrompt("Please enter set name");
-    						setName.setImmediate(true);
+						}else {
 
-    						Button addSet = new Button("Add Set", new ClickListener() {
+							int positionValue = Integer.parseInt((selectedValues.substring(1)).substring(0, selectedValues.length() - 2));
+							getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
+							/**
+							 * Vaadin 7
+							 * Root.getCurrent().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
+							 */
+						}
+					}else {
+						if(selectedValues == null) {
 
-    							private static final long serialVersionUID = 1L;
+							getApplication().getMainWindow().showNotification("Please select atleast one marker");
+							/**
+							 * Vaadin 7
+							 * Notification.show("Please select atleast one marker",  
+							 *		Notification.TYPE_ERROR_MESSAGE );
+							 */
+						} else {
 
-    							@Override
-    							public void buttonClick(ClickEvent event) {
+							final Window nameWindow = new Window();
+							nameWindow.setModal(true);
+							nameWindow.setClosable(true);
+							((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+							nameWindow.setWidth("300px");
+							nameWindow.setHeight("150px");
+							nameWindow.setResizable(false);
+							nameWindow.setCaption("Add Markers to Set");
+							nameWindow.setImmediate(true);
 
-    								String setN = (String) setName.getValue();
-    								if(setN != "") {
+							final TextField setName = new TextField();
+							setName.setInputPrompt("Please enter set name");
+							setName.setImmediate(true);
 
-    									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
+							Button addSet = new Button("Add Set", new ClickListener() {
 
-    										getApplication().getMainWindow().removeWindow(nameWindow);
-    										setTabs.populateTabSheet(maSet);
-    										/**
-    										 * Vaadin 7
-    										 * Root.getCurrent().removeWindow(nameWindow);
-    										 */
+								private static final long serialVersionUID = 1L;
 
-    									}
-    								} else {
+								@Override
+								public void buttonClick(ClickEvent event) {
 
-    									getApplication().getMainWindow().removeWindow(nameWindow);
-    									/**
-    									 *  Vaadin 7
-    									 * Notification.show("Set Name cannot be empty.",
-    									 *	Notification.TYPE_ERROR_MESSAGE );
-    									 * Root.getCurrent().removeWindow(nameWindow);
-    									 */
-    									
-    								}
-    							}
+									String setN = (String) setName.getValue();
+									if(setN != "") {
 
-    						});
+										if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
-    						nameWindow.addComponent(setName);
-    						nameWindow.addComponent(addSet);
-    						
-    						getApplication().getMainWindow().addWindow(nameWindow);
-    						/**
-    						 * Vaadin 7
-    						 * Root.getCurrent().addWindow(nameWindow);
-    						 */
-    						//selectedValues = null;
+											getApplication().getMainWindow().removeWindow(nameWindow);
+											setTabs.populateTabSheet(maSet);
+											/**
+											 * Vaadin 7
+											 * Root.getCurrent().removeWindow(nameWindow);
+											 */
 
-    					}
-    				}
-    			}	 
-    		});
+										}
+									} else {
 
-    		markerTab = addTab(markerTable);
-    		markerTab.setCaption("Makers");
-    		markerTab.setVisible(false);
+										getApplication().getMainWindow().removeWindow(nameWindow);
+										/**
+										 *  Vaadin 7
+										 * Notification.show("Set Name cannot be empty.",
+										 *	Notification.TYPE_ERROR_MESSAGE );
+										 * Root.getCurrent().removeWindow(nameWindow);
+										 */
 
-    		arrayTable = new Table();
-    		arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
-    		arrayTable.setSizeFull();
-    		arrayTable.setSelectable(true);
-    		arrayTable.setMultiSelect(true);
-    		arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-    		arrayTable.addListener(new Table.ValueChangeListener() {
+									}
+								}
 
-    			private static final long serialVersionUID = 1L;
+							});
 
-    			public void valueChange(ValueChangeEvent event) {
+							nameWindow.addComponent(setName);
+							nameWindow.addComponent(addSet);
 
-    				String value = (event.getProperty().getValue()).toString();
-    				setType = "Microarray";
-    				setSelectedValues(value);
+							getApplication().getMainWindow().addWindow(nameWindow);
+							/**
+							 * Vaadin 7
+							 * Root.getCurrent().addWindow(nameWindow);
+							 */
+							//selectedValues = null;
 
-    			}
+						}
+					}
+				}	 
+			});
 
-    		});
+			markerTab = addTab(markerTable);
+			markerTab.setCaption("Makers");
+			markerTab.setVisible(false);
 
-    		arrayTable.addActionHandler(new Action.Handler() {
+			arrayTable = new Table();
+			arrayTable.setStyleName(Reindeer.TABLE_BORDERLESS);
+			arrayTable.setSizeFull();
+			arrayTable.setSelectable(true);
+			arrayTable.setMultiSelect(true);
+			arrayTable.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+			arrayTable.addListener(new Table.ValueChangeListener() {
 
-    			private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 1L;
 
-    			public Action[] getActions(Object target, Object sender) {
+				public void valueChange(ValueChangeEvent event) {
 
-    				return ACTIONS_CREATE;
+					String value = (event.getProperty().getValue()).toString();
+					setType = "Microarray";
+					setSelectedValues(value);
 
-    			}
-    			@SuppressWarnings("deprecation")
+				}
+
+			});
+
+			arrayTable.addActionHandler(new Action.Handler() {
+
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+
+					return ACTIONS_CREATE;
+
+				}
+				@SuppressWarnings("deprecation")
 				public void handleAction(Action action, Object sender, Object target) {
 
-    				if(selectedValues == null) {
-    				
-    					getApplication().getMainWindow().showNotification("Please select atleast one phenotype");	
-    					
-    					/**
-    					 * Vaadin 7
-    					 * Notification.show("Please select atleast one phenotype",  
-    					 *			Notification.TYPE_ERROR_MESSAGE ); 
-    					 */
-    					
-    				} else {
-
-    					final Window nameWindow = new Window();
-    					nameWindow.setModal(true);
-    					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-    					nameWindow.setClosable(true);
-    					nameWindow.setWidth("300px");
-    					nameWindow.setHeight("150px");
-    					nameWindow.setResizable(false);
-    					nameWindow.setCaption("Add Phenotypes to Set");
-    					nameWindow.setImmediate(true);
-
-    					final TextField setName = new TextField();
-    					setName.setInputPrompt("Please enter set name");
-    					setName.setImmediate(true);
-
-    					Button addSet = new Button("Add Set", new ClickListener() {
-
-    						private static final long serialVersionUID = 1L;
-
-    						@Override
-    						public void buttonClick(ClickEvent event) {
-
-    							String setN = (String) setName.getValue();
-    							if(setN != "") {
-
-    								if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
-
-    									getApplication().getMainWindow().removeWindow(nameWindow);
-    									setTabs.populateTabSheet(maSet);
-    									/**
-    									 * Vaadin 7
-    									 * Root.getCurrent().removeWindow(nameWindow);
-    									 */
-    								}
-    							} else {
-    								
-    								getApplication().getMainWindow().showNotification("Set Name cannot be empty.");
-    								getApplication().getMainWindow().removeWindow(nameWindow);
-    								
-    								/**
-    								 * Vaadin 7
-    								 * 
-    								 * Notification.show("Set Name cannot be empty.",
-    								 * 		Notification.TYPE_ERROR_MESSAGE ); 
-    								 * Root.getCurrent().removeWindow(nameWindow);
-    								 */
-    							}
-
-    						}
-
-    					});
-
-    					nameWindow.addComponent(setName);
-    					nameWindow.addComponent(addSet);
-    					
-    					getApplication().getMainWindow().addWindow(nameWindow);
-    					/**
-    					 * Vaadin 7
-    					 * Root.getCurrent().addWindow(nameWindow);
-    					 */
-    					//selectedValues = null;
-    				}
-    			}	 
-    		});
-    		arrayTab = addTab(arrayTable);
-    		arrayTab.setCaption("Phenotypes");
-    		arrayTab.setVisible(false);
-
-    	}
-
-
-    	protected void setSelectedValues(String value) {
-
-    		this.selectedValues = value;
-
-    	}
-    	
-    	/**
-    	 * This method handles data tree click events (data set nodes and result set nodes)
-    	 * @param Tree event
-    	 */
-    	@Override
-    	public void valueChange(ValueChangeEvent event) {
-    		try {
-    			if((String) event.getProperty().getValue() != null ) {
-    				
-    				String dataPeru					= 	(String) event.getProperty().getValue();
-    				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-    				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-
-    				parameters.put("name", dataPeru);
-    				parameters.put("owner", user.getId());
-
-    				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
-
-    				if(dataSet != null) {
-
-    					dataSetId 					=	dataSet.getId();
-    					byte[] dataByte 			= 	dataSet.getData();
-
-    					UVisualPlugin tabSheet = null;
-    					if (dataSet.getType().equals("PDB File")){
-    						
-    						if(markerTab.isVisible()) {
-    							
-    							setLayout.setSplitPosition(100);
-            					setTabs.setVisible(false);
-            					markerTab.setVisible(false);
-            					arrayTab.setVisible(false);
-            				}
-    						
-    						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
-    						parentSet				=	pSet;
-    						tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
-    					
-    					}else{
-    						if(!setTabs.isVisible()) {
-    							setLayout.setSplitPosition(60);
-    							setTabs.setVisible(true);
-    							setTabLayout.addComponent(setTabs);
-    							markerTab.setVisible(true);
-    							arrayTab.setVisible(true);
-    						}
-    						
-    						maSet 					= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
-    						parentSet				=	maSet;
+					if(selectedValues == null) {
 
-    						AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-    						File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-    						AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-    						AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+						getApplication().getMainWindow().showNotification("Please select atleast one phenotype");	
 
-    						markerTable.setContainerDataSource(markerTableView(maSet));
-    						arrayTable.setContainerDataSource(arrayTableView(maSet));
+						/**
+						 * Vaadin 7
+						 * Notification.show("Please select atleast one phenotype",  
+						 *			Notification.TYPE_ERROR_MESSAGE ); 
+						 */
 
-    						tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
-    						setTabs.populateTabSheet(maSet);
-    					}
+					} else {
 
-    					menuPanel.setSecondComponent(tabSheet);
-    					setMainPanelSecondComponent(menuPanel);
+						final Window nameWindow = new Window();
+						nameWindow.setModal(true);
+						((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+						nameWindow.setClosable(true);
+						nameWindow.setWidth("300px");
+						nameWindow.setHeight("150px");
+						nameWindow.setResizable(false);
+						nameWindow.setCaption("Add Phenotypes to Set");
+						nameWindow.setImmediate(true);
 
-    				} else {
+						final TextField setName = new TextField();
+						setName.setInputPrompt("Please enter set name");
+						setName.setImmediate(true);
 
-    					if(markerTab.isVisible()) {
-    						setLayout.setSplitPosition(100);
-        					setTabs.setVisible(false);
-        					markerTab.setVisible(false);
-        					arrayTab.setVisible(false);
-        				}
-						
-    					String querySub 					= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-    					Map<String, Object> params 			= 	new HashMap<String, Object>();
+						Button addSet = new Button("Add Set", new ClickListener() {
 
-    					params.put("name", dataPeru);
-    					params.put("owner", user.getId());
+							private static final long serialVersionUID = 1L;
 
-    					ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
-    					if(resultSet != null) {
+							@Override
+							public void buttonClick(ClickEvent event) {
 
-    						byte[] dataByte 					= 	resultSet.getData();
-    						UVisualPlugin tabSheet = null;
+								String setN = (String) setName.getValue();
+								if(setN != "") {
 
-    						if(resultSet.getType().equalsIgnoreCase("CNKB")) {
+									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
-    							@SuppressWarnings("unchecked")
-    							Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(dataByte);
-    							tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
+										getApplication().getMainWindow().removeWindow(nameWindow);
+										setTabs.populateTabSheet(maSet);
+										/**
+										 * Vaadin 7
+										 * Root.getCurrent().removeWindow(nameWindow);
+										 */
+									}
+								} else {
 
-    						}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
+									getApplication().getMainWindow().showNotification("Set Name cannot be empty.");
+									getApplication().getMainWindow().removeWindow(nameWindow);
 
-    							CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(dataByte);
-    							tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
+									/**
+									 * Vaadin 7
+									 * 
+									 * Notification.show("Set Name cannot be empty.",
+									 * 		Notification.TYPE_ERROR_MESSAGE ); 
+									 * Root.getCurrent().removeWindow(nameWindow);
+									 */
+								}
 
-    						}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
+							}
 
-    							AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) ObjectConversion.toObject(dataByte);
-    							tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+						});
 
-    						}else if(resultSet.getType().equalsIgnoreCase("MarkUs")) {
+						nameWindow.addComponent(setName);
+						nameWindow.addComponent(addSet);
 
-    							MarkUsResultDataSet prtSet		= 	(MarkUsResultDataSet) ObjectConversion.toObject(dataByte);
-    							tabSheet 	= 	new UVisualPlugin(prtSet, resultSet.getType(), null);
+						getApplication().getMainWindow().addWindow(nameWindow);
+						/**
+						 * Vaadin 7
+						 * Root.getCurrent().addWindow(nameWindow);
+						 */
+						//selectedValues = null;
+					}
+				}	 
+			});
+			arrayTab = addTab(arrayTable);
+			arrayTab.setCaption("Phenotypes");
+			arrayTab.setVisible(false);
 
-    						}
+		}
 
-    						menuPanel.setSecondComponent(tabSheet);
-    						setMainPanelSecondComponent(menuPanel);
-        					
-    					}
-    				}		
 
-    			}else {
-    				setLayout.setSplitPosition(100);
-    				setTabs.setVisible(false);
-    				markerTab.setVisible(false);
-    				arrayTab.setVisible(false);
-    				setMainPanelSecondComponent(welcome);
+		protected void setSelectedValues(String value) {
 
-    			}
-    		}catch(Exception e) {
+			this.selectedValues = value;
 
-    			e.printStackTrace();
+		}
 
-    		}
-    	}
 
+		/**
+		 * Method is used to populate Phenotype Panel
+		 * @param maSet
+		 * @return - Indexed container with array labels
+		 */
 
-    	/**
-    	 * Method is used to populate Phenotype Panel
-    	 * @param maSet
-    	 * @return - Indexed container with array labels
-    	 */
+		private Container arrayTableView(DSMicroarraySet maSet) {
 
-    	private Container arrayTableView(DSMicroarraySet maSet) {
+			IndexedContainer tableData 		= 	new IndexedContainer();
 
-    		IndexedContainer tableData 		= 	new IndexedContainer();
+			for(int k=0;k<maSet.size();k++) {
 
-    		for(int k=0;k<maSet.size();k++) {
+				Item item 					= 	tableData.addItem(k);
+				tableData.addContainerProperty("Labels", String.class, null);
+				item.getItemProperty("Labels").setValue(maSet.get(k).getLabel());
 
-    			Item item 					= 	tableData.addItem(k);
-    			tableData.addContainerProperty("Labels", String.class, null);
-    			item.getItemProperty("Labels").setValue(maSet.get(k).getLabel());
+			}
 
-    		}
 
+			return tableData;
+		}
 
-    		return tableData;
-    	}
+		/**
+		 * Method is used to populate Marker Panel
+		 * @param maSet
+		 * @return - Indexed container with marker labels
+		 */
+		private IndexedContainer markerTableView(DSMicroarraySet maSet) {
 
-    	/**
-    	 * Method is used to populate Marker Panel
-    	 * @param maSet
-    	 * @return - Indexed container with marker labels
-    	 */
-    	private IndexedContainer markerTableView(DSMicroarraySet maSet) {
+			IndexedContainer tableData 		= 	new IndexedContainer();
 
-    		IndexedContainer tableData 		= 	new IndexedContainer();
+			for(int j=0; j<maSet.getMarkers().size();j++) {
 
-    		for(int j=0; j<maSet.getMarkers().size();j++) {
+				Item item 					= 	tableData.addItem(j);
 
-    			Item item 					= 	tableData.addItem(j);
+				for(int k=0;k<=maSet.size();k++) {
+					if(k == 0) {
+						tableData.addContainerProperty("Labels", String.class, null);
+						item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
+								+ " (" 
+								+ maSet.getMarkers().get(j).getGeneName()
+								+ ")");
+					} 
+				}
+			}
+			return tableData;
 
-    			for(int k=0;k<=maSet.size();k++) {
-    				if(k == 0) {
-    					tableData.addContainerProperty("Labels", String.class, null);
-    					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
-    							+ " (" 
-    							+ maSet.getMarkers().get(j).getGeneName()
-    							+ ")");
-    				} 
-    			}
-    		}
-    		return tableData;
+		}
 
-    	}
+		@Override
+		public Action[] getActions(Object target, Object sender) {
 
-    	@Override
-    	public Action[] getActions(Object target, Object sender) {
+			return ACTIONS;
 
-    		return ACTIONS;
+		}
 
-    	}
+		/**
+		 * Method handles Actions of the context menu on the dataset tree.
+		 */
+		@Override
+		public void handleAction(Action action, Object sender, Object target) {
 
-    	/**
-    	 * Method handles Actions of the context menu on the dataset tree.
-    	 */
-    	@Override
-    	public void handleAction(Action action, Object sender, Object target) {
+			if (action == ACTION_DELETE) {
 
-    		if (action == ACTION_DELETE) {
+				String dataName 				=	(target.toString());
 
-    			String dataName 				=	(target.toString());
+				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
+				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-    			String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-    			Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+				parameters.put("name", dataName);
+				parameters.put("owner", user.getId());
 
-    			parameters.put("name", dataName);
-    			parameters.put("owner", user.getId());
-    			
 
-    			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-    			if(dataSet != null) {
-    				dataSet.getId();
-    				
-    				/* Deleting result sets if there are any */
-    				if(dataTree.hasChildren(target)) {
-    					String querySub 			= 	"Select p from ResultSet as p where p.parent=:parent and p.owner=:owner";
-    					Map<String, Object> params 	= 	new HashMap<String, Object>();
+				if(dataSet != null) {
+					dataSet.getId();
 
-    					params.put("owner", user.getId());
-    					params.put("parent", dataName);
-    					List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
+					/* Deleting result sets if there are any */
+					if(dataTree.hasChildren(target)) {
+						String querySub 			= 	"Select p from ResultSet as p where p.parent=:parent and p.owner=:owner";
+						Map<String, Object> params 	= 	new HashMap<String, Object>();
 
-    					for(ResultSet result : resultSets) {
-    						FacadeFactory.getFacade().delete(result);
-    						dataTree.removeItem(result.getName());
-    					}
-    				}
-    				
-    				/* Deleting subsets if there are any */
-    				String querySub 			= 	"Select p from SubSet as p where p.owner=:owner and p.parent=:parent";
+						params.put("owner", user.getId());
+						params.put("parent", dataName);
+						List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
+
+						for(ResultSet result : resultSets) {
+							FacadeFactory.getFacade().delete(result);
+							dataTree.removeItem(result.getName());
+						}
+					}
+
+					/* Deleting subsets if there are any */
+					String querySub 			= 	"Select p from SubSet as p where p.owner=:owner and p.parent=:parent";
 					Map<String, Object> params 	= 	new HashMap<String, Object>();
 
 					params.put("owner", user.getId());
 					params.put("parent", dataSet.getId());
 					List<SubSet> subSets 		= 	FacadeFactory.getFacade().list(querySub, params);
-    				if(!subSets.isEmpty()) {
-    					for(SubSet set : subSets) {
-    						FacadeFactory.getFacade().delete(set);
-    					}
-    					setTabs.populateTabSheet(null);
-    				}
-    				FacadeFactory.getFacade().delete(dataSet);
-    				dataTree.removeItem(target);
+					if(!subSets.isEmpty()) {
+						for(SubSet set : subSets) {
+							FacadeFactory.getFacade().delete(set);
+						}
+						setTabs.populateTabSheet(null);
+					}
+					FacadeFactory.getFacade().delete(dataSet);
+					dataTree.removeItem(target);
 
-    			} else {
+				} else {
 
-    				String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
-    				Map<String, Object> params 	= 	new HashMap<String, Object>();
+					String querySub 			= 	"Select p from ResultSet as p where p.name=:name and p.owner=:owner";
+					Map<String, Object> params 	= 	new HashMap<String, Object>();
 
-    				params.put("name", dataName);
-    				params.put("owner", user.getId());
-    				ResultSet resultSet 		= 	FacadeFactory.getFacade().find(querySub, params);
-    				FacadeFactory.getFacade().delete(resultSet);
-    				dataTree.removeItem(target);
-    			}
+					params.put("name", dataName);
+					params.put("owner", user.getId());
+					ResultSet resultSet 		= 	FacadeFactory.getFacade().find(querySub, params);
+					FacadeFactory.getFacade().delete(resultSet);
+					dataTree.removeItem(target);
+				}
 
-    			setMainPanelSecondComponent(welcome);
+				setMainPanelSecondComponent(welcome);
 
-    		}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
+			}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
-    			String dataPeru					= 	(target.toString());
-    			String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
-    			Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+				String dataPeru					= 	(target.toString());
+				String query 					= 	"Select p from DataSet as p where p.name=:name and p.owner=:owner";
+				Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
-    			parameters.put("name", dataPeru);
-    			parameters.put("owner", user.getId());
+				parameters.put("name", dataPeru);
+				parameters.put("owner", user.getId());
 
-    			DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
+				DataSet dataSet 				= 	FacadeFactory.getFacade().find(query, parameters);
 
-    			if(dataSet != null) {
+				if(dataSet != null) {
 
-    				byte[] dataByte 			= 	dataSet.getData();
-    				
-    				if (dataSet.getType().equals("PDB File")){
-    					if (action == ACTION_ANALYZE){
-    						DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
-    						parentSet				=	pSet;
+					byte[] dataByte 			= 	dataSet.getData();
 
-    						UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
-    						menuPanel.setSecondComponent(tabSheet);
-    						setMainPanelSecondComponent(menuPanel);
-    					}
-	    				return;
+					if (dataSet.getType().equals("PDB File")){
+						if (action == ACTION_ANALYZE){
+							DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+							UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
+							menuPanel.setSecondComponent(tabSheet);
+							setMainPanelSecondComponent(menuPanel);
+						}
+						return;
 					}
 
 					DSMicroarraySet maSet 		= 	(DSMicroarraySet) ObjectConversion.toObject(dataByte);
-					parentSet					=	maSet;
+					if(maSet.getAnnotationFileName() != null){
+						AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+						File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+						AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+					}
 
-    				if(maSet.getAnnotationFileName() != null){
-    					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-    					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-    					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-    				}
+					markerTable.setContainerDataSource(markerTableView(maSet));
+					arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-    				markerTable.setContainerDataSource(markerTableView(maSet));
-    				arrayTable.setContainerDataSource(arrayTableView(maSet));
-    				
-    				if(action == ACTION_ANALYZE) {
-    					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
-    					menuPanel.setSecondComponent(tabSheet);
-    				}else {
-    					
-    					UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
-    					menuPanel.setSecondComponent(tabSheet);
-    				}
-    				setMainPanelSecondComponent(menuPanel);
-    			}else {
+					if(action == ACTION_ANALYZE) {
+						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
+						menuPanel.setSecondComponent(tabSheet);
+					}else {
 
-    				getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis");
-    				/** 
-    				 * Vaadin 7
-    				 * Notification.show("Please select dataSet node or subset node for analysis",  
-    				 *		Notification.TYPE_ERROR_MESSAGE );
-    				 */
-    			}
+						UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
+						menuPanel.setSecondComponent(tabSheet);
+					}
+					setMainPanelSecondComponent(menuPanel);
+				}else {
 
-    		}else if(action == ACTION_NORMALIZE) {
+					getApplication().getMainWindow().showNotification("Please select dataSet node or subset node for analysis");
+					/** 
+					 * Vaadin 7
+					 * Notification.show("Please select dataSet node or subset node for analysis",  
+					 *		Notification.TYPE_ERROR_MESSAGE );
+					 */
+				}
 
-    			getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!");
-    			/**
-    			 * Vaadin 7
-    			 * Notification.show("No normalizers are implemented yet !!",  
-    			 *		Notification.TYPE_ERROR_MESSAGE );
-    			 */
+			}else if(action == ACTION_NORMALIZE) {
 
-    		}else if(action == ACTION_FILTER) {
+				getApplication().getMainWindow().showNotification("No normalizers are implemented yet !!");
+				/**
+				 * Vaadin 7
+				 * Notification.show("No normalizers are implemented yet !!",  
+				 *		Notification.TYPE_ERROR_MESSAGE );
+				 */
 
-    			getApplication().getMainWindow().showNotification("No filters are implemented yet !!");
-    			/**
-    			 * Vaadin 7
-    			 * Notification.show("No filters are implemented yet !!",  
-    			 *		Notification.TYPE_ERROR_MESSAGE );
-    			 */
-    			
-    		}
+			}else if(action == ACTION_FILTER) {
 
-    	}
-    }
-    
-    /**
-     * Adds the node to the dataTree  
-     */
-    public class NodeAddListener implements NodeAddEventListener {
-    	@Override
-    	public void addNode(NodeAddEvent event) {	
-    		dataTree.addItem(event.getDataSetName());
-    		dataTree.getContainerProperty(event.getDataSetName(), "My Projects").setValue(event.getDataSetName());
-    		if(event.getDataType() == "Result Node") {
-        		dataTree.setChildrenAllowed(event.getDataSetName(), false);
-        		dataTree.setParent(event.getDataSetName(), parentSet.getDataSetName());
-        		dataTree.setCollapsed(parentSet.getDataSetName(), false);
-    		}else  {
-        		dataTree.setParent(event.getDataSetName(), event.getDataType());
-    		}
-    		dataTree.select(event.getDataSetName());
-    	}
-    }
+				getApplication().getMainWindow().showNotification("No filters are implemented yet !!");
+				/**
+				 * Vaadin 7
+				 * Notification.show("No filters are implemented yet !!",  
+				 *		Notification.TYPE_ERROR_MESSAGE );
+				 */
+
+			}
+
+		}
+	}
+
+	/**
+	 * Adds the node to the dataTree  
+	 */
+	public class NodeAddListener implements NodeAddEventListener {
+		@Override
+		public void addNode(NodeAddEvent event) {	
+
+			if(event.getDataType() == "Result Node") {
+				
+				dataTree.addItem(event.getDataSetId()+"R");
+				dataTree.getContainerProperty(event.getDataSetId()+"R", "My Projects").setValue(event.getDataSetName());
+				dataTree.setChildrenAllowed(event.getDataSetId()+"R", false);
+				dataTree.setParent(event.getDataSetId()+"R", parentId);
+				dataTree.setCollapsed(parentId, false);
+						
+			}else if(event.getDataType() != null) {
+				dataTree.addItem(event.getDataSetId()+"D");
+				dataTree.getContainerProperty(event.getDataSetId()+"D", "My Projects").setValue(event.getDataSetName());
+				dataTree.setParent(event.getDataSetId()+"D", event.getDataType()+"P");
+				dataTree.setCollapsed(event.getDataType()+"P", false);
+			
+			} else {
+				
+				dataTree.addItem(event.getDataSetId()+"P");
+				dataTree.getContainerProperty(event.getDataSetId()+"P", "My Projects").setValue(event.getDataSetName());
+		
+			}
+		}
+	}
 
 }

@@ -10,6 +10,7 @@ import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -66,12 +67,12 @@ public class HierarchicalClusteringAnalysis {
 		String dataSetName = "HC - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("Hierarchical Clustering");
-		resultSet.setParent(dataSet.getDataSetName());
+		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(results));
 		FacadeFactory.getFacade().store(resultSet);	
 		
-		NodeAddEvent resultEvent = new NodeAddEvent(dataSetName, "Result Node");
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 	
 	}
