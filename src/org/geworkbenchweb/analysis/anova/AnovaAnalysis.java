@@ -46,14 +46,17 @@ public class AnovaAnalysis {
 	private User user = SessionHandler.get();
 	private DSMicroarraySet dataSet = null;
 	private UAnovaParamForm paramForm = null;
+	private Long dataSetId;
 
-	public AnovaAnalysis(DSMicroarraySet dataSet, UAnovaParamForm paramForm) {
+	public AnovaAnalysis(DSMicroarraySet dataSet, UAnovaParamForm paramForm, Long dataSetId) {
 		this.dataSet = dataSet;
 		this.paramForm = paramForm;
+		this.dataSetId = dataSetId;
 	}
 
 	public void execute() {
 
+		@SuppressWarnings("unused")
 		String GroupAndChipsString = "";
 		DSItemList<DSGeneMarker> selectedMarkers = null;		 
 
@@ -234,7 +237,7 @@ public class AnovaAnalysis {
 		String dataSetName = "Anova - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("Anova");
-		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
+		resultSet.setParent(dataSetId);
 		resultSet.setOwner(user.getId());
 		resultSet.setData(ObjectConversion.convertToByte(anovaResultSet));
 		FacadeFactory.getFacade().store(resultSet);
