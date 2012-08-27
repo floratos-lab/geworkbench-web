@@ -57,6 +57,7 @@ public class AnovaAnalysis {
 		String GroupAndChipsString = "";
 		DSItemList<DSGeneMarker> selectedMarkers = null;		 
 
+		long parentSetId =  DataSetOperations.getDataSetID(dataSet.getDataSetName());
 		String[] selectedMarkerSet = paramForm.getSelectedMarkerSet();
 
 		if (selectedMarkerSet == null)
@@ -64,7 +65,7 @@ public class AnovaAnalysis {
 		else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				String markers = getMarkerData(selectedMarkerSet[i], dataSet);
+				String markers = getMarkerData(selectedMarkerSet[i], parentSetId);
 				String[] temp = (markers.substring(1, markers.length() - 1))
 						.split(",");
 				for (int j = 0; j < temp.length; j++)
@@ -74,20 +75,17 @@ public class AnovaAnalysis {
 			}
 		}
 
-		String[] selectedArraySet = paramForm.getSelectedArraySet();
-		log.debug("test");
-		log.debug(selectedArraySet);
-
+		String[] selectedArraySet = paramForm.getSelectedArraySet();	 
+ 
 		int selectedMarkersNum = selectedMarkers.size();
 		int globleArrayIndex = 0;
 		int numSelectedGroups = selectedArraySet.length;
 
 		GroupAndChipsString += numSelectedGroups + " groups analyzed:\n";
-
+ 
 		/* for each group */
-		for (int i = 0; i < numSelectedGroups; i++) {
-
-			String arrayPositions = getArrayData(selectedMarkerSet[i], dataSet);
+		for (int i = 0; i < numSelectedGroups; i++) {			 
+			String arrayPositions = getArrayData(selectedArraySet[i], parentSetId);
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
@@ -104,7 +102,7 @@ public class AnovaAnalysis {
 				 * put member of each group into history
 				 */
 
-				GroupAndChipsString += "\t\t" + dataSet.get(temp[j]) + "\n";
+				GroupAndChipsString += "\t\t" + dataSet.get(Integer.parseInt(temp[j].trim())) + "\n";
 
 				/*
 				 * count total arrays in selected groups.
@@ -119,8 +117,10 @@ public class AnovaAnalysis {
 
 		globleArrayIndex = 0;
 		/* for each groups */
+		
+		log.debug(selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = getArrayData(selectedMarkerSet[i], dataSet);
+			String arrayPositions = getArrayData(selectedArraySet[i], parentSetId);
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
@@ -128,9 +128,9 @@ public class AnovaAnalysis {
 			 * for each array in this group
 			 */
 			for (int j = 0; j < temp.length; j++) {
-				/* for each marker in this array */
-				for (int k = 0; k < selectedMarkersNum; k++) {
-					A[k][globleArrayIndex] = (float) dataSet.get(temp[j])
+				/* for each marker in this array */			
+				for (int k = 0; k < selectedMarkersNum; k++) {				 
+					A[k][globleArrayIndex] = (float) dataSet.get(Integer.parseInt(temp[j].trim()))
 							.getMarkerValue(selectedMarkers.get(k)).getValue();
 
 				}
@@ -178,11 +178,11 @@ public class AnovaAnalysis {
 					"Anova Analysis Result Set", selectedArraySet,
 					significantMarkerNames, output.getResult2DArray());
 			log.debug(significantMarkerNames.length
-					+ "Markers added to anovaResultSet.");
+					+ " Markers added to anovaResultSet.");
 			anovaResultSet.getSignificantMarkers().addAll(
 					sigSet.getSignificantMarkers());
 			log.debug(sigSet.getSignificantMarkers().size()
-					+ "Markers added to anovaResultSet.getSignificantMarkers().");
+					+ " Markers added to anovaResultSet.getSignificantMarkers().");
 			anovaResultSet.sortMarkersBySignificance();
 
 			storeResultSet(anovaResultSet);
@@ -198,11 +198,10 @@ public class AnovaAnalysis {
 	/**
 	 * Create Marker Data for selected markerSet
 	 */
-	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
+	public String getMarkerData(String setName, long parentSetId) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setName,
-				DataSetOperations.getDataSetID(parentSet.getDataSetName()));
+		List subSet = SubSetOperations.getMarkerSet(setName,parentSetId);			 
 		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
 
 		return positions;
@@ -211,11 +210,16 @@ public class AnovaAnalysis {
 	/**
 	 * Create Array Data for selected markerSet
 	 */
-	public String getArrayData(String setName, DSMicroarraySet parentSet) {
-
+	public String getArrayData(String setName, long parentSetId) {
+ 
+		 
+		log.debug(setName);
+		
 		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getArraySet(setName,
-				DataSetOperations.getDataSetID(parentSet.getDataSetName()));
+		
+		
+		List subSet = SubSetOperations.getArraySet(setName.trim(),	parentSetId);
+		
 		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
 
 		return positions;

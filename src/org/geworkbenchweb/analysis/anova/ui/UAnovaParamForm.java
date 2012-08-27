@@ -328,23 +328,24 @@ public class UAnovaParamForm extends VerticalLayout {
 	}
 
 	public int getPValueEstimation() {		 
-		return ((Integer)pValEstCbx.getValue()).intValue();
+		return Integer.parseInt(pValEstCbx.getValue().toString().trim());
 	}
 	
-	public int getPermNumber() {		 
-		return ((Integer)permNumber.getValue()).intValue();
+	public int getPermNumber() {	 
+		return Integer.parseInt(permNumber.getValue().toString().trim());
 	}
 		
-	public double getPValThreshold() {		 
-		return ((Double)pValThreshold.getValue()).intValue();
+	public double getPValThreshold() {			
+		return Double.parseDouble(pValThreshold.getValue().toString().trim());
 	}
 	
-	public int getFalseDiscoveryRateControl() {		 
-		return ((Integer)og.getValue()).intValue();
+	public int getFalseDiscoveryRateControl() {	
+		return Integer.parseInt(og.getValue().toString().trim());		 
 	}
 	
-	public float getFalseSignificantGenesLimit() {		 
-		return (((Float)permNumber.getValue()).floatValue());
+	public float getFalseSignificantGenesLimit() {	
+		return Float.parseFloat(permNumber.getValue().toString().trim());
+		 
 	}	 
 	
 }

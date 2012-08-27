@@ -64,6 +64,7 @@ public class UAnovaTab extends VerticalLayout {
 		 
 		
 		/* Results Table Code */
+		dataTable 		= 	new Table();
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);		 
 		dataTable.setContainerDataSource(tabularView(anovaResultSet));	 
