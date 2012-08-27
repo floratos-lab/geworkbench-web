@@ -8,14 +8,16 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.pojos.DataSet;
@@ -477,6 +479,13 @@ public class UMainLayout extends VerticalLayout {
 									tabSheet 	= 	new UVisualPlugin(prtSet, resultSet.getType(), null);
 
 								}
+							    else if(resultSet.getType().equalsIgnoreCase("Anova")) {
+							        @SuppressWarnings("unchecked")
+									CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(dataByte);							 
+								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, resultSet.getType(), null);
+
+							    }
+								
 
 								menuPanel.setSecondComponent(tabSheet);
 								setMainPanelSecondComponent(menuPanel);
