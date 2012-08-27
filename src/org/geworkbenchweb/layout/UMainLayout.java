@@ -497,7 +497,7 @@ public class UMainLayout extends VerticalLayout {
 							    else if(resultSet.getType().equalsIgnoreCase("Anova")) {
 							        @SuppressWarnings("unchecked")
 									CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(dataByte);							 
-								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, resultSet.getType(), null);
+								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, dataProperties);
 
 							    }
 								
