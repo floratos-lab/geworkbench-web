@@ -25,7 +25,7 @@ public class UAracneParamForm extends GridLayout {
 
 	private static final long serialVersionUID = 1L;
 	
-	public UAracneParamForm(final DSMicroarraySet maSet) {
+	public UAracneParamForm(final DSMicroarraySet maSet, final long dataSetId) {
 		
 		String dataSetName = maSet.getDataSetName();
 		
@@ -351,7 +351,7 @@ public class UAracneParamForm extends GridLayout {
 			public void buttonClick(ClickEvent event) {
 				try {
 
-					new AracneAnalysisWeb(maSet, params);
+					new AracneAnalysisWeb(maSet, params, dataSetId);
 
 				} catch (Exception e) {	
 

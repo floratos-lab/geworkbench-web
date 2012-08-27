@@ -29,7 +29,7 @@ public class UHierarchicalClusteringParamForm extends VerticalLayout {
 	
 	private DSMicroarraySet dataSet;
 	
-	public UHierarchicalClusteringParamForm(DSMicroarraySet maSet) {
+	public UHierarchicalClusteringParamForm(DSMicroarraySet maSet, final long dataSetId) {
 		
 		this.dataSet = maSet;
 		setImmediate(true);
@@ -125,7 +125,7 @@ public class UHierarchicalClusteringParamForm extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				try {
 				
-					new HierarchicalClusteringAnalysis(dataSet, params);
+					new HierarchicalClusteringAnalysis(dataSet, params, dataSetId);
 						
 				} catch (Exception e) {	
 					

@@ -45,7 +45,7 @@ public class UCNKBParamForm extends VerticalLayout {
 	
 	User user = SessionHandler.get();
 	
-	public UCNKBParamForm(DSMicroarraySet maSet) {
+	public UCNKBParamForm(DSMicroarraySet maSet, final long dataSetId) {
 		
 		this.dataSet = maSet;
 
@@ -85,7 +85,7 @@ public class UCNKBParamForm extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				try {
 				
-					new CNKBInteractions(dataSet, params);
+					new CNKBInteractions(dataSet, params, dataSetId);
 						
 				} catch (Exception e) {	
 					

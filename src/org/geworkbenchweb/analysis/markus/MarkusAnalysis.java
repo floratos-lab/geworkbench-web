@@ -19,7 +19,6 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.analysis.markus.ui.UMarkusParamForm;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -31,14 +30,16 @@ public class MarkusAnalysis {
 	private User user = SessionHandler.get();
 	private DSProteinStructure dataSet = null;
 	private UMarkusParamForm mcp = null;
+	private Long dataSetId;
 	public static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
 	private String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"submit\"\r\n\r\nUpload\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
 
-	public MarkusAnalysis(DSProteinStructure dataSet, UMarkusParamForm mcp) {
+	public MarkusAnalysis(DSProteinStructure dataSet, UMarkusParamForm mcp, Long dataSetId) {
 		this.dataSet = dataSet;
 		this.mcp	 = mcp;
+		this.dataSetId = dataSetId;
 	}
 	
 	public ResultSet execute(){
@@ -97,7 +98,7 @@ public class MarkusAnalysis {
 		String dataSetName 	=	results+" - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("MarkUs");
-		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
+		resultSet.setParent(dataSetId);
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(musresult));
 		FacadeFactory.getFacade().store(resultSet);

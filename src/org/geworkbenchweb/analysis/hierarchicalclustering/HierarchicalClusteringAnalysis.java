@@ -10,7 +10,6 @@ import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -26,7 +25,7 @@ public class HierarchicalClusteringAnalysis {
 
 	User user = SessionHandler.get();
 	
-	public HierarchicalClusteringAnalysis(DSMicroarraySet dataSet, String[] params) {
+	public HierarchicalClusteringAnalysis(DSMicroarraySet dataSet, String[] params, long dataSetId) {
 		
 		String clusterMethod 	= 	params[0];
 		String clusterDim 		=	params[1];
@@ -67,7 +66,7 @@ public class HierarchicalClusteringAnalysis {
 		String dataSetName = "HC - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("Hierarchical Clustering");
-		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
+		resultSet.setParent(dataSetId);
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(results));
 		FacadeFactory.getFacade().store(resultSet);	

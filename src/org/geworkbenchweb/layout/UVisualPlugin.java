@@ -67,18 +67,20 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 	
 	private Object dataSet;
 
-	public UVisualPlugin(Object dataSet, String dataType, String action) {
+	public UVisualPlugin(Object dataSet, String[] dataProperties) {
 
 		this.dataSet = dataSet;
 
 		addListener(this);
 		setSizeFull();
 		setStyleName(Reindeer.TABSHEET_SMALL);
+		
+		String dataType =	dataProperties[0];
 
 		if(dataType.contentEquals("Expression File")) {
 
 			maSet 			= 	(DSMicroarraySet) dataSet;
-			dataOp			= 	new UDataTab(maSet, action);
+			dataOp			= 	new UDataTab(maSet, dataProperties);
 			heatMap			=	new UHeatMap(maSet);
 			dataTable 		= 	new Table();
 
@@ -261,7 +263,7 @@ public class UVisualPlugin extends TabSheet implements TabSheet.SelectedTabChang
 		}else if(dataType.equals("PDB File")) {
 
 			DSProteinStructure prtset 	= 	(DSProteinStructure) dataSet;
-			dataOp						= 	new UDataTab(prtset, action);
+			dataOp						= 	new UDataTab(prtset, dataProperties);
 			
 			dataOp.setCaption(DATA_OPERATIONS);
 			addTab(dataOp); 

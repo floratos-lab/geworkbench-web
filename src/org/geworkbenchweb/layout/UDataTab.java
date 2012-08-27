@@ -36,8 +36,12 @@ public class UDataTab extends VerticalLayout {
 	
 	private Panel dataPanel;
 	
-	public UDataTab(DSDataSet<? extends DSBioObject> inputDataSet, String action) {
+	private String[] dataProp;
+	
+	public UDataTab(DSDataSet<? extends DSBioObject> inputDataSet, String[] dataProperties) {
 				
+		this.dataProp = dataProperties;
+		
 		setSizeFull();
 		setStyleName(Reindeer.LAYOUT_WHITE);
 		
@@ -57,7 +61,7 @@ public class UDataTab extends VerticalLayout {
 			if(inputDataSet instanceof DSMicroarraySet) {
 				
 				DSMicroarraySet maSet = (DSMicroarraySet) inputDataSet;
-				buildMicroarraySetPanel(maSet, action);
+				buildMicroarraySetPanel(maSet);
 			 
 			}else{
 				
@@ -79,9 +83,8 @@ public class UDataTab extends VerticalLayout {
 	
 	/**
 	 * Builds Panel for MicroarraySet Operations
-	 * @param action 
 	 */
-	private void buildMicroarraySetPanel(DSMicroarraySet maSet, String action) {
+	private void buildMicroarraySetPanel(DSMicroarraySet maSet) {
 		
 		final DSMicroarraySet dataSet = maSet;
 		
@@ -117,7 +120,7 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("Hierarchical Clustering Parameters");
 						
-						UHierarchicalClusteringParamForm hsParamForm = new UHierarchicalClusteringParamForm(dataSet);
+						UHierarchicalClusteringParamForm hsParamForm = new UHierarchicalClusteringParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(hsParamForm);
 						dataPanel.addComponent(paramPanel);
 
@@ -126,7 +129,7 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("ARACne Parameters");
 						
-						UAracneParamForm aracneParamForm = new UAracneParamForm(dataSet);
+						UAracneParamForm aracneParamForm = new UAracneParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(aracneParamForm);
 						dataPanel.addComponent(paramPanel);
 						
@@ -135,7 +138,7 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("Anova Parameters");
 						
-						UAnovaParamForm aracneParamForm = new UAnovaParamForm(dataSet);
+						UAnovaParamForm aracneParamForm = new UAnovaParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(aracneParamForm);
 						dataPanel.addComponent(paramPanel);
 						
@@ -162,7 +165,7 @@ public class UDataTab extends VerticalLayout {
 					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("CNKB Parameters");
-						paramPanel.addComponent(new UCNKBParamForm(dataSet));
+						paramPanel.addComponent(new UCNKBParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1))));
 						
 						dataPanel.addComponent(paramPanel);
 					}
@@ -215,13 +218,13 @@ public class UDataTab extends VerticalLayout {
 			}
 		});
 		
-		if(action != null) {
-			if(action == "Analyze Data") {
+		if(dataProp[2] != null) {
+			if(dataProp[2] == "Analyze Data") {
 				
 				operationsBox.select("Analyze Data");
 				paramForm.addField("analysis", analysisBox);
 				
-			}else if(action == "Get Interactions") {
+			}else if(dataProp[2] == "Get Interactions") {
 				
 				operationsBox.select("Get Interactions");
 				paramForm.addField("interactions", interactionsBox);
@@ -275,7 +278,7 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("MarkUs Parameters");
 
-						UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet);
+						UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(markusParamForm);
 						dataPanel.addComponent(paramPanel);
 					}

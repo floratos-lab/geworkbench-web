@@ -29,6 +29,7 @@ public class UMarkusParamForm extends VerticalLayout {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
+	private Long dataSetId;
 	private DSProteinStructure dataSet 	= 	null;
 	private ComboBox cbxChain 			= 	new ComboBox("Chain");
 	private TextField email = new TextField("Email (optional)");
@@ -67,11 +68,14 @@ public class UMarkusParamForm extends VerticalLayout {
 	private TextField filter4 = new TextField("Identity Filter Percentage");
 	private ComboBox msa4 = new ComboBox("Multiple Sequence Alignment", Arrays.asList("Muscle", "ClustalW"));
 
-	public UMarkusParamForm(DSProteinStructure prtSet) {
+	public UMarkusParamForm(DSProteinStructure prtSet, long dataSetId) {
+		
+		this.dataSetId = dataSetId;
 		dataSet = prtSet;
 		setImmediate(true);
 		setSpacing(true);
 
+		
 		Accordion tabs = new Accordion();
 
 		tabs.addTab(buildMainPanel(), "Markus Parameters", null);
@@ -95,7 +99,7 @@ public class UMarkusParamForm extends VerticalLayout {
 		}
 		@Override
 		public void buttonClick(ClickEvent event) {
-			MarkusAnalysis analysis = new MarkusAnalysis(dataSet, form);
+			MarkusAnalysis analysis = new MarkusAnalysis(dataSet, form, dataSetId);
 			analysis.execute();
 		}
 	}
@@ -344,7 +348,7 @@ public class UMarkusParamForm extends VerticalLayout {
 				String key = keyTf.getValue().toString();
 				if (key.length()>0) results = results+"&key="+key;
 
-				MarkusAnalysis analysis = new MarkusAnalysis(dataSet, null);
+				MarkusAnalysis analysis = new MarkusAnalysis(dataSet, null, dataSetId);
 				analysis.getResultSet(results);
 			}
 		}

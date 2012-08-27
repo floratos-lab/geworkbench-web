@@ -33,7 +33,7 @@ public class AracneAnalysisWeb {
 	
 	final Parameter p = new Parameter();
 	
-	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params) {
+	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params, long dataSetId) {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
@@ -101,7 +101,7 @@ public class AracneAnalysisWeb {
 			String dataSetName 	=	"ARACne - " + new java.util.Date();
 			resultSet.setName(dataSetName);
 			resultSet.setType("ARACne");
-			resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
+			resultSet.setParent(dataSetId);
 			resultSet.setOwner(SessionHandler.get().getId());	
 			resultSet.setData(ObjectConversion.convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	

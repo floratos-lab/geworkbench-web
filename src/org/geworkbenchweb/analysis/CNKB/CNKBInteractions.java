@@ -15,7 +15,6 @@ import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -29,7 +28,7 @@ public class CNKBInteractions {
 	
 	User user 	= 	SessionHandler.get();
 	
-	public CNKBInteractions(DSMicroarraySet dataSet, String[] params) {
+	public CNKBInteractions(DSMicroarraySet dataSet, String[] params, long dataSetId) {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
@@ -117,7 +116,7 @@ public class CNKBInteractions {
 		String dataSetName	=	"CNKB - " + new java.util.Date(); 
 		resultSet.setName(dataSetName);
 		resultSet.setType("CNKB");
-		resultSet.setParent(DataSetOperations.getDataSetID(dataSet.getDataSetName()));
+		resultSet.setParent(dataSetId);
 		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(hits));
 		FacadeFactory.getFacade().store(resultSet);	
