@@ -3,8 +3,6 @@ package org.geworkbenchweb.analysis.anova.ui;
  
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
  
 import org.geworkbench.components.anova.PValueEstimation;
@@ -56,7 +54,7 @@ public class UAnovaParamForm extends VerticalLayout {
 
 	private Label pValCorrectionLabel;
 	
-	
+	private Long dataSetId;
 
 	private OptionGroup og;
 	
@@ -64,8 +62,9 @@ public class UAnovaParamForm extends VerticalLayout {
 
 	private Button submitButton;
 
-	public UAnovaParamForm(final DSMicroarraySet maSet) {
+	public UAnovaParamForm(final DSMicroarraySet maSet, long dataSetId) {
 
+		this.dataSetId = dataSetId;
 	 
 		String dataSetName = maSet.getDataSetName();
 
@@ -297,7 +296,7 @@ public class UAnovaParamForm extends VerticalLayout {
 				 permNumber.setComponentError(null);
 			 
 			
-			AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform);
+			AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform, dataSetId);
 			analysis.execute();
 		}
 	}
