@@ -90,6 +90,8 @@ public class UMainLayout extends VerticalLayout {
 	private VerticalSplitPanel menuPanel;
 	
 	private String parentId;
+	
+	private String[] dataProperties;
 
 	User user = SessionHandler.get();
 
@@ -380,6 +382,8 @@ public class UMainLayout extends VerticalLayout {
 					try {
 						String itemId 	= 	(String) event.getItemId();
 						Long realId		=	Long.parseLong(itemId.substring(0, itemId.length() - 1));
+						
+						dataProperties 	= new String[3];
 
 						if(itemId.contains("D")) {
 
@@ -398,6 +402,10 @@ public class UMainLayout extends VerticalLayout {
 								byte[] dataByte 			= 	dataSet.getData();
 
 								UVisualPlugin tabSheet = null;
+								
+								dataProperties[0] 	= 	dataSet.getType();
+								dataProperties[1]	= 	parentId;
+								
 								if (dataSet.getType().equals("PDB File")){
 
 									if(markerTab.isVisible()) {
@@ -408,8 +416,9 @@ public class UMainLayout extends VerticalLayout {
 										arrayTab.setVisible(false);
 									}
 
+									dataProperties[2]		=	null;	
 									DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
-									tabSheet 				=	new UVisualPlugin(pSet, dataSet.getType(), null);
+									tabSheet 				=	new UVisualPlugin(pSet, dataProperties);
 
 								}else{
 									if(!setTabs.isVisible()) {
@@ -429,7 +438,7 @@ public class UMainLayout extends VerticalLayout {
 									markerTable.setContainerDataSource(markerTableView(maSet));
 									arrayTable.setContainerDataSource(arrayTableView(maSet));
 
-									tabSheet 				= 	new UVisualPlugin(maSet, dataSet.getType(), null);
+									tabSheet 				= 	new UVisualPlugin(maSet, dataProperties);
 									setTabs.populateTabSheet(maSet);
 								}
 
@@ -457,26 +466,32 @@ public class UMainLayout extends VerticalLayout {
 								byte[] dataByte 					= 	resultSet.getData();
 								UVisualPlugin tabSheet = null;
 
+								dataProperties[0] 	= 	resultSet.getType();
+								dataProperties[1]	= 	parentId;
+								dataProperties[2]	=	null;
+								
 								if(resultSet.getType().equalsIgnoreCase("CNKB")) {
 
 									@SuppressWarnings("unchecked")
 									Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(dataByte);
-									tabSheet	= 	new UVisualPlugin(hits, resultSet.getType(), null);
+									tabSheet	= 	new UVisualPlugin(hits, dataProperties);
 
+									
+									
 								}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
 
 									CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(dataByte);
-									tabSheet 	= 	new UVisualPlugin(hierResults, resultSet.getType(), null);
+									tabSheet 	= 	new UVisualPlugin(hierResults, dataProperties);
 
 								}else if(resultSet.getType().equalsIgnoreCase("ARACne")) {
 
 									AdjacencyMatrixDataSet dSet 	= 	(AdjacencyMatrixDataSet) ObjectConversion.toObject(dataByte);
-									tabSheet 	= 	new UVisualPlugin(dSet, resultSet.getType(), null);
+									tabSheet 	= 	new UVisualPlugin(dSet, dataProperties);
 
 								}else if(resultSet.getType().equalsIgnoreCase("MarkUs")) {
 
 									MarkUsResultDataSet prtSet		= 	(MarkUsResultDataSet) ObjectConversion.toObject(dataByte);
-									tabSheet 	= 	new UVisualPlugin(prtSet, resultSet.getType(), null);
+									tabSheet 	= 	new UVisualPlugin(prtSet, dataProperties);
 
 								}
 							    else if(resultSet.getType().equalsIgnoreCase("Anova")) {
@@ -492,6 +507,14 @@ public class UMainLayout extends VerticalLayout {
 
 							}	
 
+						} else if(itemId.contains("P")) {
+			
+							setLayout.setSplitPosition(100);
+							setTabs.setVisible(false);
+							markerTab.setVisible(false);
+							arrayTab.setVisible(false);
+							setMainPanelSecondComponent(welcome);
+							
 						}
 					}catch(Exception e) {
 
@@ -820,8 +843,16 @@ public class UMainLayout extends VerticalLayout {
 		@Override
 		public Action[] getActions(Object target, Object sender) {
 
+			if(target != null) {
+				if(target.toString().contains("P")) {
+					return null;
+				}else if(target.toString().contains("D")) {
+					return ACTIONS;
+				}else if(target.toString().contains("R")){
+					return new Action[] { ACTION_DELETE};
+				}
+			}
 			return ACTIONS;
-
 		}
 
 		/**
@@ -896,6 +927,7 @@ public class UMainLayout extends VerticalLayout {
 			}else if(action == ACTION_ANALYZE || action == ACTION_INTERACTIONS) {
 
 				if(dataName.contains("D")) {
+					dataProperties 	= new String[2];
 					
 					String query 					= 	"Select p from DataSet as p where p.id=:id and p.owner=:owner";
 					Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -909,10 +941,16 @@ public class UMainLayout extends VerticalLayout {
 
 						byte[] dataByte 			= 	dataSet.getData();
 
+						dataProperties[0]	= 	parentId;
+						dataProperties[1]	=	dataSet.getType();
+								
 						if (dataSet.getType().equals("PDB File")){
 							if (action == ACTION_ANALYZE){
-								DSProteinStructure pSet	=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
-								UVisualPlugin tabSheet = new UVisualPlugin(pSet, dataSet.getType(), "Analyze Data");
+								
+								dataProperties[2]			=	"Analyze Data";
+								DSProteinStructure pSet		=	(DSProteinStructure) ObjectConversion.toObject(dataByte);
+								UVisualPlugin tabSheet 		= 	new UVisualPlugin(pSet, dataProperties);
+								
 								menuPanel.setSecondComponent(tabSheet);
 								setMainPanelSecondComponent(menuPanel);
 							}
@@ -930,11 +968,12 @@ public class UMainLayout extends VerticalLayout {
 						arrayTable.setContainerDataSource(arrayTableView(maSet));
 
 						if(action == ACTION_ANALYZE) {
-							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Analyze Data");
+							dataProperties[2]			=	"Analyze Data";
+							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataProperties);
 							menuPanel.setSecondComponent(tabSheet);
 						}else {
-
-							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataSet.getType(), "Get Interactions");
+							dataProperties[2]			=	"Get Interactions";
+							UVisualPlugin tabSheet = new UVisualPlugin(maSet, dataProperties);
 							menuPanel.setSecondComponent(tabSheet);
 						}
 						setMainPanelSecondComponent(menuPanel);
