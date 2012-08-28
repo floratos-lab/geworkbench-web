@@ -29,6 +29,7 @@ import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Component;
@@ -64,7 +65,9 @@ public class UAnovaTab extends VerticalLayout {
 		 
 		
 		/* Results Table Code */
-		dataTable 		= 	new Table();
+		 
+		dataTable  = new Table();
+	               
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);		 
 		dataTable.setContainerDataSource(tabularView(anovaResultSet));	 
@@ -116,19 +119,19 @@ public class UAnovaTab extends VerticalLayout {
 			dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(((DSGeneMarker) anovaResultSet
 					.getSignificantMarkers().get(cx)).getShortName());
 			if (pVal) {
-				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(new Float(result2DArray[0][cx]));
+				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(convertDouble(result2DArray[0][cx]));
 			}
 			if (fStat) {
-				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(result2DArray[2][cx]);
+				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(convertDouble(result2DArray[2][cx]));
 			}
 			for (int gc = 0; gc < groupNum; gc++) {
 				if (mean) {
 					dataIn.getContainerProperty(id, header[meanStdStartAtIndex + gc
-					           							* ((mean ? 1 : 0) + (std ? 1 : 0)) + 0]).setValue( result2DArray[3 + gc * 2][cx]);
+					           							* ((mean ? 1 : 0) + (std ? 1 : 0)) + 0]).setValue(convertDouble(result2DArray[3 + gc * 2][cx]));
 				}
 				if (std) {
 					dataIn.getContainerProperty(id, header[meanStdStartAtIndex + gc
-							* ((mean ? 1 : 0) + (std ? 1 : 0)) + (mean ? 1 : 0)]).setValue(result2DArray[4 + gc * 2][cx]);
+							* ((mean ? 1 : 0) + (std ? 1 : 0)) + (mean ? 1 : 0)]).setValue(convertDouble(result2DArray[4 + gc * 2][cx]));
 				}
 			}
 			 
@@ -138,6 +141,18 @@ public class UAnovaTab extends VerticalLayout {
 		return dataIn;
 	}
 	
+	private String convertDouble(double value) {
+		    String str;
+			if ( value < 0.1)
+				str = String.format("%.2E", value);
+			else
+				str = String.format("%.2f", value);
+			
+			return str;
+			
+	}
+		 
+	 
 	
 	
 	 

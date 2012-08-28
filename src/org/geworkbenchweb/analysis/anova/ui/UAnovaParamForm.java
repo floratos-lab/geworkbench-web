@@ -41,7 +41,7 @@ import com.vaadin.terminal.UserError;
 public class UAnovaParamForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -738580934848570913L;
-
+ 
 	private ListSelect markerSetSelect;
 	private ListSelect arraySetSelect;
 	private Label pValEstLabel;
@@ -343,7 +343,9 @@ public class UAnovaParamForm extends VerticalLayout {
 	}
 	
 	public float getFalseSignificantGenesLimit() {	
-		return Float.parseFloat(permNumber.getValue().toString().trim());
+	    if (falseSignificantGenesLimit.getValue() == null || falseSignificantGenesLimit.getValue().toString().trim().equals(""))
+		   return 0;
+	    return Float.parseFloat(falseSignificantGenesLimit.getValue().toString().trim());
 		 
 	}	 
 	
