@@ -55,7 +55,7 @@ public class USetsTabSheet extends TabSheet {
 
 	}
 
-	public void populateTabSheet(DSMicroarraySet dataSet) {
+	public void populateTabSheet(DSMicroarraySet dataSet, Long dataSetId) {
 
 		l1.removeAllComponents();
 		l2.removeAllComponents();
@@ -114,7 +114,7 @@ public class USetsTabSheet extends TabSheet {
 
 				public void valueChange(ValueChangeEvent event) {
 
-					try {
+					/*try {
 						Item itemSelected = arraySets.getItem(event.getProperty().getValue());
 
 						if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
@@ -149,12 +149,12 @@ public class USetsTabSheet extends TabSheet {
 						}
 					}catch (Exception e) {
 						e.printStackTrace();
-					}
+					}*/
 				}
 			});
 
-			markerSetContainer(SubSetOperations.getMarkerSets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
-			arraySetContainer(SubSetOperations.getArraySets(DataSetOperations.getDataSetID(maSet.getDataSetName())), maSet);
+			markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
+			arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
 
 			l1.addComponent(markerSets);
 			l2.addComponent(arraySets);
@@ -179,16 +179,23 @@ public class USetsTabSheet extends TabSheet {
 			for(int i=0; i<list.size(); i++ ) {
 
 				String name 		= 	((SubSet) list.get(i)).getName();
+				Long subSetId		=	((SubSet) list.get(i)).getId();
 				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	arraySets.addItem(new Object[] { name }, null);
+			
+				arraySets.addItem(subSetId);
+				arraySets.getContainerProperty(subSetId, "Name").setValue(name);
 
 				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
 
 				for(int j = 0; j<temp.length; j++) {
 
-					Object subItem = arraySets.addItem(new Object[] { maSet.get(Integer.parseInt(temp[j].trim())).getLabel() }, null);
-					arraySets.setChildrenAllowed(subItem, false);
-					arraySets.setParent(subItem, item);
+					String child	=	maSet.get(Integer.parseInt(temp[j].trim())).getLabel();
+					
+					arraySets.addItem(child);
+					arraySets.getContainerProperty(child, "Name").setValue(child);
+					
+					arraySets.setChildrenAllowed(child, false);
+					arraySets.setParent(child, subSetId);
 				}
 			}
 		}
@@ -211,20 +218,26 @@ public class USetsTabSheet extends TabSheet {
 			for(int i=0; i<list.size(); i++ ) {
 
 				String name 		= 	((SubSet) list.get(i)).getName();
+				Long subSetId		=	((SubSet) list.get(i)).getId();
 				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
-				Object item 		= 	markerSets.addItem(new Object[] { name }, null);
+			
+				markerSets.addItem(subSetId);
+				markerSets.getContainerProperty(subSetId, "Name").setValue(name);
 
 				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
 
 				for(int j = 0; j<temp.length; j++) {
 
-					Object subItem = markerSets.addItem(new Object[] { maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() 
+					String child	=	maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() 
 							+ " (" 
 							+ maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getGeneName()
-							+ ")" 
-					}, null);
-					markerSets.setChildrenAllowed(subItem, false);
-					markerSets.setParent(subItem, item);
+							+ ")" ;
+					
+					markerSets.addItem(child);
+					markerSets.getContainerProperty(child, "Name").setValue(child);
+					
+					markerSets.setChildrenAllowed(child, false);
+					markerSets.setParent(child, subSetId);
 				}
 
 			}
