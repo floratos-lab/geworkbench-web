@@ -439,7 +439,7 @@ public class UMainLayout extends VerticalLayout {
 									arrayTable.setContainerDataSource(arrayTableView(maSet));
 
 									tabSheet 				= 	new UVisualPlugin(maSet, dataProperties);
-									setTabs.populateTabSheet(maSet);
+									setTabs.populateTabSheet(maSet, dataSetId);
 								}
 
 								menuPanel.setSecondComponent(tabSheet);
@@ -629,7 +629,7 @@ public class UMainLayout extends VerticalLayout {
 										if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 											getApplication().getMainWindow().removeWindow(nameWindow);
-											setTabs.populateTabSheet(maSet);
+											setTabs.populateTabSheet(maSet, Long.parseLong(parentId.substring(0, parentId.length() - 1)));
 											/**
 											 * Vaadin 7
 											 * Root.getCurrent().removeWindow(nameWindow);
@@ -741,7 +741,7 @@ public class UMainLayout extends VerticalLayout {
 									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
 
 										getApplication().getMainWindow().removeWindow(nameWindow);
-										setTabs.populateTabSheet(maSet);
+										setTabs.populateTabSheet(maSet, Long.parseLong(parentId.substring(0, parentId.length() - 1)));
 										/**
 										 * Vaadin 7
 										 * Root.getCurrent().removeWindow(nameWindow);
@@ -884,12 +884,12 @@ public class UMainLayout extends VerticalLayout {
 							Map<String, Object> params 	= 	new HashMap<String, Object>();
 
 							params.put("owner", user.getId());
-							params.put("parent", dataName);
+							params.put("parent", realItemId);
 							List<ResultSet> resultSets 		= 	FacadeFactory.getFacade().list(querySub, params);
 
 							for(ResultSet result : resultSets) {
 								FacadeFactory.getFacade().delete(result);
-								dataTree.removeItem(result.getName());
+								dataTree.removeItem(result.getId()+"R");
 							}
 						}
 
@@ -904,7 +904,7 @@ public class UMainLayout extends VerticalLayout {
 							for(SubSet set : subSets) {
 								FacadeFactory.getFacade().delete(set);
 							}
-							setTabs.populateTabSheet(null);
+							setTabs.populateTabSheet(null, null);
 						}
 						FacadeFactory.getFacade().delete(dataSet);
 						dataTree.removeItem(target);
