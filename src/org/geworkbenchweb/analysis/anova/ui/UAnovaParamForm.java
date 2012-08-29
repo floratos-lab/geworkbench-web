@@ -9,9 +9,7 @@ import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
  
 import org.geworkbenchweb.analysis.anova.AnovaAnalysis;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
 import com.vaadin.data.Property;
@@ -66,8 +64,6 @@ public class UAnovaParamForm extends VerticalLayout {
 
 		this.dataSetId = dataSetId;
 	 
-		String dataSetName = maSet.getDataSetName();
-
 		final GridLayout gridLayout1 = new GridLayout(2, 2);
 		final GridLayout gridLayout2 = new GridLayout(4, 3);
 		final GridLayout gridLayout3 = new GridLayout(3, 1);
@@ -82,11 +78,8 @@ public class UAnovaParamForm extends VerticalLayout {
 		setSpacing(true);
 		setImmediate(true);
 
-		List<?> data = DataSetOperations.getDataSet(dataSetName);
-		List<?> subMarkerSets = SubSetOperations.getMarkerSets(((DataSet) data
-				.get(0)).getId());
-		List<?> subArraySets = SubSetOperations.getArraySets(((DataSet) data
-				.get(0)).getId());
+		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
+		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
 
 		markerSetSelect = new ListSelect("Select Marker Sets:");
 		markerSetSelect.setMultiSelect(true);
@@ -103,17 +96,17 @@ public class UAnovaParamForm extends VerticalLayout {
 		if (subMarkerSets != null)
 			for (int m = 0; m < (subMarkerSets).size(); m++) {
 
-				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m))
-						.getName());
+				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m)).getId());
+				markerSetSelect.setItemCaption(((SubSet) subMarkerSets.get(m)).getId(), ((SubSet) subMarkerSets.get(m)).getName());
 
 			}
 
 		if (subArraySets != null)
 			for (int m = 0; m < (subArraySets).size(); m++) {
 
-				arraySetSelect
-						.addItem(((SubSet) subArraySets.get(m)).getName());
-
+				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId());
+				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
+				
 			}
 
 	 
