@@ -51,9 +51,9 @@ public class UWorkspaceManager extends MultiButton {
 		setPopupButtonPixelWidth(50); 
 		setPopupButtonEnabled(true); 
 		
-		Button createWorkspace 	= 	new Button("Create New Workspace");
+		/*Button createWorkspace 	= 	new Button("Create New Workspace");
 		Button importWorkspace 	= 	new Button("Import Workspace");
-		Button createProject 	= 	new Button("Create Project");
+		Button createProject 	= 	new Button("Create Project");*/
 		Button uploadDataset 	= 	new Button("Upload Dataset", new Button.ClickListener() {
 			
 			private static final long serialVersionUID = -6393819962372106745L;
@@ -64,13 +64,13 @@ public class UWorkspaceManager extends MultiButton {
 				getApplication().getMainWindow().addWindow(dataWindow);
 			}
 		});
-		Button switchWorkspace 	= 	new Button("Switch Workspace");
+		/*Button switchWorkspace 	= 	new Button("Switch Workspace");*/
 		
 		addButton(uploadDataset);
-		addButton(createProject);
+		/*addButton(createProject);
 		addButton(createWorkspace);
 		addButton(importWorkspace);
-		addButton(switchWorkspace);
+		addButton(switchWorkspace);*/
 		
 		this.addListener(new Button.ClickListener() {
 
