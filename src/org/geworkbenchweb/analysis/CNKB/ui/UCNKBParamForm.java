@@ -98,7 +98,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		markerSetBox.setCaption("Select Marker Set");
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
-
+		markerSetBox.setNullSelectionAllowed(false);
 		
 		List<?> data 		=	DataSetOperations.getDataSet(dataSetName);
 		List<?> subSets	= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
@@ -126,6 +126,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		versionBox.setCaption("Select Version");
 		versionBox.setWidth("50%");   
 		versionBox.setImmediate(true);
+		versionBox.setNullSelectionAllowed(false);
 		versionBox.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -146,6 +147,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		interactomeBox.setWidth("50%");
 		interactomeBox.setInputPrompt("Select Interactome from the list");
 		interactomeBox.setImmediate(true);
+		interactomeBox.setNullSelectionAllowed(false);
 		
 		for(int j=0; j<contextList.size(); j++) {
 			interactomeBox.addItem(contextList.get(j));
