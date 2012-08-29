@@ -3,13 +3,11 @@ package org.geworkbenchweb.layout;
 import java.util.List;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.Action;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
@@ -29,8 +27,6 @@ public class USetsTabSheet extends TabSheet {
 	private TreeTable markerSets;
 
 	private TreeTable arraySets;
-
-	private static final String MARKER_HEADER 	= 	"Marker";
 
 	private VerticalLayout l1;
 
@@ -69,90 +65,54 @@ public class USetsTabSheet extends TabSheet {
 			markerSets = new TreeTable();
 			markerSets.setImmediate(true);
 			markerSets.setSelectable(true);
-			markerSets.addListener(new Property.ValueChangeListener() {
+			markerSets.addActionHandler(new Action.Handler() {
 
 				private static final long serialVersionUID = 1L;
 
-				public void valueChange(ValueChangeEvent event) {
-
-					try {
-						Item itemSelected = markerSets.getItem(event.getProperty().getValue());
-
-						if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
-							String positions 			=	 getMarkerData(itemSelected.toString(), maSet);
-							String[] temp 				=   (positions.substring(1, positions.length()-1)).split(",");
-							String[] colHeaders 		= 	new String[(maSet.size())+1];
-							IndexedContainer dataIn 	= 	new IndexedContainer();
-							
-							for(int j=0; j<temp.length; j++) {
-								Item item 				= 	dataIn.addItem(j);
-								for(int k=0;k<=maSet.size();k++) {
-									if(k == 0) {
-										colHeaders[k] 	= 	MARKER_HEADER;
-										dataIn.addContainerProperty(colHeaders[k], String.class, null);
-										item.getItemProperty(colHeaders[k]).setValue(maSet.getMarkers().get(Integer.parseInt(temp[j].trim())));
-									} else {
-										colHeaders[k] 	= 	maSet.get(k-1).toString();
-										dataIn.addContainerProperty(colHeaders[k], Float.class, null);
-										item.getItemProperty(colHeaders[k]).setValue(maSet.getValue(Integer.parseInt(temp[j].trim()), k-1));
-									}
-								}
-							}
-						}
-					}catch (Exception e) {
-						e.printStackTrace();
-					}
+				public Action[] getActions(Object target, Object sender) {
+					return null;
 				}
+				
+				public void handleAction(Action action, Object sender, Object target) {	
+				}
+			});
+			
+			markerSets.addListener(new ItemClickListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void itemClick(ItemClickEvent event) {
+					
+				}
+				
 			});
 
 			arraySets = new TreeTable();
 			arraySets.setImmediate(true);
 			arraySets.setSelectable(true);
-			arraySets.addListener(new Property.ValueChangeListener() {
+			arraySets.addActionHandler(new Action.Handler() {
 
 				private static final long serialVersionUID = 1L;
 
-				public void valueChange(ValueChangeEvent event) {
-
-					/*try {
-						Item itemSelected = arraySets.getItem(event.getProperty().getValue());
-
-						if(SubSetOperations.checkForDataSet(itemSelected.toString())) {
-
-							String positions 		=	 getArrayData(itemSelected.toString(), maSet);
-							String[] temp 			=   (positions.substring(1, positions.length()-1)).split(",");
-
-							String[] colHeaders 			= 	new String[(temp.length)+1];
-							IndexedContainer dataIn 		= 	new IndexedContainer();
-
-							for(int j=0; j<maSet.getMarkers().size();j++) {
-
-								Item item 					= 	dataIn.addItem(j);
-
-								for(int i=0; i<=temp.length; i++) {
-
-									if(i == 0) {
-
-										colHeaders[i] 		= 	MARKER_HEADER;
-										dataIn.addContainerProperty(colHeaders[i], String.class, null);
-										item.getItemProperty(colHeaders[i]).setValue(maSet.getMarkers().get(j));
-
-									} else {
-
-										colHeaders[i] 		= 	maSet.get(Integer.parseInt(temp[i-1].trim())).toString();
-										dataIn.addContainerProperty(colHeaders[i], Float.class, null);
-										item.getItemProperty(colHeaders[i]).setValue(maSet.getValue(j, Integer.parseInt(temp[i-1].trim())));
-
-									}
-								}
-							}
-						}
-					}catch (Exception e) {
-						e.printStackTrace();
-					}*/
+				public Action[] getActions(Object target, Object sender) {
+					return null;
+				}
+				
+				public void handleAction(Action action, Object sender, Object target) {	
 				}
 			});
+			arraySets.addListener(new ItemClickListener() {
 
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void itemClick(ItemClickEvent event) {
+					
+				}
+				
+			});
+			
 			markerSetContainer(SubSetOperations.getMarkerSets(dataSetId), maSet);
 			arraySetContainer(SubSetOperations.getArraySets(dataSetId), maSet);
 
@@ -250,30 +210,6 @@ public class USetsTabSheet extends TabSheet {
 		l1.removeAllComponents();
 		l2.removeAllComponents();
 
-	}
-	
-	/**
-	 * Create Dataset for selected markerSet 
-	 */
-	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
-		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-
-		return positions;
-	}
-
-	/**
-	 * Create Dataset for selected markerSet 
-	 */
-	public String getArrayData(String setName, DSMicroarraySet parentSet) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getArraySet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
-		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-
-		return positions;
 	}
 	
 }
