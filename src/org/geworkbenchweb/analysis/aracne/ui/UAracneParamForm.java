@@ -5,9 +5,7 @@ import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.analysis.aracne.AracneAnalysisWeb;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
 import com.vaadin.data.Property;
@@ -26,8 +24,6 @@ public class UAracneParamForm extends GridLayout {
 	private static final long serialVersionUID = 1L;
 	
 	public UAracneParamForm(final DSMicroarraySet maSet, final long dataSetId) {
-		
-		String dataSetName = maSet.getDataSetName();
 		
 		setColumns(4);
 		setRows(10);
@@ -71,12 +67,12 @@ public class UAracneParamForm extends GridLayout {
 		markerSetBox.setInputPrompt("Select Marker Set");
 		markerSetBox.setImmediate(true);
 		
-		List<?> data 		=	DataSetOperations.getDataSet(dataSetName);
-		List<?> subSets		= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
+		List<?> subSets		= 	SubSetOperations.getMarkerSets(dataSetId);
 		
 		for(int m=0; m<(subSets).size(); m++){
 			
-			markerSetBox.addItem(((SubSet) subSets.get(m)).getName());
+			markerSetBox.addItem(((SubSet) subSets.get(m)).getId());
+			markerSetBox.setItemCaption(((SubSet) subSets.get(m)).getId(), ((SubSet) subSets.get(m)).getName());
 		
 		}
 		markerSetBox.addListener(new Property.ValueChangeListener() {
@@ -86,7 +82,7 @@ public class UAracneParamForm extends GridLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params.remove(0);
-				params.add(0, getMarkerData(valueChangeEvent.getProperty().getValue().toString(), maSet));
+				params.add(0, getMarkerData((Long) valueChangeEvent.getProperty().getValue()));
 				
 			}
 		});
@@ -274,7 +270,8 @@ public class UAracneParamForm extends GridLayout {
 		
 		for(int m=0; m<(subSets).size(); m++){
 			
-			dpiSetBox.addItem(((SubSet) subSets.get(m)).getName());
+			dpiSetBox.addItem(((SubSet) subSets.get(m)).getId());
+			dpiSetBox.setItemCaption(((SubSet) subSets.get(m)).getId(), ((SubSet) subSets.get(m)).getName());
 		
 		}
 		dpiSetBox.addListener(new Property.ValueChangeListener() {
@@ -284,7 +281,7 @@ public class UAracneParamForm extends GridLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params.remove(11);
-				params.add(11, getMarkerData(valueChangeEvent.getProperty().getValue().toString(), maSet));
+				params.add(11, getMarkerData((Long) valueChangeEvent.getProperty().getValue()));
 				
 			}
 		});
@@ -383,10 +380,10 @@ public class UAracneParamForm extends GridLayout {
 	/**
 	 * Create Dataset for selected markerSet 
 	 */
-	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
+	public String getMarkerData(Long subSetId) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
+		List subSet 		= 	SubSetOperations.getMarkerSet(subSetId);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;
