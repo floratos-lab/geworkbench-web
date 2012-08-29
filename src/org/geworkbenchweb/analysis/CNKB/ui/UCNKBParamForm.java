@@ -11,9 +11,7 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionsConne
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.analysis.CNKB.CNKBInteractions;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -54,8 +52,6 @@ public class UCNKBParamForm extends VerticalLayout {
 		loadApplicationProperty();
 		
 		final String[] params 	=	new String[3];
-		
-		final String dataSetName =	maSet.getDataSetName();
 		
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
@@ -100,12 +96,12 @@ public class UCNKBParamForm extends VerticalLayout {
 		markerSetBox.setImmediate(true);
 		markerSetBox.setNullSelectionAllowed(false);
 		
-		List<?> data 		=	DataSetOperations.getDataSet(dataSetName);
-		List<?> subSets	= 	SubSetOperations.getMarkerSets(((DataSet) data.get(0)).getId());
+		List<?> subSets		= 	SubSetOperations.getMarkerSets(dataSetId);
 		
 		for(int m=0; m<(subSets).size(); m++){
 			
-			markerSetBox.addItem(((SubSet) subSets.get(m)).getName());
+			markerSetBox.addItem(((SubSet) subSets.get(m)).getId());
+			markerSetBox.setItemCaption(((SubSet) subSets.get(m)).getId(), ((SubSet) subSets.get(m)).getName());
 		
 		}
 		markerSetBox.addListener(new Property.ValueChangeListener() {
@@ -114,7 +110,7 @@ public class UCNKBParamForm extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
-				params[2] = getMarkerData(valueChangeEvent.getProperty().getValue().toString(), dataSet);
+				params[2] = getMarkerData((Long) valueChangeEvent.getProperty().getValue());
 				addComponent(interactomeBox);
 				
 			}
@@ -202,10 +198,10 @@ public class UCNKBParamForm extends VerticalLayout {
 	/**
 	 * Create Dataset for selected markerSet 
 	 */
-	public String getMarkerData(String setName, DSMicroarraySet parentSet) {
+	public String getMarkerData(Long subSetId) {
 
 		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(setName, DataSetOperations.getDataSetID(parentSet.getDataSetName()));
+		List subSet 		= 	SubSetOperations.getMarkerSet(subSetId);
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;

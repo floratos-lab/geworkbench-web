@@ -45,6 +45,7 @@ public class UHierarchicalClusteringParamForm extends VerticalLayout {
 		clusterMethod.addItem("Single Linkage");
 		clusterMethod.addItem("Average Linkage");
 		clusterMethod.addItem("Total linkage");
+		clusterMethod.setNullSelectionAllowed(false);
 		clusterMethod.select(clusterMethod.getItemIds().iterator().next());
 		clusterMethod.setWidth("50%");
 		clusterMethod.addListener(new Property.ValueChangeListener() {
@@ -73,6 +74,7 @@ public class UHierarchicalClusteringParamForm extends VerticalLayout {
 		clusterDim.addItem("Both");
 		clusterDim.select(clusterDim.getItemIds().iterator().next());
 		clusterDim.setWidth("50%");
+		clusterDim.setNullSelectionAllowed(false);
 		clusterDim.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -99,6 +101,7 @@ public class UHierarchicalClusteringParamForm extends VerticalLayout {
 		clusterMetric.addItem("Spearman's Rank Correlation");
 		clusterMetric.select(clusterMetric.getItemIds().iterator().next());
 		clusterMetric.setWidth("50%");
+		clusterMetric.setNullSelectionAllowed(false);
 		clusterMetric.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;

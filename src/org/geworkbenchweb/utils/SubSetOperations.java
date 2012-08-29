@@ -40,29 +40,27 @@ public class SubSetOperations {
 		return true;
 	}
 
-	public static List<?> getMarkerSet(String setName, Long parentSetId) {
+	public static List<?> getMarkerSet(Long setId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
-		parameters.put("name", setName);
+		parameters.put("id", setId);
 		parameters.put("type", "marker");
-		parameters.put("parent", parentSetId);
 		
-		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name " +
-				"and p.type=:type and p.parent=:parent", parameters);
+		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id " +
+				"and p.type=:type", parameters);
 		return data;
 	}
 	
-	public static List<?> getArraySet(String setName, Long parentSetId) {
+	public static List<?> getArraySet(Long setId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
-		parameters.put("name", setName);
+		parameters.put("id", setId);
 		parameters.put("type", "microarray");
-		parameters.put("parent", parentSetId);
 		
-		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name " +
-				"and p.type=:type and p.parent=:parent", parameters);
+		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id " +
+				"and p.type=:type", parameters);
 		return data;
 	}
 	

@@ -15,14 +15,14 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class DataSetOperations {
 
-	public static List<?> getDataSet(String dataSetName) {
+	public static List<?> getDataSet(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
-		parameters.put("name", dataSetName);
+		parameters.put("id", dataSetId);
 		parameters.put("owner", SessionHandler.get().getId());
 		
-		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.name=:name and p.owner=:owner ", parameters);
+		List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.id=:id and p.owner=:owner ", parameters);
 				
 		return data;
 	}
