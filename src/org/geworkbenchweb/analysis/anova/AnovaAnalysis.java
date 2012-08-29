@@ -15,7 +15,6 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -60,7 +59,6 @@ public class AnovaAnalysis {
 		String GroupAndChipsString = "";
 		DSItemList<DSGeneMarker> selectedMarkers = null;		 
 
-		long parentSetId =  DataSetOperations.getDataSetID(dataSet.getDataSetName());
 		String[] selectedMarkerSet = paramForm.getSelectedMarkerSet();
 
 		if (selectedMarkerSet == null)
@@ -68,7 +66,7 @@ public class AnovaAnalysis {
 		else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				String markers = getMarkerData(selectedMarkerSet[i].trim(), parentSetId);
+				String markers = getMarkerData(Long.parseLong(selectedMarkerSet[i]));
 				String[] temp = (markers.substring(1, markers.length() - 1))
 						.split(",");
 				for (int j = 0; j < temp.length; j++)
@@ -88,7 +86,7 @@ public class AnovaAnalysis {
  
 		/* for each group */
 		for (int i = 0; i < numSelectedGroups; i++) {			 
-			String arrayPositions = getArrayData(selectedArraySet[i].trim(), parentSetId);
+			String arrayPositions = getArrayData(Long.parseLong(selectedArraySet[i].trim()));
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
@@ -123,7 +121,7 @@ public class AnovaAnalysis {
 		
 		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = getArrayData(selectedArraySet[i].trim(), parentSetId);
+			String arrayPositions = getArrayData(Long.parseLong(selectedArraySet[i].trim()));
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
@@ -201,10 +199,10 @@ public class AnovaAnalysis {
 	/**
 	 * Create Marker Data for selected markerSet
 	 */
-	public String getMarkerData(String setName, long parentSetId) {
+	public String getMarkerData(Long setId) {
         
 		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setName,parentSetId);		 
+		List subSet = SubSetOperations.getMarkerSet(setId);		 
 		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();		 
 		return positions;
 	}
@@ -212,13 +210,12 @@ public class AnovaAnalysis {
 	/**
 	 * Create Array Data for selected markerSet
 	 */
-	public String getArrayData(String setName, long parentSetId) {
+	public String getArrayData(Long setId) {
   
 		@SuppressWarnings("rawtypes")
 		
 		
-		List subSet = SubSetOperations.getArraySet(setName,	parentSetId);
-		
+		List subSet = SubSetOperations.getArraySet(setId);
 		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
 
 		return positions;
