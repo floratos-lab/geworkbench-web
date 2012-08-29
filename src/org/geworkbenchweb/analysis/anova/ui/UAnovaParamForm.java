@@ -318,6 +318,20 @@ public class UAnovaParamForm extends VerticalLayout {
 			
 		return selectList;
 	}
+	
+	public  String[] getSelectedArraySetNames() {		 
+		String[] selectList = null;
+		String selectStr = arraySetSelect.getValue().toString();
+		if (!selectStr.equals("[]"))
+		{
+			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
+		    for(int i=0; i<selectList.length; i++ )
+		    	selectList[i] = arraySetSelect.getItemCaption(selectList[i]);
+		}		
+			
+		return selectList;
+	}
+	
 
 	public int getPValueEstimation() {		 
 		return Integer.parseInt(pValEstCbx.getValue().toString().trim());

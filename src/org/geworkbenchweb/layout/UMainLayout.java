@@ -495,11 +495,14 @@ public class UMainLayout extends VerticalLayout {
 
 								}
 							    else if(resultSet.getType().equalsIgnoreCase("Anova")) {
-							        @SuppressWarnings("unchecked")
+							        @SuppressWarnings("unchecked")							     
 									CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(dataByte);							 
 								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, dataProperties);
 
 							    }
+							    else if (resultSet.getType().endsWith("pending")) {							         
+								    tabSheet 	= 	new UVisualPlugin(null, dataProperties);
+							    } 
 								
 
 								menuPanel.setSecondComponent(tabSheet);
