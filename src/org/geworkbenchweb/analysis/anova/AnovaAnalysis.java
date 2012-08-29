@@ -5,6 +5,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.xml.namespace.QName;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.addressing.EndpointReference;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.rpc.client.RPCServiceClient;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -26,10 +34,9 @@ import org.geworkbench.components.anova.data.AnovaInput;
 import org.geworkbench.components.anova.data.AnovaOutput;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.components.anova.Anova;
-import org.geworkbench.components.anova.AnovaException;
+
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet; 
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 
 /**
@@ -45,9 +52,12 @@ public class AnovaAnalysis {
 	private User user = SessionHandler.get();
 	private DSMicroarraySet dataSet = null;
 	private UAnovaParamForm paramForm = null;
+	private DSItemList<DSGeneMarker> selectedMarkers = null;
+	private String[] selectedArraySetNames = null;
 	private Long dataSetId;
 
-	public AnovaAnalysis(DSMicroarraySet dataSet, UAnovaParamForm paramForm, Long dataSetId) {
+	public AnovaAnalysis(DSMicroarraySet dataSet, UAnovaParamForm paramForm,
+			Long dataSetId) {
 		this.dataSet = dataSet;
 		this.paramForm = paramForm;
 		this.dataSetId = dataSetId;
@@ -55,18 +65,21 @@ public class AnovaAnalysis {
 
 	public void execute() {
 
+		String[] selectedMarkerSet = null;
+		String[] selectedArraySet = null;
+
 		@SuppressWarnings("unused")
 		String GroupAndChipsString = "";
-		DSItemList<DSGeneMarker> selectedMarkers = null;		 
 
-		String[] selectedMarkerSet = paramForm.getSelectedMarkerSet();
+		selectedMarkerSet = paramForm.getSelectedMarkerSet();
 
 		if (selectedMarkerSet == null)
 			selectedMarkers = dataSet.getMarkers();
 		else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				String markers = getMarkerData(Long.parseLong(selectedMarkerSet[i]));
+				String markers = getMarkerData(Long
+						.parseLong(selectedMarkerSet[i].trim()));
 				String[] temp = (markers.substring(1, markers.length() - 1))
 						.split(",");
 				for (int j = 0; j < temp.length; j++)
@@ -76,21 +89,23 @@ public class AnovaAnalysis {
 			}
 		}
 
-		String[] selectedArraySet = paramForm.getSelectedArraySet();	 
- 
+		selectedArraySet = paramForm.getSelectedArraySet();
+		selectedArraySetNames = paramForm.getSelectedArraySetNames();
+
 		int selectedMarkersNum = selectedMarkers.size();
 		int globleArrayIndex = 0;
 		int numSelectedGroups = selectedArraySet.length;
 
 		GroupAndChipsString += numSelectedGroups + " groups analyzed:\n";
- 
+
 		/* for each group */
-		for (int i = 0; i < numSelectedGroups; i++) {			 
-			String arrayPositions = getArrayData(Long.parseLong(selectedArraySet[i].trim()));
+		for (int i = 0; i < numSelectedGroups; i++) {
+			String arrayPositions = getArrayData(Long
+					.parseLong(selectedArraySet[i].trim()));
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
-			String groupLabel = selectedArraySet[i];
+			String groupLabel = selectedArraySetNames[i];
 			/* put group label into history */
 			GroupAndChipsString += "\tGroup " + groupLabel + " (" + temp.length
 					+ " chips)" + ":\n";
@@ -103,7 +118,8 @@ public class AnovaAnalysis {
 				 * put member of each group into history
 				 */
 
-				GroupAndChipsString += "\t\t" + dataSet.get(Integer.parseInt(temp[j].trim())) + "\n";
+				GroupAndChipsString += "\t\t"
+						+ dataSet.get(Integer.parseInt(temp[j].trim())) + "\n";
 
 				/*
 				 * count total arrays in selected groups.
@@ -118,10 +134,11 @@ public class AnovaAnalysis {
 
 		globleArrayIndex = 0;
 		/* for each groups */
-		
+
 		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = getArrayData(Long.parseLong(selectedArraySet[i].trim()));
+			String arrayPositions = getArrayData(Long
+					.parseLong(selectedArraySet[i].trim()));
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
 
@@ -129,9 +146,10 @@ public class AnovaAnalysis {
 			 * for each array in this group
 			 */
 			for (int j = 0; j < temp.length; j++) {
-				/* for each marker in this array */			
-				for (int k = 0; k < selectedMarkersNum; k++) {				 
-					A[k][globleArrayIndex] = (float) dataSet.get(Integer.parseInt(temp[j].trim()))
+				/* for each marker in this array */
+				for (int k = 0; k < selectedMarkersNum; k++) {
+					A[k][globleArrayIndex] = (float) dataSet
+							.get(Integer.parseInt(temp[j].trim()))
 							.getMarkerValue(selectedMarkers.get(k)).getValue();
 
 				}
@@ -139,7 +157,7 @@ public class AnovaAnalysis {
 				globleArrayIndex++;
 			}
 		}
-		 
+
 		AnovaInput anovaInput = new AnovaInput(A, groupAssignments,
 				selectedMarkersNum, numSelectedGroups,
 				paramForm.getPValThreshold(), paramForm.getPValueEstimation(),
@@ -147,17 +165,138 @@ public class AnovaAnalysis {
 				paramForm.getFalseDiscoveryRateControl(),
 				paramForm.getFalseSignificantGenesLimit());
 
-		final Anova anova = new Anova(anovaInput);
+		ResultSet resultSet = storePendingResultSet();
 
-		/* Create panels and significant result sets to store results */
-		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
-				dataSet, "Anova Analysis", new String[0], selectedArraySet, paramForm.getPValThreshold());
-		
-		CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
-       
+		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
+		anovaThread.start();
+
+	}
+
+	private AnovaOutput computeAnova(AnovaInput input) {
+		AnovaOutput output = null;
+		RPCServiceClient serviceClient;
+
 		try {
+			serviceClient = new RPCServiceClient();
 
-			AnovaOutput output = anova.execute();
+			Options options = serviceClient.getOptions();
+
+			EndpointReference targetEPR = new EndpointReference(
+					"http://localhost:8080/axis2/services/AnovaService");
+			options.setTo(targetEPR);
+
+			// notice that that namespace is in the required form
+			QName opName = new QName(
+					"http://service.anova.components.geworkbench.org",
+					"execute");
+			Object[] args = new Object[] { input };
+
+			Class<?>[] returnType = new Class[] { AnovaOutput.class };
+
+			Object[] response = serviceClient.invokeBlocking(opName, args,
+					returnType);
+			output = (AnovaOutput) response[0];
+			log.debug(output.toString());
+			return output;
+		} catch (AxisFault e) {			 
+			OMElement x = e.getDetail();
+			if (x != null)
+				log.debug(x);
+
+			Throwable y = e.getCause();
+			while (y != null) {
+				y.printStackTrace();
+				y = y.getCause();
+			}
+
+			log.debug("message: " + e.getMessage());
+			log.debug("fault action: " + e.getFaultAction());
+			log.debug("reason: " + e.getReason());
+			e.printStackTrace();
+		}
+
+		return output;
+	}
+
+	/**
+	 * Create Marker Data for selected markerSet
+	 */
+	public String getMarkerData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getMarkerSet(setNameId);
+		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+		return positions;
+	}
+
+	/**
+	 * Create Array Data for selected markerSet
+	 */
+	public String getArrayData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getArraySet(setNameId);
+
+		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+
+		return positions;
+	}
+
+	public ResultSet storePendingResultSet() {
+
+		ResultSet resultSet = new ResultSet();
+		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		String dataSetName = "Anova - " + new java.util.Date();
+		resultSet.setName(dataSetName);
+		resultSet.setType("Anova-pending");
+		resultSet.setParent(dataSetId);
+		resultSet.setOwner(user.getId());
+		FacadeFactory.getFacade().store(resultSet);
+
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
+				dataSetName, "Result Node");
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
+		return resultSet;
+	}
+
+	public ResultSet storeResultSet(ResultSet resultSet,
+			CSAnovaResultSet<DSGeneMarker> anovaResultSet) {
+
+		resultSet.setType("Anova");
+		resultSet.setData(ObjectConversion.convertToByte(anovaResultSet));
+		FacadeFactory.getFacade().store(resultSet);
+
+		return resultSet;
+	}
+
+	private class AnovaThread extends Thread {
+
+		AnovaInput input = null;
+		ResultSet resultSet = null;
+
+		public AnovaThread(AnovaInput input, ResultSet resultSet) {
+			this.input = input;
+			this.resultSet = resultSet;
+		}
+
+		public void run() {
+
+			try {
+				sleep(5000); // Sleep for 50 milliseconds
+			} catch (InterruptedException ie) {
+
+			}
+
+			AnovaOutput output = computeAnova(input);
+
+			/* Create panels and significant result sets to store results */
+			DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
+					dataSet, "Anova Analysis", new String[0],
+					selectedArraySetNames, paramForm.getPValThreshold());
+
+			CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 
 			int[] featuresIndexes = output.getFeaturesIndexes();
 			double[] significances = output.getSignificances();
@@ -176,7 +315,7 @@ public class AnovaAnalysis {
 					dataSet);
 
 			anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(dataView,
-					"Anova Analysis Result Set", selectedArraySet,
+					"Anova Analysis Result Set", selectedArraySetNames,
 					significantMarkerNames, output.getResult2DArray());
 			log.debug(significantMarkerNames.length
 					+ " Markers added to anovaResultSet.");
@@ -186,59 +325,8 @@ public class AnovaAnalysis {
 					+ " Markers added to anovaResultSet.getSignificantMarkers().");
 			anovaResultSet.sortMarkersBySignificance();
 
-			storeResultSet(anovaResultSet);
-
-		} catch (AnovaException e) {
-
-			e.printStackTrace();
-
+			storeResultSet(resultSet, anovaResultSet);
 		}
-
-	}
-
-	/**
-	 * Create Marker Data for selected markerSet
-	 */
-	public String getMarkerData(Long setId) {
-        
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setId);		 
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();		 
-		return positions;
-	}
-
-	/**
-	 * Create Array Data for selected markerSet
-	 */
-	public String getArrayData(Long setId) {
-  
-		@SuppressWarnings("rawtypes")
-		
-		
-		List subSet = SubSetOperations.getArraySet(setId);
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
-
-		return positions;
-	}
-
-	public ResultSet storeResultSet(
-			CSAnovaResultSet<DSGeneMarker> anovaResultSet) {
-
-		ResultSet resultSet = new ResultSet();
-		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
-		String dataSetName = "Anova - " + new java.util.Date();
-		resultSet.setName(dataSetName);
-		resultSet.setType("Anova");
-		resultSet.setParent(dataSetId);
-		resultSet.setOwner(user.getId());
-		resultSet.setData(ObjectConversion.convertToByte(anovaResultSet));
-		FacadeFactory.getFacade().store(resultSet);
-
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
-
-		return resultSet;
 	}
 
 }
