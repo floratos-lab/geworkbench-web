@@ -32,6 +32,8 @@ import org.geworkbenchweb.analysis.anova.ui.UAnovaParamForm;
 
 import org.geworkbench.components.anova.data.AnovaInput;
 import org.geworkbench.components.anova.data.AnovaOutput;
+import org.geworkbench.components.anova.Anova;
+import org.geworkbench.components.anova.AnovaException;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 
@@ -217,6 +219,22 @@ public class AnovaAnalysis {
 
 		return output;
 	}
+	
+	
+	private AnovaOutput computeAnovaLocal(AnovaInput input) {
+		AnovaOutput output = null;
+		try {
+			Anova anova = new Anova(input);
+			output = anova.execute();
+			 
+	   } catch (AnovaException AE) {
+			 
+		  log.debug(AE.getMessage());
+	   }
+		 return output;
+		 
+	}
+	
 
 	/**
 	 * Create Marker Data for selected markerSet
@@ -283,7 +301,7 @@ public class AnovaAnalysis {
 
 		public void run() {			 
 
-			AnovaOutput output = computeAnova(input);
+			AnovaOutput output = computeAnovaLocal(input);
 
 			/* Create panels and significant result sets to store results */
 			DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
