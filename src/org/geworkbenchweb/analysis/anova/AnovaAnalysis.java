@@ -182,7 +182,7 @@ public class AnovaAnalysis {
 			Options options = serviceClient.getOptions();
 
 			EndpointReference targetEPR = new EndpointReference(
-					"http://localhost:8080/axis2/services/AnovaService");
+					"http://156.145.28.209:8080/axis2/services/AnovaService");
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
@@ -281,13 +281,7 @@ public class AnovaAnalysis {
 			this.resultSet = resultSet;
 		}
 
-		public void run() {
-
-			try {
-				sleep(5000); // Sleep for 50 milliseconds
-			} catch (InterruptedException ie) {
-
-			}
+		public void run() {			 
 
 			AnovaOutput output = computeAnova(input);
 
