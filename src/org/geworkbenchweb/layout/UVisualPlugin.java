@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
@@ -308,6 +309,28 @@ public class UVisualPlugin extends TabSheet implements
 
 				addTab(anovaTab, "Anova Results", null);
 			 
+		}else if (dataType.equals("MARINa")){
+			CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet)dataSet;
+			Object[][] rdata = resultset.getData();
+			Table mraTable= new Table();
+			// Results don't have "MeanClass1" & "MeanClass2" if marina is run using 
+			// probe shuffling instead of gene shuffling by setting min_samples > #case/control
+			String[] columnNames = { "TFsym", "GeneName", "NumPosGSet", "NumNegGSet", "NumLedgePos", "NumLedgeNeg", "NumLedge",
+					"ES", "NES", "absNES", "PV", "OddRatio", "TScore", "MeanClass1", "MeanClass2", "Original MRA/Recovered_MRA"};
+			int colNum = columnNames.length;
+			boolean complete = rdata.length > 0 && rdata[0].length == colNum;
+			for (String col : columnNames){
+				if (complete || (!col.equals("MeanClass1") && !col.equals("MeanClass2")))
+					mraTable.addContainerProperty(col, String.class, null);
+			}
+			mraTable.setSizeFull();
+			mraTable.setImmediate(true);
+			mraTable.setCaption("MARINa results");
+			for (int i = 0; i < rdata.length; i++){
+				mraTable.addItem(rdata[i], null);
+			}
+			addTab(mraTable);
+
 		}
 		else if (dataType.endsWith("pending")) {
 			VerticalLayout layout = new VerticalLayout();

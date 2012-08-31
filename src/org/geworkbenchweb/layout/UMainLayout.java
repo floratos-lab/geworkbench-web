@@ -12,6 +12,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
@@ -499,7 +500,12 @@ public class UMainLayout extends VerticalLayout {
 									CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(dataByte);							 
 								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, dataProperties);
 
-							    }
+	    						}else if(resultSet.getType().equalsIgnoreCase("MARINa")) {
+
+	    							CSMasterRegulatorTableResultSet mraSet = (CSMasterRegulatorTableResultSet) ObjectConversion.toObject(dataByte);
+	    							tabSheet 	= 	new UVisualPlugin(mraSet, dataProperties);
+
+	    						}
 							    else if (resultSet.getType().endsWith("pending")) {							         
 								    tabSheet 	= 	new UVisualPlugin(null, dataProperties);
 							    } 

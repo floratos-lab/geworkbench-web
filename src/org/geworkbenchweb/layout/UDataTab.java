@@ -8,6 +8,7 @@ import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
 import org.geworkbenchweb.analysis.aracne.ui.UAracneParamForm;
 import org.geworkbenchweb.analysis.anova.ui.UAnovaParamForm;
 import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
+import org.geworkbenchweb.analysis.marina.ui.UMarinaParamForm;
 import org.geworkbenchweb.analysis.markus.ui.UMarkusParamForm;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -106,6 +107,7 @@ public class UDataTab extends VerticalLayout {
 		analysisBox.addItem("Anova");
 		analysisBox.addItem("ARACne");
 		analysisBox.addItem("Hierarchical Clustering");
+		analysisBox.addItem("MARINa");
 		
 		analysisBox.setInputPrompt("Choose Analysis from the list");
 		analysisBox.addListener(new Property.ValueChangeListener() {
@@ -142,6 +144,15 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.addComponent(aracneParamForm);
 						dataPanel.addComponent(paramPanel);
 						
+					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("MARINa")) {
+						
+						paramPanel.removeAllComponents();
+						paramPanel.setCaption("MARINa Parameters");
+						
+						UMarinaParamForm marinaParamForm = new UMarinaParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
+						paramPanel.addComponent(marinaParamForm);
+						dataPanel.addComponent(paramPanel);
+
 					}
 						
 				}catch (Exception e){

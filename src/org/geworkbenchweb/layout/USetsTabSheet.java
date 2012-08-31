@@ -1,10 +1,23 @@
 package org.geworkbenchweb.layout;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.util.Util;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.easyuploads.UploadField;
+import org.vaadin.easyuploads.UploadField.FieldType;
+import org.vaadin.easyuploads.UploadField.StorageMode;
 
+import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
@@ -12,6 +25,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -32,6 +46,8 @@ public class USetsTabSheet extends TabSheet {
 
 	private VerticalLayout l2;
 
+	private UploadField uploadField = null;
+
 	public USetsTabSheet() {
 
 		setSizeFull();
@@ -51,7 +67,7 @@ public class USetsTabSheet extends TabSheet {
 
 	}
 
-	public void populateTabSheet(DSMicroarraySet dataSet, Long dataSetId) {
+	public void populateTabSheet(DSMicroarraySet dataSet, final Long dataSetId) {
 
 		l1.removeAllComponents();
 		l2.removeAllComponents();
@@ -118,8 +134,100 @@ public class USetsTabSheet extends TabSheet {
 
 			l1.addComponent(markerSets);
 			l2.addComponent(arraySets);
+
+	        uploadField = new UploadField(){
+				private static final long serialVersionUID = 3738084401913970304L;
+	            protected void updateDisplay() {
+	        		byte[] bytes = (byte[]) getValue();
+	        		String filename = getLastFileName();
+		            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
+		            	parseCSV(filename, bytes, dataSetId);
+	        		}else{
+	        			getWindow().showNotification("File Format Error", filename + " is not a CSV file", Notification.TYPE_WARNING_MESSAGE);
+	        		}
+	            }
+	        };
+	        uploadField.setStorageMode(StorageMode.MEMORY);
+	        uploadField.setFieldType(FieldType.BYTE_ARRAY);
+	        l2.addComponent(uploadField);
+			l2.setExpandRatio(arraySets, 0.9f);
+			
 		}
 
+	}
+	
+	private void parseCSV(String filename, byte[] bytes, Long dataSetId){
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+		if (filename.toLowerCase().endsWith(".csv")) {
+			filename = filename.substring(0, filename.length() - 4);
+		}
+		// Ensure loaded set has unique name
+		Set<String> nameSet = new HashSet<String>();
+		for (Object id : arraySets.getItemIds()){
+			nameSet.add(arraySets.getItem(id).toString());
+		}
+
+		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+		try {
+			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
+			String[][] data = parser.getAllValues();
+			for (int i = 0; i < data.length; i++) {
+				String[] line = data[i];
+				if (line.length > 0) {
+					String setname = (line.length > 1 && line[1].trim().length() > 0)?
+									  line[1].trim() : filename;
+					List<String> selectedNames = map.get(setname);
+					if (selectedNames == null){
+						selectedNames = new ArrayList<String>();
+						map.put(setname, selectedNames);
+					}
+					selectedNames.add(line[0]);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Lost cause
+				}
+			}
+		}
+
+		int missing = 0;
+		for (String setname : map.keySet()){
+			List<String> selectedNames = map.get(setname);
+			setname = Util.getUniqueName(setname, nameSet);
+			nameSet.add(setname);
+			StringBuilder builder = new StringBuilder();
+            builder.append("[");
+            int i=0, setsize=0;
+			for(DSMicroarray array: maSet) {
+				if(selectedNames.contains(array.getLabel())) {
+					builder.append(i+", ");
+					setsize++;
+				}
+				i++;
+			}
+			if(setsize != selectedNames.size())
+				missing += selectedNames.size() - setsize;
+		
+			if (setsize > 0){
+				String arrays = builder.toString();
+				arrays = arrays.substring(0, arrays.length()-1)+"]";
+				if( SubSetOperations.storeData(arrays, "Microarray", setname, dataSetId ) == true ) {
+					populateTabSheet(maSet, dataSetId);
+				}
+			}
+		}
+		if(missing > 0) {
+			if (missing == 1)
+				getWindow().showNotification("Array Not Found", missing + " array listed in the CSV file is not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
+			else 
+				getWindow().showNotification("Arrays Not Found", missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
+		}
 	}
 
 	private void arraySetContainer(List<?> list, DSMicroarraySet maSet) {
