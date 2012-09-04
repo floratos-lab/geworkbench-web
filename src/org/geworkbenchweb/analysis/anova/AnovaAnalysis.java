@@ -99,8 +99,15 @@ public class AnovaAnalysis {
 		int numSelectedGroups = selectedArraySet.length;
 
 		GroupAndChipsString += numSelectedGroups + " groups analyzed:\n";
+ 
+		globleArrayIndex = paramForm.getTotalSelectedArrayNum();
+		int[] groupAssignments = new int[globleArrayIndex];
+		float[][] A = new float[selectedMarkersNum][globleArrayIndex];
 
-		/* for each group */
+		globleArrayIndex = 0;
+		/* for each groups */
+
+		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
 			String arrayPositions = getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
@@ -116,44 +123,14 @@ public class AnovaAnalysis {
 			 * for each array in this group
 			 */
 			for (int j = 0; j < temp.length; j++) {
-				/*
-				 * put member of each group into history
-				 */
-
 				GroupAndChipsString += "\t\t"
 						+ dataSet.get(Integer.parseInt(temp[j].trim())) + "\n";
-
-				/*
-				 * count total arrays in selected groups.
-				 */
-				globleArrayIndex++;
-			}
-
-		}
-
-		int[] groupAssignments = new int[globleArrayIndex];
-		float[][] A = new float[selectedMarkersNum][globleArrayIndex];
-
-		globleArrayIndex = 0;
-		/* for each groups */
-
-		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
-		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = getArrayData(Long
-					.parseLong(selectedArraySet[i].trim()));
-			String[] temp = (arrayPositions.substring(1,
-					arrayPositions.length() - 1)).split(",");
-
-			/*
-			 * for each array in this group
-			 */
-			for (int j = 0; j < temp.length; j++) {
 				/* for each marker in this array */
 				for (int k = 0; k < selectedMarkersNum; k++) {
 					A[k][globleArrayIndex] = (float) dataSet
 							.get(Integer.parseInt(temp[j].trim()))
 							.getMarkerValue(selectedMarkers.get(k)).getValue();
-
+					
 				}
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
@@ -198,7 +175,7 @@ public class AnovaAnalysis {
 			Object[] response = serviceClient.invokeBlocking(opName, args,
 					returnType);
 			output = (AnovaOutput) response[0];
-			log.debug(output.toString());
+		 
 			return output;
 		} catch (AxisFault e) {			 
 			OMElement x = e.getDetail();
@@ -301,7 +278,7 @@ public class AnovaAnalysis {
 
 		public void run() {			 
 
-			AnovaOutput output = computeAnovaLocal(input);
+			AnovaOutput output = computeAnova(input);
 
 			/* Create panels and significant result sets to store results */
 			DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
@@ -335,10 +312,17 @@ public class AnovaAnalysis {
 					sigSet.getSignificantMarkers());
 			log.debug(sigSet.getSignificantMarkers().size()
 					+ " Markers added to anovaResultSet.getSignificantMarkers().");
-			anovaResultSet.sortMarkersBySignificance();
+			
+			
+			if(significantMarkerNames.length > 0) 
+			   anovaResultSet.sortMarkersBySignificance();
 
 			storeResultSet(resultSet, anovaResultSet);
 		}
 	}
+	
+	
+	
+	
 
 }

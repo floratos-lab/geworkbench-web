@@ -2,6 +2,7 @@ package org.geworkbenchweb.analysis.anova.ui;
 
  
 import java.util.List;
+import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
  
@@ -9,6 +10,7 @@ import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
  
 import org.geworkbenchweb.analysis.anova.AnovaAnalysis;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 
@@ -59,6 +61,9 @@ public class UAnovaParamForm extends VerticalLayout {
 	private TextField falseSignificantGenesLimit;
 
 	private Button submitButton;
+	
+	private int totalSelectedArrayNum= 0;
+ 
 
 	public UAnovaParamForm(final DSMicroarraySet maSet, long dataSetId) {
 
@@ -218,7 +223,7 @@ public class UAnovaParamForm extends VerticalLayout {
 		              {
 				 
 					     gridLayout3.setVisible(true);
-					     falseSignificantGenesLimit.setValue(0.01);
+					     falseSignificantGenesLimit.setValue(0.05);
 		              }
 		              else		            	  
 		            	  gridLayout3.setVisible(false);
@@ -280,17 +285,11 @@ public class UAnovaParamForm extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			 
-	            // Put the component in error state and
-	            // set the error message.
-			 if (!permNumber.isValid())
-			 	permNumber.setComponentError(
-	                new UserError("Must be letters and numbers"));
-			 else
-				 permNumber.setComponentError(null);
-			 
-			
-			AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform, dataSetId);
-			analysis.execute();
+	        if (validInputData(dataSet))
+	        {
+			   AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform, dataSetId);
+			   analysis.execute();
+			}
 		}
 	}
 	
@@ -337,8 +336,11 @@ public class UAnovaParamForm extends VerticalLayout {
 		return Integer.parseInt(pValEstCbx.getValue().toString().trim());
 	}
 	
-	public int getPermNumber() {	 
-		return Integer.parseInt(permNumber.getValue().toString().trim());
+	public int getPermNumber() {	
+		if (permNumber.isEnabled())
+		   return Integer.parseInt(permNumber.getValue().toString().trim());
+		else
+		   return 100;
 	}
 		
 	public double getPValThreshold() {			
@@ -354,6 +356,84 @@ public class UAnovaParamForm extends VerticalLayout {
 		   return 0;
 	    return Float.parseFloat(falseSignificantGenesLimit.getValue().toString().trim());
 		 
-	}	 
+	}
+	
+	public int getTotalSelectedArrayNum() {	
+	   
+	    return this.totalSelectedArrayNum;
+		 
+	}
+	
+	
+	public boolean validInputData(DSMicroarraySet dataSet)
+    {
+		 
+		String[] selectedArraySet = null;
+	 
+		/* check for minimum number of activated groups */		 
+		selectedArraySet = getSelectedArraySet();
+		 
+		if ( selectedArraySet == null || selectedArraySet.length < 3)
+		{	arraySetSelect.setComponentError(
+	                new UserError("Minimum of 3 array groups must be activated."));
+		    return false;
+		}
+		 
+		List<String> microarrayPosList = new ArrayList<String>();
+		/* for each group */
+		for (int i = 0; i < selectedArraySet.length; i++) {
+			String arrayPositions = getArrayData(Long
+					.parseLong(selectedArraySet[i].trim()));
+			String[] temp = (arrayPositions.substring(1,
+					arrayPositions.length() - 1)).split(",");
+			 
+			if (temp.length < 2)
+			{	arraySetSelect.setComponentError(
+		                new UserError("Each microarray group must contains at least 2 arrays."));
+			    return false;
+			}	 
+			 
+			for (int j = 0; j < temp.length; j++) {
+				if (microarrayPosList.contains(temp[j].trim()))
+				{				
+					arraySetSelect.setComponentError(
+			                new UserError("Same array (" + dataSet.get(Integer.parseInt(temp[j].trim()))
+									+ ") exists in multiple groups."));
+				    
+					return false;
+				}
+				microarrayPosList.add(temp[j].trim());
+				totalSelectedArrayNum++;
+			}
+
+		}
+		arraySetSelect.setComponentError(null);
+	 
+	   if (!permNumber.isValid())
+	 	  permNumber.setComponentError(
+            new UserError("Must be an integer"));
+	   else
+		 permNumber.setComponentError(null);
+	 
+		
+	    submitButton.setComponentError(null);
+		return true;
+	}
+	
+	
+	/**
+	 * Create Array Data for selected markerSet
+	 */
+	public String getArrayData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getArraySet(setNameId);
+
+		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+
+		return positions;
+	}
+
+	
 	
 }
