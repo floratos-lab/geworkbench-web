@@ -22,8 +22,10 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
  * Menu Bar class which will be common for all the Visual Plugins
@@ -107,7 +109,13 @@ public class UMainToolBar extends MenuBar {
 						
 					    getApplication().getMainWindow().removeWindow(newWorkspace);
 					    try {
-					    	getApplication().getMainWindow().showNotification("New Workspace is created and set as Active Workspace");
+					    	MessageBox mb = new MessageBox(getWindow(), 
+					    			"New Workspace", 
+					    			MessageBox.Icon.INFO, 
+					    			"New Workspace is created and set as Active Workspace",  
+					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+
+					    	mb.show();
 					    	getApplication().getMainWindow().setContent(new UMainLayout());					    	
 
 					    } catch(Exception e) {
@@ -146,6 +154,7 @@ public class UMainToolBar extends MenuBar {
 				workspaceTable.setDraggable(false);
 				workspaceTable.setResizable(false);
 				workspaceTable.setWidth("200px");
+				workspaceTable.setImmediate(true);
 				
 				ListSelect workspaceSelect = new ListSelect("Select Workspace");
 				workspaceSelect.setNullSelectionAllowed(false);
@@ -164,38 +173,48 @@ public class UMainToolBar extends MenuBar {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void valueChange(ValueChangeEvent event) {
+					public void valueChange(final ValueChangeEvent event) {
+
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Switch Workspace", 
+								MessageBox.Icon.INFO, 
+								"Activating selected workspace",  
+								new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"),
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+
+
+						 mb.show(new MessageBox.EventListener() {
+                             
+		                        private static final long serialVersionUID = 1L;
+
+		                        @Override
+		                        public void buttonClicked(ButtonType buttonType) {
+		                        	
+		                        	if(buttonType == ButtonType.OK) {
+		                        		Map<String, Object> param 		= 	new HashMap<String, Object>();
+		                        		param.put("owner", SessionHandler.get().getId());
+
+		                        		List<?> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
+		                        		FacadeFactory.getFacade().delete((ActiveWorkspace) activeWorkspace.get(0));
+
+		                        		/* Setting active workspace */
+		                        		ActiveWorkspace active = new ActiveWorkspace();
+		                        		active.setOwner(SessionHandler.get().getId());
+		                        		active.setWorkspace((Long) event.getProperty().getValue());
+		                        		FacadeFactory.getFacade().store(active);
+
+		                        		getApplication().getMainWindow().removeWindow(workspaceTable);
+		                        		getApplication().getMainWindow().setContent(new UMainLayout()); 
+
+		                        	}
+		                        }
+						 });
+						 
 						
-						final Long selectedWorkspace = (Long) event.getProperty().getValue();
-
-						Button activate = new Button("Activate", new Button.ClickListener() {
-
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public void buttonClick(ClickEvent event) {
-
-								Map<String, Object> param 		= 	new HashMap<String, Object>();
-								param.put("owner", SessionHandler.get().getId());
-
-								List<?> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
-								FacadeFactory.getFacade().delete((ActiveWorkspace) activeWorkspace.get(0));
-
-								/* Setting active workspace */
-								ActiveWorkspace active = new ActiveWorkspace();
-								active.setOwner(SessionHandler.get().getId());
-								active.setWorkspace(selectedWorkspace);
-								FacadeFactory.getFacade().store(active);
-
-								getApplication().getMainWindow().removeWindow(workspaceTable);
-								getApplication().getMainWindow().setContent(new UMainLayout());
-
-							}
-						});
-						workspaceTable.addComponent(activate);
 					}
-					
+
 				});
+				
 				workspaceTable.addComponent(workspaceSelect);
 				getApplication().getMainWindow().addWindow(workspaceTable);
 			}
@@ -243,9 +262,14 @@ public class UMainToolBar extends MenuBar {
 					@Override
 					public void buttonClick(ClickEvent event) {
 						
-						if(projectName.getValue() == null || projectDes.getValue() == null) {
-							getApplication().getMainWindow().showNotification("Please Fill ProjectName and Description", 
-									Notification.TYPE_ERROR_MESSAGE);
+						if(projectName.getValue() == ""|| projectDes.getValue() == "") {
+							MessageBox mb = new MessageBox(getWindow(), 
+					    			"Error Notification", 
+					    			MessageBox.Icon.ERROR, 
+					    			"Please fill Project Name and Description",  
+					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+
+					    	mb.show();
 						} else {
 							
 							Project newData = new Project();
