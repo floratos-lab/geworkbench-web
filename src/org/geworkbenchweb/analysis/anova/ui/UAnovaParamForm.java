@@ -25,7 +25,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
- 
+import com.vaadin.ui.Select;
 
  
 import com.vaadin.data.validator.IntegerValidator;
@@ -90,11 +90,13 @@ public class UAnovaParamForm extends VerticalLayout {
 		markerSetSelect.setRows(5);
 		markerSetSelect.setColumns(10);
 		markerSetSelect.setImmediate(true);
+		
 
 		arraySetSelect = new ListSelect("Select array sets:");
 		arraySetSelect.setMultiSelect(true);
 		arraySetSelect.setRows(5);
 		arraySetSelect.setColumns(10);
+		arraySetSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
 		arraySetSelect.setImmediate(true);
 
 		if (subMarkerSets != null)
@@ -108,7 +110,7 @@ public class UAnovaParamForm extends VerticalLayout {
 		if (subArraySets != null)
 			for (int m = 0; m < (subArraySets).size(); m++) {
 
-				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId());
+				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId().longValue());
 				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
 				
 			}
@@ -330,7 +332,7 @@ public class UAnovaParamForm extends VerticalLayout {
 		{
 			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
 		    for(int i=0; i<selectList.length; i++ )
-		    	selectList[i] = arraySetSelect.getItemCaption(selectList[i]);
+		    	selectList[i] = arraySetSelect.getItemCaption(Long.parseLong(selectList[i].trim()));
 		}		
 			
 		return selectList;

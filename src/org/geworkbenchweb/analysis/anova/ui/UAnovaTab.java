@@ -66,8 +66,7 @@ public class UAnovaTab extends VerticalLayout {
 		
 		/* Results Table Code */
 		 
-		dataTable  = new Table();
-	               
+		dataTable  = new Table();		 
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);		 
 		dataTable.setContainerDataSource(tabularView(anovaResultSet));	 
@@ -107,7 +106,13 @@ public class UAnovaTab extends VerticalLayout {
 		}
 		
 		for (String p : header) 
-		  dataIn.addContainerProperty(p, String.class, "");   
+		{ 
+			if (p.equals("Marker Name"))
+		       dataIn.addContainerProperty(p, String.class, "");   
+			else
+				dataIn.addContainerProperty(p, Float.class, "");  
+			  
+		}
 		
 		
 		double[][] result2DArray = anovaResultSet.getResult2DArray();
@@ -141,14 +146,16 @@ public class UAnovaTab extends VerticalLayout {
 		return dataIn;
 	}
 	
-	private String convertDouble(double value) {
-		    String str;
-			if ( value < 0.1)
-				str = String.format("%.2E", value);
+	private Object convertDouble(Object value) {
+		     
+		if ((value != null) && (value instanceof Number)) {
+			if (((Number) value).doubleValue() < 0.1)
+				value = String.format("%.2E", value);
 			else
-				str = String.format("%.2f", value);
+				value = String.format("%.2f", value);
+		}
 			
-			return str;
+			return value;
 			
 	}
 		 

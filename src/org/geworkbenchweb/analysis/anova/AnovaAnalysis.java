@@ -134,7 +134,7 @@ public class AnovaAnalysis {
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
 			}
-		}
+		}		 
 
 		AnovaInput anovaInput = new AnovaInput(A, groupAssignments,
 				selectedMarkersNum, numSelectedGroups,
