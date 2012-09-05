@@ -50,7 +50,6 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TreeTable;
@@ -137,6 +136,10 @@ public class UMainLayout extends VerticalLayout {
 		margin.addComponent(mainPanel);
 
 		mainLayout.setSizeFull();
+		
+		UMainToolBar mainToolBar = new UMainToolBar();
+		
+		mainLayout.addComponent(mainToolBar);
 		mainLayout.addComponent(getHeader());
 		mainLayout.addComponent(margin);
 		mainLayout.setExpandRatio(margin, 1);
@@ -180,59 +183,17 @@ public class UMainLayout extends VerticalLayout {
 
 		HorizontalLayout header = new HorizontalLayout();
 		header.setWidth("100%");
-		header.setMargin(true);
+		header.setMargin(false, true, true, true);
 		HorizontalLayout titleHeaderLayout = new HorizontalLayout();
 
 		ThemeResource resource = new ThemeResource("img/geWorkbench-Title.png");
 		Embedded image = new Embedded("", resource);
+		
 		titleHeaderLayout.addComponent(image);
 		titleHeaderLayout.setComponentAlignment(image, Alignment.TOP_LEFT);
 
 		header.addComponent(titleHeaderLayout);
-
-		CssLayout titleLayout = new CssLayout();
-		Label user = new Label("Welcome, " + SessionHandler.get().getUsername());
-		user.setSizeUndefined();
-		titleLayout.addComponent(user);
-
-
-		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
-
-		Label help = new Label("<div class=\"v-button\"><span class=\"v-button-wrap\"><a href=\"http:///wiki.c2b2.columbia.edu/workbench/index.php/Home\" target=\"_blank\" class=\"v-button-caption\">Help</a></div></div>", Label.CONTENT_XHTML);
-		help.setWidth(null);
-
-		UWorkspaceManager workspaceButtons = new UWorkspaceManager();
-
-		buttons.addComponent(workspaceButtons);
-		buttons.setComponentAlignment(workspaceButtons, Alignment.MIDDLE_RIGHT);
-
-		buttons.addComponent(help);
-		buttons.setComponentAlignment(help, Alignment.MIDDLE_RIGHT);
-
-		Button logout 	= 	new Button("Logout", new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			public void buttonClick(ClickEvent event) {
-
-				SessionHandler.logout();
-				getApplication().close();
-
-				/**
-				 * Vaadin 7
-				 * Application.getCurrent().close(); 
-				 */
-
-			}
-		});
-
-		buttons.addComponent(logout);
-		titleLayout.addComponent(buttons);
-
-		header.addComponent(titleLayout);
-		header.setComponentAlignment(titleLayout, Alignment.MIDDLE_RIGHT);
-
+		
 		return header;
 	}
 
