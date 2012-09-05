@@ -43,5 +43,5 @@
 
     
 
-    <inherits name="org.vaadin.peter.multibutton.MultibuttonWidgetset" />
+    
 </module>
