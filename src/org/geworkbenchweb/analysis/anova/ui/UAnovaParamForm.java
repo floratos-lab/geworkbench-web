@@ -7,10 +7,8 @@ import java.util.ArrayList;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
  
 import org.geworkbench.components.anova.PValueEstimation;
-import org.geworkbench.components.anova.FalseDiscoveryRateControl;
- 
-import org.geworkbenchweb.analysis.anova.AnovaAnalysis;
-import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbench.components.anova.FalseDiscoveryRateControl; 
+import org.geworkbenchweb.analysis.anova.AnovaAnalysis; 
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 
@@ -31,6 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 
  
 import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.terminal.UserError;
 
 /**
@@ -180,7 +179,8 @@ public class UAnovaParamForm extends VerticalLayout {
 		pValThresholdLabel = new Label("P-Value Threshold");
 		pValThreshold = new TextField();
 		pValThreshold.setValue("0.05");
-		pValThreshold.setNullSettingAllowed(false);
+		permNumber.setRequired(true);
+		permNumber.addValidator(new DoubleValidator("Not a double"));
 
 		pValCorrectionLabel = new Label(
 				"P-value Corrections And False Discovery Control---------------------------");
@@ -218,12 +218,17 @@ public class UAnovaParamForm extends VerticalLayout {
 					  {
 						  gridLayout3.setVisible(true);
 						  falseSignificantGenesLimit.setValue(10);
+						  falseSignificantGenesLimit.removeAllValidators();
+						  falseSignificantGenesLimit.addValidator(new IntegerValidator("Not an integer"));
+						  
 					  }
 		              else if ( og.getValue().equals(FalseDiscoveryRateControl.proportion.ordinal()) ) 
 		              {
 				 
 					     gridLayout3.setVisible(true);
 					     falseSignificantGenesLimit.setValue(0.05);
+					     falseSignificantGenesLimit.removeAllValidators();
+						  falseSignificantGenesLimit.addValidator(new DoubleValidator("Not a double"));
 		              }
 		              else		            	  
 		            	  gridLayout3.setVisible(false);
@@ -352,8 +357,8 @@ public class UAnovaParamForm extends VerticalLayout {
 	}
 	
 	public float getFalseSignificantGenesLimit() {	
-	    if (falseSignificantGenesLimit.getValue() == null || falseSignificantGenesLimit.getValue().toString().trim().equals(""))
-		   return 0;
+	    if (!falseSignificantGenesLimit.isVisible())
+		   return 0;	
 	    return Float.parseFloat(falseSignificantGenesLimit.getValue().toString().trim());
 		 
 	}
@@ -410,11 +415,51 @@ public class UAnovaParamForm extends VerticalLayout {
 		arraySetSelect.setComponentError(null);
 	 
 	   if (!permNumber.isValid())
-	 	  permNumber.setComponentError(
+	   {
+		   permNumber.setComponentError(	    
             new UserError("Must be an integer"));
+		   return false;
+	   }
 	   else
 		 permNumber.setComponentError(null);
-	 
+	   
+	   
+	   if (!pValThreshold.isValid() || getPValThreshold() <= 0 || getPValThreshold() >= 1)
+	   {
+		   pValThreshold.setComponentError(
+	          new UserError("P-Value threshold should be a float number between 0.0 and 1.0."));
+	       return false;
+	   
+	   }   
+		else
+			   pValThreshold.setComponentError(null);
+		   
+	   if (og.getValue().equals(FalseDiscoveryRateControl.number.ordinal()))
+	   {
+		   if (!falseSignificantGenesLimit.isValid()) 
+		   {
+			   falseSignificantGenesLimit.setComponentError(	    
+			            new UserError("Must be an integer"));
+					   return false;
+		   }
+		   else
+			   falseSignificantGenesLimit.setComponentError(null);
+				   
+	   } 
+		
+	   if (og.getValue().equals(FalseDiscoveryRateControl.proportion.ordinal()))
+	   {
+		   if (!falseSignificantGenesLimit.isValid()) 
+		   {
+			   falseSignificantGenesLimit.setComponentError(	    
+			            new UserError("Proportion should be a float number between 0.0 and 1.0."));
+			   
+			   return false;
+		   }
+		   else
+			   falseSignificantGenesLimit.setComponentError(null);
+				   
+	   } 
 		
 	    submitButton.setComponentError(null);
 		return true;
@@ -433,6 +478,18 @@ public class UAnovaParamForm extends VerticalLayout {
 
 		return positions;
 	}
+	
+	/**
+	 * Create Marker Data for selected markerSet
+	 */
+	public String getMarkerData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getMarkerSet(setNameId);
+		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+		return positions;
+	}
+
 
 	
 	

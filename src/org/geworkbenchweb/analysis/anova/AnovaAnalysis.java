@@ -21,10 +21,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.ResultSet; 
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
+ 
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -80,7 +79,7 @@ public class AnovaAnalysis {
 		else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				String markers = getMarkerData(Long
+				String markers = paramForm.getMarkerData(Long
 						.parseLong(selectedMarkerSet[i].trim()));
 				String[] temp = (markers.substring(1, markers.length() - 1))
 						.split(",");
@@ -109,7 +108,7 @@ public class AnovaAnalysis {
 
 		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = getArrayData(Long
+			String arrayPositions = paramForm.getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
 			String[] temp = (arrayPositions.substring(1,
 					arrayPositions.length() - 1)).split(",");
@@ -213,29 +212,8 @@ public class AnovaAnalysis {
 	}
 	
 
-	/**
-	 * Create Marker Data for selected markerSet
-	 */
-	public String getMarkerData(long setNameId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
-		return positions;
-	}
-
-	/**
-	 * Create Array Data for selected markerSet
-	 */
-	public String getArrayData(long setNameId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getArraySet(setNameId);
-
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
-
-		return positions;
-	}
+	
+	 
 
 	public ResultSet storePendingResultSet() {
 
