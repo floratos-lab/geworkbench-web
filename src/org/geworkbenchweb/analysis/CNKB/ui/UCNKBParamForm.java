@@ -92,6 +92,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		});
 		
 		markerSetBox.setCaption("Select Marker Set");
+		markerSetBox.setInputPrompt("Select Marker Set from the list");
 		markerSetBox.setWidth("50%");
 		markerSetBox.setImmediate(true);
 		markerSetBox.setNullSelectionAllowed(false);
@@ -120,6 +121,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		interactomeDes.setImmediate(true);
 		
 		versionBox.setCaption("Select Version");
+		versionBox.setInputPrompt("Select Version number from the list");
 		versionBox.setWidth("50%");   
 		versionBox.setImmediate(true);
 		versionBox.setNullSelectionAllowed(false);
