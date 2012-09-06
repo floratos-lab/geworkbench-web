@@ -1,7 +1,5 @@
 package org.geworkbenchweb.analysis.anova;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -21,9 +19,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.ResultSet; 
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
- 
+
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -66,6 +64,64 @@ public class AnovaAnalysis {
 
 	public void execute() {
 
+		AnovaInput anovaInput = getAnovaInput();
+
+		ResultSet resultSet = storePendingResultSet();
+
+		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
+		anovaThread.start();
+
+	}
+
+	private AnovaOutput computeAnovaRemote(AnovaInput input) {
+		AnovaOutput output = null;
+		RPCServiceClient serviceClient;
+
+		try {
+			serviceClient = new RPCServiceClient();
+
+			Options options = serviceClient.getOptions();
+
+			options.setTimeOutInMilliSeconds(120000);
+
+			EndpointReference targetEPR = new EndpointReference(
+					"http://156.145.28.209:8080/axis2/services/AnovaService");
+			options.setTo(targetEPR);
+
+			// notice that that namespace is in the required form
+			QName opName = new QName(
+					"http://service.anova.components.geworkbench.org",
+					"execute");
+			Object[] args = new Object[] { input };
+
+			Class<?>[] returnType = new Class[] { AnovaOutput.class };
+
+			Object[] response = serviceClient.invokeBlocking(opName, args,
+					returnType);
+			output = (AnovaOutput) response[0];
+
+			return output;
+		} catch (AxisFault e) {
+			OMElement x = e.getDetail();
+			if (x != null)
+				log.debug(x);
+
+			Throwable y = e.getCause();
+			while (y != null) {
+				y.printStackTrace();
+				y = y.getCause();
+			}
+
+			log.debug("message: " + e.getMessage());
+			log.debug("fault action: " + e.getFaultAction());
+			log.debug("reason: " + e.getReason());
+			e.printStackTrace();
+		}
+
+		return output;
+	}
+
+	private AnovaInput getAnovaInput() {
 		String[] selectedMarkerSet = null;
 		String[] selectedArraySet = null;
 
@@ -98,7 +154,7 @@ public class AnovaAnalysis {
 		int numSelectedGroups = selectedArraySet.length;
 
 		GroupAndChipsString += numSelectedGroups + " groups analyzed:\n";
- 
+
 		globleArrayIndex = paramForm.getTotalSelectedArrayNum();
 		int[] groupAssignments = new int[globleArrayIndex];
 		float[][] A = new float[selectedMarkersNum][globleArrayIndex];
@@ -129,12 +185,12 @@ public class AnovaAnalysis {
 					A[k][globleArrayIndex] = (float) dataSet
 							.get(Integer.parseInt(temp[j].trim()))
 							.getMarkerValue(selectedMarkers.get(k)).getValue();
-					
+
 				}
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
 			}
-		}		 
+		}
 
 		AnovaInput anovaInput = new AnovaInput(A, groupAssignments,
 				selectedMarkersNum, numSelectedGroups,
@@ -143,80 +199,22 @@ public class AnovaAnalysis {
 				paramForm.getFalseDiscoveryRateControl(),
 				paramForm.getFalseSignificantGenesLimit());
 
-		
-		ResultSet resultSet = storePendingResultSet();
-
-		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
-		anovaThread.start();
-
+		return anovaInput;
 	}
 
-	private AnovaOutput computeAnovaRemote(AnovaInput input) {
-		AnovaOutput output = null;
-		RPCServiceClient serviceClient;
-
-		try {
-			serviceClient = new RPCServiceClient();
-
-			Options options = serviceClient.getOptions();
-			
-			options.setTimeOutInMilliSeconds(120000);
-
-			EndpointReference targetEPR = new EndpointReference(
-					"http://156.145.28.209:8080/axis2/services/AnovaService");
-			options.setTo(targetEPR);
-
-			// notice that that namespace is in the required form
-			QName opName = new QName(
-					"http://service.anova.components.geworkbench.org",
-					"execute");
-			Object[] args = new Object[] { input };
-
-			Class<?>[] returnType = new Class[] { AnovaOutput.class };
-
-			Object[] response = serviceClient.invokeBlocking(opName, args,
-					returnType);
-			output = (AnovaOutput) response[0];
-		 
-			return output;
-		} catch (AxisFault e) {			 
-			OMElement x = e.getDetail();
-			if (x != null)
-				log.debug(x);
-
-			Throwable y = e.getCause();
-			while (y != null) {
-				y.printStackTrace();
-				y = y.getCause();
-			}
-
-			log.debug("message: " + e.getMessage());
-			log.debug("fault action: " + e.getFaultAction());
-			log.debug("reason: " + e.getReason());
-			e.printStackTrace();
-		}
-
-		return output;
-	}
-	
-	
 	private AnovaOutput computeAnovaLocal(AnovaInput input) {
 		AnovaOutput output = null;
 		try {
 			Anova anova = new Anova(input);
 			output = anova.execute();
-			 
-	   } catch (AnovaException AE) {
-			 
-		  log.debug(AE.getMessage());
-	   }
-		 return output;
-		 
-	}
-	
 
-	
-	 
+		} catch (AnovaException AE) {
+
+			log.debug(AE.getMessage());
+		}
+		return output;
+
+	}
 
 	public ResultSet storePendingResultSet() {
 
@@ -257,7 +255,7 @@ public class AnovaAnalysis {
 			this.resultSet = resultSet;
 		}
 
-		public void run() {			 
+		public void run() {
 
 			AnovaOutput output = computeAnovaRemote(input);
 
@@ -293,17 +291,12 @@ public class AnovaAnalysis {
 					sigSet.getSignificantMarkers());
 			log.debug(sigSet.getSignificantMarkers().size()
 					+ " Markers added to anovaResultSet.getSignificantMarkers().");
-			
-			
-			if(significantMarkerNames.length > 0) 
-			   anovaResultSet.sortMarkersBySignificance();
+
+			if (significantMarkerNames.length > 0)
+				anovaResultSet.sortMarkersBySignificance();
 
 			storeResultSet(resultSet, anovaResultSet);
 		}
 	}
-	
-	
-	
-	
 
 }
