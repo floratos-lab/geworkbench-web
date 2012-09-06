@@ -143,6 +143,7 @@ public class AnovaAnalysis {
 				paramForm.getFalseDiscoveryRateControl(),
 				paramForm.getFalseSignificantGenesLimit());
 
+		
 		ResultSet resultSet = storePendingResultSet();
 
 		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
@@ -150,7 +151,7 @@ public class AnovaAnalysis {
 
 	}
 
-	private AnovaOutput computeAnova(AnovaInput input) {
+	private AnovaOutput computeAnovaRemote(AnovaInput input) {
 		AnovaOutput output = null;
 		RPCServiceClient serviceClient;
 
@@ -158,6 +159,8 @@ public class AnovaAnalysis {
 			serviceClient = new RPCServiceClient();
 
 			Options options = serviceClient.getOptions();
+			
+			options.setTimeOutInMilliSeconds(120000);
 
 			EndpointReference targetEPR = new EndpointReference(
 					"http://156.145.28.209:8080/axis2/services/AnovaService");
@@ -256,7 +259,7 @@ public class AnovaAnalysis {
 
 		public void run() {			 
 
-			AnovaOutput output = computeAnova(input);
+			AnovaOutput output = computeAnovaRemote(input);
 
 			/* Create panels and significant result sets to store results */
 			DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
