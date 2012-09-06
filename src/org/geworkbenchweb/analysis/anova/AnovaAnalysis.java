@@ -20,7 +20,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.ObjectConversion; 
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -67,9 +68,9 @@ public class AnovaAnalysis {
 		AnovaInput anovaInput = getAnovaInput();
 
 		ResultSet resultSet = storePendingResultSet();
-
+	
 		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
-		anovaThread.start();
+		anovaThread.start();		 
 
 	}
 
@@ -223,7 +224,7 @@ public class AnovaAnalysis {
 		resultSet.setDateField(date);
 		String dataSetName = "Anova - " + new java.util.Date();
 		resultSet.setName(dataSetName);
-		resultSet.setType("Anova-pending");
+		resultSet.setType("pending");
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(user.getId());
 		FacadeFactory.getFacade().store(resultSet);
@@ -244,6 +245,29 @@ public class AnovaAnalysis {
 
 		return resultSet;
 	}
+	
+	public void storeSignificance(int[] significantPositions) {
+
+		String significantPosStr = "["; 
+		int  significantNum = significantPositions.length;
+		
+		for (int i=0; i<significantNum-1; i++)	 
+			significantPosStr = significantPosStr + significantPositions[i] + ",";
+		 
+		significantPosStr = significantPosStr + significantPositions[significantNum-1] + "]";		
+		 
+        SubSet subset  	= 	new SubSet();
+		
+		subset.setName("Significan Genes[" + significantNum + "]");
+		subset.setType("marker");
+		subset.setOwner(user.getId());
+	    subset.setParent(dataSetId);
+	    subset.setPositions(significantPosStr);
+	    FacadeFactory.getFacade().store(subset);
+	    
+	 
+	}
+	
 
 	private class AnovaThread extends Thread {
 
@@ -270,6 +294,8 @@ public class AnovaAnalysis {
 			double[] significances = output.getSignificances();
 			String[] significantMarkerNames = new String[featuresIndexes.length];
 
+			int[] significantPositions = new int[featuresIndexes.length];
+			
 			for (int i = 0; i < featuresIndexes.length; i++) {
 				DSGeneMarker item = selectedMarkers.get(featuresIndexes[i]);
 				log.debug("SignificantMarker: " + item.getLabel()
@@ -277,6 +303,7 @@ public class AnovaAnalysis {
 
 				sigSet.setSignificance(item, significances[i]);
 				significantMarkerNames[i] = item.getLabel();
+				significantPositions[i] = item.getSerial();
 			}
 
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
@@ -293,9 +320,15 @@ public class AnovaAnalysis {
 					+ " Markers added to anovaResultSet.getSignificantMarkers().");
 
 			if (significantMarkerNames.length > 0)
+			{
 				anovaResultSet.sortMarkersBySignificance();
-
+				storeSignificance(significantPositions);
+			}			
+			 
 			storeResultSet(resultSet, anovaResultSet);
+			
+			
+			
 		}
 	}
 

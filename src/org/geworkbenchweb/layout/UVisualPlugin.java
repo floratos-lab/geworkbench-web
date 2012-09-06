@@ -332,10 +332,10 @@ public class UVisualPlugin extends TabSheet implements
 			addTab(mraTable);
 
 		}
-		else if (dataType.endsWith("pending")) {
+		else if (dataType.equalsIgnoreCase("pending")) {
 			VerticalLayout layout = new VerticalLayout();
 			layout.addComponent(new Label("The computation is not finished yet......"));		 
-			layout.setCaption("MarkUs Results");
+			layout.setCaption("Pending Results");
 			layout.setWidth("100%");
 			layout.setHeight("100%");
 			addTab(layout, "Pending Results", null);
