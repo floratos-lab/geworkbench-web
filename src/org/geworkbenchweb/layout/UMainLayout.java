@@ -61,6 +61,9 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+
 /**
  * UMainLayout sets up the basic layout and style of the application.
  * @author Nikhil Reddy
@@ -423,7 +426,7 @@ public class UMainLayout extends VerticalLayout {
 							params.put("id", realId);
 
 							ResultSet resultSet 				= 	FacadeFactory.getFacade().find(querySub, params);
-							if(resultSet != null) {
+							if(resultSet.getData() != null) {
 
 								byte[] dataByte 					= 	resultSet.getData();
 								UVisualPlugin tabSheet = null;
@@ -431,15 +434,15 @@ public class UMainLayout extends VerticalLayout {
 								dataProperties[0] 	= 	resultSet.getType();
 								dataProperties[1]	= 	parentId;
 								dataProperties[2]	=	null;
-								
+
 								if(resultSet.getType().equalsIgnoreCase("CNKB")) {
 
 									@SuppressWarnings("unchecked")
 									Vector<CellularNetWorkElementInformation> hits 	=	(Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(dataByte);
 									tabSheet	= 	new UVisualPlugin(hits, dataProperties);
 
-									
-									
+
+
 								}else if(resultSet.getType().equalsIgnoreCase("Hierarchical Clustering")) {
 
 									CSHierClusterDataSet hierResults 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(dataByte);
@@ -456,26 +459,35 @@ public class UMainLayout extends VerticalLayout {
 									tabSheet 	= 	new UVisualPlugin(prtSet, dataProperties);
 
 								}
-							    else if(resultSet.getType().equalsIgnoreCase("Anova")) {
-							        @SuppressWarnings("unchecked")							     
+								else if(resultSet.getType().equalsIgnoreCase("Anova")) {
+									@SuppressWarnings("unchecked")							     
 									CSAnovaResultSet<DSGeneMarker>  anovaResultSet =	(CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(dataByte);							 
-								    tabSheet 	= 	new UVisualPlugin(anovaResultSet, dataProperties);
+									tabSheet 	= 	new UVisualPlugin(anovaResultSet, dataProperties);
 
-	    						}else if(resultSet.getType().equalsIgnoreCase("MARINa")) {
+								}else if(resultSet.getType().equalsIgnoreCase("MARINa")) {
 
-	    							CSMasterRegulatorTableResultSet mraSet = (CSMasterRegulatorTableResultSet) ObjectConversion.toObject(dataByte);
-	    							tabSheet 	= 	new UVisualPlugin(mraSet, dataProperties);
+									CSMasterRegulatorTableResultSet mraSet = (CSMasterRegulatorTableResultSet) ObjectConversion.toObject(dataByte);
+									tabSheet 	= 	new UVisualPlugin(mraSet, dataProperties);
 
-	    						}
-							    else if (resultSet.getType().endsWith("pending")) {							         
-								    tabSheet 	= 	new UVisualPlugin(null, dataProperties);
-							    } 
-								
+								}
+								else if (resultSet.getType().endsWith("pending")) {							         
+									tabSheet 	= 	new UVisualPlugin(null, dataProperties);
+								} 
+
 
 								menuPanel.setSecondComponent(tabSheet);
 								setMainPanelSecondComponent(menuPanel);
 
-							}	
+							} else {
+								
+								MessageBox mb = new MessageBox(getWindow(), 
+						    			"Analysis Running...", 
+						    			MessageBox.Icon.INFO, 
+						    			"Your analysis is still running please check back later.",  
+						    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+								mb.show();
+								
+							}
 
 						} else if(itemId.contains("P")) {
 			
@@ -989,7 +1001,6 @@ public class UMainLayout extends VerticalLayout {
 		public void addNode(NodeAddEvent event) {	
 
 			if(event.getDataType() == "Result Node") {
-				
 				dataTree.addItem(event.getDataSetId()+"R");
 				dataTree.getContainerProperty(event.getDataSetId()+"R", "My Projects").setValue(event.getDataSetName());
 				dataTree.setChildrenAllowed(event.getDataSetId()+"R", false);
