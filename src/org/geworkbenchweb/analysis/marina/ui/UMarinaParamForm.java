@@ -131,6 +131,7 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		form.getLayout().addComponent(cb1);
 		form.getLayout().addComponent(cb2);
 		
+		//TODO: allow network to be loaded from adjacency matrix data node
 		upload = new Upload("Upload Network File", this);
 		upload.setButtonCaption("Upload");
 		upload.addListener((Upload.SucceededListener)this);
