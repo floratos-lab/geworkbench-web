@@ -5,17 +5,23 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.analysis.CNKB.CNKBInteractions;
+import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -35,6 +41,8 @@ public class UCNKBParamForm extends VerticalLayout {
 	
 	private DSMicroarraySet dataSet;
 	
+	private ResultSet resultSet;
+	
 	private int timeout = 3000;
 	
 	private List<String> contextList = new ArrayList<String>();
@@ -43,7 +51,13 @@ public class UCNKBParamForm extends VerticalLayout {
 	
 	User user = SessionHandler.get();
 	
+	private String[] params;
+	
+	private long dataSetId;
+	
 	public UCNKBParamForm(DSMicroarraySet maSet, final long dataSetId) {
+	
+		this.dataSetId = dataSetId;
 		
 		this.dataSet = maSet;
 
@@ -51,7 +65,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		
 		loadApplicationProperty();
 		
-		final String[] params 	=	new String[3];
+		params 	=	new String[3];
 		
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
@@ -70,6 +84,7 @@ public class UCNKBParamForm extends VerticalLayout {
 			e1.printStackTrace();
 		}
 	
+		
 		final ComboBox interactomeBox 		= 	new ComboBox();
 		final ComboBox versionBox			= 	new ComboBox();
 		final Label interactomeDes			= 	new Label();
@@ -80,8 +95,20 @@ public class UCNKBParamForm extends VerticalLayout {
 
 			public void buttonClick(ClickEvent event) {
 				try {
-				
-					new CNKBInteractions(dataSet, params, dataSetId);
+					resultSet = new ResultSet();
+					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+					resultSet.setDateField(date);
+					String dataSetName	=	"CNKB - " + new java.util.Date(); 
+					resultSet.setName(dataSetName);
+					resultSet.setType("CNKB");
+					resultSet.setParent(dataSetId);
+					resultSet.setOwner(user.getId());	
+					FacadeFactory.getFacade().store(resultSet);	
+			
+					NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), resultSet.getName(), "Result Node");
+					GeworkbenchRoot.getBlackboard().fire(resultEvent);
+					
+					new CNKBThread().start();
 						
 				} catch (Exception e) {	
 					
@@ -207,5 +234,19 @@ public class UCNKBParamForm extends VerticalLayout {
 		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
 		
 		return positions;
+	}
+	
+	public class CNKBThread extends Thread {
+		
+		@Override
+		public void run() {
+			
+			CNKBInteractions cnkb = new CNKBInteractions();
+			Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params, dataSetId);
+			resultSet.setData(ObjectConversion.convertToByte(hits));
+			FacadeFactory.getFacade().store(resultSet);
+			
+		}
+		
 	}
 }
