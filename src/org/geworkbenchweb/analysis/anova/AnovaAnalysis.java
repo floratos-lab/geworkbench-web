@@ -203,6 +203,7 @@ public class AnovaAnalysis {
 		return anovaInput;
 	}
 
+	@SuppressWarnings("unused")
 	private AnovaOutput computeAnovaLocal(AnovaInput input) {
 		AnovaOutput output = null;
 		try {
