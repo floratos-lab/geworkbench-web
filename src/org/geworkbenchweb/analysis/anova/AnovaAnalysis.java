@@ -1,5 +1,5 @@
 package org.geworkbenchweb.analysis.anova;
-
+ 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,6 +22,7 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion; 
+import org.geworkbenchweb.utils.SubSetOperations;
 
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -257,15 +258,21 @@ public class AnovaAnalysis {
 		 
 		significantPosStr = significantPosStr + significantPositions[significantNum-1] + "]";		
 		 
-        SubSet subset  	= 	new SubSet();
-		
-		subset.setName("Significan Genes[" + significantNum + "]");
+		 
+		int  significanSetNum = SubSetOperations.getSignificanceSetNum(dataSetId);
+		 
+		SubSet subset  	= 	new SubSet();
+		if (significanSetNum == 0)
+		   subset.setName("Significan Genes[" + significantNum + "]");
+		else	 
+		   subset.setName("Significan Genes(" + significanSetNum + ")[" + significantNum + "]");
+		 
 		subset.setType("marker");
 		subset.setOwner(user.getId());
 	    subset.setParent(dataSetId);
 	    subset.setPositions(significantPosStr);
 	    FacadeFactory.getFacade().store(subset);
-	    
+	   
 	 
 	}
 	

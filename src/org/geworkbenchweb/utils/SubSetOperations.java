@@ -77,7 +77,24 @@ public class SubSetOperations {
 	}
 	
 
-	public static List<?> getArraySets(Long dataSetId) {
+public static int getSignificanceSetNum(Long dataSetId) {
+		
+	Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+	
+	parameters.put("parent", dataSetId);
+	parameters.put("type", "marker");
+	parameters.put("name", "Significan Genes%");
+	
+	List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type and p.name like :name", parameters);
+	
+	if (data != null)	  
+	   return data.size();
+	else
+		return 0;
+}
+	
+	
+     public static List<?> getArraySets(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		
