@@ -83,7 +83,6 @@ public class UCNKBParamForm extends VerticalLayout {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	
 		
 		final ComboBox interactomeBox 		= 	new ComboBox();
 		final ComboBox versionBox			= 	new ComboBox();
@@ -111,9 +110,7 @@ public class UCNKBParamForm extends VerticalLayout {
 					new CNKBThread().start();
 						
 				} catch (Exception e) {	
-					
-					System.out.println(e);
-
+					e.printStackTrace();
 				}		
 			}
 		});
