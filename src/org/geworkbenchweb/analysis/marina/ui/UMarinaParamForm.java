@@ -31,16 +31,23 @@ import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.validator.DoubleValidator;
+import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
@@ -58,8 +65,12 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 	private Upload upload = null;
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
 	private Button submitButton = new Button("Submit", form, "commit");
-	private ComboBox cb1 = new ComboBox("Choose Class1");
-	private ComboBox cb2 = new ComboBox("Choose Class2");
+	private ComboBox cb1 = new ComboBox();
+	private ComboBox cb2 = new ComboBox();
+	private TextField tf1 = new TextField();
+	private TextField tf2 = new TextField();
+	private HorizontalLayout h1 = new HorizontalLayout();
+	private HorizontalLayout h2 = new HorizontalLayout();
 	private MarinaParamBean bean = null;
 	private BeanItem<MarinaParamBean> item = null;
 	private HashMap<String, String> arraymap = null;
@@ -79,7 +90,7 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 	public static final String GENE_NAME = "gene name";
 	public static final String ENTREZ_ID = "entrez id";
 	public static final String PROBESET_ID = "probeset id";
-	private final String[] order = {"network", "class1", "class2", "gseaPValue", 
+	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
 
@@ -90,6 +101,10 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		arraymap = new HashMap<String, String>();
 		cb1.setImmediate(true);
 		cb2.setImmediate(true);
+		cb1.setWidth("135px");
+		cb2.setWidth("135px");
+		tf1.setEnabled(false);
+		tf2.setEnabled(false);
 		for (Object arrayset : arraysets){
 			SubSet set = (SubSet)arrayset;
 			String positions = set.getPositions().trim();
@@ -106,12 +121,13 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		cb1.addListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -3667564667049184754L;
 			public void valueChange(ValueChangeEvent event) {
-				item.getItemProperty("class1").setValue(arraymap.get(cb1.getValue()));
+				bean.setClass1(arraymap.get(cb1.getValue()));
+				tf1.setValue(arraymap.get(cb1.getValue()));
 				if (cb1.getValue() == null) {
-					form.getField("class1").setEnabled(false);
+					tf1.setEnabled(false);
 					submitButton.setEnabled(false);
 				}else{
-					form.getField("class1").setEnabled(true);
+					tf1.setEnabled(true);
 					if (form.getField("network").isEnabled())
 						submitButton.setEnabled(true);
 				}
@@ -120,16 +136,25 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		cb2.addListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -5177825730266428335L;
 			public void valueChange(ValueChangeEvent event) {
-				item.getItemProperty("class2").setValue(arraymap.get(cb2.getValue()));
+				bean.setClass2(arraymap.get(cb2.getValue()));
+				tf2.setValue(arraymap.get(cb2.getValue()));
 				if (cb2.getValue() == null){
-					form.getField("class2").setEnabled(false);
+					tf2.setEnabled(false);
 				}else{
-					form.getField("class2").setEnabled(true);
+					tf2.setEnabled(true);
 				}
 			}
 		});
-		form.getLayout().addComponent(cb1);
-		form.getLayout().addComponent(cb2);
+		h1.setSpacing(true);
+		h1.setCaption("Class1");
+		h1.addComponent(cb1);
+		h1.addComponent(tf1);
+		h2.setSpacing(true);
+		h2.setCaption("Class2");
+		h2.addComponent(cb2);
+		h2.addComponent(tf2);
+		form.getLayout().addComponent(h1);
+		form.getLayout().addComponent(h2);
 		
 		//TODO: allow network to be loaded from adjacency matrix data node
 		upload = new Upload("Upload Network File", this);
@@ -141,13 +166,34 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		bean = new MarinaParamBean();
 		DefaultFieldFactory.createCaptionByPropertyId(bean);
 		item = new BeanItem<MarinaParamBean>(bean, order);
+		form.setImmediate(true);
+		form.setFormFieldFactory(new DefaultFieldFactory(){
+			private static final long serialVersionUID = 4805200657491765148L;
+			public Field createField(Item item, Object propertyId, Component uiContext) {
+				Field f = super.createField(item, propertyId, uiContext);
+				if (propertyId.equals("minimumTargetNumber") || propertyId.equals("gseaPermutationNumber") ||
+	            	propertyId.equals("minimumSampleNumber") || propertyId.equals("gseaTailNumber")) {
+					TextField tf = (TextField) f;
+					if (propertyId.equals("gseaTailNumber"))
+						tf.addValidator(new PositiveIntValidator("Please enter 1 or 2", 2));
+					else tf.addValidator(new PositiveIntValidator("Please enter a positive integer"));
+				} else if (propertyId.equals("shadowPValue") || propertyId.equals("synergyPValue") ||
+	            		propertyId.equals("gseaPValue")) {
+					TextField tf = (TextField) f;
+					tf.addValidator(new PvalueValidator("P value must be in the range of 0 to 1"));
+				} else if (propertyId.equals("retrievePriorResultWithId")) {
+					TextField tf = (TextField) f;
+					tf.addValidator(new RegexpValidator("^[mM][rR][aA]\\d+$", 
+							"MRA Result ID must be 'mra' followed by an integer"));
+					}
+	            return f;
+	        }
+		});
 		form.setItemDataSource(item);
 
 		form.getField("network").setWidth("270px");
 		form.getField("network").setReadOnly(true);
 		form.getField("network").setEnabled(false);
-		form.getField("class1").setEnabled(false);
-		form.getField("class2").setEnabled(false);
 		form.getField("retrievePriorResultWithId").setEnabled(false);
 
 		priorBox.setImmediate(true);
@@ -158,21 +204,19 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 					for (String item : order)
 						form.getField(item).setEnabled(false);
 					upload.setEnabled(false);
-					cb1.setEnabled(false);
-					cb2.setEnabled(false);
+					h1.setEnabled(false);
+					h2.setEnabled(false);
 					form.getField("retrievePriorResultWithId").setEnabled(true);
-					submitButton.setEnabled(true);
+					if (form.isValid()) submitButton.setEnabled(true);
 				}else {
 					for (String item : order)
 						form.getField(item).setEnabled(true);
 					upload.setEnabled(true);
-					cb1.setEnabled(true);
-					cb2.setEnabled(true);
+					h1.setEnabled(true);
+					h2.setEnabled(true);
 					form.getField("retrievePriorResultWithId").setEnabled(false);
-					if (cb1.getValue()==null) form.getField("class1").setEnabled(false);
-					if (cb2.getValue()==null) form.getField("class2").setEnabled(false);
 					if (form.getField("network").getValue().equals("")) form.getField("network").setEnabled(false);
-					if (form.getField("class1").isEnabled() && form.getField("network").isEnabled())
+					if (tf1.isEnabled() && form.getField("network").isEnabled())
 						submitButton.setEnabled(true);
 					else submitButton.setEnabled(false);
 				}
@@ -233,7 +277,7 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 	private void networkLoaded(byte[] networkBytes){
 		bean.setNetworkBytes(networkBytes);
 		form.getField("network").setEnabled(true);
-		if (form.getField("class1").isEnabled())
+		if (tf1.isEnabled())
 			submitButton.setEnabled(true);
 	}
 
@@ -587,5 +631,44 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		loadDialog.setModal(true);
 		loadDialog.setVisible(true);
 		getApplication().getMainWindow().addWindow(loadDialog);
+	}
+	
+	public class PositiveIntValidator extends IntegerValidator {
+		private static final long serialVersionUID = -8205632597275359667L;
+		private int max = 0;
+		public PositiveIntValidator(String message){
+			super(message);
+		}
+		public PositiveIntValidator(String message, int max){
+			this(message);
+			this.max = max;
+		}
+		protected boolean isValidString(String value){
+			try {
+				int n = Integer.parseInt(value);
+				if (n <= 0) return false;
+				if (max > 0 && n > max) return false;
+			} catch (Exception e) {
+				return false;
+			}
+			submitButton.setComponentError(null);
+			return true;
+		}
+	}
+	public class PvalueValidator extends DoubleValidator {
+		private static final long serialVersionUID = -815490638929041408L;
+		public PvalueValidator(String errorMessage) {
+			super(errorMessage);
+		}
+		protected boolean isValidString(String value){
+			try {
+				double n = Double.parseDouble(value);
+				if (n < 0 || n > 1) return false;
+			} catch (Exception e) {
+				return false;
+			}
+			submitButton.setComponentError(null);
+			return true;
+		}
 	}
 }
