@@ -153,13 +153,16 @@ public class UMainToolBar extends MenuBar {
 				workspaceTable.setClosable(true);
 				workspaceTable.setDraggable(false);
 				workspaceTable.setResizable(false);
-				workspaceTable.setWidth("200px");
+				workspaceTable.setWidth("300px");
+				workspaceTable.setHeight("300px");
 				workspaceTable.setImmediate(true);
 				
 				ListSelect workspaceSelect = new ListSelect("Select Workspace");
 				workspaceSelect.setNullSelectionAllowed(false);
 				workspaceSelect.setMultiSelect(false);
 				workspaceSelect.setImmediate(true);
+				workspaceSelect.setWidth("250px");
+				workspaceSelect.setHeight("200px");
 				
 				/* Adding items to the combobox */
 				List<Workspace> spaces = WorkspaceUtils.getAvailableWorkspaces();
@@ -253,7 +256,7 @@ public class UMainToolBar extends MenuBar {
 				project.setWidth("350px");
 				
 				final TextField projectName 	= 	new TextField("Project Name");
-				final TextField projectDes 	= 	new TextField("Project Description");
+				final TextField projectDes 		= 	new TextField("Project Description");
 				
 				Button submitProject = new Button("Submit", new Button.ClickListener() {
 
