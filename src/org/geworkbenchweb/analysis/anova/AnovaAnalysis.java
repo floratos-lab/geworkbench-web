@@ -1,5 +1,7 @@
 package org.geworkbenchweb.analysis.anova;
  
+import java.util.ArrayList;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -132,19 +134,19 @@ public class AnovaAnalysis {
 
 		selectedMarkerSet = paramForm.getSelectedMarkerSet();
 
-		if (selectedMarkerSet == null)
+		if (selectedMarkerSet == null) {
 			selectedMarkers = dataSet.getMarkers();
-		else {
+		} else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				String markers = paramForm.getMarkerData(Long
-						.parseLong(selectedMarkerSet[i].trim()));
-				String[] temp = (markers.substring(1, markers.length() - 1))
-						.split(",");
-				for (int j = 0; j < temp.length; j++)
-					selectedMarkers.add(dataSet.getMarkers().get(
-							Integer.parseInt(temp[j].trim())));
-
+				ArrayList<String> temp = paramForm.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
+				for (int j = 0; j < temp.size(); j++) {
+					for(int k=0; k<dataSet.getMarkers().size(); k++) {
+						if(temp.contains(dataSet.getMarkers().get(k).getLabel())) {
+							selectedMarkers.add(dataSet.getMarkers().get(k));
+						}
+					}
+				}
 			}
 		}
 
@@ -166,26 +168,23 @@ public class AnovaAnalysis {
 
 		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String arrayPositions = paramForm.getArrayData(Long
+			ArrayList<String> arrayPositions = paramForm.getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
-			String[] temp = (arrayPositions.substring(1,
-					arrayPositions.length() - 1)).split(",");
 
 			String groupLabel = selectedArraySetNames[i];
 			/* put group label into history */
-			GroupAndChipsString += "\tGroup " + groupLabel + " (" + temp.length
+			GroupAndChipsString += "\tGroup " + groupLabel + " (" + arrayPositions.size()
 					+ " chips)" + ":\n";
 
 			/*
 			 * for each array in this group
 			 */
-			for (int j = 0; j < temp.length; j++) {
+			for (int j = 0; j < arrayPositions.size(); j++) {
 				GroupAndChipsString += "\t\t"
-						+ dataSet.get(Integer.parseInt(temp[j].trim())) + "\n";
+						+ arrayPositions.get(j) + "\n";
 				/* for each marker in this array */
 				for (int k = 0; k < selectedMarkersNum; k++) {
-					A[k][globleArrayIndex] = (float) dataSet
-							.get(Integer.parseInt(temp[j].trim()))
+					A[k][globleArrayIndex] = (float) (dataSet.get(arrayPositions.get(j)))
 							.getMarkerValue(selectedMarkers.get(k)).getValue();
 
 				}
@@ -248,17 +247,13 @@ public class AnovaAnalysis {
 		return resultSet;
 	}
 	
-	public void storeSignificance(int[] significantPositions) {
+	public void storeSignificance(String[] significantMarkers) {
 
-		String significantPosStr = "["; 
-		int  significantNum = significantPositions.length;
-		
-		for (int i=0; i<significantNum-1; i++)	 
-			significantPosStr = significantPosStr + significantPositions[i] + ",";
-		 
-		significantPosStr = significantPosStr + significantPositions[significantNum-1] + "]";		
-		 
-		 
+		ArrayList<String> data = new ArrayList<String>();
+		for(int i=0;i<significantMarkers.length; i++) {
+			data.add(significantMarkers[i]);
+		}
+		int  significantNum = significantMarkers.length;
 		int  significanSetNum = SubSetOperations.getSignificanceSetNum(dataSetId);
 		 
 		SubSet subset  	= 	new SubSet();
@@ -270,7 +265,7 @@ public class AnovaAnalysis {
 		subset.setType("marker");
 		subset.setOwner(user.getId());
 	    subset.setParent(dataSetId);
-	    subset.setPositions(significantPosStr);
+	    subset.setPositions(data);
 	    FacadeFactory.getFacade().store(subset);
 	   
 	 
@@ -330,7 +325,7 @@ public class AnovaAnalysis {
 			if (significantMarkerNames.length > 0)
 			{
 				anovaResultSet.sortMarkersBySignificance();
-				storeSignificance(significantPositions);
+				storeSignificance(significantMarkerNames);
 			}			
 			 
 			storeResultSet(resultSet, anovaResultSet);

@@ -9,7 +9,7 @@
   </context-param>
   <servlet>
     <servlet-name>Geworkbench Application</servlet-name>
-    <servlet-class>org.vaadin.artur.icepush.ICEPushServlet</servlet-class>
+    <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
     <init-param>
       <description>
   		Vaadin application class to start</description>

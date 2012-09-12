@@ -1,6 +1,7 @@
 package org.geworkbenchweb.analysis.aracne;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
@@ -14,7 +15,9 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;  
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -36,34 +39,26 @@ public class AracneAnalysisWeb {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
-		String positions  	=  	params.get(0);
-		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
+		Long subSetId  				=  	Long.parseLong(params.get(0));
+		ArrayList<String> hubGeneList 	= 	new ArrayList<String>();
+		ArrayList<String> markers		= 	getMarkerData(subSetId);
 		
-		ArrayList<String> hubGeneList = new ArrayList<String>();
-		
-		for(int i=0; i<temp.length; i++) {
-			
-			hubGeneList.add(dataSet.getMarkers().get(Integer.parseInt(temp[i].trim())).getGeneName());
-			
+		for(int i=0; i<dataSet.getMarkers().size(); i++) {
+			if(markers.contains(dataSet.getMarkers().get(i).getLabel())) {
+				hubGeneList.add(dataSet.getMarkers().get(i).getGeneName());	
+			}
 		}
 		
 		p.setSubnet(new Vector<String>(hubGeneList));
 		if(params.get(5).equalsIgnoreCase("Mutual Info")) {
-			
 			p.setThreshold(Double.valueOf(params.get(6).toString()));
-			
 		} else {
-			
-			p.setPvalue(Double.valueOf(params.get(6).toString()));
-			
+			p.setPvalue(Double.valueOf(params.get(6).toString()));	
 		}
+		
 		if(params.get(8).equalsIgnoreCase("Apply")) {
-		
 			p.setEps(Double.valueOf(params.get(9).toString()));
-		
 		}
-		
-		
 		
 		if(params.get(1).equalsIgnoreCase("Complete")) {
 			p.setMode(Parameter.MODE.COMPLETE);
@@ -156,6 +151,18 @@ public class AracneAnalysisWeb {
 		}
 	
 		return matrix;
+	}
+	
+	/**
+	 * Create Dataset for selected markerSet 
+	 */
+	public ArrayList<String> getMarkerData(Long subSetId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet 			= 	SubSetOperations.getMarkerSet(subSetId);
+		ArrayList<String> positions 	= 	(((SubSet) subSet.get(0)).getPositions());
+		
+		return positions;
 	}
 
 }

@@ -389,27 +389,25 @@ public class UAnovaParamForm extends VerticalLayout {
 		List<String> microarrayPosList = new ArrayList<String>();
 		/* for each group */
 		for (int i = 0; i < selectedArraySet.length; i++) {
-			String arrayPositions = getArrayData(Long
-					.parseLong(selectedArraySet[i].trim()));
-			String[] temp = (arrayPositions.substring(1,
-					arrayPositions.length() - 1)).split(",");
-			 
-			if (temp.length < 2)
+			
+			 ArrayList<String> arrays = getArrayData(Long
+						.parseLong(selectedArraySet[i].trim()));
+			
+			if (arrays.size() < 2)
 			{	arraySetSelect.setComponentError(
 		                new UserError("Each microarray group must contains at least 2 arrays."));
 			    return false;
 			}	 
 			 
-			for (int j = 0; j < temp.length; j++) {
-				if (microarrayPosList.contains(temp[j].trim()))
-				{				
+			for (int j = 0; j < arrays.size(); j++) {
+				if (microarrayPosList.contains(arrays.get(j))) {				
 					arraySetSelect.setComponentError(
-			                new UserError("Same array (" + dataSet.get(Integer.parseInt(temp[j].trim()))
+			                new UserError("Same array (" + arrays.get(j)
 									+ ") exists in multiple groups."));
 				    
 					return false;
 				}
-				microarrayPosList.add(temp[j].trim());
+				microarrayPosList.add(arrays.get(j));
 				totalSelectedArrayNum++;
 			}
 
@@ -471,12 +469,11 @@ public class UAnovaParamForm extends VerticalLayout {
 	/**
 	 * Create Array Data for selected markerSet
 	 */
-	public String getArrayData(long setNameId) {
+	public ArrayList<String> getArrayData(long setNameId) {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getArraySet(setNameId);
-
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
 
 		return positions;
 	}
@@ -484,11 +481,11 @@ public class UAnovaParamForm extends VerticalLayout {
 	/**
 	 * Create Marker Data for selected markerSet
 	 */
-	public String getMarkerData(long setNameId) {
+	public  ArrayList<String> getMarkerData(long setNameId) {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		String positions = (((SubSet) subSet.get(0)).getPositions()).trim();
+		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
 		return positions;
 	}
 

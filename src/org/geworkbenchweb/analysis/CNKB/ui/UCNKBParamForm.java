@@ -135,7 +135,7 @@ public class UCNKBParamForm extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
-				params[2] = getMarkerData((Long) valueChangeEvent.getProperty().getValue());
+				params[2] =  String.valueOf(valueChangeEvent.getProperty().getValue());
 				addComponent(interactomeBox);
 				
 			}
@@ -221,20 +221,7 @@ public class UCNKBParamForm extends VerticalLayout {
 		
 	}
 	
-	/**
-	 * Create Dataset for selected markerSet 
-	 */
-	public String getMarkerData(Long subSetId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(subSetId);
-		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-		
-		return positions;
-	}
-	
-	public class CNKBThread extends Thread {
-		
+	public class CNKBThread extends Thread {	
 		@Override
 		public void run() {
 			
@@ -242,8 +229,6 @@ public class UCNKBParamForm extends VerticalLayout {
 			Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params, dataSetId);
 			resultSet.setData(ObjectConversion.convertToByte(hits));
 			FacadeFactory.getFacade().store(resultSet);
-			
 		}
-		
 	}
 }

@@ -1,6 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -543,47 +545,22 @@ public class UMainLayout extends VerticalLayout {
 				}
 
 				@SuppressWarnings("deprecation")
-				public void handleAction(Action action, Object sender, Object target) {
+				public void handleAction(Action action, final Object sender, Object target) {
 
 					if(action == ACTION_LINKOUT) {
 
 						if(selectedValues == null) {
-
 							getApplication().getMainWindow().showNotification("Select marker with Gene Name");
-							/**
-							 * Vaadin 7
-							 * Notification.show("Select marker with Gene Name",  
-							 *		Notification.TYPE_ERROR_MESSAGE );
-							 */
-
 						}else if(selectedValues.contains(",")) {
-							getApplication().getMainWindow().showNotification("Select marker only one marker");
-							/**
-							 * Vaadin 7
-							 * Notification.show("Select marker only one marker",  
-							 *		Notification.TYPE_ERROR_MESSAGE );
-							 */
-
+							getApplication().getMainWindow().showNotification("Select donly one marker");
 						}else {
-
 							int positionValue = Integer.parseInt((selectedValues.substring(1)).substring(0, selectedValues.length() - 2));
 							getApplication().getMainWindow().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
-							/**
-							 * Vaadin 7
-							 * Root.getCurrent().addWindow(new ULinkOutWindow(maSet.getMarkers().get(positionValue).getGeneName()));
-							 */
 						}
 					}else {
-						if(selectedValues == null) {
-
+						if(sender.toString().contentEquals("[]")) {
 							getApplication().getMainWindow().showNotification("Please select atleast one marker");
-							/**
-							 * Vaadin 7
-							 * Notification.show("Please select atleast one marker",  
-							 *		Notification.TYPE_ERROR_MESSAGE );
-							 */
 						} else {
-
 							final Window nameWindow = new Window();
 							nameWindow.setModal(true);
 							nameWindow.setClosable(true);
@@ -607,42 +584,27 @@ public class UMainLayout extends VerticalLayout {
 
 									String setN = (String) setName.getValue();
 									if(setN != "") {
-
-										if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
-
+										String pos				= 	sender.toString();
+										String[] temp 			=   (pos.substring(1, pos.length()-1)).split(",");
+										ArrayList<String> selectedMarkers = 	new ArrayList<String>();
+										for(int i=0; i<temp.length; i++) {
+											selectedMarkers.add(maSet.getMarkers().get(Integer.parseInt(temp[i].trim())).getLabel());
+										}
+										if( SubSetOperations.storeData(selectedMarkers, setType, setN, dataSetId ) == true ) {
 											getApplication().getMainWindow().removeWindow(nameWindow);
 											setTabs.populateTabSheet(maSet, Long.parseLong(parentId.substring(0, parentId.length() - 1)));
-											/**
-											 * Vaadin 7
-											 * Root.getCurrent().removeWindow(nameWindow);
-											 */
-
 										}
 									} else {
-
+										getApplication().getMainWindow().showNotification("Set Name cannot be empty.");
 										getApplication().getMainWindow().removeWindow(nameWindow);
-										/**
-										 *  Vaadin 7
-										 * Notification.show("Set Name cannot be empty.",
-										 *	Notification.TYPE_ERROR_MESSAGE );
-										 * Root.getCurrent().removeWindow(nameWindow);
-										 */
-
 									}
 								}
-
 							});
 
+							addSet.setClickShortcut(KeyCode.ENTER);
 							nameWindow.addComponent(setName);
 							nameWindow.addComponent(addSet);
-
 							getApplication().getMainWindow().addWindow(nameWindow);
-							/**
-							 * Vaadin 7
-							 * Root.getCurrent().addWindow(nameWindow);
-							 */
-							//selectedValues = null;
-
 						}
 					}
 				}	 
@@ -682,18 +644,10 @@ public class UMainLayout extends VerticalLayout {
 
 				}
 				@SuppressWarnings("deprecation")
-				public void handleAction(Action action, Object sender, Object target) {
+				public void handleAction(Action action, final Object sender, Object target) {
 
-					if(selectedValues == null) {
-
+					if(sender.toString().equals("[]")) {
 						getApplication().getMainWindow().showNotification("Please select atleast one phenotype");	
-
-						/**
-						 * Vaadin 7
-						 * Notification.show("Please select atleast one phenotype",  
-						 *			Notification.TYPE_ERROR_MESSAGE ); 
-						 */
-
 					} else {
 
 						final Window nameWindow = new Window();
@@ -719,43 +673,28 @@ public class UMainLayout extends VerticalLayout {
 
 								String setN = (String) setName.getValue();
 								if(setN != "") {
-
-									if( SubSetOperations.storeData(selectedValues, setType, setN, dataSetId ) == true ) {
-
+									String pos				= 	sender.toString();
+									String[] temp 			=   (pos.substring(1, pos.length()-1)).split(",");
+									ArrayList<String> selectedArrays = 	new ArrayList<String>();
+									for(int i=0; i<temp.length; i++) {
+										selectedArrays.add(maSet.get(Integer.parseInt(temp[i].trim())).getLabel());
+									}
+									if( SubSetOperations.storeData(selectedArrays, setType, setN, dataSetId ) == true ) {
 										getApplication().getMainWindow().removeWindow(nameWindow);
 										setTabs.populateTabSheet(maSet, Long.parseLong(parentId.substring(0, parentId.length() - 1)));
-										/**
-										 * Vaadin 7
-										 * Root.getCurrent().removeWindow(nameWindow);
-										 */
 									}
 								} else {
-
 									getApplication().getMainWindow().showNotification("Set Name cannot be empty.");
 									getApplication().getMainWindow().removeWindow(nameWindow);
-
-									/**
-									 * Vaadin 7
-									 * 
-									 * Notification.show("Set Name cannot be empty.",
-									 * 		Notification.TYPE_ERROR_MESSAGE ); 
-									 * Root.getCurrent().removeWindow(nameWindow);
-									 */
 								}
-
 							}
-
 						});
 
+						addSet.setClickShortcut(KeyCode.ENTER);
 						nameWindow.addComponent(setName);
 						nameWindow.addComponent(addSet);
 
 						getApplication().getMainWindow().addWindow(nameWindow);
-						/**
-						 * Vaadin 7
-						 * Root.getCurrent().addWindow(nameWindow);
-						 */
-						//selectedValues = null;
 					}
 				}	 
 			});

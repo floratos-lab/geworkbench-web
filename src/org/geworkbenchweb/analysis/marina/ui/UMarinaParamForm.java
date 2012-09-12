@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,12 +108,14 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		tf2.setEnabled(false);
 		for (Object arrayset : arraysets){
 			SubSet set = (SubSet)arrayset;
-			String positions = set.getPositions().trim();
+			ArrayList<String> pos = set.getPositions();
 			StringBuilder builder = new StringBuilder();
-			for(String id : (positions.substring(1, positions.length()-1)).split(",")) {
-				builder.append(maSet.get(Integer.parseInt(id.trim())).getLabel()+",");
+			
+			for(int i=0; i<pos.size(); i++) {
+				builder.append(pos.get(i)+",");
 			}
-			positions = builder.toString();
+			
+			String positions = builder.toString();
 			arraymap.put(set.getName(), positions.substring(0, positions.length()-1));
 			cb1.addItem(set.getName());
 			cb2.addItem(set.getName());

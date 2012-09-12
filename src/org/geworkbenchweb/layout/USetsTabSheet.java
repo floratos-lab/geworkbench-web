@@ -201,23 +201,19 @@ public class USetsTabSheet extends TabSheet {
 			List<String> selectedNames = map.get(setname);
 			setname = Util.getUniqueName(setname, nameSet);
 			nameSet.add(setname);
-			StringBuilder builder = new StringBuilder();
-            builder.append("[");
-            int i=0, setsize=0;
+            int setsize=0;
+            ArrayList<String> arrayList = new ArrayList<String>();
 			for(DSMicroarray array: maSet) {
 				if(selectedNames.contains(array.getLabel())) {
-					builder.append(i+", ");
+					arrayList.add(array.getLabel());
 					setsize++;
 				}
-				i++;
 			}
 			if(setsize != selectedNames.size())
 				missing += selectedNames.size() - setsize;
 		
-			if (setsize > 0){
-				String arrays = builder.toString();
-				arrays = arrays.substring(0, arrays.length()-1)+"]";
-				if( SubSetOperations.storeData(arrays, "Microarray", setname, dataSetId ) == true ) {
+			if (setsize > 0) {
+				if( SubSetOperations.storeData(arrayList, "Microarray", setname, dataSetId ) == true ) {
 					populateTabSheet(maSet, dataSetId);
 				}
 			}
@@ -235,35 +231,25 @@ public class USetsTabSheet extends TabSheet {
 		arraySets.removeAllItems();
 		arraySets.setSizeFull();
 		arraySets.addContainerProperty("Name", String.class, "");
-
 		arraySets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-		/**
-		 * Vaadin 7
-		 * arraySets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
-		 */
-
+		
 		if(!list.isEmpty()) {
-
 			for(int i=0; i<list.size(); i++ ) {
-
 				String name 		= 	((SubSet) list.get(i)).getName();
 				Long subSetId		=	((SubSet) list.get(i)).getId();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+				ArrayList<String> arrays 	= 	(((SubSet) list.get(i)).getPositions());
 			
 				arraySets.addItem(subSetId);
 				arraySets.getContainerProperty(subSetId, "Name").setValue(name);
 
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-
-				for(int j = 0; j<temp.length; j++) {
-
-					String child	=	maSet.get(Integer.parseInt(temp[j].trim())).getLabel();
+				for(int j = 0; j<arrays.size(); j++) {
 					
-					arraySets.addItem(child);
-					arraySets.getContainerProperty(child, "Name").setValue(child);
-					
-					arraySets.setChildrenAllowed(child, false);
-					arraySets.setParent(child, subSetId);
+					String child	=	arrays.get(j);
+					String childId  =	child + " " + i;
+					arraySets.addItem(childId);
+					arraySets.getContainerProperty(childId, "Name").setValue(child);
+					arraySets.setChildrenAllowed(childId, false);
+					arraySets.setParent(childId, subSetId);
 				}
 			}
 		}
@@ -276,10 +262,6 @@ public class USetsTabSheet extends TabSheet {
 		markerSets.addContainerProperty("Name", String.class, "");
 
 		markerSets.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
-		/**
-		 * Vaadin 7
-		 * markerSets.setColumnHeaderMode(ColumnHeaderMode.HIDDEN); 
-		 */
 
 		if(list.size() != 0) {	
 
@@ -287,37 +269,26 @@ public class USetsTabSheet extends TabSheet {
 
 				String name 		= 	((SubSet) list.get(i)).getName();
 				Long subSetId		=	((SubSet) list.get(i)).getId();
-				String positions 	= 	(((SubSet) list.get(i)).getPositions()).trim();
+				ArrayList<String> markers 	= 	(((SubSet) list.get(i)).getPositions());
 			
 				markerSets.addItem(subSetId);
 				markerSets.getContainerProperty(subSetId, "Name").setValue(name);
-
-				String[] temp =  (positions.substring(1, positions.length()-1)).split(",");
-
-				for(int j = 0; j<temp.length; j++) {
-
-					String child	=	maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getLabel() 
-							+ " (" 
-							+ maSet.getMarkers().get(Integer.parseInt(temp[j].trim())).getGeneName()
-							+ ")" ;
-					
-					markerSets.addItem(child);
-					markerSets.getContainerProperty(child, "Name").setValue(child);
-					
-					markerSets.setChildrenAllowed(child, false);
-					markerSets.setParent(child, subSetId);
+				
+				for(int j = 0; j<markers.size(); j++) {
+					String child = markers.get(j);
+					String childId  =	child + " " + i;
+					markerSets.addItem(childId);
+					markerSets.getContainerProperty(childId, "Name").setValue(child);
+					markerSets.setChildrenAllowed(childId, false);
+					markerSets.setParent(childId, subSetId);
 				}
-
 			}
-
 		}
-
 	}
+	
 	public void removeData() {
-
 		l1.removeAllComponents();
 		l2.removeAllComponents();
-
 	}
 	
 }

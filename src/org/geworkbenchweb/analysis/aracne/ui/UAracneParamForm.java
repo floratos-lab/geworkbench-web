@@ -82,7 +82,7 @@ public class UAracneParamForm extends GridLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params.remove(0);
-				params.add(0, getMarkerData((Long) valueChangeEvent.getProperty().getValue()));
+				params.add(0, String.valueOf(valueChangeEvent.getProperty().getValue()));
 				
 			}
 		});
@@ -281,7 +281,7 @@ public class UAracneParamForm extends GridLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
 				params.remove(11);
-				params.add(11, getMarkerData((Long) valueChangeEvent.getProperty().getValue()));
+				params.add(11, String.valueOf(valueChangeEvent.getProperty().getValue()));
 				
 			}
 		});
@@ -375,18 +375,6 @@ public class UAracneParamForm extends GridLayout {
 		addComponent(mergeProbeSets, 0, 8);
 		addComponent(submitButton, 0, 9);
 		
-	}
-	
-	/**
-	 * Create Dataset for selected markerSet 
-	 */
-	public String getMarkerData(Long subSetId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet 		= 	SubSetOperations.getMarkerSet(subSetId);
-		String positions 	= 	(((SubSet) subSet.get(0)).getPositions()).trim();
-		
-		return positions;
 	}
 	
 }

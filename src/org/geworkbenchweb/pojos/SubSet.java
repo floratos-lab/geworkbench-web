@@ -1,5 +1,7 @@
 package org.geworkbenchweb.pojos;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -14,9 +16,8 @@ public class SubSet extends AbstractPojo {
 	private String name;
 	private String type;
 	private Long owner;
-	
 	private Long parent;
-	private String positions;
+	private ArrayList<String> positions;
 
 
 	public String getName() {
@@ -51,11 +52,11 @@ public class SubSet extends AbstractPojo {
 		this.parent = parent;
 	}
 	
-	public String getPositions() {
+	public ArrayList<String> getPositions() {
 		return positions;
 	}
 	
-	public void setPositions(String positions) {
+	public void setPositions(ArrayList<String> positions) {
 		this.positions = positions;
 	}
 	

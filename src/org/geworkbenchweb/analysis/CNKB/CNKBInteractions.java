@@ -3,6 +3,7 @@ package org.geworkbenchweb.analysis.CNKB;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -12,6 +13,8 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionsConne
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.SubSetOperations;
 
 public class CNKBInteractions {
 	
@@ -27,18 +30,17 @@ public class CNKBInteractions {
 
 		String version 		=	params[1];
 			
-		String positions 	= 	params[2];
+		Long subSetId 		= 	Long.parseLong(params[2].trim());
 		
-		String[] temp 		=   (positions.substring(1, positions.length()-1)).split(",");
+		ArrayList<String> markers = getMarkerData(subSetId);
 			
 		hits = new Vector<CellularNetWorkElementInformation>();
 		
-		for(int i=0; i<temp.length; i++) {
-				
-			hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(Integer.parseInt(temp[i].trim()))));
-			
-		} 
-			
+		for(int i=0; i<dataSet.getMarkers().size(); i++) {
+			if(markers.contains(dataSet.getMarkers().get(i).getLabel())) {
+				hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(i)));	
+			}
+		}
 		try {
 			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {	
 
@@ -49,10 +51,7 @@ public class CNKBInteractions {
 						&& cellularNetWorkElementInformation.isDirty()) {
 					
 					List<InteractionDetail> interactionDetails = null;
-					
-					
 					try {
-
 						if (interaction_flag == 0) {
 							interactionDetails = interactionsConnection
 									.getInteractionsByEntrezIdOrGeneSymbol_1(
@@ -62,44 +61,40 @@ public class CNKBInteractions {
 									.getInteractionsByEntrezIdOrGeneSymbol_2(
 											marker, context, version);
 						}
-
 					} catch (UnAuthenticatedException uae) {
-						
 						uae.printStackTrace();
-
 					} catch (ConnectException ce) {
-
 						ce.printStackTrace();
-
 					} catch (SocketTimeoutException se) {
-
 						se.printStackTrace();
-
 					} catch (IOException ie) {
-
 						ie.printStackTrace();
 					} 
 					cellularNetWorkElementInformation.setDirty(false);
 					cellularNetWorkElementInformation
 					.setInteractionDetails(interactionDetails);
-
 				}	
 			}
-
 		} catch (java.util.ConcurrentModificationException ce) {
-
 			System.out.println("ie - 1");
-				
 		} catch (Exception e) {
-
 			e.printStackTrace();
-
 		} finally {
-
 			interactionsConnection.closeDbConnection();
-
 		}
-		
 		return hits;
 	}
+	
+	/**
+	 * Create Dataset for selected markerSet 
+	 */
+	public ArrayList<String> getMarkerData(Long subSetId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet 			= 	SubSetOperations.getMarkerSet(subSetId);
+		ArrayList<String> positions 	= 	(((SubSet) subSet.get(0)).getPositions());
+		
+		return positions;
+	}
+	
 }

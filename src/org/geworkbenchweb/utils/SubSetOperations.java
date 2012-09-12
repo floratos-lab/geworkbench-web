@@ -1,5 +1,6 @@
 package org.geworkbenchweb.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class SubSetOperations {
 
 	
-	public static boolean storeData(String selectedValues, String setType,
+	public static boolean storeData(ArrayList<String> arrayList, String setType,
 			String name, long l) {
 		
 		SubSet subset  	= 	new SubSet();
@@ -25,7 +26,7 @@ public class SubSetOperations {
 		subset.setType(setType);
 		subset.setOwner(SessionHandler.get().getId());
 	    subset.setParent(l);
-	    subset.setPositions(selectedValues);
+	    subset.setPositions(arrayList);
 		
 		try {
 
