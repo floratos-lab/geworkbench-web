@@ -48,6 +48,7 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
@@ -230,24 +231,38 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 		submitButton.setEnabled(false);
 		submitButton.addListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1085633263164082701L;
+			private MarinaAnalysis analysis;
+			private ProgressIndicator indicator = new ProgressIndicator(new Float(0.0));
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				MarinaAnalysis analysis = new MarinaAnalysis(dataSet, bean, dataSetId);
-				try{
-					analysis.execute();
-				}catch(RemoteException e){
-					log.error("RemoteException: "+e);
-					String msg = e.getMessage().replaceAll("\n", "<br>");
-			        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
-			        return;
-				}
+				submitButton.setEnabled(false);
+				indicator.setPollingInterval(500);
+				form.getFooter().addComponent(indicator);
+
+				analysis = new MarinaAnalysis(dataSet, bean, dataSetId);
+
+	            Thread workerThread = new Thread() {
+					public void run(){
+						try{
+							analysis.execute();
+						}catch(RemoteException e){
+							log.error("RemoteException: "+e);
+							String msg = e.getMessage().replaceAll("\n", "<br>");
+					        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
+						}
+						form.getFooter().removeComponent(indicator);
+						submitButton.setEnabled(true);
+					}
+				};
+				workerThread.start();		
 			}
 		});
 		form.getFooter().addComponent(submitButton);
 
 		addComponent(form);
 	}
-
+	
 	// Callback method to begin receiving the upload.
 	public OutputStream receiveUpload(String filename, String mimeType) {
 		item.getItemProperty("network").setValue(filename);

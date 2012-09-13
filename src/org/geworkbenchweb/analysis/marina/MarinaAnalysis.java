@@ -30,6 +30,8 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.github.wolfie.blackboard.Blackboard;
+
 public class MarinaAnalysis {
 
 	private Log log = LogFactory.getLog(MarinaAnalysis.class);
@@ -37,6 +39,8 @@ public class MarinaAnalysis {
 	private User user = SessionHandler.get();
 	private DSMicroarraySet dataSet = null;
 	private MarinaParamBean bean = null;
+	private ResultSet resultSet = null;
+	private Blackboard blackboard = null;
 	private static final String delimiter = "\t";
 	private static final String MRAROOT = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/runs/";
 	private static final String MRASRC = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/scripts/";
@@ -58,8 +62,29 @@ public class MarinaAnalysis {
 		this.dataSet = dataSet;
 		this.bean = bean;
 		this.dataSetId = dataSetId;
+		blackboard = GeworkbenchRoot.getBlackboard();
+		resultSet = storePendingResultSet("MARINa");
 	}
+	
+	public ResultSet storePendingResultSet(String name) {
 
+		ResultSet resultSet = new ResultSet();
+		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		String dataSetName = name + "(pending) - " + new java.util.Date();
+		resultSet.setName(dataSetName);
+		resultSet.setType("pending");
+		resultSet.setParent(dataSetId);
+		resultSet.setOwner(user.getId());
+		FacadeFactory.getFacade().store(resultSet);
+
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
+				dataSetName, "Result Node");
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
+		return resultSet;
+	}
+	
 	public ResultSet execute() throws RemoteException{
 		String runid = "mra21099";
 		String mradir = MRAROOT;
@@ -94,9 +119,7 @@ public class MarinaAnalysis {
 			String networkFname = bean.getNetwork();
 			if (networkFname.length() == 0) 
 				throw new RemoteException("Network not loaded");
-				//networkFname = "adjMatrix5col.txt";
 			bytesToFile(networkFname, network, mradir);
-			//putNetwork(networkFname, mradir);
 
 			if (bean.getClass1() == null) return null;
 
@@ -144,20 +167,16 @@ public class MarinaAnalysis {
 			}
 			mraResult = convertResult(resultfile.getPath());
 		}
-		ResultSet resultSet = 	new ResultSet();
-		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
+
 		String dataSetName 	=	runid+" - " + new java.util.Date();
 		resultSet.setName(dataSetName);
 		resultSet.setType("MARINa");
-		resultSet.setParent(dataSetId);
-		resultSet.setOwner(user.getId());	
 		resultSet.setData(ObjectConversion.convertToByte(mraResult));
 		FacadeFactory.getFacade().store(resultSet);
 
 		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
-		
+		blackboard.fire(resultEvent);
+
 		return resultSet;
 
 	}
