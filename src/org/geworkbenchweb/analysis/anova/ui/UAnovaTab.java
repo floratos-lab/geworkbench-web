@@ -1,81 +1,83 @@
 package org.geworkbenchweb.analysis.anova.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Vector;
-
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.layout.UMenuBar;
-
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.Grid;
-import com.invient.vaadin.charts.InvientChartsConfig.DataLabel;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.Margin;
-import com.invient.vaadin.charts.InvientChartsConfig.LineConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
-import com.vaadin.addon.tableexport.CsvExport;
-import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet; 
+ 
+import com.vaadin.addon.tableexport.CsvExport; 
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Table;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox; 
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Table; 
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.HorizontalLayout; 
+import com.vaadin.ui.Window;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+ 
 
 /**
- * This class displays CNKB results in a Table and also a graph
- * @author Nikhil Reddy
+ * This class displays Anova results in a Table 
+ * @author Min You
  */
-@SuppressWarnings("unused")
-public class UAnovaTab extends VerticalLayout {
-
-   
-	private static final long serialVersionUID = -8549838022827406480L;
+ 
+public class UAnovaTab extends VerticalLayout {   
+	 
+	private static final long serialVersionUID = 3115606230292029231L;
 	
 	private Table dataTable;
 	// preferences
-	private boolean fStat = true;
-	private boolean pVal = true;
-	private boolean mean = true;
-	private boolean std = true;
+	private static boolean fStat = true;
+	private static boolean pVal = true;
+	private static boolean mean = true;
+	private static boolean std = true;
+	
+	private CheckBox bF; 
+	private CheckBox bP; 
+	private CheckBox bM; 
+	private CheckBox bS;  
+	
+	private CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 		 
-	 
+	Button submitButton;
+	
 	
 	public UAnovaTab(CSAnovaResultSet<DSGeneMarker>  anovaResultSet) {
 	
-		setSizeFull();
-		setImmediate(true);
+	     this.anovaResultSet = anovaResultSet;
+	     
+		 setSpacing(true);
+		 setImmediate(true);	 
 		 
-		
+		 HorizontalLayout horizontalLayout = new HorizontalLayout();
+		 horizontalLayout.setSpacing(true);			 
+	 
+		 horizontalLayout.setImmediate(true);
 		/* Results Table Code */
 		 
 		dataTable  = new Table();		 
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);		 
-		dataTable.setContainerDataSource(tabularView(anovaResultSet));	 
+		dataTable.setContainerDataSource(tabularView());	
+		
 	 
-		addComponent(dataTable);
+		
+		Button preferenceButton;		
+		preferenceButton = new Button("Display Preference", new PreferenceListener());
+		
+		Button exportButton;		
+		exportButton = new Button("Export", new ExportListener());
+	 
+		horizontalLayout.addComponent(preferenceButton, 0);
+		horizontalLayout.addComponent(exportButton, 1);
+		
+			 
+		addComponent(horizontalLayout);
+		addComponent(dataTable);	
 	 
 	}
 	
-	private IndexedContainer tabularView(CSAnovaResultSet<DSGeneMarker> anovaResultSet) {
+	private IndexedContainer tabularView() {
 
 		String[] header;
 		IndexedContainer dataIn = new IndexedContainer();
@@ -146,6 +148,8 @@ public class UAnovaTab extends VerticalLayout {
 		return dataIn;
 	}
 	
+	 
+	
 	private Object convertDouble(Object value) {
 		     
 		if ((value != null) && (value instanceof Number)) {
@@ -159,8 +163,101 @@ public class UAnovaTab extends VerticalLayout {
 			
 	}
 		 
+	
 	 
+	private class PreferenceListener implements ClickListener {
+
+		private static final long serialVersionUID = 831124091338570481L;
+	 
+		public PreferenceListener (){};
+		 
+		@Override
+		public void buttonClick(ClickEvent event) {
+			 
+			Window dispPref  = new Window("Display Preferences");
+		 
+			GridLayout  gridLayout	= 	new GridLayout(2, 2);
+			
+			dispPref.setModal(true);
+			dispPref.setClosable(true);
+			dispPref.setDraggable(false);
+			dispPref.setResizable(false);
+			dispPref.setWidth("350px");
+			
+			bF = new CheckBox("F-Statistic", fStat);
+		    bP = new CheckBox("P-Value", pVal);
+			bM = new CheckBox("Mean", mean);
+		    bS = new CheckBox("Std", std);
+		    
+		    bF.addListener(new CheckBoxListener());
+		    bP.addListener(new CheckBoxListener());
+		    bM.addListener(new CheckBoxListener());
+		    bS.addListener(new CheckBoxListener());
+			
+		    gridLayout.setMargin(true);
+		    gridLayout.setImmediate(true);
+		    gridLayout.setSpacing(true);
+			
+		    gridLayout.addComponent(bF, 0, 0);
+		    gridLayout.addComponent(bP, 1, 0);
+		    gridLayout.addComponent(bM, 0, 1);
+		    gridLayout.addComponent(bS, 1, 1);
+			 
+			dispPref.addComponent(gridLayout);
+			getApplication().getMainWindow().addWindow(dispPref);
+		}
+		 
+	}
+	
+	private class ExportListener implements ClickListener {
+
+		private static final long serialVersionUID = 831124091338570481L;
+	 
+	 
+		public ExportListener ( ){};
+	 
+		@Override
+		public void buttonClick(ClickEvent event) {
+			  
+			CsvExport csvExport = new CsvExport(dataTable);
+			csvExport.excludeCollapsedColumns();
+			csvExport.setExportFileName("anovaTable.csv");
+			csvExport.setDisplayTotals(false);
+			csvExport.export();
+			
+			
+          } 
+	}
 	
 	
+	private class CheckBoxListener implements ClickListener {
+
+		private static final long serialVersionUID = 831124091338570481L;
+	 
+	 
+		public CheckBoxListener(){};
+	 
+		@Override
+		public void buttonClick(ClickEvent e) {
+			  
+			Object source = e.getSource();
+ 
+	        if (source == bF) {
+	        	fStat = bF.booleanValue();
+	        } else if (source == bP) {
+	        	pVal = bP.booleanValue();
+	        } else if (source == bM) {
+	        	mean = bM.booleanValue();
+	        } else if (source == bS) {
+	        	std = bS.booleanValue();
+	        }
+	        
+	        dataTable.setContainerDataSource(tabularView());	
+			
+			
+          } 
+	}
+	
+	 
 	 
 }
