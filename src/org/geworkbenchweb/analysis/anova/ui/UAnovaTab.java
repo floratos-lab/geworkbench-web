@@ -2,13 +2,14 @@ package org.geworkbenchweb.analysis.anova.ui;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet; 
+
+import org.geworkbenchweb.utils.TableView;
+
  
-import com.vaadin.addon.tableexport.CsvExport; 
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox; 
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Table; 
+import com.vaadin.ui.GridLayout; 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.HorizontalLayout; 
 import com.vaadin.ui.Window;
@@ -25,7 +26,7 @@ public class UAnovaTab extends VerticalLayout {
 	 
 	private static final long serialVersionUID = 3115606230292029231L;
 	
-	private Table dataTable;
+	private TableView dataTable;
 	// preferences
 	private static boolean fStat = true;
 	private static boolean pVal = true;
@@ -55,10 +56,8 @@ public class UAnovaTab extends VerticalLayout {
 		 horizontalLayout.setImmediate(true);
 		/* Results Table Code */
 		 
-		dataTable  = new Table();		 
-		dataTable.setSizeFull();
-		dataTable.setImmediate(true);		 
-		dataTable.setContainerDataSource(tabularView());	
+		dataTable  = new TableView();		 ;		 
+		dataTable.setContainerDataSource(getIndexedContainer());	
 		
 	 
 		
@@ -77,7 +76,7 @@ public class UAnovaTab extends VerticalLayout {
 	 
 	}
 	
-	private IndexedContainer tabularView() {
+	private IndexedContainer getIndexedContainer() {
 
 		String[] header;
 		IndexedContainer dataIn = new IndexedContainer();
@@ -218,15 +217,10 @@ public class UAnovaTab extends VerticalLayout {
 	 
 		@Override
 		public void buttonClick(ClickEvent event) {
-			  
-			CsvExport csvExport = new CsvExport(dataTable);
-			csvExport.excludeCollapsedColumns();
-			csvExport.setExportFileName("anovaTable.csv");
-			csvExport.setDisplayTotals(false);
-			csvExport.export();
 			
+			 dataTable.csvExport("anovaTable.csv");			 
 			
-          } 
+         } 
 	}
 	
 	
@@ -252,7 +246,7 @@ public class UAnovaTab extends VerticalLayout {
 	        	std = bS.booleanValue();
 	        }
 	        
-	        dataTable.setContainerDataSource(tabularView());	
+	        dataTable.setContainerDataSource(getIndexedContainer());	
 			
 			
           } 
