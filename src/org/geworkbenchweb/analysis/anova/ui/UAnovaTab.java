@@ -122,11 +122,11 @@ public class UAnovaTab extends VerticalLayout {
 			}
 		}
 
-		for (String p : header) {
-			if (p.equals("Marker Name"))
-				dataIn.addContainerProperty(p, String.class, "");
+		for (int i=0; i<header.length; i++) {
+			if (header[i].equals("Marker Name"))
+				dataIn.addContainerProperty(header[i], String.class, "");
 			else
-				dataIn.addContainerProperty(p, Float.class, "");
+				dataIn.addContainerProperty(header[i], Float.class, "");
 
 		}
 

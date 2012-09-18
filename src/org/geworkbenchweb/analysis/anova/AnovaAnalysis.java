@@ -41,7 +41,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-
+ 
 /**
  * 
  * This class submits Anova Analysis from web application
@@ -58,7 +58,7 @@ public class AnovaAnalysis {
 	private DSItemList<DSGeneMarker> selectedMarkers = null;
 	private String[] selectedArraySetNames = null;
 	private Long dataSetId;
-
+	 
 	public AnovaAnalysis(DSMicroarraySet dataSet, UAnovaParamForm paramForm,
 			Long dataSetId) {
 		this.dataSet = dataSet;
@@ -70,11 +70,10 @@ public class AnovaAnalysis {
 
 		AnovaInput anovaInput = getAnovaInput();
 
-		ResultSet resultSet = storePendingResultSet();
-	
+		ResultSet resultSet = storePendingResultSet();		
 		AnovaThread anovaThread = new AnovaThread(anovaInput, resultSet);
-		anovaThread.start();		 
-
+		anovaThread.start();
+		 
 	}
 
 	private AnovaOutput computeAnovaRemote(AnovaInput input) {
@@ -124,6 +123,7 @@ public class AnovaAnalysis {
 
 		return output;
 	}
+	
 
 	private AnovaInput getAnovaInput() {
 		String[] selectedMarkerSet = null;
@@ -141,11 +141,7 @@ public class AnovaAnalysis {
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				ArrayList<String> temp = paramForm.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 				for (int j = 0; j < temp.size(); j++) {
-					for(int k=0; k<dataSet.getMarkers().size(); k++) {
-						if(temp.contains(dataSet.getMarkers().get(k).getLabel())) {
-							selectedMarkers.add(dataSet.getMarkers().get(k));
-						}
-					}
+					selectedMarkers.add(dataSet.getMarkers().get(temp.get(i)));
 				}
 			}
 		}
@@ -232,7 +228,7 @@ public class AnovaAnalysis {
 
 		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
 				dataSetName, "Result Node");
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		 GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		return resultSet;
 	}
@@ -268,7 +264,6 @@ public class AnovaAnalysis {
 	    subset.setPositions(data);
 	    FacadeFactory.getFacade().store(subset);
 	   
-	 
 	}
 	
 
@@ -295,9 +290,7 @@ public class AnovaAnalysis {
 
 			int[] featuresIndexes = output.getFeaturesIndexes();
 			double[] significances = output.getSignificances();
-			String[] significantMarkerNames = new String[featuresIndexes.length];
-
-			int[] significantPositions = new int[featuresIndexes.length];
+			String[] significantMarkerNames = new String[featuresIndexes.length];		 
 			
 			for (int i = 0; i < featuresIndexes.length; i++) {
 				DSGeneMarker item = selectedMarkers.get(featuresIndexes[i]);
@@ -306,11 +299,11 @@ public class AnovaAnalysis {
 
 				sigSet.setSignificance(item, significances[i]);
 				significantMarkerNames[i] = item.getLabel();
-				significantPositions[i] = item.getSerial();
+				 
 			}
 
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-					dataSet);
+					null);
 
 			anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(dataView,
 					"Anova Analysis Result Set", selectedArraySetNames,
