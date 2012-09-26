@@ -41,9 +41,9 @@
 
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
 
-    
-
-    
-
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
+
+    <inherits name="org.vaadin.jonatan.contexthelp.widgetset.ContexthelpWidgetset" />
+
+    <inherits name="org.vaadin.alump.fancylayouts.widgetset.FancyLayoutsWidgetset" />
 </module>
