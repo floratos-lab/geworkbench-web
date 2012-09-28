@@ -78,9 +78,9 @@ public class MarinaAnalysis {
 		resultSet.setOwner(user.getId());
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
+		/*NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
 				dataSetName, "Result Node");
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);*/
 
 		return resultSet;
 	}
@@ -174,8 +174,8 @@ public class MarinaAnalysis {
 		resultSet.setData(ObjectConversion.convertToByte(mraResult));
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
-		blackboard.fire(resultEvent);
+		/*NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), dataSetName, "Result Node");
+		blackboard.fire(resultEvent);*/
 
 		return resultSet;
 

@@ -226,9 +226,9 @@ public class AnovaAnalysis {
 		resultSet.setOwner(user.getId());
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
+		/*NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(),
 				dataSetName, "Result Node");
-		 GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		 GeworkbenchRoot.getBlackboard().fire(resultEvent);*/
 
 		return resultSet;
 	}

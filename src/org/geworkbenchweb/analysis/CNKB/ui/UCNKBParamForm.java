@@ -104,8 +104,8 @@ public class UCNKBParamForm extends VerticalLayout {
 					resultSet.setOwner(user.getId());	
 					FacadeFactory.getFacade().store(resultSet);	
 			
-					NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), resultSet.getName(), "Result Node");
-					GeworkbenchRoot.getBlackboard().fire(resultEvent);
+					/*NodeAddEvent resultEvent = new NodeAddEvent(resultSet.getId(), resultSet.getName(), "Result Node");
+					GeworkbenchRoot.getBlackboard().fire(resultEvent);*/
 					
 					new CNKBThread().start();
 						
