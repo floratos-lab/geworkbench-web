@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.dataset.UDataSetUpload;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Project;
@@ -38,23 +37,10 @@ public class UMainToolBar extends MenuBar {
 	public UMainToolBar() {
 		
 		setImmediate(true);
-		setWidth("100%");
 		
-		this.addItem("Upload Data",  new Command() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-
-				UDataSetUpload dataWindow = new UDataSetUpload();
-				getApplication().getMainWindow().addWindow(dataWindow);
-
-			}
-
-		});
+		this.addItem("TOOLS", null);
 		
-		final MenuBar.MenuItem workspace = this.addItem("Workspaces",
+		final MenuBar.MenuItem workspace = this.addItem("WORKSPACES",
 				null);
 		
 		workspace.addItem("Create WorkSpace", new Command() {
@@ -233,7 +219,7 @@ public class UMainToolBar extends MenuBar {
 			}
 		});*/
 		
-		final MenuBar.MenuItem project = this.addItem("Projects", null);
+		final MenuBar.MenuItem project = this.addItem("PROJECTS", null);
 		
 		project.addItem("Create New Project", new Command() {
 
@@ -284,7 +270,7 @@ public class UMainToolBar extends MenuBar {
 							
 							FacadeFactory.getFacade().store(newData);
 							
-							NodeAddEvent resultEvent = new NodeAddEvent(newData.getId(), newData.getName(), null);
+							NodeAddEvent resultEvent = new NodeAddEvent(newData);
 							GeworkbenchRoot.getBlackboard().fire(resultEvent);
 							
 							getApplication().getMainWindow().removeWindow(project);
@@ -306,9 +292,9 @@ public class UMainToolBar extends MenuBar {
 			}
 		});
 		
-		//project.addItem("Delete Project", null);
+		this.addItem("ACCOUNT", null);
 		
-		this.addItem("Logout", new Command() {
+		this.addItem("LOGOUT", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
