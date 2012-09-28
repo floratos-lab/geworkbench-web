@@ -132,7 +132,7 @@ public class DataSetParser {
 	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
 	    
-	    NodeAddEvent resultEvent = new NodeAddEvent(dataset.getId(), dataSet.getDataSetName(), String.valueOf(((Project) projects.get(0)).getId()));
+	    NodeAddEvent resultEvent = new NodeAddEvent(dataset);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 	    
 	}
