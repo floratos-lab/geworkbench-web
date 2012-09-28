@@ -80,7 +80,7 @@ public class UUserAuth extends VerticalLayout {
 							password);
 					
 					
-					getApplication().getMainWindow().removeAllComponents();
+					//getApplication().getMainWindow().removeAllComponents();
 					
 					getApplication().getMainWindow().setContent(new UMainLayout());
 					
