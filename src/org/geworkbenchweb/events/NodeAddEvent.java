@@ -1,34 +1,22 @@
 package org.geworkbenchweb.events;
 
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+
 import com.github.wolfie.blackboard.Event;
 import com.github.wolfie.blackboard.Listener;
 
 public class NodeAddEvent implements Event {
 
-	private final String dataSetName;
-
-	private final String dataType;
+	private final AbstractPojo data;
 	
-	private final Long dataSetId;
-	
-	public NodeAddEvent(final Long dataSetId, final String dataSetName, final String dataType) {
-		this.dataSetName 	= 	dataSetName;
-		this.dataType		=	dataType; 
-		this.dataSetId		=	dataSetId;
+	public NodeAddEvent(AbstractPojo data) {
+		this.data 	= 	data;
 	}
 	
-	public Long getDataSetId() {
-		return dataSetId;
+	public AbstractPojo getData() {
+		return data;
 	}
-
-	public String getDataSetName() {
-		return dataSetName;
-	}
-
-	public String getDataType() {
-		return dataType;
-	}
-
+	
 	public interface NodeAddEventListener extends Listener {
 		public void addNode(final NodeAddEvent event);
 	}
