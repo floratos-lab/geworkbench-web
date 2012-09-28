@@ -82,7 +82,7 @@ public class VisualPluginView extends HorizontalLayout {
 		showTut.setCaption(MSG_SHOW_TUT);
 		showTut.addStyleName("showcode");
 		showTut.setTargetBorder(Link.TARGET_BORDER_NONE);
-		controls.addComponent(showTut);
+		//controls.addComponent(showTut);
 
 	}
 	
