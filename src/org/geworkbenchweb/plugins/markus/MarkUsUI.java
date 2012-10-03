@@ -85,7 +85,8 @@ public class MarkUsUI extends VerticalLayout {
 
 		Accordion tabs = new Accordion();
 
-		tabs.addTab(buildMainPanel(), "Markus Parameters", null);
+		tabs.addTab(buildMainPanel(), "Structure Analysis Parameters", null);
+		tabs.addTab(buildSequencePanel(), "Sequence Analysis Parameters", null);
 		tabs.addTab(buildDelphiPanel(), "DelPhi Parameters", null);
 		tabs.addTab(buildConsurf3Panel(), "Add Customized ConSurf analysis 3", null);
 		tabs.addTab(buildConsurf4Panel(), "Add Customized ConSurf analysis 4", null);
@@ -113,31 +114,33 @@ public class MarkUsUI extends VerticalLayout {
 
 	private VerticalLayout buildMainPanel() {
 		VerticalLayout vlayout = new VerticalLayout ();
-		vlayout.addComponent(buildTopPanel());
-
+		vlayout.addComponent(buildStructurePanel());
+		vlayout.addComponent(buildOptionalPanel());
+		return vlayout;
+	}
+	private Panel buildOptionalPanel() {
 		cbxChain = new ComboBox("Chain", getChains());
 		cbxChain.setNullSelectionAllowed(false);
 		cbxChain.setValue(cbxChain.getItemIds().iterator().next());
 
-		GridLayout layout = new GridLayout(4, 2);
-		layout.setSpacing(true);
+		GridLayout layout = new GridLayout(4, 1);
 		layout.setSpacing(true);
 		layout.setSizeFull();
-		
+
 		layout.addComponent(cbxChain);
 		layout.addComponent(email);
 		layout.addComponent(title);
 		layout.addComponent(cbkey);
-		layout.newLine();
+		cbxChain.setWidth(50, 0);
 		
-		layout.setComponentAlignment(cbxChain, Alignment.MIDDLE_CENTER);
+		layout.setComponentAlignment(cbxChain, Alignment.MIDDLE_LEFT);
 		layout.setComponentAlignment(email, Alignment.MIDDLE_CENTER);
 		layout.setComponentAlignment(title, Alignment.MIDDLE_CENTER);
 		layout.setComponentAlignment(cbkey, Alignment.MIDDLE_CENTER);
 		
-		vlayout.setSpacing(true);
-		vlayout.addComponent(layout);
-		return vlayout;
+		Panel panel = new Panel();
+		panel.addComponent(layout);
+		return panel;
 	}
 
 	private int chainoffset = 21;
@@ -158,15 +161,10 @@ public class MarkUsUI extends VerticalLayout {
 		return chains;
 	}
 
-	private Panel buildTopPanel() {
-		GridLayout grid = new GridLayout(3, 10);
+	private Panel buildStructurePanel() {
+		GridLayout grid = new GridLayout(3, 5);
 		grid.setSizeFull();
 		grid.setSpacing(true);
-		grid.setColumnExpandRatio(0, 0.5f);
-		grid.setColumnExpandRatio(1, 0.25f);
-		grid.setColumnExpandRatio(2, 0.25f);
-		grid.addComponent(new Label());
-		grid.addComponent(new Label("<b>Structure Analysis</b>", Label.CONTENT_XHTML), 1, 0, 2, 0);
 
 		Label sh = new Label("Structure Neighbors");
 		sh.setDescription("Structure relationships are identified by the structure alignment method Skan. The reference database combines SCOP\ndomains and PDB entries filtered by 60% sequence identity. In addition the Dali structure alignment method can be used.");
@@ -174,6 +172,7 @@ public class MarkUsUI extends VerticalLayout {
 		grid.addComponent(sh);
 		grid.addComponent(skan);
 		grid.addComponent(dali);
+		sh.setWidth(120, 0);
 		
 		sh = new Label("Cavity Analysis");
 		sh.setDescription("SCREEN is used to identify protein cavities that are capable of binding chemical compounds. SCREEN will provide an\nassessment of the druggability of each surface cavity based on its properties.\nVASP is a volumetric analysis tool for the comparison of binding sites in aligned protein structures.");
@@ -187,36 +186,43 @@ public class MarkUsUI extends VerticalLayout {
 		sh.setDescription("LBias evaluates binding site similarities of ligands for aligned protein structures.");
 		lbias.setEnabled(false);
 		grid.addComponent(sh);
-		grid.addComponent(lbias, 1, 3, 2, 3);
+		grid.addComponent(lbias, 1, 2, 2, 2);
 		
 		sh = new Label("Protein Protein Interactions");
 		sh.setDescription("PredUs is a template-based protein interface prediction method. Potential interfacial residues are identified by\niteratively 'mapping' interaction sites of structural neighbors involved in a complex to individual residues in the query protein.");
 		predus.setEnabled(false);
 		grid.addComponent(sh);
-		grid.addComponent(predus, 1, 4, 2, 4);
+		grid.addComponent(predus, 1, 3, 2, 3);
 		
 		sh = new Label("Electrostatic Potential");
 		sh.setDescription("The electrostatic potential plays an important role in inferring protein properties like DNA binding regions or the enzymatic\nactivities. To calculate the electrostatic potential DelPhi is used. The default parameters are tuned to suit protein domains in\ngeneral, though adjustment by the user might be necessary. Read the DelPhi manual for a detailed parameter description.");
 		grid.addComponent(sh);
-		grid.addComponent(delphi, 1, 5, 2, 5);
+		grid.addComponent(delphi, 1, 4, 2, 4);
 
-		grid.addComponent(new Label("<hr></hr>", Label.CONTENT_XHTML), 0, 6, 2, 6);
-		grid.addComponent(new Label());
-		grid.addComponent(new Label("<b>Sequence Analysis</b>", Label.CONTENT_XHTML), 1, 7, 2, 7);
+		Panel panel = new Panel();
+		panel.addComponent(grid);
+		return panel;
+	}
 
-		sh = new Label("Sequence Neighbors");
+	private VerticalLayout buildSequencePanel() {
+		GridLayout grid = new GridLayout(3, 3);
+		grid.setSizeFull();
+		grid.setSpacing(true);
+
+		Label sh = new Label("Sequence Neighbors");
 		sh.setDescription("Proteins sharing sequence similarity with the target protein are identified by running three PSI BLAST iterations (E-value\n0.001) against the UniProt reference database. Additionally sequence domain and motif databases are searched using the\nInterProScan service at the EBI.");
 		psiblast.setEnabled(false);
 		ips.setEnabled(false);
 		grid.addComponent(sh);
 		grid.addComponent(psiblast);
 		grid.addComponent(ips);
+		sh.setWidth(140,0);
 		
 		sh = new Label("Amino Acid Conservation Profile");
 		sh.setDescription("Highly conserved amino acids can indicate functionally relevant regions. To identify these amino acids sequences identified\nby BLAST sharing less than 80% identity are aligned using Muscle. For the resulting multiple sequence alignment ConSurf is\nused to estimate the conservation scores. If seeds and full Pfam alignments are available, these are used additionally for\nthe conservation analysis.\nTwo ConSurf analyses can be defined by the User specifying the number of PSI-BLAST iterations, the E-value threshold,\nand the sequence identity cutoff.");
 		consurf.setEnabled(false);
 		grid.addComponent(sh);
-		grid.addComponent(consurf, 1, 9, 2, 9);
+		grid.addComponent(consurf, 1, 1, 2, 1);
 
 		sh = new Label("Add Customized ConSurf");
 		grid.addComponent(sh);
@@ -225,8 +231,11 @@ public class MarkUsUI extends VerticalLayout {
 
 		Panel panel = new Panel();
 		panel.addComponent(grid);
-		return panel;
+		VerticalLayout vlayout = new VerticalLayout ();
+		vlayout.addComponent(panel);
+		return vlayout;
 	}
+
 
 	private Panel buildDelphiPanel() {
 		GridLayout grid = new GridLayout(3, 4);
