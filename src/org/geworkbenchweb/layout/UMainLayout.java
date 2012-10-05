@@ -578,7 +578,7 @@ public class UMainLayout extends VerticalLayout {
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
 				navigationTree.setParent(res.getId(), res.getParent());
-				navigationTree.select(res.getId());
+				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId());
 			}else if(event.getData() instanceof Project) {
 				Project pro = (Project) event.getData();
 				navigationTree.addItem(pro.getId());
