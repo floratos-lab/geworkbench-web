@@ -12,6 +12,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;  
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -92,14 +94,14 @@ public class AracneAnalysisWeb {
 			resultSet.setDateField(date);
 			String dataSetName 	=	"ARACne - " + new java.util.Date();
 			resultSet.setName(dataSetName);
-			resultSet.setType("ARACne");
+			resultSet.setType("AracneResults");
 			resultSet.setParent(dataSetId);
 			resultSet.setOwner(SessionHandler.get().getId());	
 			resultSet.setData(ObjectConversion.convertToByte(dSet));
 			FacadeFactory.getFacade().store(resultSet);	
 			
-			//NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-			//GeworkbenchRoot.getBlackboard().fire(resultEvent);
+			NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 			
 		}
 	}

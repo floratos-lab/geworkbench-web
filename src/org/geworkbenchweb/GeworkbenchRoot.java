@@ -41,7 +41,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	
 	private static final String SAMPLER_THEME_NAME = "geworkbench";
 
-    // used when trying to guess theme location
     private static String APP_URL = null;
 
 	@Override
