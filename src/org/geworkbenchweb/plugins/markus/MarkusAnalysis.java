@@ -15,16 +15,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class MarkusAnalysis {
 
 	private static Log log = LogFactory.getLog(MarkusAnalysis.class);
-	private User user = SessionHandler.get();
+	private Long sessionId = SessionHandler.get().getId();
 	private DSProteinStructure dataSet = null;
 	private MarkUsUI mcp = null;
 	private Long dataSetId;
@@ -44,7 +45,7 @@ public class MarkusAnalysis {
 		File prtfile = dataSet.getFile();
 		String pdbname = prtfile.getName();
 		File pdbfile = new File(System.getProperty("user.home") + "/temp/",
-				user.getId() + "_" + new java.util.Date().getTime() + "_" + pdbname);
+				sessionId + "_" + new java.util.Date().getTime() + "_" + pdbname);
 		dataSet.writeToFile(pdbfile.getAbsolutePath());
 
 		String tmpfile = null;
@@ -94,14 +95,14 @@ public class MarkusAnalysis {
 		resultSet.setDateField(date);
 		String dataSetName 	=	results+" - " + new java.util.Date();
 		resultSet.setName(dataSetName);
-		resultSet.setType("MarkUs");
+		resultSet.setType("MarkusResults");
 		resultSet.setParent(dataSetId);
-		resultSet.setOwner(user.getId());	
+		resultSet.setOwner(sessionId);	
 		resultSet.setData(ObjectConversion.convertToByte(musresult));
 		FacadeFactory.getFacade().store(resultSet);
 
-		//NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		//GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		
 		return resultSet;
 	}

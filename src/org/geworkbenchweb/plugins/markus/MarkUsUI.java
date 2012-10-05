@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
-import org.geworkbenchweb.plugins.markus.MarkusAnalysis;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
