@@ -1,9 +1,11 @@
 package org.geworkbenchweb.plugins.cnkb;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -22,22 +24,25 @@ public class CNKBInteractions {
 	
 	private int interaction_flag = 1;
 	
-	public Vector<CellularNetWorkElementInformation> CNKB(DSMicroarraySet dataSet, String[] params, long dataSetId) {
+	public Vector<CellularNetWorkElementInformation> CNKB(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params, long dataSetId) {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-
-		String context 		= 	params[0];
-
-		String version 		=	params[1];
-			
-		Long subSetId 		= 	Long.parseLong(params[2].trim());
+		String context 		= 	(String) params.get("interactome");
+		String version 		=	(String) params.get("version");
+		Long subSetId 		= 	Long.parseLong(((String) params.get("markerSet")).trim());
 		
-		ArrayList<String> markers = getMarkerData(subSetId);
-			
+		@SuppressWarnings("unchecked")
+		List<SubSet> data =  (List<SubSet>) SubSetOperations.getMarkerSet(subSetId);
+		SubSet markerSet = data.get(0);
+		
+		ArrayList<String> markers = markerSet.getPositions();
 		hits = new Vector<CellularNetWorkElementInformation>();
 		
 		for(int i=0; i<dataSet.getMarkers().size(); i++) {
-			if(markers.contains(dataSet.getMarkers().get(i).getLabel())) {
+			if(markers.contains(dataSet.getMarkers().get(i).getLabel()
+					+ " (" 
+					+ dataSet.getMarkers().get(i).getGeneName()
+					+ ")")) {
 				hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(i)));	
 			}
 		}
@@ -84,17 +89,4 @@ public class CNKBInteractions {
 		}
 		return hits;
 	}
-	
-	/**
-	 * Create Dataset for selected markerSet 
-	 */
-	public ArrayList<String> getMarkerData(Long subSetId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet 			= 	SubSetOperations.getMarkerSet(subSetId);
-		ArrayList<String> positions 	= 	(((SubSet) subSet.get(0)).getPositions());
-		
-		return positions;
-	}
-	
 }

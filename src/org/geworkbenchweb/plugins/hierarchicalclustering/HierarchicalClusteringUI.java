@@ -153,9 +153,9 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 					resultSet.setOwner(SessionHandler.get().getId());	
 					FacadeFactory.getFacade().store(resultSet);	
 
-					params.put("method", parseMethod(clustMethod));
-					params.put("metric", parseDistanceMetric(clustMetric));
-					params.put("dimension", parseDimension(clustDim));
+					params.put(HierarchicalClusteringParams.CLUSTER_METHOD, parseMethod(clustMethod));
+					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
+					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);

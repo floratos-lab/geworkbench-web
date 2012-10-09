@@ -3,10 +3,17 @@ package org.geworkbenchweb.plugins.cnkb.results;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
@@ -38,7 +45,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
  * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
-public class UCNKBTab extends VerticalLayout {
+public class CNKBResultsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,17 +61,18 @@ public class UCNKBTab extends VerticalLayout {
 	
 	public static InvientCharts plot;
 	
-	private static UCNKBTab menuBarInstance;
+	private static CNKBResultsUI menuBarInstance;
 	
 	private static Table dataTable;
 	
-	public static UCNKBTab getCNKBTabObject() {
+	public CNKBResultsUI(Long dataSetId) {
 		
-		return menuBarInstance;
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		parameters.put("id", dataSetId);
+		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
 		
-	}
-	
-	public UCNKBTab(Vector<CellularNetWorkElementInformation> hits) {
+		@SuppressWarnings("unchecked")
+		Vector<CellularNetWorkElementInformation> hits = (Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(data.get(0).getData());
 	
 		setSizeFull();
 		setImmediate(true);
@@ -90,8 +98,6 @@ public class UCNKBTab extends VerticalLayout {
 
 			InteractionDetail[] interactionDetail = hits.get(j).getInteractionDetails();
 			if(interactionDetail != null) {
-				
-				
 		
 				for(InteractionDetail interaction : interactionDetail) {
 									
@@ -140,12 +146,14 @@ public class UCNKBTab extends VerticalLayout {
 			item.getItemProperty("Protein-Protein #").setValue(interactionNumMap.get("protein-protein"));
 
 		}
-
+		
+		/*dataTable.setColumnHeaders(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
+				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
+		dataTable.setVisibleColumns(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
+				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });*/
 		dataTable.setContainerDataSource(dataIn);
 		dataTable.setColumnWidth("Marker", 300);
 		dataTable.setColumnWidth("Annotation", 150);
-		dataTable.setColumnHeaders(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
-				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
 		
 		
 		plot = drawPlot();

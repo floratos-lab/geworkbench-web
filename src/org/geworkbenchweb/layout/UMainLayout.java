@@ -1,19 +1,26 @@
 package org.geworkbenchweb.layout;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
@@ -26,6 +33,7 @@ import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -35,8 +43,10 @@ import org.vaadin.artur.icepush.ICEPush;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.event.Action;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -50,6 +60,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.SplitPanel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
@@ -60,6 +71,8 @@ import com.vaadin.ui.themes.Reindeer;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
+import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringParams;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 
@@ -72,6 +85,10 @@ public class UMainLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
 
+	private static final Action ACTION_ADD = new Action("Add Set");
+
+	protected static final Action[] ACTIONS = new Action[] { ACTION_ADD};
+
 	private final SplitPanel mainSplit;
 
 	private ComboBox search;
@@ -79,28 +96,33 @@ public class UMainLayout extends VerticalLayout {
 	private final Tree navigationTree;
 
 	private final VisualPluginView pluginView = new VisualPluginView();
-	
+
 	private VerticalLayout menuLayout = new VerticalLayout(); 
-	
+
 	private HorizontalLayout dataNavigation;
 
 	private Long dataSetId;
 
 	User user = SessionHandler.get();
-	
+
 	private Tree markerTree;
 
 	private Tree arrayTree;
-	
+
+	private Tree markerSetTree;
+
+	private Tree arraySetTree;
+
 	private CssLayout leftMainLayout;
-	
+
 	private ICEPush pusher;
-	
+
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
 	ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
 	ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
 	ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
+	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
 
 	public UMainLayout() {
 
@@ -110,21 +132,22 @@ public class UMainLayout extends VerticalLayout {
 
 		PluginListener pluginListener = new PluginListener();
 		GeworkbenchRoot.getBlackboard().addListener(pluginListener);
-		
+
 		AnalysisListener analysisListener = new AnalysisListener();
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 
 		setSizeFull();
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
-		
+		pusher.setEnabled(false);
+
 		HorizontalLayout topBar = new HorizontalLayout();
 		addComponent(topBar);
 		topBar.setHeight("44px");
 		topBar.setWidth("100%");
 		topBar.setStyleName("topbar");
 		topBar.setSpacing(true);
-		
+
 		dataNavigation = new HorizontalLayout();
 		dataNavigation.setHeight("27px");
 		dataNavigation.setWidth("100%");
@@ -132,7 +155,7 @@ public class UMainLayout extends VerticalLayout {
 		dataNavigation.setSpacing(true);
 		dataNavigation.setMargin(false, true, false, false);
 		dataNavigation.setImmediate(true);
-		
+
 		Component logo = createLogo();
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
@@ -147,19 +170,19 @@ public class UMainLayout extends VerticalLayout {
 		leftMainLayout = new CssLayout();
 		leftMainLayout.setImmediate(true);
 		leftMainLayout.setSizeFull();
-			
+
 		navigationTree = createMenuTree();
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
-		
+
 		leftMainLayout.addComponent(dataNavigation);
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
 		mainSplit.setSplitPosition(275, SplitPanel.UNITS_PIXELS);
 		mainSplit.setSecondComponent(createMainMenu());
-		
+
 		HorizontalLayout quicknav = new HorizontalLayout();
 		topBar.addComponent(quicknav);
 		topBar.setComponentAlignment(quicknav, Alignment.MIDDLE_RIGHT);
@@ -177,10 +200,10 @@ public class UMainLayout extends VerticalLayout {
 	 * @return Component
 	 */
 	private Component createMainMenu() {
-		
+
 		menuLayout.setImmediate(true);
 		menuLayout.setSizeFull();
-		
+
 		HorizontalLayout menuLayout1 = new HorizontalLayout();
 		menuLayout1.setImmediate(true);
 		menuLayout1.setHeight("27px");
@@ -191,11 +214,11 @@ public class UMainLayout extends VerticalLayout {
 		UMainToolBar toolBar = new UMainToolBar();
 		menuLayout1.addComponent(toolBar);
 		menuLayout1.setComponentAlignment(toolBar, Alignment.TOP_RIGHT);
-		
+
 		menuLayout.addComponent(menuLayout1);
 		return menuLayout;
 	}
-	
+
 	/**
 	 * Creates the data tree for the project panel
 	 * @return Tree
@@ -217,10 +240,10 @@ public class UMainLayout extends VerticalLayout {
 
 				try {				
 					if(!event.getProperty().getValue().equals(null)) {
-						
+
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
 						if(className.contains("Results")) {
-						
+
 							ClassLoader classLoader = this.getClass().getClassLoader();
 							String packageName = className.substring(0, className.length() - 7);
 
@@ -262,12 +285,111 @@ public class UMainLayout extends VerticalLayout {
 	 * @return
 	 */
 	public void setVisualPlugin(final VisualPlugin f) {
-		
+
 		if(f instanceof Microarray) {
 			dataNavigation.removeAllComponents();		
 			markerTree = new Tree();
 			arrayTree =	new Tree();
-			
+			markerSetTree = new Tree();
+			arraySetTree = new Tree();
+			markerTree.addActionHandler(new Action.Handler() {
+
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+
+					return ACTIONS;
+
+				}
+				public void handleAction(Action action, final Object sender, final Object target) {
+
+					final Window nameWindow = new Window();
+					nameWindow.setModal(true);
+					nameWindow.setClosable(true);
+					nameWindow.setWidth("300px");
+					nameWindow.setHeight("150px");
+					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+					nameWindow.setResizable(false);
+					nameWindow.setCaption("Add Markers to Set");
+					nameWindow.setImmediate(true);
+
+					final TextField setName = new TextField();
+					setName.setInputPrompt("Please enter set name");
+					setName.setImmediate(true);
+
+					Button addSet = new Button("Add Set", new Button.ClickListener() {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void buttonClick(ClickEvent event) {
+
+							if(!setName.getValue().equals(null)) {
+								String selectedValues 		=	sender.toString();
+								String[] values 			= 	(selectedValues.substring(1, selectedValues.length()-1)).split(",");
+								ArrayList<String> names		= 	new ArrayList<String>();
+								for(int i=0; i<values.length; i++) {
+									names.add((String) markerTree.getItem(Integer.parseInt(values[i].trim())).getItemProperty("Labels").getValue());
+								}
+								SubSetOperations.storeData(names, "marker", (String) setName.getValue(), f.getDataSetId());
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						}
+					});
+					nameWindow.addComponent(setName);
+					nameWindow.addComponent(addSet);
+					getApplication().getMainWindow().addWindow(nameWindow);
+				}
+			});
+			arrayTree.addActionHandler(new Action.Handler() {
+
+				private static final long serialVersionUID = 1L;
+
+				public Action[] getActions(Object target, Object sender) {
+
+					return ACTIONS;
+
+				}
+				public void handleAction(Action action, final Object sender, final Object target) {
+
+					final Window nameWindow = new Window();
+					nameWindow.setModal(true);
+					nameWindow.setClosable(true);
+					nameWindow.setWidth("300px");
+					nameWindow.setHeight("150px");
+					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+					nameWindow.setResizable(false);
+					nameWindow.setCaption("Add Phenotypes to Set");
+					nameWindow.setImmediate(true);
+
+					final TextField setName = new TextField();
+					setName.setInputPrompt("Please enter set name");
+					setName.setImmediate(true);
+
+					Button addSet = new Button("Add Set", new Button.ClickListener() {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void buttonClick(ClickEvent event) {
+
+							if(!setName.getValue().equals(null)) {
+								String selectedValues 		=	sender.toString();
+								String[] values 			= 	(selectedValues.substring(1, selectedValues.length()-1)).split(",");
+								ArrayList<String> names		= 	new ArrayList<String>();
+								for(int i=0; i<values.length; i++) {
+									names.add((String) arrayTree.getItem(Integer.parseInt(values[i].trim())).getItemProperty("Labels").getValue());
+								}
+								SubSetOperations.storeData(names, "microarray", (String) setName.getValue(), f.getDataSetId());
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						}
+					});
+					nameWindow.addComponent(setName);
+					nameWindow.addComponent(addSet);
+					getApplication().getMainWindow().addWindow(nameWindow);
+				}
+			});
 			final MenuBar toolBar = new MenuBar();
 			final MenuItem project = toolBar.addItem("PROJECT VIEW", new Command() {
 
@@ -278,6 +400,8 @@ public class UMainLayout extends VerticalLayout {
 					navigationTree.setVisible(true);
 					markerTree.setVisible(false);
 					arrayTree.setVisible(false);
+					markerSetTree.setVisible(false);
+					arraySetTree.setVisible(false);
 					setVisualPlugin(f);
 				}
 			});
@@ -292,31 +416,47 @@ public class UMainLayout extends VerticalLayout {
 					selectedItem.setEnabled(false);
 					project.setEnabled(true);
 					navigationTree.setVisible(false);
-					
+
 					markerTree.setImmediate(true);
-					markerTree.setSelectable(false);
-					
+					markerTree.setSelectable(true);
+					markerTree.setMultiSelect(true);
+
+					markerSetTree.setImmediate(true);
+					markerSetTree.setSelectable(true);
+					markerSetTree.setMultiSelect(true);
+
+					arraySetTree.setImmediate(true);
+					arraySetTree.setMultiSelect(true);
+					arraySetTree.setSelectable(true);
+
 					arrayTree.setImmediate(true);
-					arrayTree.setSelectable(false);
-					
+					arrayTree.setMultiSelect(true);
+					arrayTree.setSelectable(true);
+
 					List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 					DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
 					
+					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
+					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+					
 					markerTree.setContainerDataSource(markerTableView(maSet));
 					arrayTree.setContainerDataSource(arrayTableView(maSet));
-					
+
 					markerTree.setItemCaptionPropertyId("Labels");
 					markerTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-					
+
 					arrayTree.setItemCaptionPropertyId("Labels");
 					arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-					
+
 					leftMainLayout.addComponent(markerTree);
+					leftMainLayout.addComponent(markerSetTree);
 					leftMainLayout.addComponent(arrayTree);
-				}
-				
+					leftMainLayout.addComponent(arraySetTree);
+				}	
 			});
-			
+
 			dataNavigation.addComponent(toolBar);
 			dataNavigation.setComponentAlignment(toolBar, Alignment.MIDDLE_LEFT);
 		} else {
@@ -334,9 +474,8 @@ public class UMainLayout extends VerticalLayout {
 	private Component createLogo() {
 		Button logo = new NativeButton("", new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
-
 			public void buttonClick(ClickEvent event) {
-				
+
 			}
 		});
 		logo.setDescription("geWorkbench Home");
@@ -408,12 +547,13 @@ public class UMainLayout extends VerticalLayout {
 					mainSplit.setLocked(true);
 				} else {
 					b.addStyleName("down");
-					mainSplit
-					.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
+					mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
 					mainSplit.setLocked(false);
 					navigationTree.setVisible(true);
 					arrayTree.setVisible(false);
 					markerTree.setVisible(false);
+					markerSetTree.setVisible(false);
+					arraySetTree.setVisible(false);
 				}
 			}
 		});
@@ -428,13 +568,11 @@ public class UMainLayout extends VerticalLayout {
 	 */
 	public HierarchicalContainer getDataContainer() {
 
-		
-		
 		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
 		dataSets.addContainerProperty("Name", String.class, null);
 		dataSets.addContainerProperty("Type", String.class, null);
 		dataSets.addContainerProperty("Icon", Resource.class, null);
-		
+
 		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		param.put("owner", user.getId());
 		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
@@ -473,7 +611,7 @@ public class UMainLayout extends VerticalLayout {
 					subItem.getItemProperty("Type").setValue("ProteinStructure");
 					subItem.getItemProperty("Icon").setValue(proteinIcon);
 				}
-				
+
 				dataSets.setParent(dataId, projectId);
 
 				Map<String, Object> params 	= 	new HashMap<String, Object>();
@@ -486,12 +624,14 @@ public class UMainLayout extends VerticalLayout {
 					String subId 		=	((ResultSet) results.get(j)).getName();
 					Long subSetId		=	((ResultSet) results.get(j)).getId();	
 					String type			=	((ResultSet) results.get(j)).getType();
-					
+
 					Item res = dataSets.addItem(subSetId);
 					res.getItemProperty("Name").setValue(subId);
 					res.getItemProperty("Type").setValue(type);
 					if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
 						res.getItemProperty("Icon").setValue(hcIcon);
+					} else if(type.equalsIgnoreCase("CNKBResults")) {
+						res.getItemProperty("Icon").setValue(networkIcon);
 					}
 					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
@@ -500,7 +640,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		}
 		return dataSets;
-	
+
 	}
 
 	/**
@@ -515,7 +655,7 @@ public class UMainLayout extends VerticalLayout {
 		tableData.addContainerProperty("Labels", String.class, null);
 		Item mainItem 					= 	tableData.addItem("Phenotypes");
 		mainItem.getItemProperty("Labels").setValue("Phenotypes");
-		
+
 		for(int k=0;k<maSet.size();k++) {
 
 			Item item 					= 	tableData.addItem(k);
@@ -538,12 +678,12 @@ public class UMainLayout extends VerticalLayout {
 
 		Item mainItem =  tableData.addItem("Markers");
 		mainItem.getItemProperty("Labels").setValue("Markers");
-		
+
 		for(int j=0; j<maSet.getMarkers().size();j++) {
 
 			Item item 					= 	tableData.addItem(j);
 			tableData.setChildrenAllowed(j, false);
-			
+
 			for(int k=0;k<=maSet.size();k++) {
 				if(k == 0) {
 					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
@@ -557,7 +697,7 @@ public class UMainLayout extends VerticalLayout {
 		return tableData;
 
 	}
-	
+
 	/**
 	 * Adds the node to the dataTree  
 	 */
@@ -574,6 +714,8 @@ public class UMainLayout extends VerticalLayout {
 				} else {
 					if(res.getType().equalsIgnoreCase("HierarchicalClusteringResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(hcIcon);
+					} else if(res.getType().equalsIgnoreCase("CNKBResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
 					}
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
@@ -649,7 +791,7 @@ public class UMainLayout extends VerticalLayout {
 			setVisualPlugin(f);
 		}
 	}
-	
+
 	public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 		@Override
@@ -657,46 +799,64 @@ public class UMainLayout extends VerticalLayout {
 
 			final ResultSet resultSet = event.getResultSet();
 			final HashMap<Serializable, Serializable> params = event.getParameters();
-			
-			if(resultSet.getType().contains("HierarchicalClusteringResults") ) {
-				Thread analysis = new Thread() {
-					public void run() {
-						synchronized(getApplication()) {
+			pusher.setEnabled(true);
+			Thread analysis = new Thread() {
+				public void run() {
+					synchronized(getApplication()) {
+						DSMicroarraySet dataSet = null;
+						try {
+							 dataSet = (DSMicroarraySet) event.getDataSet();
+						} catch (Exception e) {
+							//TODO
+						}
+						if(resultSet.getType().contains("HierarchicalClusteringResults")) {
 							DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
-									new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet) event.getDataSet());
-							
+									new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 							HierarchicalClusteringWrapper analysis 	= 	
-									new HierarchicalClusteringWrapper(data, (Integer) params.get("metric"), (Integer) params.get("method"), (Integer) params.get("dimension"));
-							
+									new HierarchicalClusteringWrapper(data, (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC), 
+											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD), 
+											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION));
 							HierCluster[] resultClusters = analysis.execute();
 							CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
 									"Hierarchical Clustering", data);
 							resultSet.setName("Hierarchical Clustering");
 							resultSet.setData(ObjectConversion.convertToByte(results));
-							FacadeFactory.getFacade().store(resultSet);	
-
-							MessageBox mb = new MessageBox(getWindow(), 
-									"Analysis Completed", 
-									MessageBox.Icon.INFO, 
-									"Hierarchical Clustering you submitted is now completed. " +
-									"Click on the result node to see the dendrogram",  
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-							mb.show(new MessageBox.EventListener() {
-								private static final long serialVersionUID = 1L;
-								@Override
-								public void buttonClicked(ButtonType buttonType) {    	
-									if(buttonType == ButtonType.OK) {
-										NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-										GeworkbenchRoot.getBlackboard().fire(resultEvent);
-									}
-								}
-							});	
+						} else if(resultSet.getType().contains("CNKBResults")) {
+							CNKBInteractions cnkb = new CNKBInteractions();
+							Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params, dataSetId);
+							resultSet.setName("CNKB");
+							resultSet.setData(ObjectConversion.convertToByte(hits));
+						} else if(resultSet.getType().contains("AnovaResults")) {
+							
+						} else if(resultSet.getType().contains("AracneResults")) {
+							
+						} else {
+							//Marina
 						}
-						pusher.push();
+						FacadeFactory.getFacade().store(resultSet);	
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Analysis Completed", 
+								MessageBox.Icon.INFO, 
+								"Analysis you submitted is now completed. " +
+										"Click on the node to see the results",  
+										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show(new MessageBox.EventListener() {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void buttonClicked(ButtonType buttonType) {    	
+								if(buttonType == ButtonType.OK) {
+									NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+									GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								}
+							}
+						});	
 					}
-				};
-				analysis.start();
-			}
+					pusher.push();
+					pusher.setEnabled(false);
+				}
+			};
+			analysis.start();
 		}
 	}
 }
+

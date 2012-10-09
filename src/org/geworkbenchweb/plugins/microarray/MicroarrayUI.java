@@ -247,7 +247,16 @@ public class MicroarrayUI extends VerticalLayout {
 	    /**
 	     * MARINa
 	     */
-		Button marina 	= 	new Button("MARINa");
+		Button marina 	= 	new Button("MARINa", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				PluginEvent loadPlugin = new PluginEvent("Marina", dataId);
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
+			}
+		});
 	    final GridLayout marinaLayout = new GridLayout();
 	    marinaLayout.setColumns(2);
 	    marinaLayout.setRows(2);
@@ -304,7 +313,67 @@ public class MicroarrayUI extends VerticalLayout {
 	    /**
 	     * CNKB
 	     */
-		Button cnkb 	= 	new Button("CNKB");
+		Button cnkb 	= 	new Button("CNKB", new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				PluginEvent loadPlugin = new PluginEvent("CNKB", dataId);
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
+			}
+		});
+	    final GridLayout cnkbLayout = new GridLayout();
+	    cnkbLayout.setColumns(2);
+	    cnkbLayout.setRows(2);
+	    cnkbLayout.setSizeFull();
+	    cnkbLayout.setImmediate(true);
+	    cnkbLayout.setColumnExpandRatio(1, 1.0f);
+
+		final FancyCssLayout cnkbCssLayout = new FancyCssLayout();
+		cnkbCssLayout.setWidth("95%");
+		cnkbCssLayout.setSlideEnabled(true);
+		cnkbCssLayout.addStyleName("lay");
+		
+		final Label cnkbText = new Label(
+				"<p align = \"justify\">MARINa Analysis</p>");
+		cnkbText.setContentMode(Label.CONTENT_XHTML);
+		
+		final Button cnkbButton = new Button();
+		final Button cnkbCancelButton = new Button();
+		cnkbButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				cnkbCssLayout.removeAllComponents();
+				cnkbLayout.removeComponent(cnkbButton);
+				cnkbLayout.addComponent(cnkbCancelButton, 1, 0);
+				cnkbCssLayout.addComponent(cnkbText);
+				cnkbLayout.addComponent(cnkbCssLayout, 0, 1, 1, 1);
+			}
+		});
+		cnkbCancelButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				cnkbCssLayout.removeAllComponents();
+				cnkbLayout.removeComponent(cnkbCancelButton);
+				cnkbLayout.addComponent(cnkbButton, 1, 0);
+				cnkbLayout.removeComponent(cnkbCssLayout);
+			}
+		});
+		
+		cnkbButton.setStyleName(BaseTheme.BUTTON_LINK);
+		cnkbButton.setIcon(ICON);
+		cnkbCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		cnkbCancelButton.setIcon(CancelIcon);
+		addComponent(cnkbLayout);
+		cnkbLayout.setSpacing(true);
+		cnkbLayout.addComponent(cnkb);
+		cnkbLayout.addComponent(cnkbButton);
+		
 		
 		aracne.setStyleName(Reindeer.BUTTON_LINK);
 		anova.setStyleName(Reindeer.BUTTON_LINK);
