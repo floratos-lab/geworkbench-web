@@ -22,7 +22,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulat
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.marina.ui.MarinaParamBean;
+import org.geworkbenchweb.plugins.marina.results.MarinaParamBean;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.SessionHandler;
