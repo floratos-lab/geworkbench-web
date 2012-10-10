@@ -46,6 +46,10 @@
 	background: #fff url(main-bg.png) repeat-x;
 }
 
+.v-app-GeworkbenchRoot .v-csslayout-mystyle {
+  overflow: auto;
+}
+
 .v-app-GeworkbenchRoot .topbar .logo,
 .v-app-GeworkbenchRoot .topbar .logo:focus,
 .v-app-GeworkbenchRoot .topbar .logo:active {
@@ -301,9 +305,7 @@
 	border: none;
 	margin: 0 -1px;
 	padding: 0;
-}
-
-
+} 
 
 .v-app-GeworkbenchRoot .v-splitpanel-first-container-main-split .v-link {
 	padding: 13px 0 5px 18px;
