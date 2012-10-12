@@ -15,6 +15,7 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionsConne
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbenchweb.plugins.cnkb.results.CNKBParameters;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 
@@ -27,9 +28,9 @@ public class CNKBInteractions {
 	public Vector<CellularNetWorkElementInformation> CNKB(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params) {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-		String context 		= 	(String) params.get("interactome");
-		String version 		=	(String) params.get("version");
-		Long subSetId 		= 	Long.parseLong(((String) params.get("markerSet")).trim());
+		String context 		= 	(String) params.get(CNKBParameters.INTERACTOME);
+		String version 		=	(String) params.get(CNKBParameters.VERSION);
+		Long subSetId 		= 	Long.parseLong(((String) params.get(CNKBParameters.MARKER_SET_ID)).trim());
 		
 		@SuppressWarnings("unchecked")
 		List<SubSet> data =  (List<SubSet>) SubSetOperations.getMarkerSet(subSetId);

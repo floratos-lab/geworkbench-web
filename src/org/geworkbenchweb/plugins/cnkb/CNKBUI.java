@@ -15,6 +15,7 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.cnkb.results.CNKBParameters;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -131,7 +132,7 @@ public class CNKBUI extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
-				params.put("markerSet", String.valueOf(valueChangeEvent.getProperty().getValue()));
+				params.put(CNKBParameters.MARKER_SET_ID, String.valueOf(valueChangeEvent.getProperty().getValue()));
 				addComponent(interactomeBox);
 				
 			}
@@ -151,7 +152,7 @@ public class CNKBUI extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				try {
-					params.put("version", valueChangeEvent.getProperty().getValue().toString());
+					params.put(CNKBParameters.VERSION, valueChangeEvent.getProperty().getValue().toString());
 					addComponent(submitButton);
 				}catch (Exception e) {
 					//TODO
@@ -173,7 +174,7 @@ public class CNKBUI extends VerticalLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
-					params.put("interactome", valueChangeEvent.getProperty().getValue().toString().split(" \\(")[0].trim());
+					params.put(CNKBParameters.INTERACTOME, valueChangeEvent.getProperty().getValue().toString().split(" \\(")[0].trim());
 					interactomeDes.setValue(interactionsConnection.getInteractomeDescription(valueChangeEvent.getProperty().getValue().toString().split(" \\(")[0].trim()));
 					versionBox.removeAllItems();
 					versionList = interactionsConnection.getVersionDescriptor(valueChangeEvent.getProperty().getValue().toString().split(" \\(")[0].trim());
