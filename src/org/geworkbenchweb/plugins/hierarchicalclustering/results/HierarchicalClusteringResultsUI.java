@@ -105,27 +105,17 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
         int geneNo = 0;
 
 		if (currentMarkerCluster == null) {
-			
 			geneNo = microarraySet.markers().size();
-			
-		
 		} else {
-		
 			geneNo = leafMarkers.length;
-		
 		}
 
 		int chipNo = 0;
 
 		if (currentArrayCluster == null) {
-			
 			chipNo = microarraySet.items().size();
-			
-			
 		} else {
-			
 			chipNo = leafArrays.length;
-		
 		}
 		
 		String[] markerNames 	= 	new String[geneNo];
@@ -144,9 +134,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 
 			markerNames[i] = stats.getLabel();
 			for (int j = 0; j < chipNo; j++) {
-				
 				DSMicroarray mArray = null;
-				
 				if (leafArrays != null) {
 					mArray = ((MicroarrayHierCluster) leafArrays[j])
 							.getMicroarray();
@@ -155,17 +143,14 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 				}
 				
 				if(i == 0) {
-					
 					arrayNames[j] = mArray.getLabel();
-					
 				}
 				
-				DSMarkerValue marker = mArray.getMarkerValue(stats);
-				
-				Color color = getMarkerValueColor(marker, stats, (float) intensity);
-				String rgb = Integer.toHexString(color.getRGB());
-				rgb = rgb.substring(2, rgb.length());
-				colors[k] = rgb;
+				DSMarkerValue marker 	= 	mArray.getMarkerValue(stats);
+				Color color 			= 	getMarkerValueColor(marker, stats, (float) intensity);
+				String rgb 				= 	Integer.toHexString(color.getRGB());
+				rgb 					= 	rgb.substring(2, rgb.length());
+				colors[k] 				= 	rgb;
 				k++;
 			}
 		}
@@ -188,16 +173,13 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 				
 			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
 			dendrogram.setMarkerCluster(markerString.toString());
-			
 			//since this is the member variable I have to reset it. Have to find a way to make it non-member variable
 			markerString.delete(0, markerString.length());
-			
 		}
 			
 		if(arrayCluster != null) {
 			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
 			dendrogram.setArrayCluster(arrayString.toString());
-			
 			//since this is the member variable I have to reset it. Have to find a way to make it non-member variable
 			arrayString.delete(0, arrayString.length());
 		}
@@ -210,11 +192,8 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 		ClusterNode cluster = null;
 		
 		if(hierCluster.isLeaf()) {
-			
 			markerString.append(")");
-		
 		} else {	
-			
 			Cluster[] child 	= 	hierCluster.getChildrenNodes();
 			ClusterNode c1 		= 	convertMarkerCluster(child[0]);
 			ClusterNode c2 		= 	convertMarkerCluster(child[1]);
@@ -223,9 +202,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 			markerString.append(")");
 		
 		}
-		
 		return cluster;
-	
 	}
 	
 	private static ClusterNode convertArrayCluster(Cluster hierCluster) {
@@ -234,22 +211,15 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 		ClusterNode cluster = null;
 		
 		if(hierCluster.isLeaf()) {
-			
 			arrayString.append(")");
-		
 		} else {	
-			
 			Cluster[] child 	= 	hierCluster.getChildrenNodes();
 			ClusterNode c1 		= 	convertArrayCluster(child[0]);	
 			ClusterNode c2 		= 	convertArrayCluster(child[1]);
 			cluster 			= 	new ClusterNode(c1, c2);
-			
 			arrayString.append(")");
-		
 		}
-		
 		return cluster;
-	
 	}
 	
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {
@@ -278,7 +248,5 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 				return new Color((float) (1 + colVal), (float) (1 + colVal), 1.0F);
 			}
 		}
-
 	}
-	
 }
