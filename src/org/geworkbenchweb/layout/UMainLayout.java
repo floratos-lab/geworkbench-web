@@ -2,6 +2,7 @@ package org.geworkbenchweb.layout;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +21,10 @@ import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -34,6 +37,7 @@ import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -47,6 +51,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.SplitPanel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
@@ -98,7 +103,7 @@ public class UMainLayout extends VerticalLayout {
 	private CssLayout leftMainLayout;
 
 	private ICEPush pusher;
-	
+
 	final MenuBar toolBar = new MenuBar();
 
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
@@ -108,7 +113,7 @@ public class UMainLayout extends VerticalLayout {
 	ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
 	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
 	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
-	
+
 	public UMainLayout() {
 
 		/* Add listeners here */
@@ -124,7 +129,6 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
-		pusher.setEnabled(false);
 
 		HorizontalLayout topBar = new HorizontalLayout();
 		addComponent(topBar);
@@ -156,31 +160,57 @@ public class UMainLayout extends VerticalLayout {
 				arrayTree 		=	new Tree();
 				markerSetTree 	= 	new Tree();
 				arraySetTree 	= 	new Tree();
-				
+
+				markerTree.addActionHandler(markerTreeActionHandler);
 				markerTree.setImmediate(true);
 				markerTree.setSelectable(true);
 				markerTree.setMultiSelect(true);
 
+				HierarchicalContainer markerData = new HierarchicalContainer();
+				List<?> sets = SubSetOperations.getMarkerSets(dataSetId);
+				markerData.addContainerProperty("setName", String.class, null);
+				Item mainItem = markerData.addItem("MarkerSets");
+				mainItem.getItemProperty("setName").setValue("Marker Sets");
+				for (int i=0; i<sets.size(); i++) {
+					markerData.addItem(((SubSet) sets.get(i)).getId());
+					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
+					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
+					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), false);
+				}
 				markerSetTree.setImmediate(true);
 				markerSetTree.setSelectable(false);
 				markerSetTree.setMultiSelect(false);
+				markerSetTree.setContainerDataSource(markerData);
 
+				HierarchicalContainer arrayData = new HierarchicalContainer();
+				List<?> aSets = SubSetOperations.getArraySets(dataSetId);
+				arrayData.addContainerProperty("setName", String.class, null);
+				Item mainItem1 = arrayData.addItem("arraySets");
+				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
+				for (int i=0; i<aSets.size(); i++) {
+					arrayData.addItem(((SubSet) sets.get(i)).getId());
+					arrayData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
+					arrayData.setParent(((SubSet) sets.get(i)).getId(), "arraySets");
+					arrayData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), false);
+				}
 				arraySetTree.setImmediate(true);
 				arraySetTree.setMultiSelect(false);
 				arraySetTree.setSelectable(false);
+				arraySetTree.setContainerDataSource(arrayData);
 
+				arrayTree.addActionHandler(arrayTreeActionHandler);
 				arrayTree.setImmediate(true);
 				arrayTree.setMultiSelect(true);
 				arrayTree.setSelectable(true);
 
 				List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
-				
+
 				AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
 				File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
 				AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
 				AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-				
+
 				markerTree.setContainerDataSource(markerTableView(maSet));
 				arrayTree.setContainerDataSource(arrayTableView(maSet));
 
@@ -190,10 +220,17 @@ public class UMainLayout extends VerticalLayout {
 				arrayTree.setItemCaptionPropertyId("Labels");
 				arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
+				markerSetTree.setItemCaptionPropertyId("setName");
+				markerSetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+				arraySetTree.setItemCaptionPropertyId("setName");
+				arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
 				leftMainLayout.addComponent(markerTree);
 				leftMainLayout.addComponent(markerSetTree);
 				leftMainLayout.addComponent(arrayTree);
 				leftMainLayout.addComponent(arraySetTree);
+
 				for(int i=0; i<toolBar.getItems().size(); i++) {
 					if(toolBar.getItems().get(i).getText().equalsIgnoreCase("PROJECT VIEW")) {
 						toolBar.getItems().get(i).setEnabled(true);	
@@ -217,16 +254,16 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 		project.setEnabled(false);
-		
+
 		UMainToolBar mainToolBar = new UMainToolBar();
 		dataNavigation.addComponent(toolBar);
 		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
 		dataNavigation.addComponent(mainToolBar);
 		dataNavigation.setExpandRatio(mainToolBar, 1);
 		dataNavigation.setComponentAlignment(mainToolBar, Alignment.TOP_RIGHT);
-		
+
 		addComponent(dataNavigation);
-		
+
 		Component logo = createLogo();
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
@@ -234,7 +271,7 @@ public class UMainLayout extends VerticalLayout {
 		mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
 		mainSplit.setSizeFull();
 		mainSplit.setStyleName("main-split");
-		
+
 		addComponent(mainSplit);
 		setExpandRatio(mainSplit, 1);
 
@@ -666,37 +703,155 @@ public class UMainLayout extends VerticalLayout {
 
 		@Override
 		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
-		
-			pusher.setEnabled(true);
-			Thread analysis = new Thread() {
-				public void run() {
-					synchronized(getApplication()) {
-						Analysis analysis = new Analysis();
-						final ResultSet resultSet = analysis.execute(event);
-						FacadeFactory.getFacade().store(resultSet);	
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Analysis Completed", 
-								MessageBox.Icon.INFO, 
-								"Analysis you submitted is now completed. " +
-										"Click on the node to see the results",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show(new MessageBox.EventListener() {
-							private static final long serialVersionUID = 1L;
-							@Override
-							public void buttonClicked(ButtonType buttonType) {    	
-								if(buttonType == ButtonType.OK) {
-									NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-									GeworkbenchRoot.getBlackboard().fire(resultEvent);
-								}
-							}
-						});	
-					}
-					pusher.push();
-					pusher.setEnabled(false);
-				}
-			};
-			analysis.start();
+			Runnable r = new AnalysisThread(event);
+			new Thread(r).start();
 		}
 	}
+	public class AnalysisThread implements Runnable {
+
+		private AnalysisSubmissionEvent event;
+		public AnalysisThread(AnalysisSubmissionEvent event) {
+			this.event = event;
+		}
+
+		@Override
+		public void run() {
+			synchronized(getApplication()) {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Analysis analysis = new Analysis();
+				final ResultSet resultSet = analysis.execute(event);
+				FacadeFactory.getFacade().store(resultSet);	
+				MessageBox mb = new MessageBox(getWindow(), 
+						"Analysis Completed", 
+						MessageBox.Icon.INFO, 
+						"Analysis you submitted is now completed. " +
+								"Click on the node to see the results",  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show(new MessageBox.EventListener() {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void buttonClicked(ButtonType buttonType) {    	
+						if(buttonType == ButtonType.OK) {
+							NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+							GeworkbenchRoot.getBlackboard().fire(resultEvent);
+						}
+					}
+				});	
+			}
+			pusher.push();
+		}
+	}
+
+	private Action.Handler markerTreeActionHandler = new Action.Handler() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void handleAction(Action action, final Object sender, final Object target) {
+
+			final Window nameWindow = new Window();
+			nameWindow.setModal(true);
+			nameWindow.setClosable(true);
+			((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+			nameWindow.setWidth("300px");
+			nameWindow.setHeight("150px");
+			nameWindow.setResizable(false);
+			nameWindow.setCaption("Add Markers to Set");
+			nameWindow.setImmediate(true);
+
+			final TextField setName = new TextField();
+			setName.setInputPrompt("Please enter set name");
+			setName.setImmediate(true);
+
+			Button submit = new Button("Submit", new Button.ClickListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					try {
+						if(setName.getValue() != null) {
+							ArrayList<String> markers = new ArrayList<String>();
+							String mark 	= 	sender.toString();
+							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							for(int i=0; i<temp.length; i++) {
+								markers.add((String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
+							}
+							SubSetOperations.storeData(markers, "marker", (String) setName.getValue(), dataSetId);
+							getApplication().getMainWindow().removeWindow(nameWindow);
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			nameWindow.addComponent(setName);
+			nameWindow.addComponent(submit);
+			getApplication().getMainWindow().addWindow(nameWindow);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender) {
+			return ACTIONS;
+		}
+	};
+
+	private Action.Handler arrayTreeActionHandler = new Action.Handler() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void handleAction(Action action, final Object sender, Object target) {
+			final Window nameWindow = new Window();
+			nameWindow.setModal(true);
+			nameWindow.setClosable(true);
+			((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+			nameWindow.setWidth("300px");
+			nameWindow.setHeight("150px");
+			nameWindow.setResizable(false);
+			nameWindow.setCaption("Add Phenotypes to Set");
+			nameWindow.setImmediate(true);
+
+			final TextField setName = new TextField();
+			setName.setInputPrompt("Please enter set name");
+			setName.setImmediate(true);
+
+			Button submit = new Button("Submit", new Button.ClickListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					try {
+						if(setName.getValue() != null) {
+							ArrayList<String> markers = new ArrayList<String>();
+							String mark 	= 	sender.toString();
+							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							for(int i=0; i<temp.length; i++) {
+								markers.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
+							}
+							SubSetOperations.storeData(markers, "microarray", (String) setName.getValue(), dataSetId);
+							getApplication().getMainWindow().removeWindow(nameWindow);
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			nameWindow.addComponent(setName);
+			nameWindow.addComponent(submit);
+			getApplication().getMainWindow().addWindow(nameWindow);
+		}
+
+		@Override
+		public Action[] getActions(Object target, Object sender) {
+			return ACTIONS;
+		}
+	};
 }
 
