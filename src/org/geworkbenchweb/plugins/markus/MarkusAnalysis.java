@@ -93,7 +93,7 @@ public class MarkusAnalysis {
 		ResultSet resultSet = 	new ResultSet();
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
-		String dataSetName 	=	results+" - " + new java.util.Date();
+		String dataSetName 	=	results;
 		resultSet.setName(dataSetName);
 		resultSet.setType("MarkusResults");
 		resultSet.setParent(dataSetId);
