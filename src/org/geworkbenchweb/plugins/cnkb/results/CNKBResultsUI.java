@@ -39,6 +39,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * This class displays CNKB results in a Table and also a graph
@@ -93,28 +94,17 @@ public class CNKBResultsUI extends VerticalLayout {
 		IndexedContainer dataIn  = 	new IndexedContainer();
 
 		for(int j=0; j<hits.size();j++) {
-
-			Item item 	= 	dataIn.addItem(j);
-
-			InteractionDetail[] interactionDetail = hits.get(j).getInteractionDetails();
+			Item item 								= 	dataIn.addItem(j);
+			InteractionDetail[] interactionDetail 	= 	hits.get(j).getInteractionDetails();
 			if(interactionDetail != null) {
-		
-				for(InteractionDetail interaction : interactionDetail) {
-									
+				for(InteractionDetail interaction : interactionDetail) {				
 					interactionConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
-					
 					if(interaction.getInteractionType().equalsIgnoreCase("protein-protein")) {
-					
 						ppConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
-						
 					}else if(interaction.getInteractionType().equalsIgnoreCase("protein-dna")) {
-						
 						pdnaConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
-						
 					}else if(interaction.getInteractionType().equalsIgnoreCase("modulator-TF")) {
-						
 						mtfConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
-						
 					}	
 				}
 			}	
@@ -130,13 +120,9 @@ public class CNKBResultsUI extends VerticalLayout {
 
 			item.getItemProperty("Marker").setValue(hits.get(j).getdSGeneMarker().getLabel());
 			if(hits.get(j).getdSGeneMarker().getShortName() == hits.get(j).getdSGeneMarker().getGeneName()) {
-
 				item.getItemProperty("Gene").setValue("--");
-
 			} else {
-
 				item.getItemProperty("Gene").setValue(hits.get(j).getdSGeneMarker().getGeneName());
-
 			}
 
 			item.getItemProperty("Gene Type").setValue(hits.get(j).getGeneType());
@@ -146,15 +132,11 @@ public class CNKBResultsUI extends VerticalLayout {
 			item.getItemProperty("Protein-Protein #").setValue(interactionNumMap.get("protein-protein"));
 
 		}
-		
-		/*dataTable.setColumnHeaders(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
-				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });
-		dataTable.setVisibleColumns(new String[] {"Marker", "Gene", "Gene Type", "Annotation", 
-				"Modulator-TF #", "Protein-DNA #", "Protein-Protein #" });*/
+
 		dataTable.setContainerDataSource(dataIn);
 		dataTable.setColumnWidth("Marker", 300);
 		dataTable.setColumnWidth("Annotation", 150);
-		
+		dataTable.setStyleName(Reindeer.TABLE_STRONG);
 		
 		plot = drawPlot();
 		tabPanel.setFirstComponent(plot);
