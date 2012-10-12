@@ -3,7 +3,6 @@ package org.geworkbenchweb.layout;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -46,7 +44,6 @@ import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -60,7 +57,6 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.SplitPanel;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
@@ -95,9 +91,7 @@ public class UMainLayout extends VerticalLayout {
 
 	private final Tree navigationTree;
 
-	private final VisualPluginView pluginView = new VisualPluginView();
-
-	private VerticalLayout menuLayout = new VerticalLayout(); 
+	VisualPluginView pluginView = new VisualPluginView();
 
 	private HorizontalLayout dataNavigation;
 
@@ -116,6 +110,8 @@ public class UMainLayout extends VerticalLayout {
 	private CssLayout leftMainLayout;
 
 	private ICEPush pusher;
+	
+	final MenuBar toolBar = new MenuBar();
 
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
@@ -123,7 +119,8 @@ public class UMainLayout extends VerticalLayout {
 	ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
 	ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
 	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
-
+	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
+	
 	public UMainLayout() {
 
 		/* Add listeners here */
@@ -152,10 +149,96 @@ public class UMainLayout extends VerticalLayout {
 		dataNavigation.setHeight("27px");
 		dataNavigation.setWidth("100%");
 		dataNavigation.setStyleName("menubar");
-		dataNavigation.setSpacing(true);
-		dataNavigation.setMargin(false, true, false, false);
+		dataNavigation.setSpacing(false);
+		dataNavigation.setMargin(false);
 		dataNavigation.setImmediate(true);
 
+		toolBar.setEnabled(false);
+		toolBar.setImmediate(true);
+		final MenuItem set = toolBar.addItem("SET VIEW", new Command() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				selectedItem.setEnabled(false);
+				navigationTree.setVisible(false);
+
+				markerTree	 	= 	new Tree();
+				arrayTree 		=	new Tree();
+				markerSetTree 	= 	new Tree();
+				arraySetTree 	= 	new Tree();
+				
+				markerTree.setImmediate(true);
+				markerTree.setSelectable(true);
+				markerTree.setMultiSelect(true);
+
+				markerSetTree.setImmediate(true);
+				markerSetTree.setSelectable(false);
+				markerSetTree.setMultiSelect(false);
+
+				arraySetTree.setImmediate(true);
+				arraySetTree.setMultiSelect(false);
+				arraySetTree.setSelectable(false);
+
+				arrayTree.setImmediate(true);
+				arrayTree.setMultiSelect(true);
+				arrayTree.setSelectable(true);
+
+				List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
+				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+				
+				AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
+				File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
+				AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
+				AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+				
+				markerTree.setContainerDataSource(markerTableView(maSet));
+				arrayTree.setContainerDataSource(arrayTableView(maSet));
+
+				markerTree.setItemCaptionPropertyId("Labels");
+				markerTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+				arrayTree.setItemCaptionPropertyId("Labels");
+				arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+				leftMainLayout.addComponent(markerTree);
+				leftMainLayout.addComponent(markerSetTree);
+				leftMainLayout.addComponent(arrayTree);
+				leftMainLayout.addComponent(arraySetTree);
+				for(int i=0; i<toolBar.getItems().size(); i++) {
+					if(toolBar.getItems().get(i).getText().equalsIgnoreCase("PROJECT VIEW")) {
+						toolBar.getItems().get(i).setEnabled(true);	
+					}
+				}
+			}	
+		});
+		final MenuItem project = toolBar.addItem("PROJECT VIEW", new Command() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				navigationTree.setVisible(true);
+				markerTree.setVisible(false);
+				arrayTree.setVisible(false);
+				markerSetTree.setVisible(false);
+				arraySetTree.setVisible(false);
+				selectedItem.setEnabled(false);
+				set.setEnabled(true);
+			}
+		});
+		project.setEnabled(false);
+		
+		UMainToolBar mainToolBar = new UMainToolBar();
+		dataNavigation.addComponent(toolBar);
+		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
+		dataNavigation.addComponent(mainToolBar);
+		dataNavigation.setExpandRatio(mainToolBar, 1);
+		dataNavigation.setComponentAlignment(mainToolBar, Alignment.TOP_RIGHT);
+		
+		addComponent(dataNavigation);
+		
 		Component logo = createLogo();
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
@@ -163,13 +246,14 @@ public class UMainLayout extends VerticalLayout {
 		mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
 		mainSplit.setSizeFull();
 		mainSplit.setStyleName("main-split");
-
+		
 		addComponent(mainSplit);
 		setExpandRatio(mainSplit, 1);
 
 		leftMainLayout = new CssLayout();
 		leftMainLayout.setImmediate(true);
 		leftMainLayout.setSizeFull();
+		leftMainLayout.addStyleName("mystyle");
 
 		navigationTree = createMenuTree();
 		navigationTree.setItemCaptionPropertyId("Name");
@@ -177,11 +261,10 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
 
-		leftMainLayout.addComponent(dataNavigation);
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
 		mainSplit.setSplitPosition(275, SplitPanel.UNITS_PIXELS);
-		mainSplit.setSecondComponent(createMainMenu());
+		mainSplit.setSecondComponent(pluginView);
 
 		HorizontalLayout quicknav = new HorizontalLayout();
 		topBar.addComponent(quicknav);
@@ -193,30 +276,6 @@ public class UMainLayout extends VerticalLayout {
 
 		Component treeSwitch = createTreeSwitch();
 		quicknav.addComponent(treeSwitch);
-	}
-
-	/**
-	 * Administrative menu for the user
-	 * @return Component
-	 */
-	private Component createMainMenu() {
-
-		menuLayout.setImmediate(true);
-		menuLayout.setSizeFull();
-
-		HorizontalLayout menuLayout1 = new HorizontalLayout();
-		menuLayout1.setImmediate(true);
-		menuLayout1.setHeight("27px");
-		menuLayout1.setWidth("100%");
-		menuLayout1.setStyleName("menubar");
-		menuLayout1.setSpacing(true);
-		menuLayout1.setMargin(false, true, false, false);
-		UMainToolBar toolBar = new UMainToolBar();
-		menuLayout1.addComponent(toolBar);
-		menuLayout1.setComponentAlignment(toolBar, Alignment.TOP_RIGHT);
-
-		menuLayout.addComponent(menuLayout1);
-		return menuLayout;
 	}
 
 	/**
@@ -287,183 +346,10 @@ public class UMainLayout extends VerticalLayout {
 	public void setVisualPlugin(final VisualPlugin f) {
 
 		if(f instanceof Microarray) {
-			dataNavigation.removeAllComponents();		
-			markerTree = new Tree();
-			arrayTree =	new Tree();
-			markerSetTree = new Tree();
-			arraySetTree = new Tree();
-			markerTree.addActionHandler(new Action.Handler() {
-
-				private static final long serialVersionUID = 1L;
-
-				public Action[] getActions(Object target, Object sender) {
-
-					return ACTIONS;
-
-				}
-				public void handleAction(Action action, final Object sender, final Object target) {
-
-					final Window nameWindow = new Window();
-					nameWindow.setModal(true);
-					nameWindow.setClosable(true);
-					nameWindow.setWidth("300px");
-					nameWindow.setHeight("150px");
-					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-					nameWindow.setResizable(false);
-					nameWindow.setCaption("Add Markers to Set");
-					nameWindow.setImmediate(true);
-
-					final TextField setName = new TextField();
-					setName.setInputPrompt("Please enter set name");
-					setName.setImmediate(true);
-
-					Button addSet = new Button("Add Set", new Button.ClickListener() {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void buttonClick(ClickEvent event) {
-
-							if(!setName.getValue().equals(null)) {
-								String selectedValues 		=	sender.toString();
-								String[] values 			= 	(selectedValues.substring(1, selectedValues.length()-1)).split(",");
-								ArrayList<String> names		= 	new ArrayList<String>();
-								for(int i=0; i<values.length; i++) {
-									names.add((String) markerTree.getItem(Integer.parseInt(values[i].trim())).getItemProperty("Labels").getValue());
-								}
-								SubSetOperations.storeData(names, "marker", (String) setName.getValue(), f.getDataSetId());
-								getApplication().getMainWindow().removeWindow(nameWindow);
-							}
-						}
-					});
-					nameWindow.addComponent(setName);
-					nameWindow.addComponent(addSet);
-					getApplication().getMainWindow().addWindow(nameWindow);
-				}
-			});
-			arrayTree.addActionHandler(new Action.Handler() {
-
-				private static final long serialVersionUID = 1L;
-
-				public Action[] getActions(Object target, Object sender) {
-
-					return ACTIONS;
-
-				}
-				public void handleAction(Action action, final Object sender, final Object target) {
-
-					final Window nameWindow = new Window();
-					nameWindow.setModal(true);
-					nameWindow.setClosable(true);
-					nameWindow.setWidth("300px");
-					nameWindow.setHeight("150px");
-					((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-					nameWindow.setResizable(false);
-					nameWindow.setCaption("Add Phenotypes to Set");
-					nameWindow.setImmediate(true);
-
-					final TextField setName = new TextField();
-					setName.setInputPrompt("Please enter set name");
-					setName.setImmediate(true);
-
-					Button addSet = new Button("Add Set", new Button.ClickListener() {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void buttonClick(ClickEvent event) {
-
-							if(!setName.getValue().equals(null)) {
-								String selectedValues 		=	sender.toString();
-								String[] values 			= 	(selectedValues.substring(1, selectedValues.length()-1)).split(",");
-								ArrayList<String> names		= 	new ArrayList<String>();
-								for(int i=0; i<values.length; i++) {
-									names.add((String) arrayTree.getItem(Integer.parseInt(values[i].trim())).getItemProperty("Labels").getValue());
-								}
-								SubSetOperations.storeData(names, "microarray", (String) setName.getValue(), f.getDataSetId());
-								getApplication().getMainWindow().removeWindow(nameWindow);
-							}
-						}
-					});
-					nameWindow.addComponent(setName);
-					nameWindow.addComponent(addSet);
-					getApplication().getMainWindow().addWindow(nameWindow);
-				}
-			});
-			final MenuBar toolBar = new MenuBar();
-			final MenuItem project = toolBar.addItem("PROJECT VIEW", new Command() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void menuSelected(MenuItem selectedItem) {
-					navigationTree.setVisible(true);
-					markerTree.setVisible(false);
-					arrayTree.setVisible(false);
-					markerSetTree.setVisible(false);
-					arraySetTree.setVisible(false);
-					setVisualPlugin(f);
-				}
-			});
-			toolBar.setImmediate(true);
-			project.setEnabled(false);
-			toolBar.addItem("SET VIEW", new Command() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void menuSelected(MenuItem selectedItem) {
-					selectedItem.setEnabled(false);
-					project.setEnabled(true);
-					navigationTree.setVisible(false);
-
-					markerTree.setImmediate(true);
-					markerTree.setSelectable(true);
-					markerTree.setMultiSelect(true);
-
-					markerSetTree.setImmediate(true);
-					markerSetTree.setSelectable(true);
-					markerSetTree.setMultiSelect(true);
-
-					arraySetTree.setImmediate(true);
-					arraySetTree.setMultiSelect(true);
-					arraySetTree.setSelectable(true);
-
-					arrayTree.setImmediate(true);
-					arrayTree.setMultiSelect(true);
-					arrayTree.setSelectable(true);
-
-					List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-					DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
-					
-					AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-					File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-					AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-					
-					markerTree.setContainerDataSource(markerTableView(maSet));
-					arrayTree.setContainerDataSource(arrayTableView(maSet));
-
-					markerTree.setItemCaptionPropertyId("Labels");
-					markerTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-					arrayTree.setItemCaptionPropertyId("Labels");
-					arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-					leftMainLayout.addComponent(markerTree);
-					leftMainLayout.addComponent(markerSetTree);
-					leftMainLayout.addComponent(arrayTree);
-					leftMainLayout.addComponent(arraySetTree);
-				}	
-			});
-
-			dataNavigation.addComponent(toolBar);
-			dataNavigation.setComponentAlignment(toolBar, Alignment.MIDDLE_LEFT);
+			toolBar.setEnabled(true);
 		} else {
-			dataNavigation.removeAllComponents();
+			toolBar.setEnabled(false);
 		}
-		menuLayout.addComponent(pluginView);
-		menuLayout.setExpandRatio(pluginView, 1);
 		pluginView.setVisualPlugin(f);
 	}
 
@@ -527,7 +413,6 @@ public class UMainLayout extends VerticalLayout {
 		});
 		pv.setStyleName("quickjump");
 		pv.setDescription("Quick jump");
-
 		return pv;
 	}
 
@@ -550,10 +435,6 @@ public class UMainLayout extends VerticalLayout {
 					mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
 					mainSplit.setLocked(false);
 					navigationTree.setVisible(true);
-					arrayTree.setVisible(false);
-					markerTree.setVisible(false);
-					markerSetTree.setVisible(false);
-					arraySetTree.setVisible(false);
 				}
 			}
 		});
@@ -632,6 +513,8 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(hcIcon);
 					} else if(type.equalsIgnoreCase("CNKBResults")) {
 						res.getItemProperty("Icon").setValue(networkIcon);
+					} else if(type.equalsIgnoreCase("MarkusResults")) {
+						res.getItemProperty("Icon").setValue(markusIcon);
 					}
 					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
@@ -716,6 +599,8 @@ public class UMainLayout extends VerticalLayout {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(hcIcon);
 					} else if(res.getType().equalsIgnoreCase("CNKBResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
+					} else if (res.getType().equalsIgnoreCase("MarkusResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(markusIcon);
 					}
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);

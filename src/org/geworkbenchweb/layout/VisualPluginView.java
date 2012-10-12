@@ -1,36 +1,26 @@
 package org.geworkbenchweb.layout;
 
-import org.geworkbenchweb.layout.ActiveLink.LinkActivatedEvent;
-import org.geworkbenchweb.layout.ActiveLink.LinkActivatedListener;
-
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-
 import org.apache.commons.collections.map.MultiKeyMap;
 
-@SuppressWarnings("serial")
 public class VisualPluginView extends HorizontalLayout {
 
-	private static final String MSG_SHOW_TUT = "View Tutorial";
+	private static final long serialVersionUID = 1L;
 
 	private Panel right;
+	
 	private VerticalLayout left;
 
 	private HorizontalLayout controls;
 
 	private Label title = new Label("", Label.CONTENT_XHTML);
 
-	private ActiveLink showTut;
-
+	@SuppressWarnings("unused")
 	private VisualPlugin currentFeature;
-
-	private Window tutWindow;
 
 	/** Contians 
 	 * key1 - plugin 
@@ -43,8 +33,9 @@ public class VisualPluginView extends HorizontalLayout {
 	public VisualPluginView() {
 
 		setWidth("100%");
-		setMargin(true);
+		setImmediate(true);
 		setSpacing(true);
+		setMargin(true);
 		setStyleName("sample-view");
 		
 		left = new VerticalLayout();
@@ -52,7 +43,6 @@ public class VisualPluginView extends HorizontalLayout {
 		left.setSpacing(true);
 		left.setMargin(false);
 		
-
 		VerticalLayout rightLayout = new VerticalLayout();
 		right = new Panel(rightLayout);
 		rightLayout.setMargin(true, false, false, false);
@@ -67,33 +57,13 @@ public class VisualPluginView extends HorizontalLayout {
 		title.setStyleName("title");
 		controls.addComponent(title);
 		controls.setExpandRatio(title, 1);
-
-		showTut = new ActiveLink();
-		showTut
-		.setDescription("Right / middle / ctrl / shift -click for browser window/tab");
-		showTut.addListener(new LinkActivatedListener() {
-
-			public void linkActivated(LinkActivatedEvent event) {
-				if (!event.isLinkOpened()) {
-					showTutorial(currentFeature.getTutorial());
-				}
-			}
-		});
-		showTut.setCaption(MSG_SHOW_TUT);
-		showTut.addStyleName("showcode");
-		showTut.setTargetBorder(Link.TARGET_BORDER_NONE);
-		//controls.addComponent(showTut);
-
 	}
 	
 	public void setVisualPlugin(VisualPlugin plugin) {
 		
 		if(plugin.checkForVisualizer() == false) {
 			this.removeAllComponents();
-			this.setMargin(true);
-			this.setSpacing(true);
-			this.setStyleName("sample-view");
-			
+			setStyleName("sample-view");
 			right.removeAllComponents();
 			left.removeAllComponents();
 			
@@ -116,11 +86,8 @@ public class VisualPluginView extends HorizontalLayout {
 			}
 		} else {
 			this.removeAllComponents();
-			this.setSizeFull();
-			this.setImmediate(true);
-			this.removeStyleName("sample-view");
-			setMargin(false);
-			setSpacing(false);
+			setSizeFull();
+			removeStyleName("sample-view");
 			addComponent(getLayoutFor(plugin));
 		}
 	}
@@ -139,23 +106,5 @@ public class VisualPluginView extends HorizontalLayout {
 			ex = f.getLayout(data);
 		}
 		return ex;
-	}
-	
-	public void showTutorial(CustomLayout tutorial) {
-		if (tutWindow == null) {
-			tutWindow = new Window("Tutorial");
-			//tutWindow.getContent().setSizeUndefined();
-			tutWindow.setWidth("70%");
-			tutWindow.setHeight("60%");
-			tutWindow.setPositionX(100);
-			tutWindow.setPositionY(100);
-			tutWindow.setScrollable(true);
-		}
-		tutWindow.removeAllComponents();
-		tutWindow.setContent(tutorial);
-
-		if (tutWindow.getParent() == null) {
-			getWindow().addWindow(tutWindow);
-		}
 	}
 }
