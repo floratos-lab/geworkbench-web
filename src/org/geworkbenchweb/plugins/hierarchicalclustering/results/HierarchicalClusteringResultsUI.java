@@ -26,7 +26,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class HierarchicalClusteringResultsUI extends VerticalLayout{
+public class HierarchicalClusteringResultsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
@@ -77,18 +77,17 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 	@SuppressWarnings({ "unchecked", "unused" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
 		
+		setImmediate(true);
+		setStyleName(Reindeer.LAYOUT_WHITE);
+	
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		parameters.put("id", dataSetId);
 		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
 		
-		CSHierClusterDataSet dataSet = (CSHierClusterDataSet) ObjectConversion.toObject(data.get(0).getData());
-		
-		setStyleName(Reindeer.LAYOUT_WHITE);
-        microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
-        
-        currentMarkerCluster = (MarkerHierCluster)dataSet.getCluster(0);
-    	currentArrayCluster = (MicroarrayHierCluster)dataSet.getCluster(1);
-    	
+		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(data.get(0).getData());
+        microarraySet	 				= 	(DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
+        currentMarkerCluster 			= 	(MarkerHierCluster)dataSet.getCluster(0);
+    	currentArrayCluster 			= 	(MicroarrayHierCluster)dataSet.getCluster(1);
     	
     	if (currentMarkerCluster != null) {
             java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
@@ -103,7 +102,6 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
          }
     	 
         int geneNo = 0;
-
 		if (currentMarkerCluster == null) {
 			geneNo = microarraySet.markers().size();
 		} else {
@@ -111,7 +109,6 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 		}
 
 		int chipNo = 0;
-
 		if (currentArrayCluster == null) {
 			chipNo = microarraySet.items().size();
 		} else {
@@ -159,16 +156,17 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout{
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
 		
 		Clustergram dendrogram = new Clustergram();
-		
-		setHeight(((geneNo*5) + 300) + "px");
-        setWidth(((chipNo*20) + 500) + "px");
+        setWidth("100%");
+        setHeight("100%");
+        
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerNumber(geneNo);
 		dendrogram.setMarkerLabels(markerNames);
 		dendrogram.setArrayLabels(arrayNames);
+		dendrogram.setImmediate(true);
 		dendrogram.setSizeFull();
-	  
+	
 		if(markerCluster != null) {
 				
 			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);

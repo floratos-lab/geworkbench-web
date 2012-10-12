@@ -24,7 +24,7 @@ public class CNKBInteractions {
 	
 	private int interaction_flag = 1;
 	
-	public Vector<CellularNetWorkElementInformation> CNKB(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params, long dataSetId) {
+	public Vector<CellularNetWorkElementInformation> CNKB(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params) {
 		
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		String context 		= 	(String) params.get("interactome");
