@@ -7,8 +7,6 @@ import java.util.Vector;
 
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.layout.UMenuBar;
-
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
