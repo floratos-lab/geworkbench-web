@@ -1,6 +1,8 @@
 package org.geworkbenchweb.plugins.anova;
 
  
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -8,12 +10,17 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
  
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl; 
-import org.geworkbenchweb.plugins.anova.AnovaAnalysis; 
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
@@ -65,7 +72,10 @@ public class AnovaUI extends VerticalLayout {
 	private Button submitButton;
 	
 	private int totalSelectedArrayNum= 0;
- 
+	
+	private Long userId  = SessionHandler.get().getId();
+	
+	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 
 	public AnovaUI(Long dataSetId) {
 
@@ -281,7 +291,13 @@ public class AnovaUI extends VerticalLayout {
 	}
 
 	
-
+	public Long getDataSetId() {
+		return this.dataSetId;
+	}
+	
+	public Long getUserId() {
+		return this.userId;
+	}
 	private class SubmitListener implements ClickListener {
 
 		private static final long serialVersionUID = 831124091338570481L;
@@ -298,10 +314,24 @@ public class AnovaUI extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			 
-	        if (validInputData(dataSet))
-	        {
-			   AnovaAnalysis analysis = new AnovaAnalysis(dataSet, paramform, dataSetId);
-			   analysis.execute();
+			if (validInputData(dataSet)) {
+				
+				params.put("form", paramform);
+				ResultSet resultSet = new ResultSet();
+				java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
+				resultSet.setDateField(date);
+				String dataSetName = "Anova - Pending";
+				resultSet.setName(dataSetName);
+				resultSet.setType("AnovaResults");
+				resultSet.setParent(dataSetId);
+				resultSet.setOwner(SessionHandler.get().getId());
+				FacadeFactory.getFacade().store(resultSet);
+
+				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+				GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params);
+				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		}
 	}
