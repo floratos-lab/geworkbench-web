@@ -14,13 +14,10 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.themes.Reindeer;
 
 public class AnovaResultsUI extends VerticalLayout {
 
@@ -32,11 +29,6 @@ public class AnovaResultsUI extends VerticalLayout {
 	private static boolean pVal = true;
 	private static boolean mean = true;
 	private static boolean std = true;
-
-	private CheckBox bF;
-	private CheckBox bP;
-	private CheckBox bM;
-	private CheckBox bS;
 
 	private CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 
@@ -53,11 +45,8 @@ public class AnovaResultsUI extends VerticalLayout {
 	
 		setSpacing(true);
 		setImmediate(true);
-
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setSpacing(true);
-
-		horizontalLayout.setImmediate(true);
+		setSizeFull();
+		
 		/* Results Table Code */
 
 		dataTable = new TableView() {
@@ -80,19 +69,16 @@ public class AnovaResultsUI extends VerticalLayout {
 		};
 
 		dataTable.setContainerDataSource(getIndexedContainer());
-
-		Button preferenceButton;
-		preferenceButton = new Button("Display Preference",
-				new PreferenceListener());
-
+		dataTable.setSizeFull();
+		dataTable.setColumnCollapsingAllowed(true);
+		dataTable.setStyleName(Reindeer.TABLE_STRONG);
+		
 		Button exportButton;
 		exportButton = new Button("Export", new ExportListener());
-
-		horizontalLayout.addComponent(preferenceButton, 0);
-		horizontalLayout.addComponent(exportButton, 1);
-
-		addComponent(horizontalLayout);
+		
+		addComponent(exportButton);
 		addComponent(dataTable);
+		setExpandRatio(dataTable, 1);
 
 	}
 
@@ -174,51 +160,6 @@ public class AnovaResultsUI extends VerticalLayout {
 		return dataIn;
 	}
 
-	private class PreferenceListener implements ClickListener {
-
-		private static final long serialVersionUID = 831124091338570481L;
-
-		public PreferenceListener() {
-		};
-
-		@Override
-		public void buttonClick(ClickEvent event) {
-
-			Window dispPref = new Window("Display Preferences");
-
-			GridLayout gridLayout = new GridLayout(2, 2);
-
-			dispPref.setModal(true);
-			dispPref.setClosable(true);
-			dispPref.setDraggable(false);
-			dispPref.setResizable(false);
-			dispPref.setWidth("350px");
-
-			bF = new CheckBox("F-Statistic", fStat);
-			bP = new CheckBox("P-Value", pVal);
-			bM = new CheckBox("Mean", mean);
-			bS = new CheckBox("Std", std);
-
-			bF.addListener(new CheckBoxListener());
-			bP.addListener(new CheckBoxListener());
-			bM.addListener(new CheckBoxListener());
-			bS.addListener(new CheckBoxListener());
-
-			gridLayout.setMargin(true);
-			gridLayout.setImmediate(true);
-			gridLayout.setSpacing(true);
-
-			gridLayout.addComponent(bF, 0, 0);
-			gridLayout.addComponent(bP, 1, 0);
-			gridLayout.addComponent(bM, 0, 1);
-			gridLayout.addComponent(bS, 1, 1);
-
-			dispPref.addComponent(gridLayout);
-			getApplication().getMainWindow().addWindow(dispPref);
-		}
-
-	}
-
 	private class ExportListener implements ClickListener {
 
 		private static final long serialVersionUID = 831124091338570481L;
@@ -233,32 +174,4 @@ public class AnovaResultsUI extends VerticalLayout {
 
 		}
 	}
-
-	private class CheckBoxListener implements ClickListener {
-
-		private static final long serialVersionUID = 831124091338570481L;
-
-		public CheckBoxListener() {
-		};
-
-		@Override
-		public void buttonClick(ClickEvent e) {
-
-			Object source = e.getSource();
-
-			if (source == bF) {
-				fStat = bF.booleanValue();
-			} else if (source == bP) {
-				pVal = bP.booleanValue();
-			} else if (source == bM) {
-				mean = bM.booleanValue();
-			} else if (source == bS) {
-				std = bS.booleanValue();
-			}
-
-			dataTable.setContainerDataSource(getIndexedContainer());
-
-		}
-	}
-
 }
