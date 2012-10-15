@@ -1,16 +1,26 @@
 package org.geworkbenchweb.layout;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
@@ -62,7 +72,11 @@ import com.vaadin.ui.themes.Reindeer;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-import org.geworkbenchweb.plugins.Analysis;
+import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
+import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringParams;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 
 /**
@@ -113,6 +127,7 @@ public class UMainLayout extends VerticalLayout {
 	ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
 	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
 	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
+	ThemeResource anovaIcon			=	new ThemeResource("../custom/icons/significance16x16.gif");
 
 	public UMainLayout() {
 
@@ -188,10 +203,10 @@ public class UMainLayout extends VerticalLayout {
 				Item mainItem1 = arrayData.addItem("arraySets");
 				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
 				for (int i=0; i<aSets.size(); i++) {
-					arrayData.addItem(((SubSet) sets.get(i)).getId());
-					arrayData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
-					arrayData.setParent(((SubSet) sets.get(i)).getId(), "arraySets");
-					arrayData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), false);
+					arrayData.addItem(((SubSet) aSets.get(i)).getId());
+					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName());
+					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
+					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), false);
 				}
 				arraySetTree.setImmediate(true);
 				arraySetTree.setMultiSelect(false);
@@ -540,6 +555,8 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(networkIcon);
 					} else if(type.equalsIgnoreCase("MarkusResults")) {
 						res.getItemProperty("Icon").setValue(markusIcon);
+					} else if(type.equalsIgnoreCase("AnovaResults")) {
+						res.getItemProperty("Icon").setValue(anovaIcon);
 					}
 					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
@@ -623,7 +640,9 @@ public class UMainLayout extends VerticalLayout {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
 					} else if (res.getType().equalsIgnoreCase("MarkusResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(markusIcon);
-					}
+					} else if (res.getType().equalsIgnoreCase("AnovaResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
+					} 
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
 				navigationTree.setParent(res.getId(), res.getParent());
@@ -703,47 +722,68 @@ public class UMainLayout extends VerticalLayout {
 
 		@Override
 		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
-			Runnable r = new AnalysisThread(event);
-			new Thread(r).start();
-		}
-	}
-	public class AnalysisThread implements Runnable {
 
-		private AnalysisSubmissionEvent event;
-		public AnalysisThread(AnalysisSubmissionEvent event) {
-			this.event = event;
-		}
-
-		@Override
-		public void run() {
-			synchronized(getApplication()) {
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Analysis analysis = new Analysis();
-				final ResultSet resultSet = analysis.execute(event);
-				FacadeFactory.getFacade().store(resultSet);	
-				MessageBox mb = new MessageBox(getWindow(), 
-						"Analysis Completed", 
-						MessageBox.Icon.INFO, 
-						"Analysis you submitted is now completed. " +
-								"Click on the node to see the results",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show(new MessageBox.EventListener() {
-					private static final long serialVersionUID = 1L;
-					@Override
-					public void buttonClicked(ButtonType buttonType) {    	
-						if(buttonType == ButtonType.OK) {
-							NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-							GeworkbenchRoot.getBlackboard().fire(resultEvent);
+			pusher.setEnabled(true);
+			Thread analysis = new Thread() {
+				public void run() {
+					final ResultSet resultSet = event.getResultSet();
+					HashMap<Serializable, Serializable> params = event.getParameters();
+					synchronized(getApplication()) {
+						DSMicroarraySet dataSet = null;
+						try {
+							 dataSet = (DSMicroarraySet) event.getDataSet();
+						} catch (Exception e) {
+							//TODO
 						}
+						if(resultSet.getType().contains("HierarchicalClusteringResults")) {
+							DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
+									new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+							HierarchicalClusteringWrapper analysis 	= 	
+									new HierarchicalClusteringWrapper(data, (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC), 
+											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD), 
+											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION));
+							HierCluster[] resultClusters = analysis.execute();
+							CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
+									"Hierarchical Clustering", data);
+							resultSet.setName("Hierarchical Clustering");
+							resultSet.setData(ObjectConversion.convertToByte(results));
+						} else if(resultSet.getType().contains("CNKBResults")) {
+							CNKBInteractions cnkb = new CNKBInteractions();
+							Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
+							resultSet.setName("CNKB");
+							resultSet.setData(ObjectConversion.convertToByte(hits));
+						} else if(resultSet.getType().contains("AnovaResults")) {
+							AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
+							resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
+							resultSet.setName("Anova");
+						} else if(resultSet.getType().contains("AracneResults")) {
+							
+						} else {
+							//Marina
+						}
+						FacadeFactory.getFacade().store(resultSet);	
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Analysis Completed", 
+								MessageBox.Icon.INFO, 
+								"Analysis you submitted is now completed. " +
+										"Click on the node to see the results",  
+										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show(new MessageBox.EventListener() {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void buttonClicked(ButtonType buttonType) {    	
+								if(buttonType == ButtonType.OK) {
+									NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+									GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								}
+							}
+						});	
 					}
-				});	
-			}
-			pusher.push();
+					pusher.push();
+					pusher.setEnabled(false);
+				}
+			};
+			analysis.start();
 		}
 	}
 
@@ -783,6 +823,10 @@ public class UMainLayout extends VerticalLayout {
 								markers.add((String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
 							SubSetOperations.storeData(markers, "marker", (String) setName.getValue(), dataSetId);
+							markerSetTree.addItem((String) setName.getValue());
+							markerSetTree.getContainerProperty((String) setName.getValue(), "setName").setValue((String) setName.getValue());
+							markerSetTree.setParent((String) setName.getValue(), "MarkerSets");
+							markerSetTree.setChildrenAllowed((String) setName.getValue(), false);
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
@@ -836,6 +880,10 @@ public class UMainLayout extends VerticalLayout {
 								markers.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
 							SubSetOperations.storeData(markers, "microarray", (String) setName.getValue(), dataSetId);
+							arraySetTree.addItem((String) setName.getValue());
+							arraySetTree.getContainerProperty((String) setName.getValue(), "setName").setValue((String) setName.getValue());
+							arraySetTree.setParent((String) setName.getValue(), "arraySets");
+							arraySetTree.setChildrenAllowed((String) setName.getValue(), false);
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
