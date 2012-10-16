@@ -735,13 +735,6 @@ public class UMainLayout extends VerticalLayout {
 					final ResultSet resultSet = event.getResultSet();
 					HashMap<Serializable, Serializable> params = event.getParameters();
 					synchronized(getApplication()) {
-						
-						try {
-							Thread.sleep(3000);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
 						DSMicroarraySet dataSet = null;
 						try {
 							 dataSet = (DSMicroarraySet) event.getDataSet();
