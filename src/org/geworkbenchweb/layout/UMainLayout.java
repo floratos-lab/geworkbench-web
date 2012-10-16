@@ -146,7 +146,6 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
-		pusher.setEnabled(false);
 
 		HorizontalLayout topBar = new HorizontalLayout();
 		addComponent(topBar);
@@ -533,7 +532,7 @@ public class UMainLayout extends VerticalLayout {
 
 				Item subItem = dataSets.addItem(dataId);
 				subItem.getItemProperty("Name").setValue(id);
-				if(((DataSet) data.get(i)).getType().equalsIgnoreCase("Expression File")) {
+				if(((DataSet) data.get(i)).getType().equalsIgnoreCase("microarray")) {
 					subItem.getItemProperty("Type").setValue("Microarray");
 					subItem.getItemProperty("Icon").setValue(microarrayIcon);
 				} else {
@@ -565,7 +564,9 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(markusIcon);
 					} else if(type.equalsIgnoreCase("AnovaResults")) {
 						res.getItemProperty("Icon").setValue(anovaIcon);
-					}
+					} else if (type.equalsIgnoreCase("AracneResults")) {
+						res.getItemProperty("Icon").setValue(networkIcon);
+					} 
 					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
 				}
@@ -650,6 +651,8 @@ public class UMainLayout extends VerticalLayout {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(markusIcon);
 					} else if (res.getType().equalsIgnoreCase("AnovaResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
+					} else if (res.getType().equalsIgnoreCase("AracneResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
 					} 
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
@@ -731,49 +734,49 @@ public class UMainLayout extends VerticalLayout {
 		@Override
 		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
 
-			pusher.setEnabled(true);
 			Thread analysis = new Thread() {
-				
+
 				@Override
 				public void run() {
 					final ResultSet resultSet = event.getResultSet();
 					HashMap<Serializable, Serializable> params = event.getParameters();
+
+					DSMicroarraySet dataSet = null;
+					try {
+						dataSet = (DSMicroarraySet) event.getDataSet();
+					} catch (Exception e) {
+						//TODO
+					}
+					if(resultSet.getType().contains("HierarchicalClusteringResults")) {
+						DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
+								new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+						HierarchicalClusteringWrapper analysis 	= 	
+								new HierarchicalClusteringWrapper(data, (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC), 
+										(Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD), 
+										(Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION));
+						HierCluster[] resultClusters = analysis.execute();
+						CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
+								"Hierarchical Clustering", data);
+						resultSet.setName("Hierarchical Clustering");
+						resultSet.setData(ObjectConversion.convertToByte(results));
+					} else if(resultSet.getType().contains("CNKBResults")) {
+						CNKBInteractions cnkb = new CNKBInteractions();
+						Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
+						resultSet.setName("CNKB");
+						resultSet.setData(ObjectConversion.convertToByte(hits));
+					} else if(resultSet.getType().contains("AnovaResults")) {
+						AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
+						resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
+						resultSet.setName("Anova");
+					} else if(resultSet.getType().contains("AracneResults")) {
+						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
+						resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
+						resultSet.setName("Anova");
+					} else {
+						//Marina
+					}
+					FacadeFactory.getFacade().store(resultSet);	
 					synchronized(getApplication()) {
-						DSMicroarraySet dataSet = null;
-						try {
-							 dataSet = (DSMicroarraySet) event.getDataSet();
-						} catch (Exception e) {
-							//TODO
-						}
-						if(resultSet.getType().contains("HierarchicalClusteringResults")) {
-							DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
-									new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
-							HierarchicalClusteringWrapper analysis 	= 	
-									new HierarchicalClusteringWrapper(data, (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC), 
-											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD), 
-											(Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION));
-							HierCluster[] resultClusters = analysis.execute();
-							CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
-									"Hierarchical Clustering", data);
-							resultSet.setName("Hierarchical Clustering");
-							resultSet.setData(ObjectConversion.convertToByte(results));
-						} else if(resultSet.getType().contains("CNKBResults")) {
-							CNKBInteractions cnkb = new CNKBInteractions();
-							Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
-							resultSet.setName("CNKB");
-							resultSet.setData(ObjectConversion.convertToByte(hits));
-						} else if(resultSet.getType().contains("AnovaResults")) {
-							AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
-							resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
-							resultSet.setName("Anova");
-						} else if(resultSet.getType().contains("AracneResults")) {
-							AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
-							resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
-							resultSet.setName("Anova");
-						} else {
-							//Marina
-						}
-						FacadeFactory.getFacade().store(resultSet);	
 						MessageBox mb = new MessageBox(getWindow(), 
 								"Analysis Completed", 
 								MessageBox.Icon.INFO, 
@@ -795,7 +798,6 @@ public class UMainLayout extends VerticalLayout {
 				}
 			};
 			analysis.start();
-			pusher.setEnabled(false);
 		}
 	}
 
