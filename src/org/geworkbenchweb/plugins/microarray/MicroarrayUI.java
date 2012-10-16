@@ -36,7 +36,9 @@ public class MicroarrayUI extends VerticalLayout {
 		
 		addComponent(analysisLabel);
 		
-		//ARACNE
+		/**
+		 * ARACNE
+		 */
 		Button aracne 	= 	new Button("ARACne", new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
@@ -457,82 +459,6 @@ public class MicroarrayUI extends VerticalLayout {
 		tableLayout.setSpacing(true);
 		tableLayout.addComponent(table);
 		tableLayout.addComponent(tableButton);
-		
-		/**
-		 * DataSet Annotation
-		 */
-		
-		Label annotation = new Label("DataSet history and Annotation");
-		annotation.setStyleName(Reindeer.LABEL_H2);
-		annotation.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(annotation);
-		
-		final GridLayout annotLayout 		=	new GridLayout();
-		final Button annotButton 			= 	new Button();
-		final Button annotCancelButton 		= 	new Button();	
-		final FancyCssLayout annotCssLayout = 	new FancyCssLayout();
-		
-		annotLayout.setColumns(2);
-		annotLayout.setRows(2);
-		annotLayout.setSizeFull();
-		annotLayout.setImmediate(true);
-		annotLayout.setColumnExpandRatio(1, 1.0f);
-
-		annotCssLayout.setWidth("95%");
-		annotCssLayout.setSlideEnabled(true);
-		annotCssLayout.addStyleName("lay");
-		
-		Button annot 	= 	new Button("DataSet Annotation", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("Annotation", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
-			}
-		});
-		
-		final Label annotText = new Label(
-				"<p align = \"justify\">This is DataSet Annotation plugin</p>");
-		annotText.setContentMode(Label.CONTENT_XHTML);
-		
-		annotButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				annotCssLayout.removeAllComponents();
-				annotLayout.removeComponent(annotButton);
-				annotLayout.addComponent(annotCancelButton, 1, 0);
-				annotCssLayout.addComponent(annotText);
-				annotLayout.addComponent(annotCssLayout, 0, 1, 1, 1);
-			}
-		});
-		annotCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				annotCssLayout.removeAllComponents();
-				annotLayout.removeComponent(annotCancelButton);
-				annotLayout.addComponent(annotButton, 1, 0);
-				annotLayout.removeComponent(annotCssLayout);
-			}
-		});
-		
-		annot.setStyleName(Reindeer.BUTTON_LINK);
-		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
-		annotButton.setIcon(ICON);
-		annotCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		annotCancelButton.setIcon(CancelIcon);
-		addComponent(annotLayout);
-		annotLayout.setSpacing(true);
-		annotLayout.addComponent(annot);
-		annotLayout.addComponent(annotButton);
-		
 		
 		/**
 		 * HeatMap
