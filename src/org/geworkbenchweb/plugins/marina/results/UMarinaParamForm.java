@@ -19,8 +19,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
@@ -425,11 +423,11 @@ public class UMarinaParamForm extends VerticalLayout implements Upload.Succeeded
 							double[] v2 = dataSet.getRow(marker2);
 							if (v1 != null && v1.length > 0 && v2 != null && v2.length > 0){
 								double[][] arrayData = new double[][]{v1, v2};
-								RealMatrix rm = new SpearmansCorrelation().computeCorrelationMatrix(transpose(arrayData));
+								RealMatrix rm = null;//new SpearmansCorrelation().computeCorrelationMatrix(transpose(arrayData));
 								if (rm.getColumnDimension() > 1)  rho = rm.getEntry(0, 1);
 								if (allpos && rho < 0)  allpos = false;
 								try{
-									pvalue = new PearsonsCorrelation(rm, v1.length).getCorrelationPValues().getEntry(0, 1);
+									//pvalue = new PearsonsCorrelation(rm, v1.length).getCorrelationPValues().getEntry(0, 1);
 								}catch(Exception e){
 									e.printStackTrace();
 								}
