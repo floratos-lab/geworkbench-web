@@ -155,7 +155,7 @@ public class UploadDataUI extends VerticalLayout {
     	
 		String projectName		=  	(String) projectBox.getValue();
 		String dataDescription 	= 	(String) dataArea.getValue();
-		if(geoTextField.getValue().toString() == null) {
+		if(uploadType.getValue().toString().equalsIgnoreCase("Upload from your Desktop")) {
     		
     		String fileType 		= 	(String) fileCombo.getValue();
     		File dataFile 			= 	(File) uploadField.getValue();
@@ -166,6 +166,7 @@ public class UploadDataUI extends VerticalLayout {
     		try {
 				File dataFile = GEODataFetch.getGDS(geoTextField.getValue().toString());
 				parseInit(dataFile, null, "GDS", projectName, dataDescription);
+				dataFile.delete();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
