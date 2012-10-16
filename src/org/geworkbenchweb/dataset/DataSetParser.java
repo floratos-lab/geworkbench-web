@@ -27,7 +27,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class DataSetParser {
 
 	private String fileName;
-	private String fileType;  
+	private String dataType = null;  
 	private String dataDescription;
 	private String projectName;
 	
@@ -35,18 +35,21 @@ public class DataSetParser {
 		
 		
 		this.fileName 			= 	dataFile.getName();
-		this.fileType 			= 	fileType;
 		this.dataDescription 	= 	dataDescription;
 		this.projectName		= 	projectName;
 		
 		
 		if(fileType == "GEO SOFT File") {
+			this.dataType = "microarray";
 			GeoSeriesDataSet(dataFile, annotFile);
 		} else if(fileType == "Expression File") {
+			this.dataType = "microarray";
 			ExpressionDataSet(dataFile, annotFile);
 		} else if (fileType == "PDB File"){
+			this.dataType = "PDB File";
 			PDBDataSet(dataFile);
 		} else if(fileType == "GDS") {
+			this.dataType = "microarray";
 			GDSDataSet(dataFile, annotFile);
 		}
 	}
@@ -57,94 +60,59 @@ public class DataSetParser {
 		DSMicroarraySet dataSet 	= 	parser.parseCSMicroarraySet(dataFile);
 		
 		if(dataSet.isEmpty()) {
-			
 			System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
-		
 		}else {
 			storeData(dataSet);
 		}
-		
 	}
 
 	public void GeoSeriesDataSet(File dataFile, File annotFile) {
-		
 		GeoSeriesMatrixParser parser 	= 	new GeoSeriesMatrixParser();
-		
 		try {
-			
 			DSMicroarraySet dataSet 	= 	parser.getMArraySet(dataFile);
 			if(annotFile.getName() != null) {
 				dataSet.setAnnotationFileName(annotFile.getName());
 			} 
-			if(dataSet.isEmpty()) {
-				
+			if(dataSet.isEmpty()) {	
 				System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
-			
 			}else {
-				
 				storeData(dataSet);
-				
 			}
 		} catch (InputFileFormatException e) {
-			
 			System.out.println("Check file format");
-		
 		} catch (InterruptedIOException e) {
-			
 			System.out.println("Interrupted by parser");
-		
 		}
 	}
 	
 	public void GDSDataSet(File dataFile, File annotFile) {
-
 		SOFTFileFormat parser 	= 	new SOFTFileFormat();
-
 		try {
-
 			DSMicroarraySet dataSet 	= 	parser.parseFile(dataFile);
-			if(annotFile.getName() != null) {
-				dataSet.setAnnotationFileName(annotFile.getName());
-			} 
 			if(dataSet.isEmpty()) {
-
 				System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
-
 			}else {
-
 				storeData(dataSet);
-
 			}
 		} catch (InputFileFormatException e) {
-
 			System.out.println("Check file format");
-
 		} catch (InterruptedIOException e) {
-
 			System.out.println("Interrupted by parser");
-
 		}
 	}
 
 	private void PDBDataSet(File dataFile){
 		DSDataSet<? extends DSBioObject> dataSet = new PDBFileFormat().getDataFile(dataFile);
-
 		if(dataSet.getFile() == null) {
-			
 			System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
-		
 		}else {
-			
 			storeData(dataSet);
-
 		}
 	}
 
 	private void storeData(DSDataSet<? extends DSBioObject> dataSet) {
-		
 		User user 		= 	SessionHandler.get();
 		DataSet dataset = 	new DataSet();
-		
 		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		param.put("name", projectName);
 		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
@@ -152,7 +120,7 @@ public class DataSetParser {
 		List<?> projects =  FacadeFactory.getFacade().list("Select p from Project as p where p.name=:name and p.workspace =:workspace", param);	
 		
 		dataset.setName(fileName);
-		dataset.setType(fileType);
+		dataset.setType(dataType);
 		dataset.setDescription(dataDescription);
 	    dataset.setOwner(user.getId());	
 	    dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
@@ -162,7 +130,6 @@ public class DataSetParser {
 	    
 	    NodeAddEvent resultEvent = new NodeAddEvent(dataset);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
-	    
 	}
 }
 
