@@ -1,6 +1,8 @@
 package org.geworkbenchweb.plugins.aracne;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -12,15 +14,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.ResultSet;  
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
 import edu.columbia.c2b2.aracne.Parameter;
 import wb.plugins.aracne.GraphEdge;
 import wb.plugins.aracne.WeightedGraph;
@@ -33,13 +28,22 @@ import wb.plugins.aracne.WeightedGraph;
  */
 public class AracneAnalysisWeb {
 	
+	private DSMicroarraySet dataSet = null;
+	
 	final Parameter p = new Parameter();
 	
-	public AracneAnalysisWeb(DSMicroarraySet dataSet, ArrayList<String> params, long dataSetId) {
+	HashMap<Serializable, Serializable> params =  new HashMap<Serializable, Serializable>();
+	
+	public AracneAnalysisWeb(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params) {
+		this.params = params;
+		this.dataSet = dataSet;
+	}
+		
+	public AdjacencyMatrixDataSet execute() {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
-		Long subSetId  				=  	Long.parseLong(params.get(0));
+		Long subSetId  				=  		Long.parseLong((String) params.get(AracneParameters.MARKER_SET));
 		ArrayList<String> hubGeneList 	= 	new ArrayList<String>();
 		ArrayList<String> markers		= 	getMarkerData(subSetId);
 		
@@ -50,62 +54,47 @@ public class AracneAnalysisWeb {
 		}
 		
 		p.setSubnet(new Vector<String>(hubGeneList));
-		if(params.get(5).equalsIgnoreCase("Mutual Info")) {
-			p.setThreshold(Double.valueOf(params.get(6).toString()));
+		if(((String) params.get(AracneParameters.T_TYPE)).equalsIgnoreCase("Mutual Info")) {
+			p.setThreshold(Double.valueOf((String) params.get(AracneParameters.T_VALUE)));
 		} else {
-			p.setPvalue(Double.valueOf(params.get(6).toString()));	
+			p.setPvalue(Double.valueOf(params.get(AracneParameters.T_VALUE).toString()));	
 		}
 		
-		if(params.get(8).equalsIgnoreCase("Apply")) {
-			p.setEps(Double.valueOf(params.get(9).toString()));
+		if(((String) params.get(AracneParameters.TOL_TYPE)).equalsIgnoreCase("Apply")) {
+			p.setEps(Double.valueOf((String) params.get(AracneParameters.TOL_VALUE)));
 		}
 		
-		if(params.get(1).equalsIgnoreCase("Complete")) {
+		if(((String) params.get(AracneParameters.MODE)).equalsIgnoreCase("Complete")) {
 			p.setMode(Parameter.MODE.COMPLETE);
-		}else if(params.get(1).equalsIgnoreCase("Discovery")) {
+		}else if(((String) params.get(AracneParameters.MODE)).equalsIgnoreCase("Discovery")) {
 			p.setMode(Parameter.MODE.DISCOVERY);
-		}else if(params.get(1).equalsIgnoreCase("Preprocessing")) {
+		}else if(((String) params.get(AracneParameters.MODE)).equalsIgnoreCase("Preprocessing")) {
 			p.setMode(Parameter.MODE.PREPROCESSING);
 		}
 		
-		if(params.get(2).equalsIgnoreCase("Adaptive Partitioning")) {
+		if(((String) params.get(AracneParameters.ALGORITHM)).equalsIgnoreCase("Adaptive Partitioning")) {
 			p.setAlgorithm(Parameter.ALGORITHM.ADAPTIVE_PARTITIONING);
 		}else {
 			p.setAlgorithm(Parameter.ALGORITHM.FIXED_BANDWIDTH);
 		}
 		
-		int  bs 	= 	Integer.valueOf(params.get(12));
-		double  pt 	= 	Double.valueOf(params.get(6)); 
+		int  bs 	= 	Integer.valueOf((String) params.get(AracneParameters.BOOTS_NUM));
+		double  pt 	= 	Double.valueOf((String) params.get(AracneParameters.T_VALUE)); 
 		
 		AracneComputation aracneComputation = new AracneComputation(mSetView, p, bs , pt);
 		
 		WeightedGraph weightedGraph = aracneComputation.execute();
 		
-		
+		AdjacencyMatrixDataSet dSet = null;
 		if (weightedGraph.getEdges().size() > 0) {
-			
-			AdjacencyMatrixDataSet dSet = new AdjacencyMatrixDataSet(
+			dSet = new AdjacencyMatrixDataSet(
 					this.convert(weightedGraph, p, mSetView.getMicroarraySet(), false),
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
-			
-			ResultSet resultSet = 	new ResultSet();
-			java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-			resultSet.setDateField(date);
-			String dataSetName 	=	"ARACne - " + new java.util.Date();
-			resultSet.setName(dataSetName);
-			resultSet.setType("AracneResults");
-			resultSet.setParent(dataSetId);
-			resultSet.setOwner(SessionHandler.get().getId());	
-			resultSet.setData(ObjectConversion.convertToByte(dSet));
-			FacadeFactory.getFacade().store(resultSet);	
-			
-			NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-			GeworkbenchRoot.getBlackboard().fire(resultEvent);
-			
 		}
+		return dSet;
 	}
-	
+
 	/**
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
 	 * @param graph

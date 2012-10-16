@@ -29,6 +29,7 @@ public class AracneResultsUI extends VerticalLayout {
 		adjMatrix = (AdjacencyMatrixDataSet) ObjectConversion.toObject(data.get(0).getData());
 		
 		setImmediate(true);
+		setSizeFull();
 		
 		/* Preparing data for cytoscape */
 		ArrayList<String> nodes = new ArrayList<String>();
