@@ -84,7 +84,7 @@ public class CNKBResultsUI extends VerticalLayout {
 		tabPanel.setStyleName("small");
 		tabPanel.setLocked(false);
 		
-		/* Results Table Code */
+		 //Results Table Code 
 		dataTable = new Table();
 		dataTable.setColumnCollapsingAllowed(true);
 		dataTable.setColumnReorderingAllowed(true);
@@ -93,9 +93,15 @@ public class CNKBResultsUI extends VerticalLayout {
 		
 		IndexedContainer dataIn  = 	new IndexedContainer();
 
+		List<String> selectedTypes = new ArrayList<String>();
+		selectedTypes.add("protein-protein");
+		selectedTypes.add("protein-dna");
+		selectedTypes.add("modulator-TF");
+		
 		for(int j=0; j<hits.size();j++) {
 			Item item 								= 	dataIn.addItem(j);
-			InteractionDetail[] interactionDetail 	= 	hits.get(j).getInteractionDetails();
+			
+			ArrayList<InteractionDetail> interactionDetail 	= 	hits.get(j).getSelectedInteractions(selectedTypes);
 			if(interactionDetail != null) {
 				for(InteractionDetail interaction : interactionDetail) {				
 					interactionConfidence.add(interaction.getConfidenceValue(interaction.getConfidenceTypes().get(0)));
@@ -108,7 +114,6 @@ public class CNKBResultsUI extends VerticalLayout {
 					}	
 				}
 			}	
-			HashMap<String, Integer> interactionNumMap = hits.get(j).getInteractionNumMap();
 
 			dataIn.addContainerProperty("Marker", String.class, null);
 			dataIn.addContainerProperty("Gene", String.class, null);
@@ -127,10 +132,9 @@ public class CNKBResultsUI extends VerticalLayout {
 
 			item.getItemProperty("Gene Type").setValue(hits.get(j).getGeneType());
 			item.getItemProperty("Annotation").setValue(hits.get(j).getGoInfoStr());
-			item.getItemProperty("Modulator-TF #").setValue(interactionNumMap.get("modulator-TF"));
-			item.getItemProperty("Protein-DNA #").setValue(interactionNumMap.get("protein-dna"));
-			item.getItemProperty("Protein-Protein #").setValue(interactionNumMap.get("protein-protein"));
-
+			item.getItemProperty("Modulator-TF #").setValue((hits.get(j).getSelectedInteractions("modulator-TF")).size());
+			item.getItemProperty("Protein-DNA #").setValue(hits.get(j).getSelectedInteractions("protein-dna").size());
+			item.getItemProperty("Protein-Protein #").setValue(hits.get(j).getSelectedInteractions("protein-protein").size());
 		}
 
 		dataTable.setContainerDataSource(dataIn);

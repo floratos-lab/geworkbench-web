@@ -13,6 +13,7 @@ import org.geworkbench.parsers.GeoSeriesMatrixParser;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.parsers.MicroarraySetParser;
 import org.geworkbench.parsers.PDBFileFormat;
+import org.geworkbench.parsers.SOFTFileFormat;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
@@ -40,16 +41,13 @@ public class DataSetParser {
 		
 		
 		if(fileType == "GEO SOFT File") {
-			
 			GeoSeriesDataSet(dataFile, annotFile);
-		
 		} else if(fileType == "Expression File") {
-			
 			ExpressionDataSet(dataFile, annotFile);
-			
 		} else if (fileType == "PDB File"){
-			
 			PDBDataSet(dataFile);
+		} else if(fileType == "GDS") {
+			GDSDataSet(dataFile, annotFile);
 		}
 	}
 	
@@ -95,6 +93,36 @@ public class DataSetParser {
 			
 			System.out.println("Interrupted by parser");
 		
+		}
+	}
+	
+	public void GDSDataSet(File dataFile, File annotFile) {
+
+		SOFTFileFormat parser 	= 	new SOFTFileFormat();
+
+		try {
+
+			DSMicroarraySet dataSet 	= 	parser.parseFile(dataFile);
+			if(annotFile.getName() != null) {
+				dataSet.setAnnotationFileName(annotFile.getName());
+			} 
+			if(dataSet.isEmpty()) {
+
+				System.out.println("Dataset loading failed due to some unknown error. Go debug !!");
+
+			}else {
+
+				storeData(dataSet);
+
+			}
+		} catch (InputFileFormatException e) {
+
+			System.out.println("Check file format");
+
+		} catch (InterruptedIOException e) {
+
+			System.out.println("Interrupted by parser");
+
 		}
 	}
 

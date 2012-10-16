@@ -86,7 +86,7 @@ public class AnovaAnalysis {
 
 		anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(dataView,
 				"Anova Analysis Result Set", selectedArraySetNames,
-				significantMarkerNames, output.getResult2DArray());
+				0, significantMarkerNames, output.getResult2DArray());
 		log.debug(significantMarkerNames.length
 				+ " Markers added to anovaResultSet.");
 		anovaResultSet.getSignificantMarkers().addAll(
