@@ -1,9 +1,5 @@
 package org.geworkbenchweb.layout;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -12,20 +8,11 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.analysis.CNKB.ui.UCNKBTab;
-import org.geworkbenchweb.analysis.anova.ui.UAnovaTab;
-import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UClustergramTab;
+import org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
-import com.vaadin.addon.tableexport.CsvExport;
-import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.ExternalResource;
@@ -35,9 +22,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
@@ -66,13 +50,7 @@ public class UVisualPlugin extends TabSheet implements
 
 	private Cytoscape cy;
 
-	private UClustergramTab dendrogramTab;
-
-	private Object dataSet;
-
 	public UVisualPlugin(Object dataSet, String[] dataProperties) {
-
-		this.dataSet = dataSet;
 
 		addListener(this);
 		setSizeFull();
@@ -107,19 +85,18 @@ public class UVisualPlugin extends TabSheet implements
 
 			@SuppressWarnings("unchecked")
 			Vector<CellularNetWorkElementInformation> hits = (Vector<CellularNetWorkElementInformation>) dataSet;
-			UCNKBTab cnkbTab = new UCNKBTab(hits);
+			//CnkbResultsUI cnkbTab = new CnkbResultsUI(hits);
 
-			addTab(cnkbTab, "CNKB Results", null);
+			//addTab(cnkbTab, "CNKB Results", null);
 
 			/* Preparing data for cytoscape */
 			ArrayList<String> nodes = new ArrayList<String>();
 			ArrayList<String> edges = new ArrayList<String>();
 
-			for (CellularNetWorkElementInformation cellular : hits) {
+			/*for (CellularNetWorkElementInformation cellular : hits) {
 
 				try {
-					InteractionDetail[] interactions = cellular
-							.getInteractionDetails();
+					InteractionDetail[] interactions = cellular.getI
 					if (interactions.length != 0) {
 						for (InteractionDetail interaction : interactions) {
 							String edge = cellular.getdSGeneMarker()
@@ -185,13 +162,13 @@ public class UVisualPlugin extends TabSheet implements
 			cy.setEdges(edgeArray);
 			cy.setNetwork("false");
 
-			addTab(cy);
+			addTab(cy);*/
 
 		} else if (dataType.equalsIgnoreCase("Hierarchical Clustering")) {
 
-			CSHierClusterDataSet results = (CSHierClusterDataSet) dataSet;
-			dendrogramTab = new UClustergramTab(results);
-			addTab(dendrogramTab, "Dendrogram", null);
+			//CSHierClusterDataSet results = (CSHierClusterDataSet) dataSet;
+			//dendrogramTab = new UClustergramTab(results);
+			//addTab(dendrogramTab, "Dendrogram", null);
 
 		} else if (dataType.equalsIgnoreCase("ARACne")) {
 
@@ -303,11 +280,8 @@ public class UVisualPlugin extends TabSheet implements
 			addTab(layout);
 
 		} else if (dataType.equalsIgnoreCase("Anova")) {			 
-				@SuppressWarnings("unchecked")
-				CSAnovaResultSet<DSGeneMarker> anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) dataSet;
-				UAnovaTab anovaTab = new UAnovaTab(anovaResultSet);
 
-				addTab(anovaTab, "Anova Results", null);
+
 			 
 		}else if (dataType.equals("MARINa")){
 			CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet)dataSet;
@@ -388,8 +362,14 @@ public class UVisualPlugin extends TabSheet implements
 
 	@Override
 	public void selectedTabChange(SelectedTabChangeEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
 
-		UMenuBar menu = new UMenuBar();
+	/*@Override
+	public void selectedTabChange(SelectedTabChangeEvent event) {
+
+		//UMenuBar menu = new UMenuBar();
 
 		try {
 			TabSheet tabsheet = event.getTabSheet();
@@ -611,5 +591,5 @@ public class UVisualPlugin extends TabSheet implements
 		// Root..open(resource, "_self");
 
 	}
-
+*/
 }

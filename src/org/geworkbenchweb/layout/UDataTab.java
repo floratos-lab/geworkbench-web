@@ -4,12 +4,8 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
-import org.geworkbenchweb.analysis.CNKB.ui.UCNKBParamForm;
-import org.geworkbenchweb.analysis.aracne.ui.UAracneParamForm;
-import org.geworkbenchweb.analysis.anova.ui.UAnovaParamForm;
-import org.geworkbenchweb.analysis.hierarchicalclustering.ui.UHierarchicalClusteringParamForm;
-import org.geworkbenchweb.analysis.marina.ui.UMarinaParamForm;
-import org.geworkbenchweb.analysis.markus.ui.UMarkusParamForm;
+import org.geworkbenchweb.plugins.marina.results.UMarinaParamForm;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.ComboBox;
@@ -122,27 +118,27 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("Hierarchical Clustering Parameters");
 						
-						UHierarchicalClusteringParamForm hsParamForm = new UHierarchicalClusteringParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
-						paramPanel.addComponent(hsParamForm);
-						dataPanel.addComponent(paramPanel);
+						//HierarchicalClusteringUI hsParamForm = new HierarchicalClusteringUI(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
+						//paramPanel.addComponent(hsParamForm);
+						//dataPanel.addComponent(paramPanel);
 
 					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("ARACne")) {
 						
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("ARACne Parameters");
 						
-						UAracneParamForm aracneParamForm = new UAracneParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
-						paramPanel.addComponent(aracneParamForm);
-						dataPanel.addComponent(paramPanel);
+						//UAracneParamForm aracneParamForm = new UAracneParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
+						//paramPanel.addComponent(aracneParamForm);
+						//dataPanel.addComponent(paramPanel);
 						
 					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Anova")) {
 						
-						paramPanel.removeAllComponents();
+						/*paramPanel.removeAllComponents();
 						paramPanel.setCaption("Anova Parameters");
 						
 						UAnovaParamForm aracneParamForm = new UAnovaParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(aracneParamForm);
-						dataPanel.addComponent(paramPanel);
+						dataPanel.addComponent(paramPanel);*/
 						
 					}else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("MARINa")) {
 						
@@ -172,7 +168,7 @@ public class UDataTab extends VerticalLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				
-				try {
+			/*	try {
 					if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("CNKB")) {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("CNKB Parameters");
@@ -184,7 +180,7 @@ public class UDataTab extends VerticalLayout {
 					
 					dataPanel.removeComponent(paramPanel);
 					
-				}
+				}*/
 			}
 		});
 		
@@ -263,7 +259,7 @@ public class UDataTab extends VerticalLayout {
 	 */
 	private void buildPDBPanel(DSProteinStructure pdbSet) {
 		
-		final DSProteinStructure dataSet 		= 	pdbSet;
+		//final DSProteinStructure dataSet 		= 	pdbSet;
 		final ComboBox analysisBox				= 	new ComboBox();
 		final Panel paramPanel					= 	new Panel();
 		final Form paramForm 					= 	new Form();
@@ -289,9 +285,9 @@ public class UDataTab extends VerticalLayout {
 						paramPanel.removeAllComponents();
 						paramPanel.setCaption("MarkUs Parameters");
 
-						UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
+						/*UMarkusParamForm markusParamForm = new UMarkusParamForm(dataSet, Long.parseLong(dataProp[1].substring(0, dataProp[1].length() - 1)));
 						paramPanel.addComponent(markusParamForm);
-						dataPanel.addComponent(paramPanel);
+						dataPanel.addComponent(paramPanel);*/
 					}
 				}catch (Exception e){
 					dataPanel.removeComponent(paramPanel);
