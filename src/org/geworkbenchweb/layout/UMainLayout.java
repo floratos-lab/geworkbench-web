@@ -75,6 +75,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
 import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringParams;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
@@ -145,6 +146,7 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
+		pusher.setEnabled(false);
 
 		HorizontalLayout topBar = new HorizontalLayout();
 		addComponent(topBar);
@@ -731,6 +733,8 @@ public class UMainLayout extends VerticalLayout {
 
 			pusher.setEnabled(true);
 			Thread analysis = new Thread() {
+				
+				@Override
 				public void run() {
 					final ResultSet resultSet = event.getResultSet();
 					HashMap<Serializable, Serializable> params = event.getParameters();
@@ -763,7 +767,9 @@ public class UMainLayout extends VerticalLayout {
 							resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
 							resultSet.setName("Anova");
 						} else if(resultSet.getType().contains("AracneResults")) {
-							
+							AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
+							resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
+							resultSet.setName("Anova");
 						} else {
 							//Marina
 						}
@@ -786,10 +792,10 @@ public class UMainLayout extends VerticalLayout {
 						});	
 					}
 					pusher.push();
-					pusher.setEnabled(false);
 				}
 			};
 			analysis.start();
+			pusher.setEnabled(false);
 		}
 	}
 
