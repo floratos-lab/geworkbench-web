@@ -82,7 +82,7 @@ public class UploadDataUI extends VerticalLayout {
 				try {
 					String type = valueChangeEvent.getProperty().getValue().toString();
 					if(type == "Upload from your Desktop") {
-						
+						geoTextField.setEnabled(false);
 					} else {
 						fileCombo.setEnabled(false);
 						uploadField.setEnabled(false);
