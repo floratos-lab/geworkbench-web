@@ -20,6 +20,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -224,7 +225,12 @@ public class UMainLayout extends VerticalLayout {
 				AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
 				File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
 				AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-				AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+				try {
+					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
+				} catch (InputFileFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 				markerTree.setContainerDataSource(markerTableView(maSet));
 				arrayTree.setContainerDataSource(arrayTableView(maSet));
@@ -729,6 +735,13 @@ public class UMainLayout extends VerticalLayout {
 					final ResultSet resultSet = event.getResultSet();
 					HashMap<Serializable, Serializable> params = event.getParameters();
 					synchronized(getApplication()) {
+						
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						DSMicroarraySet dataSet = null;
 						try {
 							 dataSet = (DSMicroarraySet) event.getDataSet();
