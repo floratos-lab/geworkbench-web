@@ -7,11 +7,12 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 
+import com.jensjansson.pagedtable.PagedTable;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
-public class TabularViewUI extends Table {
+public class TabularViewUI extends VerticalLayout {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Object MARKER_HEADER = "Marker";
@@ -19,10 +20,17 @@ public class TabularViewUI extends Table {
 	public TabularViewUI(Long dataSetId) {
 		setSizeFull();
 		setImmediate(true);
+		PagedTable table = new PagedTable();
+		table.setSizeFull();
+		table.setImmediate(true);
 		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
-		setContainerDataSource(tabularView(maSet));
-		setColumnWidth(MARKER_HEADER, 150);
+		table.setContainerDataSource(tabularView(maSet));
+		table.setColumnWidth(MARKER_HEADER, 150);
+		table.setPageLength(50);
+		addComponent(table);
+		addComponent(table.createControls());
+		setExpandRatio(table, 1);
 	}
 	
 	public static IndexedContainer tabularView(DSMicroarraySet maSet) {
@@ -30,7 +38,7 @@ public class TabularViewUI extends Table {
 		String[] colHeaders = new String[(maSet.size()) + 1];
 		IndexedContainer dataIn = new IndexedContainer();
 
-		for (int j = 0; j < 50; j++) {
+		for (int j = 0; j < maSet.getMarkers().size(); j++) {
 
 			Item item = dataIn.addItem(j);
 			for (int k = 0; k <= maSet.size(); k++) {
