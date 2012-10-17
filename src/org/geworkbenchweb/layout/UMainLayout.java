@@ -3,6 +3,7 @@ package org.geworkbenchweb.layout;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
@@ -68,6 +70,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -79,6 +82,7 @@ import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
 import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringParams;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
+import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 
 /**
@@ -772,8 +776,17 @@ public class UMainLayout extends VerticalLayout {
 						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
 						resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
 						resultSet.setName("Anova");
-					} else {
-						//Marina
+					} else if(resultSet.getType().contains("MarinaResults")) {
+						MarinaAnalysis analyze = new MarinaAnalysis(dataSet, params);
+						try{
+							CSMasterRegulatorTableResultSet mraRes = analyze.execute();
+							resultSet.setData(ObjectConversion.convertToByte(mraRes));
+							resultSet.setName(mraRes.getLabel());
+						}catch(RemoteException e){
+							e.printStackTrace();
+							String msg = e.getMessage().replaceAll("\n", "<br>");
+					        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
+						}
 					}
 					FacadeFactory.getFacade().store(resultSet);	
 					synchronized(getApplication()) {

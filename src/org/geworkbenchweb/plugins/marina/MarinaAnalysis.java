@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,22 +22,12 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.marina.results.MarinaParamBean;
-import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
-import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class MarinaAnalysis {
 
 	private Log log = LogFactory.getLog(MarinaAnalysis.class);
-	private Long dataSetId;
-	private User user = SessionHandler.get();
 	private DSMicroarraySet dataSet = null;
 	private MarinaParamBean bean = null;
-	private ResultSet resultSet = null;
 	private static final String delimiter = "\t";
 	private static final String MRAROOT = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/runs/";
 	private static final String MRASRC = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/scripts/";
@@ -54,33 +45,12 @@ public class MarinaAnalysis {
 	private static final String maxmem = "4G";
 	private static final String timeout = "48::";
 
-	public MarinaAnalysis(DSMicroarraySet dataSet, MarinaParamBean bean, Long dataSetId){
+	public MarinaAnalysis(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params){
 		this.dataSet = dataSet;
-		this.bean = bean;
-		this.dataSetId = dataSetId;
-		GeworkbenchRoot.getBlackboard();
-		resultSet = storePendingResultSet("MARINa");
+		this.bean = (MarinaParamBean)params.get("bean");
 	}
 	
-	public ResultSet storePendingResultSet(String name) {
-
-		ResultSet resultSet = new ResultSet();
-		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
-		String dataSetName = name + "(pending) - " + new java.util.Date();
-		resultSet.setName(dataSetName);
-		resultSet.setType("pending");
-		resultSet.setParent(dataSetId);
-		resultSet.setOwner(user.getId());
-		FacadeFactory.getFacade().store(resultSet);
-
-		//NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		//GeworkbenchRoot.getBlackboard().fire(resultEvent);
-
-		return resultSet;
-	}
-	
-	public ResultSet execute() throws RemoteException{
+	public CSMasterRegulatorTableResultSet execute() throws RemoteException{
 		String runid = "mra21099";
 		String mradir = MRAROOT;
 		CSMasterRegulatorTableResultSet mraResult;
@@ -163,17 +133,7 @@ public class MarinaAnalysis {
 			mraResult = convertResult(resultfile.getPath());
 		}
 
-		String dataSetName 	=	runid+" - " + new java.util.Date();
-		resultSet.setName(dataSetName);
-		resultSet.setType("MARINa");
-		resultSet.setData(ObjectConversion.convertToByte(mraResult));
-		FacadeFactory.getFacade().store(resultSet);
-
-		//NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		//blackboard.fire(resultEvent);
-
-		return resultSet;
-
+		return mraResult;
 	}
 
 	private CSMasterRegulatorTableResultSet convertResult(String fname){
@@ -198,8 +158,7 @@ public class MarinaAnalysis {
 		for (int i = 0; i < data.size(); i++)
 		    rdata[i] = data.get(i);
 		String runid = new File(new File(fname).getParent()).getName();
-		System.out.println("result: "+fname);
-		CSMasterRegulatorTableResultSet result = new CSMasterRegulatorTableResultSet(dataSet, "MRA Result: "+runid);
+		CSMasterRegulatorTableResultSet result = new CSMasterRegulatorTableResultSet(dataSet, runid);
 		result.setData(rdata);
 		return result;
 	}

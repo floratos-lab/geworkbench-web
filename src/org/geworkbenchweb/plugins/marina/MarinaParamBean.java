@@ -1,4 +1,4 @@
-package org.geworkbenchweb.plugins.marina.results;
+package org.geworkbenchweb.plugins.marina;
 
 import java.io.Serializable;
 

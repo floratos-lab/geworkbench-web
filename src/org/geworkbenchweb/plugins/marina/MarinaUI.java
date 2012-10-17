@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.rmi.RemoteException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +28,17 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.parsers.InputFileFormatException;
-import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
-import org.geworkbenchweb.plugins.marina.results.MarinaParamBean;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -52,7 +56,6 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
@@ -239,36 +242,39 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		submitButton.setEnabled(false);
 		submitButton.addListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1085633263164082701L;
-			private MarinaAnalysis analysis;
-			private ProgressIndicator indicator = new ProgressIndicator(new Float(0.0));
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				submitButton.setEnabled(false);
-				indicator.setPollingInterval(500);
-				form.getFooter().addComponent(indicator);
+				ResultSet resultSet = storePendingResultSet("Marina", dataSetId);
+				
+				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
+				params.put("bean", bean);
 
-				analysis = new MarinaAnalysis(dataSet, bean, dataSetId);
-
-	            Thread workerThread = new Thread() {
-					public void run(){
-						try{
-							analysis.execute();
-						}catch(RemoteException e){
-							log.error("RemoteException: "+e);
-							String msg = e.getMessage().replaceAll("\n", "<br>");
-					        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
-						}
-						form.getFooter().removeComponent(indicator);
-						submitButton.setEnabled(true);
-					}
-				};
-				workerThread.start();		
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params);
+				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		});
 		form.getFooter().addComponent(submitButton);
 
 		addComponent(form);
+	}
+	
+	public ResultSet storePendingResultSet(String name, Long dataSetId) {
+
+		ResultSet resultSet = new ResultSet();
+		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		String dataSetName = name + " - Pending";
+		resultSet.setName(dataSetName);
+		resultSet.setType(name+"Results");
+		resultSet.setParent(dataSetId);
+		resultSet.setOwner(SessionHandler.get().getId());
+		FacadeFactory.getFacade().store(resultSet);
+
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
+		return resultSet;
 	}
 	
 	// Callback method to begin receiving the upload.
