@@ -12,8 +12,10 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +29,9 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeTy
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbench.util.Util;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -39,7 +43,11 @@ import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+import org.vaadin.easyuploads.UploadField;
+import org.vaadin.easyuploads.UploadField.FieldType;
+import org.vaadin.easyuploads.UploadField.StorageMode;
 
+import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -160,14 +168,48 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}
 			}
 		});
+		UploadField uploadField1 = new UploadField(){
+			private static final long serialVersionUID = 3738084401913970304L;
+            protected void updateDisplay() {
+        		byte[] bytes = (byte[]) getValue();
+        		String filename = getLastFileName();
+	            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
+	            	String newset = parseCSV(filename, bytes);
+	            	if (newset != null) cb1.select(newset);
+        		}else{
+        			getWindow().showNotification("File Format Error", filename + " is not a CSV file", Notification.TYPE_WARNING_MESSAGE);
+        		}
+            }
+        };
+        uploadField1.setStorageMode(StorageMode.MEMORY);
+        uploadField1.setFieldType(FieldType.BYTE_ARRAY);
+
+		UploadField uploadField2 = new UploadField(){
+			private static final long serialVersionUID = 3738084401913970304L;
+            protected void updateDisplay() {
+        		byte[] bytes = (byte[]) getValue();
+        		String filename = getLastFileName();
+	            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
+	            	String newset = parseCSV(filename, bytes);
+	            	if (newset != null) cb2.select(newset);
+        		}else{
+        			getWindow().showNotification("File Format Error", filename + " is not a CSV file", Notification.TYPE_WARNING_MESSAGE);
+        		}
+            }
+        };
+        uploadField2.setStorageMode(StorageMode.MEMORY);
+        uploadField2.setFieldType(FieldType.BYTE_ARRAY);
+
 		h1.setSpacing(true);
 		h1.setCaption("Class1");
 		h1.addComponent(cb1);
 		h1.addComponent(tf1);
+		h1.addComponent(uploadField1);
 		h2.setSpacing(true);
 		h2.setCaption("Class2");
 		h2.addComponent(cb2);
 		h2.addComponent(tf2);
+		h2.addComponent(uploadField2);
 		form.getLayout().addComponent(h1);
 		form.getLayout().addComponent(h2);
 		
@@ -257,6 +299,78 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getFooter().addComponent(submitButton);
 
 		addComponent(form);
+	}
+	
+	private String parseCSV(String filename, byte[] bytes){
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+		if (filename.toLowerCase().endsWith(".csv")) {
+			filename = filename.substring(0, filename.length() - 4);
+		}
+		// Ensure loaded set has unique name
+		Set<String> nameSet = new HashSet<String>();
+		nameSet.addAll(arraymap.keySet());
+
+		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+		try {
+			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
+			String[][] data = parser.getAllValues();
+			for (int i = 0; i < data.length; i++) {
+				String[] line = data[i];
+				if (line.length > 0) {
+					String setname = (line.length > 1 && line[1].trim().length() > 0)?
+									  line[1].trim() : filename;
+					List<String> selectedNames = map.get(setname);
+					if (selectedNames == null){
+						selectedNames = new ArrayList<String>();
+						map.put(setname, selectedNames);
+					}
+					selectedNames.add(line[0]);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Lost cause
+				}
+			}
+		}
+
+		int missing = 0;
+		String aNewSet = null;
+		for (String setname : map.keySet()){
+			List<String> selectedNames = map.get(setname);
+			setname = Util.getUniqueName(setname, nameSet);
+			nameSet.add(setname);
+            int setsize=0;
+            StringBuilder builder = new StringBuilder();
+			for(DSMicroarray array: dataSet) {
+				if(selectedNames.contains(array.getLabel())) {
+					builder.append(array.getLabel()+",");
+					setsize++;
+				}
+			}
+			if(setsize != selectedNames.size())
+				missing += selectedNames.size() - setsize;
+		
+			if (setsize > 0) {
+				String positions = builder.toString();
+				arraymap.put(setname, positions.substring(0, positions.length()-1));
+				cb1.addItem(setname);
+				cb2.addItem(setname);
+				aNewSet = setname;
+			}
+		}
+		if(missing > 0) {
+			if (missing == 1)
+				getWindow().showNotification("Array Not Found", missing + " array listed in the CSV file is not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
+			else 
+				getWindow().showNotification("Arrays Not Found", missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
+		}
+		return aNewSet;
 	}
 	
 	public ResultSet storePendingResultSet(String name, Long dataSetId) {

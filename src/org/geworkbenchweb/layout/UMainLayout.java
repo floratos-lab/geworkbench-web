@@ -791,11 +791,15 @@ public class UMainLayout extends VerticalLayout {
 						try{
 							CSMasterRegulatorTableResultSet mraRes = analyze.execute();
 							resultSet.setData(ObjectConversion.convertToByte(mraRes));
-							resultSet.setName(mraRes.getLabel());
+							resultSet.setName("Marina - " + mraRes.getLabel());
 						}catch(RemoteException e){
 							e.printStackTrace();
 							String msg = e.getMessage().replaceAll("\n", "<br>");
 					        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
+					        FacadeFactory.getFacade().delete(resultSet);
+					        navigationTree.removeItem(resultSet.getId());
+					        pusher.push();
+					        return;	
 						}
 					}
 					FacadeFactory.getFacade().store(resultSet);	
