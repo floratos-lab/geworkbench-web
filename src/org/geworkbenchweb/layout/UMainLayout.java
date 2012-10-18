@@ -134,6 +134,7 @@ public class UMainLayout extends VerticalLayout {
 	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
 	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
 	ThemeResource anovaIcon			=	new ThemeResource("../custom/icons/significance16x16.gif");
+	ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
 
 	public UMainLayout() {
 
@@ -354,6 +355,11 @@ public class UMainLayout extends VerticalLayout {
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
 						if(className.contains("Results")) {
 
+							if (selectedItem.getItemProperty("Name").toString().contains("Pending")){
+								pluginView.removeAllComponents();
+								return;
+							}
+							
 							ClassLoader classLoader = this.getClass().getClassLoader();
 							String packageName = className.substring(0, className.length() - 7);
 
@@ -570,6 +576,8 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(anovaIcon);
 					} else if (type.equalsIgnoreCase("AracneResults")) {
 						res.getItemProperty("Icon").setValue(networkIcon);
+					} else if(type.equalsIgnoreCase("MarinaResults")) {
+						res.getItemProperty("Icon").setValue(marinaIcon);
 					} 
 					dataSets.setChildrenAllowed(subSetId, false);
 					dataSets.setParent(subSetId, dataId);
@@ -657,6 +665,8 @@ public class UMainLayout extends VerticalLayout {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
 					} else if (res.getType().equalsIgnoreCase("AracneResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
+					} else if (res.getType().equalsIgnoreCase("MarinaResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(marinaIcon);
 					} 
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
