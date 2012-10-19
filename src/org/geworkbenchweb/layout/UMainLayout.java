@@ -265,6 +265,7 @@ public class UMainLayout extends VerticalLayout {
 				}
 			}	
 		});
+		set.setEnabled(false);
 		final MenuItem project = toolBar.addItem("PROJECT VIEW", new Command() {
 
 			private static final long serialVersionUID = 1L;
@@ -280,6 +281,7 @@ public class UMainLayout extends VerticalLayout {
 				set.setEnabled(true);
 			}
 		});
+		
 		project.setEnabled(false);
 
 		UMainToolBar mainToolBar = new UMainToolBar();
@@ -401,11 +403,18 @@ public class UMainLayout extends VerticalLayout {
 	 * @return
 	 */
 	public void setVisualPlugin(final VisualPlugin f) {
-
 		if(f instanceof Microarray) {
 			toolBar.setEnabled(true);
+			for(int i=0; i<toolBar.getItems().size(); i++) {
+				if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
+					toolBar.getItems().get(i).setEnabled(true);	
+				}
+			}
 		} else {
 			toolBar.setEnabled(false);
+			for(int i=0; i<toolBar.getItems().size(); i++) {
+				toolBar.getItems().get(i).setEnabled(false);	
+			}
 		}
 		pluginView.setVisualPlugin(f);
 	}
@@ -743,13 +752,17 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
+	/**
+	 * Used to submit the analysis in geWorkbench and updated the data tree with resultnodes once the 
+	 * anlysis is complete in the background.
+	 * @author Nikhil
+	 */
 	public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 		@Override
 		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
 
 			Thread analysis = new Thread() {
-
 				@Override
 				public void run() {
 					final ResultSet resultSet = event.getResultSet();
