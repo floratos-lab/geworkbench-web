@@ -798,7 +798,7 @@ public class UMainLayout extends VerticalLayout {
 					} else if(resultSet.getType().contains("AracneResults")) {
 						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
 						resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
-						resultSet.setName("Anova");
+						resultSet.setName("Aracne");
 					} else if(resultSet.getType().contains("MarinaResults")) {
 						MarinaAnalysis analyze = new MarinaAnalysis(dataSet, params);
 						try{
