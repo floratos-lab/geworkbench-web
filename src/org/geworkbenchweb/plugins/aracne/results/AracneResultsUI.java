@@ -60,9 +60,6 @@ public class AracneResultsUI extends VerticalLayout {
 			String node1 	= 	id1 + "," + label1 + ",0";
 			String node2	=	id2 + "," + label2 + ",0";
 			
-			System.out.println(node1);
-			System.out.println(edge);
-			
 			if(edges.isEmpty()) {
 				edges.add(edge);
 			}else if(!edges.contains(edge)) {
