@@ -37,12 +37,31 @@ public class AracneResultsUI extends VerticalLayout {
 		
 		for(int i=0; i<adjMatrix.getMatrix().getEdges().size(); i++) {
 			
-			String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName() 
+			String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel() 
 									+ "," 
-									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName();
+									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
 			
-			String node1 	= adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName(); 
-			String node2 	= adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName(); 
+			String id1  		= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();  
+			String label1;
+			if(adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName() == null) {
+				label1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();
+			} else {
+				label1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName();
+			}
+			
+			String id2  		= 	adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel(); 
+			String label2;
+			if(adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName() == null) {
+				label2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
+			} else {
+				label2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName();
+			}
+			
+			String node1 	= 	id1 + "," + label1 + ",0";
+			String node2	=	id2 + "," + label2 + ",0";
+			
+			System.out.println(node1);
+			System.out.println(edge);
 			
 			if(edges.isEmpty()) {
 				edges.add(edge);

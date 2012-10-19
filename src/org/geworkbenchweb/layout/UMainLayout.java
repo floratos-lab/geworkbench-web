@@ -160,7 +160,7 @@ public class UMainLayout extends VerticalLayout {
 		topBar.setSpacing(true);
 
 		dataNavigation = new HorizontalLayout();
-		dataNavigation.setHeight("27px");
+		dataNavigation.setHeight("24px");
 		dataNavigation.setWidth("100%");
 		dataNavigation.setStyleName("menubar");
 		dataNavigation.setSpacing(false);

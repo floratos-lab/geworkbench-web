@@ -27,9 +27,15 @@
 }
 
 .v-app-GeworkbenchRoot .v-menubar { 
-	font-family: helvetica, arial, verdana, sans-serif;
+	font-weight: bold;
+	color: #000;
 	background : transparent;
-	color : #BC0D0D;
+	text-decoration: none;
+	display: block;
+	margin: 0;
+	-webkit-border-radius: 1.6em;
+	-moz-border-radius: 1.6em;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
 }
 
 .v-app-GeworkbenchRoot .v-horizontallayout-topbar {

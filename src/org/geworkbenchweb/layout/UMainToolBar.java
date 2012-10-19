@@ -38,7 +38,7 @@ public class UMainToolBar extends MenuBar {
 		
 		setImmediate(true);
 		
-		this.addItem("TOOLS", null);
+		//this.addItem("TOOLS", null);
 		
 		final MenuBar.MenuItem workspace = this.addItem("WORKSPACES",
 				null);
@@ -292,7 +292,7 @@ public class UMainToolBar extends MenuBar {
 			}
 		});
 		
-		this.addItem("ACCOUNT", null);
+		//this.addItem("ACCOUNT", null);
 		
 		this.addItem("LOGOUT", new Command() {
 
