@@ -32,7 +32,6 @@ import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -169,7 +168,7 @@ public class UMainLayout extends VerticalLayout {
 
 		toolBar.setEnabled(false);
 		toolBar.setImmediate(true);
-		final MenuItem set = toolBar.addItem("SET VIEW", new Command() {
+		final MenuItem set = toolBar.addItem("Set View", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -266,7 +265,7 @@ public class UMainLayout extends VerticalLayout {
 			}	
 		});
 		set.setEnabled(false);
-		final MenuItem project = toolBar.addItem("PROJECT VIEW", new Command() {
+		final MenuItem project = toolBar.addItem("Project View", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -310,6 +309,7 @@ public class UMainLayout extends VerticalLayout {
 		leftMainLayout.addStyleName("mystyle");
 
 		navigationTree = createMenuTree();
+		navigationTree.setImmediate(true);
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -524,73 +524,57 @@ public class UMainLayout extends VerticalLayout {
 		param.put("owner", user.getId());
 		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
 
-		List<?> projects =  FacadeFactory.getFacade().list("Select p from Project as p where p.owner=:owner and p.workspace =:workspace", param);
+		List<?> data =  FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner and p.workspace =:workspace", param);
 
-		for (int h=0; h<projects.size(); h++ ) {
+		for(int i=0; i<data.size(); i++) {
 
-			String projectName 	=	((Project) projects.get(h)).getName();
-			Long realProjectId	= 	((Project) projects.get(h)).getId();
-			Long projectId		=	((Project) projects.get(h)).getId();	
+			String id 		=	((DataSet) data.get(i)).getName();
+			Long dataId		=	((DataSet) data.get(i)).getId();	
+			Long realDataId =	((DataSet) data.get(i)).getId();
 
-			Item item  = dataSets.addItem(projectId);
-			item.getItemProperty("Name").setValue(projectName);
-			item.getItemProperty("Type").setValue("UploadData");
-			item.getItemProperty("Icon").setValue(projectIcon);
+			Item subItem = dataSets.addItem(dataId);
+			subItem.getItemProperty("Name").setValue(id);
+			if(((DataSet) data.get(i)).getType().equalsIgnoreCase("microarray")) {
+				subItem.getItemProperty("Type").setValue("Microarray");
+				subItem.getItemProperty("Icon").setValue(microarrayIcon);
+			} else {
+				subItem.getItemProperty("Type").setValue("ProteinStructure");
+				subItem.getItemProperty("Icon").setValue(proteinIcon);
+			}
 
-			Map<String, Object> parameters 		= 	new HashMap<String, Object>();
-			parameters.put("owner", user.getId());
-			parameters.put("project", realProjectId);
+			Map<String, Object> params 	= 	new HashMap<String, Object>();
+			params.put("owner", user.getId());
+			params.put("parent", realDataId);
+			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
+			
+			if(results.size() == 0) {
+				dataSets.setChildrenAllowed(dataId, false);
+			}
 
-			List<?> data = FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner and p.project=:project ", parameters);
+			for(int j=0; j<results.size(); j++) {
 
-			for(int i=0; i<data.size(); i++) {
+				String subId 		=	((ResultSet) results.get(j)).getName();
+				Long subSetId		=	((ResultSet) results.get(j)).getId();	
+				String type			=	((ResultSet) results.get(j)).getType();
 
-				String id 		=	((DataSet) data.get(i)).getName();
-				Long dataId		=	((DataSet) data.get(i)).getId();	
-				Long realDataId =	((DataSet) data.get(i)).getId();
-
-				Item subItem = dataSets.addItem(dataId);
-				subItem.getItemProperty("Name").setValue(id);
-				if(((DataSet) data.get(i)).getType().equalsIgnoreCase("microarray")) {
-					subItem.getItemProperty("Type").setValue("Microarray");
-					subItem.getItemProperty("Icon").setValue(microarrayIcon);
-				} else {
-					subItem.getItemProperty("Type").setValue("ProteinStructure");
-					subItem.getItemProperty("Icon").setValue(proteinIcon);
-				}
-
-				dataSets.setParent(dataId, projectId);
-
-				Map<String, Object> params 	= 	new HashMap<String, Object>();
-				params.put("owner", user.getId());
-				params.put("parent", realDataId);
-				List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
-
-				for(int j=0; j<results.size(); j++) {
-
-					String subId 		=	((ResultSet) results.get(j)).getName();
-					Long subSetId		=	((ResultSet) results.get(j)).getId();	
-					String type			=	((ResultSet) results.get(j)).getType();
-
-					Item res = dataSets.addItem(subSetId);
-					res.getItemProperty("Name").setValue(subId);
-					res.getItemProperty("Type").setValue(type);
-					if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
-						res.getItemProperty("Icon").setValue(hcIcon);
-					} else if(type.equalsIgnoreCase("CNKBResults")) {
-						res.getItemProperty("Icon").setValue(networkIcon);
-					} else if(type.equalsIgnoreCase("MarkusResults")) {
-						res.getItemProperty("Icon").setValue(markusIcon);
-					} else if(type.equalsIgnoreCase("AnovaResults")) {
-						res.getItemProperty("Icon").setValue(anovaIcon);
-					} else if (type.equalsIgnoreCase("AracneResults")) {
-						res.getItemProperty("Icon").setValue(networkIcon);
-					} else if(type.equalsIgnoreCase("MarinaResults")) {
-						res.getItemProperty("Icon").setValue(marinaIcon);
-					} 
-					dataSets.setChildrenAllowed(subSetId, false);
-					dataSets.setParent(subSetId, dataId);
-				}
+				Item res = dataSets.addItem(subSetId);
+				res.getItemProperty("Name").setValue(subId);
+				res.getItemProperty("Type").setValue(type);
+				if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
+					res.getItemProperty("Icon").setValue(hcIcon);
+				} else if(type.equalsIgnoreCase("CNKBResults")) {
+					res.getItemProperty("Icon").setValue(networkIcon);
+				} else if(type.equalsIgnoreCase("MarkusResults")) {
+					res.getItemProperty("Icon").setValue(markusIcon);
+				} else if(type.equalsIgnoreCase("AnovaResults")) {
+					res.getItemProperty("Icon").setValue(anovaIcon);
+				} else if (type.equalsIgnoreCase("AracneResults")) {
+					res.getItemProperty("Icon").setValue(networkIcon);
+				} else if(type.equalsIgnoreCase("MarinaResults")) {
+					res.getItemProperty("Icon").setValue(marinaIcon);
+				} 
+				dataSets.setChildrenAllowed(subSetId, false);
+				dataSets.setParent(subSetId, dataId);
 			}
 		}
 		return dataSets;
@@ -658,6 +642,7 @@ public class UMainLayout extends VerticalLayout {
 		public void addNode(NodeAddEvent event) {	
 			if(event.getData() instanceof ResultSet ) {
 				ResultSet  res = (ResultSet) event.getData();
+				navigationTree.setChildrenAllowed(res.getParent(), true);
 				navigationTree.addItem(res.getId());
 				navigationTree.getContainerProperty(res.getId(), "Name").setValue(res.getName());
 				navigationTree.getContainerProperty(res.getId(), "Type").setValue(res.getType());
@@ -681,16 +666,11 @@ public class UMainLayout extends VerticalLayout {
 				navigationTree.setChildrenAllowed(res.getId(), false);
 				navigationTree.setParent(res.getId(), res.getParent());
 				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId());
-			}else if(event.getData() instanceof Project) {
-				Project pro = (Project) event.getData();
-				navigationTree.addItem(pro.getId());
-				navigationTree.getContainerProperty(pro.getId(), "Name").setValue(pro.getName());
-				navigationTree.getContainerProperty(pro.getId(), "Type").setValue("UploadData");
-				navigationTree.getContainerProperty(pro.getId(), "Icon").setValue(projectIcon);
 			} else if(event.getData() instanceof DataSet) {
 				DataSet dS = (DataSet) event.getData();
 				String dataType;
 				navigationTree.addItem(dS.getId());
+				navigationTree.setChildrenAllowed(dS.getId(), false);
 				if(dS.getType().equalsIgnoreCase("PDB File")) {
 					dataType = "ProteinStructure";
 					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(proteinIcon);
@@ -700,7 +680,7 @@ public class UMainLayout extends VerticalLayout {
 				}
 				navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
 				navigationTree.getContainerProperty(dS.getId(), "Type").setValue(dataType);
-				navigationTree.setParent(dS.getId(), dS.getProject());
+				navigationTree.select(dS.getId());
 			}
 		}
 	}

@@ -2,7 +2,6 @@ package org.geworkbenchweb.authentication;
 
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
-import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
@@ -207,14 +206,6 @@ public class UUserAuth extends VerticalLayout {
 					workspace.setOwner(user.getId());	
 					workspace.setName("Default Workspace");
 				    FacadeFactory.getFacade().store(workspace);
-					
-				    /* Creating default Project*/
-				    Project project = 	new Project();
-				    project.setOwner(user.getId());	
-				    project.setName("New Project");
-				    project.setWorkspaceId(workspace.getId());
-				    project.setDescription("Default Project created for the user");
-				    FacadeFactory.getFacade().store(project);
 				    
 				    /* Setting active workspace */
 				    ActiveWorkspace active = new ActiveWorkspace();

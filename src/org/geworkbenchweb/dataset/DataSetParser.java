@@ -2,10 +2,6 @@ package org.geworkbenchweb.dataset;
 
 import java.io.File;
 import java.io.InterruptedIOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -17,7 +13,6 @@ import org.geworkbench.parsers.SOFTFileFormat;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -29,15 +24,11 @@ public class DataSetParser {
 	private String fileName;
 	private String dataType = null;  
 	private String dataDescription;
-	private String projectName;
 	
-	public DataSetParser(File dataFile, File annotFile, String fileType, String projectName, String dataDescription) {
-		
+	public DataSetParser(File dataFile, File annotFile, String fileType, String dataDescription) {
 		
 		this.fileName 			= 	dataFile.getName();
 		this.dataDescription 	= 	dataDescription;
-		this.projectName		= 	projectName;
-		
 		
 		if(fileType == "GEO SOFT File") {
 			this.dataType = "microarray";
@@ -113,18 +104,12 @@ public class DataSetParser {
 	private void storeData(DSDataSet<? extends DSBioObject> dataSet) {
 		User user 		= 	SessionHandler.get();
 		DataSet dataset = 	new DataSet();
-		Map<String, Object> param 		= 	new HashMap<String, Object>();
-		param.put("name", projectName);
-		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
-		
-		List<?> projects =  FacadeFactory.getFacade().list("Select p from Project as p where p.name=:name and p.workspace =:workspace", param);	
 		
 		dataset.setName(fileName);
 		dataset.setType(dataType);
 		dataset.setDescription(dataDescription);
 	    dataset.setOwner(user.getId());	
 	    dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
-	    dataset.setProject(((Project) projects.get(0)).getId());
 	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
 	    

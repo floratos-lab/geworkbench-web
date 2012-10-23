@@ -11,6 +11,7 @@ import com.jensjansson.pagedtable.PagedTable;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class TabularViewUI extends VerticalLayout {
 	
@@ -23,13 +24,14 @@ public class TabularViewUI extends VerticalLayout {
 		PagedTable table = new PagedTable();
 		table.setSizeFull();
 		table.setImmediate(true);
+		table.setStyleName(Reindeer.TABLE_STRONG);
 		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
 		table.setContainerDataSource(tabularView(maSet));
 		table.setColumnWidth(MARKER_HEADER, 150);
-		table.setPageLength(50);
 		addComponent(table);
 		addComponent(table.createControls());
+		table.setPageLength(40);
 		setExpandRatio(table, 1);
 	}
 	

@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
-import org.geworkbenchweb.pojos.Project;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -38,9 +37,20 @@ public class UMainToolBar extends MenuBar {
 		
 		setImmediate(true);
 		
-		//this.addItem("TOOLS", null);
+		@SuppressWarnings("unused")
+		final MenuBar.MenuItem uploadData = this.addItem("Upload  Data", new Command() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				PluginEvent loadPlugin = new PluginEvent("UploadData", WorkspaceUtils.getActiveWorkSpace());
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
+			}
+			
+		});
+		this.addItem("Tools", null);
 		
-		final MenuBar.MenuItem workspace = this.addItem("WORKSPACES",
+		final MenuBar.MenuItem workspace = this.addItem("Workspaces",
 				null);
 		
 		workspace.addItem("Create WorkSpace", new Command() {
@@ -72,14 +82,6 @@ public class UMainToolBar extends MenuBar {
 						workspace.setOwner(SessionHandler.get().getId());	
 						workspace.setName(name.getValue().toString());
 					    FacadeFactory.getFacade().store(workspace);
-					    
-					    /* Creating default Project*/
-					    Project project = 	new Project();
-					    project.setOwner(SessionHandler.get().getId());	
-					    project.setName("New Project");
-					    project.setWorkspaceId(workspace.getId());
-					    project.setDescription("Default Project created for the Workspace");
-					    FacadeFactory.getFacade().store(project);
 					    
 					    Map<String, Object> param 		= 	new HashMap<String, Object>();
 						param.put("owner", SessionHandler.get().getId());
@@ -219,82 +221,9 @@ public class UMainToolBar extends MenuBar {
 			}
 		});*/
 		
-		final MenuBar.MenuItem project = this.addItem("PROJECTS", null);
+		this.addItem("Account", null);
 		
-		project.addItem("Create New Project", new Command() {
-
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				
-				final Window project  = new Window("Create Project");
-				
-				((AbstractOrderedLayout) project.getLayout()).setSpacing(true);
-				
-				FormLayout projectForm 	= 	new FormLayout();
-				
-				project.setModal(true);
-				project.setClosable(true);
-				project.setDraggable(false);
-				project.setResizable(false);
-				project.setWidth("350px");
-				
-				final TextField projectName 	= 	new TextField("Project Name");
-				final TextField projectDes 		= 	new TextField("Project Description");
-				
-				Button submitProject = new Button("Submit", new Button.ClickListener() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						
-						if(projectName.getValue() == ""|| projectDes.getValue() == "") {
-							MessageBox mb = new MessageBox(getWindow(), 
-					    			"Error Notification", 
-					    			MessageBox.Icon.ERROR, 
-					    			"Please fill Project Name and Description",  
-					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-
-					    	mb.show();
-						} else {
-							
-							Project newData = new Project();
-							
-							newData.setName((String) projectName.getValue());
-							newData.setDescription((String) projectDes.getValue());
-							newData.setOwner(SessionHandler.get().getId());
-							newData.setWorkspaceId(WorkspaceUtils.getActiveWorkSpace());
-							
-							FacadeFactory.getFacade().store(newData);
-							
-							NodeAddEvent resultEvent = new NodeAddEvent(newData);
-							GeworkbenchRoot.getBlackboard().fire(resultEvent);
-							
-							getApplication().getMainWindow().removeWindow(project);
-						}
-					}
-					
-				});
-				
-				projectForm.setMargin(true);
-				projectForm.setImmediate(true);
-				projectForm.setSpacing(true);
-				
-				projectForm.addComponent(projectName);
-				projectForm.addComponent(projectDes);
-				projectForm.addComponent(submitProject);
-				
-				project.addComponent(projectForm);
-				getApplication().getMainWindow().addWindow(project);
-			}
-		});
-		
-		//this.addItem("ACCOUNT", null);
-		
-		this.addItem("LOGOUT", new Command() {
+		this.addItem("Logout", new Command() {
 
 			private static final long serialVersionUID = 1L;
 

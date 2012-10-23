@@ -11,6 +11,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class MarinaResultsUI  extends VerticalLayout {
 
@@ -37,10 +38,12 @@ public class MarinaResultsUI  extends VerticalLayout {
 		}
 		mraTable.setSizeFull();
 		mraTable.setImmediate(true);
-		mraTable.setCaption("MARINa results");
 		for (int i = 0; i < rdata.length; i++){
 			mraTable.addItem(rdata[i], null);
 		}
+		mraTable.setStyleName(Reindeer.TABLE_STRONG);
+		mraTable.setColumnCollapsingAllowed(true);
+		setSizeFull();
 		addComponent(mraTable);
 	}
 }
