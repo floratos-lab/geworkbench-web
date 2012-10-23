@@ -31,7 +31,7 @@ public class UploadDataUI extends VerticalLayout {
     
 	public UploadDataUI(Long dataSetId) {
 		
-		uploadType			=	new ComboBox("Please select uplaod type");
+		uploadType			=	new ComboBox("Please select upload type");
 		fileCombo 			= 	new ComboBox("Please select type of file");
 		dataArea 			= 	new TextArea(null, initialText);
 		uploadField 		= 	new UploadField();
@@ -56,7 +56,10 @@ public class UploadDataUI extends VerticalLayout {
 					String type = valueChangeEvent.getProperty().getValue().toString();
 					if(type == "Upload from your Desktop") {
 						geoTextField.setEnabled(false);
+						fileCombo.setEnabled(true);
+						uploadField.setEnabled(true);
 					} else {
+						geoTextField.setEnabled(true);
 						fileCombo.setEnabled(false);
 						uploadField.setEnabled(false);
 					}
