@@ -81,12 +81,9 @@ public class UploadDataUI extends VerticalLayout {
 		uploadField.setImmediate(false);
 		uploadField.setRequired(true);
 		uploadField.setFileFactory(new FileFactory() {
-
 			public File createFile(String fileName, String mimeType) {
-
 				File f = new File(System.getProperty("user.home") + "/temp/", fileName);
 				return f;
-
 			}     
 		});
 
@@ -94,12 +91,9 @@ public class UploadDataUI extends VerticalLayout {
 		annotUploadField.setImmediate(false);
 		annotUploadField.setRequired(true);
 		annotUploadField.setFileFactory(new FileFactory() {
-
 			public File createFile(String fileName, String mimeType) {
-
 				File f = new File(System.getProperty("user.home") + "/temp/", fileName);
 				return f;
-
 			}     
 		});
 
