@@ -280,7 +280,7 @@ public class UMainLayout extends VerticalLayout {
 				set.setEnabled(true);
 			}
 		});
-		
+
 		project.setEnabled(false);
 
 		UMainToolBar mainToolBar = new UMainToolBar();
@@ -361,7 +361,7 @@ public class UMainLayout extends VerticalLayout {
 								pluginView.removeAllComponents();
 								return;
 							}
-							
+
 							ClassLoader classLoader = this.getClass().getClassLoader();
 							String packageName = className.substring(0, className.length() - 7);
 
@@ -546,7 +546,7 @@ public class UMainLayout extends VerticalLayout {
 			params.put("owner", user.getId());
 			params.put("parent", realDataId);
 			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
-			
+
 			if(results.size() == 0) {
 				dataSets.setChildrenAllowed(dataId, false);
 			}
@@ -560,19 +560,23 @@ public class UMainLayout extends VerticalLayout {
 				Item res = dataSets.addItem(subSetId);
 				res.getItemProperty("Name").setValue(subId);
 				res.getItemProperty("Type").setValue(type);
-				if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
-					res.getItemProperty("Icon").setValue(hcIcon);
-				} else if(type.equalsIgnoreCase("CNKBResults")) {
-					res.getItemProperty("Icon").setValue(networkIcon);
-				} else if(type.equalsIgnoreCase("MarkusResults")) {
-					res.getItemProperty("Icon").setValue(markusIcon);
-				} else if(type.equalsIgnoreCase("AnovaResults")) {
-					res.getItemProperty("Icon").setValue(anovaIcon);
-				} else if (type.equalsIgnoreCase("AracneResults")) {
-					res.getItemProperty("Icon").setValue(networkIcon);
-				} else if(type.equalsIgnoreCase("MarinaResults")) {
-					res.getItemProperty("Icon").setValue(marinaIcon);
-				} 
+				if(subId.contains("Pending")) {
+					res.getItemProperty("Icon").setValue(pendingIcon);
+				} else {
+					if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
+						res.getItemProperty("Icon").setValue(hcIcon);
+					} else if(type.equalsIgnoreCase("CNKBResults")) {
+						res.getItemProperty("Icon").setValue(networkIcon);
+					} else if(type.equalsIgnoreCase("MarkusResults")) {
+						res.getItemProperty("Icon").setValue(markusIcon);
+					} else if(type.equalsIgnoreCase("AnovaResults")) {
+						res.getItemProperty("Icon").setValue(anovaIcon);
+					} else if (type.equalsIgnoreCase("AracneResults")) {
+						res.getItemProperty("Icon").setValue(networkIcon);
+					} else if(type.equalsIgnoreCase("MarinaResults")) {
+						res.getItemProperty("Icon").setValue(marinaIcon);
+					} 
+				}
 				dataSets.setChildrenAllowed(subSetId, false);
 				dataSets.setParent(subSetId, dataId);
 			}
@@ -788,11 +792,11 @@ public class UMainLayout extends VerticalLayout {
 						}catch(RemoteException e){
 							e.printStackTrace();
 							String msg = e.getMessage().replaceAll("\n", "<br>");
-					        getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
-					        FacadeFactory.getFacade().delete(resultSet);
-					        navigationTree.removeItem(resultSet.getId());
-					        pusher.push();
-					        return;	
+							getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
+							FacadeFactory.getFacade().delete(resultSet);
+							navigationTree.removeItem(resultSet.getId());
+							pusher.push();
+							return;	
 						}
 					}
 					FacadeFactory.getFacade().store(resultSet);	
