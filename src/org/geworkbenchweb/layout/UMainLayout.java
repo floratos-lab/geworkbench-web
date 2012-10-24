@@ -122,7 +122,7 @@ public class UMainLayout extends VerticalLayout {
 	private CssLayout leftMainLayout;
 
 	private ICEPush pusher;
-
+	
 	final MenuBar toolBar = new MenuBar();
 
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
@@ -314,7 +314,7 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
-
+	
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
 		mainSplit.setSplitPosition(275, SplitPanel.UNITS_PIXELS);
