@@ -12,6 +12,7 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.visualizations.Cytoscape;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.invient.vaadin.charts.InvientCharts;
@@ -34,6 +35,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
@@ -46,7 +48,7 @@ import com.vaadin.ui.themes.Reindeer;
  * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
-public class CNKBResultsUI extends VerticalLayout {
+public class CNKBResultsUI extends TabSheet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -66,6 +68,8 @@ public class CNKBResultsUI extends VerticalLayout {
 	
 	private static Table dataTable;
 	
+	private Cytoscape cy;
+	
 	public CNKBResultsUI(Long dataSetId) {
 		
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
@@ -77,6 +81,7 @@ public class CNKBResultsUI extends VerticalLayout {
 	
 		setSizeFull();
 		setImmediate(true);
+		setStyleName(Reindeer.TABSHEET_SMALL);
 		
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
@@ -91,6 +96,10 @@ public class CNKBResultsUI extends VerticalLayout {
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);
 		
+		/* Preparing data for cytoscape */
+		ArrayList<String> nodes = new ArrayList<String>();
+		ArrayList<String> edges = new ArrayList<String>();
+		
 		IndexedContainer dataIn  = 	new IndexedContainer();
 
 		List<String> selectedTypes = new ArrayList<String>();
@@ -100,7 +109,6 @@ public class CNKBResultsUI extends VerticalLayout {
 		
 		for(int j=0; j<hits.size();j++) {
 			Item item 								= 	dataIn.addItem(j);
-			
 			ArrayList<InteractionDetail> interactionDetail 	= 	hits.get(j).getSelectedInteractions(selectedTypes);
 			if(interactionDetail != null) {
 				for(InteractionDetail interaction : interactionDetail) {				
@@ -135,6 +143,52 @@ public class CNKBResultsUI extends VerticalLayout {
 			item.getItemProperty("Modulator-TF #").setValue((hits.get(j).getSelectedInteractions("modulator-TF")).size());
 			item.getItemProperty("Protein-DNA #").setValue(hits.get(j).getSelectedInteractions("protein-dna").size());
 			item.getItemProperty("Protein-Protein #").setValue(hits.get(j).getSelectedInteractions("protein-protein").size());
+			
+			
+			
+			if(interactionDetail.size() != 0) {
+				for(InteractionDetail interaction: interactionDetail) {
+					String edge = hits.get(j).getdSGeneMarker().getGeneName() 
+							+ ","
+							+ interaction.getdSGeneName();
+					String node1 = 	 hits.get(j).getdSGeneMarker().getGeneName()
+							+ ","
+							+  hits.get(j).getdSGeneMarker().getGeneName();
+					String node2 =	interaction.getdSGeneName()
+							+ ","
+							+ interaction.getdSGeneName();
+					if(edges.isEmpty()) {
+						edges.add(edge);
+					}else if(!edges.contains(edge)) {
+						edges.add(edge);
+					}
+					if(node1 == node2) {
+						if(!nodes.contains(node1 + ",1")){
+							nodes.add(node1+",1");
+							if(nodes.contains(node1+",0")) {
+								nodes.remove(node1 + ",0");
+							}
+						}else if(!nodes.contains(node1 + ",0")) {
+							nodes.add(node1+",0");
+						}
+					}else if(nodes.isEmpty()) {
+						nodes.add(node1 + ",1");
+						nodes.add(node2 + ",0");
+					} else { 
+						if(!nodes.contains(node1 + ",1")) {
+							nodes.add(node1 + ",1");
+							if(nodes.contains(node1+",0")) {
+								nodes.remove(node1 + ",0");
+							}
+						}
+						if(!nodes.contains(node2 + ",1")) {	
+							if(!nodes.contains(node2 + ",0")) {
+								nodes.add(node2 + ",0");
+							}
+						}
+					}
+				}
+			}
 		}
 
 		dataTable.setContainerDataSource(dataIn);
@@ -145,7 +199,25 @@ public class CNKBResultsUI extends VerticalLayout {
 		plot = drawPlot();
 		tabPanel.setFirstComponent(plot);
 		tabPanel.setSecondComponent(dataTable);
-		addComponent(tabPanel);
+		addTab(tabPanel, "CNKB Results");
+
+		cy = new Cytoscape();
+		cy.setImmediate(true);
+		cy.setSizeFull();
+		cy.setCaption("Cytoscape");
+		
+		String[] nodeArray = new String[nodes.size()];
+		String[] edgeArray = new String[edges.size()];
+
+		nodeArray = nodes.toArray(nodeArray);
+		edgeArray = edges.toArray(edgeArray);
+
+		cy.setNodes(nodeArray);
+		cy.setEdges(edgeArray);
+		cy.setNetwork("false");
+
+		addTab(cy);
+		addTab(null, "Cytoscape");
 	}
 	
 	/**
@@ -323,11 +395,8 @@ public class CNKBResultsUI extends VerticalLayout {
 	 * Called to Export SVG of the Throttle Graph
 	 */
 	public void plotExportSVG() {
-
 		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void svgAvailable(
 					ChartSVGAvailableEvent chartSVGAvailableEvent) {
@@ -335,7 +404,6 @@ public class CNKBResultsUI extends VerticalLayout {
 				System.out.println(chartSVGAvailableEvent.getSVG());
 			}
 		});
-
 	}
 
 	/**
