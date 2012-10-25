@@ -28,48 +28,48 @@ public class VisualPluginView extends HorizontalLayout {
 	 * value - layout of the plugin 
 	 * */
 	private MultiKeyMap pluginCache = new MultiKeyMap();
-
-	@SuppressWarnings("deprecation")
+	
 	public VisualPluginView() {
-
-		setWidth("100%");
 		setImmediate(true);
-		setSpacing(true);
-		setMargin(true);
-		setStyleName("sample-view");
-		
-		left = new VerticalLayout();
-		left.setWidth("100%");
-		left.setSpacing(true);
-		left.setMargin(false);
-		
-		VerticalLayout rightLayout = new VerticalLayout();
-		right = new Panel(rightLayout);
-		rightLayout.setMargin(true, false, false, false);
-		right.setStyleName(Panel.STYLE_LIGHT);
-		right.addStyleName("feature-info");
-		right.setWidth("319px");
-
-		controls = new HorizontalLayout();
-		controls.setWidth("100%");
-		controls.setStyleName("feature-controls");
-
-		title.setStyleName("title");
-		controls.addComponent(title);
-		controls.setExpandRatio(title, 1);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void setVisualPlugin(VisualPlugin plugin) {
 		
 		if(plugin.checkForVisualizer() == false) {
 			this.removeAllComponents();
-			setStyleName("sample-view");
-			right.removeAllComponents();
-			left.removeAllComponents();
+			this.setSizeFull();
+			HorizontalLayout pluginLayout = new HorizontalLayout();
+			pluginLayout.removeAllComponents();
+			pluginLayout.setWidth("100%");
+			pluginLayout.setImmediate(true);
+			pluginLayout.setSpacing(true);
+			pluginLayout.setMargin(true);
+			pluginLayout.setStyleName("sample-view");
 			
-			addComponent(left);
-			setExpandRatio(left, 1);
-			addComponent(right);
+			left = new VerticalLayout();
+			left.setWidth("100%");
+			left.setSpacing(true);
+			left.setMargin(false);
+			
+			VerticalLayout rightLayout = new VerticalLayout();
+			right = new Panel(rightLayout);
+			rightLayout.setMargin(true, false, false, false);
+			right.setStyleName(Panel.STYLE_LIGHT);
+			right.addStyleName("feature-info");
+			right.setWidth("319px");
+
+			controls = new HorizontalLayout();
+			controls.setWidth("100%");
+			controls.setStyleName("feature-controls");
+
+			title.setStyleName("title");
+			controls.addComponent(title);
+			controls.setExpandRatio(title, 1);
+			
+			pluginLayout.addComponent(left);
+			pluginLayout.setExpandRatio(left, 1);
+			pluginLayout.addComponent(right);
 			
 			currentFeature = plugin;
 
@@ -84,10 +84,14 @@ public class VisualPluginView extends HorizontalLayout {
 								+ desc + "</div></div>", Label.CONTENT_XHTML);
 				right.addComponent(l);
 			}
+			addComponent(pluginLayout);
 		} else {
 			this.removeAllComponents();
-			setSizeFull();
-			removeStyleName("sample-view");
+			if(plugin.getName().contains("HierarchicalClusteringResults")) {
+				setSizeUndefined();
+			} else {
+				setSizeFull();
+			}
 			addComponent(getLayoutFor(plugin));
 		}
 	}
