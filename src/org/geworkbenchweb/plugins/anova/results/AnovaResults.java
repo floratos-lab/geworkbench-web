@@ -12,7 +12,7 @@ public class AnovaResults extends VisualPlugin {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return null;
+		return "AnovaResults";
 	}
 
 	@Override
