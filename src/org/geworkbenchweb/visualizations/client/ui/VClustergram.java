@@ -80,11 +80,9 @@ public class VClustergram extends Composite implements Paintable {
 	 * then handle any initialization relevant to Vaadin. 
 	 */	
 	public VClustergram() {
-
 		panel = new AbsolutePanel();
 		initWidget(panel);
 		setStyleName(CLASSNAME);
-
 	}
 
 	/**
@@ -99,7 +97,7 @@ public class VClustergram extends Composite implements Paintable {
 		this.client	= client;
 		paintableId = uidl.getId();
 		panel.clear();
-
+		
 		/* All the variables from the server are retrieved here */
 		markerTreeString 		=  	uidl.getStringVariable("markerCluster").trim();
 		arrayTreeString			= 	uidl.getStringVariable("arrayCluster").trim();
@@ -108,6 +106,9 @@ public class VClustergram extends Composite implements Paintable {
 		colorArray 				=	uidl.getStringArrayVariable("color");
 		markerLabels			= 	uidl.getStringArrayVariable("markerLabels");
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
+		
+		panel.setWidth((arrayNumber*geneWidth) + 400 + "px");
+		panel.setHeight(markerNumber*geneHeight + 400 + "px");
 		
 		/* Marker Dendrogram */
 		if(markerTreeString.contains("(")) {
