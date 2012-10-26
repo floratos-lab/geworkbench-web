@@ -38,6 +38,7 @@ import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.WorkspaceUtils;
+import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -57,12 +58,14 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.SplitPanel;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
@@ -93,10 +96,6 @@ public class UMainLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
 
-	private static final Action ACTION_ADD = new Action("Add Set");
-
-	protected static final Action[] ACTIONS = new Action[] { ACTION_ADD};
-
 	private final SplitPanel mainSplit;
 
 	private ComboBox search;
@@ -125,6 +124,16 @@ public class UMainLayout extends VerticalLayout {
 	
 	final MenuBar toolBar = new MenuBar();
 
+	private static final Action ACTION_ADD = new Action("Add Set");
+
+	protected static final Action[] ACTIONS = new Action[] { ACTION_ADD};
+	
+	private static final Action ACTION_ANNOT = new Action("View Annotation");
+
+	protected static final Action[] ACTIONS_DATA = new Action[] { ACTION_ANNOT};
+	
+	private FancyCssLayout annotationLayout;
+	
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
 	ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
@@ -148,6 +157,8 @@ public class UMainLayout extends VerticalLayout {
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 
 		setSizeFull();
+		setImmediate(true);
+		
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
 
@@ -309,6 +320,31 @@ public class UMainLayout extends VerticalLayout {
 		leftMainLayout.addStyleName("mystyle");
 
 		navigationTree = createMenuTree();
+		navigationTree.addActionHandler(new Action.Handler() {
+			private static final long serialVersionUID = -749474959639684767L;
+			@Override
+			public Action[] getActions(Object target, Object sender) {
+				return ACTIONS_DATA;
+			}
+
+			@Override
+			public void handleAction(Action action, Object sender, Object target) {
+				annotationLayout.removeAllComponents();
+				
+				VerticalLayout dLayout 	=  	new VerticalLayout();
+				dLayout.addComponent(new Label("Data Set Annotation should be here"));
+				
+				TabSheet data = new TabSheet();
+				data.setStyleName(Reindeer.TABSHEET_SMALL);
+				data.setSizeFull();
+				data.addTab(dLayout, "Annotation");
+				data.addTab(dLayout, "History");
+				annotationLayout.setHeight("300px");
+				annotationLayout.setWidth("100%");
+				annotationLayout.addComponent(data);				
+			}
+			
+		});
 		navigationTree.setImmediate(true);
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
@@ -330,6 +366,10 @@ public class UMainLayout extends VerticalLayout {
 
 		Component treeSwitch = createTreeSwitch();
 		quicknav.addComponent(treeSwitch);
+		
+		annotationLayout = new FancyCssLayout();
+		annotationLayout.setSlideEnabled(true);
+		addComponent(annotationLayout);
 	}
 
 	/**
