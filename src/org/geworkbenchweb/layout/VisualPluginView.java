@@ -37,12 +37,12 @@ public class VisualPluginView extends HorizontalLayout {
 	public void setVisualPlugin(VisualPlugin plugin) {
 		
 		if(plugin.checkForVisualizer() == false) {
-			this.removeAllComponents();
-			this.setSizeFull();
+			removeAllComponents();
+			setSizeFull();
 			HorizontalLayout pluginLayout = new HorizontalLayout();
 			pluginLayout.removeAllComponents();
-			pluginLayout.setWidth("100%");
 			pluginLayout.setImmediate(true);
+			pluginLayout.setWidth("100%");
 			pluginLayout.setSpacing(true);
 			pluginLayout.setMargin(true);
 			pluginLayout.setStyleName("sample-view");
