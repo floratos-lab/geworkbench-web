@@ -106,11 +106,10 @@ public class UploadDataUI extends VerticalLayout {
 
 	public void theButtonClick(Button.ClickEvent event) {
     	
-		String dataDescription 	= 	(String) dataArea.getValue();
 		String fileType 		= 	(String) fileCombo.getValue();
 		File dataFile 			= 	(File) uploadField.getValue();
 
-		parseInit(dataFile, null, fileType, dataDescription);
+		parseInit(dataFile, null, fileType);
 		dataFile.delete();
 		/*if(uploadType.getValue().toString().equalsIgnoreCase("Upload from your Desktop")) {
     		
@@ -131,7 +130,7 @@ public class UploadDataUI extends VerticalLayout {
     	}*/
     }
     
-	protected void parseInit(File dataFile, File annotFile, String fileType, String dataDescription) {
-		new DataSetParser(dataFile, annotFile, fileType, dataDescription);
+	protected void parseInit(File dataFile, File annotFile, String fileType) {
+		new DataSetParser(dataFile, annotFile, fileType);
 	}
 }

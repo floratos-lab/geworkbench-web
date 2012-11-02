@@ -130,9 +130,6 @@ public class AracneAnalysisWeb {
 						marker1.getGeneName());
 				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 						marker2.getGeneName());
-				
-				
-				
 				matrix.add(node1, node2, graphEdge.getWeight());
 				
 			}

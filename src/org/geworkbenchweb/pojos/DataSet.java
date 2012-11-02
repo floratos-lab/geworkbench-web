@@ -13,7 +13,6 @@ public class DataSet extends AbstractPojo {
 	private static final long serialVersionUID = -2720207271844335675L;
 
 	private String name;
-	private String description;
 	private String type;
 	private Long owner;
 	private Long workspace;
@@ -45,15 +44,7 @@ public class DataSet extends AbstractPojo {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public String getDescription() {
-		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
+
 	public String getType() {
 		return type;
 	}

@@ -39,7 +39,7 @@ public class MicroarrayUI extends VerticalLayout {
 		/**
 		 * ARACNE
 		 */
-		Button aracne 	= 	new Button("ARACne", new Button.ClickListener() {
+		Button aracne 	= 	new Button("ARACNe", new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -470,12 +470,5 @@ public class MicroarrayUI extends VerticalLayout {
 		
 		table.setStyleName(Reindeer.BUTTON_LINK);
 		heatMap.setStyleName(Reindeer.BUTTON_LINK);
-		
-		
-		
-		/*addComponent(table);
-		addComponent(tableText);
-		addComponent(heatMap);
-		addComponent(heatText);*/
     }
 }

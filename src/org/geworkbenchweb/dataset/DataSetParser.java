@@ -23,13 +23,9 @@ public class DataSetParser {
 
 	private String fileName;
 	private String dataType = null;  
-	private String dataDescription;
-	
-	public DataSetParser(File dataFile, File annotFile, String fileType, String dataDescription) {
+	public DataSetParser(File dataFile, File annotFile, String fileType) {
 		
 		this.fileName 			= 	dataFile.getName();
-		this.dataDescription 	= 	dataDescription;
-		
 		if(fileType == "GEO SOFT File") {
 			this.dataType = "microarray";
 			GeoSeriesDataSet(dataFile, annotFile);
@@ -107,7 +103,6 @@ public class DataSetParser {
 		
 		dataset.setName(fileName);
 		dataset.setType(dataType);
-		dataset.setDescription(dataDescription);
 	    dataset.setOwner(user.getId());	
 	    dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
 	    dataset.setData(ObjectConversion.convertToByte(dataSet));

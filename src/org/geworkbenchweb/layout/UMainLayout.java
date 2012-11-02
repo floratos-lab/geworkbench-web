@@ -34,6 +34,7 @@ import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -48,6 +49,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -58,8 +60,10 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
@@ -73,6 +77,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -86,6 +91,7 @@ import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringP
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
+import org.geworkbenchweb.plugins.tools.Tools;
 
 /**
  * UMainLayout sets up the basic layout and style of the application.
@@ -124,15 +130,15 @@ public class UMainLayout extends VerticalLayout {
 	
 	final MenuBar toolBar = new MenuBar();
 
-	private static final Action ACTION_ADD = new Action("Add Set");
+	private static final Action ACTION_ADD 		= 	new Action("Add Set");
 
-	protected static final Action[] ACTIONS = new Action[] { ACTION_ADD};
-	
-	private static final Action ACTION_ANNOT = new Action("View Annotation");
-
-	protected static final Action[] ACTIONS_DATA = new Action[] { ACTION_ANNOT};
+	protected static final Action[] ACTIONS 	= 	new Action[] { ACTION_ADD};
 	
 	private FancyCssLayout annotationLayout;
+	
+	private Button annotButton; 		
+	
+	private Button removeButton;		
 	
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
@@ -143,6 +149,8 @@ public class UMainLayout extends VerticalLayout {
 	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
 	ThemeResource anovaIcon			=	new ThemeResource("../custom/icons/significance16x16.gif");
 	ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
+	ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
+	ThemeResource CancelIcon 		= 	new ThemeResource("../runo/icons/16/cancel.png");
 
 	public UMainLayout() {
 
@@ -177,6 +185,114 @@ public class UMainLayout extends VerticalLayout {
 		dataNavigation.setMargin(false);
 		dataNavigation.setImmediate(true);
 
+		annotButton 	= 	new Button();
+		removeButton	=	new Button();
+		
+		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
+		annotButton.setIcon(annotIcon);
+		removeButton.setStyleName(BaseTheme.BUTTON_LINK);
+		removeButton.setIcon(CancelIcon);
+		
+		annotButton.setEnabled(false);
+		removeButton.setEnabled(false);
+		
+		annotButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				annotationLayout.removeAllComponents();
+				annotationLayout.setMargin(true);
+
+				HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
+				dLayout.setSplitPosition(60);
+				dLayout.setSizeFull();
+				dLayout.setImmediate(true);
+				dLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
+				dLayout.setLocked(true);
+				
+				final VerticalLayout commentsLayout = new VerticalLayout();
+				commentsLayout.setImmediate(true);
+				commentsLayout.setMargin(true);
+				commentsLayout.setSpacing(true);
+				
+				Label cHeading 		=	new Label("User Comments:");
+				cHeading.setStyleName(Reindeer.LABEL_H2);
+				cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
+				commentsLayout.addComponent(cHeading);
+				
+				Map<String, Object> params 		= 	new HashMap<String, Object>();
+				params.put("parent", dataSetId);
+
+				List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", params);
+				if(comments.size() != 0){
+					for(int i=0;i<comments.size();i++) {
+						java.sql.Date date = ((Comment) comments.get(i)).getDate();
+						Label comment = new Label(date.toString()+
+								" - " +
+								((Comment) comments.get(i)).getComment());
+						comment.setStyleName(Reindeer.LABEL_SMALL);
+						commentsLayout.addComponent(comment);
+					}
+				}
+
+				dLayout.setFirstComponent(commentsLayout);
+				
+				VerticalLayout commentArea = new VerticalLayout();
+				commentArea.setImmediate(true);
+				commentArea.setMargin(true);
+				commentArea.setSpacing(true);
+				
+				Label commentHead 		=	new Label("Enter new comment here:");
+				commentHead.setStyleName(Reindeer.LABEL_H2);
+				commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
+				final TextArea dataArea = 	new TextArea();
+				dataArea.setRows(6);
+				dataArea.setWidth("100%");
+				Button submitComment	=	new Button("Add Comment", new Button.ClickListener() {
+					
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						if(!dataArea.getValue().toString().isEmpty()) {
+							java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+							
+							Comment c = new Comment();
+							c.setParent(dataSetId);
+							c.setComment(dataArea.getValue().toString());
+							c.setDate(date);
+							FacadeFactory.getFacade().store(c);
+							
+							Label comment = new Label(date.toString()+
+									" - " +
+									dataArea.getValue().toString());
+							comment.setStyleName(Reindeer.LABEL_SMALL);
+							commentsLayout.addComponent(comment);
+							dataArea.requestRepaint();
+						}
+					}
+				});
+				submitComment.setClickShortcut(KeyCode.ENTER);
+				commentArea.addComponent(commentHead);
+				commentArea.setComponentAlignment(commentHead, Alignment.MIDDLE_LEFT);
+				commentArea.addComponent(dataArea);
+				commentArea.setComponentAlignment(dataArea, Alignment.MIDDLE_LEFT);
+				commentArea.addComponent(submitComment);
+				commentArea.setComponentAlignment(submitComment, Alignment.MIDDLE_LEFT);
+				
+				dLayout.setSecondComponent(commentArea);
+				TabSheet data = new TabSheet();
+				data.setStyleName(Reindeer.TABSHEET_SMALL);
+				data.setSizeFull();
+				data.addTab(dLayout, "User Comments");
+				annotationLayout.setHeight("250px");
+				annotationLayout.setWidth("100%");
+				annotationLayout.addComponent(data);	
+				addComponent(annotationLayout);
+			}
+		});
+		
 		toolBar.setEnabled(false);
 		toolBar.setImmediate(true);
 		final MenuItem set = toolBar.addItem("Set View", new Command() {
@@ -293,9 +409,84 @@ public class UMainLayout extends VerticalLayout {
 		});
 
 		project.setEnabled(false);
+		
+		removeButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Long dataId = dataSetId;
+
+				DataSet data =  FacadeFactory.getFacade().find(DataSet.class, dataId);
+				if(data != null) {
+					
+					Map<String, Object> params 		= 	new HashMap<String, Object>();
+					params.put("parent", dataId);
+
+					List<?> SubSets =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent =:parent", params);
+					if(SubSets.size() != 0){
+						for(int i=0;i<SubSets.size();i++) {
+							FacadeFactory.getFacade().delete((SubSet) SubSets.get(i));
+						}
+					}
+					
+					Map<String, Object> param 		= 	new HashMap<String, Object>();
+					param.put("parent", dataId);
+
+					List<?> resultSets =  FacadeFactory.getFacade().list("Select p from ResultSet as p where p.parent =:parent", param);
+					if(resultSets.size() != 0){
+						for(int i=0;i<resultSets.size();i++) {
+							Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+							cParam.put("parent", ((ResultSet) resultSets.get(i)).getId());
+
+							List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+							if(comments.size() != 0){
+								for(int j=0;j<comments.size();j++) {
+									FacadeFactory.getFacade().delete((Comment) comments.get(j));
+								}
+							}
+							FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
+							navigationTree.removeItem(((ResultSet) resultSets.get(i)).getId());
+						}
+					}
+					Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+					cParam.put("parent", dataId);
+
+					List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+					if(comments.size() != 0){
+						for(int j=0;j<comments.size();j++) {
+							FacadeFactory.getFacade().delete((Comment) comments.get(j));
+						}
+					}
+					FacadeFactory.getFacade().delete(data);
+				}else {
+					Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+					cParam.put("parent", dataId);
+
+					List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+					if(comments.size() != 0){
+						for(int j=0;j<comments.size();j++) {
+							FacadeFactory.getFacade().delete((Comment) comments.get(j));
+						}
+					}
+					ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
+					FacadeFactory.getFacade().delete(result);
+				} 
+				navigationTree.removeItem(dataId);
+				annotButton.setEnabled(false);
+				removeButton.setEnabled(false);
+				set.setEnabled(false);
+				VisualPlugin tools = new Tools(null);
+				setVisualPlugin(tools);
+			}
+		});
 
 		UMainToolBar mainToolBar = new UMainToolBar();
 		dataNavigation.addComponent(toolBar);
+		dataNavigation.addComponent(annotButton);
+		dataNavigation.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
+		dataNavigation.addComponent(removeButton);
+		dataNavigation.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
 		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
 		dataNavigation.addComponent(mainToolBar);
 		dataNavigation.setExpandRatio(mainToolBar, 1);
@@ -320,32 +511,8 @@ public class UMainLayout extends VerticalLayout {
 		leftMainLayout.addStyleName("mystyle");
 
 		navigationTree = createMenuTree();
-		navigationTree.addActionHandler(new Action.Handler() {
-			private static final long serialVersionUID = -749474959639684767L;
-			@Override
-			public Action[] getActions(Object target, Object sender) {
-				return ACTIONS_DATA;
-			}
-
-			@Override
-			public void handleAction(Action action, Object sender, Object target) {
-				annotationLayout.removeAllComponents();
-				
-				VerticalLayout dLayout 	=  	new VerticalLayout();
-				dLayout.addComponent(new Label("Data Set Annotation should be here"));
-				
-				TabSheet data = new TabSheet();
-				data.setStyleName(Reindeer.TABSHEET_SMALL);
-				data.setSizeFull();
-				data.addTab(dLayout, "Annotation");
-				data.addTab(dLayout, "History");
-				annotationLayout.setHeight("300px");
-				annotationLayout.setWidth("100%");
-				annotationLayout.addComponent(data);				
-			}
-			
-		});
 		navigationTree.setImmediate(true);
+		
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -369,7 +536,8 @@ public class UMainLayout extends VerticalLayout {
 		
 		annotationLayout = new FancyCssLayout();
 		annotationLayout.setSlideEnabled(true);
-		addComponent(annotationLayout);
+		VisualPlugin tools = new Tools(null);
+		setVisualPlugin(tools);
 	}
 
 	/**
@@ -381,6 +549,8 @@ public class UMainLayout extends VerticalLayout {
 		tree.setImmediate(true);
 		tree.setStyleName("menu");
 		tree.setContainerDataSource(getDataContainer());
+		tree.setSelectable(true);
+		tree.setMultiSelect(false);
 		tree.addListener(new Tree.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -390,10 +560,11 @@ public class UMainLayout extends VerticalLayout {
 
 				Item selectedItem = tree.getItem(event.getProperty().getValue());
 				VisualPlugin f;
-
 				try {				
-					if(!event.getProperty().getValue().equals(null)) {
+					if(!event.getProperty().getValue().equals(null) ) {
 
+						annotButton.setEnabled(true);
+						removeButton.setEnabled(true);
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
 						if(className.contains("Results")) {
 
@@ -411,9 +582,10 @@ public class UMainLayout extends VerticalLayout {
 									className;
 							@SuppressWarnings("rawtypes")
 							Class aClass = classLoader.loadClass(loadClass);
-							dataSetId = (Long) event.getProperty().getValue();
+							dataSetId = (Long) event.getProperty().getValue();    
 
 							f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
+							removeComponent(annotationLayout);
 							setVisualPlugin(f);
 						}else {
 							ClassLoader classLoader = this.getClass().getClassLoader();
@@ -426,13 +598,14 @@ public class UMainLayout extends VerticalLayout {
 							dataSetId = (Long) event.getProperty().getValue();
 
 							f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
+							removeComponent(annotationLayout);
 							setVisualPlugin(f);
 						}
 					}
-				} catch (Exception e) {
-					//e.printStackTrace();
+				}catch (Exception e) {
+					VisualPlugin tools = new Tools(null);
+					setVisualPlugin(tools);
 				}
-
 			}
 		});
 		return tree;
@@ -442,7 +615,7 @@ public class UMainLayout extends VerticalLayout {
 	 * Sets the VisualPlugin 
 	 * @return
 	 */
-	public void setVisualPlugin(final VisualPlugin f) {
+	public void setVisualPlugin(VisualPlugin f) {
 		if(f instanceof Microarray) {
 			toolBar.setEnabled(true);
 			for(int i=0; i<toolBar.getItems().size(); i++) {
@@ -455,7 +628,7 @@ public class UMainLayout extends VerticalLayout {
 			for(int i=0; i<toolBar.getItems().size(); i++) {
 				toolBar.getItems().get(i).setEnabled(false);	
 			}
-		}
+		} 
 		pluginView.setVisualPlugin(f);
 	}
 
@@ -485,7 +658,7 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
-	/*
+	/**
 	 * Search
 	 */
 	private Component createSearch() {
@@ -496,8 +669,6 @@ public class UMainLayout extends VerticalLayout {
 		search.setNullSelectionAllowed(true);
 		search.setImmediate(true);
 		search.setInputPrompt("Search samples...");
-
-		// TODO add icons for section/sample
 		/*
 		 * PopupView pv = new PopupView("", search) { public void
 		 * changeVariables(Object source, Map variables) {
@@ -521,7 +692,11 @@ public class UMainLayout extends VerticalLayout {
 		pv.setDescription("Quick jump");
 		return pv;
 	}
-
+	
+	/**
+	 * Creates the tree switch for the mainsplit 
+	 * @return
+	 */
 	private Component createTreeSwitch() {
 		final Button b = new NativeButton();
 		b.setStyleName("tree-switch");
@@ -559,7 +734,7 @@ public class UMainLayout extends VerticalLayout {
 		dataSets.addContainerProperty("Name", String.class, null);
 		dataSets.addContainerProperty("Type", String.class, null);
 		dataSets.addContainerProperty("Icon", Resource.class, null);
-
+		
 		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		param.put("owner", user.getId());
 		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
@@ -570,7 +745,6 @@ public class UMainLayout extends VerticalLayout {
 
 			String id 		=	((DataSet) data.get(i)).getName();
 			Long dataId		=	((DataSet) data.get(i)).getId();	
-			Long realDataId =	((DataSet) data.get(i)).getId();
 
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
@@ -584,7 +758,7 @@ public class UMainLayout extends VerticalLayout {
 
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
 			params.put("owner", user.getId());
-			params.put("parent", realDataId);
+			params.put("parent", dataId);
 			List<?> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
 
 			if(results.size() == 0) {
@@ -592,7 +766,6 @@ public class UMainLayout extends VerticalLayout {
 			}
 
 			for(int j=0; j<results.size(); j++) {
-
 				String subId 		=	((ResultSet) results.get(j)).getName();
 				Long subSetId		=	((ResultSet) results.get(j)).getId();	
 				String type			=	((ResultSet) results.get(j)).getType();
@@ -675,7 +848,6 @@ public class UMainLayout extends VerticalLayout {
 			}
 		}
 		return tableData;
-
 	}
 
 	/**
@@ -777,7 +949,7 @@ public class UMainLayout extends VerticalLayout {
 	}
 
 	/**
-	 * Used to submit the analysis in geWorkbench and updated the data tree with resultnodes once the 
+	 * Used to submit the analysis in geWorkbench and updates the data tree with resultnodes once the 
 	 * anlysis is complete in the background.
 	 * @author Nikhil
 	 */
@@ -865,6 +1037,9 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
+	/**
+	 * Creates context menu for Marker Tree and handles Actions
+	 */
 	private Action.Handler markerTreeActionHandler = new Action.Handler() {
 
 		private static final long serialVersionUID = 1L;
@@ -912,6 +1087,7 @@ public class UMainLayout extends VerticalLayout {
 					}
 				}
 			});
+			submit.setClickShortcut(KeyCode.ENTER);
 			nameWindow.addComponent(setName);
 			nameWindow.addComponent(submit);
 			getApplication().getMainWindow().addWindow(nameWindow);
@@ -923,6 +1099,9 @@ public class UMainLayout extends VerticalLayout {
 		}
 	};
 
+	/**
+	 * Creates context menu for Phenotype Tree and handles Actions
+	 */
 	private Action.Handler arrayTreeActionHandler = new Action.Handler() {
 
 		private static final long serialVersionUID = 1L;
@@ -969,6 +1148,7 @@ public class UMainLayout extends VerticalLayout {
 					}
 				}
 			});
+			submit.setClickShortcut(KeyCode.ENTER);
 			nameWindow.addComponent(setName);
 			nameWindow.addComponent(submit);
 			getApplication().getMainWindow().addWindow(nameWindow);

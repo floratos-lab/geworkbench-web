@@ -7,6 +7,10 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.apache.commons.collections.map.MultiKeyMap;
 
+/**
+ * ViusalPluginView sets the visualplugin to the main layout.
+ * @author Nikhil Reddy
+ */
 public class VisualPluginView extends HorizontalLayout {
 
 	private static final long serialVersionUID = 1L;

@@ -32,6 +32,11 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
+/**
+ * Authentication and Registration are handled here.
+ * TODO: Refactor the code 
+ * @author Nikhil
+ */
 public class UUserAuth extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
@@ -74,13 +79,7 @@ public class UUserAuth extends VerticalLayout {
 				String password = (String) passwordField.getValue();
 				
 				try {
-					
-					AuthenticationUtil.authenticate(username,
-							password);
-					
-					
-					//getApplication().getMainWindow().removeAllComponents();
-					
+					AuthenticationUtil.authenticate(username, password);
 					getApplication().getMainWindow().setContent(new UMainLayout());
 					
 					/**
@@ -88,19 +87,12 @@ public class UUserAuth extends VerticalLayout {
 					 *	Root.getCurrent().setContent(new UMainLayout());
 					 */
 				} catch (InvalidCredentialsException e) {
-					
-					feedbackLabel
-					.setValue("Either username or password was wrong");
-				
+					feedbackLabel.setValue("Either username or password was wrong");
 				} catch (AccountLockedException e) {
-					
 					feedbackLabel.setValue("The given account has been locked");
-				
 				} catch (Exception e) {
-					
 					e.printStackTrace();
 					feedbackLabel.setValue("Some other exception");
-					
 				}
 			}
 		});
@@ -113,14 +105,11 @@ public class UUserAuth extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
 				content.removeAllComponents();
 				Component registrationWindow = buildRegisterForm();
 				content.addComponent(registrationWindow);
 				content.setComponentAlignment(registrationWindow, Alignment.MIDDLE_CENTER);
-		
 			}
-
 		});
 		
 		HorizontalLayout group = new HorizontalLayout();
@@ -140,7 +129,6 @@ public class UUserAuth extends VerticalLayout {
 		content.addComponent(loginPanel);
 		content.setComponentAlignment(loginPanel, Alignment.TOP_CENTER);		
 		return content;
-		
 	}
 
 	/*
@@ -222,9 +210,8 @@ public class UUserAuth extends VerticalLayout {
 					 */
 					
 				} catch (TooShortPasswordException e) {
-					
 					feedbackLabel
-					.setValue("Password is too short, it needs to be at least "
+						.setValue("Password is too short, it needs to be at least "
 							+ UserUtil.getMinPasswordLength()
 							+ " characters long");
 				
@@ -259,16 +246,11 @@ public class UUserAuth extends VerticalLayout {
 		});
 		
 		Button backLogin = new Button("Login", new ClickListener() {
-			
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
 				getApplication().close();
-			
 			}
-
 		});
 		registerButton.setClickShortcut(KeyCode.ENTER);
 		
