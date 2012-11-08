@@ -114,7 +114,7 @@ public class AnovaAnalysis {
 			options.setTimeOutInMilliSeconds(120000);
 
 			EndpointReference targetEPR = new EndpointReference(
-					"http://156.145.28.209:8080/axis2/services/AnovaService");
+					"http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService");
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
