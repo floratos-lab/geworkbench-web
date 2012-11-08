@@ -968,8 +968,10 @@ public class UMainLayout extends VerticalLayout {
 					try {
 						dataSet = (DSMicroarraySet) event.getDataSet();
 					} catch (Exception e) {
-						//TODO
+						// FIXME catching all clause is evil; catching all and doing nothing is the evil of eviles
+						e.printStackTrace();
 					}
+					// FIXME this particular if/else structure destroys any value of OO paradigm
 					if(resultSet.getType().contains("HierarchicalClusteringResults")) {
 						DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
 								new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
