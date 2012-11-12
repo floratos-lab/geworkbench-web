@@ -1060,7 +1060,9 @@ public class UMainLayout extends VerticalLayout {
 							String mark 	= 	sender.toString();
 							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 							for(int i=0; i<temp.length; i++) {
-								markers.add((String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
+								String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+								String[] dataA = data.split("\\s+");
+								markers.add(dataA[0]);
 							}
 							SubSetOperations.storeData(markers, "marker", (String) setName.getValue(), dataSetId);
 							markerSetTree.addItem((String) setName.getValue());
