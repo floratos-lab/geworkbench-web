@@ -976,9 +976,7 @@ public class UMainLayout extends VerticalLayout {
 						DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
 								new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 						HierarchicalClusteringWrapper analysis 	= 	
-								new HierarchicalClusteringWrapper(data, (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC), 
-										(Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD), 
-										(Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION));
+								new HierarchicalClusteringWrapper(data, params);
 						HierCluster[] resultClusters = analysis.execute();
 						CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
 								"Hierarchical Clustering", data);

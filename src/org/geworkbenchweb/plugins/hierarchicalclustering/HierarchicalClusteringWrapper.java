@@ -1,5 +1,8 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
+import java.io.Serializable;
+import java.util.HashMap;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -26,11 +29,11 @@ public class HierarchicalClusteringWrapper {
 
 	public HierarchicalClusteringWrapper(
 			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> data,
-			final int metric, final int method, int dimension) {
+			HashMap<Serializable, Serializable> params) {
 		this.data = data;
-		this.metric = metric;
-		this.method = method;
-		this.dimension = dimension;
+		this.metric = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC);
+		this.method = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD);
+		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
 	}
 
 	public HierCluster[] execute() {
