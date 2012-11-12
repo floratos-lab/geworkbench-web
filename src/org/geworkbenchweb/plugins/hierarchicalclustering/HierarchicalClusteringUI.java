@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -42,7 +44,7 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 	
 	private final Long dataSetId;
 	
-	private final DSMicroarraySet maSet;
+	private DSMicroarraySet maSet;
 	
 	private ResultSet resultSet;
 	
@@ -83,6 +85,29 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				try {
+					if(!valueChangeEvent.getProperty().getValue().toString().equals("Entire DataSet")) {
+						Long subSetId = (Long) valueChangeEvent.getProperty().getValue();
+						SubSet data = SubSetOperations.getSubSet(subSetId);
+						ArrayList<String> positions = data.getPositions();
+						int count = 0;
+						if(data.getType().equals("microarray")) {
+							int len = maSet.size();
+							for(int i=0; i<len; i++) {
+								if(!positions.contains(maSet.get(i-count).getLabel())) {
+									maSet.remove(i-count);
+									count++;
+								}
+							}
+						} else {
+							int len = maSet.getMarkers().size();
+							for(int i=0; i<len; i++) {
+								if(!positions.contains(maSet.getMarkers().get(i-count).getLabel())) {
+									maSet.getMarkers().remove(i-count);
+									count++;
+								}
+							}
+						}
+					}
 				}catch(NullPointerException e) {
 					System.out.println("let us worry about this later");
 				}
@@ -122,13 +147,9 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
-
 					clustDim 	= 	valueChangeEvent.getProperty().getValue().toString();
-
 				}catch(NullPointerException e) {
-
 					System.out.println("let us worry about this later");
-
 				}
 			}
 		});
@@ -148,13 +169,9 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
-
 					clustMetric 	= 	valueChangeEvent.getProperty().getValue().toString();
-		
 				}catch(NullPointerException e) {
-
 					System.out.println("let us worry about this later");
-
 				}
 			}
 		});
@@ -187,9 +204,7 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
 					
 				} catch (Exception e) {	
-					
-					System.out.println(e);
-
+					e.printStackTrace();
 				}		
 			}
 		});
