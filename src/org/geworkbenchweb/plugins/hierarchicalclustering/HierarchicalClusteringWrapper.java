@@ -5,9 +5,12 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.components.hierarchicalclustering.ClusteringAlgorithm;
 import org.geworkbench.components.hierarchicalclustering.HierClusterFactory;
@@ -28,15 +31,18 @@ public class HierarchicalClusteringWrapper {
 			.getLog(HierarchicalClusteringWrapper.class);
 
 	public HierarchicalClusteringWrapper(
-			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> data,
+			final DSMicroarraySet dataSet,
 			HashMap<Serializable, Serializable> params) {
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
+				new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+		
 		this.data = data;
 		this.metric = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC);
 		this.method = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD);
 		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
 	}
 
-	public HierCluster[] execute() {
+	public CSHierClusterDataSet execute() {
 		double[][] matrix = geValues(data);
 		final Distance[] distances = { EuclideanDistance.instance,
 				CorrelationDistance.instance, SpearmanRankDistance.instance };
@@ -83,7 +89,8 @@ public class HierarchicalClusteringWrapper {
 					distanceMetric);
 		}
 
-		return resultClusters;
+		return new CSHierClusterDataSet(resultClusters, null, false,
+				"Hierarchical Clustering", data);
 	}
 
 	// TODO these duplicate methods should be refactored in geWorkbench so it does

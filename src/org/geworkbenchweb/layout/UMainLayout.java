@@ -12,29 +12,31 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbenchweb.GeworkbenchRoot; 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
+import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
+import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
+import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
+import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
+import org.geworkbenchweb.plugins.microarray.Microarray;
+import org.geworkbenchweb.plugins.tools.Tools;
+import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -56,6 +58,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -63,35 +66,24 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
+import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
-import org.geworkbenchweb.plugins.anova.AnovaUI;
-import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
-import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringParams;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
-import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
-import org.geworkbenchweb.plugins.microarray.Microarray;
-import org.geworkbenchweb.plugins.tools.Tools;
 
 /**
  * UMainLayout sets up the basic layout and style of the application.
@@ -949,8 +941,8 @@ public class UMainLayout extends VerticalLayout {
 	}
 
 	/**
-	 * Used to submit the analysis in geWorkbench and updates the data tree with resultnodes once the 
-	 * anlysis is complete in the background.
+	 * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
+	 * analysis is complete in the background.
 	 * @author Nikhil
 	 */
 	public class AnalysisListener implements AnalysisSubmissionEventListener {
@@ -958,7 +950,7 @@ public class UMainLayout extends VerticalLayout {
 		@Override
 		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
 
-			Thread analysis = new Thread() {
+			Thread analysisThread = new Thread() {
 				@Override
 				public void run() {
 					final ResultSet resultSet = event.getResultSet();
@@ -968,20 +960,15 @@ public class UMainLayout extends VerticalLayout {
 					try {
 						dataSet = (DSMicroarraySet) event.getDataSet();
 					} catch (Exception e) {
-						// FIXME catching all clause is evil; catching all and doing nothing is the evil of eviles
+						// FIXME catching all clause is evil; catching all and doing nothing is the evil of evils
 						e.printStackTrace();
 					}
 					// FIXME this particular if/else structure destroys any value of OO paradigm
 					if(resultSet.getType().contains("HierarchicalClusteringResults")) {
-						DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
-								new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
-						HierarchicalClusteringWrapper analysis 	= 	
-								new HierarchicalClusteringWrapper(data, params);
-						HierCluster[] resultClusters = analysis.execute();
-						CSHierClusterDataSet results = new CSHierClusterDataSet(resultClusters, null, false,
-								"Hierarchical Clustering", data);
+						HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
+								dataSet, params);
 						resultSet.setName("Hierarchical Clustering");
-						resultSet.setData(ObjectConversion.convertToByte(results));
+						resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
 					} else if(resultSet.getType().contains("CNKBResults")) {
 						CNKBInteractions cnkb = new CNKBInteractions();
 						Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
@@ -1033,7 +1020,7 @@ public class UMainLayout extends VerticalLayout {
 					pusher.push();
 				}
 			};
-			analysis.start();
+			analysisThread.start();
 		}
 	}
 
