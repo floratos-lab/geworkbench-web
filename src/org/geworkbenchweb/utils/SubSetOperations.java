@@ -114,19 +114,11 @@ public class SubSetOperations {
 
 	}
 
-	public static boolean checkForDataSet(String subSetName) {
+	public static SubSet getSubSet(Long subSetId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-
-		parameters.put("name", subSetName);
-
-		List<?> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.name=:name", parameters);
-
-		if(data.isEmpty()) {
-			return false;
-		}else {
-			return true;
-		}
-
+		parameters.put("id", subSetId);
+		List<?> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id", parameters);
+		return (SubSet) data.get(0);
 	}
 }
