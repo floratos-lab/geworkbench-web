@@ -39,10 +39,7 @@ public class CNKBInteractions {
 		hits = new Vector<CellularNetWorkElementInformation>();
 		
 		for(int i=0; i<dataSet.getMarkers().size(); i++) {
-			if(markers.contains(dataSet.getMarkers().get(i).getLabel()
-					+ " (" 
-					+ dataSet.getMarkers().get(i).getGeneName()
-					+ ")")) {
+			if(markers.contains(dataSet.getMarkers().get(i).getLabel())) {
 				hits.addElement(new CellularNetWorkElementInformation(dataSet.getMarkers().get(i)));	
 			}
 		}

@@ -13,6 +13,11 @@ public class DataHistory extends AbstractPojo {
 	private static final long serialVersionUID = 1L;
 
 	private Long parent;
+	
+	/**
+	 * flag = 1, for resultset
+	 * flag = 0, for dataSet 
+	 */
 	private int flag;
 	
 	@Lob

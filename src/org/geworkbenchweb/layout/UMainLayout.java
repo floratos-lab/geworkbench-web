@@ -34,6 +34,7 @@ import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 import org.geworkbenchweb.plugins.tools.Tools;
 import org.geworkbenchweb.pojos.Comment;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -471,6 +472,7 @@ public class UMainLayout extends VerticalLayout {
 				annotationLayout.setMargin(true);
 				annotationLayout.setHeight("250px");
 				annotationLayout.setWidth("100%");
+				annotationLayout.setImmediate(true);
 				annotationLayout.addComponent(buildAnnotationTabSheet());	
 				addComponent(annotationLayout);	
 
@@ -1223,17 +1225,30 @@ public class UMainLayout extends VerticalLayout {
 		VerticalLayout dataHistory 	= 	new VerticalLayout();
 		VerticalLayout expInfo		=	new VerticalLayout();
 		
-		dataHistory.setSizeFull();
+		dataHistory.setSizeUndefined();
 		dataHistory.setMargin(true);
-		
-		expInfo.setSizeFull();
-		expInfo.setMargin(true);
-		
+		dataHistory.setSpacing(true);
+		dataHistory.setImmediate(true);
+
 		Label historyHead 		=	new Label("Data History:");
 		historyHead.setStyleName(Reindeer.LABEL_H2);
 		historyHead.setContentMode(Label.CONTENT_PREFORMATTED);
 		dataHistory.addComponent(historyHead);
 		
+		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
+		eParams.put("parent", dataSetId);
+
+		List<?> histories =  FacadeFactory.getFacade().list("Select p from DataHistory as p where p.parent =:parent", eParams);
+		for(int i=0; i<histories.size(); i++) {
+			DataHistory dH = (DataHistory) histories.get(i);
+			Label d = new Label((String) ObjectConversion.toObject(dH.getData()));
+			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			dataHistory.addComponent(d);
+		}
+		
+		expInfo.setSizeFull();
+		expInfo.setMargin(true);
+	
 		Label infoHead 		=	new Label("Experiment Information:");
 		infoHead.setStyleName(Reindeer.LABEL_H2);
 		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
@@ -1244,6 +1259,7 @@ public class UMainLayout extends VerticalLayout {
 		TabSheet data = new TabSheet();
 		data.setStyleName(Reindeer.TABSHEET_SMALL);
 		data.setSizeFull();
+		data.setImmediate(true);
 	
 		data.addTab(infoSplit, "Data Information");
 		data.addTab(dLayout, "User Comments");	

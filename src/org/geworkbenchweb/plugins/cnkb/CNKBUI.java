@@ -15,6 +15,7 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -101,6 +102,8 @@ public class CNKBUI extends VerticalLayout {
 					resultSet.setOwner(user.getId());	
 					FacadeFactory.getFacade().store(resultSet);	
 			
+					generateHistoryString();
+					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 					
@@ -205,5 +208,28 @@ public class CNKBUI extends VerticalLayout {
 		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
 		ResultSetlUtil.setUrl(interactionsServletUrl);
 		ResultSetlUtil.setTimeout(timeout);
+	}
+	
+	private void generateHistoryString() {
+		StringBuilder mark = new StringBuilder();
+		
+		mark.append("CNKB Parameters : \n");
+		mark.append("Interactome - " + (String) params.get(CNKBParameters.INTERACTOME) + "\n");
+		mark.append("Interactome Version - " + (String) params.get(CNKBParameters.VERSION) + "\n");
+		List<?> data = SubSetOperations.getMarkerSet(Long.parseLong((String) params.get(CNKBParameters.MARKER_SET_ID)));
+		SubSet markers = (SubSet) data.get(0);
+		
+		mark.append("Markers used - \n" );
+		for(int i=0; i<markers.getPositions().size(); i++) {
+			mark.append( "\t" + markers.getPositions().get(i) + "\n");
+		}
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSet.getId());
+		his.setFlag(1);
+		his.setData(ObjectConversion.convertToByte(mark.toString()));
+		System.out.println(mark.toString());
+		
+		FacadeFactory.getFacade().store(his);
 	}
 }
