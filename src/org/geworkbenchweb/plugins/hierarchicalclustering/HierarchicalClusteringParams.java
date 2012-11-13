@@ -5,7 +5,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
  * @author np2417
  */
 public class HierarchicalClusteringParams {
-	public static String CLUSTER_METHOD 	=	"clusterMethod"; 
-	public static String CLUSTER_DIMENSION 	=	"clusterDimension";
-	public static String CLUSTER_METRIC 	= 	"clusterMetric";	
+	public static String CLUSTER_METHOD 	=	"Clustering Method"; 
+	public static String CLUSTER_DIMENSION 	=	"Clustering Dimension";
+	public static String CLUSTER_METRIC 	= 	"Clustering Metric";	
 }

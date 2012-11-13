@@ -15,7 +15,6 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.plugins.cnkb.results.CNKBParameters;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;

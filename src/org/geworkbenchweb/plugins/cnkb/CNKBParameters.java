@@ -1,4 +1,4 @@
-package org.geworkbenchweb.plugins.cnkb.results;
+package org.geworkbenchweb.plugins.cnkb;
 
 public class CNKBParameters {
 	public static String MARKER_SET_ID 	=	"markerSetId";

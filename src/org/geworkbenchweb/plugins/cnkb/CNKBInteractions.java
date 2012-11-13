@@ -15,7 +15,6 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionsConne
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.plugins.cnkb.results.CNKBParameters;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 
