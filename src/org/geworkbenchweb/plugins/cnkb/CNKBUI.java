@@ -226,7 +226,6 @@ public class CNKBUI extends VerticalLayout {
 		
 		DataHistory his = new DataHistory();
 		his.setParent(resultSet.getId());
-		his.setFlag(1);
 		his.setData(ObjectConversion.convertToByte(mark.toString()));
 		System.out.println(mark.toString());
 		

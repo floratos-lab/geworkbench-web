@@ -36,6 +36,7 @@ import org.geworkbenchweb.plugins.tools.Tools;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -1148,6 +1149,7 @@ public class UMainLayout extends VerticalLayout {
 		commentsLayout.setImmediate(true);
 		commentsLayout.setMargin(true);
 		commentsLayout.setSpacing(true);
+		commentsLayout.setSizeUndefined();
 		
 		Label cHeading 		=	new Label("User Comments:");
 		cHeading.setStyleName(Reindeer.LABEL_H2);
@@ -1164,7 +1166,6 @@ public class UMainLayout extends VerticalLayout {
 				Label comment = new Label(date.toString()+
 						" - " +
 						((Comment) comments.get(i)).getComment());
-				comment.setStyleName(Reindeer.LABEL_SMALL);
 				commentsLayout.addComponent(comment);
 			}
 		}
@@ -1200,7 +1201,6 @@ public class UMainLayout extends VerticalLayout {
 					Label comment = new Label(date.toString()+
 							" - " +
 							dataArea.getValue().toString());
-					comment.setStyleName(Reindeer.LABEL_SMALL);
 					commentsLayout.addComponent(comment);
 					dataArea.requestRepaint();
 				}
@@ -1246,14 +1246,26 @@ public class UMainLayout extends VerticalLayout {
 			dataHistory.addComponent(d);
 		}
 		
-		expInfo.setSizeFull();
+		expInfo.setSizeUndefined();
 		expInfo.setMargin(true);
-	
+		expInfo.setSpacing(true);
+		
 		Label infoHead 		=	new Label("Experiment Information:");
 		infoHead.setStyleName(Reindeer.LABEL_H2);
 		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
 		expInfo.addComponent(infoHead);
 		
+		Map<String, Object> iParams 		= 	new HashMap<String, Object>();
+		iParams.put("parent", dataSetId);
+
+		List<?> info =  FacadeFactory.getFacade().list("Select p from ExperimentInfo as p where p.parent =:parent", iParams);
+		for(int i=0; i<info.size(); i++) {
+			ExperimentInfo eI = (ExperimentInfo) info.get(i);
+			Label d = new Label((String) ObjectConversion.toObject(eI.getInfo()));
+			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			expInfo.addComponent(d);
+		}
+	
 		infoSplit.setFirstComponent(dataHistory);
 		infoSplit.setSecondComponent(expInfo);
 		TabSheet data = new TabSheet();

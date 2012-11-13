@@ -12,7 +12,9 @@ import org.geworkbench.parsers.PDBFileFormat;
 import org.geworkbench.parsers.SOFTFileFormat;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -98,6 +100,7 @@ public class DataSetParser {
 	}
 
 	private void storeData(DSDataSet<? extends DSBioObject> dataSet) {
+		
 		User user 		= 	SessionHandler.get();
 		DataSet dataset = 	new DataSet();
 		
@@ -108,6 +111,27 @@ public class DataSetParser {
 	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
 	    
+	    DataHistory dataHistory = new DataHistory();
+		dataHistory.setParent(dataset.getId());
+		StringBuilder data =	new StringBuilder(); 
+		data.append("Data File Name : " + dataSet.getLabel() + "\n");
+		if(dataType.equalsIgnoreCase("microarray")) {
+			data.append("Annotation File - \n");
+			data.append("Gene Ontology File - \n");
+		}
+		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));
+		FacadeFactory.getFacade().store(dataHistory);
+	
+		if(dataType.equalsIgnoreCase("microarray")) {
+			ExperimentInfo experimentInfo = new ExperimentInfo();
+			experimentInfo.setParent(dataset.getId());
+			StringBuilder info =	new StringBuilder(); 
+			info.append("Number of phenotypes in the data set - " + ((DSMicroarraySet) dataSet).size() + "\n");
+			info.append("Number of markers in the data set - " + ((DSMicroarraySet) dataSet).getMarkers().size() + "\n");
+			experimentInfo.setInfo(ObjectConversion.convertToByte(info.toString()));
+			FacadeFactory.getFacade().store(experimentInfo);
+		}
+		
 	    NodeAddEvent resultEvent = new NodeAddEvent(dataset);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 	}

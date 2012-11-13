@@ -14,12 +14,6 @@ public class DataHistory extends AbstractPojo {
 
 	private Long parent;
 	
-	/**
-	 * flag = 1, for resultset
-	 * flag = 0, for dataSet 
-	 */
-	private int flag;
-	
 	@Lob
 	private byte[] dataHistory;
 
@@ -37,13 +31,5 @@ public class DataHistory extends AbstractPojo {
 
 	public void setData(byte[] data) {
 		this.dataHistory = data;
-	}
-
-	public int getFlag() {
-		return flag;
-	}
-
-	public void setFlag(int flag) {
-		this.flag = flag;
 	}
 }
