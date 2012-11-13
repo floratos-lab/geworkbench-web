@@ -227,8 +227,6 @@ public class CNKBUI extends VerticalLayout {
 		DataHistory his = new DataHistory();
 		his.setParent(resultSet.getId());
 		his.setData(ObjectConversion.convertToByte(mark.toString()));
-		System.out.println(mark.toString());
-		
 		FacadeFactory.getFacade().store(his);
 	}
 }

@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -36,11 +37,11 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
-	private String clustMethod = null;
+	private String clustMethod = "Single Linkage";
 	
-	private String clustDim = null;
+	private String clustDim = "Marker";
 	
-	private String clustMetric = null;
+	private String clustMetric = "Euclidean Distance";
 	
 	private final Long dataSetId;
 	
@@ -197,6 +198,8 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
+					generateHistoryString();
+					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
@@ -259,6 +262,30 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		} else {
 			return 0;
 		}
+	}
+	
+	private void generateHistoryString() {
+		StringBuilder mark = new StringBuilder();
+		
+		mark.append("Hierarchical Clustering Parameters : \n");
+		mark.append("Clustering Method - " + clustMethod + "\n");
+		mark.append("Clustering Dimension - " + clustDim + "\n");
+		mark.append("Clustering Metric - " + clustMetric + "\n");
+		
+		mark.append("Markers used - \n" );
+		for(int i=0; i<maSet.getMarkers().size(); i++) {
+			mark.append( "\t" + maSet.getMarkers().get(i).getLabel() + "\n");
+		}
+		
+		mark.append("Phenotypes used - \n" );
+		for(int i=0; i<maSet.size(); i++) {
+			mark.append( "\t" + maSet.get(i).getLabel() + "\n");
+		}
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSet.getId());
+		his.setData(ObjectConversion.convertToByte(mark.toString()));
+		FacadeFactory.getFacade().store(his);
 	}
 }
 
