@@ -204,8 +204,6 @@ public class VClustergram extends Composite implements Paintable {
 							.def(selectedNodeIndexProperty, -1)
 							.def(selectedArcIndexProperty, null);
 
-
-
 					PVClusterLayout arrayTreeLayout = vis
 							.add(PV.Layout.Cluster())
 							.nodes(((PVDomNode) TreeData.data(arrayTreeString)).nodes()).group(false).orient("top");
@@ -383,7 +381,6 @@ public class VClustergram extends Composite implements Paintable {
 		}
 
 		/* Variables that are to be updated are sent to the server counterpart here */
-		
 		client.updateVariable(paintableId, "markerLabels", newMarkerLabels, false);
 		client.updateVariable(paintableId, "markerColor", newColorArray, false);
 		client.updateVariable(paintableId, "markerNumber", countMatches(markerTreeString.substring(selectedNodeIndex, selectedNodeIndex + positionIncrement), "()"), false);

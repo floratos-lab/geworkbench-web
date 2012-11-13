@@ -36,6 +36,7 @@ public class UMainToolBar extends MenuBar {
 	public UMainToolBar() {
 		
 		setImmediate(true);
+		setStyleName("transparent");
 		
 		@SuppressWarnings("unused")
 		final MenuBar.MenuItem uploadData = this.addItem("Upload  Data", new Command() {

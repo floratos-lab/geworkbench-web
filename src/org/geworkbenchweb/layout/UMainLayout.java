@@ -120,6 +120,8 @@ public class UMainLayout extends VerticalLayout {
 
 	private ICEPush pusher;
 	
+	private MenuBar annotationBar;
+	
 	final MenuBar toolBar = new MenuBar();
 
 	private static final Action ACTION_ADD 		= 	new Action("Add Set");
@@ -195,98 +197,23 @@ public class UMainLayout extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				annotationLayout.removeAllComponents();
 				annotationLayout.setMargin(true);
-
-				HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
-				dLayout.setSplitPosition(60);
-				dLayout.setSizeFull();
-				dLayout.setImmediate(true);
-				dLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
-				dLayout.setLocked(true);
-				
-				final VerticalLayout commentsLayout = new VerticalLayout();
-				commentsLayout.setImmediate(true);
-				commentsLayout.setMargin(true);
-				commentsLayout.setSpacing(true);
-				
-				Label cHeading 		=	new Label("User Comments:");
-				cHeading.setStyleName(Reindeer.LABEL_H2);
-				cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
-				commentsLayout.addComponent(cHeading);
-				
-				Map<String, Object> params 		= 	new HashMap<String, Object>();
-				params.put("parent", dataSetId);
-
-				List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", params);
-				if(comments.size() != 0){
-					for(int i=0;i<comments.size();i++) {
-						java.sql.Date date = ((Comment) comments.get(i)).getDate();
-						Label comment = new Label(date.toString()+
-								" - " +
-								((Comment) comments.get(i)).getComment());
-						comment.setStyleName(Reindeer.LABEL_SMALL);
-						commentsLayout.addComponent(comment);
-					}
-				}
-
-				dLayout.setFirstComponent(commentsLayout);
-				
-				VerticalLayout commentArea = new VerticalLayout();
-				commentArea.setImmediate(true);
-				commentArea.setMargin(true);
-				commentArea.setSpacing(true);
-				
-				Label commentHead 		=	new Label("Enter new comment here:");
-				commentHead.setStyleName(Reindeer.LABEL_H2);
-				commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
-				final TextArea dataArea = 	new TextArea();
-				dataArea.setRows(6);
-				dataArea.setWidth("100%");
-				Button submitComment	=	new Button("Add Comment", new Button.ClickListener() {
-					
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						if(!dataArea.getValue().toString().isEmpty()) {
-							java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-							
-							Comment c = new Comment();
-							c.setParent(dataSetId);
-							c.setComment(dataArea.getValue().toString());
-							c.setDate(date);
-							FacadeFactory.getFacade().store(c);
-							
-							Label comment = new Label(date.toString()+
-									" - " +
-									dataArea.getValue().toString());
-							comment.setStyleName(Reindeer.LABEL_SMALL);
-							commentsLayout.addComponent(comment);
-							dataArea.requestRepaint();
-						}
-					}
-				});
-				submitComment.setClickShortcut(KeyCode.ENTER);
-				commentArea.addComponent(commentHead);
-				commentArea.setComponentAlignment(commentHead, Alignment.MIDDLE_LEFT);
-				commentArea.addComponent(dataArea);
-				commentArea.setComponentAlignment(dataArea, Alignment.MIDDLE_LEFT);
-				commentArea.addComponent(submitComment);
-				commentArea.setComponentAlignment(submitComment, Alignment.MIDDLE_LEFT);
-				
-				dLayout.setSecondComponent(commentArea);
-				TabSheet data = new TabSheet();
-				data.setStyleName(Reindeer.TABSHEET_SMALL);
-				data.setSizeFull();
-				data.addTab(dLayout, "User Comments");
 				annotationLayout.setHeight("250px");
 				annotationLayout.setWidth("100%");
-				annotationLayout.addComponent(data);	
+				for(int i=0; i<annotationBar.getItems().size(); i++) {
+					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
+						annotationBar.getItems().get(i).setVisible(true);	
+					} else {
+						annotationBar.getItems().get(i).setVisible(false);	
+					}
+				}
+				annotationLayout.addComponent(buildAnnotationTabSheet());	
 				addComponent(annotationLayout);
 			}
 		});
 		
 		toolBar.setEnabled(false);
 		toolBar.setImmediate(true);
+		toolBar.setStyleName("transparent");
 		final MenuItem set = toolBar.addItem("Set View", new Command() {
 
 			private static final long serialVersionUID = 1L;
@@ -530,6 +457,54 @@ public class UMainLayout extends VerticalLayout {
 		annotationLayout.setSlideEnabled(true);
 		VisualPlugin tools = new Tools(null);
 		setVisualPlugin(tools);
+		
+		annotationBar = new MenuBar();
+		annotationBar.setWidth("100%");
+		MenuBar.MenuItem up = annotationBar.addItem("", new ThemeResource(
+				"../runo/icons/16/arrow-up.png"), new Command() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				annotationLayout.removeAllComponents();
+				annotationLayout.setMargin(true);
+				annotationLayout.setHeight("250px");
+				annotationLayout.setWidth("100%");
+				annotationLayout.addComponent(buildAnnotationTabSheet());	
+				addComponent(annotationLayout);	
+
+				for(int i=0; i<annotationBar.getItems().size(); i++) {
+					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
+						annotationBar.getItems().get(i).setVisible(true);	
+					} else {
+						annotationBar.getItems().get(i).setVisible(false);	
+					}
+				}
+			}
+		});
+		up.setDescription("View Annotation");
+		MenuBar.MenuItem down = annotationBar.addItem("", new ThemeResource(
+				"../runo/icons/16/arrow-down.png"), new Command() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				removeComponent(annotationLayout);
+				for(int i=0; i<annotationBar.getItems().size(); i++) {
+					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
+						annotationBar.getItems().get(i).setVisible(false);	
+					} else {
+						annotationBar.getItems().get(i).setVisible(true);	
+					}
+				}
+			}
+		});
+		down.setDescription("Close Annotation");
+		down.setVisible(false);
+		annotationBar.setVisible(false);
+		addComponent(annotationBar);
 	}
 
 	/**
@@ -558,6 +533,14 @@ public class UMainLayout extends VerticalLayout {
 						annotButton.setEnabled(true);
 						removeButton.setEnabled(true);
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
+						annotationBar.setVisible(true);
+						for(int i=0; i<annotationBar.getItems().size(); i++) {
+							if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
+								annotationBar.getItems().get(i).setVisible(false);	
+							} else {
+								annotationBar.getItems().get(i).setVisible(true);	
+							}
+						}
 						if(className.contains("Results")) {
 
 							if (selectedItem.getItemProperty("Name").toString().contains("Pending")){
@@ -597,6 +580,8 @@ public class UMainLayout extends VerticalLayout {
 				}catch (Exception e) {
 					VisualPlugin tools = new Tools(null);
 					setVisualPlugin(tools);
+					removeComponent(annotationLayout);
+					annotationBar.setVisible(false);
 				}
 			}
 		});
@@ -1148,5 +1133,121 @@ public class UMainLayout extends VerticalLayout {
 			return ACTIONS;
 		}
 	};
+	
+	private TabSheet buildAnnotationTabSheet() {
+		HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
+		dLayout.setSplitPosition(60);
+		dLayout.setSizeFull();
+		dLayout.setImmediate(true);
+		dLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
+		dLayout.setLocked(true);
+		
+		final VerticalLayout commentsLayout = new VerticalLayout();
+		commentsLayout.setImmediate(true);
+		commentsLayout.setMargin(true);
+		commentsLayout.setSpacing(true);
+		
+		Label cHeading 		=	new Label("User Comments:");
+		cHeading.setStyleName(Reindeer.LABEL_H2);
+		cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
+		commentsLayout.addComponent(cHeading);
+		
+		Map<String, Object> params 		= 	new HashMap<String, Object>();
+		params.put("parent", dataSetId);
+
+		List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", params);
+		if(comments.size() != 0){
+			for(int i=0;i<comments.size();i++) {
+				java.sql.Date date = ((Comment) comments.get(i)).getDate();
+				Label comment = new Label(date.toString()+
+						" - " +
+						((Comment) comments.get(i)).getComment());
+				comment.setStyleName(Reindeer.LABEL_SMALL);
+				commentsLayout.addComponent(comment);
+			}
+		}
+
+		dLayout.setFirstComponent(commentsLayout);
+		
+		VerticalLayout commentArea = new VerticalLayout();
+		commentArea.setImmediate(true);
+		commentArea.setMargin(true);
+		commentArea.setSpacing(true);
+		
+		Label commentHead 		=	new Label("Enter new comment here:");
+		commentHead.setStyleName(Reindeer.LABEL_H2);
+		commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		final TextArea dataArea = 	new TextArea();
+		dataArea.setRows(6);
+		dataArea.setWidth("100%");
+		Button submitComment	=	new Button("Add Comment", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(!dataArea.getValue().toString().isEmpty()) {
+					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+					
+					Comment c = new Comment();
+					c.setParent(dataSetId);
+					c.setComment(dataArea.getValue().toString());
+					c.setDate(date);
+					FacadeFactory.getFacade().store(c);
+					
+					Label comment = new Label(date.toString()+
+							" - " +
+							dataArea.getValue().toString());
+					comment.setStyleName(Reindeer.LABEL_SMALL);
+					commentsLayout.addComponent(comment);
+					dataArea.requestRepaint();
+				}
+			}
+		});
+		submitComment.setClickShortcut(KeyCode.ENTER);
+		commentArea.addComponent(commentHead);
+		commentArea.setComponentAlignment(commentHead, Alignment.MIDDLE_LEFT);
+		commentArea.addComponent(dataArea);
+		commentArea.setComponentAlignment(dataArea, Alignment.MIDDLE_LEFT);
+		commentArea.addComponent(submitComment);
+		commentArea.setComponentAlignment(submitComment, Alignment.MIDDLE_LEFT);
+		dLayout.setSecondComponent(commentArea);
+		
+		HorizontalSplitPanel infoSplit 	=  	new HorizontalSplitPanel();
+		infoSplit.setSplitPosition(50);
+		infoSplit.setSizeFull();
+		infoSplit.setImmediate(true);
+		infoSplit.setStyleName(Reindeer.SPLITPANEL_SMALL);
+		infoSplit.setLocked(true);
+				
+		VerticalLayout dataHistory 	= 	new VerticalLayout();
+		VerticalLayout expInfo		=	new VerticalLayout();
+		
+		dataHistory.setSizeFull();
+		dataHistory.setMargin(true);
+		
+		expInfo.setSizeFull();
+		expInfo.setMargin(true);
+		
+		Label historyHead 		=	new Label("Data History:");
+		historyHead.setStyleName(Reindeer.LABEL_H2);
+		historyHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		dataHistory.addComponent(historyHead);
+		
+		Label infoHead 		=	new Label("Experiment Information:");
+		infoHead.setStyleName(Reindeer.LABEL_H2);
+		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		expInfo.addComponent(infoHead);
+		
+		infoSplit.setFirstComponent(dataHistory);
+		infoSplit.setSecondComponent(expInfo);
+		TabSheet data = new TabSheet();
+		data.setStyleName(Reindeer.TABSHEET_SMALL);
+		data.setSizeFull();
+	
+		data.addTab(infoSplit, "Data Information");
+		data.addTab(dLayout, "User Comments");	
+		return data;
+	}
 }
 
