@@ -10,15 +10,16 @@
                 
                 <class>org.geworkbenchweb.pojos.Workspace</class>
                 <class>org.geworkbenchweb.pojos.ActiveWorkspace</class>
-                <class>org.geworkbenchweb.pojos.Project</class>
                 <class>org.vaadin.appfoundation.authentication.data.User</class>
                 <class>org.geworkbenchweb.pojos.DataSet</class>
                 <class>org.geworkbenchweb.pojos.ResultSet</class>
                 <class>org.geworkbenchweb.pojos.SubSet</class>
+                <class>org.geworkbenchweb.pojos.DataHistory</class>
+                 <class>org.geworkbenchweb.pojos.ExperimentInfo</class>
               
                 <exclude-unlisted-classes>false</exclude-unlisted-classes>
                 
-                <properties>
+                  <properties>
                         <property name="eclipselink.logging.level" value="OFF" />
                         <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
                         <property name="eclipselink.jdbc.url" value="jdbc:mysql://afdev.c2b2.columbia.edu/gework_web" />
@@ -30,18 +31,5 @@
                         <property name="eclipselink.orm.throw.exceptions" value="true" />
                         <property name="eclipselink.target-database" value="MySQL" />
                 </properties> 
-                
-                <!-- <properties>
-                        <property name="eclipselink.logging.level" value="OFF" />
-                        <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
-                        <property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost/geworkbench" />
-                        <property name="eclipselink.jdbc.user" value="root" />
-                        <property name="eclipselink.jdbc.password" value="" />
-                        <property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-                        <property name="eclipselink.ddl-generation.output-mode"
-                                value="database" />
-                        <property name="eclipselink.orm.throw.exceptions" value="true" />
-                        <property name="eclipselink.target-database" value="MySQL" />
-                </properties> -->
         </persistence-unit>
 </persistence>
