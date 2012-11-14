@@ -1,6 +1,5 @@
 package org.geworkbenchweb.layout;
 
-import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
@@ -12,11 +11,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -25,6 +22,7 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
+import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
@@ -36,6 +34,7 @@ import org.geworkbenchweb.plugins.tools.Tools;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -275,14 +274,15 @@ public class UMainLayout extends VerticalLayout {
 				List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
 
-				AffyAnnotationParser parser = new Affy3ExpressionAnnotationParser();
-				File annotFile = new File((System.getProperty("user.home") + "/temp/HG_U95Av2.na32.annot.csv"));
-				AnnotationParser.cleanUpAnnotatioAfterUnload(maSet);
-				try {
-					AnnotationParser.loadAnnotationFile(maSet, annotFile, parser);
-				} catch (InputFileFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				Map<String, Object> parameters = new HashMap<String, Object>();	
+				parameters.put("datasetid", dataSetId);	
+				List<Annotation> annots = FacadeFactory.getFacade().list(
+						"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
+				if (!annots.isEmpty()){
+					APSerializable aps = (APSerializable) ObjectConversion.toObject(annots.get(0).getAnnotation());
+					AnnotationParser.setFromSerializable(aps);
+				}else {
+					AnnotationParser.setCurrentDataSet(maSet);
 				}
 
 				markerTree.setContainerDataSource(markerTableView(maSet));
@@ -379,6 +379,23 @@ public class UMainLayout extends VerticalLayout {
 							FacadeFactory.getFacade().delete((Comment) comments.get(j));
 						}
 					}
+
+					cParam.clear();
+					cParam.put("datasetid", dataId);
+					List<DataSetAnnotation> dsannot = FacadeFactory.getFacade().list("Select p from DataSetAnnotation as p where p.datasetid=:datasetid", cParam);
+					if (dsannot.size() > 0){
+						Long annotId = dsannot.get(0).getAnnotationId();
+						FacadeFactory.getFacade().delete(dsannot.get(0));
+
+						Annotation annot = FacadeFactory.getFacade().find(Annotation.class, annotId);
+						if (annot!=null && annot.getOwner()!=null){
+							cParam.clear();
+							cParam.put("annotationid", annotId);
+							List<Annotation> annots = FacadeFactory.getFacade().list("select p from DataSetAnnotation as p where p.annotationid=:annotationid", cParam);
+							if (annots.size()==0) FacadeFactory.getFacade().delete(annot);
+						}
+					}
+
 					FacadeFactory.getFacade().delete(data);
 				}else {
 					Map<String, Object> cParam 		= 	new HashMap<String, Object>();
