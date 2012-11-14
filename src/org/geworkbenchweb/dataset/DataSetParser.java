@@ -35,22 +35,28 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class DataSetParser {
 
 	private String fileName;
-	private String dataType = null;  
+	private String dataType = null; 
+	private String annotationFileName;
+	
 	public DataSetParser(File dataFile, File annotFile, String fileType,
 			AnnotationType annotType, User annotOwner) {
 		
 		this.fileName 			= 	dataFile.getName();
+		
 		if(fileType == "GEO SOFT File") {
 			this.dataType = "microarray";
+			this.annotationFileName		= 	annotFile.getName();	
 			GeoSeriesDataSet(dataFile, annotFile);
 		} else if(fileType == "Expression File") {
 			this.dataType = "microarray";
+			this.annotationFileName		=	annotFile.getName();		
 			ExpressionDataSet(dataFile, annotFile, annotType, annotOwner);
 		} else if (fileType == "PDB File"){
 			this.dataType = "PDB File";
 			PDBDataSet(dataFile);
 		} else if(fileType == "GDS") {
 			this.dataType = "microarray";
+			this.annotationFileName		=	annotFile.getName();	
 			GDSDataSet(dataFile, annotFile);
 		}
 	}
@@ -130,7 +136,7 @@ public class DataSetParser {
 		StringBuilder data =	new StringBuilder(); 
 		data.append("Data File Name : " + dataSet.getLabel() + "\n");
 		if(dataType.equalsIgnoreCase("microarray")) {
-			data.append("Annotation File - \n");
+			data.append("Annotation File - " + annotationFileName +"\n");
 			data.append("Gene Ontology File - \n");
 		}
 		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));

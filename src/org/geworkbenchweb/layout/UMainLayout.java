@@ -1219,7 +1219,7 @@ public class UMainLayout extends VerticalLayout {
 							" - " +
 							dataArea.getValue().toString());
 					commentsLayout.addComponent(comment);
-					dataArea.requestRepaint();
+					dataArea.setValue("");
 				}
 			}
 		});
