@@ -1,7 +1,9 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,6 +12,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.components.hierarchicalclustering.ClusteringAlgorithm;
@@ -19,6 +23,8 @@ import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
 import org.geworkbench.util.SpearmanRankDistance;
+import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.SubSetOperations;
 
 public class HierarchicalClusteringWrapper {
 
@@ -33,10 +39,51 @@ public class HierarchicalClusteringWrapper {
 	public HierarchicalClusteringWrapper(
 			final DSMicroarraySet dataSet,
 			HashMap<Serializable, Serializable> params) {
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = 
+
+		// TODO
+		/*
+		 * The way marker/microarray sets are handled should not be the final solution.
+		 * This is mainly constrained by the using of DSMicroarraySetView,
+		 * which is designed to catch the selector panel status in Swing version. 
+		 * That design goal is changed - we now do NOT catch the subset automatically;
+		 * instead, the user is expect to choose the subset when he choose other control parameters for the analysis. 
+		 */
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = 
 				new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
-		this.data = data;
+		String[] markerSet = (String[])params.get(HierarchicalClusteringParams.MARKER_SET);
+		String[] micraoarraySet = (String[])params.get(HierarchicalClusteringParams.MICROARRAY_SET);
+
+		if (markerSet != null) { // TODO verify null versus empty
+			DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
+			for (String markerSetId : markerSet) {
+				// TODO note what is returned at this point is database id as long. nasty
+				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId));
+				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
+				for(String position : positions) {
+					String markerName = (position.split("\\s+"))[0].trim(); // only the first field 
+					DSGeneMarker marker = dataSet.getMarkers().get(markerName);
+					panel.add(marker);
+				}
+			} 
+			datasetView.setMarkerPanel(panel);
+		}
+		if (micraoarraySet != null) { // TODO verify null versus empty
+			DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
+			for (String microarraySetId : micraoarraySet) {
+				// TODO note what is returned at this point is database id as long. nasty
+				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId));
+				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
+				for(String position : positions) {
+					String microarrayName = (position.split("\\s+"))[0].trim(); // only the first field 
+					DSMicroarray micraorray = dataSet.get(microarrayName);
+					panel.add(micraorray);
+				}
+			} 
+			datasetView.setItemPanel(panel);
+		}
+
+		this.data = datasetView;
 		this.metric = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC);
 		this.method = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD);
 		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
