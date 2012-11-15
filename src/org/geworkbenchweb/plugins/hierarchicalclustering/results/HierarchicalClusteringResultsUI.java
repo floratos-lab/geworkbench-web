@@ -65,13 +65,13 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
      * The String is passed to the client side
      * Marker String
      */
-    private static StringBuffer markerString = new StringBuffer(); 
+    private StringBuffer markerString; 
     
     /**
      * The string is passed to the client side
      * Array String
      */
-    private static StringBuffer arrayString = new StringBuffer(); 
+    private StringBuffer arrayString; 
     
     User user = SessionHandler.get();
     
@@ -180,7 +180,8 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
-		
+		markerString 	= 	new StringBuffer();
+		arrayString 	=	new StringBuffer();
 		if(markerCluster != null) {
 			@SuppressWarnings("unused")
 			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
@@ -287,7 +288,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		this.setExpandRatio(dendrogram, 1);
 	}
 
-	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {
+	private ClusterNode convertMarkerCluster(Cluster hierCluster) {
 	
 		markerString.append("(");
 		ClusterNode cluster = null;
@@ -306,7 +307,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		return cluster;
 	}
 	
-	private static ClusterNode convertArrayCluster(Cluster hierCluster) {
+	private ClusterNode convertArrayCluster(Cluster hierCluster) {
 
 		arrayString.append("(");
 		ClusterNode cluster = null;
