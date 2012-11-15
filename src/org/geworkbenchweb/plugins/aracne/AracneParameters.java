@@ -2,6 +2,8 @@ package org.geworkbenchweb.plugins.aracne;
 
 public class AracneParameters {
 	public static String MARKER_SET 	= 	"markerSet";
+	public static String ARRAY_SET 	= 	"arraySet";
+	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
 	public static String MODE		 	= 	"mode";
 	public static String ALGORITHM 		= 	"algorithm";
 	public static String KERNEL_WIDTH	=	"width";
@@ -14,5 +16,6 @@ public class AracneParameters {
 	public static String DPI_LIST 		= 	"dpiTargetList";
 	public static String DPI_SET 		= 	"dpiMarkerSet";
 	public static String BOOTS_NUM 		= 	"bootstrapNumber";
+	public static String CONSENSUS_THRESHOLD 		= 	"consensusThreshold";
 	public static String MERGEPS 		= 	"mergeProbeSets";
 }

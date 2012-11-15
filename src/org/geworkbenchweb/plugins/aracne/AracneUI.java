@@ -1,10 +1,12 @@
 package org.geworkbenchweb.plugins.aracne;
 
 import java.io.Serializable;
+
 import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -18,47 +20,58 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
+
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 
 public class AracneUI extends GridLayout {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Long dataSetId;
-	
-	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
+
+	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
+
+	private ListSelect markerSetSelect = new ListSelect("Select Marker Sets:");;
+	private ListSelect arraySetSelect = new ListSelect("Select Array Sets:");;
+	private ComboBox hubGeneMarkerSetBox = new ComboBox();
+	private ComboBox modeBox = new ComboBox();
+	private ComboBox algoBox = new ComboBox();
+	private ComboBox kernelWidth = new ComboBox();
+	private ComboBox thresholdType = new ComboBox();
+	private ComboBox dpiTolerance = new ComboBox();
+	private ComboBox dpiTargetList = new ComboBox();
+	private TextField widthValue = new TextField();
+	private TextField threshold = new TextField();
+	private ComboBox correction = new ComboBox();
+	private TextField tolerance = new TextField();
+	private ComboBox dpiTargetSetBox = new ComboBox();
+	private TextField bootStrapNumber = new TextField();
+	private TextField consensusThreshold = new TextField();
+	private ComboBox mergeProbeSets = new ComboBox();
+	private Button submitButton = null;
 
 	public AracneUI(Long dataId) {
 
 		this.dataSetId = dataId;
-		
+
 		setColumns(4);
-		setRows(10);
+		setRows(11);
 		setSpacing(true);
 		setImmediate(true);
 
-		final ComboBox markerSetBox		= 	new ComboBox();
-		final ComboBox modeBox			=	new ComboBox();
-		final ComboBox algoBox			=	new ComboBox();
-		final ComboBox kernelWidth		= 	new ComboBox();
-		final ComboBox thresholdType	= 	new ComboBox();
-		final ComboBox dpiTolerance		= 	new ComboBox();
-		final ComboBox dpiTargetList	=	new ComboBox();	
-		final TextField widthValue		= 	new TextField();
-		final TextField threshold		= 	new TextField();
-		final ComboBox correction		=	new ComboBox();
-		final TextField tolerance		= 	new TextField();
-		final ComboBox dpiSetBox		=	new ComboBox();
-		final TextField bootStrapNumber	= 	new TextField();
-		final ComboBox  mergeProbeSets	=	new ComboBox();
-		
 		/**
 		 * Params default values
 		 */
+
+		params.put(AracneParameters.MARKER_SET, "All Markers");
+		params.put(AracneParameters.ARRAY_SET, "All Arrays");
+		params.put(AracneParameters.HUB_MARKER_SET, "All vs. All");
 		params.put(AracneParameters.MODE, "Complete");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
@@ -70,23 +83,80 @@ public class AracneUI extends GridLayout {
 		params.put(AracneParameters.CORRECTION, "No Correction");
 		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
 		params.put(AracneParameters.BOOTS_NUM, "1");
+		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
 		params.put(AracneParameters.MERGEPS, "No");
-		
-		markerSetBox.setCaption("Hub Marker(s) From Sets");
-		markerSetBox.setNullSelectionAllowed(false);
-		markerSetBox.setInputPrompt("Select Marker Set");
-		markerSetBox.setImmediate(true);
 
-		List<?> subSets		= 	SubSetOperations.getMarkerSets(dataSetId);
+		markerSetSelect.setMultiSelect(true);
+		markerSetSelect.setRows(5);
+		markerSetSelect.setColumns(15);
+		markerSetSelect.setImmediate(true);
 
-		for(int m=0; m<(subSets).size(); m++){
-			markerSetBox.addItem(((SubSet) subSets.get(m)).getId());
-			markerSetBox.setItemCaption(((SubSet) subSets.get(m)).getId(), ((SubSet) subSets.get(m)).getName());
+		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
+
+		markerSetSelect.addItem("All Markers");
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
+			markerSetSelect.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
 		}
-		markerSetBox.addListener(new Property.ValueChangeListener() {
+		markerSetSelect.select("All Markers");
+
+		markerSetSelect.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.MARKER_SET, String.valueOf(valueChangeEvent.getProperty().getValue()));
+				params.put(AracneParameters.MARKER_SET, String
+						.valueOf(valueChangeEvent.getProperty().getValue()));
+			}
+		});
+
+		arraySetSelect.setMultiSelect(true);
+		arraySetSelect.setRows(5);
+		arraySetSelect.setColumns(15);
+		arraySetSelect.setImmediate(true);
+
+		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
+
+		arraySetSelect.addItem("All Arrays");
+		for (int m = 0; m < (arraySubSets).size(); m++) {
+			arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
+			arraySetSelect.setItemCaption(
+					((SubSet) arraySubSets.get(m)).getId(),
+					((SubSet) arraySubSets.get(m)).getName());
+		}
+		arraySetSelect.select("All Arrays");
+
+		arraySetSelect.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.put(AracneParameters.ARRAY_SET, String
+						.valueOf(valueChangeEvent.getProperty().getValue()));
+			}
+		});
+
+		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets");
+		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
+		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
+		hubGeneMarkerSetBox.setImmediate(true);
+
+		hubGeneMarkerSetBox.addItem("All vs. All");
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			hubGeneMarkerSetBox
+					.addItem(((SubSet) markerSubSets.get(m)).getId());
+			hubGeneMarkerSetBox.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
+		}
+		// hubGeneMarkerSetBox.select("All vs. All");
+
+		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.put(AracneParameters.HUB_MARKER_SET, String
+						.valueOf(valueChangeEvent.getProperty().getValue()));
 			}
 		});
 
@@ -99,9 +169,11 @@ public class AracneUI extends GridLayout {
 		modeBox.select("Complete");
 		modeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.MODE);
-				params.put(AracneParameters.MODE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.MODE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -113,14 +185,20 @@ public class AracneUI extends GridLayout {
 		algoBox.select("Adaptive Partitioning");
 		algoBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Fixed Bandwidth")) {
+				if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("Fixed Bandwidth")) {
 					kernelWidth.setEnabled(true);
-				} else if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Adaptive Partitioning")) {
+					widthValue.setEnabled(true);
+				} else if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("Adaptive Partitioning")) {
 					kernelWidth.setEnabled(false);
+					widthValue.setEnabled(false);
 				}
 				params.remove(AracneParameters.ALGORITHM);
-				params.put(AracneParameters.ALGORITHM, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.ALGORITHM, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -130,9 +208,11 @@ public class AracneUI extends GridLayout {
 		widthValue.setNullSettingAllowed(false);
 		widthValue.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.WIDTH_VALUE);
-				params.put(AracneParameters.WIDTH_VALUE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.WIDTH_VALUE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -145,15 +225,18 @@ public class AracneUI extends GridLayout {
 		kernelWidth.setEnabled(false);
 		kernelWidth.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
-				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Specify")) {
+				if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("Specify")) {
 					widthValue.setEnabled(true);
 				} else {
 					widthValue.setEnabled(false);
 				}
 				params.remove(AracneParameters.KERNEL_WIDTH);
-				params.put(AracneParameters.KERNEL_WIDTH, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.KERNEL_WIDTH, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -165,9 +248,11 @@ public class AracneUI extends GridLayout {
 		correction.setEnabled(true);
 		correction.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.CORRECTION);
-				params.put(AracneParameters.CORRECTION, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.CORRECTION, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 
 		});
@@ -177,9 +262,11 @@ public class AracneUI extends GridLayout {
 		threshold.setNullSettingAllowed(false);
 		threshold.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.T_VALUE);
-				params.put(AracneParameters.T_VALUE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.T_VALUE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -191,13 +278,16 @@ public class AracneUI extends GridLayout {
 		thresholdType.select("P-Value");
 		thresholdType.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("P-Value")) {
+				if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("P-Value")) {
 					correction.setEnabled(true);
 				} else {
 					correction.setEnabled(false);
 				}
-				params.put(AracneParameters.T_TYPE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.T_TYPE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
@@ -206,8 +296,10 @@ public class AracneUI extends GridLayout {
 		tolerance.setNullSettingAllowed(false);
 		tolerance.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.TOL_VALUE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.TOL_VALUE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 
 		});
@@ -224,30 +316,36 @@ public class AracneUI extends GridLayout {
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
-				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("Apply")) {
+				if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("Apply")) {
 					tolerance.setEnabled(true);
 				} else {
 					tolerance.setEnabled(false);
 				}
-				params.put(AracneParameters.TOL_TYPE, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.TOL_TYPE, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
-		dpiSetBox.setCaption(" ");
-		dpiSetBox.setNullSelectionAllowed(false);
-		dpiSetBox.setInputPrompt("Select Marker Set");
-		dpiSetBox.setImmediate(true);
-		dpiSetBox.setEnabled(false);
+		dpiTargetSetBox.setCaption(" ");
+		dpiTargetSetBox.setNullSelectionAllowed(false);
+		dpiTargetSetBox.setInputPrompt("Select Marker Set");
+		dpiTargetSetBox.setImmediate(true);
+		dpiTargetSetBox.setEnabled(false);
 
-		for(int m=0; m<(subSets).size(); m++){
-			dpiSetBox.addItem(((SubSet) subSets.get(m)).getId());
-			dpiSetBox.setItemCaption(((SubSet) subSets.get(m)).getId(), ((SubSet) subSets.get(m)).getName());
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			dpiTargetSetBox.addItem(((SubSet) markerSubSets.get(m)).getId());
+			dpiTargetSetBox.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
 		}
-		
-		dpiSetBox.addListener(new Property.ValueChangeListener() {
+
+		dpiTargetSetBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.DPI_SET, String.valueOf(valueChangeEvent.getProperty().getValue()));
+				params.put(AracneParameters.DPI_SET, String
+						.valueOf(valueChangeEvent.getProperty().getValue()));
 			}
 		});
 
@@ -259,27 +357,53 @@ public class AracneUI extends GridLayout {
 		dpiTargetList.select("Do Not Apply");
 		dpiTargetList.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if(valueChangeEvent.getProperty().getValue().toString().equalsIgnoreCase("From Sets")) {
-					dpiSetBox.setEnabled(true);
+				if (valueChangeEvent.getProperty().getValue().toString()
+						.equalsIgnoreCase("From Sets")) {
+					dpiTargetSetBox.setEnabled(true);
 				} else {
-					dpiSetBox.setEnabled(false);
+					dpiTargetSetBox.setEnabled(false);
 				}
 				params.remove(AracneParameters.DPI_LIST);
-				params.put(AracneParameters.DPI_LIST, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.DPI_LIST, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
 		bootStrapNumber.setCaption("Bootstrap Number");
+		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.setValue("1");
 		bootStrapNumber.setNullSettingAllowed(false);
 		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.BOOTS_NUM);
-				params.put(AracneParameters.BOOTS_NUM, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.BOOTS_NUM, valueChangeEvent
+						.getProperty().getValue().toString());
+				if (Integer.valueOf((String) params
+						.get(AracneParameters.BOOTS_NUM)) > 1)
+					consensusThreshold.setEnabled(true);
+				else
+					consensusThreshold.setEnabled(false);
 			}
 
+		});
+
+		consensusThreshold.setCaption("Consensus Threshold ");
+		consensusThreshold.setImmediate(true);
+		consensusThreshold.setValue("1.e-6");
+		consensusThreshold.setEnabled(false);
+		consensusThreshold.setNullSettingAllowed(false);
+		consensusThreshold.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.remove(AracneParameters.CONSENSUS_THRESHOLD);
+				params.put(AracneParameters.CONSENSUS_THRESHOLD,
+						valueChangeEvent.getProperty().getValue().toString());
+			}
 		});
 
 		mergeProbeSets.setCaption("Merge multiple probesets");
@@ -290,58 +414,185 @@ public class AracneUI extends GridLayout {
 		mergeProbeSets.setImmediate(true);
 		mergeProbeSets.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
+
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.MERGEPS);
-				params.put(AracneParameters.MERGEPS, valueChangeEvent.getProperty().getValue().toString());
+				params.put(AracneParameters.MERGEPS, valueChangeEvent
+						.getProperty().getValue().toString());
 			}
 		});
 
-		final Button submitButton 	= 	new Button("Submit", new Button.ClickListener() {
+		submitButton = new Button("Submit", new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
+
 			public void buttonClick(ClickEvent event) {
 				try {
 
-					List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-					DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
-					
-					ResultSet resultSet = 	new ResultSet();
-					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-					resultSet.setDateField(date);
-					String dataSetName = "Aracne - Pending" ;
-					resultSet.setName(dataSetName);
-					resultSet.setType("AracneResults");
-					resultSet.setParent(dataSetId);
-					resultSet.setOwner(SessionHandler.get().getId());	
-					FacadeFactory.getFacade().store(resultSet);	
-					
-					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-					GeworkbenchRoot.getBlackboard().fire(resultEvent);
+					if (validInputData()) {
+						List<DataSet> data = DataSetOperations
+								.getDataSet(dataSetId);
+						DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion
+								.toObject(data.get(0).getData());
 
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params);
-					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
-					
-				} catch (Exception e) {	
-				}		
+						ResultSet resultSet = new ResultSet();
+						java.sql.Date date = new java.sql.Date(System
+								.currentTimeMillis());
+						resultSet.setDateField(date);
+						String dataSetName = "Aracne - Pending";
+						resultSet.setName(dataSetName);
+						resultSet.setType("AracneResults");
+						resultSet.setParent(dataSetId);
+						resultSet.setOwner(SessionHandler.get().getId());
+						FacadeFactory.getFacade().store(resultSet);
+
+						NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+						GeworkbenchRoot.getBlackboard().fire(resultEvent);
+
+						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+								maSet, resultSet, params);
+						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+					}
+
+				} catch (Exception e) {
+				}
 			}
 		});
 
-		addComponent(markerSetBox, 0, 0);
-		addComponent(modeBox, 0, 1);
+		addComponent(markerSetSelect, 0, 0);
+		addComponent(arraySetSelect, 1, 0);
+		addComponent(hubGeneMarkerSetBox, 0, 1);
+		addComponent(modeBox, 1, 1);
 		addComponent(algoBox, 0, 2);
-		addComponent(kernelWidth, 0, 3);
-		addComponent(widthValue, 1, 3);
-		addComponent(thresholdType, 0, 4);
-		addComponent(threshold, 1, 4);
-		addComponent(correction, 2, 4);
-		addComponent(dpiTolerance, 0, 5);
-		addComponent(tolerance, 1, 5);
-		addComponent(dpiTargetList, 0, 6);
-		addComponent(dpiSetBox, 1, 6);
-		addComponent(bootStrapNumber, 0, 7);
-		addComponent(mergeProbeSets, 0, 8);
-		addComponent(submitButton, 0, 9);
+		addComponent(kernelWidth, 1, 2);
+		addComponent(widthValue, 2, 2);
+		addComponent(thresholdType, 0, 3);
+		addComponent(threshold, 1, 3);
+		addComponent(correction, 2, 3);
+		addComponent(dpiTolerance, 0, 4);
+		addComponent(tolerance, 1, 4);
+		addComponent(dpiTargetList, 0, 5);
+		addComponent(dpiTargetSetBox, 1, 5);
+		addComponent(bootStrapNumber, 0, 6);
+		addComponent(consensusThreshold, 1, 6);
+		addComponent(mergeProbeSets, 0, 7);
+		addComponent(submitButton, 0, 8);
 
+	}
+
+	private boolean validInputData() {
+
+		if (hubGeneMarkerSetBox.getValue() == null
+				|| hubGeneMarkerSetBox.getValue().toString().trim().equals("")) {
+			hubGeneMarkerSetBox.setComponentError(new UserError(
+					"You did not load any genes as hub markers."));
+			return false;
+		}
+		 
+		hubGeneMarkerSetBox.setComponentError(null);
+
+		float floatValue = -1;
+		try {
+			if (threshold.getValue() != null)
+				floatValue = Float.parseFloat(threshold.getValue().toString());
+		} catch (NumberFormatException e) {
+		}
+
+		if (((String) params.get(AracneParameters.T_TYPE))
+				.equalsIgnoreCase("Mutual Info")) {
+			if (floatValue < 0) {
+				threshold
+						.setComponentError(new UserError(
+								"Threshold Mutual Info. should be larger than or equal to zero."));
+				return false;
+			}
+		} else {
+
+			if (floatValue < 0 || floatValue > 1)
+
+			{
+				threshold.setComponentError(new UserError(
+						"Threshold P-Value should be between 0.0 and 1.0"));
+				return false;
+			}
+
+		}
+        
+		threshold.setComponentError(null);
+		
+		floatValue = -1;
+		try {
+			if (widthValue.getValue() != null)
+				floatValue = Float.parseFloat(widthValue.getValue().toString());
+		} catch (NumberFormatException e) {
+		}
+
+		if (((String) params.get(AracneParameters.KERNEL_WIDTH))
+				.equalsIgnoreCase("Specify")) {
+
+			if (floatValue < 0 || floatValue > 1) {
+				widthValue.setComponentError(new UserError(
+						"Kernel Width should between 0.0 and 1.0"));
+				return false;
+			}
+		}
+		widthValue.setComponentError(null);
+		
+		floatValue = -1;
+		try {
+			if (tolerance.getValue() != null)
+				floatValue = Float.parseFloat(tolerance.getValue().toString());
+		} catch (NumberFormatException e) {
+		}
+
+		if (((String) params.get(AracneParameters.TOL_TYPE))
+				.equalsIgnoreCase("Apply")) {
+			if (floatValue < 0 || floatValue > 1) {
+				tolerance
+						.setComponentError(new UserError(
+								"DPI Tolerance should be a float number between 0.0 and 1.0."));
+				return false;
+			}
+
+		}
+		tolerance.setComponentError(null); 
+		
+		int b = 0;
+		try {
+			if (params.get(AracneParameters.BOOTS_NUM) != null)
+				b = Integer.parseInt(params.get(AracneParameters.BOOTS_NUM)
+						.toString());
+		} catch (NumberFormatException e) {
+
+		}
+		if (b <= 0) {
+			bootStrapNumber.setComponentError(new UserError(
+					"Must be an integer"));
+			return false;
+		}
+		
+		bootStrapNumber.setComponentError(null);
+
+		floatValue = -1;
+		try {
+			if (consensusThreshold.getValue() != null)
+				floatValue = Float.parseFloat(consensusThreshold.getValue()
+						.toString());
+		} catch (NumberFormatException e) {
+		}	
+
+		if (b > 1) {
+			if (floatValue <= 0 || floatValue > 1) {
+				consensusThreshold.setComponentError(new UserError(
+						"Consensus threshold is not valid."));
+				return false;
+
+			}
+		}
+		consensusThreshold.setComponentError(null);		
+		submitButton.setComponentError(null);
+		
+		return true;
 	}
 
 }
