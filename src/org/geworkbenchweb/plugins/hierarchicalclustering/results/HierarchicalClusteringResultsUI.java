@@ -23,7 +23,10 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 public class HierarchicalClusteringResultsUI extends VerticalLayout {
@@ -73,8 +76,32 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
     User user = SessionHandler.get();
     
     private transient Object lock = new Object();
+    
+    private Clustergram dendrogram;
+    
+    private int geneNo;
+    
+    private int chipNo;
+    
+    private String[] markerNames; 
+    
+	private String[] arrayNames	;	
 	
-	@SuppressWarnings({ "unchecked", "unused" })
+	private String[] colors; 
+	
+	private String mString;
+	
+	private String aString;
+	
+	private int geneHeight 	= 	5;
+	
+	private int geneWidth 	= 	10;
+	
+	private Button in;
+	
+	private Button out;
+	
+	@SuppressWarnings({ "unchecked" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
 		
 		setImmediate(true);
@@ -101,23 +128,22 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
              leaves.toArray(leafArrays);
          }
     	 
-        int geneNo = 0;
+      
 		if (currentMarkerCluster == null) {
 			geneNo = microarraySet.markers().size();
 		} else {
 			geneNo = leafMarkers.length;
 		}
 
-		int chipNo = 0;
 		if (currentArrayCluster == null) {
 			chipNo = microarraySet.items().size();
 		} else {
 			chipNo = leafArrays.length;
 		}
 		
-		String[] markerNames 	= 	new String[geneNo];
-		String[] arrayNames		= 	new String[chipNo];
-		String[] colors 		= 	new String[chipNo*geneNo];
+		markerNames 	= 	new String[geneNo];
+		arrayNames		= 	new String[chipNo];
+		colors 			= 	new String[chipNo*geneNo];
 		int k = 0;
 		
 		for (int i = 0; i < geneNo; i++) {
@@ -155,10 +181,100 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
 		
-		Clustergram dendrogram = new Clustergram();
+		if(markerCluster != null) {
+			@SuppressWarnings("unused")
+			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
+			mString = markerString.toString();
+		}
+			
+		if(arrayCluster != null) {
+			@SuppressWarnings("unused")
+			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
+			aString = arrayString.toString();
+		}
+		
+		dendrogram = new Clustergram();
+		/**
+		 * default gene height and width for the dendrogram
+		 */
+		dendrogram.setGeneHeight(geneHeight);
+		dendrogram.setGeneWidth(geneWidth);
+		
         setWidth("100%");
         setHeight("100%");
+		
+        HorizontalLayout controlLayout = new HorizontalLayout();
         
+        
+        in	= 	new Button("+", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = -7814134578733193087L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				removeComponent(dendrogram);
+				geneHeight 	= 	geneHeight*2;
+				geneWidth 	=	geneWidth*2;
+				dendrogram = new Clustergram();
+				dendrogram.setGeneHeight(geneHeight);
+				dendrogram.setGeneWidth(geneWidth);
+				addDendrogram();
+			}
+		});
+        out 	= 	new Button("-", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = -396773583444901979L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				removeComponent(dendrogram);
+				dendrogram = new Clustergram();
+				geneHeight 	= 	geneHeight/2;
+				geneWidth 	=	geneWidth/2;
+				dendrogram.setGeneHeight(geneHeight);
+				dendrogram.setGeneWidth(geneWidth);
+				addDendrogram();
+				
+			}
+		});
+		Button reset = new Button("Reset", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = -7814134578733193087L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				removeComponent(dendrogram);
+				geneHeight 	= 	5;
+				geneWidth 	=	10;
+				dendrogram = new Clustergram();
+				dendrogram.setGeneHeight(geneHeight);
+				dendrogram.setGeneWidth(geneWidth);
+				addDendrogram();
+			}
+		});
+		
+		controlLayout.setSpacing(true);
+		controlLayout.addComponent(in);
+		controlLayout.addComponent(out);
+		controlLayout.addComponent(reset);
+		addComponent(controlLayout);
+		addDendrogram();
+	}
+	
+	public void addDendrogram() {
+		
+		if(geneHeight == 1) {
+			out.setEnabled(false);
+		} else {
+			out.setEnabled(true);
+		}
+		if(geneHeight == 80) {
+			in.setEnabled(false);
+		} else {
+			in.setEnabled(true);
+		}
+		dendrogram.setMarkerCluster(mString);
+		dendrogram.setArrayCluster(aString);
 		dendrogram.setColors(colors);
 		dendrogram.setArrayNumber(chipNo);
 		dendrogram.setMarkerNumber(geneNo);
@@ -166,22 +282,9 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		dendrogram.setArrayLabels(arrayNames);
 		dendrogram.setImmediate(true);
 		dendrogram.setSizeFull();
-	
-		if(markerCluster != null) {
-				
-			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
-			dendrogram.setMarkerCluster(markerString.toString());
-			//since this is the member variable I have to reset it. Have to find a way to make it non-member variable
-			markerString.delete(0, markerString.length());
-		}
-			
-		if(arrayCluster != null) {
-			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
-			dendrogram.setArrayCluster(arrayString.toString());
-			//since this is the member variable I have to reset it. Have to find a way to make it non-member variable
-			arrayString.delete(0, arrayString.length());
-		}
-		addComponent(dendrogram);
+		
+		this.addComponent(dendrogram);
+		this.setExpandRatio(dendrogram, 1);
 	}
 
 	private static ClusterNode convertMarkerCluster(Cluster hierCluster) {

@@ -37,12 +37,12 @@ public class VClustergram extends Composite implements Paintable {
 	/**
 	 * Value for height of marker in pixels
 	 */
-	static int geneHeight = 5;
+	private int geneHeight;
 
 	/**
 	 * Value for width of marker in pixels
 	 */
-	static int geneWidth = 20;
+	private int geneWidth;
 
 	/** The client side widget identifier. */
 	protected String paintableId;
@@ -106,6 +106,8 @@ public class VClustergram extends Composite implements Paintable {
 		colorArray 				=	uidl.getStringArrayVariable("color");
 		markerLabels			= 	uidl.getStringArrayVariable("markerLabels");
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
+		geneHeight 				= 	uidl.getIntVariable("height");
+		geneWidth				=	uidl.getIntVariable("width");
 		
 		panel.setWidth((arrayNumber*geneWidth) + 400 + "px");
 		panel.setHeight(markerNumber*geneHeight + 400 + "px");
@@ -118,12 +120,12 @@ public class VClustergram extends Composite implements Paintable {
 
 					initPVPanel();
 
-					final String selectedNodeIndexProperty = "selectedNodeIndex";
-					final String selectedArcIndexProperty = "selectedArcIndex";
+					final String selectedNodeIndexProperty	= 	"selectedNodeIndex";
+					final String selectedArcIndexProperty 	=	 "selectedArcIndex";
 
-					final PVColor arcColor = PV.color("rgba(0,0,0,.2)");
-					final PVColor emphasizedArcColor = PV.color("red");
-					final PVColor deemphasizedArcColor = PV.color("rgba(0,0,0,.2)");
+					final PVColor arcColor 				= 	PV.color("rgba(0,0,0,.2)");
+					final PVColor emphasizedArcColor 	= 	PV.color("red");
+					final PVColor deemphasizedArcColor 	= 	PV.color("rgba(0,0,0,.2)");
 
 					final PVPanel vis = getPVPanel().width(150).height(markerNumber*geneHeight).left(2).right(0).top(0).bottom(0)
 							.def(selectedNodeIndexProperty, -1)
@@ -275,9 +277,7 @@ public class VClustergram extends Composite implements Paintable {
 							leftCordinate 	=	0;
 						}	
 					} else {
-
 						leftCordinate = leftCordinate + geneWidth;
-
 					}
 					@SuppressWarnings("unused")
 					PVBar bar = vis.add(PV.Bar)
@@ -298,17 +298,17 @@ public class VClustergram extends Composite implements Paintable {
 				super.onAttach();
 
 				initPVPanel();
-				final PVPanel vis = getPVPanel().width(400).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
+				final PVPanel vis = getPVPanel().width(500).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
 
-				int markerPosition = 7;
+				int markerPosition = geneHeight;
 				for(int i=0; i<markerLabels.length; i++) {
 					@SuppressWarnings("unused")
-					PVLabel markerLabel = vis.add(PV.Label).font("bold 5px sans-serif").top(markerPosition).text(markerLabels[i]);
-					markerPosition = markerPosition + 5;
+					PVLabel markerLabel = vis.add(PV.Label).font("bold " + (geneHeight) + "px sans-serif").top(markerPosition).text(markerLabels[i]);
+					markerPosition = markerPosition + (geneHeight);
 				}
 				getPVPanel().render();
 			}
-		}, (225+geneWidth*arrayNumber), 200);
+		}, (215 +geneWidth*arrayNumber), 200);
 
 		/* Array Labels are printed here */
 		panel.add(new ProtovisWidget() {
@@ -318,20 +318,20 @@ public class VClustergram extends Composite implements Paintable {
 				initPVPanel();
 				final PVPanel vis = getPVPanel().width(arrayNumber*geneWidth).height(400).left(0).right(0).top(0).bottom(0);
 
-				int arrayPosition = 5;
+				int arrayPosition = 0;
 				for(int i=0; i<arrayLabels.length; i++) {
 					@SuppressWarnings("unused")
-					PVLabel markerLabel = vis.add(PV.Label).font("bold 9px sans-serif")
+					PVLabel markerLabel = vis.add(PV.Label).font("bold " +  (geneWidth/2) + "px sans-serif")
 					.left(arrayPosition)
 					.top(5)
 					.textAngle(Math.PI/2)
 					.text(arrayLabels[i]);
 
-					arrayPosition = arrayPosition + 20;
+					arrayPosition = arrayPosition + (geneWidth);
 				}
 				getPVPanel().render();
 			}
-		}, 200, (225 + (geneHeight*markerNumber)));
+		}, 200, (215 + (geneHeight*markerNumber)));
 	}
 	
 	/**

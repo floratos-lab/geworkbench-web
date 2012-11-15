@@ -21,6 +21,8 @@ public class Clustergram extends AbstractComponent {
 	private String arrayCluster;
 	private int numMarkers;
 	private int numArrays;
+	private int geneHeight;
+	private int geneWidth;
 	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -32,6 +34,8 @@ public class Clustergram extends AbstractComponent {
 		target.addVariable(this, "arrayLabels", getArrayLabels());
 		target.addVariable(this, "markerCluster", getMarkerCluster());
 		target.addVariable(this, "arrayCluster", getArrayCluster());
+		target.addVariable(this, "height", getGeneHeight());
+		target.addVariable(this, "width", getGeneWidth());
 	}
 
 	
@@ -131,6 +135,28 @@ public class Clustergram extends AbstractComponent {
 
 	public String getArrayCluster() {
 		return arrayCluster;
+	}
+
+
+	public int getGeneHeight() {
+		return geneHeight;
+	}
+
+
+	public void setGeneHeight(int geneHeight) {
+		this.geneHeight = geneHeight;
+		requestRepaint();
+	}
+
+
+	public int getGeneWidth() {
+		return geneWidth;
+	}
+
+
+	public void setGeneWidth(int geneWidth) {
+		this.geneWidth = geneWidth;
+		requestRepaint();
 	}
 	
 }
