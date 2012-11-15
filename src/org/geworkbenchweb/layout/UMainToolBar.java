@@ -49,8 +49,16 @@ public class UMainToolBar extends MenuBar {
 			}
 			
 		});
-		this.addItem("Tools", null);
-		
+		this.addItem("Tools", new Command() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				PluginEvent loadPlugin = new PluginEvent("Tools", WorkspaceUtils.getActiveWorkSpace());
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
+			}
+			
+		});
 		final MenuBar.MenuItem workspace = this.addItem("Workspaces",
 				null);
 		
@@ -201,12 +209,9 @@ public class UMainToolBar extends MenuBar {
 		                        	}
 		                        }
 						 });
-						 
-						
 					}
 
-				});
-				
+				});		
 				workspaceTable.addComponent(workspaceSelect);
 				getApplication().getMainWindow().addWindow(workspaceTable);
 			}
