@@ -314,7 +314,7 @@ public class AnovaUI extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			 
-			if (validInputData(dataSet)) {
+			if (validInputData()) {
 				
 				params.put("form", paramform);
 				ResultSet resultSet = new ResultSet();
@@ -408,7 +408,7 @@ public class AnovaUI extends VerticalLayout {
 	}
 	
 	
-	public boolean validInputData(DSMicroarraySet dataSet)
+	public boolean validInputData()
     {
 		 
 		String[] selectedArraySet = null;

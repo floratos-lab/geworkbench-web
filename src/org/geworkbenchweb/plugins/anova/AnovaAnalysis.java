@@ -165,16 +165,13 @@ public class AnovaAnalysis {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				ArrayList<String> temp = paramForm.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
-				ArrayList<String> temp1 = new ArrayList<String>();
 				for(int m=0; m<temp.size(); m++) {
-					temp1.add(m, ((temp.get(m)).split("\\s+"))[0].trim());
+					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();					 
+					DSGeneMarker marker = dataSet.getMarkers().get(temp1);
+					if (marker != null)
+						selectedMarkers.add(marker);
 				}
-				for(int k=0; k<dataSet.getMarkers().size(); k++) {
-					if(temp1.contains(dataSet.getMarkers().get(k).getLabel())) {
-						selectedMarkers.add(dataSet.getMarkers().get(k));
-					}
-				}
-				
+				 
 			} 
 		}
 
