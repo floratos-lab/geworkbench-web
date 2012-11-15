@@ -111,7 +111,9 @@ public class AnovaAnalysis {
 
 			Options options = serviceClient.getOptions();
 
-			options.setTimeOutInMilliSeconds(120000);
+			long soTimeout =  24 * 60 * 60 * 1000; // 24 hours
+			options.setTimeOutInMilliSeconds(soTimeout);
+
 
 			EndpointReference targetEPR = new EndpointReference(
 					"http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService");
