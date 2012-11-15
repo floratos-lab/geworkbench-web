@@ -67,6 +67,7 @@ public class UploadDataUI extends VerticalLayout {
 						annotChoices.setValue(choices[0]);
 						annotChoices.setVisible(true);
 					}else{
+						annotChoices.setValue(null);
 						annotChoices.setVisible(false);
 						loadedAnnots.setVisible(false);
 						showAnnotUpload(false);
@@ -220,6 +221,7 @@ public class UploadDataUI extends VerticalLayout {
 			getWindow().showNotification("Data file not loaded", null, Notification.TYPE_WARNING_MESSAGE);
 			return;
 		}
+		if (choice == null) choice = "";
 		
 		//shared default annotation
 		if (choice.equals(choices[1])){

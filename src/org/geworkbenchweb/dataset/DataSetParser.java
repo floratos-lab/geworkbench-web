@@ -43,20 +43,20 @@ public class DataSetParser {
 		
 		this.fileName 			= 	dataFile.getName();
 		
+		if (annotFile != null)
+			this.annotationFileName		= 	annotFile.getName();
+
 		if(fileType == "GEO SOFT File") {
 			this.dataType = "microarray";
-			this.annotationFileName		= 	annotFile.getName();	
 			GeoSeriesDataSet(dataFile, annotFile);
 		} else if(fileType == "Expression File") {
 			this.dataType = "microarray";
-			this.annotationFileName		=	annotFile.getName();		
 			ExpressionDataSet(dataFile, annotFile, annotType, annotOwner);
 		} else if (fileType == "PDB File"){
 			this.dataType = "PDB File";
 			PDBDataSet(dataFile);
 		} else if(fileType == "GDS") {
 			this.dataType = "microarray";
-			this.annotationFileName		=	annotFile.getName();	
 			GDSDataSet(dataFile, annotFile);
 		}
 	}
