@@ -31,7 +31,7 @@ public class TabularViewUI extends VerticalLayout {
 		table.setColumnWidth(MARKER_HEADER, 150);
 		addComponent(table);
 		addComponent(table.createControls());
-		table.setPageLength(40);
+		table.setPageLength(25);
 		setExpandRatio(table, 1);
 	}
 	
