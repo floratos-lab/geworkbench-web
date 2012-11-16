@@ -165,7 +165,9 @@ public class UMainLayout extends VerticalLayout {
 		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
 
-		HorizontalLayout topBar = new HorizontalLayout();
+		HorizontalLayout topBar 		= 	new HorizontalLayout();
+		final UMainToolBar mainToolBar 	= 	new UMainToolBar();
+		
 		addComponent(topBar);
 		topBar.setHeight("44px");
 		topBar.setWidth("100%");
@@ -311,6 +313,7 @@ public class UMainLayout extends VerticalLayout {
 					}
 				}
 				pluginView.setEnabled(false);
+				mainToolBar.setEnabled(false);
 			}	
 		});
 		set.setEnabled(false);
@@ -328,6 +331,7 @@ public class UMainLayout extends VerticalLayout {
 				selectedItem.setEnabled(false);
 				set.setEnabled(true);
 				pluginView.setEnabled(true);
+				mainToolBar.setEnabled(true);
 			}
 		});
 
@@ -421,7 +425,6 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		UMainToolBar mainToolBar = new UMainToolBar();
 		dataNavigation.addComponent(toolBar);
 		dataNavigation.addComponent(annotButton);
 		dataNavigation.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
