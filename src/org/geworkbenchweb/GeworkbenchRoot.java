@@ -29,22 +29,20 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	
 	private static final long serialVersionUID = 6853924772669700361L;
 	
-	private static ThreadLocal<Blackboard> BLACKBOARD = new ThreadLocal<Blackboard>();
-	
-	private final Blackboard blackboardInstance = new Blackboard();
-	
-	private static ThreadLocal<ICEPush> PUSHER = new ThreadLocal<ICEPush>();
-	
-	private final ICEPush pusherInstance = new ICEPush();
+	private static ThreadLocal<Blackboard> BLACKBOARD 		= 	new ThreadLocal<Blackboard>();
+	private static ThreadLocal<ICEPush> PUSHER 				= 	new ThreadLocal<ICEPush>();
+	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
+	private final Blackboard blackboardInstance 			= 	new Blackboard();
+	private final ICEPush pusherInstance 					=	new ICEPush();
+	private static final String SAMPLER_THEME_NAME 			= 	"geworkbench";
+    private static String APP_URL 							= 	null;
 	
 	private Window mainWindow;
 	
-	private static final String SAMPLER_THEME_NAME = "geworkbench";
-
-    private static String APP_URL = null;
-
 	@Override
 	public void init() {
+		
+		getContext().addTransactionListener(this);
 		
 		BLACKBOARD.set(blackboardInstance);
 		PUSHER.set(pusherInstance);
@@ -57,7 +55,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		
 		mainWindow.setSizeFull();
 		setMainWindow(mainWindow);
-		getContext().addTransactionListener(this);
+		
 		registerAllEventsForApplication();
 		
 		if (user != null) {
@@ -93,21 +91,32 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 
 	@Override
 	public void transactionStart(Application application, Object transactionData) {
-		if (application == this) {
+		if (application == GeworkbenchRoot.this) {
 			BLACKBOARD.set(blackboardInstance);
 			PUSHER.set(pusherInstance);
+			 currentApplication.set(this);
 		}
 	}
 
 	@Override
 	public void transactionEnd(Application application, Object transactionData) {
-		if (application == this) {
+		if (application == GeworkbenchRoot.this) {
 			// to avoid keeping an Application hanging, and mitigate the 
 			// possibility of user session crosstalk
 			BLACKBOARD.set(null);
 			PUSHER.set(null);
+			currentApplication.set(null);
+            currentApplication.remove();
 		}
 	}
+	
+	/**
+	 * Method supplies Application Instance 
+	 * @return Current Application Instance
+	 */
+	public static GeworkbenchRoot getInstance() {
+        return currentApplication.get();
+    }
 	
 	/**
 	 * Method supplies Blackboard instance to the entire Application
@@ -117,6 +126,10 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		return BLACKBOARD.get();
 	}
 	
+	/**
+	 * Method supplies Pusher instance to the entire Application
+	 * @return Pusher Instance for the application
+	 */
 	public static ICEPush getPusher() {
 		return PUSHER.get();
 	}
