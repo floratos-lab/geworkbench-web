@@ -310,6 +310,7 @@ public class UMainLayout extends VerticalLayout {
 						toolBar.getItems().get(i).setEnabled(true);	
 					}
 				}
+				pluginView.setEnabled(false);
 			}	
 		});
 		set.setEnabled(false);
@@ -326,6 +327,7 @@ public class UMainLayout extends VerticalLayout {
 				arraySetTree.setVisible(false);
 				selectedItem.setEnabled(false);
 				set.setEnabled(true);
+				pluginView.setEnabled(true);
 			}
 		});
 
