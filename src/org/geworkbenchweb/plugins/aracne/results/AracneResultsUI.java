@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.visualizations.Cytoscape;
@@ -36,26 +37,26 @@ public class AracneResultsUI extends VerticalLayout {
 		ArrayList<String> edges = new ArrayList<String>();
 		
 		for(int i=0; i<adjMatrix.getMatrix().getEdges().size(); i++) {
-			
-			String edge 	= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel() 
-									+ "," 
-									+ adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
-			
-			String id1  		= 	adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();  
-			String label1;
-			if(adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName() == null) {
-				label1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();
-			} else {
+			String id1;  
+			String label1;	
+			String id2;  
+			String label2;	
+			if (adjMatrix.getMatrix().getEdges().get(i).node1.type.equals(NodeType.MARKER))
+			{
+				id1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();
 				label1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName();
-			}
-			
-			String id2  		= 	adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel(); 
-			String label2;
-			if(adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName() == null) {
-				label2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
-			} else {
+				id2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
 				label2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName();
-			}
+				
+			}else 
+			{
+				id1 = adjMatrix.getMatrix().getEdges().get(i).node1.getStringId();
+				label1 = id1;
+				id2 = adjMatrix.getMatrix().getEdges().get(i).node2.getStringId();
+				label2 = id2;
+			} 			
+			
+			String edge = id1 + "," + id2;		 
 			
 			String node1 	= 	id1 + "," + label1 + ",0";
 			String node2	=	id2 + "," + label2 + ",0";
