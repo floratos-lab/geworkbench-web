@@ -126,9 +126,12 @@ public class AnovaResultsUI extends VerticalLayout {
 		for (int cx = 0; cx < significantMarkerNumbers; cx++) {
 			Object id = dataIn.addItem();
 			fieldIndex = 0;
-			dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(
-					((DSGeneMarker) anovaResultSet.getSignificantMarkers().get(
-							cx)).getShortName());
+			String s  = ((DSGeneMarker) anovaResultSet.getSignificantMarkers().get(
+					cx)).getShortName();
+			if (s.equals("---"))
+				s =  ((DSGeneMarker) anovaResultSet.getSignificantMarkers().get(
+						cx)).getLabel();
+			dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(s);
 			if (pVal) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(
 						result2DArray[0][cx]);

@@ -348,10 +348,15 @@ public class AracneAnalysisWeb {
 				node2 = new AdjacencyMatrix.Node(marker2);
 				matrix.add(node1, node2, aracneGraphEdges[i].getWeight(), null);
 			} else {
-				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-						marker1.getGeneName());
-				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-						marker2.getGeneName());
+				String geneName1 = marker1.getGeneName();
+				if (geneName1.equals("---"))
+					geneName1 = marker1.getLabel();
+				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName1);
+				 
+				String geneName2 = marker2.getGeneName();
+				if (geneName2.equals("---"))
+					geneName2 = marker2.getLabel();
+				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName2);						 
 				matrix.add(node1, node2, aracneGraphEdges[i].getWeight());
 			}
 			nEdge++;

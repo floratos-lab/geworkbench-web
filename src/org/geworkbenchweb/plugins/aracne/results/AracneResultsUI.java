@@ -45,8 +45,12 @@ public class AracneResultsUI extends VerticalLayout {
 			{
 				id1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getLabel();
 				label1 = adjMatrix.getMatrix().getEdges().get(i).node1.marker.getGeneName();
+				if (label1.equals("---"))
+					label1 = id1;
 				id2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getLabel();
 				label2 = adjMatrix.getMatrix().getEdges().get(i).node2.marker.getGeneName();
+				if (label2.equals("---"))
+					label2 = id2;
 				
 			}else 
 			{
