@@ -843,7 +843,7 @@ public class UMainLayout extends VerticalLayout {
 
 		tableData.addContainerProperty("Labels", String.class, null);
 		Item mainItem 					= 	tableData.addItem("Phenotypes");
-		mainItem.getItemProperty("Labels").setValue("Phenotypes");
+		mainItem.getItemProperty("Labels").setValue("Phenotypes" + " ["+ maSet.size() + "]");
 
 		for(int k=0;k<maSet.size();k++) {
 			Item item 					= 	tableData.addItem(k);
@@ -865,7 +865,7 @@ public class UMainLayout extends VerticalLayout {
 		tableData.addContainerProperty("Labels", String.class, null);
 
 		Item mainItem =  tableData.addItem("Markers");
-		mainItem.getItemProperty("Labels").setValue("Markers");
+		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + maSet.getMarkers().size()+ "]");
 
 		for(int j=0; j<maSet.getMarkers().size();j++) {
 
@@ -1107,7 +1107,7 @@ public class UMainLayout extends VerticalLayout {
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
-							String subSetName = (String) setName.getValue() + "["+markers.size()+ "]";
+							String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
 							SubSetOperations.storeData(markers, "marker", subSetName , dataSetId);
 							markerSetTree.addItem(subSetName);
 							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
@@ -1169,7 +1169,7 @@ public class UMainLayout extends VerticalLayout {
 							for(int i=0; i<temp.length; i++) {
 								markers.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							String subSetName =  (String) setName.getValue() + "[" + markers.size() + "]";
+							String subSetName =  (String) setName.getValue() + " [" + markers.size() + "]";
 							SubSetOperations.storeData(markers, "microarray", subSetName, dataSetId);
 							arraySetTree.addItem(subSetName);
 							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
