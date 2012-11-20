@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
@@ -82,6 +84,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
+
+import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -224,7 +228,7 @@ public class UMainLayout extends VerticalLayout {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				selectedItem.setEnabled(false);
-				navigationTree.setVisible(false);
+				navigationTree.setVisible(false);				
 
 				markerTree	 	= 	new Tree();
 				arrayTree 		=	new Tree();
@@ -460,6 +464,7 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
+		 
 	
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
@@ -610,6 +615,34 @@ public class UMainLayout extends VerticalLayout {
 				}
 			}
 		});
+		
+		tree.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
+            
+			private static final long serialVersionUID = -3576690826530527342L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+            public String generateDescription(Component source, Object itemId,
+                    Object propertyId) {
+               if (itemId != null)
+               {
+            	    
+            		   long id = Long.parseLong(itemId.toString());
+            		   Item item = tree.getItem(itemId);            		   
+            		   String className = (String) item.getItemProperty("Type").getValue();
+            		   if(!className.contains("Results")) 
+            		   {
+            			   List<DataSet> data = DataSetOperations.getDataSet(id);  		    
+            		       DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>)ObjectConversion.toObject(data.get(0).getData());
+            	           return df.getDescription();
+            		   }            	  
+            	    
+               }                
+                
+                return null;
+            }
+		});
+		
 		return tree;
 	}
 
@@ -1074,11 +1107,12 @@ public class UMainLayout extends VerticalLayout {
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
-							SubSetOperations.storeData(markers, "marker", (String) setName.getValue(), dataSetId);
-							markerSetTree.addItem((String) setName.getValue());
-							markerSetTree.getContainerProperty((String) setName.getValue(), "setName").setValue((String) setName.getValue());
-							markerSetTree.setParent((String) setName.getValue(), "MarkerSets");
-							markerSetTree.setChildrenAllowed((String) setName.getValue(), false);
+							String subSetName = (String) setName.getValue() + "["+markers.size()+ "]";
+							SubSetOperations.storeData(markers, "marker", subSetName , dataSetId);
+							markerSetTree.addItem(subSetName);
+							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
+							markerSetTree.setParent(subSetName, "MarkerSets");
+							markerSetTree.setChildrenAllowed(subSetName, false);
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
@@ -1135,11 +1169,12 @@ public class UMainLayout extends VerticalLayout {
 							for(int i=0; i<temp.length; i++) {
 								markers.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							SubSetOperations.storeData(markers, "microarray", (String) setName.getValue(), dataSetId);
-							arraySetTree.addItem((String) setName.getValue());
-							arraySetTree.getContainerProperty((String) setName.getValue(), "setName").setValue((String) setName.getValue());
-							arraySetTree.setParent((String) setName.getValue(), "arraySets");
-							arraySetTree.setChildrenAllowed((String) setName.getValue(), false);
+							String subSetName =  (String) setName.getValue() + "[" + markers.size() + "]";
+							SubSetOperations.storeData(markers, "microarray", subSetName, dataSetId);
+							arraySetTree.addItem(subSetName);
+							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
+							arraySetTree.setParent(subSetName, "arraySets");
+							arraySetTree.setChildrenAllowed(subSetName, false);
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
