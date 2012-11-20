@@ -23,17 +23,17 @@ import com.vaadin.ui.*;
  * This is the application entry point.
  * @author Nikhil Reddy
  */
-
-
 public class GeworkbenchRoot extends Application implements TransactionListener {
 	
 	private static final long serialVersionUID = 6853924772669700361L;
 	
-	private static ThreadLocal<Blackboard> BLACKBOARD 		= 	new ThreadLocal<Blackboard>();
-	private static ThreadLocal<ICEPush> PUSHER 				= 	new ThreadLocal<ICEPush>();
+	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
+	private static ThreadLocal<ICEPush> PUSHER 						= 	new ThreadLocal<ICEPush>();
 	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
+	
 	private final Blackboard blackboardInstance 			= 	new Blackboard();
 	private final ICEPush pusherInstance 					=	new ICEPush();
+	
 	private static final String SAMPLER_THEME_NAME 			= 	"geworkbench";
     private static String APP_URL 							= 	null;
 	
@@ -43,7 +43,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	public void init() {
 		
 		getContext().addTransactionListener(this);
-		
 		BLACKBOARD.set(blackboardInstance);
 		PUSHER.set(pusherInstance);
 		
@@ -94,7 +93,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		if (application == GeworkbenchRoot.this) {
 			BLACKBOARD.set(blackboardInstance);
 			PUSHER.set(pusherInstance);
-			 currentApplication.set(this);
+			currentApplication.set(this);
 		}
 	}
 
