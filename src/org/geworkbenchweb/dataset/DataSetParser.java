@@ -184,7 +184,7 @@ public class DataSetParser {
 		AffyAnnotationParser annotParser = null;
 		if (annotType.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION))
 			annotParser = new Affy3ExpressionAnnotationParser();
-		else if (annotType.equals(AnnotationType.AFFY_GENE_EXON_10_ST))
+		else if (annotType.equals(AnnotationType.AFFY_GENE_EXON_ST))
 			annotParser = new AffyGeneExonStAnnotationParser();
 		try{
 			AnnotationParser.loadAnnotationFile(dataSet, annotFile, annotParser);
