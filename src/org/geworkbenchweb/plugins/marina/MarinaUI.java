@@ -129,6 +129,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		for (Object arrayset : arraysets){
 			SubSet set = (SubSet)arrayset;
 			ArrayList<String> pos = set.getPositions();
+			if (pos == null || pos.isEmpty()) continue;
 			StringBuilder builder = new StringBuilder();
 			
 			for(int i=0; i<pos.size(); i++) {
