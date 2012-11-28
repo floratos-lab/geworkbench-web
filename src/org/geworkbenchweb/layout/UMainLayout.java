@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
@@ -24,7 +26,6 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
-import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
@@ -33,6 +34,7 @@ import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringW
 import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 import org.geworkbenchweb.plugins.tools.Tools;
+import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -59,6 +61,7 @@ import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -85,8 +88,6 @@ import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
-import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
-
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
@@ -96,6 +97,8 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  */
 @SuppressWarnings("deprecation")
 public class UMainLayout extends VerticalLayout {
+	
+	private static Log log = LogFactory.getLog(UMainLayout.class);
 
 	private static final long serialVersionUID = 6214334663802788473L;
 
@@ -634,7 +637,13 @@ public class UMainLayout extends VerticalLayout {
             		   {
             			   List<DataSet> data = DataSetOperations.getDataSet(id);  		    
             		       DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>)ObjectConversion.toObject(data.get(0).getData());
-            	           return df.getDescription();
+            		       String description = null;
+            		       try {
+            		    	   description = df.getDescription();
+            		       } catch (NullPointerException e) { // CSProteinStrcuture has null pointer exception not handled
+            		    	   log.error(e.getMessage());
+            		       }
+            	           return description;
             		   }            	  
             	    
                }                
@@ -925,7 +934,7 @@ public class UMainLayout extends VerticalLayout {
 				if(dS.getType().equalsIgnoreCase("PDB File")) {
 					dataType = "ProteinStructure";
 					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(proteinIcon);
-				} else {
+				} else { // FIXME (1) hard-coded type name is not reliable (2) incorrect to assume that everything else is microarray
 					dataType = "Microarray";
 					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(microarrayIcon);
 				}

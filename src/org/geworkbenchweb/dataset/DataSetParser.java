@@ -32,6 +32,7 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+@Deprecated // the functionality implemented by this classes is replaced by org.geworkbenchweb.parsers
 public class DataSetParser {
 
 	private String fileName;

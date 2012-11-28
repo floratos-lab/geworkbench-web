@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
-import org.geworkbenchweb.dataset.DataSetParser;
+import org.geworkbenchweb.parsers.GeWorkbenchParserException;
+import org.geworkbenchweb.parsers.Parser;
+import org.geworkbenchweb.parsers.ParserFactory;
+import org.geworkbenchweb.parsers.ParserUsingAnnotation;
 import org.geworkbenchweb.pojos.Annotation;
+import org.mortbay.log.Log;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -19,18 +23,18 @@ import org.vaadin.easyuploads.UploadField.FieldType;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Window.Notification;
 
 public class UploadDataUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] files		= 	new String[] { "Expression File", "PDB File" };
+//	private static final String[] files		= 	new String[] { "Expression File", "PDB File" };
     private static final String initialText = 	"Enter description here.";
 	private static final String[] choices = {"No annotation", "HG_U95Av2.na32.annot.csv", "Use your own annotation file"};
 	private static final String loadOption = "Load annotation file now";
@@ -54,8 +58,8 @@ public class UploadDataUI extends VerticalLayout {
 		annotUploadField	=	new UploadField();
 		//geoTextField		=	new TextField("Enter GEO ID");
 		
-		for (int i = 0; i < files.length; i++) {
-			fileCombo.addItem(files[i]);    
+		for (Parser parser : ParserFactory.map.values()) {
+			fileCombo.addItem(parser);    
 		}
 		
 		fileCombo.addListener(new Property.ValueChangeListener() {
@@ -63,7 +67,8 @@ public class UploadDataUI extends VerticalLayout {
 			public void valueChange(ValueChangeEvent event) {
 				Object type = fileCombo.getValue();
 				if (type != null){
-					if (!type.equals(files[1])){
+					Parser parser = (Parser)type;
+					if (parser instanceof ParserUsingAnnotation) {
 						annotChoices.setValue(choices[0]);
 						annotChoices.setVisible(true);
 					}else{
@@ -210,7 +215,7 @@ public class UploadDataUI extends VerticalLayout {
 
 	public void theButtonClick(Button.ClickEvent event) {
     	
-		String fileType 		= 	(String) fileCombo.getValue();
+		Parser parser 		= 	(Parser) fileCombo.getValue();
 		File dataFile 			= 	(File) uploadField.getValue();
 		String choice			=	(String) annotChoices.getValue();
 		File annotFile			=	null;
@@ -254,9 +259,23 @@ public class UploadDataUI extends VerticalLayout {
 			}
 		}
 
-		parseInit(dataFile, annotFile, fileType, annotType, annotOwner);
-		dataFile.delete();
-		if (choice.equals(choices[2]) && annotFile.exists()) annotFile.delete();
+		try {
+			parser.parse(dataFile);
+			if(parser instanceof ParserUsingAnnotation) {
+				ParserUsingAnnotation expressionFileParser = (ParserUsingAnnotation) parser;
+				expressionFileParser.parseAnnotation(annotFile, annotType, annotOwner);
+				if(annotFile!=null && !annotFile.delete()) {
+					Log.warn("problem in deleting "+annotFile);
+				}
+			}
+			/* FIXME delete is correct behavior, but the current code, particularly CSProteinStructure, depends on the retaining of the temporary file.*/
+//			if(!dataFile.delete()) {
+//				Log.warn("problem in deleting "+dataFile);
+//			}
+		} catch (GeWorkbenchParserException e) {
+			// e.printStackTrace();
+			getWindow().showNotification("Parsing problem", e.getMessage(), Notification.TYPE_WARNING_MESSAGE);
+		}
 		/*if(uploadType.getValue().toString().equalsIgnoreCase("Upload from your Desktop")) {
     		
     		String fileType 		= 	(String) fileCombo.getValue();
@@ -276,8 +295,4 @@ public class UploadDataUI extends VerticalLayout {
     	}*/
     }
     
-	protected void parseInit(File dataFile, File annotFile, String fileType,
-			AnnotationType annotType, User annotOwner) {
-		new DataSetParser(dataFile, annotFile, fileType, annotType, annotOwner);
-	}
 }
