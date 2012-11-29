@@ -58,7 +58,7 @@ public class UploadDataUI extends VerticalLayout {
 		annotUploadField	=	new UploadField();
 		//geoTextField		=	new TextField("Enter GEO ID");
 		
-		for (Parser parser : ParserFactory.map.values()) {
+		for (Parser parser : new ParserFactory().getParserList()) {
 			fileCombo.addItem(parser);    
 		}
 		
