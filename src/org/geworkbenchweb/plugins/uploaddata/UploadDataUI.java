@@ -93,7 +93,7 @@ public class UploadDataUI extends VerticalLayout {
 		addComponent(fileCombo);
 
 		uploadField.setFieldType(FieldType.FILE);
-		uploadField.setImmediate(false);
+		uploadField.setImmediate(true);
 		uploadField.setRequired(true);
 		uploadField.setFileFactory(new FileFactory() {
 			public File createFile(String fileName, String mimeType) {
@@ -166,7 +166,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		annotUploadField.setVisible(false);
 		annotUploadField.setFieldType(FieldType.FILE);
-		annotUploadField.setImmediate(false);
+		annotUploadField.setImmediate(true);
 		annotUploadField.setRequired(true);
 		annotUploadField.setFileFactory(new FileFactory() {
 			public File createFile(String fileName, String mimeType) {
@@ -211,7 +211,7 @@ public class UploadDataUI extends VerticalLayout {
 			AnnotationType annotType = null;
 
 			if (dataFile == null) {
-				getWindow().showNotification("Data file not loaded", null,
+				getWindow().showNotification("Data file not loaded", "No valid data file is chosen.",
 						Notification.TYPE_WARNING_MESSAGE);
 				return;
 			}
