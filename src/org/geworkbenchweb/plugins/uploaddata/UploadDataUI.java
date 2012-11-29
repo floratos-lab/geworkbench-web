@@ -25,6 +25,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -34,44 +35,42 @@ public class UploadDataUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-//	private static final String[] files		= 	new String[] { "Expression File", "PDB File" };
-    private static final String initialText = 	"Enter description here.";
-	private static final String[] choices = {"No annotation", "HG_U95Av2.na32.annot.csv", "Use your own annotation file"};
+	private static final String initialText = "Enter description here.";
+	private static final String[] choices = { "No annotation",
+			"HG_U95Av2.na32.annot.csv", "Use your own annotation file" };
 	private static final String loadOption = "Load annotation file now";
-   
-	private ComboBox loadedAnnots = new ComboBox("Choose available annotation or load new one");
-    private ComboBox fileCombo; 			
-    private TextArea dataArea;			
-    private UploadField uploadField; 		
-    private UploadField annotUploadField;
-    private ComboBox annotChoices;
-    private ComboBox annotTypes;
-    //private ComboBox uploadType;
-    //private TextField geoTextField;
-    
+
+	private ComboBox loadedAnnots = new ComboBox(
+			"Choose available annotation or load new one");
+	private ComboBox fileCombo;
+	private TextArea dataArea;
+	private UploadField uploadField;
+	private UploadField annotUploadField;
+	private ComboBox annotChoices;
+	private ComboBox annotTypes;
+
 	public UploadDataUI(Long dataSetId) {
-		
-		//uploadType			=	new ComboBox("Please select upload type");
-		fileCombo 			= 	new ComboBox("Please select type of file");
-		dataArea 			= 	new TextArea(null, initialText);
-		uploadField 		= 	new UploadField();
-		annotUploadField	=	new UploadField();
-		//geoTextField		=	new TextField("Enter GEO ID");
-		
+
+		fileCombo = new ComboBox("Please select type of file");
+		dataArea = new TextArea(null, initialText);
+		uploadField = new UploadField();
+		annotUploadField = new UploadField();
+
 		for (Parser parser : new ParserFactory().getParserList()) {
-			fileCombo.addItem(parser);    
+			fileCombo.addItem(parser);
 		}
-		
+
 		fileCombo.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 8744518843208040408L;
+
 			public void valueChange(ValueChangeEvent event) {
 				Object type = fileCombo.getValue();
-				if (type != null){
-					Parser parser = (Parser)type;
+				if (type != null) {
+					Parser parser = (Parser) type;
 					if (parser instanceof ParserUsingAnnotation) {
 						annotChoices.setValue(choices[0]);
 						annotChoices.setVisible(true);
-					}else{
+					} else {
 						annotChoices.setValue(null);
 						annotChoices.setVisible(false);
 						loadedAnnots.setVisible(false);
@@ -81,32 +80,6 @@ public class UploadDataUI extends VerticalLayout {
 			}
 		});
 
-	/*	uploadType.setFilteringMode(Filtering.FILTERINGMODE_OFF);
-		uploadType.setImmediate(true);
-		uploadType.setRequired(true);
-		uploadType.setNullSelectionAllowed(false);
-		uploadType.addItem("Upload from your Desktop");
-		uploadType.addItem("Import from NCBI GEO");
-		uploadType.addListener(new Property.ValueChangeListener() {
-
-			private static final long serialVersionUID = 1L;
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				try {
-					String type = valueChangeEvent.getProperty().getValue().toString();
-					if(type == "Upload from your Desktop") {
-						geoTextField.setEnabled(false);
-						fileCombo.setEnabled(true);
-						uploadField.setEnabled(true);
-					} else {
-						geoTextField.setEnabled(true);
-						fileCombo.setEnabled(false);
-						uploadField.setEnabled(false);
-					}
-				}catch (Exception e) {
-				}
-			}
-		});*/
-
 		fileCombo.setFilteringMode(Filtering.FILTERINGMODE_OFF);
 		fileCombo.setImmediate(true);
 		fileCombo.setRequired(true);
@@ -114,19 +87,17 @@ public class UploadDataUI extends VerticalLayout {
 		dataArea.setRows(6);
 		dataArea.setColumns(40);
 
-		//addComponent(uploadType);
 		addComponent(fileCombo);
-		//addComponent(geoTextField);
-		//addComponent(dataArea);
 
 		uploadField.setFieldType(FieldType.FILE);
 		uploadField.setImmediate(false);
 		uploadField.setRequired(true);
 		uploadField.setFileFactory(new FileFactory() {
 			public File createFile(String fileName, String mimeType) {
-				File f = new File(System.getProperty("user.home") + "/temp/", fileName);
+				File f = new File(System.getProperty("user.home") + "/temp/",
+						fileName);
 				return f;
-			}     
+			}
 		});
 
 		annotChoices = new ComboBox("Choose annotation", Arrays.asList(choices));
@@ -134,25 +105,30 @@ public class UploadDataUI extends VerticalLayout {
 		annotChoices.setWidth(200, 0);
 		annotChoices.setVisible(false);
 		annotChoices.setImmediate(true);
-		annotChoices.addListener(new Property.ValueChangeListener(){
+		annotChoices.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 8744518843208040408L;
+
 			public void valueChange(ValueChangeEvent event) {
 				Object choice = annotChoices.getValue();
-				if (choice != null){
+				if (choice != null) {
 					loadedAnnots.setVisible(false);
 					showAnnotUpload(false);
-					if (choice.equals(choices[2])){
+					if (choice.equals(choices[2])) {
 						Map<String, Object> params = new HashMap<String, Object>();
 						params.put("owner", SessionHandler.get().getId());
-						List<Annotation> annots = FacadeFactory.getFacade().list("Select a from Annotation as a where a.owner=:owner", params);
-						if (!annots.isEmpty()){
+						List<Annotation> annots = FacadeFactory
+								.getFacade()
+								.list("Select a from Annotation as a where a.owner=:owner",
+										params);
+						if (!annots.isEmpty()) {
 							loadedAnnots.removeAllItems();
 							for (Annotation a : annots)
 								loadedAnnots.addItem(a.getName());
 							loadedAnnots.addItem(loadOption);
 							loadedAnnots.setValue(annots.get(0).getName());
 							loadedAnnots.setVisible(true);
-						}else showAnnotUpload(true);
+						} else
+							showAnnotUpload(true);
 					}
 				}
 			}
@@ -162,14 +138,16 @@ public class UploadDataUI extends VerticalLayout {
 		loadedAnnots.setWidth(200, 0);
 		loadedAnnots.setVisible(false);
 		loadedAnnots.setImmediate(true);
-		loadedAnnots.addListener(new Property.ValueChangeListener(){
+		loadedAnnots.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -6160532471996111349L;
-			public void valueChange(ValueChangeEvent evt){
+
+			public void valueChange(ValueChangeEvent evt) {
 				Object o = loadedAnnots.getValue();
-				if (o!=null){
+				if (o != null) {
 					if (o.equals(loadOption))
 						showAnnotUpload(true);
-					else showAnnotUpload(false);
+					else
+						showAnnotUpload(false);
 				}
 			}
 		});
@@ -189,11 +167,13 @@ public class UploadDataUI extends VerticalLayout {
 		annotUploadField.setRequired(true);
 		annotUploadField.setFileFactory(new FileFactory() {
 			public File createFile(String fileName, String mimeType) {
-				String dir = System.getProperty("user.home") + "/temp/" + SessionHandler.get().getUsername();
-				if (!new File(dir).exists()) new File(dir).mkdir();
+				String dir = System.getProperty("user.home") + "/temp/"
+						+ SessionHandler.get().getUsername();
+				if (!new File(dir).exists())
+					new File(dir).mkdir();
 				File f = new File(dir, fileName);
 				return f;
-			}     
+			}
 		});
 
 		setSpacing(true);
@@ -205,94 +185,103 @@ public class UploadDataUI extends VerticalLayout {
 		addComponent(annotTypes);
 		addComponent(annotUploadField);
 		addComponent(uploadButton);
-		uploadButton.addListener(Button.ClickEvent.class, this, "theButtonClick");
+		uploadButton.addListener(new UploadButtonListener());
 	}
 
-	private void showAnnotUpload(boolean visible){
+	private void showAnnotUpload(boolean visible) {
 		annotTypes.setVisible(visible);
 		annotUploadField.setVisible(visible);
 	}
 
-	public void theButtonClick(Button.ClickEvent event) {
-    	
-		Parser parser 		= 	(Parser) fileCombo.getValue();
-		File dataFile 			= 	(File) uploadField.getValue();
-		String choice			=	(String) annotChoices.getValue();
-		File annotFile			=	null;
-		User annotOwner			=	null;
-		AnnotationType annotType =	null;
+	private class UploadButtonListener implements Button.ClickListener {
 
-		if (dataFile==null) {
-			getWindow().showNotification("Data file not loaded", null, Notification.TYPE_WARNING_MESSAGE);
-			return;
-		}
-		if (choice == null) choice = "";
-		
-		//shared default annotation
-		if (choice.equals(choices[1])){
-			annotType = AnnotationType.values()[0];
-			annotFile = new File(System.getProperty("user.home") + "/temp/", choice);
-			if (!annotFile.exists()){
-				getWindow().showNotification("Annotation file not found on server", null, Notification.TYPE_WARNING_MESSAGE);
+		private static final long serialVersionUID = -2592257781106708221L;
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+
+			Parser parser = (Parser) fileCombo.getValue();
+			File dataFile = (File) uploadField.getValue();
+			String choice = (String) annotChoices.getValue();
+			File annotFile = null;
+			User annotOwner = null;
+			AnnotationType annotType = null;
+
+			if (dataFile == null) {
+				getWindow().showNotification("Data file not loaded", null,
+						Notification.TYPE_WARNING_MESSAGE);
 				return;
 			}
-		}
-		//user's loaded annotation
-		else if (choice.equals(choices[2])){			
-			annotOwner = SessionHandler.get();
-			//previously loaded
-			if (loadedAnnots.isVisible() && !loadedAnnots.getValue().equals(loadOption))
-				annotFile = new File(System.getProperty("user.home") + "/temp/" + annotOwner.getUsername(), (String)loadedAnnots.getValue());
-			//just loaded 
-			else{
-				annotType = (AnnotationType)annotTypes.getValue();
-				annotFile = (File) annotUploadField.getValue();
-				if (annotFile == null){
-					getWindow().showNotification("Annotation file not loaded", null, Notification.TYPE_WARNING_MESSAGE);
+			if (choice == null)
+				choice = "";
+
+			// shared default annotation
+			if (choice.equals(choices[1])) {
+				annotType = AnnotationType.values()[0];
+				annotFile = new File(
+						System.getProperty("user.home") + "/temp/", choice);
+				if (!annotFile.exists()) {
+					getWindow().showNotification(
+							"Annotation file not found on server", null,
+							Notification.TYPE_WARNING_MESSAGE);
 					return;
 				}
-				if (loadedAnnots.getItemIds().contains(annotFile.getName())){
-					getWindow().showNotification("Annotation file with the same name found on server", null, Notification.TYPE_WARNING_MESSAGE);
-					//if (annotFile.exists()) annotFile.delete();
-					//return;
+			}
+			// user's loaded annotation
+			else if (choice.equals(choices[2])) {
+				annotOwner = SessionHandler.get();
+				// previously loaded
+				if (loadedAnnots.isVisible()
+						&& !loadedAnnots.getValue().equals(loadOption))
+					annotFile = new File(System.getProperty("user.home")
+							+ "/temp/" + annotOwner.getUsername(),
+							(String) loadedAnnots.getValue());
+				// just loaded
+				else {
+					annotType = (AnnotationType) annotTypes.getValue();
+					annotFile = (File) annotUploadField.getValue();
+					if (annotFile == null) {
+						getWindow().showNotification(
+								"Annotation file not loaded", null,
+								Notification.TYPE_WARNING_MESSAGE);
+						return;
+					}
+					if (loadedAnnots.getItemIds().contains(annotFile.getName())) {
+						getWindow()
+								.showNotification(
+										"Annotation file with the same name found on server",
+										null, Notification.TYPE_WARNING_MESSAGE);
+						// if (annotFile.exists()) annotFile.delete();
+						// return;
+					}
 				}
+			}
+
+			try {
+				parser.parse(dataFile);
+				if (parser instanceof ParserUsingAnnotation) {
+					ParserUsingAnnotation expressionFileParser = (ParserUsingAnnotation) parser;
+					expressionFileParser.parseAnnotation(annotFile, annotType,
+							annotOwner);
+					if (annotFile != null && !annotFile.delete()) {
+						Log.warn("problem in deleting " + annotFile);
+					}
+				}
+				/*
+				 * FIXME delete is correct behavior, but the current code,
+				 * particularly CSProteinStructure, depends on the retaining of
+				 * the temporary file.
+				 */
+				// if(!dataFile.delete()) {
+				// Log.warn("problem in deleting "+dataFile);
+				// }
+			} catch (GeWorkbenchParserException e) {
+				// e.printStackTrace();
+				getWindow().showNotification("Parsing problem", e.getMessage(),
+						Notification.TYPE_WARNING_MESSAGE);
 			}
 		}
 
-		try {
-			parser.parse(dataFile);
-			if(parser instanceof ParserUsingAnnotation) {
-				ParserUsingAnnotation expressionFileParser = (ParserUsingAnnotation) parser;
-				expressionFileParser.parseAnnotation(annotFile, annotType, annotOwner);
-				if(annotFile!=null && !annotFile.delete()) {
-					Log.warn("problem in deleting "+annotFile);
-				}
-			}
-			/* FIXME delete is correct behavior, but the current code, particularly CSProteinStructure, depends on the retaining of the temporary file.*/
-//			if(!dataFile.delete()) {
-//				Log.warn("problem in deleting "+dataFile);
-//			}
-		} catch (GeWorkbenchParserException e) {
-			// e.printStackTrace();
-			getWindow().showNotification("Parsing problem", e.getMessage(), Notification.TYPE_WARNING_MESSAGE);
-		}
-		/*if(uploadType.getValue().toString().equalsIgnoreCase("Upload from your Desktop")) {
-    		
-    		String fileType 		= 	(String) fileCombo.getValue();
-    		File dataFile 			= 	(File) uploadField.getValue();
+	}
 
-    		parseInit(dataFile, null, fileType, dataDescription);
-    		dataFile.delete();
-    	} else {
-    		try {
-				File dataFile = GEODataFetch.getGDS(geoTextField.getValue().toString());
-				parseInit(dataFile, null, "GDS", dataDescription);
-				dataFile.delete();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}*/
-    }
-    
 }
