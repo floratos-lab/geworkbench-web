@@ -54,10 +54,12 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		Long annotationId = storeAnnotation(microarraySet, annotFile,
 				annotType, annotOwner);
 
-		DataSetAnnotation da = new DataSetAnnotation();
-		da.setDatasetId(datasetId);
-		da.setAnnotationId(annotationId);
-		FacadeFactory.getFacade().store(da);
+		if (annotationId != null){
+			DataSetAnnotation da = new DataSetAnnotation();
+			da.setDatasetId(datasetId);
+			da.setAnnotationId(annotationId);
+			FacadeFactory.getFacade().store(da);
+		}
 
 		microarraySet = null;
 	}
