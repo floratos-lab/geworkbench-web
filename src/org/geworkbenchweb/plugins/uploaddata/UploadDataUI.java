@@ -266,7 +266,7 @@ public class UploadDataUI extends VerticalLayout {
 					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
 					expressionFileLoader.parseAnnotation(annotFile, annotType,
 							annotOwner);
-					if (annotFile != null && !annotFile.delete()) {
+					if (annotFile != null && choice.equals(choices[2]) && !annotFile.delete()) {
 						log.warn("problem in deleting " + annotFile);
 					}
 				}
