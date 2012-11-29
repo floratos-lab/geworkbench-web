@@ -1,4 +1,4 @@
-package org.geworkbenchweb.parsers;
+package org.geworkbenchweb.dataset;
 
 import java.io.File;
 
@@ -18,15 +18,15 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /** data set parser */
 // class name DataSetParser has been used (not very properly)
-public abstract class Parser {
+public abstract class Loader {
 
 	/**
 	 * parse the file and store it (make it persistent)
 	 * 
-	 * @throws GeWorkbenchParserException
+	 * @throws GeWorkbenchLoaderException
 	 */
 	// TODO return or indicate the type of data set thus created
-	public abstract void parse(File file) throws GeWorkbenchParserException;
+	public abstract void load(File file) throws GeWorkbenchLoaderException;
 
 	// this method was written like being shared mechanism (for now) to store
 	// data

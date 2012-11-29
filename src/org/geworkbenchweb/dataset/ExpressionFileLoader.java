@@ -1,4 +1,4 @@
-package org.geworkbenchweb.parsers;
+package org.geworkbenchweb.dataset;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-public class ExpressionFileParser extends ParserUsingAnnotation {
+public class ExpressionFileLoader extends LoaderUsingAnnotation {
 
 	// FIXME the reason we need to retain this is that the annotation mechanism
 	// is not really fixed
@@ -27,14 +27,14 @@ public class ExpressionFileParser extends ParserUsingAnnotation {
 	transient private Long datasetId;
 
 	// meant to be used by the factory, not publicly
-	ExpressionFileParser() {
+	ExpressionFileLoader() {
 	};
 
 	@Override
-	public void parse(File file) throws GeWorkbenchParserException {
+	public void load(File file) throws GeWorkbenchLoaderException {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".exp")) {
-			throw new GeWorkbenchParserException(
+			throw new GeWorkbenchLoaderException(
 					"file name "+file.getName()+" does not end with .exp");
 		}
 
@@ -50,7 +50,7 @@ public class ExpressionFileParser extends ParserUsingAnnotation {
 	// and datasetId
 	@Override
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
-			User annotOwner) throws GeWorkbenchParserException {
+			User annotOwner) throws GeWorkbenchLoaderException {
 		Long annotationId = storeAnnotation(microarraySet, annotFile,
 				annotType, annotOwner);
 

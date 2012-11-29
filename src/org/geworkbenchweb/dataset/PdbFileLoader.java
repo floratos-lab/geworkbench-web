@@ -1,4 +1,4 @@
-package org.geworkbenchweb.parsers;
+package org.geworkbenchweb.dataset;
 
 import java.io.File;
 
@@ -6,17 +6,17 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.parsers.PDBFileFormat;
 
-public class PdbFileParser extends Parser {
+public class PdbFileLoader extends Loader {
 
 	// meant to be used by the factory, not publicly
-	PdbFileParser() {
+	PdbFileLoader() {
 	};
 
 	@Override
-	public void parse(File file) throws GeWorkbenchParserException {
+	public void load(File file) throws GeWorkbenchLoaderException {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".pdb")) {
-			throw new GeWorkbenchParserException(
+			throw new GeWorkbenchLoaderException(
 					"file name "+file.getName()+" does not end with .pdb");
 		}
 

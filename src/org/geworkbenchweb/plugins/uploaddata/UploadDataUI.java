@@ -7,13 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
-import org.geworkbenchweb.parsers.GeWorkbenchParserException;
-import org.geworkbenchweb.parsers.Parser;
-import org.geworkbenchweb.parsers.ParserFactory;
-import org.geworkbenchweb.parsers.ParserUsingAnnotation;
+import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
+import org.geworkbenchweb.dataset.Loader;
+import org.geworkbenchweb.dataset.LoaderFactory;
+import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
 import org.geworkbenchweb.pojos.Annotation;
-import org.mortbay.log.Log;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -33,6 +34,8 @@ import com.vaadin.ui.Window.Notification;
 
 public class UploadDataUI extends VerticalLayout {
 
+	private static Log log = LogFactory.getLog(UploadDataUI.class);
+			
 	private static final long serialVersionUID = 1L;
 
 	private static final String initialText = "Enter description here.";
@@ -56,8 +59,8 @@ public class UploadDataUI extends VerticalLayout {
 		uploadField = new UploadField();
 		annotUploadField = new UploadField();
 
-		for (Parser parser : new ParserFactory().getParserList()) {
-			fileCombo.addItem(parser);
+		for (Loader loader : new LoaderFactory().getParserList()) {
+			fileCombo.addItem(loader);
 		}
 
 		fileCombo.addListener(new Property.ValueChangeListener() {
@@ -66,8 +69,8 @@ public class UploadDataUI extends VerticalLayout {
 			public void valueChange(ValueChangeEvent event) {
 				Object type = fileCombo.getValue();
 				if (type != null) {
-					Parser parser = (Parser) type;
-					if (parser instanceof ParserUsingAnnotation) {
+					Loader loader = (Loader) type;
+					if (loader instanceof LoaderUsingAnnotation) {
 						annotChoices.setValue(choices[0]);
 						annotChoices.setVisible(true);
 					} else {
@@ -200,7 +203,7 @@ public class UploadDataUI extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 
-			Parser parser = (Parser) fileCombo.getValue();
+			Loader loader = (Loader) fileCombo.getValue();
 			File dataFile = (File) uploadField.getValue();
 			String choice = (String) annotChoices.getValue();
 			File annotFile = null;
@@ -258,13 +261,13 @@ public class UploadDataUI extends VerticalLayout {
 			}
 
 			try {
-				parser.parse(dataFile);
-				if (parser instanceof ParserUsingAnnotation) {
-					ParserUsingAnnotation expressionFileParser = (ParserUsingAnnotation) parser;
-					expressionFileParser.parseAnnotation(annotFile, annotType,
+				loader.load(dataFile);
+				if (loader instanceof LoaderUsingAnnotation) {
+					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
+					expressionFileLoader.parseAnnotation(annotFile, annotType,
 							annotOwner);
 					if (annotFile != null && !annotFile.delete()) {
-						Log.warn("problem in deleting " + annotFile);
+						log.warn("problem in deleting " + annotFile);
 					}
 				}
 				/*
@@ -275,9 +278,9 @@ public class UploadDataUI extends VerticalLayout {
 				// if(!dataFile.delete()) {
 				// Log.warn("problem in deleting "+dataFile);
 				// }
-			} catch (GeWorkbenchParserException e) {
+			} catch (GeWorkbenchLoaderException e) {
 				// e.printStackTrace();
-				getWindow().showNotification("Parsing problem", e.getMessage(),
+				getWindow().showNotification("Loading problem", e.getMessage(),
 						Notification.TYPE_WARNING_MESSAGE);
 			}
 		}
