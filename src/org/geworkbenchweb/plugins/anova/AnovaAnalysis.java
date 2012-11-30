@@ -29,8 +29,10 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
+
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
@@ -43,6 +45,12 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class AnovaAnalysis {
 
 	private static Log log = LogFactory.getLog(AnovaAnalysis.class);
+	
+	private static final String DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService";
+	private static final String  ANOVA_WEBSERVICE_URL = "anova.webService.url";
+	 
+	private static String url = null;
+	
 	private DSMicroarraySet dataSet = null;
 	private AnovaUI paramForm = null;
 	private DSItemList<DSGeneMarker> selectedMarkers = null;
@@ -107,6 +115,9 @@ public class AnovaAnalysis {
 		RPCServiceClient serviceClient;
 
 		try {
+			
+			getWebServiceUrl();
+			
 			serviceClient = new RPCServiceClient();
 
 			Options options = serviceClient.getOptions();
@@ -115,8 +126,8 @@ public class AnovaAnalysis {
 			options.setTimeOutInMilliSeconds(soTimeout);
 
 
-			EndpointReference targetEPR = new EndpointReference(
-					"http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService");
+			EndpointReference targetEPR = new EndpointReference(url);
+					 
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
@@ -265,4 +276,18 @@ public class AnovaAnalysis {
 	    subset.setPositions(data);
 	    FacadeFactory.getFacade().store(subset);
 	}
+	
+	private void getWebServiceUrl()
+	{
+		if (url == null || url.trim().equals(""))
+		{
+			 		
+				url  = GeworkbenchRoot.getAppProperties().getProperty(ANOVA_WEBSERVICE_URL);
+				if (url == null || url.trim().equals(""))
+					url = DEFAULT_WEB_SERVICES_URL;
+				
+		}		
+		 
+	}
+	
 }

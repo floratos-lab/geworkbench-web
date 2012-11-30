@@ -15,6 +15,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import edu.columbia.c2b2.aracne.Parameter; 
@@ -43,6 +44,12 @@ import org.geworkbench.components.aracne.data.AracneGraphEdge;
 public class AracneAnalysisWeb {
 
 	private static Log log = LogFactory.getLog(AracneAnalysisWeb.class);
+	
+	private static final String  DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/AracneService";
+	private static final String  ARACNE_WEBSERVICE_URL = "aracne.webService.url";
+	
+	private static String url = null;
+	
 	private DSMicroarraySet dataSet = null;
 
 	final Parameter p = new Parameter();
@@ -268,7 +275,10 @@ public class AracneAnalysisWeb {
 		AracneOutput output = null;
 		RPCServiceClient serviceClient;
 
-		try {
+		try {       
+			
+			getWebServiceUrl();
+			
 			serviceClient = new RPCServiceClient();
 
 			Options options = serviceClient.getOptions();
@@ -277,8 +287,8 @@ public class AracneAnalysisWeb {
 			long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
 			options.setTimeOutInMilliSeconds(soTimeout);
 
-			EndpointReference targetEPR = new EndpointReference(
-					"http://afdev.c2b2.columbia.edu:9090/axis2/services/AracneService");
+			EndpointReference targetEPR = new EndpointReference(url);
+					 
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
@@ -363,6 +373,20 @@ public class AracneAnalysisWeb {
 		}
 		log.debug("edge count " + nEdge);
 		return matrix;
+	}
+	
+	
+	private void getWebServiceUrl()
+	{
+		if (url == null || url.trim().equals(""))
+		{
+			 		
+				url  = GeworkbenchRoot.getAppProperties().getProperty(ARACNE_WEBSERVICE_URL);
+				if (url == null || url.trim().equals(""))
+					url = DEFAULT_WEB_SERVICES_URL;
+				
+		}		
+		 
 	}
 
 }
