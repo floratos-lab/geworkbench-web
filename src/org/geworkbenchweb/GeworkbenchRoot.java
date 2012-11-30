@@ -1,4 +1,7 @@
 package org.geworkbenchweb;
+ 
+import java.io.IOException;
+import java.util.Properties;
 
 import java.net.URI;
 
@@ -35,13 +38,26 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	private final ICEPush pusherInstance 					=	new ICEPush();
 	
 	private static final String SAMPLER_THEME_NAME 			= 	"geworkbench";
+	private static final String PROPERTIES_FILE = "application.properties";
     private static String APP_URL 							= 	null;
 	
 	private Window mainWindow;
 	
+	private static Properties prop; 
+	
 	@Override
 	public void init() {
 		
+		prop = new Properties();
+		
+		try {
+			prop.load(getClass().getResourceAsStream(
+					"/" + PROPERTIES_FILE));
+		} catch (IOException e) {
+			 
+			e.printStackTrace();
+		}
+		 
 		getContext().addTransactionListener(this);
 		BLACKBOARD.set(blackboardInstance);
 		PUSHER.set(pusherInstance);
@@ -133,6 +149,13 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		return PUSHER.get();
 	}
 	
+	
+	public static Properties getAppProperties() {
+		return prop;
+	}
+	
+	
+	
 	/**
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
@@ -142,7 +165,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		getBlackboard().register(NodeAddEventListener.class, NodeAddEvent.class);
 		getBlackboard().register(PluginEventListener.class, PluginEvent.class);
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
-	}
+	}	
 
 }
 
