@@ -2,6 +2,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering.results;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +19,19 @@ import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -109,7 +115,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 	
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
+		final List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
 		
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(data.get(0).getData());
         microarraySet	 				= 	(DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
@@ -195,6 +201,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		}
 		
 		dendrogram = new Clustergram();
+		
 		/**
 		 * default gene height and width for the dendrogram
 		 */
@@ -254,10 +261,112 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			}
 		});
 		
+		Button arraySet = new Button("Save Phenotypes to Set", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Window nameWindow = new Window();
+				nameWindow.setModal(true);
+				nameWindow.setClosable(true);
+				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+				nameWindow.setWidth("300px");
+				nameWindow.setHeight("150px");
+				nameWindow.setResizable(false);
+				nameWindow.setCaption("Add Phenotypes to Set");
+				nameWindow.setImmediate(true);
+
+				final TextField setName = new TextField();
+				setName.setInputPrompt("Please enter set name");
+				setName.setImmediate(true);
+
+				Button submit = new Button("Submit", new Button.ClickListener() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						try {
+							if(setName.getValue() != null) {
+								ArrayList<String> markers = new ArrayList<String>();
+								String[] temp 	= 	dendrogram.getArrayLabels();
+								for(int i=0; i<temp.length; i++) {
+									markers.add(temp[i].trim());
+								}
+								String subSetName =  (String) setName.getValue() + " [" + markers.size() + "]";
+								SubSetOperations.storeData(markers, "microarray", subSetName, data.get(0).getParent());
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				submit.setClickShortcut(KeyCode.ENTER);
+				nameWindow.addComponent(setName);
+				nameWindow.addComponent(submit);
+				getApplication().getMainWindow().addWindow(nameWindow);
+			}
+		});
+		
+		Button markerSet = new Button("Save Markers to Set", new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void buttonClick(ClickEvent event) {
+				final Window nameWindow = new Window();
+				nameWindow.setModal(true);
+				nameWindow.setClosable(true);
+				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+				nameWindow.setWidth("300px");
+				nameWindow.setHeight("150px");
+				nameWindow.setResizable(false);
+				nameWindow.setCaption("Add Markers to Set");
+				nameWindow.setImmediate(true);
+
+				final TextField setName = new TextField();
+				setName.setInputPrompt("Please enter set name");
+				setName.setImmediate(true);
+
+				Button submit = new Button("Submit", new Button.ClickListener() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						try {
+							if(setName.getValue() != null) {
+								ArrayList<String> markers = new ArrayList<String>();
+								String[] temp 	= 	dendrogram.getMarkerLabels();
+								for(int i=0; i<temp.length; i++) {
+									String label = temp[i].trim();
+									markers.add(label);
+								}
+								String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
+								SubSetOperations.storeData(markers, "marker", subSetName , data.get(0).getParent());
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				submit.setClickShortcut(KeyCode.ENTER);
+				nameWindow.addComponent(setName);
+				nameWindow.addComponent(submit);
+				getApplication().getMainWindow().addWindow(nameWindow);
+			}
+		});
 		controlLayout.setSpacing(true);
 		controlLayout.addComponent(in);
 		controlLayout.addComponent(out);
 		controlLayout.addComponent(reset);
+		controlLayout.addComponent(markerSet);
+		controlLayout.addComponent(arraySet);
 		addComponent(controlLayout);
 		addDendrogram();
 	}
