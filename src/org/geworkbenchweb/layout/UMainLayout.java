@@ -243,16 +243,24 @@ public class UMainLayout extends VerticalLayout {
 				markerTree.setSelectable(true);
 				markerTree.setMultiSelect(true);
 
-				HierarchicalContainer markerData = new HierarchicalContainer();
-				List<?> sets = SubSetOperations.getMarkerSets(dataSetId);
+				HierarchicalContainer markerData 	= 	new HierarchicalContainer();
+				List<?> sets 						= 	SubSetOperations.getMarkerSets(dataSetId);
+				Item mainItem 						= 	markerData.addItem("MarkerSets");
+				
 				markerData.addContainerProperty("setName", String.class, null);
-				Item mainItem = markerData.addItem("MarkerSets");
 				mainItem.getItemProperty("setName").setValue("Marker Sets");
 				for (int i=0; i<sets.size(); i++) {
 					markerData.addItem(((SubSet) sets.get(i)).getId());
 					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
 					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
-					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), false);
+					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);
+					List<String> markers = ((SubSet) sets.get(i)).getPositions();
+					for(int j=0; j<markers.size(); j++) {
+						markerData.addItem(markers.get(j)+j);
+						markerData.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
+						markerData.setParent(markers.get(j)+j, ((SubSet) sets.get(i)).getId());
+						markerData.setChildrenAllowed(markers.get(j)+j, false);
+					}
 				}
 				markerSetTree.setImmediate(true);
 				markerSetTree.setSelectable(false);
@@ -264,11 +272,19 @@ public class UMainLayout extends VerticalLayout {
 				arrayData.addContainerProperty("setName", String.class, null);
 				Item mainItem1 = arrayData.addItem("arraySets");
 				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
+				
 				for (int i=0; i<aSets.size(); i++) {
 					arrayData.addItem(((SubSet) aSets.get(i)).getId());
 					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName());
 					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
-					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), false);
+					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);
+					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
+					for(int j=0; j<arrays.size(); j++) {
+						arrayData.addItem(arrays.get(j)+j);
+						arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
+						arrayData.setParent(arrays.get(j)+j, ((SubSet) aSets.get(i)).getId());
+						arrayData.setChildrenAllowed(arrays.get(j)+j, false);
+					}
 				}
 				arraySetTree.setImmediate(true);
 				arraySetTree.setMultiSelect(false);
@@ -1121,7 +1137,13 @@ public class UMainLayout extends VerticalLayout {
 							markerSetTree.addItem(subSetName);
 							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
 							markerSetTree.setParent(subSetName, "MarkerSets");
-							markerSetTree.setChildrenAllowed(subSetName, false);
+							markerSetTree.setChildrenAllowed(subSetName, true);
+							for(int j=0; j<markers.size(); j++) {
+								markerSetTree.addItem(markers.get(j)+j);
+								markerSetTree.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
+								markerSetTree.setParent(markers.get(j)+j, subSetName);
+								markerSetTree.setChildrenAllowed(markers.get(j)+j, false);
+							}
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
@@ -1172,18 +1194,24 @@ public class UMainLayout extends VerticalLayout {
 				public void buttonClick(ClickEvent event) {
 					try {
 						if(setName.getValue() != null) {
-							ArrayList<String> markers = new ArrayList<String>();
+							ArrayList<String> arrays = new ArrayList<String>();
 							String mark 	= 	sender.toString();
 							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 							for(int i=0; i<temp.length; i++) {
-								markers.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
+								arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							String subSetName =  (String) setName.getValue() + " [" + markers.size() + "]";
-							SubSetOperations.storeData(markers, "microarray", subSetName, dataSetId);
+							String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+							SubSetOperations.storeData(arrays, "microarray", subSetName, dataSetId);
 							arraySetTree.addItem(subSetName);
 							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
 							arraySetTree.setParent(subSetName, "arraySets");
-							arraySetTree.setChildrenAllowed(subSetName, false);
+							arraySetTree.setChildrenAllowed(subSetName, true);
+							for(int j=0; j<arrays.size(); j++) {
+								arraySetTree.addItem(arrays.get(j)+j);
+								arraySetTree.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
+								arraySetTree.setParent(arrays.get(j)+j, subSetName);
+								arraySetTree.setChildrenAllowed(arrays.get(j)+j, false);
+							}
 							getApplication().getMainWindow().removeWindow(nameWindow);
 						}
 					} catch(Exception e) {
