@@ -10,11 +10,14 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
 import org.geworkbenchweb.dataset.Loader;
 import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
+import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -55,10 +58,12 @@ public class UploadDataUI extends VerticalLayout {
 
 	public UploadDataUI(Long dataSetId) {
 
-		fileCombo = new ComboBox("Please select type of file");
-		dataArea = new TextArea(null, initialText);
-		uploadField = new UploadField();
-		annotUploadField = new UploadField();
+		setImmediate(true);
+		
+		fileCombo 			= 	new ComboBox("Please select type of file");
+		dataArea 			= 	new TextArea(null, initialText);
+		uploadField 		=	new UploadField();
+		annotUploadField 	= 	new UploadField();
 
 		for (Loader loader : new LoaderFactory().getParserList()) {
 			fileCombo.addItem(loader);
@@ -298,6 +303,9 @@ public class UploadDataUI extends VerticalLayout {
 						e.getMessage(),  
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();	
+				dataFile.delete();
+				PluginEvent loadPlugin = new PluginEvent("UploadData", WorkspaceUtils.getActiveWorkSpace());
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
 			}
 		}
 
