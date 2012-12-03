@@ -35,7 +35,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".exp")) {
 			throw new GeWorkbenchLoaderException(
-					"file name "+file.getName()+" does not end with .exp");
+					"File name "+file.getName()+" does not end with .exp. Please choose file with .exp extension");
 		}
 
 		MicroarraySetParser parser = new MicroarraySetParser();

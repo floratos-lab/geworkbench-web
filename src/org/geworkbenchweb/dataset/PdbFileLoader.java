@@ -17,7 +17,7 @@ public class PdbFileLoader extends Loader {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".pdb")) {
 			throw new GeWorkbenchLoaderException(
-					"file name "+file.getName()+" does not end with .pdb");
+					"File name "+file.getName()+" does not end with .pdb. Please choose a file with .pdb extension.");
 		}
 
 		DSDataSet<? extends DSBioObject> dataSet = new PDBFileFormat()

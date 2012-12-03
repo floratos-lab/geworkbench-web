@@ -30,7 +30,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window.Notification;
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class UploadDataUI extends VerticalLayout {
 
@@ -211,8 +212,12 @@ public class UploadDataUI extends VerticalLayout {
 			AnnotationType annotType = null;
 
 			if (dataFile == null) {
-				getWindow().showNotification("Data file not loaded", "No valid data file is chosen.",
-						Notification.TYPE_WARNING_MESSAGE);
+				MessageBox mb = new MessageBox(getWindow(), 
+						"Loading problem", 
+						MessageBox.Icon.ERROR, 
+						"Data file not loaded. No valid data file is chosen.",  
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
 				return;
 			}
 			if (choice == null)
@@ -224,9 +229,12 @@ public class UploadDataUI extends VerticalLayout {
 				annotFile = new File(
 						System.getProperty("user.home") + "/temp/", choice);
 				if (!annotFile.exists()) {
-					getWindow().showNotification(
-							"Annotation file not found on server", null,
-							Notification.TYPE_WARNING_MESSAGE);
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Loading problem", 
+							MessageBox.Icon.ERROR, 
+							"Annotation file not found on server",  
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
 					return;
 				}
 			}
@@ -244,16 +252,21 @@ public class UploadDataUI extends VerticalLayout {
 					annotType = (AnnotationType) annotTypes.getValue();
 					annotFile = (File) annotUploadField.getValue();
 					if (annotFile == null) {
-						getWindow().showNotification(
-								"Annotation file not loaded", null,
-								Notification.TYPE_WARNING_MESSAGE);
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Loading problem", 
+								MessageBox.Icon.ERROR, 
+								"Annotation file not loaded",  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show();	
 						return;
 					}
 					if (loadedAnnots.getItemIds().contains(annotFile.getName())) {
-						getWindow()
-								.showNotification(
-										"Annotation file with the same name found on server",
-										null, Notification.TYPE_WARNING_MESSAGE);
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Loading problem", 
+								MessageBox.Icon.ERROR, 
+								"Annotation file with the same name found on server",  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show();	
 						// if (annotFile.exists()) annotFile.delete();
 						// return;
 					}
@@ -279,9 +292,12 @@ public class UploadDataUI extends VerticalLayout {
 				// Log.warn("problem in deleting "+dataFile);
 				// }
 			} catch (GeWorkbenchLoaderException e) {
-				// e.printStackTrace();
-				getWindow().showNotification("Loading problem", e.getMessage(),
-						Notification.TYPE_WARNING_MESSAGE);
+				MessageBox mb = new MessageBox(getWindow(), 
+						"Loading problem", 
+						MessageBox.Icon.ERROR, 
+						e.getMessage(),  
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();	
 			}
 		}
 
