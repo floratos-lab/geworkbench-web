@@ -22,7 +22,6 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.Label;
 
 public class AracneResultsUI extends VerticalLayout {
 
