@@ -377,6 +377,10 @@ public class UploadDataUI extends VerticalLayout {
 
 	}
 	
+	/**
+	 * Data File receiver writes file to the temp directory on the server
+	 * @author Nikhil
+	 */
 	public class DataFileReceiver implements Receiver {
 
 		private static final long serialVersionUID = 1L;
@@ -408,7 +412,11 @@ public class UploadDataUI extends VerticalLayout {
             return mtype;
         }
     }
-
+	
+	/**
+	 * Annotation File receiver writes file to the temp directory on the server
+	 * @author Nikhil
+	 */
 	public class AnnotFileReceiver implements Receiver {
 
 		private static final long serialVersionUID = 1L;
