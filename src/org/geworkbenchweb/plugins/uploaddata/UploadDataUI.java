@@ -213,6 +213,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		annotUploadField.setImmediate(true);
 		annotUploadField.setVisible(false);
+		annotUploadStatus.setVisible(false);
 		annotUploadField.setButtonCaption("Select Annotation file");
 		annotUploadField.addListener(new Upload.StartedListener() {
 			private static final long serialVersionUID = 1L;
@@ -263,6 +264,7 @@ public class UploadDataUI extends VerticalLayout {
 		addComponent(uploadField);
 		addComponent(annotChoices);
 		addComponent(loadedAnnots);
+		addComponent(annotUploadStatus);
 		addComponent(annotTypes);
 		addComponent(annotUploadField);
 		addComponent(uploadButton);
@@ -272,6 +274,7 @@ public class UploadDataUI extends VerticalLayout {
 	private void showAnnotUpload(boolean visible) {
 		annotTypes.setVisible(visible);
 		annotUploadField.setVisible(visible);
+		annotUploadStatus.setVisible(visible);
 	}
 
 	private class UploadButtonListener implements Button.ClickListener {
