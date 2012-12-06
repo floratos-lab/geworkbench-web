@@ -130,9 +130,10 @@ public class AracneAnalysisWeb {
 
 		if (aracneOutput.getGraphEdges().length > 0) {
 			boolean prune = isPrune();
+			//set dataset = null to AdjacencyMatrixDataSet object
 			AdjacencyMatrixDataSet adjDataSet = new AdjacencyMatrixDataSet(
 					convert(aracneOutput, hubGeneList, dataSet, prune), 0,
-					"Adjacency Matrix", "ARACNE Set", dataSet);
+					"Adjacency Matrix", "ARACNE Set", null);
 			return adjDataSet;
 		} else {
 			// this.tellUserToRelaxThresholds();
