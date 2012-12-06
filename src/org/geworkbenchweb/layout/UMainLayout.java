@@ -250,11 +250,12 @@ public class UMainLayout extends VerticalLayout {
 				markerData.addContainerProperty("setName", String.class, null);
 				mainItem.getItemProperty("setName").setValue("Marker Sets");
 				for (int i=0; i<sets.size(); i++) {
-					markerData.addItem(((SubSet) sets.get(i)).getId());
-					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
-					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
-					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);
 					List<String> markers = ((SubSet) sets.get(i)).getPositions();
+					String setName = ((SubSet) sets.get(i)).getName();					
+					markerData.addItem(((SubSet) sets.get(i)).getId());					
+					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(setName + " [" + markers.size()+ "]");				 
+					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
+					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);					
 					for(int j=0; j<markers.size(); j++) {
 						markerData.addItem(markers.get(j)+j);
 						markerData.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
@@ -274,11 +275,12 @@ public class UMainLayout extends VerticalLayout {
 				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
 				
 				for (int i=0; i<aSets.size(); i++) {
-					arrayData.addItem(((SubSet) aSets.get(i)).getId());
-					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName());
-					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
-					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);
 					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
+					String setName = ((SubSet) aSets.get(i)).getName();		
+					arrayData.addItem(((SubSet) aSets.get(i)).getId());
+					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(setName + " [" + arrays.size()+ "]");				 
+					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
+					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);				 
 					for(int j=0; j<arrays.size(); j++) {
 						arrayData.addItem(arrays.get(j)+j);
 						arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
@@ -1132,10 +1134,11 @@ public class UMainLayout extends VerticalLayout {
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
-							String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
+							String subSetName = (String) setName.getValue();
 							SubSetOperations.storeData(markers, "marker", subSetName , dataSetId);
 							markerSetTree.addItem(subSetName);
-							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
+							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName+ " [" + markers.size()+ "]");
+							  
 							markerSetTree.setParent(subSetName, "MarkerSets");
 							markerSetTree.setChildrenAllowed(subSetName, true);
 							for(int j=0; j<markers.size(); j++) {
@@ -1200,11 +1203,11 @@ public class UMainLayout extends VerticalLayout {
 							for(int i=0; i<temp.length; i++) {
 								arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+							String subSetName =  (String) setName.getValue();
 							SubSetOperations.storeData(arrays, "microarray", subSetName, dataSetId);
 							arraySetTree.addItem(subSetName);
-							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
-							arraySetTree.setParent(subSetName, "arraySets");
+							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName + " [" + arrays.size()+ "]");
+							arraySetTree.setParent(subSetName, "arraySets");						 
 							arraySetTree.setChildrenAllowed(subSetName, true);
 							for(int j=0; j<arrays.size(); j++) {
 								arraySetTree.addItem(arrays.get(j)+j);
