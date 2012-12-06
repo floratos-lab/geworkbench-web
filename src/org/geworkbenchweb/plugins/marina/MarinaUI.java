@@ -118,7 +118,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		
 		this.dataSet = maSet;
 
-		List<?> arraysets = SubSetOperations.getArraySets(DataSetOperations.getDataSetID(maSet.getDataSetName()));
+		List<?> arraysets = SubSetOperations.getArraySetsForCurrentContext(dataSetId);
 		arraymap = new HashMap<String, String>();
 		cb1.setImmediate(true);
 		cb2.setImmediate(true);

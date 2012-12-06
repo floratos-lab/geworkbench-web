@@ -1,21 +1,28 @@
 package org.geworkbenchweb.dataset;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyGeneExonStAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.parsers.MicroarraySetParser;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -61,6 +68,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			FacadeFactory.getFacade().store(da);
 		}
 
+		storeContext();
 		microarraySet = null;
 	}
 
@@ -119,6 +127,35 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		FacadeFactory.getFacade().store(annotation);
 
 		return annotation.getId();
+	}
+
+	/**
+	 * store Contexts, CurrentContext, arrays SubSets and SubSetContexts for microarraySet
+	 */
+	public void storeContext(){
+		CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+		for (DSAnnotationContext<DSMicroarray> aContext : manager.getAllContexts(microarraySet)){
+			String contextName = aContext.getName();
+			Context context = new Context(contextName, datasetId);
+			FacadeFactory.getFacade().store(context);
+
+			if (contextName.equals("Default")){
+				CurrentContext current = new CurrentContext();
+				current.setDatasetId(datasetId);
+				current.setContextId(context.getId());
+				FacadeFactory.getFacade().store(current);
+			}
+
+			for (int j = 0; j < aContext.getNumberOfLabels(); j++){
+				String label = aContext.getLabel(j);
+				ArrayList<String> arrays = new ArrayList<String>();
+				for (DSMicroarray array : aContext.getItemsWithLabel(label)){
+					arrays.add(array.getLabel());
+				}
+				label += " [" + arrays.size() + "]";
+				SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context.getId());
+			}
+		}
 	}
 
 	@Override

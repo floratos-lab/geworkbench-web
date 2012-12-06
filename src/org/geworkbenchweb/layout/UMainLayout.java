@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
@@ -35,13 +35,16 @@ import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 import org.geworkbenchweb.plugins.tools.Tools;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Comment;
+import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -53,6 +56,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
@@ -141,6 +145,10 @@ public class UMainLayout extends VerticalLayout {
 	private Button annotButton; 		
 	
 	private Button removeButton;		
+	
+	private ComboBox contextSelector;
+	
+	private VerticalLayout contextpane;
 	
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
@@ -250,12 +258,11 @@ public class UMainLayout extends VerticalLayout {
 				markerData.addContainerProperty("setName", String.class, null);
 				mainItem.getItemProperty("setName").setValue("Marker Sets");
 				for (int i=0; i<sets.size(); i++) {
-					List<String> markers = ((SubSet) sets.get(i)).getPositions();
-					String setName = ((SubSet) sets.get(i)).getName();					
-					markerData.addItem(((SubSet) sets.get(i)).getId());					
-					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(setName + " [" + markers.size()+ "]");				 
+					markerData.addItem(((SubSet) sets.get(i)).getId());
+					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
 					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
-					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);					
+					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);
+					List<String> markers = ((SubSet) sets.get(i)).getPositions();
 					for(int j=0; j<markers.size(); j++) {
 						markerData.addItem(markers.get(j)+j);
 						markerData.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
@@ -275,12 +282,11 @@ public class UMainLayout extends VerticalLayout {
 				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
 				
 				for (int i=0; i<aSets.size(); i++) {
-					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
-					String setName = ((SubSet) aSets.get(i)).getName();		
 					arrayData.addItem(((SubSet) aSets.get(i)).getId());
-					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(setName + " [" + arrays.size()+ "]");				 
+					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName());
 					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
-					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);				 
+					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);
+					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
 					for(int j=0; j<arrays.size(); j++) {
 						arrayData.addItem(arrays.get(j)+j);
 						arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
@@ -327,8 +333,100 @@ public class UMainLayout extends VerticalLayout {
 				arraySetTree.setItemCaptionPropertyId("setName");
 				arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
+				contextSelector = new ComboBox();
+				contextSelector.setWidth("160px");
+				contextSelector.setImmediate(true);
+				contextSelector.addListener(new Property.ValueChangeListener() {
+					private static final long serialVersionUID = 5667499645414167736L;
+					public void valueChange(ValueChangeEvent event) {
+						Object val = contextSelector.getValue();
+						if (val != null){
+							Context context = (Context)val;
+							SubSetOperations.setCurrentContext(dataSetId, context);
+
+							HierarchicalContainer arrayData = new HierarchicalContainer();
+							List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
+							arrayData.addContainerProperty("setName", String.class, null);
+							Item mainItem1 = arrayData.addItem("arraySets");
+							mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
+							arraySetTree.setContainerDataSource(arrayData);
+
+							for (SubSet arrayset : arraysets){
+								Long id = arrayset.getId();
+								arrayData.addItem(id);
+								arrayData.getContainerProperty(id, "setName").setValue(arrayset.getName());
+								arrayData.setParent(id, "arraySets");
+								arrayData.setChildrenAllowed(id, true);
+								List<String> arrays = arrayset.getPositions();
+								for(int j=0; j<arrays.size(); j++) {
+									arrayData.addItem(arrays.get(j)+j);
+									arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
+									arrayData.setParent(arrays.get(j)+j, id);
+									arrayData.setChildrenAllowed(arrays.get(j)+j, false);
+								}
+							}
+						}
+					}
+				});
+
+				List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);
+				Context current = SubSetOperations.getCurrentContext(dataSetId);
+				for (Context c : contexts){
+					contextSelector.addItem(c);
+					if (current!=null && c.getId()==current.getId()) contextSelector.setValue(c);
+				}
+
+				Button newContextButton = new Button("New");
+				newContextButton.addListener(new Button.ClickListener() {
+					private static final long serialVersionUID = -5508188056515818970L;
+					public void buttonClick(ClickEvent event) {
+						final Window nameWindow = new Window();
+						nameWindow.setModal(true);
+						nameWindow.setClosable(true);
+						nameWindow.setWidth("300px");
+						nameWindow.setHeight("150px");
+						nameWindow.setResizable(false);
+						nameWindow.setCaption("Add New ArraySet Context");
+						nameWindow.setImmediate(true);
+
+						final TextField contextName = new TextField();
+						contextName.setInputPrompt("Please enter arrayset context name");
+						contextName.setImmediate(true);
+						nameWindow.addComponent(contextName);
+						nameWindow.addComponent(new Button("Ok", new Button.ClickListener() {
+							private static final long serialVersionUID = 634733324392150366L;
+							public void buttonClick(ClickEvent event) {
+				                String name = (String)contextName.getValue();
+				                for (Context context : SubSetOperations.getAllContexts(dataSetId)){
+				                	if (context.getName().equals(name)){
+				                		getWindow().showNotification("Name already exists", Notification.TYPE_WARNING_MESSAGE);
+				                		return;
+				                	}
+				                }
+				                Context context = new Context(name, dataSetId);
+				                FacadeFactory.getFacade().store(context);
+				    			getApplication().getMainWindow().removeWindow(nameWindow);
+				                contextSelector.addItem(context);
+				                contextSelector.setValue(context);
+				            }}));
+						getApplication().getMainWindow().addWindow(nameWindow);
+					}
+				});
+				
+				contextpane = new VerticalLayout();
+				//contextpane.setSpacing(true);
+				Label label = new Label("Context for Phenotype Sets");
+				contextpane.addComponent(label);
+				HorizontalLayout hlayout = new HorizontalLayout();
+				hlayout.addComponent(contextSelector);
+				hlayout.addComponent(newContextButton);
+				contextpane.addComponent(hlayout);
+				
+				leftMainLayout.removeAllComponents();
+				leftMainLayout.addComponent(navigationTree);
 				leftMainLayout.addComponent(markerTree);
 				leftMainLayout.addComponent(markerSetTree);
+				leftMainLayout.addComponent(contextpane);
 				leftMainLayout.addComponent(arrayTree);
 				leftMainLayout.addComponent(arraySetTree);
 
@@ -350,6 +448,7 @@ public class UMainLayout extends VerticalLayout {
 			public void menuSelected(MenuItem selectedItem) {
 				navigationTree.setVisible(true);
 				markerTree.setVisible(false);
+				contextpane.setVisible(false);
 				arrayTree.setVisible(false);
 				markerSetTree.setVisible(false);
 				arraySetTree.setVisible(false);
@@ -426,6 +525,20 @@ public class UMainLayout extends VerticalLayout {
 							if (annots.size()==0) FacadeFactory.getFacade().delete(annot);
 						}
 					}
+
+					List<Context> contexts = SubSetOperations.getAllContexts(dataId);
+					for (Context c : contexts) {
+						cParam.clear();
+						cParam.put("contextid", c.getId());	
+						List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", cParam);
+						FacadeFactory.getFacade().deleteAll(subcontexts);
+						FacadeFactory.getFacade().delete(c);
+					}
+
+					cParam.clear();
+					cParam.put("datasetid", dataId);
+					List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
+					if (cc.size()>0) FacadeFactory.getFacade().delete(cc.get(0));
 
 					FacadeFactory.getFacade().delete(data);
 				}else {
@@ -1134,11 +1247,10 @@ public class UMainLayout extends VerticalLayout {
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
-							String subSetName = (String) setName.getValue();
+							String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
 							SubSetOperations.storeData(markers, "marker", subSetName , dataSetId);
 							markerSetTree.addItem(subSetName);
-							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName+ " [" + markers.size()+ "]");
-							  
+							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
 							markerSetTree.setParent(subSetName, "MarkerSets");
 							markerSetTree.setChildrenAllowed(subSetName, true);
 							for(int j=0; j<markers.size(); j++) {
@@ -1197,22 +1309,60 @@ public class UMainLayout extends VerticalLayout {
 				public void buttonClick(ClickEvent event) {
 					try {
 						if(setName.getValue() != null) {
+							Object val = contextSelector.getValue();
+							if (val == null) {
+								log.warn("Can't create arrayset: current context is null");
+								return;
+							}
+							Context context = (Context)val;
 							ArrayList<String> arrays = new ArrayList<String>();
 							String mark 	= 	sender.toString();
 							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
+							for (SubSet arrayset : arraysets){
+								String name = arrayset.getName();
+								name = name.substring(0, name.indexOf(" ["));
+								if (name.equals(setName.getValue())){
+									arrays = arrayset.getPositions();
+									ArrayList<String> newarrays = new ArrayList<String>();
+									for(int i=0; i<temp.length; i++) {
+										String array = (String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+										if (!arrays.contains(array)) {
+											arrays.add(array);
+											newarrays.add(array);
+										}
+									}
+									if (newarrays.size()>0) {
+										name += " [" + arrays.size() + "]";
+										arrayset.setName(name);
+										arrayset.setPositions(arrays);
+										FacadeFactory.getFacade().store(arrayset);
+										arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name);
+										for(int j=0; j<newarrays.size(); j++) {
+											arraySetTree.addItem(newarrays.get(j)+j);
+											arraySetTree.getContainerProperty(newarrays.get(j)+j, "setName").setValue(newarrays.get(j));
+											arraySetTree.setParent(newarrays.get(j)+j, arrayset.getId());
+											arraySetTree.setChildrenAllowed(newarrays.get(j)+j, false);
+										}
+									}
+									getApplication().getMainWindow().removeWindow(nameWindow);
+									return;
+								}
+							}
+							
 							for(int i=0; i<temp.length; i++) {
 								arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							String subSetName =  (String) setName.getValue();
-							SubSetOperations.storeData(arrays, "microarray", subSetName, dataSetId);
-							arraySetTree.addItem(subSetName);
-							arraySetTree.getContainerProperty(subSetName, "setName").setValue(subSetName + " [" + arrays.size()+ "]");
-							arraySetTree.setParent(subSetName, "arraySets");						 
-							arraySetTree.setChildrenAllowed(subSetName, true);
+							String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+							Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context.getId());
+							arraySetTree.addItem(subSetId);
+							arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName);
+							arraySetTree.setParent(subSetId, "arraySets");
+							arraySetTree.setChildrenAllowed(subSetId, true);
 							for(int j=0; j<arrays.size(); j++) {
 								arraySetTree.addItem(arrays.get(j)+j);
 								arraySetTree.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
-								arraySetTree.setParent(arrays.get(j)+j, subSetName);
+								arraySetTree.setParent(arrays.get(j)+j, subSetId);
 								arraySetTree.setChildrenAllowed(arrays.get(j)+j, false);
 							}
 							getApplication().getMainWindow().removeWindow(nameWindow);

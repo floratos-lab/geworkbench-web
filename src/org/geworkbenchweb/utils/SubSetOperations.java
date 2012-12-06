@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.SubSetContext;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -101,6 +104,114 @@ public class SubSetOperations {
 		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type ", parameters);
 
 		return data;
+	}
+
+	/**
+	 * get all Contexts for dataset
+	 * @param dataSetId
+	 * @return all Contexts for dataset
+	 */
+	public static List<Context> getAllContexts(Long dataSetId){
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+
+		parameters.put("datasetid", dataSetId);
+
+		List<Context> contexts = FacadeFactory.getFacade().list("Select a from Context a where a.datasetid=:datasetid", parameters);
+
+		return contexts;
+	}
+	
+	/**
+	 * get arrays SubSets in current context
+	 * @param datasetId
+	 * @return all arrays SubSets in context
+	 */
+	public static List<SubSet> getArraySetsForCurrentContext(long datasetId) {
+		return getArraySetsForContext(getCurrentContext(datasetId));
+	}
+
+	/**
+	 * get arrays SubSets in context
+	 * @param context
+	 * @return all arrays SubSets in context
+	 */
+	public static List<SubSet> getArraySetsForContext(Context context) {
+		List<SubSet> arraysets = new ArrayList<SubSet>();
+		if (context == null) return arraysets;
+
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("contextid", context.getId());
+		List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", parameters);
+
+		for (SubSetContext subcontext : subcontexts){
+			SubSet arrayset = FacadeFactory.getFacade().find(SubSet.class, subcontext.getSubsetId());
+			if (arrayset!=null) arraysets.add(arrayset);
+		}
+		return arraysets;
+	}
+	
+	/**
+	 * get current Context for dataset
+	 * @param datasetId
+	 * @return current Context
+	 */
+	public static Context getCurrentContext(long datasetId){
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		parameters.put("datasetid", datasetId);
+		List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", parameters);
+		if (cc.isEmpty()) return null;
+		return FacadeFactory.getFacade().find(Context.class, cc.get(0).getContextId());
+	}
+	
+	/**
+	 * set CurrentContext for dataset
+	 * @param datasetId
+	 * @param context
+	 */
+	public static void setCurrentContext(long datasetId, Context context){
+		if (context == null) return;
+		CurrentContext cc = null;
+
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		parameters.put("datasetid", datasetId);
+		List<CurrentContext> ccs =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", parameters);
+		if (ccs.isEmpty()){
+			cc = new CurrentContext();
+			cc.setDatasetId(datasetId);
+		}else{
+			cc = ccs.get(0);
+			if (cc.getContextId() == context.getId()) return;
+		}
+		cc.setContextId(context.getId());
+		FacadeFactory.getFacade().store(cc);
+	}
+
+	/**
+	 * store arrays SubSet and SubSetContext
+	 * @param arrayList names of arrays in arrayset
+	 * @param name      arrayset name
+	 * @param datasetId parent dataset id
+	 * @param contextId context containing this arrayset
+	 * @return arrays SubSet Id
+	 */
+	public static Long storeArraySetInContext(ArrayList<String> arrayList,
+			String name, long datasetId, long contextId) {
+
+		SubSet subset  	= 	new SubSet();
+
+		subset.setName(name);
+		subset.setType("microarray");
+		subset.setOwner(SessionHandler.get().getId());
+		subset.setParent(datasetId);
+		subset.setPositions(arrayList);
+		FacadeFactory.getFacade().store(subset);
+
+		SubSetContext subcontext = new SubSetContext();
+		subcontext.setContextId(contextId);
+		subcontext.setSubsetId(subset.getId());
+		FacadeFactory.getFacade().store(subcontext);
+
+		return subset.getId();
 	}
 
 	/**
