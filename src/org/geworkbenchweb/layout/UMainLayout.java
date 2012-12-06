@@ -1242,21 +1242,55 @@ public class UMainLayout extends VerticalLayout {
 							ArrayList<String> markers = new ArrayList<String>();
 							String mark 	= 	sender.toString();
 							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							List<?> sets = SubSetOperations.getMarkerSets(dataSetId);;
+							for (Object set : sets){
+								SubSet markerset = (SubSet)set;
+								String name = markerset.getName();
+								name = name.substring(0, name.indexOf(" ["));
+								if (name.equals(setName.getValue())){
+									markers = markerset.getPositions();
+									ArrayList<String> newmarkers = new ArrayList<String>();
+									for(int i=0; i<temp.length; i++) {
+										String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+										String[] dataA = data.split("\\s+");
+										if (!markers.contains(dataA[0])) {
+											markers.add(dataA[0]);
+											newmarkers.add(dataA[0]);
+										}
+									}
+									if (newmarkers.size()>0) {
+										name += " [" + markers.size() + "]";
+										markerset.setName(name);
+										markerset.setPositions(markers);
+										FacadeFactory.getFacade().store(markerset);
+										markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name);
+										for(int j=0; j<newmarkers.size(); j++) {
+											markerSetTree.addItem(newmarkers.get(j)+j);
+											markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
+											markerSetTree.setParent(newmarkers.get(j)+j, markerset.getId());
+											markerSetTree.setChildrenAllowed(newmarkers.get(j)+j, false);
+										}
+									}
+									getApplication().getMainWindow().removeWindow(nameWindow);
+									return;
+								}
+							}
+							
 							for(int i=0; i<temp.length; i++) {
 								String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
 							String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
-							SubSetOperations.storeData(markers, "marker", subSetName , dataSetId);
-							markerSetTree.addItem(subSetName);
-							markerSetTree.getContainerProperty(subSetName, "setName").setValue(subSetName);
-							markerSetTree.setParent(subSetName, "MarkerSets");
-							markerSetTree.setChildrenAllowed(subSetName, true);
+							Long subSetId = SubSetOperations.storeMarkerSet(markers, subSetName , dataSetId);
+							markerSetTree.addItem(subSetId);
+							markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName);
+							markerSetTree.setParent(subSetId, "MarkerSets");
+							markerSetTree.setChildrenAllowed(subSetId, true);
 							for(int j=0; j<markers.size(); j++) {
 								markerSetTree.addItem(markers.get(j)+j);
 								markerSetTree.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
-								markerSetTree.setParent(markers.get(j)+j, subSetName);
+								markerSetTree.setParent(markers.get(j)+j, subSetId);
 								markerSetTree.setChildrenAllowed(markers.get(j)+j, false);
 							}
 							getApplication().getMainWindow().removeWindow(nameWindow);
