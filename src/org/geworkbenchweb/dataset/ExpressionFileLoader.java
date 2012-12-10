@@ -136,6 +136,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 		for (DSAnnotationContext<DSMicroarray> aContext : manager.getAllContexts(microarraySet)){
 			String contextName = aContext.getName();
+
 			Context context = new Context(contextName, datasetId);
 			FacadeFactory.getFacade().store(context);
 
@@ -148,12 +149,15 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 
 			for (int j = 0; j < aContext.getNumberOfLabels(); j++){
 				String label = aContext.getLabel(j);
-				ArrayList<String> arrays = new ArrayList<String>();
-				for (DSMicroarray array : aContext.getItemsWithLabel(label)){
-					arrays.add(array.getLabel());
+				/* Removing feault Selection set from geWorkbench Swing version */
+				if(!label.equalsIgnoreCase("Selection")) { 
+					ArrayList<String> arrays = new ArrayList<String>();
+					for (DSMicroarray array : aContext.getItemsWithLabel(label)){
+						arrays.add(array.getLabel());
+					}
+					label += " [" + arrays.size() + "]";
+					SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context.getId());
 				}
-				label += " [" + arrays.size() + "]";
-				SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context.getId());
 			}
 		}
 	}
