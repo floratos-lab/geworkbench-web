@@ -6,6 +6,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -60,6 +62,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.Action;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
@@ -144,11 +147,15 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Button annotButton; 		
 	
-	private Button removeButton;		
+	private Button removeButton;	
+	
+	private Button removeSetButton;
 	
 	private ComboBox contextSelector;
 	
 	private VerticalLayout contextpane;
+	
+	private Long selectedSubSetId;
 	
 	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
 	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
@@ -199,14 +206,23 @@ public class UMainLayout extends VerticalLayout {
 
 		annotButton 	= 	new Button();
 		removeButton	=	new Button();
+		removeSetButton =	new Button();
 		
+		annotButton.setDescription("Show Annotation");
 		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
 		annotButton.setIcon(annotIcon);
+		
+		removeButton.setDescription("Delete selected data");
 		removeButton.setStyleName(BaseTheme.BUTTON_LINK);
 		removeButton.setIcon(CancelIcon);
 		
+		removeSetButton.setDescription("Delete selected subset");
+		removeSetButton.setStyleName(BaseTheme.BUTTON_LINK);
+		removeSetButton.setIcon(CancelIcon);
+		
 		annotButton.setEnabled(false);
 		removeButton.setEnabled(false);
+		removeSetButton.setVisible(false);
 		
 		annotButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -239,7 +255,11 @@ public class UMainLayout extends VerticalLayout {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				selectedItem.setEnabled(false);
-				navigationTree.setVisible(false);				
+				removeButton.setVisible(false);
+				annotButton.setVisible(false);
+				navigationTree.setVisible(false);
+				
+				removeSetButton.setVisible(true);
 
 				markerTree	 	= 	new Tree();
 				arrayTree 		=	new Tree();
@@ -271,10 +291,23 @@ public class UMainLayout extends VerticalLayout {
 					}
 				}
 				markerSetTree.setImmediate(true);
-				markerSetTree.setSelectable(false);
+				markerSetTree.setSelectable(true);
 				markerSetTree.setMultiSelect(false);
 				markerSetTree.setContainerDataSource(markerData);
+				markerSetTree.addListener(new ItemClickEvent.ItemClickListener() {
+					
+					private static final long serialVersionUID = 1L;
 
+					@Override
+					public void itemClick(ItemClickEvent event) {
+						try {
+							arraySetTree.select(null);
+							selectedSubSetId = (Long) event.getItemId();
+						}catch (Exception e) {							
+						}
+					}
+				});
+				
 				HierarchicalContainer arrayData = new HierarchicalContainer();
 				List<?> aSets = SubSetOperations.getArraySets(dataSetId);
 				arrayData.addContainerProperty("setName", String.class, null);
@@ -296,8 +329,21 @@ public class UMainLayout extends VerticalLayout {
 				}
 				arraySetTree.setImmediate(true);
 				arraySetTree.setMultiSelect(false);
-				arraySetTree.setSelectable(false);
+				arraySetTree.setSelectable(true);
 				arraySetTree.setContainerDataSource(arrayData);
+				arraySetTree.addListener(new ItemClickEvent.ItemClickListener() {
+					
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void itemClick(ItemClickEvent event) {
+						try {
+							markerSetTree.select(null);
+							selectedSubSetId = (Long) event.getItemId();
+						}catch (Exception e) {							
+						}
+					}
+				});
 
 				arrayTree.addActionHandler(arrayTreeActionHandler);
 				arrayTree.setImmediate(true);
@@ -446,6 +492,9 @@ public class UMainLayout extends VerticalLayout {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
+				removeButton.setVisible(true);
+				annotButton.setVisible(true);
+				removeSetButton.setVisible(false);
 				navigationTree.setVisible(true);
 				markerTree.setVisible(false);
 				contextpane.setVisible(false);
@@ -461,6 +510,7 @@ public class UMainLayout extends VerticalLayout {
 
 		project.setEnabled(false);
 		
+		/* Deletes the data set and its dependencies from DB */
 		removeButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -563,11 +613,77 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
+		/* Deletes seletected subset from the datatree. */
+		removeSetButton.addListener(new Button.ClickListener() {
+		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {	
+				try {
+					if(selectedSubSetId != null) {
+						
+						/* Deleteing all contexts and then subset */
+						Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+						cParam.put("subsetid", selectedSubSetId);	
+						List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.subsetid=:subsetid", cParam);
+						if(!subcontexts.isEmpty()) {
+							FacadeFactory.getFacade().deleteAll(subcontexts);
+						}
+						
+						Map<String, Object> Param 	= 	new HashMap<String, Object>();
+						Param.put("id", selectedSubSetId);	
+						List<SubSet> subSets = FacadeFactory.getFacade().list("Select a from SubSet a where a.id=:id", Param);
+						
+						if(subSets.get(0).getType().equalsIgnoreCase("microarray")) {
+							if(arraySetTree.hasChildren(selectedSubSetId)) {
+								Collection<?> children = arraySetTree.getChildren(selectedSubSetId);
+								LinkedList<String> children2 = new LinkedList<String>();
+								for (Iterator<?> i = children.iterator(); i.hasNext();)
+									 children2.add((String) i.next());
+								 
+								// Remove the children of the collapsing node
+						        for (Iterator<String> i = children2.iterator(); i.hasNext();) {
+						            String child = i.next();
+						            arraySetTree.removeItem(child);
+						        }
+							} 
+							arraySetTree.removeItem(selectedSubSetId);
+						}else {
+							if(markerSetTree.hasChildren(selectedSubSetId)) {
+								Collection<?> children = markerSetTree.getChildren(selectedSubSetId);
+						        LinkedList<String> children2 = new LinkedList<String>();
+								for (Iterator<?> i = children.iterator(); i.hasNext();)
+									 children2.add((String) i.next());
+								
+								 // Remove the children of the collapsing node
+						        for (Iterator<String> i = children2.iterator(); i.hasNext();) {
+						            String child = i.next();
+						            markerSetTree.removeItem(child);
+						        }
+							}
+							markerSetTree.removeItem(selectedSubSetId);
+						}
+						FacadeFactory.getFacade().deleteAll(subSets);
+					}
+				} catch(Exception e) {
+					e.printStackTrace();
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Warning", 
+							MessageBox.Icon.INFO, 
+							"Please select SubSet to delete", 
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();	
+				}
+			}
+		});
 		dataNavigation.addComponent(toolBar);
 		dataNavigation.addComponent(annotButton);
 		dataNavigation.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
 		dataNavigation.addComponent(removeButton);
 		dataNavigation.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
+		dataNavigation.addComponent(removeSetButton);
+		dataNavigation.setComponentAlignment(removeSetButton, Alignment.MIDDLE_LEFT);
 		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
 		dataNavigation.addComponent(mainToolBar);
 		dataNavigation.setExpandRatio(mainToolBar, 1);
