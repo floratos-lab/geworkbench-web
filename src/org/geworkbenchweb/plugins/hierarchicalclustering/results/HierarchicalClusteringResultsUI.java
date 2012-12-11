@@ -290,13 +290,15 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 					public void buttonClick(ClickEvent event) {
 						try {
 							if(setName.getValue() != null) {
-								ArrayList<String> markers = new ArrayList<String>();
+								ArrayList<String> arrays = new ArrayList<String>();
 								String[] temp 	= 	dendrogram.getArrayLabels();
 								for(int i=0; i<temp.length; i++) {
-									markers.add(temp[i].trim());
+									arrays.add(temp[i].trim());
 								}
-								String subSetName =  (String) setName.getValue() + " [" + markers.size() + "]";
-								SubSetOperations.storeData(markers, "microarray", subSetName, data.get(0).getParent());
+								
+								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+								SubSetOperations.storeArraySetInContext(arrays, subSetName, 
+										data.get(0).getParent(), (SubSetOperations.getCurrentContext(data.get(0).getParent())).getId());
 								getApplication().getMainWindow().removeWindow(nameWindow);
 							}
 						} catch(Exception e) {
