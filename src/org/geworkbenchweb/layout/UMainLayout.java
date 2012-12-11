@@ -382,6 +382,7 @@ public class UMainLayout extends VerticalLayout {
 				contextSelector = new ComboBox();
 				contextSelector.setWidth("160px");
 				contextSelector.setImmediate(true);
+				contextSelector.setNullSelectionAllowed(false);
 				contextSelector.addListener(new Property.ValueChangeListener() {
 					private static final long serialVersionUID = 5667499645414167736L;
 					public void valueChange(ValueChangeEvent event) {
