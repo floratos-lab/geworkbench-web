@@ -9,10 +9,10 @@ public class Tools extends VisualPlugin {
 	public Tools(Long dataSetId) {
 		this.dataSetId = dataSetId;
 	}
+	
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return "Available Analysis in geWorkbench-Web";
+		return "Tools";
 	}
 
 	@Override
@@ -23,14 +23,13 @@ public class Tools extends VisualPlugin {
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return "Tools Menu";
+		return "The list of all the available tools.";
 	}
 
 	@Override
+	// TODO bad name. it should be isVisualizer()
 	public boolean checkForVisualizer() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 }

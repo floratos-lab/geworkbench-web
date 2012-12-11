@@ -785,6 +785,8 @@ public class UMainLayout extends VerticalLayout {
 		down.setVisible(false);
 		annotationBar.setVisible(false);
 		addComponent(annotationBar);
+		
+		pluginView.setVisualPlugin(new Tools(0L));
 	}
 
 	/**
