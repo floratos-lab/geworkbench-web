@@ -13,7 +13,7 @@ public class Marina extends VisualPlugin {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "Marina";
+		return "MARINa";
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class Marina extends VisualPlugin {
 	@Override
 	public String getDescription() {
 		// TODO Auto-generated method stub
-		return "Marina Analysis";
+		return "MARINa Analysis";
 	}
 
 	@Override
