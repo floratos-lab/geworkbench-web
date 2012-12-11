@@ -12,7 +12,7 @@ public class Aracne extends VisualPlugin {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "ARACne";
+		return "ARACNe";
 	}
 
 	@Override
