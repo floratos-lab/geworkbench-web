@@ -213,6 +213,18 @@ public class SubSetOperations {
 
 		return subset.getId();
 	}
+	
+	/**
+	 * store arrays SubSet and SubSetContext in current context
+	 * @param arrayList names of arrays in arrayset
+	 * @param name      arrayset name
+	 * @param datasetId parent dataset id
+	 * @return arrays SubSet Id
+	 */
+	public static Long storeArraySetInCurrentContext(ArrayList<String> arrayList,
+			String name, long datasetId) {
+		return storeArraySetInContext(arrayList, name, datasetId, getCurrentContext(datasetId).getId());
+	}
 
 	/**
 	 * store markers SubSet

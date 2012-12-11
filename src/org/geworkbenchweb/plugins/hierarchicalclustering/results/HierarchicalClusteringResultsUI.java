@@ -297,8 +297,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 								}
 								
 								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
-								SubSetOperations.storeArraySetInContext(arrays, subSetName, 
-										data.get(0).getParent(), (SubSetOperations.getCurrentContext(data.get(0).getParent())).getId());
+								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.get(0).getParent());
 								getApplication().getMainWindow().removeWindow(nameWindow);
 							}
 						} catch(Exception e) {
