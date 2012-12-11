@@ -4,9 +4,9 @@ import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
@@ -371,6 +371,72 @@ public class ToolsUI extends VerticalLayout {
 		cnkbLayout.addComponent(cnkb);
 		cnkbLayout.addComponent(cnkbButton);
 		
+		Button marcus 	= 	new Button("MarkUs", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+			}
+		});
+		marcus.setStyleName(Reindeer.BUTTON_LINK);
+		final Label markusText = new Label(
+				"<p align=\"justify\">MarkUs is a web server to assist the assessment of the biochemical function " +
+				"for a given protein structure. MarkUs identifies related protein structures " +
+				"and sequences, detects protein cavities, and calculates the surface electrostatic " +
+				"potentials and amino acid conservation profile.</p>");
+		markusText.setContentMode(Label.CONTENT_XHTML);
+		
+		final GridLayout marcusLayout 			=	new GridLayout();
+		final FancyCssLayout marcusCssLayout 	= 	new FancyCssLayout();
+		
+		marcusLayout.setColumns(2);
+		marcusLayout.setRows(2);
+		marcusLayout.setSizeFull();
+		marcusLayout.setImmediate(true);
+		marcusLayout.setColumnExpandRatio(1, 1.0f);
+		
+		marcusCssLayout.setWidth("95%");
+		marcusCssLayout.setSlideEnabled(true);
+		marcusCssLayout.addStyleName("lay");
+		
+		final Button marcusButton 		= 	new Button();
+		final Button marcusCancelButton = 	new Button();
+		
+		marcusButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				marcusCssLayout.removeAllComponents();
+				marcusLayout.removeComponent(marcusButton);
+				marcusLayout.addComponent(marcusCancelButton, 1, 0);
+				marcusCssLayout.addComponent(markusText);
+				marcusLayout.addComponent(marcusCssLayout, 0, 1, 1, 1);
+			}
+		});
+		marcusCancelButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				marcusCssLayout.removeAllComponents();
+				marcusLayout.removeComponent(marcusCancelButton);
+				marcusLayout.addComponent(marcusButton, 1, 0);
+				marcusLayout.removeComponent(marcusCssLayout);
+			}
+		});
+	
+		marcusButton.setStyleName(BaseTheme.BUTTON_LINK);
+		marcusButton.setIcon(ICON);
+		marcusCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		marcusCancelButton.setIcon(CancelIcon);
+		addComponent(marcusLayout);
+		marcusLayout.setSpacing(true);
+		marcusLayout.addComponent(marcus);
+		marcusLayout.addComponent(marcusButton);
 		
 		aracne.setStyleName(Reindeer.BUTTON_LINK);
 		anova.setStyleName(Reindeer.BUTTON_LINK);
@@ -450,6 +516,19 @@ public class ToolsUI extends VerticalLayout {
 		tableLayout.addComponent(table);
 		tableLayout.addComponent(tableButton);
 		
+		// anova result
+		buildOneItem("ANOVA Result Viewer", "Show ANOVA result as a table");
+		// aracne result
+		buildOneItem("Cytoscape", "Show network in cytoscape web, or in text view.");
+		// cnkb result
+		buildOneItem("CNKB Result View", "Show CNKB Result including throttle plot.");
+		// hierarchical result
+		buildOneItem("Dendrogram plus heat map", "Show result from hierarchical clustering.");
+		// marina result
+		buildOneItem("MARINa result viewer", "Show result of MARINa analysis");
+		// markus result
+		buildOneItem("MARKUS result viewer", "Show result MARKUS result in embbed browser");
+		
 		/**
 		 * HeatMap
 		 */
@@ -461,5 +540,79 @@ public class ToolsUI extends VerticalLayout {
 		table.setStyleName(Reindeer.BUTTON_LINK);
 		heatMap.setStyleName(Reindeer.BUTTON_LINK);
 
+	}
+
+	// this is so lame and temporary
+	private void buildOneItem (String itemName, String itemDescription) {
+		ThemeResource ICON = new ThemeResource(
+	            "../custom/icons/icon_info.gif");
+
+		ThemeResource CancelIcon = new ThemeResource(
+	            "../runo/icons/16/cancel.png");
+
+		final GridLayout tableLayout 		=	new GridLayout();
+		final Button tableButton 			= 	new Button();
+		final Button tableCancelButton 		= 	new Button();	
+		final FancyCssLayout tableCssLayout = 	new FancyCssLayout();
+		
+		tableLayout.setColumns(2);
+		tableLayout.setRows(2);
+		tableLayout.setSizeFull();
+		tableLayout.setImmediate(true);
+		tableLayout.setColumnExpandRatio(1, 1.0f);
+
+		tableCssLayout.setWidth("95%");
+		tableCssLayout.setSlideEnabled(true);
+		tableCssLayout.addStyleName("lay");
+		
+		Button table 	= 	new Button(itemName, new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+			}
+		});
+		
+		final Label tableText = new Label(
+				"<p align = \"justify\">"+itemDescription+"</p>");
+		tableText.setContentMode(Label.CONTENT_XHTML);
+		
+		tableButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				tableCssLayout.removeAllComponents();
+				tableLayout.removeComponent(tableButton);
+				tableLayout.addComponent(tableCancelButton, 1, 0);
+				tableCssLayout.addComponent(tableText);
+				tableLayout.addComponent(tableCssLayout, 0, 1, 1, 1);
+			}
+		});
+		tableCancelButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				tableCssLayout.removeAllComponents();
+				tableLayout.removeComponent(tableCancelButton);
+				tableLayout.addComponent(tableButton, 1, 0);
+				tableLayout.removeComponent(tableCssLayout);
+			}
+		});
+		
+		tableButton.setStyleName(BaseTheme.BUTTON_LINK);
+		tableButton.setIcon(ICON);
+		tableCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		tableCancelButton.setIcon(CancelIcon);
+		addComponent(tableLayout);
+		tableLayout.setSpacing(true);
+		tableLayout.addComponent(table);
+		tableLayout.addComponent(tableButton);
+
+		table.setStyleName(Reindeer.BUTTON_LINK);
 	}
 }
