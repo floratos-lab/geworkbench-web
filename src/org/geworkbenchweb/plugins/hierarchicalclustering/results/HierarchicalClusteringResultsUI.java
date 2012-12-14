@@ -362,12 +362,22 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 				getApplication().getMainWindow().addWindow(nameWindow);
 			}
 		});
+		
+		Button exportSVG = new Button("Export as HTML", new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				dendrogram.setSVGFlag("true");
+			}
+		});
 		controlLayout.setSpacing(true);
 		controlLayout.addComponent(in);
 		controlLayout.addComponent(out);
 		controlLayout.addComponent(reset);
 		controlLayout.addComponent(markerSet);
 		controlLayout.addComponent(arraySet);
+		controlLayout.addComponent(exportSVG);
 		addComponent(controlLayout);
 		addDendrogram();
 	}

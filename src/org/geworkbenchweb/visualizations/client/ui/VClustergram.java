@@ -75,6 +75,9 @@ public class VClustergram extends Composite implements Paintable {
 	/** Array Labels */
 	private String[] arrayLabels;
 
+	/** Flag for SVG */
+	private String svgFlag;
+	
 	/**
 	 * The constructor should first call super() to initialize the component and 
 	 * then handle any initialization relevant to Vaadin. 
@@ -95,9 +98,7 @@ public class VClustergram extends Composite implements Paintable {
 		}
 
 		this.client	= client;
-		paintableId = uidl.getId();
-		panel.clear();
-		
+
 		/* All the variables from the server are retrieved here */
 		markerTreeString 		=  	uidl.getStringVariable("markerCluster").trim();
 		arrayTreeString			= 	uidl.getStringVariable("arrayCluster").trim();
@@ -108,10 +109,18 @@ public class VClustergram extends Composite implements Paintable {
 		arrayLabels				= 	uidl.getStringArrayVariable("arrayLabels");
 		geneHeight 				= 	uidl.getIntVariable("height");
 		geneWidth				=	uidl.getIntVariable("width");
-		
+		svgFlag					=	uidl.getStringVariable("svgFlag");
+
+		if(svgFlag == "true") {
+			client.updateVariable(paintableId, "svgFlag", "false", false);
+			client.updateVariable(paintableId, "dendrogramSVGData", panel.getElement().getInnerHTML().toString(), true);
+		}
+
+		paintableId = uidl.getId();
+		panel.clear();
 		panel.setWidth((arrayNumber*geneWidth) + 400 + "px");
 		panel.setHeight(markerNumber*geneHeight + 400 + "px");
-		
+
 		/* Marker Dendrogram */
 		if(markerTreeString.contains("(")) {
 			panel.add(new ProtovisWidget() {
@@ -186,7 +195,7 @@ public class VClustergram extends Composite implements Paintable {
 				}
 			}, 50, 200);
 		}
-		
+
 		/* Array Dendrogram*/
 		if(arrayTreeString.contains("(")) {
 			panel.add(new ProtovisWidget() {
@@ -266,10 +275,10 @@ public class VClustergram extends Composite implements Paintable {
 
 				initPVPanel();
 				final PVPanel vis = getPVPanel().width((arrayNumber*geneWidth)).height((markerNumber*geneHeight)).left(0).right(0).top(0).bottom(0);
-				
+
 				int topCordinate 	=  	0;
 				int leftCordinate	= 	0; 
-				
+
 				for(int i=0; i<colorArray.length; i++) {
 					if(i%arrayNumber == 0) {
 						if(i != 0) {
@@ -465,9 +474,9 @@ public class VClustergram extends Composite implements Paintable {
 		} catch (Exception e) {
 			VConsole.log(e);
 		}
-		
+
 		/* Variables that are to be updated are sent to the server counterpart here */
-		
+
 		client.updateVariable(paintableId, "arrayLabels", newArrayLabels, false);
 		client.updateVariable(paintableId, "arrayColor", newColorArray, false);
 		client.updateVariable(paintableId, "arrayNumber", nodesInSelectedCluster, false);
