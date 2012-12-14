@@ -1,11 +1,8 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -64,59 +61,9 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		setImmediate(true);
 		setSpacing(true);
 		
-		ComboBox dataset		=	new ComboBox();
 		ComboBox clusterMethod 	= 	new ComboBox();
 		ComboBox clusterDim 	= 	new ComboBox();
 		ComboBox clusterMetric 	= 	new ComboBox();
-		
-		dataset.setCaption("Select Data");
-		dataset.addItem("Entire DataSet");
-		
-		Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-		cParam.put("parent", dataId);
-
-		List<?> subsets =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent =:parent", cParam);
-		if(subsets.size() != 0){
-			for(int j=0;j<subsets.size();j++) {
-				dataset.addItem(((SubSet) subsets.get(j)).getId());
-				dataset.setItemCaption(((SubSet) subsets.get(j)).getId(), ((SubSet) subsets.get(j)).getName());
-			}
-		}
-		dataset.setNullSelectionAllowed(false);
-		dataset.select(dataset.getItemIds().iterator().next());
-		dataset.setWidth("50%");
-		dataset.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				try {
-					if(!valueChangeEvent.getProperty().getValue().toString().equals("Entire DataSet")) {
-						Long subSetId = (Long) valueChangeEvent.getProperty().getValue();
-						SubSet data = SubSetOperations.getSubSet(subSetId);
-						ArrayList<String> positions = data.getPositions();
-						int count = 0;
-						if(data.getType().equals("microarray")) {
-							int len = maSet.size();
-							for(int i=0; i<len; i++) {
-								if(!positions.contains(maSet.get(i-count).getLabel())) {
-									maSet.remove(i-count);
-									count++;
-								}
-							}
-						} else {
-							int len = maSet.getMarkers().size();
-							for(int i=0; i<len; i++) {
-								if(!positions.contains(maSet.getMarkers().get(i-count).getLabel())) {
-									maSet.getMarkers().remove(i-count);
-									count++;
-								}
-							}
-						}
-					}
-				}catch(NullPointerException e) {
-					System.out.println("let us worry about this later");
-				}
-			}
-		});
 		
 		// the following section of code is copied from ANOVA component
 		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
@@ -264,7 +211,6 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 			}
 		});
 
-		addComponent(dataset);
 		addComponent(clusterMethod);
 		addComponent(clusterDim);
 		addComponent(clusterMetric);
