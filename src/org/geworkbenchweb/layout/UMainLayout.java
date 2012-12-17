@@ -1358,51 +1358,63 @@ public class UMainLayout extends VerticalLayout {
 				public void buttonClick(ClickEvent event) {
 					try {
 						if(setName.getValue() != null) {
-							ArrayList<String> markers = new ArrayList<String>();
+							
 							String mark 	= 	sender.toString();
-							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 							List<?> sets = SubSetOperations.getMarkerSets(dataSetId);;
 							for (Object set : sets){
-								SubSet markerset = (SubSet)set;
+								final SubSet markerset = (SubSet)set;
 								String name = markerset.getName();
 								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
+									final String name1 = name;
 									MessageBox mb = new MessageBox(getWindow(), 
 											"Warning", 
 											MessageBox.Icon.INFO, 
 											"There is a Marker Subset with the name \"" +
 											name +
-											"\". The selected markers will be added to existing set.",  
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-									markers = markerset.getPositions();
-									ArrayList<String> newmarkers = new ArrayList<String>();
-									for(int i=0; i<temp.length; i++) {
-										String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-										String[] dataA = data.split("\\s+");
-										if (!markers.contains(dataA[0])) {
-											markers.add(dataA[0]);
-											newmarkers.add(dataA[0]);
+											"\". Click \"Ok\" to add markers to same set." +
+											" or Click \"Cancel\" to add set with different name",   
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
+											new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
+									mb.show(new MessageBox.EventListener() {
+										private static final long serialVersionUID = 1L;
+
+										@Override
+										public void buttonClicked(ButtonType buttonType) {
+											if(buttonType.equals(ButtonType.CANCEL)) {
+												return;
+											} else {
+												ArrayList<String> markers	 = 	markerset.getPositions();
+												ArrayList<String> newmarkers = 	new ArrayList<String>();
+												for(int i=0; i<temp.length; i++) {
+													String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+													String[] dataA = data.split("\\s+");
+													if (!markers.contains(dataA[0])) {
+														markers.add(dataA[0]);
+														newmarkers.add(dataA[0]);
+													}
+												}
+												if (newmarkers.size()>0) {
+													markerset.setName(name1 + " [" + markers.size() + "]");
+													markerset.setPositions(markers);
+													FacadeFactory.getFacade().store(markerset);
+													markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1+" [" + markers.size() + "]");
+													for(int j=0; j<newmarkers.size(); j++) {
+														markerSetTree.addItem(newmarkers.get(j)+j);
+														markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
+														markerSetTree.setParent(newmarkers.get(j)+j, markerset.getId());
+														markerSetTree.setChildrenAllowed(newmarkers.get(j)+j, false);
+													}
+												}
+											}
 										}
-									}
-									if (newmarkers.size()>0) {
-										name += " [" + markers.size() + "]";
-										markerset.setName(name);
-										markerset.setPositions(markers);
-										FacadeFactory.getFacade().store(markerset);
-										markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name);
-										for(int j=0; j<newmarkers.size(); j++) {
-											markerSetTree.addItem(newmarkers.get(j)+j);
-											markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
-											markerSetTree.setParent(newmarkers.get(j)+j, markerset.getId());
-											markerSetTree.setChildrenAllowed(newmarkers.get(j)+j, false);
-										}
-									}
+									});
 									getApplication().getMainWindow().removeWindow(nameWindow);
 									return;
 								}
 							}
-							
+							ArrayList<String> markers = new ArrayList<String>();
 							for(int i=0; i<temp.length; i++) {
 								String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
 								String[] dataA = data.split("\\s+");
@@ -1476,49 +1488,62 @@ public class UMainLayout extends VerticalLayout {
 								return;
 							}
 							Context context = (Context)val;
-							ArrayList<String> arrays = new ArrayList<String>();
 							String mark 	= 	sender.toString();
-							String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
+							final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 							List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
-							for (SubSet arrayset : arraysets){
+							for (final SubSet arrayset : arraysets){
 								String name = arrayset.getName();
 								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
+									final String name1 = name;
 									MessageBox mb = new MessageBox(getWindow(), 
 											"Warning", 
 											MessageBox.Icon.INFO, 
 											"There is a Phenotype Subset with the name \"" +
 											name +
-											"\". The selected markers will be added to existing set.",  
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-									arrays = arrayset.getPositions();
-									ArrayList<String> newarrays = new ArrayList<String>();
-									for(int i=0; i<temp.length; i++) {
-										String array = (String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-										if (!arrays.contains(array)) {
-											arrays.add(array);
-											newarrays.add(array);
+											"\". Click \"Ok\" to add markers to same set." +
+											" or Click \"Cancel\" to add set with different name",  
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
+											new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
+									mb.show(new MessageBox.EventListener() {
+										
+										private static final long serialVersionUID = 1L;
+
+										@Override
+										public void buttonClicked(ButtonType buttonType) {
+											if(buttonType.equals(ButtonType.CANCEL)) {
+												return;
+											} else {
+												ArrayList<String> arrays 		= 	arrayset.getPositions();
+												ArrayList<String> newarrays 	= 	new ArrayList<String>();
+												for(int i=0; i<temp.length; i++) {
+													String array = (String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+													if (!arrays.contains(array)) {
+														arrays.add(array);
+														newarrays.add(array);
+													}
+												}
+												if (newarrays.size()>0) {
+													//name += " [" + arrays.size() + "]";
+													arrayset.setName(name1 + " [" + arrays.size() + "]");
+													arrayset.setPositions(arrays);
+													FacadeFactory.getFacade().store(arrayset);
+													arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name1 + " [" + arrays.size() + "]");
+													for(int j=0; j<newarrays.size(); j++) {
+														arraySetTree.addItem(newarrays.get(j)+j);
+														arraySetTree.getContainerProperty(newarrays.get(j)+j, "setName").setValue(newarrays.get(j));
+														arraySetTree.setParent(newarrays.get(j)+j, arrayset.getId());
+														arraySetTree.setChildrenAllowed(newarrays.get(j)+j, false);
+													}
+												}
+											}
 										}
-									}
-									if (newarrays.size()>0) {
-										name += " [" + arrays.size() + "]";
-										arrayset.setName(name);
-										arrayset.setPositions(arrays);
-										FacadeFactory.getFacade().store(arrayset);
-										arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name);
-										for(int j=0; j<newarrays.size(); j++) {
-											arraySetTree.addItem(newarrays.get(j)+j);
-											arraySetTree.getContainerProperty(newarrays.get(j)+j, "setName").setValue(newarrays.get(j));
-											arraySetTree.setParent(newarrays.get(j)+j, arrayset.getId());
-											arraySetTree.setChildrenAllowed(newarrays.get(j)+j, false);
-										}
-									}
+									});
 									getApplication().getMainWindow().removeWindow(nameWindow);
 									return;
 								}
 							}
-							
+							ArrayList<String> arrays = new ArrayList<String>();
 							for(int i=0; i<temp.length; i++) {
 								arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
