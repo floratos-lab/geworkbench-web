@@ -1367,6 +1367,14 @@ public class UMainLayout extends VerticalLayout {
 								String name = markerset.getName();
 								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
+									MessageBox mb = new MessageBox(getWindow(), 
+											"Warning", 
+											MessageBox.Icon.INFO, 
+											"There is a Marker Subset with the name \"" +
+											name +
+											"\". The selected markers will be added to existing set.",  
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+									mb.show();
 									markers = markerset.getPositions();
 									ArrayList<String> newmarkers = new ArrayList<String>();
 									for(int i=0; i<temp.length; i++) {
@@ -1476,6 +1484,14 @@ public class UMainLayout extends VerticalLayout {
 								String name = arrayset.getName();
 								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
+									MessageBox mb = new MessageBox(getWindow(), 
+											"Warning", 
+											MessageBox.Icon.INFO, 
+											"There is a Phenotype Subset with the name \"" +
+											name +
+											"\". The selected markers will be added to existing set.",  
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+									mb.show();
 									arrays = arrayset.getPositions();
 									ArrayList<String> newarrays = new ArrayList<String>();
 									for(int i=0; i<temp.length; i++) {
