@@ -155,7 +155,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					for (DSMicroarray array : aContext.getItemsWithLabel(label)){
 						arrays.add(array.getLabel());
 					}
-					label += " [" + arrays.size() + "]";
 					SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context.getId());
 				}
 			}

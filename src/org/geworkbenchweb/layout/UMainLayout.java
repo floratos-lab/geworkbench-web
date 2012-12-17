@@ -278,11 +278,11 @@ public class UMainLayout extends VerticalLayout {
 				markerData.addContainerProperty("setName", String.class, null);
 				mainItem.getItemProperty("setName").setValue("Marker Sets");
 				for (int i=0; i<sets.size(); i++) {
+					List<String> markers = ((SubSet) sets.get(i)).getPositions();
 					markerData.addItem(((SubSet) sets.get(i)).getId());
-					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName());
+					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName() + " [" + markers.size() + "]");
 					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
 					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);
-					List<String> markers = ((SubSet) sets.get(i)).getPositions();
 					for(int j=0; j<markers.size(); j++) {
 						markerData.addItem(markers.get(j)+j);
 						markerData.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
@@ -315,11 +315,11 @@ public class UMainLayout extends VerticalLayout {
 				mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
 				
 				for (int i=0; i<aSets.size(); i++) {
+					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
 					arrayData.addItem(((SubSet) aSets.get(i)).getId());
-					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName());
+					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName() + " [" + arrays.size() + "]");
 					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
 					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);
-					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
 					for(int j=0; j<arrays.size(); j++) {
 						arrayData.addItem(arrays.get(j)+j);
 						arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
@@ -399,12 +399,12 @@ public class UMainLayout extends VerticalLayout {
 							arraySetTree.setContainerDataSource(arrayData);
 
 							for (SubSet arrayset : arraysets){
+								List<String> arrays = arrayset.getPositions();
 								Long id = arrayset.getId();
 								arrayData.addItem(id);
-								arrayData.getContainerProperty(id, "setName").setValue(arrayset.getName());
+								arrayData.getContainerProperty(id, "setName").setValue(arrayset.getName() + " [" + arrays.size() + "]");
 								arrayData.setParent(id, "arraySets");
 								arrayData.setChildrenAllowed(id, true);
-								List<String> arrays = arrayset.getPositions();
 								for(int j=0; j<arrays.size(); j++) {
 									arrayData.addItem(arrays.get(j)+j);
 									arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
@@ -1365,7 +1365,6 @@ public class UMainLayout extends VerticalLayout {
 							for (Object set : sets){
 								final SubSet markerset = (SubSet)set;
 								String name = markerset.getName();
-								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
 									final String name1 = name;
 									MessageBox mb = new MessageBox(getWindow(), 
@@ -1396,10 +1395,9 @@ public class UMainLayout extends VerticalLayout {
 													}
 												}
 												if (newmarkers.size()>0) {
-													markerset.setName(name1 + " [" + markers.size() + "]");
 													markerset.setPositions(markers);
 													FacadeFactory.getFacade().store(markerset);
-													markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1+" [" + markers.size() + "]");
+													markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
 													for(int j=0; j<newmarkers.size(); j++) {
 														markerSetTree.addItem(newmarkers.get(j)+j);
 														markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
@@ -1420,10 +1418,10 @@ public class UMainLayout extends VerticalLayout {
 								String[] dataA = data.split("\\s+");
 								markers.add(dataA[0]);
 							}
-							String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
+							String subSetName = (String) setName.getValue();
 							Long subSetId = SubSetOperations.storeMarkerSet(markers, subSetName , dataSetId);
 							markerSetTree.addItem(subSetId);
-							markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName);
+							markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + markers.size()+ "]");
 							markerSetTree.setParent(subSetId, "MarkerSets");
 							markerSetTree.setChildrenAllowed(subSetId, true);
 							for(int j=0; j<markers.size(); j++) {
@@ -1493,7 +1491,6 @@ public class UMainLayout extends VerticalLayout {
 							List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
 							for (final SubSet arrayset : arraysets){
 								String name = arrayset.getName();
-								name = name.substring(0, name.indexOf(" ["));
 								if (name.equals(setName.getValue())){
 									final String name1 = name;
 									MessageBox mb = new MessageBox(getWindow(), 
@@ -1524,8 +1521,6 @@ public class UMainLayout extends VerticalLayout {
 													}
 												}
 												if (newarrays.size()>0) {
-													//name += " [" + arrays.size() + "]";
-													arrayset.setName(name1 + " [" + arrays.size() + "]");
 													arrayset.setPositions(arrays);
 													FacadeFactory.getFacade().store(arrayset);
 													arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name1 + " [" + arrays.size() + "]");
@@ -1547,10 +1542,10 @@ public class UMainLayout extends VerticalLayout {
 							for(int i=0; i<temp.length; i++) {
 								arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 							}
-							String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+							String subSetName =  (String) setName.getValue();
 							Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context.getId());
 							arraySetTree.addItem(subSetId);
-							arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName);
+							arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + arrays.size() + "]");
 							arraySetTree.setParent(subSetId, "arraySets");
 							arraySetTree.setChildrenAllowed(subSetId, true);
 							for(int j=0; j<arrays.size(); j++) {
