@@ -13,7 +13,7 @@ public class Anova extends VisualPlugin {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "Anova";
+		return "ANOVA";
 	}
 
 	@Override
