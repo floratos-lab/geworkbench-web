@@ -24,7 +24,7 @@ public class MicroarrayUI extends VerticalLayout {
 		setSpacing(true);
 		
 		this.dataId = dataSetId;
-		Label analysisLabel = new Label("Analysis Available");
+		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		
@@ -114,7 +114,7 @@ public class MicroarrayUI extends VerticalLayout {
 	    anovaLayout.setSizeFull();
 	    anovaLayout.setImmediate(true);
 	    anovaLayout.setColumnExpandRatio(1, 1.0f);
-		Button anova 	= 	new Button("Anova", new Button.ClickListener() {
+		Button anova 	= 	new Button("ANOVA", new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
