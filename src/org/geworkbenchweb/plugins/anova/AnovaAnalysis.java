@@ -268,7 +268,7 @@ public class AnovaAnalysis {
 		if (significanSetNum == 0)
 		   subset.setName("Significant Genes [" + significantNum + "]");
 		else	 
-		   subset.setName("Significant Genes(" + significanSetNum + ") [" + significantNum + "]");
+		   subset.setName("Significant Genes(" + significanSetNum + ") ");
 		 
 		subset.setOwner(paramForm.getUserId());
 		subset.setType("marker");
