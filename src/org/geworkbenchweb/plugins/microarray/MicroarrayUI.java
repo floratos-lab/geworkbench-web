@@ -379,13 +379,78 @@ public class MicroarrayUI extends VerticalLayout {
 		cnkbLayout.addComponent(cnkb);
 		cnkbLayout.addComponent(cnkbButton);
 		
+		/*
+		 * Differential Expression (TTest)
+		 */
+		Button ttest 	= 	new Button("Differential Expression (T-Test)", new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				PluginEvent loadPlugin = new PluginEvent("TTest", dataId);
+				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
+			}
+		});
+	    final GridLayout ttestLayout = new GridLayout();
+	    ttestLayout.setColumns(2);
+	    ttestLayout.setRows(2);
+	    ttestLayout.setSizeFull();
+	    ttestLayout.setImmediate(true);
+	    ttestLayout.setColumnExpandRatio(1, 1.0f);
+
+		final FancyCssLayout ttestCssLayout = new FancyCssLayout();
+		ttestCssLayout.setWidth("95%");
+		ttestCssLayout.setSlideEnabled(true);
+		ttestCssLayout.addStyleName("lay");
+		
+		final Label ttestText = new Label(
+				"<p align = \"justify\">A t-Test analysis can be used to identify markers with statistically " +
+				"significant differential expression between two sets of microarrays.</p>");
+		ttestText.setContentMode(Label.CONTENT_XHTML);
+		
+		final Button ttestButton = new Button();
+		final Button ttestCancelButton = new Button();
+		ttestButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				ttestCssLayout.removeAllComponents();
+				ttestLayout.removeComponent(ttestButton);
+				ttestLayout.addComponent(ttestCancelButton, 1, 0);
+				ttestCssLayout.addComponent(ttestText);
+				ttestLayout.addComponent(ttestCssLayout, 0, 1, 1, 1);
+			}
+		});
+		ttestCancelButton.addListener(new Button.ClickListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				ttestCssLayout.removeAllComponents();
+				ttestLayout.removeComponent(ttestCancelButton);
+				ttestLayout.addComponent(ttestButton, 1, 0);
+				ttestLayout.removeComponent(ttestCssLayout);
+			}
+		});
+		
+		ttestButton.setStyleName(BaseTheme.BUTTON_LINK);
+		ttestButton.setIcon(ICON);
+		ttestCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		ttestCancelButton.setIcon(CancelIcon);
+		addComponent(ttestLayout);
+		ttestLayout.setSpacing(true);
+		ttestLayout.addComponent(ttest);
+		ttestLayout.addComponent(ttestButton);
 		
 		aracne.setStyleName(Reindeer.BUTTON_LINK);
 		anova.setStyleName(Reindeer.BUTTON_LINK);
 		marina.setStyleName(Reindeer.BUTTON_LINK);
 		cnkb.setStyleName(Reindeer.BUTTON_LINK);
 		hc.setStyleName(Reindeer.BUTTON_LINK);
-	
+		ttest.setStyleName(Reindeer.BUTTON_LINK);
+		
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
 		vis.setContentMode(Label.CONTENT_PREFORMATTED);
