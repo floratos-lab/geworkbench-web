@@ -36,6 +36,7 @@ import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringW
 import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.microarray.Microarray;
 import org.geworkbenchweb.plugins.tools.Tools;
+import org.geworkbenchweb.plugins.ttest.TTestAnalysisWeb;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Comment;
@@ -1082,6 +1083,8 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(networkIcon);
 					} else if(type.equalsIgnoreCase("MarinaResults")) {
 						res.getItemProperty("Icon").setValue(marinaIcon);
+					} else if(type.equalsIgnoreCase("TTestResults")) {
+						res.getItemProperty("Icon").setValue(anovaIcon);
 					} 
 				}
 				dataSets.setChildrenAllowed(subSetId, false);
@@ -1171,6 +1174,8 @@ public class UMainLayout extends VerticalLayout {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
 					} else if (res.getType().equalsIgnoreCase("MarinaResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(marinaIcon);
+					} else if (res.getType().equalsIgnoreCase("TTestResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
 					} 
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
@@ -1284,7 +1289,11 @@ public class UMainLayout extends VerticalLayout {
 						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
 						resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
 						resultSet.setName("Aracne");
-					} else if(resultSet.getType().contains("MarinaResults")) {
+					} else if(resultSet.getType().contains("TTestResults")) {
+							TTestAnalysisWeb analyze = new TTestAnalysisWeb(dataSet, params);
+							resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
+							resultSet.setName("TTest");
+					}else if(resultSet.getType().contains("MarinaResults")) {
 						MarinaAnalysis analyze = new MarinaAnalysis(dataSet, params);
 						try{
 							CSMasterRegulatorTableResultSet mraRes = analyze.execute();
