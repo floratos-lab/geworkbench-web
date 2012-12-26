@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.ttest;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -97,35 +98,55 @@ public class TTestAnalysisWeb {
 		numberGroupA 		= 	caseSet.getPositions().size();
 		numberGroupB 		= 	controlSet.getPositions().size();
 		
-		int n = dataSet.size();
+		ArrayList<String> aC = new ArrayList<String>();
+		ArrayList<String> bC = new ArrayList<String>();
+		
+		aC = caseSet.getPositions();
+		bC = controlSet.getPositions();
+		
+		aC.addAll(bC);
+		
+		final int n = dataSet.size();
 		int count = 0;
-		for(int i=0; i<n; i++) {
-			if(caseSet.getPositions().contains(dataSet.get(i-count).getLabel())){
-				dataSet.remove(i-count);
-				count++;
-			} else if(controlSet.getPositions().contains(dataSet.get(i-count).getLabel())) {
-				dataSet.remove(i-count);
-				count++;
+		for(int i=0; i<n; i++) {			
+			for(int j=0; j<aC.size(); j++) {
+				if(!aC.contains(dataSet.get(i-count).getLabel())) {
+					dataSet.remove(i-count);
+					count++;
+					break;
+				} 
 			}
 		}
+
 		numExps 	= 	dataSet.size();
 		numGenes 	= 	dataSet.getMarkers().size();
 		
-		double[][] caseArray  = new double[numGenes][numberGroupA];
-		double[][] controlArray = new double[numGenes][numberGroupB];
-		String[] caseLabels = new String[caseSet.getPositions().size()];
-		String[] controlLabels = new String[controlSet.getPositions().size()];
+		double[][] caseArray  	= 	new double[numGenes][numberGroupA];
+		double[][] controlArray = 	new double[numGenes][numberGroupB];
 		
-		for (int i = 0; i < numGenes; i++) {
-			int caseIndex = 0;
-			int controlIndex = 0;
-			
-			for (int j = 0; j < numExps; j++) {
-				if(caseSet.getPositions().contains(dataSet.get(j).getLabel())) {
-					caseArray[i][caseIndex++] = dataSet.getValue(i, j);
+		String[] caseLabels 	= 	new String[caseSet.getPositions().size()];
+		String[] controlLabels 	= 	new String[controlSet.getPositions().size()];
+		
+		ArrayList<String> caseSet1 		= 	((SubSet) (SubSetOperations.getArraySet(caseSetId)).get(0)).getPositions();
+		ArrayList<String> controlSet1 	= 	((SubSet) (SubSetOperations.getArraySet(controlSetId)).get(0)).getPositions();
+		
+		for (int i = 0; i < numGenes; i++) {	
+
+			int caseIndex 		=	0;
+			int controlIndex 	= 	0;
+
+			for(int j=0; j<numExps; j++) {
+				for(int r=0; r<caseSet1.size(); r++){
+					if(caseSet1.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
+						caseArray[i][caseIndex] = dataSet.getValue(i, j);
+						caseIndex++;
+					}
 				}
-				if(controlSet.getPositions().contains(dataSet.get(j).getLabel())) {
-					caseArray[i][controlIndex++] = dataSet.getValue(i, j);
+				for(int r=0; r<controlSet1.size(); r++){	
+					if(controlSet1.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
+						controlArray[i][controlIndex] = dataSet.getValue(i, j);
+						controlIndex++;
+					}
 				}
 			}
 		}
@@ -210,11 +231,12 @@ public class TTestAnalysisWeb {
 	private DSSignificanceResultSet<DSGeneMarker> createDSSignificanceResultSet(
 			DSMicroarraySet data,
 			TTestOutput output, String[] caseLabels, String[] controlLabels) {
+		
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
 				data, "T-Test", caseLabels, controlLabels,
 				alpha, isLogNormalized
-
 		);
+		
 		for (int i = 0; i < output.significanceIndex.length; i++) {
 			int index = output.significanceIndex[i];
 			DSGeneMarker m = data.getMarkers().get(index);

@@ -1,43 +1,31 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.Series;
 import com.invient.vaadin.charts.InvientCharts.SeriesType;
 import com.invient.vaadin.charts.InvientChartsConfig;
 import com.invient.vaadin.charts.Color.RGB;
 import com.invient.vaadin.charts.Color.RGBA;
-import com.invient.vaadin.charts.InvientCharts.DateTimePoint;
 import com.invient.vaadin.charts.InvientCharts.XYSeries;
 import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
-import com.invient.vaadin.charts.InvientChartsConfig.HorzAlign;
-import com.invient.vaadin.charts.InvientChartsConfig.Legend.Layout;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.Position;
 import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.VertAlign;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.Legend;
 import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
 import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
 
@@ -48,7 +36,6 @@ public class TTestResultsUI extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
 	private DSSignificanceResultSet<DSGeneMarker> significance;
-	private LinkedHashSet<DecimalPoint> scatterMaleData = null;
 
 	@SuppressWarnings("unchecked")
 	public TTestResultsUI(Long dataSetId) {
@@ -74,10 +61,6 @@ public class TTestResultsUI extends VerticalLayout {
 	private InvientCharts drawPlot() {
 
 		DSMicroarraySet set 	= 	significance.getParentDataSet();
-		String[] caseLabels 	= 	significance.getLabels(DSTTestResultSet.CASE);
-		String[] controlLabels 	= 	significance.getLabels(DSTTestResultSet.CONTROL);
-
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
 
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
@@ -88,7 +71,7 @@ public class TTestResultsUI extends VerticalLayout {
 
 		chartConfig.getTooltip().setFormatterJsFunc(
 				"function() {"
-						+ " return '' + this.x + ' cm, ' + this.y + ' kg'; "
+						+ " return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; "
 						+ "}");
 
 		NumberXAxis xAxis = new NumberXAxis();
@@ -106,19 +89,6 @@ public class TTestResultsUI extends VerticalLayout {
 		yAxesSet.add(yAxis);
 		chartConfig.setYAxes(yAxesSet);
 
-		Legend legend = new Legend();
-		legend.setLayout(Layout.VERTICAL);
-		Position legendPos = new Position();
-		legendPos.setAlign(HorzAlign.LEFT);
-		legendPos.setVertAlign(VertAlign.TOP);
-		legendPos.setX(100);
-		legendPos.setY(70);
-		legend.setPosition(legendPos);
-		legend.setFloating(true);
-		legend.setBorderWidth(1);
-		legend.setBackgroundColor(new RGB(255, 255, 255));
-		chartConfig.setLegend(legend);
-
 		ScatterConfig scatterCfg = new ScatterConfig();
 
 		SymbolMarker marker = new SymbolMarker(5);
@@ -129,14 +99,15 @@ public class TTestResultsUI extends VerticalLayout {
 		chartConfig.addSeriesConfig(scatterCfg);
 
 		InvientCharts chart = new InvientCharts(chartConfig);
+		chart.setWidth("100%");
 
 		ScatterConfig femaleScatterCfg = new ScatterConfig();
 		femaleScatterCfg.setColor(new RGBA(223, 83, 83, 0.5f));
-		XYSeries series = new XYSeries("", femaleScatterCfg);
+		XYSeries series = new XYSeries("Significant Markers", femaleScatterCfg);
 
 		// First put all the gene pairs in the xyValues array
-		int numMarkers = dataSetView.getMarkerPanel().size();
-		System.out.println(numMarkers);
+		int numMarkers = set.getMarkers().size();
+		
 		double validMinSigValue 	= 	Double.MAX_VALUE;
 		double minPlotValue 		= 	Double.MAX_VALUE;
 		double maxPlotValue 		= 	Double.MIN_VALUE;
@@ -145,7 +116,7 @@ public class TTestResultsUI extends VerticalLayout {
        
 		for (int i = 0; i < numMarkers; i++) {
 			
-			DSGeneMarker mark = dataSetView.getMarkerPanel().get(i);
+			DSGeneMarker mark = set.getMarkers().get(i);
 			double sigValue = significance.getSignificance(mark);
 
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
@@ -172,14 +143,14 @@ public class TTestResultsUI extends VerticalLayout {
 				if (plotVal > maxPlotValue) {
 					maxPlotValue = plotVal;
 				}
-				System.out.println("Nikhil");
-				points.add(new DecimalPoint(series, xVal, yVal));
+				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
+				a.setName(set.getMarkers().get(i).getLabel());
+				points.add(a);
 			} else {
 				//log.debug("Marker " + i + " was infinite or NaN.");
 			}
 
 		}
-		System.out.println(points.size());
 		series.setSeriesPoints(points);
 		chart.addSeries(series);
 		return chart;
