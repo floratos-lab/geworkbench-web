@@ -23,6 +23,7 @@ import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.mortbay.log.Log;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -99,11 +100,17 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 							parameters);
 			if (!annots.isEmpty())
 				return annots.get(0).getId();
+			if (annotType == null){
+				Log.warn("Private annotation "+annotFile.getName()+" not found in database.");
+				return null;
+			}
 		}
 
 		// otherwise create it
-		if (!annotFile.exists())
+		if (!annotFile.exists()){
+			Log.warn("New annotation "+annotFile.getPath()+" not found on server.");
 			return null;
+		}
 		AffyAnnotationParser annotParser = null;
 		if (annotType.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION))
 			annotParser = new Affy3ExpressionAnnotationParser();

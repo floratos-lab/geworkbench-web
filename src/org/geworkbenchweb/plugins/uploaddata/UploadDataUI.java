@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +19,17 @@ import org.geworkbenchweb.pojos.Annotation;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
+import com.vaadin.ui.Tree;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
@@ -45,28 +47,31 @@ public class UploadDataUI extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
 	private static final String initialText = "Enter description here.";
-	private static final String[] choices = { "No annotation",
-			"HG_U95Av2.na32.annot.csv", "Use your own annotation file" };
-	private static final String loadOption = "Load annotation file now";
+	public static enum Anno {
+		NO("No annotation"), NEW("Load new annotation"), PUBLIC("Public annotation files"),
+		PRIVATE("Private annotations files"), DELETE("Delete private annotation files");
+		private String value;
+		Anno(String v) { value = v; }
+		public String toString() { return value; }
+	};
 
-	private ComboBox loadedAnnots = new ComboBox(
-			"Choose available annotation or load new one");
 	private ComboBox fileCombo;
 	private TextArea dataArea;
 	
-	private ComboBox annotChoices;
+	private Tree annotChoices;
 	private ComboBox annotTypes;
 
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
 	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver();
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
 	
-	private Label annotUploadStatus 			= 	new Label("Please select a annotation file to upload");
+	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
 	private AnnotFileReceiver annotFileReceiver = 	new AnnotFileReceiver();
 	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
 	
 	private File dataFile;
 	private File annotFile;
+	private static final String tempDir = System.getProperty("user.home") + "/temp/";
 	
 	public UploadDataUI(Long dataSetId) {
 
@@ -87,12 +92,12 @@ public class UploadDataUI extends VerticalLayout {
 				if (type != null) {
 					Loader loader = (Loader) type;
 					if (loader instanceof LoaderUsingAnnotation) {
-						annotChoices.setValue(choices[0]);
+						getAnnotChoices();
+						annotChoices.setValue(Anno.NO);
 						annotChoices.setVisible(true);
 					} else {
 						annotChoices.setValue(null);
 						annotChoices.setVisible(false);
-						loadedAnnots.setVisible(false);
 						showAnnotUpload(false);
 					}
 				}
@@ -150,9 +155,9 @@ public class UploadDataUI extends VerticalLayout {
             }
         });
 		
-		annotChoices = new ComboBox("Choose annotation", Arrays.asList(choices));
+		annotChoices = new Tree("Choose annotation");
 		annotChoices.setNullSelectionAllowed(false);
-		annotChoices.setWidth(200, 0);
+		annotChoices.setWidth(220, 0);
 		annotChoices.setVisible(false);
 		annotChoices.setImmediate(true);
 		annotChoices.addListener(new Property.ValueChangeListener() {
@@ -161,40 +166,7 @@ public class UploadDataUI extends VerticalLayout {
 			public void valueChange(ValueChangeEvent event) {
 				Object choice = annotChoices.getValue();
 				if (choice != null) {
-					loadedAnnots.setVisible(false);
-					showAnnotUpload(false);
-					if (choice.equals(choices[2])) {
-						Map<String, Object> params = new HashMap<String, Object>();
-						params.put("owner", SessionHandler.get().getId());
-						List<Annotation> annots = FacadeFactory
-								.getFacade()
-								.list("Select a from Annotation as a where a.owner=:owner",
-										params);
-						if (!annots.isEmpty()) {
-							loadedAnnots.removeAllItems();
-							for (Annotation a : annots)
-								loadedAnnots.addItem(a.getName());
-							loadedAnnots.addItem(loadOption);
-							loadedAnnots.setValue(annots.get(0).getName());
-							loadedAnnots.setVisible(true);
-						} else
-							showAnnotUpload(true);
-					}
-				}
-			}
-		});
-
-		loadedAnnots.setNullSelectionAllowed(false);
-		loadedAnnots.setWidth(200, 0);
-		loadedAnnots.setVisible(false);
-		loadedAnnots.setImmediate(true);
-		loadedAnnots.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = -6160532471996111349L;
-
-			public void valueChange(ValueChangeEvent evt) {
-				Object o = loadedAnnots.getValue();
-				if (o != null) {
-					if (o.equals(loadOption))
+					if (choice == Anno.NEW)
 						showAnnotUpload(true);
 					else
 						showAnnotUpload(false);
@@ -262,13 +234,54 @@ public class UploadDataUI extends VerticalLayout {
 		Button uploadButton = new Button("Upload");
 		addComponent(fileUploadStatus);
 		addComponent(uploadField);
-		addComponent(annotChoices);
-		addComponent(loadedAnnots);
-		addComponent(annotUploadStatus);
-		addComponent(annotTypes);
-		addComponent(annotUploadField);
+		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
+		HorizontalLayout annoLayout = new HorizontalLayout();
+		annoLayout.addComponent(annotChoices);
+		VerticalLayout uploadLayout = new VerticalLayout();
+		uploadLayout.setSpacing(true);
+		uploadLayout.addComponent(annotTypes);
+		uploadLayout.addComponent(annotUploadStatus);
+		uploadLayout.addComponent(annotUploadField);
+		annoLayout.addComponent(uploadLayout);
+		addComponent(annoLayout);
 		addComponent(uploadButton);
 		uploadButton.addListener(new UploadButtonListener());
+	}
+
+	private void getAnnotChoices(){
+		annotChoices.removeAllItems();
+		for (Anno anno : Anno.values()){
+			annotChoices.addItem(anno);
+			if (anno == Anno.NO || anno == Anno.NEW || anno == Anno.DELETE){
+				annotChoices.setChildrenAllowed(anno, false);
+			}else if (anno == Anno.PUBLIC){
+				int cnt = 0;
+				for (File f : new File(tempDir).listFiles()){
+					if (f.isFile() && f.getName().endsWith(".csv")){
+						String fname = f.getName();
+						annotChoices.addItem(fname);
+						annotChoices.setParent(fname, anno);
+						annotChoices.setChildrenAllowed(fname, false);
+						cnt++;
+					}
+				}
+				if (cnt == 0) annotChoices.setChildrenAllowed(anno, false);
+			}else if (anno == Anno.PRIVATE){
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("owner", SessionHandler.get().getId());
+				List<Annotation> annots = FacadeFactory
+						.getFacade()
+						.list("Select a from Annotation as a where a.owner=:owner order by a.name",
+								params);
+				for (Annotation a : annots){
+					String aname = a.getName();
+					annotChoices.addItem(aname);
+					annotChoices.setParent(aname, anno);
+					annotChoices.setChildrenAllowed(aname, false);
+				}
+				if (annots.isEmpty()) annotChoices.setChildrenAllowed(anno, false);
+			}
+		}
 	}
 
 	private void showAnnotUpload(boolean visible) {
@@ -285,9 +298,9 @@ public class UploadDataUI extends VerticalLayout {
 		public void buttonClick(ClickEvent event) {
 			
 			Loader loader 				= 	(Loader) fileCombo.getValue();
-			String choice 				= 	(String) annotChoices.getValue();
-			User annotOwner 			= 	null;
-			AnnotationType annotType 	= 	null;
+			Object choice 				= 	annotChoices.getValue();
+			User annotOwner 			= 	SessionHandler.get();
+			AnnotationType annotType 	= 	(AnnotationType)annotTypes.getValue();
 			
 			if (dataFile == null) {
 				MessageBox mb = new MessageBox(getWindow(), 
@@ -298,55 +311,78 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();
 				return;
 			}
-			if (choice == null){
-				choice = "";
+			if (choice == null) return;
+			if (choice == Anno.DELETE){
+				MessageBox mb = new MessageBox(getWindow(), 
+						"To be implemented", 
+						MessageBox.Icon.ERROR, 
+						"Operation not supported yet",  
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+				return;
 			}
-			// shared default annotation
-			if (choice.equals(choices[1])) {
-				annotType = AnnotationType.values()[0];
-				annotFile = new File(
-						System.getProperty("user.home") + "/temp/", choice);
-				if (!annotFile.exists()) {
+			if (choice == Anno.PUBLIC || choice == Anno.PRIVATE){
+				MessageBox mb = new MessageBox(getWindow(), 
+						"Loading problem", 
+						MessageBox.Icon.ERROR, 
+						"Annotation file not selected",  
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+				return;
+			}
+			if (!(choice instanceof Anno)){
+				String annotFname = (String)choice;
+				Object parent = annotChoices.getParent(choice);
+				// shared default annotation
+				if (parent == Anno.PUBLIC){
+					annotOwner = null;
+					annotType = AnnotationType.values()[0];
+					annotFile = new File(tempDir, annotFname);
+					if (!annotFile.exists()) {
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Loading problem", 
+								MessageBox.Icon.ERROR, 
+								"Annotation file not found on server",  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show();
+						return;
+					}
+				}
+				// user's loaded annotation
+				else if (parent == Anno.PRIVATE){
+					annotType = null;
+					annotFile = new File(tempDir + annotOwner.getUsername(), annotFname);
+				}
+			}
+			else if (choice == Anno.NO)
+				annotFile = null;
+			// just loaded
+			else if (choice == Anno.NEW){
+				if (annotFile == null) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Loading problem", 
 							MessageBox.Icon.ERROR, 
-							"Annotation file not found on server",  
+							"Annotation file not loaded",  
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					mb.show();	
 					return;
 				}
-			}
-			// user's loaded annotation
-			else if (choice.equals(choices[2])) {
-				annotOwner = SessionHandler.get();
-				// previously loaded
-				if (loadedAnnots.isVisible()
-						&& !loadedAnnots.getValue().equals(loadOption))
-					annotFile = new File(System.getProperty("user.home")
-							+ "/temp/" + annotOwner.getUsername(),
-							(String) loadedAnnots.getValue());
-				// just loaded
-				else {
-					annotType = (AnnotationType) annotTypes.getValue();
-					if (annotFile == null) {
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Loading problem", 
-								MessageBox.Icon.ERROR, 
-								"Annotation file not loaded",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();	
-						return;
-					}
-					if (loadedAnnots.getItemIds().contains(annotFile.getName())) {
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Loading problem", 
-								MessageBox.Icon.ERROR, 
-								"Annotation file with the same name found on server",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();	
-						// if (annotFile.exists()) annotFile.delete();
-						// return;
-					}
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("owner", annotOwner.getId());
+				params.put("name", annotFile.getName());
+				List<Annotation> annots = FacadeFactory
+						.getFacade()
+						.list("Select a from Annotation as a where a.owner=:owner and a.name=:name",
+								params);
+				if (!annots.isEmpty()) {
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Loading problem", 
+							MessageBox.Icon.ERROR, 
+							"Annotation file with the same name found on server",  
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();	
+					// if (annotFile.exists()) annotFile.delete();
+					// return;
 				}
 			}
 
@@ -356,7 +392,7 @@ public class UploadDataUI extends VerticalLayout {
 					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
 					expressionFileLoader.parseAnnotation(annotFile, annotType,
 							annotOwner);
-					if (annotFile != null && choice.equals(choices[2]) && !annotFile.delete()) {
+					if (annotFile != null && choice == Anno.NEW && !annotFile.delete()) {
 						log.warn("problem in deleting " + annotFile);
 					}
 				}
@@ -395,7 +431,7 @@ public class UploadDataUI extends VerticalLayout {
             fileName = filename;
             mtype = mimetype;
             FileOutputStream fos = null; // Output stream to write to
-            dataFile = new File(System.getProperty("user.home") + "/temp/" + filename);
+            dataFile = new File(tempDir + filename);
             try {
                 // Open the file for writing.
                 fos = new FileOutputStream(dataFile);
@@ -431,8 +467,7 @@ public class UploadDataUI extends VerticalLayout {
             fileName = filename;
             mtype = mimetype;
             FileOutputStream fos = null; // Output stream to write to
-            String dir = System.getProperty("user.home") + "/temp/"
-					+ SessionHandler.get().getUsername();
+            String dir = tempDir + SessionHandler.get().getUsername();
 			if (!new File(dir).exists())
 				new File(dir).mkdir();
 			annotFile = new File(dir, fileName);
