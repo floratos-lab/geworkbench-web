@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,11 +18,11 @@ import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
 import com.invient.vaadin.charts.InvientCharts.SeriesType;
 import com.invient.vaadin.charts.InvientChartsConfig;
 import com.invient.vaadin.charts.Color.RGB;
-import com.invient.vaadin.charts.Color.RGBA;
 import com.invient.vaadin.charts.InvientCharts.XYSeries;
 import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
+import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
 import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
@@ -101,9 +102,8 @@ public class TTestResultsUI extends VerticalLayout {
 		InvientCharts chart = new InvientCharts(chartConfig);
 		chart.setWidth("100%");
 
-		ScatterConfig femaleScatterCfg = new ScatterConfig();
-		femaleScatterCfg.setColor(new RGBA(223, 83, 83, 0.5f));
-		XYSeries series = new XYSeries("Significant Markers", femaleScatterCfg);
+		ScatterConfig sCfg = new ScatterConfig();
+		XYSeries series = new XYSeries("Significant Markers", sCfg);
 
 		// First put all the gene pairs in the xyValues array
 		int numMarkers = set.getMarkers().size();
@@ -143,18 +143,33 @@ public class TTestResultsUI extends VerticalLayout {
 				if (plotVal > maxPlotValue) {
 					maxPlotValue = plotVal;
 				}
-				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
-				a.setName(set.getMarkers().get(i).getLabel());
-				points.add(a);
+				points.add(new DecimalPoint(series, xVal, yVal));
 			} else {
 				//log.debug("Marker " + i + " was infinite or NaN.");
 			}
 
 		}
-		series.setSeriesPoints(points);
+		
+		GMTColorPalette.ColorRange[] range = {new GMTColorPalette.ColorRange(minPlotValue, Color.BLUE.brighter(), maxPlotValue - (maxPlotValue / 3), Color.BLUE),
+                new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue, Color.RED)};
+		GMTColorPalette colormap = new GMTColorPalette(range);
+
+		LinkedHashSet<DecimalPoint> newPoints = new LinkedHashSet<DecimalPoint>();
+		for(int i=0; i<points.size(); i++) {
+			
+			DecimalPoint a =  (DecimalPoint) (points.toArray())[i] ;
+			Color aC = colormap.getColor(Math.abs(a.getX()) * Math.abs(a.getY()));
+
+			SymbolMarker pMarker = new SymbolMarker(5);
+			pMarker.setFillColor(new RGB(aC.getRed(), aC.getGreen(), aC.getBlue()));
+
+			PointConfig aCfg = new PointConfig(pMarker);
+			a.setConfig(aCfg);
+			a.setName(set.getMarkers().get(i).getLabel());
+			newPoints.add(a);
+		}
+		series.setSeriesPoints(newPoints);
 		chart.addSeries(series);
 		return chart;
 	}
-
-
 }
