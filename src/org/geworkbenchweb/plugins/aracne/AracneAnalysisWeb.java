@@ -347,7 +347,7 @@ public class AracneAnalysisWeb {
 			DSGeneMarker marker2 = mSet.getMarkers().get(
 					aracneGraphEdges[i].getNode2());
 
-			if (!hubGeneList.contains(marker1.getLabel())) {
+			if (hubGeneList != null && !hubGeneList.contains(marker1.getLabel())) {
 				DSGeneMarker m = marker1;
 				marker1 = marker2;
 				marker2 = m;
