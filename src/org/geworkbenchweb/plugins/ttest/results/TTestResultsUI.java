@@ -32,6 +32,11 @@ import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
 
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Visualization for TTest Results is done in this class.
+ * @author Nikhil
+ */
+
 public class TTestResultsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
@@ -56,8 +61,7 @@ public class TTestResultsUI extends VerticalLayout {
 	}
 
 	/**
-	 * This method draws the Throttle Graph using Invient Charts Add-on.
-	 * 
+	 * This method draws the Volcano plot using Invient Charts Add-on.
 	 */
 	private InvientCharts drawPlot() {
 
@@ -115,6 +119,7 @@ public class TTestResultsUI extends VerticalLayout {
 
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
        
+		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
 		for (int i = 0; i < numMarkers; i++) {
 			
 			DSGeneMarker mark = set.getMarkers().get(i);
