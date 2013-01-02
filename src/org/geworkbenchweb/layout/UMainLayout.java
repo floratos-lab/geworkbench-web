@@ -1770,8 +1770,11 @@ public class UMainLayout extends VerticalLayout {
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("120px");
 		nameWindow.setResizable(false);
-		 
-		nameWindow.setCaption("Filter Markers");
+		 if (sender == markerTree) 
+			 nameWindow.setCaption("Filter Markers");
+         else if (sender == arrayTree)
+        	 nameWindow.setCaption("Filter Phenotypes");
+	 
 		nameWindow.setImmediate(true);
 
 		final TextField search = new TextField();
