@@ -22,6 +22,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -160,18 +162,27 @@ public class UploadDataUI extends VerticalLayout {
 		annotChoices.setWidth(220, 0);
 		annotChoices.setVisible(false);
 		annotChoices.setImmediate(true);
-		annotChoices.addListener(new Property.ValueChangeListener() {
+		annotChoices.addListener(new ItemClickListener(){
 			private static final long serialVersionUID = 8744518843208040408L;
 
-			public void valueChange(ValueChangeEvent event) {
-				Object choice = annotChoices.getValue();
-				if (choice != null) {
-					if (choice == Anno.NEW)
-						showAnnotUpload(true);
-					else
-						showAnnotUpload(false);
+			public void itemClick(ItemClickEvent event) {
+				if (event.getSource() == annotChoices){
+					Object choice = event.getItemId();
+					if (choice != null){
+						if (choice == Anno.PUBLIC || choice == Anno.PRIVATE) {
+							annotChoices.setSelectable(false);
+							annotChoices.setValue(null);
+						} else {
+							annotChoices.setSelectable(true);
+							annotChoices.setValue(choice);
+						}
+						if (choice == Anno.NEW)
+							showAnnotUpload(true);
+						else
+							showAnnotUpload(false);
+					}
 				}
-			}
+			}			
 		});
 
 		ArrayList<AnnotationType> atypes = new ArrayList<AnnotationType>();
@@ -311,7 +322,6 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();
 				return;
 			}
-			if (choice == null) return;
 			if (choice == Anno.DELETE){
 				MessageBox mb = new MessageBox(getWindow(), 
 						"To be implemented", 
@@ -321,7 +331,7 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();
 				return;
 			}
-			if (choice == Anno.PUBLIC || choice == Anno.PRIVATE){
+			if (choice == null){
 				MessageBox mb = new MessageBox(getWindow(), 
 						"Loading problem", 
 						MessageBox.Icon.ERROR, 
