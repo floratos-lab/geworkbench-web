@@ -101,6 +101,7 @@ public class TTestResultsUI extends VerticalLayout {
 
 		InvientCharts chart = new InvientCharts(chartConfig);
 		chart.setWidth("100%");
+		chart.setHeight("100%");
 
 		ScatterConfig sCfg = new ScatterConfig();
 		XYSeries series = new XYSeries("Significant Markers", sCfg);
