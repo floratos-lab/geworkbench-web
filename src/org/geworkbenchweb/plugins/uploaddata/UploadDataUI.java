@@ -332,15 +332,17 @@ public class UploadDataUI extends VerticalLayout {
 				return;
 			}
 			if (choice == null){
-				MessageBox mb = new MessageBox(getWindow(), 
-						"Loading problem", 
-						MessageBox.Icon.ERROR, 
-						"Annotation file not selected",  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-				return;
+				if (loader instanceof LoaderUsingAnnotation){
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Loading problem", 
+							MessageBox.Icon.ERROR, 
+							"Annotation file not selected",  
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+					return;
+				}
 			}
-			if (!(choice instanceof Anno)){
+			else if (!(choice instanceof Anno)){
 				String annotFname = (String)choice;
 				Object parent = annotChoices.getParent(choice);
 				// shared default annotation
