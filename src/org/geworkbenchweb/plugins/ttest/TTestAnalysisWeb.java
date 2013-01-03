@@ -22,16 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.geworkbench.components.ttest.SignificanceMethod;
-import org.geworkbench.components.ttest.TTestException;
 import org.geworkbench.components.ttest.data.TTestInput;
 import org.geworkbench.components.ttest.data.TTestOutput;
 
 /**
- * 
  * This class submits TTest Analysis from web application
- * 
  * @author Nikhil Reddy
- * 
  */
 public class TTestAnalysisWeb {
 
@@ -47,12 +43,12 @@ public class TTestAnalysisWeb {
 	private int numGenes, numExps;
 	private double alpha;
 	private boolean isPermut, useWelchDf;
-	private int numCombs;
-	private boolean useAllCombs;
+	private int numCombs = 0;
+	private boolean useAllCombs =  false;
 	
 	private int numberGroupA = 0;
 	private int numberGroupB = 0;
-	private SignificanceMethod m;
+	private int m;
 
 	private boolean isLogNormalized = false;
 	
@@ -67,9 +63,15 @@ public class TTestAnalysisWeb {
 			isLogNormalized = true;
 		}
 		
-		useAllCombs = 	false;
 		numCombs	= 	0;
-		isPermut	= 	false;
+		if((Boolean) params.get(TTestParameters.ISPERMUT)) {
+			isPermut	= 	true;
+			if((Boolean) params.get(TTestParameters.ALLCOMBINATATIONS)) {
+				useAllCombs = true;
+			}else {
+				numCombs = Integer.parseInt((String) params.get(TTestParameters.NUMCOMBINATIONS));
+			}
+		}
 		alpha 		= 	Double.parseDouble((String) params.get(TTestParameters.ALPHA));
 		
 		if(((String) params.get(TTestParameters.CORRECTIONMETHOD)).equals("Just alpha (no-correction)")) {
@@ -78,6 +80,10 @@ public class TTestAnalysisWeb {
 			m = SignificanceMethod.ADJ_BONFERRONI;
 		} else if(((String) params.get(TTestParameters.CORRECTIONMETHOD)).equals("Standard Bonferroni Correction")) {
 			m = SignificanceMethod.STD_BONFERRONI;
+		} else if(((String) params.get(TTestParameters.CORRECTIONMETHOD)).equals("minP")) {
+			m = SignificanceMethod.MIN_P;
+		}else if(((String) params.get(TTestParameters.CORRECTIONMETHOD)).equals("maxT")) {
+			m = SignificanceMethod.MAX_T;
 		}
 		
 		if(((String) params.get(TTestParameters.WELCHDIFF)).equals("Unequal (Welch approximation)") ) {
@@ -162,19 +168,14 @@ public class TTestAnalysisWeb {
 				numberGroupB, caseArray, controlArray, m, alpha, isPermut,
 				useWelchDf, useAllCombs, numCombs, isLogNormalized);
 		
-		TTestOutput ttestOutput = null;
-		try {
-			ttestOutput = new org.geworkbench.components.ttest.TTest(tTestInput).execute();
-		} catch (TTestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		TTestOutput ttestOutput = computeTtestRemote(tTestInput);
+		
+		//ttestOutput = new org.geworkbench.components.ttest.TTest(tTestInput).execute();
 		
 		DSSignificanceResultSet<DSGeneMarker> sigSet = createDSSignificanceResultSet(dataSet, ttestOutput, caseLabels, controlLabels);
 		return sigSet;
 	}
 	
-	@SuppressWarnings("unused")
 	private TTestOutput computeTtestRemote(TTestInput input) {
 		TTestOutput output = null;
 		RPCServiceClient serviceClient;
@@ -237,13 +238,13 @@ public class TTestAnalysisWeb {
 				alpha, isLogNormalized
 		);
 		
-		for (int i = 0; i < output.significanceIndex.length; i++) {
-			int index = output.significanceIndex[i];
+		for (int i = 0; i < output.getSignificanceIndex().length; i++) {
+			int index = (output.getSignificanceIndex())[i];
 			DSGeneMarker m = data.getMarkers().get(index);
-			sigSet.setSignificance(m, output.pValue[index]);
-			sigSet.setTValue(m, output.tValue[index]);
+			sigSet.setSignificance(m, (output.getpValue())[index]);
+			sigSet.setTValue(m, (output.gettValue())[index]);
 			
-			sigSet.setFoldChange(m, output.foldChange[index]);
+			sigSet.setFoldChange(m, (output.getFoldChange())[index]);
 		}
 		
 		sigSet.sortMarkersBySignificance();

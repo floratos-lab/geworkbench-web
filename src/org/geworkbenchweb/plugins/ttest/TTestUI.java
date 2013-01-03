@@ -17,10 +17,13 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
@@ -50,13 +53,17 @@ public class TTestUI extends VerticalLayout {
 	
 	private TextField criticalValue;
 	
-	private ComboBox correctionMethod;
+	private OptionGroup correctionMethod;
 	
-	private ComboBox stepMethod;
+	private OptionGroup stepMethod;
 	
-	private ComboBox groupVariances;
+	private OptionGroup groupVariances;
 	
 	private Button submit;
+	
+	private OptionGroup perOp;
+	
+	private TextField groupTimes;
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 	
@@ -105,7 +112,9 @@ public class TTestUI extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				if(selectCase.getValue().equals(null) || selectControl.getValue().equals(null)) {
+				try {
+					if(selectCase.getValue().equals(null) || selectControl.getValue().equals(null)) { }
+				}catch (NullPointerException e) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Warning", 
 							MessageBox.Icon.INFO, 
@@ -117,13 +126,27 @@ public class TTestUI extends VerticalLayout {
 				params.put(TTestParameters.CASEARRAY, (Serializable) selectCase.getValue());
 				params.put(TTestParameters.CONTROLARRAY, (Serializable) selectControl.getValue());
 				params.put(TTestParameters.ALPHA, (Serializable) criticalValue.getValue());
-				params.put(TTestParameters.CORRECTIONMETHOD, (Serializable) correctionMethod.getValue());
+				if(pValue.getValue().toString().equalsIgnoreCase("t-distribution")) {
+					params.put(TTestParameters.ISPERMUT, (Serializable) false);
+					params.put(TTestParameters.CORRECTIONMETHOD, (Serializable) correctionMethod.getValue());
+				}else {
+					params.put(TTestParameters.ISPERMUT, (Serializable) true);
+					if(stepMethod.getValue() != null) {
+						params.put(TTestParameters.CORRECTIONMETHOD, (Serializable) stepMethod.getValue());
+					}else {
+						params.put(TTestParameters.CORRECTIONMETHOD, (Serializable) correctionMethod.getValue());
+					}
+				}
 				params.put(TTestParameters.LOGNORMALIZED, (Serializable) logNorm.getValue());
-				//params.put(TTestParameters.ALLCOMBINATATIONS, value);
 				params.put(TTestParameters.WELCHDIFF, (Serializable) groupVariances.getValue());
-				//params.put(TTestParameters.NUMCOMBINATIONS, value);
-				
-				
+				if(!pValue.getValue().toString().equalsIgnoreCase("t-distribution")) {
+					if(perOp.getValue().toString().equalsIgnoreCase("Use all Permutations")) {
+						params.put(TTestParameters.ALLCOMBINATATIONS, (Serializable) true);
+					}else {
+						params.put(TTestParameters.ALLCOMBINATATIONS, (Serializable) false);
+						params.put(TTestParameters.NUMCOMBINATIONS, (Serializable) groupTimes.getValue());
+					}
+				}
 				
 				List<DataSet> data = DataSetOperations
 						.getDataSet(dataSetId);
@@ -164,10 +187,10 @@ public class TTestUI extends VerticalLayout {
 		GridLayout a = new GridLayout();
 		
 		a.setColumns(2);
-		a.setRows(2);
+		a.setRows(3);
 		a.setImmediate(true);
 		a.setSpacing(true);
-		a.setHeight("150px");
+		a.setHeight("200px");
 		a.setMargin(true);
 		
 		pValue = new ComboBox();
@@ -177,6 +200,22 @@ public class TTestUI extends VerticalLayout {
 		pValue.addItem("permutation");
 		pValue.select("t-distribution");
 		pValue.setImmediate(true);
+		pValue.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				if(event.getProperty().getValue().toString().equalsIgnoreCase("permutation")) {
+					perOp.setEnabled(true);
+					groupTimes.setEnabled(true);
+					stepMethod.setEnabled(true);
+				} else {
+					perOp.setEnabled(false);
+					groupTimes.setEnabled(false);
+					stepMethod.setEnabled(false);
+				}
+			}
+		});
 		
 		logNorm = new ComboBox();
 		logNorm.setNullSelectionAllowed(false);
@@ -186,6 +225,19 @@ public class TTestUI extends VerticalLayout {
 		logNorm.select("No");
 		logNorm.setImmediate(true);
 		
+		perOp = new OptionGroup();
+		perOp.setEnabled(false);
+		perOp.setNullSelectionAllowed(false);
+		perOp.addItem("Randomly group experiments");
+		perOp.addItem("Use all Permutations");
+		perOp.select("Randomly group experiments");
+		
+		groupTimes = new TextField();
+		groupTimes.setCaption("(#times)");
+		groupTimes.setEnabled(false);
+		groupTimes.setValue("100");
+		groupTimes.setNullSettingAllowed(false);
+		
 		criticalValue = new TextField();
 		criticalValue.setCaption("Overall Alpha");
 		criticalValue.setValue("0.02");
@@ -193,7 +245,9 @@ public class TTestUI extends VerticalLayout {
 		
 		a.addComponent(pValue, 0, 0);
 		a.addComponent(criticalValue, 1, 0);
-		a.addComponent(logNorm, 0, 1);
+		a.addComponent(perOp, 0, 1);
+		a.addComponent(groupTimes, 1, 1);
+		a.addComponent(logNorm, 0, 2);
 		return a;
 	}
 
@@ -206,26 +260,54 @@ public class TTestUI extends VerticalLayout {
 		
 		b.setImmediate(true);
 		b.setSpacing(true);
-		b.setHeight("125px");
+		b.setHeight("175px");
 		b.setMargin(true);
 		
-		correctionMethod = new ComboBox();
-		correctionMethod.setNullSelectionAllowed(false);
+		correctionMethod = new OptionGroup();
 		correctionMethod.setCaption("Select Case from Phenotypes sets");
 		correctionMethod.addItem("Just alpha (no-correction)");
 		correctionMethod.addItem("Standard Bonferroni Correction");
 		correctionMethod.addItem("Adjusted Bonferroni Correction");
 		correctionMethod.select("Just alpha (no-correction)");
 		correctionMethod.setImmediate(true);
+		correctionMethod.addListener(new Property.ValueChangeListener() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				try {
+					if(!event.getProperty().getValue().toString().equals(null)) {
+						stepMethod.select(null);
+					}
+				}catch(Exception e) {
+					//System.out.println("debug");
+				}
+			}
+		});
 		
-		stepMethod = new ComboBox();
-		stepMethod.setNullSelectionAllowed(false);
+		stepMethod = new OptionGroup();
 		stepMethod.setCaption("Step down westfall and young methods (for permutation only)");
 		stepMethod.addItem("minP");
 		stepMethod.addItem("maxT");
 		stepMethod.addItem("minP");
 		stepMethod.setImmediate(true);
 		stepMethod.setEnabled(false);
+		stepMethod.addListener(new Property.ValueChangeListener() {
+		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				try {
+					if(!event.getProperty().getValue().toString().equals(null)) {
+						correctionMethod.select(null);
+					}
+				}catch(Exception e) {	
+					//System.out.println("debug");
+				}
+			}
+		});
 		
 		b.addComponent(correctionMethod);
 		b.addComponent(stepMethod);
@@ -244,7 +326,7 @@ public class TTestUI extends VerticalLayout {
 		c.setHeight("100px");
 		c.setMargin(true);
 		
-		groupVariances = new ComboBox();
+		groupVariances = new OptionGroup();
 		groupVariances.setNullSelectionAllowed(false);
 		groupVariances.setCaption("Group Variences");
 		groupVariances.addItem("Unequal (Welch approximation)");
