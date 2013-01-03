@@ -281,6 +281,7 @@ public class UMainLayout extends VerticalLayout {
 				markerTree.setImmediate(true);
 				markerTree.setSelectable(true);
 				markerTree.setMultiSelect(true);
+				markerTree.setDescription("Markers");
 
 				HierarchicalContainer markerData 	= 	new HierarchicalContainer();
 				List<?> sets 						= 	SubSetOperations.getMarkerSets(dataSetId);
@@ -356,10 +357,12 @@ public class UMainLayout extends VerticalLayout {
 					}
 				});
 
+			    
 				arrayTree.addActionHandler(arrayTreeActionHandler);
 				arrayTree.setImmediate(true);
 				arrayTree.setMultiSelect(true);
 				arrayTree.setSelectable(true);
+				arrayTree.setDescription("Phenotypes");
 
 				List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
 				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
@@ -427,6 +430,7 @@ public class UMainLayout extends VerticalLayout {
 					}
 				});
 
+				 
 				List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);
 				Context current = SubSetOperations.getCurrentContext(dataSetId);
 				for (Context c : contexts){
@@ -799,6 +803,9 @@ public class UMainLayout extends VerticalLayout {
 		addComponent(annotationBar);
 		
 		pluginView.setVisualPlugin(new Tools(0L));
+		
+		
+		
 	}
 
 	/**
@@ -1394,7 +1401,7 @@ public class UMainLayout extends VerticalLayout {
 		public Action[] getActions(Object target, Object sender) {
 			return ACTIONS;
 		}
-	};
+	}; 
 	
 	private TabSheet buildAnnotationTabSheet() {
 		HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
@@ -1769,11 +1776,8 @@ public class UMainLayout extends VerticalLayout {
 		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("120px");
-		nameWindow.setResizable(false);
-		 if (sender == markerTree) 
-			 nameWindow.setCaption("Filter Markers");
-         else if (sender == arrayTree)
-        	 nameWindow.setCaption("Filter Phenotypes");
+		nameWindow.setResizable(false);		 
+	    nameWindow.setCaption("Filter " + sender.getDescription());        
 	 
 		nameWindow.setImmediate(true);
 
@@ -1798,14 +1802,11 @@ public class UMainLayout extends VerticalLayout {
 	                 
 	               
 	               hc.addContainerFilter(filter);
-					String label = null;
-	                if (sender == markerTree) 
-	                	label = "Markers";
-	                else if (sender == arrayTree)
-	                	label = "Phenotypes";
-	                Item mainItem =  hc.getItem(label);
-	                if (mainItem == null)
-	                {	 
+				   String label = sender.getDescription();
+	                
+	               Item mainItem =  hc.getItem(label);
+	               if (mainItem == null)
+	               {	 
 	                	 
 	                	hc.removeAllContainerFilters();
 	                	filter =  new SimpleStringFilter("Labels", label +" [",
