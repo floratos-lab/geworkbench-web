@@ -20,6 +20,8 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
@@ -375,18 +377,22 @@ public class AracneUI extends GridLayout {
 		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.setValue("1");
 		bootStrapNumber.setNullSettingAllowed(false);
-		bootStrapNumber.addListener(new Property.ValueChangeListener() {
+		bootStrapNumber.addListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1L;
 
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+			public void textChange(TextChangeEvent event) {
 				params.remove(AracneParameters.BOOTS_NUM);
-				params.put(AracneParameters.BOOTS_NUM, valueChangeEvent
-						.getProperty().getValue().toString());
+				params.put(AracneParameters.BOOTS_NUM, event.getText());
+				try{
 				if (Integer.valueOf((String) params
 						.get(AracneParameters.BOOTS_NUM)) > 1)
 					consensusThreshold.setEnabled(true);
 				else
 					consensusThreshold.setEnabled(false);
+				}catch(NumberFormatException e)
+				{
+					//do nothing, validate message will in validInputData()
+				}
 			}
 
 		});
