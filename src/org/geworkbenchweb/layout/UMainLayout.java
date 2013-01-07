@@ -92,7 +92,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
@@ -461,7 +460,10 @@ public class UMainLayout extends VerticalLayout {
 				                String name = (String)contextName.getValue();
 				                for (Context context : SubSetOperations.getAllContexts(dataSetId)){
 				                	if (context.getName().equals(name)){
-				                		getWindow().showNotification("Name already exists", Notification.TYPE_WARNING_MESSAGE);
+				                		MessageBox mb = new MessageBox(getWindow(), 
+												"Warning", MessageBox.Icon.WARN, "Name already exists",  
+												new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+										mb.show();
 				                		return;
 				                	}
 				                }
@@ -1317,9 +1319,11 @@ public class UMainLayout extends VerticalLayout {
 							resultSet.setData(ObjectConversion.convertToByte(mraRes));
 							resultSet.setName("Marina - " + mraRes.getLabel());
 						}catch(RemoteException e){
-							e.printStackTrace();
 							String msg = e.getMessage().replaceAll("\n", "<br>");
-							getWindow().showNotification("RemoteException<br>", msg, Notification.TYPE_ERROR_MESSAGE);
+							MessageBox mb = new MessageBox(getWindow(), 
+									"Analysis Problem", MessageBox.Icon.ERROR, msg,  
+									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+							mb.show();	
 							FacadeFactory.getFacade().delete(resultSet);
 							navigationTree.removeItem(resultSet.getId());
 							pusher.push();

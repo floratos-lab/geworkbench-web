@@ -27,14 +27,18 @@ import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.Util;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -71,7 +75,9 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
+
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver{
 
@@ -117,6 +123,18 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
 		
 		this.dataSet = maSet;
+
+		Map<String, Object> parameters = new HashMap<String, Object>();	
+		parameters.put("datasetid", dataSetId);	
+		List<Annotation> annots = FacadeFactory.getFacade().list(
+				"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
+		if (!annots.isEmpty()){
+			APSerializable aps = (APSerializable) ObjectConversion.toObject(annots.get(0).getAnnotation());
+			AnnotationParser.setFromSerializable(aps);
+		}else {
+			AnnotationParser.setCurrentDataSet(dataSet);
+		}
+		((CSMicroarraySet)dataSet).getMarkers().correctMaps();
 
 		List<?> arraysets = SubSetOperations.getArraySetsForCurrentContext(dataSetId);
 		arraymap = new HashMap<String, String>();
@@ -178,7 +196,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	            	String newset = parseCSV(filename, bytes);
 	            	if (newset != null) cb1.select(newset);
         		}else{
-        			getWindow().showNotification("File Format Error", filename + " is not a CSV file", Notification.TYPE_WARNING_MESSAGE);
+					MessageBox mb = new MessageBox(getWindow(),
+							"File Format Error", MessageBox.Icon.WARN,
+							filename + " is not a CSV file",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
         		}
             }
         };
@@ -194,7 +216,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	            	String newset = parseCSV(filename, bytes);
 	            	if (newset != null) cb2.select(newset);
         		}else{
-        			getWindow().showNotification("File Format Error", filename + " is not a CSV file", Notification.TYPE_WARNING_MESSAGE);
+					MessageBox mb = new MessageBox(getWindow(),
+							"File Format Error", MessageBox.Icon.WARN,
+							filename + " is not a CSV file",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
         		}
             }
         };
@@ -366,10 +392,23 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			}
 		}
 		if(missing > 0) {
-			if (missing == 1)
-				getWindow().showNotification("Array Not Found", missing + " array listed in the CSV file is not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
-			else 
-				getWindow().showNotification("Arrays Not Found", missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.", Notification.TYPE_WARNING_MESSAGE);
+			if (missing == 1){
+				MessageBox mb = new MessageBox(
+						getWindow(),
+						"Array Not Found",
+						MessageBox.Icon.WARN,
+						missing + " array listed in the CSV file is not present in the dataset.  Skipped.",
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+			}else{
+				MessageBox mb = new MessageBox(
+						getWindow(),
+						"Array Not Found",
+						MessageBox.Icon.WARN,
+						missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.",
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+			}
 		}
 		return aNewSet;
 	}
@@ -417,8 +456,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		item.getItemProperty("network").setValue("");
 		form.getField("network").setEnabled(false);
 		submitButton.setEnabled(false);
-		if (msg != null)
-			getWindow().showNotification(msg, Notification.TYPE_ERROR_MESSAGE);
+		if (msg != null){
+			MessageBox mb = new MessageBox(getWindow(), 
+					"Network Problem", MessageBox.Icon.ERROR, msg, 
+					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+		}
 	}
 
 	private void networkLoaded(byte[] networkBytes){
@@ -730,7 +773,13 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}
 				
 				if (allpos && bean.getGseaTailNumber()==2){
-					getWindow().showNotification("Since all Spearman's correlation >= 0, gsea will use tail = 1.");
+					MessageBox mb = new MessageBox(
+							getWindow(),
+							"Warning",
+							MessageBox.Icon.WARN,
+							"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
 					bean.setGseaTailNumber(1);
 					item.getItemProperty("gseaTailNumber").setValue(1);
 				}
