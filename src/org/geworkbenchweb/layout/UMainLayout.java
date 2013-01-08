@@ -2,8 +2,7 @@ package org.geworkbenchweb.layout;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.rmi.RemoteException; 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,13 +92,7 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.data.util.filter.SimpleStringFilter;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.data.Container.Filter; 
-import com.vaadin.ui.AbstractTextField;
-
+import com.vaadin.ui.themes.Reindeer; 
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -275,8 +268,8 @@ public class UMainLayout extends VerticalLayout {
 				arrayTree 		=	new Tree();
 				markerSetTree 	= 	new Tree();
 				arraySetTree 	= 	new Tree();
-
-				markerTree.addActionHandler(markerTreeActionHandler);
+				 
+				markerTree.addActionHandler(new MarkerTreeActionHandler(dataSetId, markerSetTree));
 				markerTree.setImmediate(true);
 				markerTree.setSelectable(true);
 				markerTree.setMultiSelect(true);
@@ -357,7 +350,8 @@ public class UMainLayout extends VerticalLayout {
 				});
 
 			    
-				arrayTree.addActionHandler(arrayTreeActionHandler);
+				//arrayTree.addActionHandler(arrayTreeActionHandler);
+				//arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId, arraySetTree, contextSelector));
 				arrayTree.setImmediate(true);
 				arrayTree.setMultiSelect(true);
 				arrayTree.setSelectable(true);
@@ -429,7 +423,8 @@ public class UMainLayout extends VerticalLayout {
 					}
 				});
 
-				 
+				arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId, arraySetTree, contextSelector));
+				
 				List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);
 				Context current = SubSetOperations.getCurrentContext(dataSetId);
 				for (Context c : contexts){
@@ -1356,57 +1351,7 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
-	/**
-	 * Creates context menu for Marker Tree and handles Actions
-	 */
-	private Action.Handler markerTreeActionHandler = new Action.Handler() {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void handleAction(Action action, final Object sender, final Object target) {
-
-			if (action == ACTION_ADD_SET)
-				addMarkerSetAction(sender);
-			else if (action == ACTION_FILTER)
-			{
-				filterAction((Tree)sender);
-			}	
-			else if (action == ACTION_REMOVE_FILTER)
-				removeFilterAction((Tree)sender);
-		}
-
-		@Override
-		public Action[] getActions(Object target, Object sender) {
-			return ACTIONS;
-		}
-	};
-
-	/**
-	 * Creates context menu for Phenotype Tree and handles Actions
-	 */
-	private Action.Handler arrayTreeActionHandler = new Action.Handler() {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void handleAction(Action action, final Object sender, Object target) {
-			if (action == ACTION_ADD_SET)
-				addPhenoSetAction(sender);
-			else if (action == ACTION_FILTER)
-			{
-				filterAction((Tree)sender);
-			}	
-			else if (action == ACTION_REMOVE_FILTER)
-				removeFilterAction((Tree)sender);
-		}
-
-		@Override
-		public Action[] getActions(Object target, Object sender) {
-			return ACTIONS;
-		}
-	}; 
-	
+	 
 	private TabSheet buildAnnotationTabSheet() {
 		HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
 		dLayout.setSplitPosition(60);
@@ -1548,304 +1493,7 @@ public class UMainLayout extends VerticalLayout {
 		return data;
 	}
 	
-	private void addMarkerSetAction(final Object sender)
-	{
-		final Window nameWindow = new Window();
-		nameWindow.setModal(true);
-		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-		nameWindow.setWidth("300px");
-		nameWindow.setHeight("150px");
-		nameWindow.setResizable(false);
-		nameWindow.setCaption("Add Markers to Set");
-		nameWindow.setImmediate(true);
-
-		final TextField setName = new TextField();
-		setName.setInputPrompt("Please enter set name");
-		setName.setImmediate(true);
-
-		Button submit = new Button("Submit", new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				try {
-					if(setName.getValue() != null) {
-						
-						String mark 	= 	sender.toString();
-						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
-						List<?> sets = SubSetOperations.getMarkerSets(dataSetId);;
-						for (Object set : sets){
-							final SubSet markerset = (SubSet)set;
-							String name = markerset.getName();
-							if (name.equals(setName.getValue())){
-								final String name1 = name;
-								MessageBox mb = new MessageBox(getWindow(), 
-										"Warning", 
-										MessageBox.Icon.INFO, 
-										"There is a Marker Subset with the name \"" +
-										name +
-										"\". Click \"Ok\" to add markers to same set." +
-										" or Click \"Cancel\" to add set with different name",   
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
-										new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
-								mb.show(new MessageBox.EventListener() {
-									private static final long serialVersionUID = 1L;
-
-									@Override
-									public void buttonClicked(ButtonType buttonType) {
-										if(buttonType.equals(ButtonType.CANCEL)) {
-											return;
-										} else {
-											ArrayList<String> markers	 = 	markerset.getPositions();
-											ArrayList<String> newmarkers = 	new ArrayList<String>();
-											for(int i=0; i<temp.length; i++) {
-												String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-												String[] dataA = data.split("\\s+");
-												if (!markers.contains(dataA[0])) {
-													markers.add(dataA[0]);
-													newmarkers.add(dataA[0]);
-												}
-											}
-											if (newmarkers.size()>0) {
-												markerset.setPositions(markers);
-												FacadeFactory.getFacade().store(markerset);
-												markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
-												for(int j=0; j<newmarkers.size(); j++) {
-													markerSetTree.addItem(newmarkers.get(j)+j);
-													markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
-													markerSetTree.setParent(newmarkers.get(j)+j, markerset.getId());
-													markerSetTree.setChildrenAllowed(newmarkers.get(j)+j, false);
-												}
-											}
-										}
-									}
-								});
-								getApplication().getMainWindow().removeWindow(nameWindow);
-								return;
-							}
-						}
-						ArrayList<String> markers = new ArrayList<String>();
-						for(int i=0; i<temp.length; i++) {
-							String data = (String) markerTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-							String[] dataA = data.split("\\s+");
-							markers.add(dataA[0]);
-						}
-						String subSetName = (String) setName.getValue();
-						Long subSetId = SubSetOperations.storeMarkerSet(markers, subSetName , dataSetId);
-						markerSetTree.addItem(subSetId);
-						markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + markers.size()+ "]");
-						markerSetTree.setParent(subSetId, "MarkerSets");
-						markerSetTree.setChildrenAllowed(subSetId, true);
-						for(int j=0; j<markers.size(); j++) {
-							markerSetTree.addItem(markers.get(j)+j);
-							markerSetTree.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
-							markerSetTree.setParent(markers.get(j)+j, subSetId);
-							markerSetTree.setChildrenAllowed(markers.get(j)+j, false);
-						}
-						getApplication().getMainWindow().removeWindow(nameWindow);
-					}
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(setName);
-		nameWindow.addComponent(submit);
-		getApplication().getMainWindow().addWindow(nameWindow);
-	}
-	
-	
-	
-	private void addPhenoSetAction(final Object sender)
-	{
-		final Window nameWindow = new Window();
-		nameWindow.setModal(true);
-		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-		nameWindow.setWidth("300px");
-		nameWindow.setHeight("150px");
-		nameWindow.setResizable(false);
-		nameWindow.setCaption("Add Phenotypes to Set");
-		nameWindow.setImmediate(true);
-
-		final TextField setName = new TextField();
-		setName.setInputPrompt("Please enter set name");
-		setName.setImmediate(true);
-
-		Button submit = new Button("Submit", new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				try {
-					if(setName.getValue() != null) {
-						Object val = contextSelector.getValue();
-						if (val == null) {
-							log.warn("Can't create arrayset: current context is null");
-							return;
-						}
-						Context context = (Context)val;
-						String mark 	= 	sender.toString();
-						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
-						List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
-						for (final SubSet arrayset : arraysets){
-							String name = arrayset.getName();
-							if (name.equals(setName.getValue())){
-								final String name1 = name;
-								MessageBox mb = new MessageBox(getWindow(), 
-										"Warning", 
-										MessageBox.Icon.INFO, 
-										"There is a Phenotype Subset with the name \"" +
-										name +
-										"\". Click \"Ok\" to add markers to same set." +
-										" or Click \"Cancel\" to add set with different name",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
-										new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
-								mb.show(new MessageBox.EventListener() {
-									
-									private static final long serialVersionUID = 1L;
-
-									@Override
-									public void buttonClicked(ButtonType buttonType) {
-										if(buttonType.equals(ButtonType.CANCEL)) {
-											return;
-										} else {
-											ArrayList<String> arrays 		= 	arrayset.getPositions();
-											ArrayList<String> newarrays 	= 	new ArrayList<String>();
-											for(int i=0; i<temp.length; i++) {
-												String array = (String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-												if (!arrays.contains(array)) {
-													arrays.add(array);
-													newarrays.add(array);
-												}
-											}
-											if (newarrays.size()>0) {
-												arrayset.setPositions(arrays);
-												FacadeFactory.getFacade().store(arrayset);
-												arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name1 + " [" + arrays.size() + "]");
-												for(int j=0; j<newarrays.size(); j++) {
-													arraySetTree.addItem(newarrays.get(j)+j);
-													arraySetTree.getContainerProperty(newarrays.get(j)+j, "setName").setValue(newarrays.get(j));
-													arraySetTree.setParent(newarrays.get(j)+j, arrayset.getId());
-													arraySetTree.setChildrenAllowed(newarrays.get(j)+j, false);
-												}
-											}
-										}
-									}
-								});
-								getApplication().getMainWindow().removeWindow(nameWindow);
-								return;
-							}
-						}
-						ArrayList<String> arrays = new ArrayList<String>();
-						for(int i=0; i<temp.length; i++) {
-							arrays.add((String) arrayTree.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
-						}
-						String subSetName =  (String) setName.getValue();
-						Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context.getId());
-						arraySetTree.addItem(subSetId);
-						arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + arrays.size() + "]");
-						arraySetTree.setParent(subSetId, "arraySets");
-						arraySetTree.setChildrenAllowed(subSetId, true);
-						for(int j=0; j<arrays.size(); j++) {
-							arraySetTree.addItem(arrays.get(j)+j);
-							arraySetTree.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
-							arraySetTree.setParent(arrays.get(j)+j, subSetId);
-							arraySetTree.setChildrenAllowed(arrays.get(j)+j, false);
-						}
-						getApplication().getMainWindow().removeWindow(nameWindow);
-					}
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(setName);
-		nameWindow.addComponent(submit);
-		getApplication().getMainWindow().addWindow(nameWindow);
-	}
-	
-	
-	private void filterAction(final Tree sender)
-	{
-	   
-		final  Window nameWindow = new Window();
-		//nameWindow.setModal(true);
-		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-		nameWindow.setWidth("300px");
-		nameWindow.setHeight("120px");
-		nameWindow.setResizable(false);		 
-	    nameWindow.setCaption("Filter " + sender.getDescription());        
 	 
-		nameWindow.setImmediate(true);
-
-		final TextField search = new TextField();
-		search.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.EAGER);
-		search.setInputPrompt("Please enter filter string");
-		search.setImmediate(true);
-		
-		search.addListener(new TextChangeListener() {
-	            private static final long serialVersionUID = 1048639156493298177L;
-	            
-	            Filter filter = null;
-
-	            public void textChange(TextChangeEvent event) {
-	            	
-	            	HierarchicalContainer hc =  ((HierarchicalContainer)sender.getContainerDataSource());
-	                hc.removeAllContainerFilters();
-	                
-	                // Set new filter for the "Name" column
-	                filter =  new SimpleStringFilter("Labels",
-	                		event.getText(), true, false);	                
-	                 
-	               
-	               hc.addContainerFilter(filter);
-				   String label = sender.getDescription();
-	                
-	               Item mainItem =  hc.getItem(label);
-	               if (mainItem == null)
-	               {	 
-	                	 
-	                	hc.removeAllContainerFilters();
-	                	filter =  new SimpleStringFilter("Labels", label +" [",
-	  	                		 false, true);	
-	                	 
-	                	 hc.addContainerFilter(filter);
-	                	 mainItem =  hc.getItem(label);
-	                	 
-
-	                }
-	                
-	                mainItem.getItemProperty("Labels").setValue(label + " [" + (hc.getItemIds().size()-1) + "]");
-	                
-	                for (Object itemId: sender.getItemIds())
-	                	sender.expandItem(itemId);
-	                
-	                
-	            }
-	        });
-		
- 
-		nameWindow.addComponent(search);		
-		getApplication().getMainWindow().addWindow(nameWindow);
-		nameWindow.center();
-	}
-	
-	private void removeFilterAction(final Tree sender)
-	{
-		HierarchicalContainer hc =  ((HierarchicalContainer)sender.getContainerDataSource());
-        hc.removeAllContainerFilters();
-	}
-	
-	
-	
-
 	
 }
 
