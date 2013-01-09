@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -33,11 +34,11 @@ public class UserDirUtils {
 	public static boolean CreateUserDirectory(long userId) {
 
 		String dataDir 		=   System.getProperty("user.home") + SLASH +
-									GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) + SLASH;
+				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) + SLASH;
 		String userDirName 	= 	String.valueOf(userId);
 
 		boolean success = (new File(dataDir + SLASH + userDirName)).mkdir();
-		
+
 		if(success) {
 			File dataSetDir 	=	new File(dataDir + SLASH + userDirName + SLASH + DATASETS);
 			File resultSetDir	=	new File(dataDir + SLASH + userDirName + SLASH + RESULTSETS);
@@ -98,7 +99,7 @@ public class UserDirUtils {
 	 * @return
 	 */
 	public static boolean saveResultSet(long resultSetId, byte[] byteObject) {
-		
+
 		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
 		String resultName 		=	String.valueOf(resultSetId);
 		String fileName 		= 	System.getProperty("user.home") + SLASH +
@@ -123,22 +124,34 @@ public class UserDirUtils {
 				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
 		return getDataFromFile(fileName);
 	}
-	
-	
+
+
 	/**
 	 * @param Annotation Id from the annotation table
 	 * @param Byte data of the annotation
 	 * @return
 	 */
 	public static boolean saveAnnotation(long annotId, byte[] byteObject) {
-		
+		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
 		String annotFileName 	=	String.valueOf(annotId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-				SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
-		boolean sucess 			=	createFile(fileName, byteObject);
-		if(!sucess) return false; 
-		return true;
+		if(annot.getOwner() != null) {
+			String fileName 		= 	System.getProperty("user.home") + SLASH +
+					GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+					SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
+			boolean sucess 			=	createFile(fileName, byteObject);
+			if(!sucess) return false; 
+			return true;
+		}else {
+			/* saving public annotation */
+			String fileName 		= 	System.getProperty("user.home") + SLASH +
+					GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+					SLASH + annotFileName + ANOT_EXTENSION;
+			File f = new File(fileName);
+			if(f.exists()) return true; 
+			boolean sucess 			=	createFile(fileName, byteObject);
+			if(!sucess) return false; 
+			return true;
+		}
 	}
 
 	/**
@@ -148,13 +161,21 @@ public class UserDirUtils {
 	 */
 	public static byte[] getAnnotation(long annotId) {
 
+		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
 		String dataName 		=	String.valueOf(annotId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-				SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
+		String fileName 		=	null;
+		if(annot.getOwner() != null) {
+			fileName 			= 	System.getProperty("user.home") + SLASH +
+										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+										SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
+		} else {
+			fileName 			= 	System.getProperty("user.home") + SLASH +
+										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+										SLASH +  dataName + ANOT_EXTENSION;
+		}
 		return getDataFromFile(fileName);
 	}
-	
+
 	/**
 	 * Used to create and write byte date to the file
 	 * @param File path to t be created

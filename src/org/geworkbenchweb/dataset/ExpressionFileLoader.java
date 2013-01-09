@@ -132,7 +132,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		// problematic.
 		FacadeFactory.getFacade().store(annotation);
 		boolean success = UserDirUtils.saveAnnotation(annotation.getId(), ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
-		if(!success) System.out.println("here we go"); 
+		if(!success) System.out.println("Annotation not saved"); 
 		return annotation.getId();
 	}
 
