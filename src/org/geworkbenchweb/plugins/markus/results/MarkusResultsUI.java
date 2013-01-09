@@ -1,14 +1,8 @@
 package org.geworkbenchweb.plugins.markus.results;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
+import org.geworkbenchweb.utils.UserDirUtils;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -23,10 +17,9 @@ public class MarkusResultsUI extends VerticalLayout{
 	private static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 
 	public MarkusResultsUI(Long dataSetId) {
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
-		MarkUsResultDataSet resultset = (MarkUsResultDataSet)ObjectConversion.toObject(data.get(0).getData());
+		
+		MarkUsResultDataSet resultset = (MarkUsResultDataSet) 
+				ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
 		String results = resultset.getResult();
 
 		Button refreshBtn = new Button("Refresh");

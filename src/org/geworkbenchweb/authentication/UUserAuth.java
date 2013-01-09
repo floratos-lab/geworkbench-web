@@ -3,6 +3,7 @@ package org.geworkbenchweb.authentication;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -30,6 +31,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -40,7 +42,7 @@ import com.vaadin.ui.themes.Reindeer;
 public class UUserAuth extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	public UUserAuth() {
 		setSizeFull();
 		addStyleName("background");
@@ -200,7 +202,12 @@ public class UUserAuth extends VerticalLayout {
 				    active.setOwner(user.getId());
 				    active.setWorkspace(workspace.getId());
 				    FacadeFactory.getFacade().store(active);
-				    
+				   
+				    boolean success = UserDirUtils.CreateUserDirectory(user.getId());
+				    if(success != true){ 
+				    	getApplication().getMainWindow().showNotification("Couldn't create user. Please contact admin", 
+				    			Notification.TYPE_ERROR_MESSAGE);
+				    }
 					getApplication().getMainWindow().showNotification( "You have successfully registered.");
 					getApplication().getMainWindow().removeAllComponents();
 					getApplication().getMainWindow().addComponent(buildLoginForm());

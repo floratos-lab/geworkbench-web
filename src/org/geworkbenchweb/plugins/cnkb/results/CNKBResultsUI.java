@@ -12,6 +12,7 @@ import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -54,15 +55,15 @@ public class CNKBResultsUI extends TabSheet {
 
 	private VerticalSplitPanel tabPanel;
 
-	ArrayList<Double> interactionConfidence =	new ArrayList<Double>();
+	private ArrayList<Double> interactionConfidence =	new ArrayList<Double>();
 	
-	ArrayList<Double> ppConfidence 			= 	new ArrayList<Double>();
+	private ArrayList<Double> ppConfidence 			= 	new ArrayList<Double>();
 	
-	ArrayList<Double> pdnaConfidence 		= 	new ArrayList<Double>();
+	private ArrayList<Double> pdnaConfidence 		= 	new ArrayList<Double>();
 	
-	ArrayList<Double> mtfConfidence 		= 	new ArrayList<Double>();
+	private ArrayList<Double> mtfConfidence 		= 	new ArrayList<Double>();
 	
-	public static InvientCharts plot;
+	private static InvientCharts plot;
 	
 	private static CNKBResultsUI menuBarInstance;
 	
@@ -72,12 +73,9 @@ public class CNKBResultsUI extends TabSheet {
 	
 	public CNKBResultsUI(Long dataSetId) {
 		
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
-		
 		@SuppressWarnings("unchecked")
-		Vector<CellularNetWorkElementInformation> hits = (Vector<CellularNetWorkElementInformation>) ObjectConversion.toObject(data.get(0).getData());
+		Vector<CellularNetWorkElementInformation> hits = (Vector<CellularNetWorkElementInformation>) ObjectConversion
+					.toObject(UserDirUtils.getResultSet(dataSetId));
 	
 		setSizeFull();
 		setImmediate(true);

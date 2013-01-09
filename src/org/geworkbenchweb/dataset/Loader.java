@@ -11,6 +11,7 @@ import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -48,9 +49,13 @@ public abstract class Loader {
 		dataset.setType(dataType);
 		dataset.setOwner(user.getId());
 		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
-		dataset.setData(ObjectConversion.convertToByte(dataSet));
 		FacadeFactory.getFacade().store(dataset);
 
+		boolean success = UserDirUtils.saveDataSet(dataset.getId(), ObjectConversion.convertToByte(dataSet));
+		if(!success) {
+			System.out.println("something went wrong");
+		}
+		
 		DataHistory dataHistory = new DataHistory();
 		dataHistory.setParent(dataset.getId());
 		StringBuilder data = new StringBuilder();

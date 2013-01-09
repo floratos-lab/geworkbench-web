@@ -23,6 +23,7 @@ import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.mortbay.log.Log;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -129,10 +130,9 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		// annotation file;
 		// FIXME storing the weak reference map makes this even more
 		// problematic.
-		annotation.setAnnotation(ObjectConversion
-				.convertToByte(AnnotationParser.getSerializable()));
 		FacadeFactory.getFacade().store(annotation);
-
+		boolean success = UserDirUtils.saveAnnotation(annotation.getId(), ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
+		if(!success) System.out.println("here we go"); 
 		return annotation.getId();
 	}
 

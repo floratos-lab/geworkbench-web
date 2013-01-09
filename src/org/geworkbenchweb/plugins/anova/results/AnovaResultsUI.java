@@ -1,16 +1,10 @@
 package org.geworkbenchweb.plugins.anova.results;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.TableView;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
+import org.geworkbenchweb.utils.UserDirUtils;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
@@ -37,11 +31,8 @@ public class AnovaResultsUI extends VerticalLayout {
 	@SuppressWarnings("unchecked")
 	public AnovaResultsUI(Long dataSetId) {
 
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
-		
-		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) ObjectConversion.toObject(data.get(0).getData());
+		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) ObjectConversion
+				.toObject(UserDirUtils.getResultSet(dataSetId));
 	
 		setSpacing(true);
 		setImmediate(true);

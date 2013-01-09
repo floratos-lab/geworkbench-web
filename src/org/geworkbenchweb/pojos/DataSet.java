@@ -1,7 +1,6 @@
 package org.geworkbenchweb.pojos;
 
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
@@ -23,19 +22,6 @@ public class DataSet extends AbstractPojo {
 
 	public void setWorkspace(Long workspace) {
 		this.workspace = workspace;
-	}
-	
-	// TODO the way that actual data type is wiped out is very dangerous. we need a reasonable design here
-	@Lob
-	private byte[] data;
-	
-	
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
 	}
 
 	public String getName() {

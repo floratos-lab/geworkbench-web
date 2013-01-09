@@ -19,6 +19,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -98,9 +99,10 @@ public class MarkusAnalysis {
 		resultSet.setType("MarkusResults");
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(sessionId);	
-		resultSet.setData(ObjectConversion.convertToByte(musresult));
 		FacadeFactory.getFacade().store(resultSet);
 
+		UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(musresult));
+		
 		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 		

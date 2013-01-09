@@ -3,10 +3,6 @@ package org.geworkbenchweb.plugins.hierarchicalclustering.results;
 import java.awt.Color;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
@@ -20,6 +16,7 @@ import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Clustergram;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -112,12 +109,10 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		
 		setImmediate(true);
 		setStyleName(Reindeer.LAYOUT_WHITE);
-	
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		final List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id", parameters);
 		
-		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(data.get(0).getData());
+		
+		final ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
         microarraySet	 				= 	(DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
         currentMarkerCluster 			= 	(MarkerHierCluster)dataSet.getCluster(0);
     	currentArrayCluster 			= 	(MicroarrayHierCluster)dataSet.getCluster(1);
@@ -297,7 +292,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 								}
 								
 								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
-								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.get(0).getParent());
+								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.getParent());
 								getApplication().getMainWindow().removeWindow(nameWindow);
 							}
 						} catch(Exception e) {
@@ -348,7 +343,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 									markers.add(label);
 								}
 								String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
-								SubSetOperations.storeData(markers, "marker", subSetName , data.get(0).getParent());
+								SubSetOperations.storeData(markers, "marker", subSetName , data.getParent());
 								getApplication().getMainWindow().removeWindow(nameWindow);
 							}
 						} catch(Exception e) {

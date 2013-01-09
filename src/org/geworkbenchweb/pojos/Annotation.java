@@ -11,7 +11,7 @@ public class Annotation extends AbstractPojo {
 
 	private static final long serialVersionUID = 4705480457340637172L;
 
-	private byte[] annotation;
+	//private byte[] annotation;
 	private String name;
 	private String type;
 	private Long owner;
@@ -23,12 +23,6 @@ public class Annotation extends AbstractPojo {
 		this.type = type;
 	}
 	
-	public byte[] getAnnotation(){
-		return annotation;
-	}
-	public void setAnnotation(byte[] annot){
-		annotation = annot;
-	}
 	public String getName(){
 		return name;
 	}

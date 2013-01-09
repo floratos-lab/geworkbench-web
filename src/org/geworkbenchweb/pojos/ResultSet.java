@@ -2,7 +2,6 @@ package org.geworkbenchweb.pojos;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
@@ -20,19 +19,6 @@ public class ResultSet extends AbstractPojo {
 	@Column(name = "DATE_FIELD")
 	private java.sql.Date date;
 	
-	
-	@Lob
-	private byte[] data;
-	
-	
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
-	}
-
 	public String getName() {
 		return name;
 	}

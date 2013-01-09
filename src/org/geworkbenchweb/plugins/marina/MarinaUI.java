@@ -38,13 +38,13 @@ import org.geworkbench.util.Util;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+
 import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.easyuploads.UploadField;
@@ -119,8 +119,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	public MarinaUI(final Long dataSetId){
 		
-		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		
 		this.dataSet = maSet;
 
@@ -129,7 +128,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		List<Annotation> annots = FacadeFactory.getFacade().list(
 				"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
 		if (!annots.isEmpty()){
-			APSerializable aps = (APSerializable) ObjectConversion.toObject(annots.get(0).getAnnotation());
+			APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
 			AnnotationParser.setFromSerializable(aps);
 		}else {
 			AnnotationParser.setCurrentDataSet(dataSet);

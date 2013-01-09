@@ -8,12 +8,11 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataHistory;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -54,9 +53,7 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 	public HierarchicalClusteringUI(Long dataId) {
 		
 		this.dataSetId = dataId;
-		
-		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-		maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+		maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		
 		setImmediate(true);
 		setSpacing(true);

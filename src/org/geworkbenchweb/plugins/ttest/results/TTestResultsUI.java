@@ -1,18 +1,12 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
+import org.geworkbenchweb.utils.UserDirUtils;
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
 import com.invient.vaadin.charts.InvientCharts.SeriesType;
@@ -47,15 +41,10 @@ public class TTestResultsUI extends VerticalLayout {
 	public TTestResultsUI(Long dataSetId) {
 
 		setImmediate(true);
-		setSizeFull();		
+		setSizeFull();	
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list(
-				"Select p from ResultSet as p where p.id=:id", parameters);
-
-		significance =  (DSSignificanceResultSet<DSGeneMarker>) ObjectConversion.toObject(data
-				.get(0).getData());
+		significance =  (DSSignificanceResultSet<DSGeneMarker>) ObjectConversion.toObject(
+				UserDirUtils.getResultSet(dataSetId));
 
 		addComponent(drawPlot());
 	}

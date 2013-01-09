@@ -47,9 +47,9 @@ import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -66,7 +66,6 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
@@ -357,15 +356,14 @@ public class UMainLayout extends VerticalLayout {
 				arrayTree.setSelectable(true);
 				arrayTree.setDescription("Phenotypes");
 
-				List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 
 				Map<String, Object> parameters = new HashMap<String, Object>();	
 				parameters.put("datasetid", dataSetId);	
 				List<Annotation> annots = FacadeFactory.getFacade().list(
 						"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
 				if (!annots.isEmpty()){
-					APSerializable aps = (APSerializable) ObjectConversion.toObject(annots.get(0).getAnnotation());
+					APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
 					AnnotationParser.setFromSerializable(aps);
 				}else {
 					AnnotationParser.setCurrentDataSet(maSet);
@@ -900,8 +898,8 @@ public class UMainLayout extends VerticalLayout {
             		   String className = (String) item.getItemProperty("Type").getValue();
             		   if(!className.contains("Results")) 
             		   {
-            			   List<DataSet> data = DataSetOperations.getDataSet(id);  		    
-            		       DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>)ObjectConversion.toObject(data.get(0).getData());
+            			    		    
+            		       DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(UserDirUtils.getDataSet(id));
             		       String description = null;
             		       try {
             		    	   description = df.getDescription();
@@ -1289,29 +1287,29 @@ public class UMainLayout extends VerticalLayout {
 						HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
 								dataSet, params);
 						resultSet.setName("Hierarchical Clustering");
-						resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
+						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
 					} else if(resultSet.getType().contains("CNKBResults")) {
 						CNKBInteractions cnkb = new CNKBInteractions();
 						Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
 						resultSet.setName("CNKB");
-						resultSet.setData(ObjectConversion.convertToByte(hits));
+						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(hits));
 					} else if(resultSet.getType().contains("AnovaResults")) {
 						AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
-						resultSet.setData(ObjectConversion.convertToByte(analysis.execute()));
+						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
 						resultSet.setName("Anova");
 					} else if(resultSet.getType().contains("AracneResults")) {
 						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
-						resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
+						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analyze.execute()));
 						resultSet.setName("Aracne");
 					} else if(resultSet.getType().contains("TTestResults")) {
 							TTestAnalysisWeb analyze = new TTestAnalysisWeb(dataSet, params);
-							resultSet.setData(ObjectConversion.convertToByte(analyze.execute()));
+							UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analyze.execute()));
 							resultSet.setName("TTest");
 					}else if(resultSet.getType().contains("MarinaResults")) {
 						MarinaAnalysis analyze = new MarinaAnalysis(dataSet, params);
 						try{
 							CSMasterRegulatorTableResultSet mraRes = analyze.execute();
-							resultSet.setData(ObjectConversion.convertToByte(mraRes));
+							UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(mraRes));
 							resultSet.setName("Marina - " + mraRes.getLabel());
 						}catch(RemoteException e){
 							String msg = e.getMessage().replaceAll("\n", "<br>");
@@ -1492,8 +1490,5 @@ public class UMainLayout extends VerticalLayout {
 		data.addTab(dLayout, "User Comments");	
 		return data;
 	}
-	
-	 
-	
 }
 

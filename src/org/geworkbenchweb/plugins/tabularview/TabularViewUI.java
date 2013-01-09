@@ -1,11 +1,10 @@
 package org.geworkbenchweb.plugins.tabularview;
 
-import java.util.List;
-
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.host900.PaginationBar.PaginationBar;
 import com.host900.PaginationBar.PaginationBarListener;
@@ -43,8 +42,8 @@ public class TabularViewUI extends VerticalLayout {
 		table.setImmediate(true);
 		table.setStyleName(Reindeer.TABLE_STRONG);
 
-		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-		maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+		DataSet data 	= 	DataSetOperations.getDataSet(dataSetId);
+		maSet 			= 	(DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(data.getId()));
 
 		table.setContainerDataSource(tabularView(1));
 		table.setColumnWidth(MARKER_HEADER, 150);

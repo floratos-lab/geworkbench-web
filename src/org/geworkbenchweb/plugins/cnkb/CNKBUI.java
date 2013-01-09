@@ -16,12 +16,11 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataHistory;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -67,9 +66,7 @@ public class CNKBUI extends VerticalLayout {
 		
 		super.attach();
 		loadApplicationProperty();
-		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-		this.maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
-	
+		this.maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
 		try {

@@ -13,12 +13,11 @@ import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -80,9 +79,8 @@ public class AnovaUI extends VerticalLayout {
 	public AnovaUI(Long dataSetId) {
 
 		this.dataSetId = dataSetId;
-		
-		List<DataSet> data = DataSetOperations.getDataSet(dataSetId);
-		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(data.get(0).getData());
+			
+		DSMicroarraySet maSet 	= 	(DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 	 
 		final GridLayout gridLayout1 = new GridLayout(2, 2);
 		final GridLayout gridLayout2 = new GridLayout(4, 3);

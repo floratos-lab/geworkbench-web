@@ -1,10 +1,6 @@
 package org.geworkbenchweb.plugins.aracne.results;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 
 import org.apache.commons.logging.Log;
@@ -12,11 +8,9 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
@@ -38,13 +32,8 @@ public class AracneResultsUI extends VerticalLayout {
 
 	public AracneResultsUI(Long dataSetId) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", dataSetId);
-		List<ResultSet> data = FacadeFactory.getFacade().list(
-				"Select p from ResultSet as p where p.id=:id", parameters);
-
-		adjMatrixDataSet = (AdjacencyMatrixDataSet) ObjectConversion.toObject(data
-				.get(0).getData());
+		adjMatrixDataSet = (AdjacencyMatrixDataSet) ObjectConversion
+				.toObject(UserDirUtils.getResultSet(dataSetId));
 
 		setImmediate(true);
 		setSizeFull();		 
@@ -86,9 +75,6 @@ public class AracneResultsUI extends VerticalLayout {
 		{
 			viewAsCytoscape();
 		}
-
-		 
-
 	}
 	
 	

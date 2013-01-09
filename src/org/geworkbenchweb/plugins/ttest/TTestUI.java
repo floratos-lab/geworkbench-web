@@ -8,12 +8,11 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -148,10 +147,8 @@ public class TTestUI extends VerticalLayout {
 					}
 				}
 				
-				List<DataSet> data = DataSetOperations
-						.getDataSet(dataSetId);
 				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion
-						.toObject(data.get(0).getData());
+						.toObject(UserDirUtils.getDataSet(dataSetId));
 
 				ResultSet resultSet = new ResultSet();
 				java.sql.Date date = new java.sql.Date(System

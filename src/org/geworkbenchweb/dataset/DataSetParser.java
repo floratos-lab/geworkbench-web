@@ -27,6 +27,7 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -129,9 +130,13 @@ public class DataSetParser {
 		dataset.setType(dataType);
 	    dataset.setOwner(user.getId());	
 	    dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
-	    dataset.setData(ObjectConversion.convertToByte(dataSet));
 	    FacadeFactory.getFacade().store(dataset);
 	    
+	    boolean success = UserDirUtils.saveDataSet(dataset.getId(), ObjectConversion.convertToByte(dataSet));
+		if(!success) {
+			System.out.println("something went wrong");
+		}
+		
 	    DataHistory dataHistory = new DataHistory();
 		dataHistory.setParent(dataset.getId());
 		StringBuilder data =	new StringBuilder(); 
@@ -194,8 +199,8 @@ public class DataSetParser {
 		}
 		Annotation annotation = new Annotation(annotFile.getName(), annotType.toString());
 		annotation.setOwner(annotOwner==null?null:annotOwner.getId());
-		annotation.setAnnotation(ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
 		FacadeFactory.getFacade().store(annotation);
+		UserDirUtils.saveAnnotation(annotation.getId(), ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
 		return annotation;
 	}
 

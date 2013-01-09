@@ -8,12 +8,11 @@ import java.util.List;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -436,10 +435,8 @@ public class AracneUI extends GridLayout {
 				try {
 
 					if (validInputData()) {
-						List<DataSet> data = DataSetOperations
-								.getDataSet(dataSetId);
 						DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion
-								.toObject(data.get(0).getData());
+								.toObject(UserDirUtils.getDataSet(dataSetId));
 
 						ResultSet resultSet = new ResultSet();
 						java.sql.Date date = new java.sql.Date(System

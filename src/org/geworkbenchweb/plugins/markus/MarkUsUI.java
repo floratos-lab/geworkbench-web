@@ -6,13 +6,10 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
-import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Accordion;
@@ -74,8 +71,7 @@ public class MarkUsUI extends VerticalLayout {
 	public MarkUsUI(Long dataSetId) {
 		
 		this.dataSetId 				= 	dataSetId;	
-		List<DataSet> data 			= 	DataSetOperations.getDataSet(dataSetId);
-		DSProteinStructure prtSet 	=	(DSProteinStructure) ObjectConversion.toObject(data.get(0).getData());
+		DSProteinStructure prtSet 	=	(DSProteinStructure) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 
 		this.dataSet = prtSet;
 		
