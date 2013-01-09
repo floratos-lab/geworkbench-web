@@ -18,504 +18,92 @@ import com.vaadin.ui.themes.Reindeer;
 public class ToolsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static class ItemLayout extends GridLayout {
+
+		private static final long serialVersionUID = -2801145303701009347L;
+		
+		private final FancyCssLayout cssLayout = new FancyCssLayout();
+		
+		private ItemLayout() {
+			setColumns(2);
+			setRows(2);
+			setSizeFull();
+			setImmediate(true);
+			setColumnExpandRatio(1, 1.0f);
+
+			cssLayout.setSlideEnabled(true);
+			cssLayout.setWidth("95%");
+			cssLayout.addStyleName("lay");
+		}
+	
+		private void addDescription(String itemDescription) {
+			Label tableText = new Label(
+					"<p align = \"justify\">"+itemDescription+"</p>");
+			tableText.setContentMode(Label.CONTENT_XHTML);
+			cssLayout.addComponent(tableText);
+			addComponent(cssLayout, 0, 1, 1, 1);
+		}
+		
+		private void clearDescription() {
+			cssLayout.removeAllComponents();
+			removeComponent(cssLayout);
+		}
+	}
 
 	public ToolsUI(Long dummy) {
-//		setStyleName("sample-view");
-//		setImmediate(true);
-//		setSpacing(true);
-//		setSizeFull();
+
 		setSpacing(true);
 		
+		
+		// first part: analysis
 		Label analysisLabel = new Label("Analysis Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
-		
-		ThemeResource ICON = new ThemeResource(
-	            "../custom/icons/icon_info.gif");
-
-		ThemeResource CancelIcon = new ThemeResource(
-	            "../runo/icons/16/cancel.png");
-		
 		addComponent(analysisLabel);
 		
-		/**
-		 * ARACNE
-		 */
-		Button aracne 	= 	new Button("ARACNe", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-		final GridLayout aracneLayout = new GridLayout();
-		aracneLayout.setColumns(2);
-		aracneLayout.setRows(2);
-		aracneLayout.setSizeFull();
-		aracneLayout.setImmediate(true);
-		aracneLayout.setColumnExpandRatio(1, 1.0f);
-		final Label aracneText = new Label(
-				"<p align= \"justify\">ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
+		// anova
+		buildOneItem("Anova", "The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
+				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
+				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.");
+		// ARACNe
+		buildOneItem("ARACNe", "ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
 				"(Basso 2005, Margolin 2006a, 2006b) is an information-theoretic algorithm used " +
 				"to identify transcriptional interactions between gene products using microarray " +
-				"gene expression profile data.</p>");
-		aracneText.setContentMode(Label.CONTENT_XHTML);
-		
-		final FancyCssLayout cssLayout = new FancyCssLayout();
-		cssLayout.setSlideEnabled(true);
-		cssLayout.setWidth("95%");
-		cssLayout.addStyleName("lay");
-		
-		final Button aracneButton 		= 	new Button();
-		final Button aracneCancelButton = 	new Button();
-		
-		aracneButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cssLayout.removeAllComponents();
-				aracneLayout.removeComponent(aracneButton);
-				aracneLayout.addComponent(aracneCancelButton, 1, 0);
-				cssLayout.addComponent(aracneText);
-				aracneLayout.addComponent(cssLayout, 0, 1, 1, 1);
-			}
-		});
-		aracneCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cssLayout.removeAllComponents();
-				aracneLayout.removeComponent(aracneCancelButton);
-				aracneLayout.addComponent(aracneButton, 1, 0);
-				aracneLayout.removeComponent(cssLayout);
-			}
-		});
-	
-		aracneButton.setStyleName(BaseTheme.BUTTON_LINK);
-		aracneButton.setIcon(ICON);
-		aracneCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		aracneCancelButton.setIcon(CancelIcon);
-		addComponent(aracneLayout);
-		aracneLayout.setSpacing(true);
-		aracneLayout.addComponent(aracne);
-	    aracneLayout.addComponent(aracneButton);
-	    
-	    /** 
-	     * ANOVA 
-	     */
-	    final GridLayout anovaLayout = new GridLayout();
-	    anovaLayout.setColumns(2);
-	    anovaLayout.setRows(2);
-	    anovaLayout.setSizeFull();
-	    anovaLayout.setImmediate(true);
-	    anovaLayout.setColumnExpandRatio(1, 1.0f);
-		Button anova 	= 	new Button("Anova", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-		final FancyCssLayout anovaCssLayout = new FancyCssLayout();
-		anovaCssLayout.setWidth("95%");
-		anovaCssLayout.setSlideEnabled(true);
-		anovaCssLayout.addStyleName("lay");
-		
-		final Label anovaText = new Label(
-				"<p align= \"justify\">The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
-				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
-				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.</p>");
-		anovaText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button anovaButton = new Button();
-		final Button anovaCancelButton = new Button();
-			
-		anovaButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				anovaCssLayout.removeAllComponents();
-				anovaLayout.removeComponent(anovaButton);
-				anovaLayout.addComponent(anovaCancelButton, 1, 0);
-				anovaCssLayout.addComponent(anovaText);
-				anovaLayout.addComponent(anovaCssLayout, 0, 1, 1, 1);
-			}
-		});
-		anovaCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				
-				anovaCssLayout.removeAllComponents();
-				anovaLayout.removeComponent(anovaCancelButton);
-				anovaLayout.addComponent(anovaButton, 1, 0);
-				anovaLayout.removeComponent(anovaCssLayout);
-				            
-			}
-		});
-		
-		anovaButton.setStyleName(BaseTheme.BUTTON_LINK);
-		anovaButton.setIcon(ICON);
-		anovaCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		anovaCancelButton.setIcon(CancelIcon);
-		addComponent(anovaLayout);
-		anovaLayout.setSpacing(true);
-		anovaLayout.addComponent(anova);
-	    anovaLayout.addComponent(anovaButton);
-		
-	    /** 
-	     * Hierarchial Clustering 
-	     */
-	    final GridLayout hcLayout = new GridLayout();
-	    hcLayout.setColumns(2);
-	    hcLayout.setRows(2);
-	    hcLayout.setSizeFull();
-	    hcLayout.setImmediate(true);
-	    hcLayout.setColumnExpandRatio(1, 1.0f);
-		Button hc		=	new Button("Hierarchical Clustering", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-		final FancyCssLayout hcCssLayout = new FancyCssLayout();
-		hcCssLayout.setWidth("95%");
-		hcCssLayout.setSlideEnabled(true);
-		hcCssLayout.addStyleName("lay");
-		final Label hcText = new Label(
-				"<p align= \"justify\">Hierarchical clustering is a method to group arrays and/or markers together based on similarity " +
+				"gene expression profile data.");
+		// hierarchical clustering
+		buildOneItem("Hierarchical Clustering", "Hierarchical clustering is a method to group arrays and/or markers together based on similarity " +
 				"on their expression profiles. geWorkbench implements its own code for agglomerative hierarchical " +
 				"clustering. Starting from individual points (the leaves of the tree), nearest neighbors are found " +
 				"for individual points, and then for groups of points, at each step building up a branched " +
 				"structure that converges toward a root that contains all points. The resulting graph tends to " +
 				"group similar items together. Results of hierarchical clustering are displayed in the Dendrogram " +
-				"component.</p>");
-		hcText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button hcButton 		= 	new Button();
-		final Button hcCancelButton = 	new Button();
-		
-		hcButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				hcCssLayout.removeAllComponents();
-				hcLayout.removeComponent(hcButton);
-				hcLayout.addComponent(hcCancelButton, 1, 0);
-				hcCssLayout.addComponent(hcText);
-				hcLayout.addComponent(hcCssLayout, 0, 1, 1, 1);
-			}
-		});
-		hcCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				hcCssLayout.removeAllComponents();
-				hcLayout.removeComponent(hcCancelButton);
-				hcLayout.addComponent(hcButton, 1, 0);
-				hcLayout.removeComponent(hcCssLayout);
-			}
-		});
-		
-		hcButton.setStyleName(BaseTheme.BUTTON_LINK);
-		hcButton.setIcon(ICON);
-		hcCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		hcCancelButton.setIcon(CancelIcon);
-		addComponent(hcLayout);
-		hcLayout.setSpacing(true);
-		hcLayout.addComponent(hc);
-	    hcLayout.addComponent(hcButton);
-		
-	    /**
-	     * MARINa
-	     */
-		Button marina 	= 	new Button("MARINa", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-	    final GridLayout marinaLayout = new GridLayout();
-	    marinaLayout.setColumns(2);
-	    marinaLayout.setRows(2);
-	    marinaLayout.setSizeFull();
-	    marinaLayout.setImmediate(true);
-	    marinaLayout.setColumnExpandRatio(1, 1.0f);
-
-		final FancyCssLayout marinaCssLayout = new FancyCssLayout();
-		marinaCssLayout.setWidth("95%");
-		marinaCssLayout.setSlideEnabled(true);
-		marinaCssLayout.addStyleName("lay");
-		
-		final Label marinaText = new Label(
-				"<p align = \"justify\">MARINa Analysis</p>");
-		marinaText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button marinaButton = new Button();
-		final Button marinaCancelButton = new Button();
-		marinaButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marinaCssLayout.removeAllComponents();
-				marinaLayout.removeComponent(marinaButton);
-				marinaLayout.addComponent(marinaCancelButton, 1, 0);
-				marinaCssLayout.addComponent(marinaText);
-				marinaLayout.addComponent(marinaCssLayout, 0, 1, 1, 1);
-			}
-		});
-		marinaCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marinaCssLayout.removeAllComponents();
-				marinaLayout.removeComponent(marinaCancelButton);
-				marinaLayout.addComponent(marinaButton, 1, 0);
-				marinaLayout.removeComponent(marinaCssLayout);
-			}
-		});
-		
-		marinaButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marinaButton.setIcon(ICON);
-		marinaCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marinaCancelButton.setIcon(CancelIcon);
-		addComponent(marinaLayout);
-		marinaLayout.setSpacing(true);
-		marinaLayout.addComponent(marina);
-	    marinaLayout.addComponent(marinaButton);
-		
-	    /**
-	     * CNKB
-	     */
-		Button cnkb 	= 	new Button("CNKB", new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-	    final GridLayout cnkbLayout = new GridLayout();
-	    cnkbLayout.setColumns(2);
-	    cnkbLayout.setRows(2);
-	    cnkbLayout.setSizeFull();
-	    cnkbLayout.setImmediate(true);
-	    cnkbLayout.setColumnExpandRatio(1, 1.0f);
-
-		final FancyCssLayout cnkbCssLayout = new FancyCssLayout();
-		cnkbCssLayout.setWidth("95%");
-		cnkbCssLayout.setSlideEnabled(true);
-		cnkbCssLayout.addStyleName("lay");
-		
-		final Label cnkbText = new Label(
-				"<p align = \"justify\">The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions, " +
+				"component.");
+		// MARINa
+		buildOneItem("MARINa", "MARINa Analysis");
+		// CNKB
+		buildOneItem("CNKB", "The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions, " +
 				"including ones both computationally and experimentally derived. Sources for interactions " +
 				"include both publicly available databases such as BioGRID and HPRD, as well as reverse-engineered " +
-				"cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.</p>");
-		cnkbText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button cnkbButton = new Button();
-		final Button cnkbCancelButton = new Button();
-		cnkbButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cnkbCssLayout.removeAllComponents();
-				cnkbLayout.removeComponent(cnkbButton);
-				cnkbLayout.addComponent(cnkbCancelButton, 1, 0);
-				cnkbCssLayout.addComponent(cnkbText);
-				cnkbLayout.addComponent(cnkbCssLayout, 0, 1, 1, 1);
-			}
-		});
-		cnkbCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cnkbCssLayout.removeAllComponents();
-				cnkbLayout.removeComponent(cnkbCancelButton);
-				cnkbLayout.addComponent(cnkbButton, 1, 0);
-				cnkbLayout.removeComponent(cnkbCssLayout);
-			}
-		});
-		
-		cnkbButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cnkbButton.setIcon(ICON);
-		cnkbCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cnkbCancelButton.setIcon(CancelIcon);
-		addComponent(cnkbLayout);
-		cnkbLayout.setSpacing(true);
-		cnkbLayout.addComponent(cnkb);
-		cnkbLayout.addComponent(cnkbButton);
-		
-		Button marcus 	= 	new Button("MarkUs", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-		marcus.setStyleName(Reindeer.BUTTON_LINK);
-		final Label markusText = new Label(
-				"<p align=\"justify\">MarkUs is a web server to assist the assessment of the biochemical function " +
+				"cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.");
+		//MarkUs
+		buildOneItem("MarkUs", "MarkUs is a web server to assist the assessment of the biochemical function " +
 				"for a given protein structure. MarkUs identifies related protein structures " +
 				"and sequences, detects protein cavities, and calculates the surface electrostatic " +
-				"potentials and amino acid conservation profile.</p>");
-		markusText.setContentMode(Label.CONTENT_XHTML);
+				"potentials and amino acid conservation profile.");
+		// t-test
+		buildOneItem("Differential Expression (T-Test)", "A t-Test analysis can be used to identify markers with statistically " +
+				"significant differential expression between two sets of microarrays.");
 		
-		final GridLayout marcusLayout 			=	new GridLayout();
-		final FancyCssLayout marcusCssLayout 	= 	new FancyCssLayout();
-		
-		marcusLayout.setColumns(2);
-		marcusLayout.setRows(2);
-		marcusLayout.setSizeFull();
-		marcusLayout.setImmediate(true);
-		marcusLayout.setColumnExpandRatio(1, 1.0f);
-		
-		marcusCssLayout.setWidth("95%");
-		marcusCssLayout.setSlideEnabled(true);
-		marcusCssLayout.addStyleName("lay");
-		
-		final Button marcusButton 		= 	new Button();
-		final Button marcusCancelButton = 	new Button();
-		
-		marcusButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marcusCssLayout.removeAllComponents();
-				marcusLayout.removeComponent(marcusButton);
-				marcusLayout.addComponent(marcusCancelButton, 1, 0);
-				marcusCssLayout.addComponent(markusText);
-				marcusLayout.addComponent(marcusCssLayout, 0, 1, 1, 1);
-			}
-		});
-		marcusCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marcusCssLayout.removeAllComponents();
-				marcusLayout.removeComponent(marcusCancelButton);
-				marcusLayout.addComponent(marcusButton, 1, 0);
-				marcusLayout.removeComponent(marcusCssLayout);
-			}
-		});
-	
-		marcusButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marcusButton.setIcon(ICON);
-		marcusCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marcusCancelButton.setIcon(CancelIcon);
-		addComponent(marcusLayout);
-		marcusLayout.setSpacing(true);
-		marcusLayout.addComponent(marcus);
-		marcusLayout.addComponent(marcusButton);
-		
-		aracne.setStyleName(Reindeer.BUTTON_LINK);
-		anova.setStyleName(Reindeer.BUTTON_LINK);
-		marina.setStyleName(Reindeer.BUTTON_LINK);
-		cnkb.setStyleName(Reindeer.BUTTON_LINK);
-		hc.setStyleName(Reindeer.BUTTON_LINK);
-	
+		// second part: visualizations
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
 		vis.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(vis);
 		
-		/**
-		 *  Tabular microarray viewer
-		 */
-		final GridLayout tableLayout 		=	new GridLayout();
-		final Button tableButton 			= 	new Button();
-		final Button tableCancelButton 		= 	new Button();	
-		final FancyCssLayout tableCssLayout = 	new FancyCssLayout();
-		
-		tableLayout.setColumns(2);
-		tableLayout.setRows(2);
-		tableLayout.setSizeFull();
-		tableLayout.setImmediate(true);
-		tableLayout.setColumnExpandRatio(1, 1.0f);
-
-		tableCssLayout.setWidth("95%");
-		tableCssLayout.setSlideEnabled(true);
-		tableCssLayout.addStyleName("lay");
-		
-		Button table 	= 	new Button("Tabular Microarray Viewer", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-			}
-		});
-		
-		final Label tableText = new Label(
-				"<p align = \"justify\">Presents the numerical values of the expression measurements in a table format. " +
-				"One row is created per individual marker/probe and one column per microarray.</p>");
-		tableText.setContentMode(Label.CONTENT_XHTML);
-		
-		tableButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				tableCssLayout.removeAllComponents();
-				tableLayout.removeComponent(tableButton);
-				tableLayout.addComponent(tableCancelButton, 1, 0);
-				tableCssLayout.addComponent(tableText);
-				tableLayout.addComponent(tableCssLayout, 0, 1, 1, 1);
-			}
-		});
-		tableCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				tableCssLayout.removeAllComponents();
-				tableLayout.removeComponent(tableCancelButton);
-				tableLayout.addComponent(tableButton, 1, 0);
-				tableLayout.removeComponent(tableCssLayout);
-			}
-		});
-		
-		tableButton.setStyleName(BaseTheme.BUTTON_LINK);
-		tableButton.setIcon(ICON);
-		tableCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		tableCancelButton.setIcon(CancelIcon);
-		addComponent(tableLayout);
-		tableLayout.setSpacing(true);
-		tableLayout.addComponent(table);
-		tableLayout.addComponent(tableButton);
-		
+		// tabular view
+		buildOneItem("Tabular Microarray Viewer", "Presents the numerical values of the expression measurements in a table format. " +
+				"One row is created per individual marker/probe and one column per microarray.");
 		// anova result
 		buildOneItem("ANOVA Result Viewer", "Show ANOVA result as a table");
 		// aracne result
@@ -528,91 +116,54 @@ public class ToolsUI extends VerticalLayout {
 		buildOneItem("MARINa result viewer", "Show result of MARINa analysis");
 		// markus result
 		buildOneItem("MARKUS result viewer", "Show result MARKUS result in embbed browser");
-		
-		/**
-		 * HeatMap
-		 */
-		Button heatMap 	= 	new Button("Heat Map");
-		Label heatText 	=	new Label(
-				"<p align = \"justify\">Heat map for microarray expression data, organized by phenotypic or gene groupings.</p>");
-		heatText.setContentMode(Label.CONTENT_XHTML);
-		
-		table.setStyleName(Reindeer.BUTTON_LINK);
-		heatMap.setStyleName(Reindeer.BUTTON_LINK);
-
 	}
 
-	// this is so lame and temporary
-	private void buildOneItem (String itemName, String itemDescription) {
-		ThemeResource ICON = new ThemeResource(
-	            "../custom/icons/icon_info.gif");
+	private final ThemeResource ICON = new ThemeResource(
+			"../custom/icons/icon_info.gif");
+	private final ThemeResource CancelIcon = new ThemeResource(
+			"../runo/icons/16/cancel.png");
 
-		ThemeResource CancelIcon = new ThemeResource(
-	            "../runo/icons/16/cancel.png");
+	// build one item and add to the UI
+	private void buildOneItem (String itemName, final String itemDescription) {
 
-		final GridLayout tableLayout 		=	new GridLayout();
-		final Button tableButton 			= 	new Button();
-		final Button tableCancelButton 		= 	new Button();	
-		final FancyCssLayout tableCssLayout = 	new FancyCssLayout();
+		final ItemLayout itemLayout 		=	new ItemLayout();
+		final Button infoButton 			= 	new Button();
+		final Button cancelButton 		= 	new Button();	
 		
-		tableLayout.setColumns(2);
-		tableLayout.setRows(2);
-		tableLayout.setSizeFull();
-		tableLayout.setImmediate(true);
-		tableLayout.setColumnExpandRatio(1, 1.0f);
-
-		tableCssLayout.setWidth("95%");
-		tableCssLayout.setSlideEnabled(true);
-		tableCssLayout.addStyleName("lay");
+		Button toolNameText 	= 	new Button(itemName); // FIXME, not a button, a text label really
+		toolNameText.setStyleName(Reindeer.BUTTON_LINK);
 		
-		Button table 	= 	new Button(itemName, new Button.ClickListener() {
+		infoButton.addListener(new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
+				itemLayout.removeComponent(infoButton);
+				itemLayout.addComponent(cancelButton, 1, 0);
+				itemLayout.addDescription(itemDescription);
 			}
 		});
-		
-		final Label tableText = new Label(
-				"<p align = \"justify\">"+itemDescription+"</p>");
-		tableText.setContentMode(Label.CONTENT_XHTML);
-		
-		tableButton.addListener(new Button.ClickListener() {
+		cancelButton.addListener(new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				tableCssLayout.removeAllComponents();
-				tableLayout.removeComponent(tableButton);
-				tableLayout.addComponent(tableCancelButton, 1, 0);
-				tableCssLayout.addComponent(tableText);
-				tableLayout.addComponent(tableCssLayout, 0, 1, 1, 1);
-			}
-		});
-		tableCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				tableCssLayout.removeAllComponents();
-				tableLayout.removeComponent(tableCancelButton);
-				tableLayout.addComponent(tableButton, 1, 0);
-				tableLayout.removeComponent(tableCssLayout);
+				itemLayout.removeComponent(cancelButton);
+				itemLayout.addComponent(infoButton, 1, 0);
+				itemLayout.clearDescription();
 			}
 		});
 		
-		tableButton.setStyleName(BaseTheme.BUTTON_LINK);
-		tableButton.setIcon(ICON);
-		tableCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		tableCancelButton.setIcon(CancelIcon);
-		addComponent(tableLayout);
-		tableLayout.setSpacing(true);
-		tableLayout.addComponent(table);
-		tableLayout.addComponent(tableButton);
+		infoButton.setStyleName(BaseTheme.BUTTON_LINK);
+		infoButton.setIcon(ICON);
+		cancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		cancelButton.setIcon(CancelIcon);
+		itemLayout.setSpacing(true);
+		itemLayout.addComponent(toolNameText);
+		itemLayout.addComponent(infoButton);
 
-		table.setStyleName(Reindeer.BUTTON_LINK);
+		addComponent(itemLayout);
 	}
 }
