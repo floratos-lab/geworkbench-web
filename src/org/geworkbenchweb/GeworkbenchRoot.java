@@ -1,9 +1,8 @@
 package org.geworkbenchweb;
  
 import java.io.IOException;
-import java.util.Properties;
-
 import java.net.URI;
+import java.util.Properties;
 
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -13,6 +12,8 @@ import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.plugins.PluginRegistry;
+import org.geworkbenchweb.plugins.anova.Anova;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -20,7 +21,7 @@ import org.vaadin.artur.icepush.ICEPush;
 import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Window;
 
 /**
  * This is the application entry point.
@@ -72,6 +73,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		setMainWindow(mainWindow);
 		
 		registerAllEventsForApplication();
+		registerPlugins();
 		
 		if (user != null) {
 			initView();
@@ -167,5 +169,11 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}	
 
+	// TODO 1. decide to register class or instance; 2. we can also use configuration file (say, pluginx.xml) to control the registration
+	private void registerPlugins() {
+		PluginRegistry pr = PluginRegistry.getInstance();
+		pr.register(new Anova(0L));
+		//pr.register(new Aracne(0L));
+	}
 }
 

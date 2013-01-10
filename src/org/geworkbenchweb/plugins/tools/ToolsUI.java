@@ -1,5 +1,9 @@
 package org.geworkbenchweb.plugins.tools;
 
+import java.util.List;
+
+import org.geworkbenchweb.plugins.Analysis;
+import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
@@ -15,6 +19,7 @@ import com.vaadin.ui.themes.Reindeer;
 //most of the code is copied from MicroarrayUI.java
 //FIXME eventually we need a registry for all the 'visual plugins' or some other better name
 //FIXME visual plugins (or another better name) need some common interface(s)
+// FIXME MicroarrayUI and similar classes should be fixed like this class as well
 public class ToolsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
@@ -51,10 +56,12 @@ public class ToolsUI extends VerticalLayout {
 		}
 	}
 
+	// FIXME when I tested, this constructor seemed to be called twice
 	public ToolsUI(Long dummy) {
 
 		setSpacing(true);
 		
+		List<Analysis> analysisList = PluginRegistry.getInstance().getAnalysisList();
 		
 		// first part: analysis
 		Label analysisLabel = new Label("Analysis Available");
@@ -62,10 +69,15 @@ public class ToolsUI extends VerticalLayout {
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
 		
-		// anova
-		buildOneItem("Anova", "The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
-				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
-				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.");
+		// TODO convert other analysis plugins besides anova
+		for(Analysis a : analysisList) {
+			buildOneItem(a.getName(), a.getDescription());
+		}
+		
+//		// anova
+//		buildOneItem("Anova", "The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
+//				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
+//				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.");
 		// ARACNe
 		buildOneItem("ARACNe", "ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
 				"(Basso 2005, Margolin 2006a, 2006b) is an information-theoretic algorithm used " +
