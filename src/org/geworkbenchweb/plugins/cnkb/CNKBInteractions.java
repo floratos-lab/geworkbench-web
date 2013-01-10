@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
  
@@ -27,9 +25,7 @@ import org.geworkbenchweb.utils.SubSetOperations;
  
 public class CNKBInteractions {
 	
-    private Log log = LogFactory.getLog(CNKBInteractions.class);
-
-	private Vector<CellularNetWorkElementInformation> hits = null;
+    private Vector<CellularNetWorkElementInformation> hits = null;
 
 	private int interaction_flag = 1;	 
 
