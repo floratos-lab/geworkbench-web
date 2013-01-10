@@ -24,10 +24,7 @@ import org.geworkbench.util.network.InteractionDetail;
  
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations; 
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
+ 
 public class CNKBInteractions {
 	
     private Log log = LogFactory.getLog(CNKBInteractions.class);
@@ -116,8 +113,6 @@ public class CNKBInteractions {
 		  
 		  AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		  AdjacencyMatrix matrix = new AdjacencyMatrix(null);
-		  
-		  int interactionNum = 0;
 		 
 			 
 		 List<String> selectedTypes = (ArrayList<String>)params.get(CNKBParameters.SELECTED_INTERACTION_TYPES);;
@@ -156,7 +151,7 @@ public class CNKBInteractions {
 						new Float(interactionDetail 
 								.getConfidenceValue(interactionDetail.getConfidenceTypes().get(0))));
 
-				interactionNum++;
+				 
 			}
 		} // end for loop
 
