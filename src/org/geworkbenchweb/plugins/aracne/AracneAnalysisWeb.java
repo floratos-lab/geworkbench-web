@@ -103,7 +103,7 @@ public class AracneAnalysisWeb {
 		if (!((String) params.get(AracneParameters.DPI_LIST))
 				.equalsIgnoreCase("Do Not Apply")) {
 			Long subSetId = Long.parseLong((String) params
-					.get(AracneParameters.MARKER_SET));
+					.get(AracneParameters.DPI_SET));
 			ArrayList<String> targetGeneList = getMarkerData(subSetId);
 			aracneInput
 					.setTargetGeneList(targetGeneList.toArray(new String[0]));
