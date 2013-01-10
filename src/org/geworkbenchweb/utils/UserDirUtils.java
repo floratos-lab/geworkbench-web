@@ -78,6 +78,22 @@ public class UserDirUtils {
 		if(!sucess) return false; 
 		return true;
 	}
+	
+	/**
+	 * Deletes the dataset from the file system
+	 * @param dataId
+	 * @return
+	 */
+	public static boolean deleteDataSet(long dataId) {
+		
+		String dataName 		=	String.valueOf(dataId);
+		String fileName 		= 	System.getProperty("user.home") + SLASH +
+				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+				SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
+		boolean success 		=	deleteFile(fileName);
+		if(!success) return false;
+		return true;
+	}
 
 	/**
 	 * Retrieves byte data from file
@@ -107,6 +123,22 @@ public class UserDirUtils {
 				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + resultName + RES_EXTENSION;
 		boolean sucess 			=	createFile(fileName, byteObject);
 		if(!sucess) return false; 
+		return true;
+	}
+	
+	/**
+	 * Deletes the resultset from file system 
+	 * @param resultSetId
+	 * @return
+	 */
+	public static boolean deleteResultSet(long resultSetId) {
+		
+		String dataName 		=	String.valueOf(resultSetId);
+		String fileName 		= 	System.getProperty("user.home") + SLASH +
+				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+				SLASH + SessionHandler.get().getId() + SLASH + RESULTSETS+ SLASH + dataName + RES_EXTENSION;
+		boolean success 		=	deleteFile(fileName);
+		if(!success) return false;
 		return true;
 	}
 
@@ -197,6 +229,21 @@ public class UserDirUtils {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Deletes the supplied file from the filesystem
+	 * @param fileName
+	 * @return 
+	 */
+	private static boolean deleteFile(String fileName) {
+		File file = new File(fileName);
+		if(file.exists()) {
+			file.delete();
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**

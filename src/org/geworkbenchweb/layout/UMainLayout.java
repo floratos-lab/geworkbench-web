@@ -61,7 +61,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Resource;
@@ -519,95 +518,142 @@ public class UMainLayout extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				Long dataId = dataSetId;
-
-				DataSet data =  FacadeFactory.getFacade().find(DataSet.class, dataId);
-				if(data != null) {
+				
+				
+				MessageBox mbMain = new MessageBox(getWindow(), 
+						"Information", 
+						MessageBox.Icon.INFO, 
+						"This action will delete the selected data.", 
+						new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"),
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				
+				mbMain.show(new MessageBox.EventListener() {
 					
-					Map<String, Object> params 		= 	new HashMap<String, Object>();
-					params.put("parent", dataId);
-
-					List<?> SubSets =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent =:parent", params);
-					if(SubSets.size() != 0){
-						for(int i=0;i<SubSets.size();i++) {
-							FacadeFactory.getFacade().delete((SubSet) SubSets.get(i));
-						}
-					}
+					private static final long serialVersionUID = 1L;
 					
-					Map<String, Object> param 		= 	new HashMap<String, Object>();
-					param.put("parent", dataId);
+					@Override
+					public void buttonClicked(ButtonType buttonType) {    	
+						if(buttonType == ButtonType.OK) {
+							Long dataId = dataSetId;
 
-					List<?> resultSets =  FacadeFactory.getFacade().list("Select p from ResultSet as p where p.parent =:parent", param);
-					if(resultSets.size() != 0){
-						for(int i=0;i<resultSets.size();i++) {
-							Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-							cParam.put("parent", ((ResultSet) resultSets.get(i)).getId());
+							DataSet data =  FacadeFactory.getFacade().find(DataSet.class, dataId);
+							if(data != null) {
+								
+								Map<String, Object> params 		= 	new HashMap<String, Object>();
+								params.put("parent", dataId);
 
-							List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-							if(comments.size() != 0){
-								for(int j=0;j<comments.size();j++) {
-									FacadeFactory.getFacade().delete((Comment) comments.get(j));
+								List<?> SubSets =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent =:parent", params);
+								if(SubSets.size() != 0){
+									for(int i=0;i<SubSets.size();i++) {
+										FacadeFactory.getFacade().delete((SubSet) SubSets.get(i));
+									}
 								}
-							}
-							FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
-							navigationTree.removeItem(((ResultSet) resultSets.get(i)).getId());
+								
+								Map<String, Object> param 		= 	new HashMap<String, Object>();
+								param.put("parent", dataId);
+
+								List<?> resultSets =  FacadeFactory.getFacade().list("Select p from ResultSet as p where p.parent =:parent", param);
+								if(resultSets.size() != 0){
+									for(int i=0;i<resultSets.size();i++) {
+										Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+										cParam.put("parent", ((ResultSet) resultSets.get(i)).getId());
+
+										List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+										if(comments.size() != 0){
+											for(int j=0;j<comments.size();j++) {
+												FacadeFactory.getFacade().delete((Comment) comments.get(j));
+											}
+										}
+										boolean success =  UserDirUtils.deleteResultSet(((ResultSet) resultSets.get(i)).getId());
+										if(!success) {
+											MessageBox mb = new MessageBox(getWindow(), 
+													"Error", 
+													MessageBox.Icon.ERROR, 
+													"Unable to delete the selected data. Please contact administrator.", 
+													new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+											mb.show();
+										}
+										FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
+										navigationTree.removeItem(((ResultSet) resultSets.get(i)).getId());
+									}
+								}
+								Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+								cParam.put("parent", dataId);
+
+								List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+								if(comments.size() != 0){
+									for(int j=0;j<comments.size();j++) {
+										FacadeFactory.getFacade().delete((Comment) comments.get(j));
+									}
+								}
+
+								cParam.clear();
+								cParam.put("datasetid", dataId);
+								List<DataSetAnnotation> dsannot = FacadeFactory.getFacade().list("Select p from DataSetAnnotation as p where p.datasetid=:datasetid", cParam);
+								if (dsannot.size() > 0){
+									Long annotId = dsannot.get(0).getAnnotationId();
+									FacadeFactory.getFacade().delete(dsannot.get(0));
+
+									Annotation annot = FacadeFactory.getFacade().find(Annotation.class, annotId);
+									if (annot!=null && annot.getOwner()!=null){
+										cParam.clear();
+										cParam.put("annotationid", annotId);
+										List<Annotation> annots = FacadeFactory.getFacade().list("select p from DataSetAnnotation as p where p.annotationid=:annotationid", cParam);
+										if (annots.size()==0) FacadeFactory.getFacade().delete(annot);
+									}
+								}
+
+								List<Context> contexts = SubSetOperations.getAllContexts(dataId);
+								for (Context c : contexts) {
+									cParam.clear();
+									cParam.put("contextid", c.getId());	
+									List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", cParam);
+									FacadeFactory.getFacade().deleteAll(subcontexts);
+									FacadeFactory.getFacade().delete(c);
+								}
+
+								cParam.clear();
+								cParam.put("datasetid", dataId);
+								List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
+								if (cc.size()>0) FacadeFactory.getFacade().delete(cc.get(0));
+
+								boolean success = UserDirUtils.deleteDataSet(data.getId());
+								if(!success) {
+									MessageBox mb = new MessageBox(getWindow(), 
+											"Error", 
+											MessageBox.Icon.ERROR, 
+											"Unable to delete the selected data. Please contact administrator.", 
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+									mb.show();
+								}
+								FacadeFactory.getFacade().delete(data);
+							}else {
+								Map<String, Object> cParam 		= 	new HashMap<String, Object>();
+								cParam.put("parent", dataId);
+
+								List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
+								if(comments.size() != 0){
+									for(int j=0;j<comments.size();j++) {
+										FacadeFactory.getFacade().delete((Comment) comments.get(j));
+									}
+								}
+								ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
+								boolean success = UserDirUtils.deleteResultSet(result.getId());
+								if(!success) {
+									MessageBox mb = new MessageBox(getWindow(), 
+											"Error", 
+											MessageBox.Icon.ERROR, 
+											"Unable to delete the selected data. Please contact administrator.", 
+											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+									mb.show();
+								}
+								FacadeFactory.getFacade().delete(result);
+							} 
+							navigationTree.removeItem(dataId);
 						}
 					}
-					Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-					cParam.put("parent", dataId);
-
-					List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-					if(comments.size() != 0){
-						for(int j=0;j<comments.size();j++) {
-							FacadeFactory.getFacade().delete((Comment) comments.get(j));
-						}
-					}
-
-					cParam.clear();
-					cParam.put("datasetid", dataId);
-					List<DataSetAnnotation> dsannot = FacadeFactory.getFacade().list("Select p from DataSetAnnotation as p where p.datasetid=:datasetid", cParam);
-					if (dsannot.size() > 0){
-						Long annotId = dsannot.get(0).getAnnotationId();
-						FacadeFactory.getFacade().delete(dsannot.get(0));
-
-						Annotation annot = FacadeFactory.getFacade().find(Annotation.class, annotId);
-						if (annot!=null && annot.getOwner()!=null){
-							cParam.clear();
-							cParam.put("annotationid", annotId);
-							List<Annotation> annots = FacadeFactory.getFacade().list("select p from DataSetAnnotation as p where p.annotationid=:annotationid", cParam);
-							if (annots.size()==0) FacadeFactory.getFacade().delete(annot);
-						}
-					}
-
-					List<Context> contexts = SubSetOperations.getAllContexts(dataId);
-					for (Context c : contexts) {
-						cParam.clear();
-						cParam.put("contextid", c.getId());	
-						List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", cParam);
-						FacadeFactory.getFacade().deleteAll(subcontexts);
-						FacadeFactory.getFacade().delete(c);
-					}
-
-					cParam.clear();
-					cParam.put("datasetid", dataId);
-					List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
-					if (cc.size()>0) FacadeFactory.getFacade().delete(cc.get(0));
-
-					FacadeFactory.getFacade().delete(data);
-				}else {
-					Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-					cParam.put("parent", dataId);
-
-					List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-					if(comments.size() != 0){
-						for(int j=0;j<comments.size();j++) {
-							FacadeFactory.getFacade().delete((Comment) comments.get(j));
-						}
-					}
-					ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
-					FacadeFactory.getFacade().delete(result);
-				} 
-				navigationTree.removeItem(dataId);
+				});	
+				
 				annotButton.setEnabled(false);
 				removeButton.setEnabled(false);
 				set.setEnabled(false);
