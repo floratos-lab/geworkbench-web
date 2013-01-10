@@ -136,15 +136,7 @@ public class UMainLayout extends VerticalLayout {
 	private MenuBar annotationBar;
 	
 	final MenuBar toolBar = new MenuBar();
-
-    private static final Action ACTION_ADD_SET 		= 	new Action("Add Set");
-	
-	private static final Action ACTION_FILTER 		= 	new Action("Filter");
-	private static final Action ACTION_REMOVE_FILTER 		= 	new Action("Remove Filter");
-
-	protected static final Action[] ACTIONS 	= 	new Action[] { ACTION_ADD_SET, ACTION_FILTER, ACTION_REMOVE_FILTER};
-	
-	
+ 
 	private FancyCssLayout annotationLayout;
 	
 	private Button annotButton; 		
@@ -1087,6 +1079,8 @@ public class UMainLayout extends VerticalLayout {
 						res.getItemProperty("Icon").setValue(hcIcon);
 					} else if(type.equalsIgnoreCase("CNKBResults")) {
 						res.getItemProperty("Icon").setValue(networkIcon);
+					} else if(type.equalsIgnoreCase("CytoscapeResults")) {
+						res.getItemProperty("Icon").setValue(networkIcon);
 					} else if(type.equalsIgnoreCase("MarkusResults")) {
 						res.getItemProperty("Icon").setValue(markusIcon);
 					} else if(type.equalsIgnoreCase("AnovaResults")) {
@@ -1177,6 +1171,8 @@ public class UMainLayout extends VerticalLayout {
 					if(res.getType().equalsIgnoreCase("HierarchicalClusteringResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(hcIcon);
 					} else if(res.getType().equalsIgnoreCase("CNKBResults")) {
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
+					} else if(res.getType().equalsIgnoreCase("CytoscapeResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
 					} else if (res.getType().equalsIgnoreCase("MarkusResults")) {
 						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(markusIcon);
@@ -1293,6 +1289,11 @@ public class UMainLayout extends VerticalLayout {
 						Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
 						resultSet.setName("CNKB");
 						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(hits));
+					} else if(resultSet.getType().contains("CytoscapeResults")) {
+						CNKBInteractions cnkb = new CNKBInteractions();
+						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(cnkb.CreateNetwork(params)));	
+						resultSet.setName("Cytoscape");
+						 
 					} else if(resultSet.getType().contains("AnovaResults")) {
 						AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
 						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
