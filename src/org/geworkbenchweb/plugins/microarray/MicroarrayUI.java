@@ -36,13 +36,6 @@ public class MicroarrayUI extends VerticalLayout {
 		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
-		
-		ThemeResource ICON = new ThemeResource(
-	            "../custom/icons/icon_info.gif");
-
-		ThemeResource CancelIcon = new ThemeResource(
-	            "../runo/icons/16/cancel.png");
-		
 		addComponent(analysisLabel);
 		
 		/**
@@ -120,76 +113,9 @@ public class MicroarrayUI extends VerticalLayout {
 		// TODO convert other analysis plug-ins other ANOVA later
 		for(final Analysis analysis : PluginRegistry.getInstance().getAnalysisList()) {
 		
-		final AbstractComponentContainer analysisUi = PluginRegistry.getInstance().getUI(analysis);
+			final AbstractComponentContainer analysisUI = PluginRegistry.getInstance().getUI(analysis);
+			buildOneItem(analysis, analysisUI);
 
-	    final GridLayout anovaLayout = new GridLayout();
-	    anovaLayout.setColumns(2);
-	    anovaLayout.setRows(2);
-	    anovaLayout.setSizeFull();
-	    anovaLayout.setImmediate(true);
-	    anovaLayout.setColumnExpandRatio(1, 1.0f);
-		Button anova 	= 	new Button("ANOVA", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				showAnalysisParameterPanel(analysis, analysisUi, dataId);	
-			}
-		});
-		anova.setStyleName(Reindeer.BUTTON_LINK);
-
-		final FancyCssLayout anovaCssLayout = new FancyCssLayout();
-		anovaCssLayout.setWidth("95%");
-		anovaCssLayout.setSlideEnabled(true);
-		anovaCssLayout.addStyleName("lay");
-		
-		final Label anovaText = new Label(
-				"<p align= \"justify\">The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
-				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
-				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.</p>");
-		anovaText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button anovaButton = new Button();
-		final Button anovaCancelButton = new Button();
-			
-		anovaButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				anovaCssLayout.removeAllComponents();
-				anovaLayout.removeComponent(anovaButton);
-				anovaLayout.addComponent(anovaCancelButton, 1, 0);
-				anovaCssLayout.addComponent(anovaText);
-				anovaLayout.addComponent(anovaCssLayout, 0, 1, 1, 1);
-			}
-		});
-		anovaCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				
-				anovaCssLayout.removeAllComponents();
-				anovaLayout.removeComponent(anovaCancelButton);
-				anovaLayout.addComponent(anovaButton, 1, 0);
-				anovaLayout.removeComponent(anovaCssLayout);
-				            
-			}
-		});
-		
-		anovaButton.setStyleName(BaseTheme.BUTTON_LINK);
-		anovaButton.setIcon(ICON);
-		anovaCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		anovaCancelButton.setIcon(CancelIcon);
-		addComponent(anovaLayout);
-		anovaLayout.setSpacing(true);
-		anovaLayout.addComponent(anova);
-	    anovaLayout.addComponent(anovaButton);
-	    
 		} // TODO this loops for now only contains ANOVA
 		
 	    /** 
@@ -611,4 +537,100 @@ public class MicroarrayUI extends VerticalLayout {
 			right.addComponent(l);
 		}
 	}
+
+	// this is copied from ToolsUI. probably we should refactor to have only one
+	private static class ItemLayout extends GridLayout {
+
+		private static final long serialVersionUID = -2801145303701009347L;
+		
+		private final FancyCssLayout cssLayout = new FancyCssLayout();
+		
+		private ItemLayout() {
+			setColumns(2);
+			setRows(2);
+			setSizeFull();
+			setImmediate(true);
+			setColumnExpandRatio(1, 1.0f);
+
+			cssLayout.setSlideEnabled(true);
+			cssLayout.setWidth("95%");
+			cssLayout.addStyleName("lay");
+		}
+	
+		private void addDescription(String itemDescription) {
+			Label tableText = new Label(
+					"<p align = \"justify\">"+itemDescription+"</p>");
+			tableText.setContentMode(Label.CONTENT_XHTML);
+			cssLayout.addComponent(tableText);
+			addComponent(cssLayout, 0, 1, 1, 1);
+		}
+		
+		private void clearDescription() {
+			cssLayout.removeAllComponents();
+			removeComponent(cssLayout);
+		}
+	}
+
+	private final ThemeResource ICON = new ThemeResource(
+			"../custom/icons/icon_info.gif");
+	private final ThemeResource CancelIcon = new ThemeResource(
+			"../runo/icons/16/cancel.png");
+
+	// build one item and add to the UI
+	// TODO this is copied from ToolsUI, but exactly the same, especially that this needs to trigger the actual analysis.
+	// the version in ToolsUI should not have the misleading link looking
+	private void buildOneItem(final Analysis analysis,
+			final AbstractComponentContainer analysisUI) {
+
+		final ItemLayout itemLayout = new ItemLayout();
+		final Button infoButton = new Button();
+		final Button cancelButton = new Button();
+
+		Button toolButton = new Button(analysis.getName(),
+				new Button.ClickListener() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						showAnalysisParameterPanel(analysis, analysisUI, dataId);
+					}
+				});
+		toolButton.setStyleName(Reindeer.BUTTON_LINK);
+
+		final String itemDescription = analysis.getDescription();
+		infoButton.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				itemLayout.removeComponent(infoButton);
+				itemLayout.addComponent(cancelButton, 1, 0);
+				itemLayout.addDescription(itemDescription);
+			}
+		});
+		cancelButton.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				itemLayout.removeComponent(cancelButton);
+				itemLayout.addComponent(infoButton, 1, 0);
+				itemLayout.clearDescription();
+			}
+		});
+
+		infoButton.setStyleName(BaseTheme.BUTTON_LINK);
+		infoButton.setIcon(ICON);
+		cancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		cancelButton.setIcon(CancelIcon);
+		itemLayout.setSpacing(true);
+		itemLayout.addComponent(toolButton);
+		itemLayout.addComponent(infoButton);
+
+		addComponent(itemLayout);
+	}
+
 }
