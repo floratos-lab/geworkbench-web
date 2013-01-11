@@ -14,6 +14,7 @@ import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.geworkbenchweb.plugins.anova.Anova;
+import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -172,8 +173,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	// TODO 1. decide to register class or instance; 2. we can also use configuration file (say, pluginx.xml) to control the registration
 	private void registerPlugins() {
 		PluginRegistry pr = PluginRegistry.getInstance();
-		pr.register(new Anova(0L));
-		//pr.register(new Aracne(0L));
+		pr.register(new Anova(), new AnovaUI(0L));
 	}
 }
 

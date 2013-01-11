@@ -19,6 +19,7 @@ import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
@@ -72,16 +73,17 @@ public class AnovaUI extends VerticalLayout {
 	
 	private int totalSelectedArrayNum= 0;
 	
-	private Long userId  = SessionHandler.get().getId();
+	private Long userId  = null;
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 
 	public AnovaUI(Long dataSetId) {
+		User user = SessionHandler.get();
+		if(user!=null)
+			userId  = user.getId();
 
 		this.dataSetId = dataSetId;
 			
-		DSMicroarraySet maSet 	= 	(DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
-	 
 		final GridLayout gridLayout1 = new GridLayout(2, 2);
 		final GridLayout gridLayout2 = new GridLayout(4, 3);
 		final GridLayout gridLayout3 = new GridLayout(3, 1);
@@ -96,15 +98,11 @@ public class AnovaUI extends VerticalLayout {
 		setSpacing(true);
 		setImmediate(true);
 
-		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
-		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
-
 		markerSetSelect = new ListSelect("Select Marker Sets:");
 		markerSetSelect.setMultiSelect(true);
 		markerSetSelect.setRows(5);
 		markerSetSelect.setColumns(10);
 		markerSetSelect.setImmediate(true);
-		
 
 		arraySetSelect = new ListSelect("Select array sets:");
 		arraySetSelect.setMultiSelect(true);
@@ -112,24 +110,6 @@ public class AnovaUI extends VerticalLayout {
 		arraySetSelect.setColumns(10);
 		arraySetSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
 		arraySetSelect.setImmediate(true);
-
-		if (subMarkerSets != null)
-			for (int m = 0; m < (subMarkerSets).size(); m++) {
-
-				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m)).getId());
-				markerSetSelect.setItemCaption(((SubSet) subMarkerSets.get(m)).getId(), ((SubSet) subMarkerSets.get(m)).getName());
-
-			}
-
-		if (subArraySets != null)
-			for (int m = 0; m < (subArraySets).size(); m++) {
-
-				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId().longValue());
-				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
-				
-			}
-
-	 
 
 		pValEstLabel = new Label(
 				"P-Value Estimation----------------------------------------------------------------------");
@@ -257,7 +237,7 @@ public class AnovaUI extends VerticalLayout {
 		Label permutationsOnly = new Label("  (permutations only)");
 		permutationsOnly.setStyleName(Reindeer.LABEL_SMALL);
 		 
-		submitButton = new Button("Submit", new SubmitListener(maSet, this));
+		submitButton = new Button("Submit", new SubmitListener());
 
 		gridLayout1.addComponent(markerSetSelect, 0, 0);
 		gridLayout1.addComponent(arraySetSelect, 1, 0);
@@ -296,25 +276,17 @@ public class AnovaUI extends VerticalLayout {
 	public Long getUserId() {
 		return this.userId;
 	}
+	
 	private class SubmitListener implements ClickListener {
 
 		private static final long serialVersionUID = 831124091338570481L;
-		private AnovaUI paramform = null;
-		private DSMicroarraySet dataSet = null;
-
-		public SubmitListener(final DSMicroarraySet dataSet,
-				AnovaUI paramform) {
-			this.paramform = paramform;
-			this.dataSet = dataSet;
-
-		}
 
 		@Override
 		public void buttonClick(ClickEvent event) {
 			 
 			if (validInputData()) {
 				
-				params.put("form", paramform);
+				params.put("form", AnovaUI.this);
 				ResultSet resultSet = new ResultSet();
 				java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 				resultSet.setDateField(date);
@@ -328,6 +300,7 @@ public class AnovaUI extends VerticalLayout {
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
+				DSMicroarraySet dataSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
@@ -524,6 +497,40 @@ public class AnovaUI extends VerticalLayout {
 	}
 
 
-	
+	// TODO this is not a final design. needed only if we decide to reuse the instance
+	public void setDataSetId(Long dataSetId) {
+		User user = SessionHandler.get();
+		if (user != null) {
+			userId = user.getId();
+		}
+
+		this.dataSetId = dataSetId;
+
+		markerSetSelect.removeAllItems();
+		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
+		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
+		if (subMarkerSets != null)
+			for (int m = 0; m < (subMarkerSets).size(); m++) {
+
+				markerSetSelect
+						.addItem(((SubSet) subMarkerSets.get(m)).getId());
+				markerSetSelect.setItemCaption(
+						((SubSet) subMarkerSets.get(m)).getId(),
+						((SubSet) subMarkerSets.get(m)).getName());
+
+			}
+
+		arraySetSelect.removeAllItems();
+		if (subArraySets != null)
+			for (int m = 0; m < (subArraySets).size(); m++) {
+
+				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId()
+						.longValue());
+				arraySetSelect.setItemCaption(
+						((SubSet) subArraySets.get(m)).getId(),
+						((SubSet) subArraySets.get(m)).getName());
+
+			}
+	}
 	
 }

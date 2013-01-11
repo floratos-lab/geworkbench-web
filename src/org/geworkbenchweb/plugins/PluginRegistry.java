@@ -4,7 +4,11 @@
 package org.geworkbenchweb.plugins;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.vaadin.ui.AbstractComponentContainer;
 
 /**
  * Central control of all Plug-ins. 
@@ -17,7 +21,7 @@ import java.util.List;
 public class PluginRegistry {
 	
 	static private PluginRegistry INSTANCE = new PluginRegistry();
-	private List<Analysis> analysisList = new ArrayList<Analysis>();
+	private Map<Analysis, AbstractComponentContainer> analysisMap = new HashMap<Analysis, AbstractComponentContainer>();
 
 	private PluginRegistry() {
 		
@@ -27,12 +31,12 @@ public class PluginRegistry {
 		return INSTANCE;
 	}
 	
-	public void register(Analysis a) {
-		analysisList.add(a);
+	public void register(Analysis a, AbstractComponentContainer analysisUI) {
+		analysisMap.put(a, analysisUI);
 	}
 	
 	public List<Analysis> getAnalysisList() {
-		return analysisList;
+		return new ArrayList<Analysis>(analysisMap.keySet());
 		
 		// TODO we may not want to open up the list itself
 		/*
@@ -42,5 +46,9 @@ public class PluginRegistry {
 		}
 		return list;
 		*/
+	}
+	
+	public AbstractComponentContainer getUI(Analysis a) {
+		return analysisMap.get(a);
 	}
 }

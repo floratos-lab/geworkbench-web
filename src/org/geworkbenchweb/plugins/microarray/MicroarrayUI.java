@@ -1,15 +1,24 @@
 package org.geworkbenchweb.plugins.microarray;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.PluginEvent;
+import org.geworkbenchweb.plugins.Analysis;
+import org.geworkbenchweb.plugins.PluginRegistry;
+import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.AbstractComponentContainer;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -108,6 +117,11 @@ public class MicroarrayUI extends VerticalLayout {
 	    /** 
 	     * ANOVA 
 	     */
+		// TODO convert other analysis plug-ins other ANOVA later
+		for(final Analysis analysis : PluginRegistry.getInstance().getAnalysisList()) {
+		
+		final AbstractComponentContainer analysisUi = PluginRegistry.getInstance().getUI(analysis);
+
 	    final GridLayout anovaLayout = new GridLayout();
 	    anovaLayout.setColumns(2);
 	    anovaLayout.setRows(2);
@@ -120,10 +134,11 @@ public class MicroarrayUI extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("Anova", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
+				showAnalysisParameterPanel(analysis, analysisUi, dataId);	
 			}
 		});
+		anova.setStyleName(Reindeer.BUTTON_LINK);
+
 		final FancyCssLayout anovaCssLayout = new FancyCssLayout();
 		anovaCssLayout.setWidth("95%");
 		anovaCssLayout.setSlideEnabled(true);
@@ -174,6 +189,8 @@ public class MicroarrayUI extends VerticalLayout {
 		anovaLayout.setSpacing(true);
 		anovaLayout.addComponent(anova);
 	    anovaLayout.addComponent(anovaButton);
+	    
+		} // TODO this loops for now only contains ANOVA
 		
 	    /** 
 	     * Hierarchial Clustering 
@@ -445,7 +462,6 @@ public class MicroarrayUI extends VerticalLayout {
 		ttestLayout.addComponent(ttestButton);
 		
 		aracne.setStyleName(Reindeer.BUTTON_LINK);
-		anova.setStyleName(Reindeer.BUTTON_LINK);
 		marina.setStyleName(Reindeer.BUTTON_LINK);
 		cnkb.setStyleName(Reindeer.BUTTON_LINK);
 		hc.setStyleName(Reindeer.BUTTON_LINK);
@@ -536,4 +552,63 @@ public class MicroarrayUI extends VerticalLayout {
 		table.setStyleName(Reindeer.BUTTON_LINK);
 		heatMap.setStyleName(Reindeer.BUTTON_LINK);
     }
+
+	private static Log log = LogFactory.getLog(MicroarrayUI.class);
+	
+	// FIXME
+	// the entire implementation of the action after you click on an analysis name to bring up the parameter does not make any sense
+	// I will re-write it gradually while maintaining so not to break the observable behavior. 
+	@SuppressWarnings("deprecation")
+	private void showAnalysisParameterPanel(Analysis analysis,
+			AbstractComponentContainer analysisUI, Long dataSetId) {
+
+		Component layoutToBeUpdated = this.getParent().getParent(); // pluginLayout
+
+		if (!(analysisUI instanceof AnovaUI)) {
+			log.warn(analysisUI.getClass() + " not supported yet.");
+			return; // TODO all analysis UIs need to implement necessary method,
+					// e.g. setDataSetId
+		}
+		AnovaUI ui = (AnovaUI) analysisUI;
+		ui.setDataSetId(dataId);
+
+		HorizontalLayout pluginLayout = (HorizontalLayout) layoutToBeUpdated;
+		pluginLayout.removeAllComponents();
+
+		VerticalLayout left = new VerticalLayout();
+		left.setWidth("100%");
+		left.setSpacing(true);
+		left.setMargin(false);
+
+		VerticalLayout rightLayout = new VerticalLayout();
+		Panel right = new Panel(rightLayout);
+		rightLayout.setMargin(true, false, false, false);
+		right.setStyleName(Panel.STYLE_LIGHT);
+		right.addStyleName("feature-info");
+		right.setWidth("319px");
+
+		HorizontalLayout controls = new HorizontalLayout();
+		controls.setWidth("100%");
+		controls.setStyleName("feature-controls");
+
+		Label title = new Label("<span>" + analysis.getName() + "</span>", Label.CONTENT_XHTML);
+		title.setStyleName("title");
+		controls.addComponent(title);
+		controls.setExpandRatio(title, 1);
+
+		pluginLayout.addComponent(left);
+		pluginLayout.setExpandRatio(left, 1);
+		pluginLayout.addComponent(right);
+
+		left.addComponent(controls);
+		left.addComponent(ui);
+		right.setCaption("Description");
+		String desc = analysis.getDescription();
+		if (desc != null && desc != "") {
+			final Label l = new Label(
+					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
+							+ desc + "</div></div>", Label.CONTENT_XHTML);
+			right.addComponent(l);
+		}
+	}
 }
