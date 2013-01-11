@@ -61,7 +61,7 @@ public class HierarchicalClusteringWrapper {
 				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
 				for(String position : positions) {
-					String markerName = (position.split("\\s+"))[0].trim(); // only the first field 
+					String markerName = position; // only the first field 
 					DSGeneMarker marker = dataSet.getMarkers().get(markerName);
 					panel.add(marker);
 				}
@@ -75,7 +75,7 @@ public class HierarchicalClusteringWrapper {
 				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
 				for(String position : positions) {
-					String microarrayName = (position.split("\\s+"))[0].trim(); // only the first field 
+					String microarrayName = position; // only the first field 
 					DSMicroarray micraorray = dataSet.get(microarrayName);
 					panel.add(micraorray);
 				}

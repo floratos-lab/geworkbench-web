@@ -104,7 +104,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 											ArrayList<String> newmarkers = 	new ArrayList<String>();
 											for(int i=0; i<temp.length; i++) {
 												String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-												String[] dataA = data.split("\\s+");
+												String[] dataA = data.split("\\s+\\(");
 												if (!markers.contains(dataA[0])) {
 													markers.add(dataA[0]);
 													newmarkers.add(dataA[0]);
@@ -131,7 +131,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						ArrayList<String> markers = new ArrayList<String>();
 						for(int i=0; i<temp.length; i++) {
 							String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-							String[] dataA = data.split("\\s+");
+							String[] dataA = data.split("\\s+\\(");
 							markers.add(dataA[0]);
 						}
 						String subSetName = (String) setName.getValue();
