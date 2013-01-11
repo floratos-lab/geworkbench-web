@@ -4,9 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -59,6 +64,7 @@ public class TTestAnalysisWeb {
 		this.params = params;
 		this.dataSet = dataSet;
 		
+		
 		if(((String) params.get(TTestParameters.LOGNORMALIZED)).equalsIgnoreCase("yes")) {
 			isLogNormalized = true;
 		}
@@ -95,6 +101,8 @@ public class TTestAnalysisWeb {
 
 	public DSSignificanceResultSet<DSGeneMarker> execute() {
 		
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView =  new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+		
 		Long caseSetId 		= 	(Long) params.get(TTestParameters.CASEARRAY);
 		Long controlSetId 	= 	(Long) params.get(TTestParameters.CONTROLARRAY);
 		
@@ -111,6 +119,19 @@ public class TTestAnalysisWeb {
 		bC = controlSet.getPositions();
 		
 		aC.addAll(bC);
+		
+		DSPanel<DSGeneMarker> markerPanel = new CSPanel<DSGeneMarker>();
+		for (int i=0; i<dataSet.getMarkers().size(); i++) {
+			markerPanel.add(dataSet.getMarkers().get(i));
+		} 
+		dataSetView.setMarkerPanel(markerPanel);
+		
+		DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
+		for (int i=0; i<aC.size(); i++) {
+				DSMicroarray micraorray = dataSet.get(aC.get(i));
+				panel.add(micraorray);
+		} 
+		dataSetView.setItemPanel(panel);
 		
 		final int n = dataSet.size();
 		int count = 0;
@@ -172,7 +193,7 @@ public class TTestAnalysisWeb {
 		
 		//ttestOutput = new org.geworkbench.components.ttest.TTest(tTestInput).execute();
 		
-		DSSignificanceResultSet<DSGeneMarker> sigSet = createDSSignificanceResultSet(dataSet, ttestOutput, caseLabels, controlLabels);
+		DSSignificanceResultSet<DSGeneMarker> sigSet = createDSSignificanceResultSet(dataSetView, ttestOutput, caseLabels, controlLabels);
 		return sigSet;
 	}
 	
@@ -230,17 +251,17 @@ public class TTestAnalysisWeb {
 	}
 	
 	private DSSignificanceResultSet<DSGeneMarker> createDSSignificanceResultSet(
-			DSMicroarraySet data,
+			DSMicroarraySetView<DSGeneMarker,DSMicroarray> dataSetView,
 			TTestOutput output, String[] caseLabels, String[] controlLabels) {
 		
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
-				data, "T-Test", caseLabels, controlLabels,
+				dataSetView.getMicroarraySet(), "T-Test", caseLabels, controlLabels,
 				alpha, isLogNormalized
 		);
-		
+	
 		for (int i = 0; i < output.getSignificanceIndex().length; i++) {
 			int index = (output.getSignificanceIndex())[i];
-			DSGeneMarker m = data.getMarkers().get(index);
+			DSGeneMarker m = dataSetView.markers().get(index);
 			sigSet.setSignificance(m, (output.getpValue())[index]);
 			sigSet.setTValue(m, (output.gettValue())[index]);
 			

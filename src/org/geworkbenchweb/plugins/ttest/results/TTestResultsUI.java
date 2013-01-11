@@ -98,21 +98,18 @@ public class TTestResultsUI extends VerticalLayout {
 
 		ScatterConfig sCfg = new ScatterConfig();
 		XYSeries series = new XYSeries("Significant Markers", sCfg);
-
-		// First put all the gene pairs in the xyValues array
-		int numMarkers = set.getMarkers().size();
 		
 		double validMinSigValue 	= 	Double.MAX_VALUE;
 		double minPlotValue 		= 	Double.MAX_VALUE;
 		double maxPlotValue 		= 	Double.MIN_VALUE;
 
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
-       
+		
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
-		for (int i = 0; i < numMarkers; i++) {
+		for (int i = 0; i < significance.getSignificantMarkers().size(); i++) {
 			
-			DSGeneMarker mark = set.getMarkers().get(i);
-			double sigValue = significance.getSignificance(mark);
+			DSGeneMarker mark 	= 	significance.getSignificantMarkers().get(i);
+			double sigValue 	= 	significance.getSignificance(mark);
 
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
 				sigValue = 4.9E-45;
