@@ -69,7 +69,7 @@ public class TTestResultsUI extends VerticalLayout {
 						+ "}");
 
 		NumberXAxis xAxis = new NumberXAxis();
-		xAxis.setTitle(new AxisTitle("FlodChange Log2(ratio)"));
+		xAxis.setTitle(new AxisTitle("Fold Change Log2(ratio)"));
 		xAxis.setStartOnTick(true);
 		xAxis.setEndOnTick(true);
 		xAxis.setShowLastLabel(true);
