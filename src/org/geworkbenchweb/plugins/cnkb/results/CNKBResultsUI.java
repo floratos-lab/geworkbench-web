@@ -12,6 +12,8 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
+import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
+import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -73,13 +75,9 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 	private VerticalSplitPanel tabPanel;
 
-	private ArrayList<Double> interactionConfidence = new ArrayList<Double>();
+	private ArrayList<Double> totalInteractionConfidence = new ArrayList<Double>();
 
-	private ArrayList<Double> ppConfidence = new ArrayList<Double>();
-
-	private ArrayList<Double> pdnaConfidence = new ArrayList<Double>();
-
-	private ArrayList<Double> mtfConfidence = new ArrayList<Double>();
+	private Map<String, List<Double>> confidenceMap = new HashMap<String, List<Double>>();
 
 	private static InvientCharts plot;
 
@@ -118,16 +116,9 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);
 
-		/* Preparing data for cytoscape */
-		ArrayList<String> nodes = new ArrayList<String>();
-		ArrayList<String> edges = new ArrayList<String>();
-
 		IndexedContainer dataIn = new IndexedContainer();
 
-		List<String> selectedTypes = new ArrayList<String>();
-		selectedTypes.add("protein-protein");
-		selectedTypes.add("protein-dna");
-		selectedTypes.add("modulator-TF");
+		List<String> selectedTypes = getInteractionTypes(hits);
 
 		for (int j = 0; j < hits.size(); j++) {
 			Item item = dataIn.addItem(j);
@@ -135,25 +126,17 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 					.getSelectedInteractions(selectedTypes);
 			if (interactionDetail != null) {
 				for (InteractionDetail interaction : interactionDetail) {
-					interactionConfidence.add(interaction
+					totalInteractionConfidence.add(interaction
 							.getConfidenceValue(interaction
 									.getConfidenceTypes().get(0)));
-					if (interaction.getInteractionType().equalsIgnoreCase(
-							"protein-protein")) {
-						ppConfidence.add(interaction
-								.getConfidenceValue(interaction
-										.getConfidenceTypes().get(0)));
-					} else if (interaction.getInteractionType()
-							.equalsIgnoreCase("protein-dna")) {
-						pdnaConfidence.add(interaction
-								.getConfidenceValue(interaction
-										.getConfidenceTypes().get(0)));
-					} else if (interaction.getInteractionType()
-							.equalsIgnoreCase("modulator-TF")) {
-						mtfConfidence.add(interaction
-								.getConfidenceValue(interaction
-										.getConfidenceTypes().get(0)));
+					String interactionType = interaction.getInteractionType();
+					if (confidenceMap.get(interactionType) == null) {
+						List<Double> confidenceList = new ArrayList<Double>();
+						confidenceMap.put(interactionType, confidenceList);
 					}
+					confidenceMap.get(interactionType).add(
+							interaction.getConfidenceValue(interaction
+									.getConfidenceTypes().get(0)));
 				}
 			}
 
@@ -161,10 +144,9 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 			dataIn.addContainerProperty("Gene", String.class, null);
 			dataIn.addContainerProperty("Gene Type", String.class, null);
 			dataIn.addContainerProperty("Annotation", String.class, null);
-			dataIn.addContainerProperty("Modulator-TF #", Integer.class, null);
-			dataIn.addContainerProperty("Protein-DNA #", Integer.class, null);
-			dataIn.addContainerProperty("Protein-Protein #", Integer.class,
-					null);
+			for (String selectedType : selectedTypes)
+				dataIn.addContainerProperty(selectedType + " #", Integer.class,
+						null);
 
 			item.getItemProperty("Marker").setValue(
 					hits.get(j).getdSGeneMarker().getLabel());
@@ -180,15 +162,12 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 					hits.get(j).getGeneType());
 			item.getItemProperty("Annotation").setValue(
 					hits.get(j).getGoInfoStr());
-			item.getItemProperty("Modulator-TF #").setValue(
-					(hits.get(j).getSelectedInteractions("modulator-TF"))
-							.size());
-			item.getItemProperty("Protein-DNA #").setValue(
-					hits.get(j).getSelectedInteractions("protein-dna").size());
-			item.getItemProperty("Protein-Protein #").setValue(
-					hits.get(j).getSelectedInteractions("protein-protein")
-							.size());
-		 
+
+			for (String selectedType : selectedTypes)
+				item.getItemProperty(selectedType + " #").setValue(
+						(hits.get(j).getSelectedInteractions(selectedType))
+								.size());
+
 		}
 
 		dataTable.setContainerDataSource(dataIn);
@@ -209,7 +188,6 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1);
 
-	 
 	}
 
 	/**
@@ -258,17 +236,12 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		seriesData.setSeriesPoints(getTotalDistribution(seriesData));
 		chart.addSeries(seriesData);
 
-		seriesData = new XYSeries("Modulator-TF");
-		seriesData.setSeriesPoints(getModTFDistribution(seriesData));
-		chart.addSeries(seriesData);
+		for (String interactionType : confidenceMap.keySet()) {
+			seriesData = new XYSeries(interactionType);
+			seriesData.setSeriesPoints(getDistribution(interactionType));
+			chart.addSeries(seriesData);
+		}
 
-		seriesData = new XYSeries("Protein-DNA");
-		seriesData.setSeriesPoints(getProteinDNADistribution(seriesData));
-		chart.addSeries(seriesData);
-
-		seriesData = new XYSeries("Protein-Protein");
-		seriesData.setSeriesPoints(getPPDistribution(seriesData));
-		chart.addSeries(seriesData);
 		return chart;
 	}
 
@@ -276,69 +249,20 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 	 * Method is used to calculate the graph points for Protein-Protein
 	 * Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getPPDistribution(XYSeries seriesData) {
+	private LinkedHashSet<DecimalPoint> getDistribution(String interactionType) {
 
+		XYSeries seriesData = new XYSeries(interactionType);
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
 		Double x = null;
 		Double y = null;
 		int[] distribution = new int[101];
-		for (int m = 0; m < ppConfidence.size(); m++) {
-			int confidence = (int) ((ppConfidence.get(m)) * 100);
-			if (confidence <= distribution.length && confidence >= 0) {
-				for (int i = 0; i <= confidence; i++) {
-					distribution[i]++;
-				}
-			}
-		}
-		x = 0.005d;
-		for (int j = 0; j < distribution.length; j++) {
-			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
-			x = x + 0.01d;
-		}
-		return points;
-	}
 
-	/**
-	 * Method is used to calculate the graph points for Protein-DNA interactions
-	 */
-	private LinkedHashSet<DecimalPoint> getProteinDNADistribution(
-			XYSeries seriesData) {
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
-
-		Double x = null;
-		Double y = null;
-		int[] distribution = new int[101];
-		for (int m = 0; m < pdnaConfidence.size(); m++) {
-			int confidence = (int) ((pdnaConfidence.get(m)) * 100);
-			if (confidence <= distribution.length && confidence >= 0) {
-				for (int i = 0; i <= confidence; i++) {
-					distribution[i]++;
-				}
-			}
-		}
-		x = 0.005d;
-		for (int j = 0; j < distribution.length; j++) {
-			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
-			x = x + 0.01d;
-		}
-		return points;
-	}
-
-	/**
-	 * Method is used to calculate the graph points for Modulator-TF
-	 * Interactions
-	 */
-	private LinkedHashSet<DecimalPoint> getModTFDistribution(XYSeries seriesData) {
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
-
-		Double x = null;
-		Double y = null;
-		int[] distribution = new int[101];
-		for (int m = 0; m < mtfConfidence.size(); m++) {
-			int confidence = (int) ((mtfConfidence.get(m)) * 100);
-			if (confidence <= distribution.length && confidence >= 0) {
+		List<Double> confidenceList = confidenceMap.get(interactionType);
+		for (int m = 0; m < confidenceList.size(); m++) {
+			int confidence = (int) ((confidenceList.get(m)) * 100);
+			//To do: need to fix later for those confidence value > 1
+			if (confidence > 100) confidence = 100;
+			if (confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
@@ -364,9 +288,11 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		Double y = null;
 		int[] distribution = new int[101];
 
-		for (int m = 0; m < interactionConfidence.size(); m++) {
-			int confidence = (int) ((interactionConfidence.get(m)) * 100);
-			if (confidence <= distribution.length && confidence >= 0) {
+		for (int m = 0; m < totalInteractionConfidence.size(); m++) {
+			int confidence = (int) ((totalInteractionConfidence.get(m)) * 100);
+			//To do: need to fix later for those confidence value > 1
+			if (confidence > 100) confidence = 100;
+			if (confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
@@ -498,5 +424,50 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 		}
 	}
+
+	private List<String> getInteractionTypes(
+			Vector<CellularNetWorkElementInformation> hits) {
+
+		if (ResultSetlUtil.getUrl() == null)
+			loadApplicationProperty();
+		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+		List<String> allInteractionTypes = null;
+		try {
+			allInteractionTypes = interactionsConnection.getInteractionTypes();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<String> selectedTypes = new ArrayList<String>();
+
+		for (int j = 0; j < hits.size(); j++) {
+
+			ArrayList<InteractionDetail> interactionDetail = hits.get(j)
+					.getSelectedInteractions(allInteractionTypes);
+			if (interactionDetail != null) {
+				for (InteractionDetail interaction : interactionDetail) {
+					String interactionType = interaction.getInteractionType();
+					if (selectedTypes.contains(interactionType))
+						continue;
+					else
+						selectedTypes.add(interactionType);
+
+				}
+			}
+		}
+
+		return selectedTypes;
+	}
+	
+	/**
+	 * Create a connection with the server.
+	 */
+	private void loadApplicationProperty() {
+		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";		 
+		ResultSetlUtil.setUrl(interactionsServletUrl);
+		ResultSetlUtil.setTimeout(3000);
+		 
+	}
+	
+	
 
 }
