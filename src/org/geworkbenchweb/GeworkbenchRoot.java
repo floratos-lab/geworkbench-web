@@ -17,6 +17,8 @@ import org.geworkbenchweb.plugins.anova.Anova;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.geworkbenchweb.plugins.aracne.Aracne;
 import org.geworkbenchweb.plugins.aracne.AracneUI;
+import org.geworkbenchweb.plugins.cnkb.CNKB;
+import org.geworkbenchweb.plugins.cnkb.CNKBUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -173,7 +175,8 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}	
 
-	// TODO 1. decide to register class or instance; 2. we can also use configuration file (say, pluginx.xml) to control the registration
+	// TODO compare whether registration of class is a better idea than doing it for instance; 
+	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-ins
 	private void registerPlugins() {
 		PluginRegistry pr = new PluginRegistry();
 		pr.register(new Anova(), new AnovaUI(0L));
@@ -188,6 +191,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 			pr = new PluginRegistry();
 			pr.register(new Anova(), new AnovaUI(0L));
 			pr.register(new Aracne(), new AracneUI(0L));
+			pr.register(new CNKB(), new CNKBUI(0L));
 			pluginRegistry.set(pr);
 		}
 		return pr;

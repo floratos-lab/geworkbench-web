@@ -84,11 +84,6 @@ public class ToolsUI extends VerticalLayout {
 				"component.");
 		// MARINa
 		buildOneItem("MARINa", "MARINa Analysis");
-		// CNKB
-		buildOneItem("CNKB", "The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions, " +
-				"including ones both computationally and experimentally derived. Sources for interactions " +
-				"include both publicly available databases such as BioGRID and HPRD, as well as reverse-engineered " +
-				"cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.");
 		//MarkUs
 		buildOneItem("MarkUs", "MarkUs is a web server to assist the assessment of the biochemical function " +
 				"for a given protein structure. MarkUs identifies related protein structures " +

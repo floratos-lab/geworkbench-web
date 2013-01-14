@@ -15,6 +15,7 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -37,7 +38,7 @@ import com.vaadin.ui.themes.Reindeer;
  * @author Nikhil
  * 
  */
-public class CNKBUI extends VerticalLayout {
+public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = -1221913812891134388L;
 	
@@ -48,8 +49,6 @@ public class CNKBUI extends VerticalLayout {
 	private List<String> contextList = new ArrayList<String>();
 	
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
-	
-	private DSMicroarraySet maSet;
 	
 	User user = SessionHandler.get();
 	
@@ -62,11 +61,12 @@ public class CNKBUI extends VerticalLayout {
 		this.setSpacing(true);
 	}
 	
+	// FIXME why the GUI implementation of this analysis is different from other analysis plug-ins
 	public void attach() {
 		
 		super.attach();
 		loadApplicationProperty();
-		this.maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
 		try {
@@ -226,5 +226,11 @@ public class CNKBUI extends VerticalLayout {
 		his.setParent(resultSet.getId());
 		his.setData(ObjectConversion.convertToByte(mark.toString()));
 		FacadeFactory.getFacade().store(his);
+	}
+
+	@Override
+	public void setDataSetId(Long dataId) {
+		this.dataSetId = dataId;
+		this.removeAllComponents();
 	}
 }

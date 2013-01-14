@@ -182,73 +182,6 @@ public class MicroarrayUI extends VerticalLayout {
 		marinaLayout.addComponent(marina);
 	    marinaLayout.addComponent(marinaButton);
 		
-	    /**
-	     * CNKB
-	     */
-		Button cnkb 	= 	new Button("CNKB", new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("CNKB", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
-			}
-		});
-	    final GridLayout cnkbLayout = new GridLayout();
-	    cnkbLayout.setColumns(2);
-	    cnkbLayout.setRows(2);
-	    cnkbLayout.setSizeFull();
-	    cnkbLayout.setImmediate(true);
-	    cnkbLayout.setColumnExpandRatio(1, 1.0f);
-
-		final FancyCssLayout cnkbCssLayout = new FancyCssLayout();
-		cnkbCssLayout.setWidth("95%");
-		cnkbCssLayout.setSlideEnabled(true);
-		cnkbCssLayout.addStyleName("lay");
-		
-		final Label cnkbText = new Label(
-				"<p align = \"justify\">The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions, " +
-				"including ones both computationally and experimentally derived. Sources for interactions " +
-				"include both publicly available databases such as BioGRID and HPRD, as well as reverse-engineered " +
-				"cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.</p>");
-		cnkbText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button cnkbButton = new Button();
-		final Button cnkbCancelButton = new Button();
-		cnkbButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cnkbCssLayout.removeAllComponents();
-				cnkbLayout.removeComponent(cnkbButton);
-				cnkbLayout.addComponent(cnkbCancelButton, 1, 0);
-				cnkbCssLayout.addComponent(cnkbText);
-				cnkbLayout.addComponent(cnkbCssLayout, 0, 1, 1, 1);
-			}
-		});
-		cnkbCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cnkbCssLayout.removeAllComponents();
-				cnkbLayout.removeComponent(cnkbCancelButton);
-				cnkbLayout.addComponent(cnkbButton, 1, 0);
-				cnkbLayout.removeComponent(cnkbCssLayout);
-			}
-		});
-		
-		cnkbButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cnkbButton.setIcon(ICON);
-		cnkbCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cnkbCancelButton.setIcon(CancelIcon);
-		addComponent(cnkbLayout);
-		cnkbLayout.setSpacing(true);
-		cnkbLayout.addComponent(cnkb);
-		cnkbLayout.addComponent(cnkbButton);
-		
 		/*
 		 * Differential Expression (TTest)
 		 */
@@ -315,7 +248,6 @@ public class MicroarrayUI extends VerticalLayout {
 		ttestLayout.addComponent(ttestButton);
 		
 		marina.setStyleName(Reindeer.BUTTON_LINK);
-		cnkb.setStyleName(Reindeer.BUTTON_LINK);
 		hc.setStyleName(Reindeer.BUTTON_LINK);
 		ttest.setStyleName(Reindeer.BUTTON_LINK);
 		
