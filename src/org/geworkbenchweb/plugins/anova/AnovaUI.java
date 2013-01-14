@@ -13,6 +13,7 @@ import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -47,7 +48,7 @@ import com.vaadin.terminal.UserError;
  * 
  * @author Min You
  */
-public class AnovaUI extends VerticalLayout {
+public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = -738580934848570913L;
  
@@ -498,6 +499,7 @@ public class AnovaUI extends VerticalLayout {
 
 
 	// TODO this is not a final design. needed only if we decide to reuse the instance
+	@Override
 	public void setDataSetId(Long dataSetId) {
 		User user = SessionHandler.get();
 		if (user != null) {

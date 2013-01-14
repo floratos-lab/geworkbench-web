@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.vaadin.ui.AbstractComponentContainer;
-
 /**
  * Central control of all Plug-ins. 
  * 
@@ -20,18 +18,9 @@ import com.vaadin.ui.AbstractComponentContainer;
  */
 public class PluginRegistry {
 	
-	static private PluginRegistry INSTANCE = new PluginRegistry();
-	private Map<Analysis, AbstractComponentContainer> analysisMap = new HashMap<Analysis, AbstractComponentContainer>();
+	private Map<Analysis, AnalysisUI> analysisMap = new HashMap<Analysis, AnalysisUI>();
 
-	private PluginRegistry() {
-		
-	}
-	
-	static public PluginRegistry getInstance() {
-		return INSTANCE;
-	}
-	
-	public void register(Analysis a, AbstractComponentContainer analysisUI) {
+	public void register(Analysis a, AnalysisUI analysisUI) {
 		analysisMap.put(a, analysisUI);
 	}
 	
@@ -48,7 +37,7 @@ public class PluginRegistry {
 		*/
 	}
 	
-	public AbstractComponentContainer getUI(Analysis a) {
+	public AnalysisUI getUI(Analysis a) {
 		return analysisMap.get(a);
 	}
 }

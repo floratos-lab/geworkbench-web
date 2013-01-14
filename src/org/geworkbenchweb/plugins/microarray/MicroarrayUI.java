@@ -5,12 +5,10 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.plugins.Analysis;
-import org.geworkbenchweb.plugins.PluginRegistry;
-import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.AbstractComponentContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -37,86 +35,15 @@ public class MicroarrayUI extends VerticalLayout {
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
-		
-		/**
-		 * ARACNE
-		 */
-		Button aracne 	= 	new Button("ARACNe", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("Aracne", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
-			}
-		});
-		final GridLayout aracneLayout = new GridLayout();
-		aracneLayout.setColumns(2);
-		aracneLayout.setRows(2);
-		aracneLayout.setSizeFull();
-		aracneLayout.setImmediate(true);
-		aracneLayout.setColumnExpandRatio(1, 1.0f);
-		final Label aracneText = new Label(
-				"<p align= \"justify\">ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
-				"(Basso 2005, Margolin 2006a, 2006b) is an information-theoretic algorithm used " +
-				"to identify transcriptional interactions between gene products using microarray " +
-				"gene expression profile data.</p>");
-		aracneText.setContentMode(Label.CONTENT_XHTML);
+		// loop through all analysis plug-ins
+		// TODO convert all other analysis plug-ins other ANOVA later
+		for(final Analysis analysis : GeworkbenchRoot.getPluginRegistry().getAnalysisList()) {
 		
-		final FancyCssLayout cssLayout = new FancyCssLayout();
-		cssLayout.setSlideEnabled(true);
-		cssLayout.setWidth("95%");
-		cssLayout.addStyleName("lay");
-		
-		final Button aracneButton 		= 	new Button();
-		final Button aracneCancelButton = 	new Button();
-		
-		aracneButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cssLayout.removeAllComponents();
-				aracneLayout.removeComponent(aracneButton);
-				aracneLayout.addComponent(aracneCancelButton, 1, 0);
-				cssLayout.addComponent(aracneText);
-				aracneLayout.addComponent(cssLayout, 0, 1, 1, 1);
-			}
-		});
-		aracneCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				cssLayout.removeAllComponents();
-				aracneLayout.removeComponent(aracneCancelButton);
-				aracneLayout.addComponent(aracneButton, 1, 0);
-				aracneLayout.removeComponent(cssLayout);
-			}
-		});
-	
-		aracneButton.setStyleName(BaseTheme.BUTTON_LINK);
-		aracneButton.setIcon(ICON);
-		aracneCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		aracneCancelButton.setIcon(CancelIcon);
-		addComponent(aracneLayout);
-		aracneLayout.setSpacing(true);
-		aracneLayout.addComponent(aracne);
-	    aracneLayout.addComponent(aracneButton);
-	    
-	    /** 
-	     * ANOVA 
-	     */
-		// TODO convert other analysis plug-ins other ANOVA later
-		for(final Analysis analysis : PluginRegistry.getInstance().getAnalysisList()) {
-		
-			final AbstractComponentContainer analysisUI = PluginRegistry.getInstance().getUI(analysis);
+			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
 			buildOneItem(analysis, analysisUI);
 
-		} // TODO this loops for now only contains ANOVA
+		}
 		
 	    /** 
 	     * Hierarchial Clustering 
@@ -387,7 +314,6 @@ public class MicroarrayUI extends VerticalLayout {
 		ttestLayout.addComponent(ttest);
 		ttestLayout.addComponent(ttestButton);
 		
-		aracne.setStyleName(Reindeer.BUTTON_LINK);
 		marina.setStyleName(Reindeer.BUTTON_LINK);
 		cnkb.setStyleName(Reindeer.BUTTON_LINK);
 		hc.setStyleName(Reindeer.BUTTON_LINK);
@@ -486,16 +412,16 @@ public class MicroarrayUI extends VerticalLayout {
 	// I will re-write it gradually while maintaining so not to break the observable behavior. 
 	@SuppressWarnings("deprecation")
 	private void showAnalysisParameterPanel(Analysis analysis,
-			AbstractComponentContainer analysisUI, Long dataSetId) {
+			AnalysisUI analysisUI, Long dataSetId) {
 
 		Component layoutToBeUpdated = this.getParent().getParent(); // pluginLayout
 
-		if (!(analysisUI instanceof AnovaUI)) {
+		if (!(analysisUI instanceof AnalysisUI)) {
 			log.warn(analysisUI.getClass() + " not supported yet.");
 			return; // TODO all analysis UIs need to implement necessary method,
 					// e.g. setDataSetId
 		}
-		AnovaUI ui = (AnovaUI) analysisUI;
+		AnalysisUI ui = (AnalysisUI) analysisUI;
 		ui.setDataSetId(dataId);
 
 		HorizontalLayout pluginLayout = (HorizontalLayout) layoutToBeUpdated;
@@ -577,10 +503,10 @@ public class MicroarrayUI extends VerticalLayout {
 			"../runo/icons/16/cancel.png");
 
 	// build one item and add to the UI
-	// TODO this is copied from ToolsUI, but exactly the same, especially that this needs to trigger the actual analysis.
+	// TODO this is copied from ToolsUI, but not exactly the same, especially that this needs to trigger the actual analysis.
 	// the version in ToolsUI should not have the misleading link looking
 	private void buildOneItem(final Analysis analysis,
-			final AbstractComponentContainer analysisUI) {
+			final AnalysisUI analysisUI) {
 
 		final ItemLayout itemLayout = new ItemLayout();
 		final Button infoButton = new Button();

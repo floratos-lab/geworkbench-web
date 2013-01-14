@@ -15,6 +15,8 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.geworkbenchweb.plugins.anova.Anova;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.aracne.Aracne;
+import org.geworkbenchweb.plugins.aracne.AracneUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -32,6 +34,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	
 	private static final long serialVersionUID = 6853924772669700361L;
 	
+	private static ThreadLocal<PluginRegistry> pluginRegistry		= 	new ThreadLocal<PluginRegistry>();
 	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
 	private static ThreadLocal<ICEPush> PUSHER 						= 	new ThreadLocal<ICEPush>();
 	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
@@ -172,8 +175,22 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 
 	// TODO 1. decide to register class or instance; 2. we can also use configuration file (say, pluginx.xml) to control the registration
 	private void registerPlugins() {
-		PluginRegistry pr = PluginRegistry.getInstance();
+		PluginRegistry pr = new PluginRegistry();
 		pr.register(new Anova(), new AnovaUI(0L));
+		pr.register(new Aracne(), new AracneUI(0L));
+		pluginRegistry.set(pr);
+	}
+
+	// TODO verify when .get() returns null and reconcile with the explicit register method above
+	public static PluginRegistry getPluginRegistry() {
+		PluginRegistry pr = pluginRegistry.get();
+		if(pr==null) {
+			pr = new PluginRegistry();
+			pr.register(new Anova(), new AnovaUI(0L));
+			pr.register(new Aracne(), new AracneUI(0L));
+			pluginRegistry.set(pr);
+		}
+		return pr;
 	}
 }
 

@@ -2,8 +2,8 @@ package org.geworkbenchweb.plugins.tools;
 
 import java.util.List;
 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.Analysis;
-import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
@@ -61,7 +61,7 @@ public class ToolsUI extends VerticalLayout {
 
 		setSpacing(true);
 		
-		List<Analysis> analysisList = PluginRegistry.getInstance().getAnalysisList();
+		List<Analysis> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList();
 		
 		// first part: analysis
 		Label analysisLabel = new Label("Analysis Available");
@@ -69,20 +69,11 @@ public class ToolsUI extends VerticalLayout {
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
 		
-		// TODO convert other analysis plugins besides anova
+		// TODO convert other analysis plugins
 		for(Analysis a : analysisList) {
 			buildOneItem(a.getName(), a.getDescription());
 		}
 		
-//		// anova
-//		buildOneItem("Anova", "The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
-//				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
-//				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.");
-		// ARACNe
-		buildOneItem("ARACNe", "ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
-				"(Basso 2005, Margolin 2006a, 2006b) is an information-theoretic algorithm used " +
-				"to identify transcriptional interactions between gene products using microarray " +
-				"gene expression profile data.");
 		// hierarchical clustering
 		buildOneItem("Hierarchical Clustering", "Hierarchical clustering is a method to group arrays and/or markers together based on similarity " +
 				"on their expression profiles. geWorkbench implements its own code for agglomerative hierarchical " +

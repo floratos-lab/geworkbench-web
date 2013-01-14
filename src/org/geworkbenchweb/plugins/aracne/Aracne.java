@@ -1,17 +1,11 @@
 package org.geworkbenchweb.plugins.aracne;
 
-import org.geworkbenchweb.layout.VisualPlugin;
+import org.geworkbenchweb.plugins.Analysis;
 
-public class Aracne extends VisualPlugin {
+public class Aracne implements Analysis {
 
-	private Long dataSetId;
-
-	public Aracne(Long dataSetId) {
-		this.dataSetId = dataSetId;
-	}
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "ARACNe";
 	}
 
@@ -22,17 +16,4 @@ public class Aracne extends VisualPlugin {
 				"\nto identify transcriptional interactions between gene products using microarray " +
 				"\ngene expression profile data.\n\n";
 	}
-
-	@Override
-	public boolean checkForVisualizer() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Long getDataSetId() {
-		// TODO Auto-generated method stub
-		return dataSetId;
-	}
-
 }

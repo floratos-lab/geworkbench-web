@@ -13,6 +13,7 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -30,11 +31,11 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 
-public class AracneUI extends GridLayout {
+public class AracneUI extends GridLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Long dataSetId;
+	private Long dataSetId;
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
@@ -69,7 +70,6 @@ public class AracneUI extends GridLayout {
 		/**
 		 * Params default values
 		 */
-
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
 		params.put(AracneParameters.HUB_MARKER_SET, "All vs. All");
@@ -92,17 +92,6 @@ public class AracneUI extends GridLayout {
 		markerSetSelect.setColumns(15);
 		markerSetSelect.setImmediate(true);
 
-		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
-
-		markerSetSelect.addItem("All Markers");
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
-			markerSetSelect.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}
-		markerSetSelect.select("All Markers");
-
 		markerSetSelect.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -116,17 +105,6 @@ public class AracneUI extends GridLayout {
 		arraySetSelect.setRows(5);
 		arraySetSelect.setColumns(15);
 		arraySetSelect.setImmediate(true);
-
-		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
-
-		arraySetSelect.addItem("All Arrays");
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
-			arraySetSelect.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
-		arraySetSelect.select("All Arrays");
 
 		arraySetSelect.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -142,15 +120,6 @@ public class AracneUI extends GridLayout {
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
 		hubGeneMarkerSetBox.setImmediate(true);
 
-		hubGeneMarkerSetBox.addItem("All vs. All");
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			hubGeneMarkerSetBox
-					.addItem(((SubSet) markerSubSets.get(m)).getId());
-			hubGeneMarkerSetBox.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}
-		// hubGeneMarkerSetBox.select("All vs. All");
 
 		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -334,12 +303,6 @@ public class AracneUI extends GridLayout {
 		dpiTargetSetBox.setImmediate(true);
 		dpiTargetSetBox.setEnabled(false);
 
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			dpiTargetSetBox.addItem(((SubSet) markerSubSets.get(m)).getId());
-			dpiTargetSetBox.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}
 
 		dpiTargetSetBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -598,4 +561,51 @@ public class AracneUI extends GridLayout {
 		return true;
 	}
 
+	@Override
+	public void setDataSetId(Long dataSetId) {
+		this.dataSetId = dataSetId;
+
+		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
+
+		markerSetSelect.removeAllItems();
+		markerSetSelect.addItem("All Markers");
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
+			markerSetSelect.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
+		}
+		markerSetSelect.select("All Markers");
+
+		hubGeneMarkerSetBox.removeAllItems();
+		hubGeneMarkerSetBox.addItem("All vs. All");
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			hubGeneMarkerSetBox
+					.addItem(((SubSet) markerSubSets.get(m)).getId());
+			hubGeneMarkerSetBox.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
+		}
+		// hubGeneMarkerSetBox.select("All vs. All");
+		
+		dpiTargetSetBox.removeAllItems();
+		for (int m = 0; m < (markerSubSets).size(); m++) {
+			dpiTargetSetBox.addItem(((SubSet) markerSubSets.get(m)).getId());
+			dpiTargetSetBox.setItemCaption(
+					((SubSet) markerSubSets.get(m)).getId(),
+					((SubSet) markerSubSets.get(m)).getName());
+		}
+
+		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
+
+		arraySetSelect.removeAllItems();
+		arraySetSelect.addItem("All Arrays");
+		for (int m = 0; m < (arraySubSets).size(); m++) {
+			arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
+			arraySetSelect.setItemCaption(
+					((SubSet) arraySubSets.get(m)).getId(),
+					((SubSet) arraySubSets.get(m)).getName());
+		}
+		arraySetSelect.select("All Arrays");
+	}
 }
