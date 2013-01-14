@@ -2,7 +2,6 @@ package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
 import java.util.LinkedHashSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -53,8 +52,6 @@ public class TTestResultsUI extends VerticalLayout {
 	 * This method draws the Volcano plot using Invient Charts Add-on.
 	 */
 	private InvientCharts drawPlot() {
-
-		DSMicroarraySet set 	= 	significance.getParentDataSet();
 
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
@@ -110,7 +107,7 @@ public class TTestResultsUI extends VerticalLayout {
 			
 			DSGeneMarker mark 	= 	significance.getSignificantMarkers().get(i);
 			double sigValue 	= 	significance.getSignificance(mark);
-
+			
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
 				sigValue = 4.9E-45;
 			} 
@@ -157,7 +154,7 @@ public class TTestResultsUI extends VerticalLayout {
 
 			PointConfig aCfg = new PointConfig(pMarker);
 			a.setConfig(aCfg);
-			a.setName(set.getMarkers().get(i).getLabel());
+			a.setName(significance.getSignificantMarkers().get(i).getLabel());
 			newPoints.add(a);
 		}
 		series.setSeriesPoints(newPoints);
