@@ -44,78 +44,7 @@ public class MicroarrayUI extends VerticalLayout {
 			buildOneItem(analysis, analysisUI);
 
 		}
-		
-	    /** 
-	     * Hierarchial Clustering 
-	     */
-	    final GridLayout hcLayout = new GridLayout();
-	    hcLayout.setColumns(2);
-	    hcLayout.setRows(2);
-	    hcLayout.setSizeFull();
-	    hcLayout.setImmediate(true);
-	    hcLayout.setColumnExpandRatio(1, 1.0f);
-		Button hc		=	new Button("Hierarchical Clustering", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("HierarchicalClustering", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
-			}
-		});
-		final FancyCssLayout hcCssLayout = new FancyCssLayout();
-		hcCssLayout.setWidth("95%");
-		hcCssLayout.setSlideEnabled(true);
-		hcCssLayout.addStyleName("lay");
-		final Label hcText = new Label(
-				"<p align= \"justify\">Hierarchical clustering is a method to group arrays and/or markers together based on similarity " +
-				"on their expression profiles. geWorkbench implements its own code for agglomerative hierarchical " +
-				"clustering. Starting from individual points (the leaves of the tree), nearest neighbors are found " +
-				"for individual points, and then for groups of points, at each step building up a branched " +
-				"structure that converges toward a root that contains all points. The resulting graph tends to " +
-				"group similar items together. Results of hierarchical clustering are displayed in the Dendrogram " +
-				"component.</p>");
-		hcText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button hcButton 		= 	new Button();
-		final Button hcCancelButton = 	new Button();
-		
-		hcButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				hcCssLayout.removeAllComponents();
-				hcLayout.removeComponent(hcButton);
-				hcLayout.addComponent(hcCancelButton, 1, 0);
-				hcCssLayout.addComponent(hcText);
-				hcLayout.addComponent(hcCssLayout, 0, 1, 1, 1);
-			}
-		});
-		hcCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				hcCssLayout.removeAllComponents();
-				hcLayout.removeComponent(hcCancelButton);
-				hcLayout.addComponent(hcButton, 1, 0);
-				hcLayout.removeComponent(hcCssLayout);
-			}
-		});
-		
-		hcButton.setStyleName(BaseTheme.BUTTON_LINK);
-		hcButton.setIcon(ICON);
-		hcCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		hcCancelButton.setIcon(CancelIcon);
-		addComponent(hcLayout);
-		hcLayout.setSpacing(true);
-		hcLayout.addComponent(hc);
-	    hcLayout.addComponent(hcButton);
-		
 	    /**
 	     * MARINa
 	     */
@@ -248,7 +177,6 @@ public class MicroarrayUI extends VerticalLayout {
 		ttestLayout.addComponent(ttestButton);
 		
 		marina.setStyleName(Reindeer.BUTTON_LINK);
-		hc.setStyleName(Reindeer.BUTTON_LINK);
 		ttest.setStyleName(Reindeer.BUTTON_LINK);
 		
 		Label vis = new Label("Visualizations Available");

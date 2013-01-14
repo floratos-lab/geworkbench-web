@@ -19,6 +19,8 @@ import org.geworkbenchweb.plugins.aracne.Aracne;
 import org.geworkbenchweb.plugins.aracne.AracneUI;
 import org.geworkbenchweb.plugins.cnkb.CNKB;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClustering;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -79,7 +81,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		setMainWindow(mainWindow);
 		
 		registerAllEventsForApplication();
-		registerPlugins();
 		
 		if (user != null) {
 			initView();
@@ -177,14 +178,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 
 	// TODO compare whether registration of class is a better idea than doing it for instance; 
 	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-ins
-	private void registerPlugins() {
-		PluginRegistry pr = new PluginRegistry();
-		pr.register(new Anova(), new AnovaUI(0L));
-		pr.register(new Aracne(), new AracneUI(0L));
-		pluginRegistry.set(pr);
-	}
-
-	// TODO verify when .get() returns null and reconcile with the explicit register method above
+	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
 		PluginRegistry pr = pluginRegistry.get();
 		if(pr==null) {
@@ -192,6 +186,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 			pr.register(new Anova(), new AnovaUI(0L));
 			pr.register(new Aracne(), new AracneUI(0L));
 			pr.register(new CNKB(), new CNKBUI(0L));
+			pr.register(new HierarchicalClustering(), new HierarchicalClusteringUI(0L));
 			pluginRegistry.set(pr);
 		}
 		return pr;

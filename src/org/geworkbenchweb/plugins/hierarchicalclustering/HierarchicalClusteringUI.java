@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -32,7 +33,7 @@ import com.vaadin.ui.VerticalLayout;
  * @author Nikhil Reddy
  *
  */
-public class HierarchicalClusteringUI extends VerticalLayout {
+public class HierarchicalClusteringUI extends VerticalLayout implements AnalysisUI {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
@@ -42,9 +43,7 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 	
 	private String clustMetric = "Euclidean Distance";
 	
-	private final Long dataSetId;
-	
-	private DSMicroarraySet maSet;
+	private Long dataSetId;
 	
 	private ResultSet resultSet;
 	
@@ -53,7 +52,6 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 	public HierarchicalClusteringUI(Long dataId) {
 		
 		this.dataSetId = dataId;
-		maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		
 		setImmediate(true);
 		setSpacing(true);
@@ -62,10 +60,6 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		ComboBox clusterDim 	= 	new ComboBox();
 		ComboBox clusterMetric 	= 	new ComboBox();
 		
-		// the following section of code is copied from ANOVA component
-		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
-		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
-
 		markerSetSelect = new ListSelect("Select Marker Sets:");
 		markerSetSelect.setMultiSelect(true);
 		markerSetSelect.setRows(5);
@@ -83,22 +77,6 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		arraySetSelect.setImmediate(true);
 		arraySetSelect.addItem("");
 		arraySetSelect.setItemCaption("", "All microarrays");
-
-		if (subMarkerSets != null)
-			for (int m = 0; m < (subMarkerSets).size(); m++) {
-
-				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m)).getId());
-				markerSetSelect.setItemCaption(((SubSet) subMarkerSets.get(m)).getId(), ((SubSet) subMarkerSets.get(m)).getName());
-
-			}
-
-		if (subArraySets != null)
-			for (int m = 0; m < (subArraySets).size(); m++) {
-
-				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId().longValue());
-				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
-				
-			}
 
 		final GridLayout gridLayout1 = new GridLayout(2, 2);
 		gridLayout1.setSpacing(true);
@@ -194,7 +172,8 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
-					generateHistoryString();
+					final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+					generateHistoryString(maSet);
 					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
@@ -284,7 +263,7 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		}
 	}
 	
-	private void generateHistoryString() {
+	private void generateHistoryString(DSMicroarraySet maSet) {
 		StringBuilder mark = new StringBuilder();
 		
 		mark.append("Hierarchical Clustering Parameters : \n");
@@ -306,6 +285,39 @@ public class HierarchicalClusteringUI extends VerticalLayout {
 		his.setParent(resultSet.getId());
 		his.setData(ObjectConversion.convertToByte(mark.toString()));
 		FacadeFactory.getFacade().store(his);
+	}
+
+	@Override
+	public void setDataSetId(Long dataId) {
+		this.dataSetId = dataId;
+		
+		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
+		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
+		
+		markerSetSelect.removeAllItems();
+		markerSetSelect.addItem("");
+		markerSetSelect.setItemCaption("", "All markers");
+
+		arraySetSelect.removeAllItems();
+		arraySetSelect.addItem("");
+		arraySetSelect.setItemCaption("", "All microarrays");
+		
+		if (subMarkerSets != null)
+			for (int m = 0; m < (subMarkerSets).size(); m++) {
+
+				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m)).getId());
+				markerSetSelect.setItemCaption(((SubSet) subMarkerSets.get(m)).getId(), ((SubSet) subMarkerSets.get(m)).getName());
+
+			}
+
+		if (subArraySets != null)
+			for (int m = 0; m < (subArraySets).size(); m++) {
+
+				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId().longValue());
+				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
+				
+			}
+
 	}
 }
 
