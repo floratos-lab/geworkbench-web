@@ -14,6 +14,7 @@ import java.util.Vector;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
@@ -348,17 +349,6 @@ public class UMainLayout extends VerticalLayout {
 				arrayTree.setDescription("Phenotypes");
 
 				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
-
-				Map<String, Object> parameters = new HashMap<String, Object>();	
-				parameters.put("datasetid", dataSetId);	
-				List<Annotation> annots = FacadeFactory.getFacade().list(
-						"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
-				if (!annots.isEmpty()){
-					APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
-					AnnotationParser.setFromSerializable(aps);
-				}else {
-					AnnotationParser.setCurrentDataSet(maSet);
-				}
 
 				markerTree.setContainerDataSource(markerTableView(maSet));
 				arrayTree.setContainerDataSource(arrayTableView(maSet));
@@ -905,6 +895,21 @@ public class UMainLayout extends VerticalLayout {
 							@SuppressWarnings("rawtypes")
 							Class aClass = classLoader.loadClass(loadClass);
 							dataSetId = (Long) event.getProperty().getValue();
+							
+							if (className.equals("Microarray")){
+								DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+								Map<String, Object> parameters = new HashMap<String, Object>();	
+								parameters.put("datasetid", dataSetId);	
+								List<Annotation> annots = FacadeFactory.getFacade().list(
+										"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
+								if (!annots.isEmpty()){
+									APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
+									AnnotationParser.setFromSerializable(aps);
+								}else {
+									AnnotationParser.setCurrentDataSet(maSet);
+								}
+								((CSMicroarraySet)maSet).getMarkers().correctMaps();
+							}
 
 							f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
 							removeComponent(annotationLayout);

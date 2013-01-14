@@ -8,7 +8,9 @@ import java.util.Map;
 
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyGeneExonStAnnotationParser;
@@ -89,8 +91,13 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					.getFacade()
 					.list("Select a from Annotation as a where a.name=:name and a.owner is NULL",
 							parameters);
-			if (!annots.isEmpty())
-				return annots.get(0).getId();
+			if (!annots.isEmpty()){
+				Long aid = annots.get(0).getId();
+				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
+				AnnotationParser.setFromSerializable(aps);
+				((CSMicroarraySet)dataSet).getMarkers().correctMaps();
+				return aid;
+			}
 		}
 		// if user's annotation exists, return it
 		else {
@@ -99,8 +106,13 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					.getFacade()
 					.list("Select a from Annotation as a where a.name=:name and a.owner=:owner",
 							parameters);
-			if (!annots.isEmpty())
-				return annots.get(0).getId();
+			if (!annots.isEmpty()){
+				Long aid = annots.get(0).getId();
+				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
+				AnnotationParser.setFromSerializable(aps);
+				((CSMicroarraySet)dataSet).getMarkers().correctMaps();
+				return aid;
+			}
 			if (annotType == null){
 				Log.warn("Private annotation "+annotFile.getName()+" not found in database.");
 				return null;
