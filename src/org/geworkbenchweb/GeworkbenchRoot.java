@@ -43,12 +43,12 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	private static ThreadLocal<ICEPush> PUSHER 						= 	new ThreadLocal<ICEPush>();
 	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
 	
-	private final Blackboard blackboardInstance 			= 	new Blackboard();
-	private final ICEPush pusherInstance 					=	new ICEPush();
+	private final Blackboard blackboardInstance 		= 	new Blackboard();
+	private final ICEPush pusherInstance 				=	new ICEPush();
 	
-	private static final String SAMPLER_THEME_NAME 			= 	"geworkbench";
-	private static final String PROPERTIES_FILE = "application.properties";
-    private static String APP_URL 							= 	null;
+	private static final String APP_THEME_NAME 			= 	"geworkbench";
+	private static final String PROPERTIES_FILE 		= 	"application.properties";
+    private static String APP_URL 						= 	null;
 	
 	private Window mainWindow;
 	
@@ -71,7 +71,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		BLACKBOARD.set(blackboardInstance);
 		PUSHER.set(pusherInstance);
 		
-		setTheme(SAMPLER_THEME_NAME);
+		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
 		
 		User user 	= 	SessionHandler.get();
@@ -97,16 +97,18 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
     public static String getThemeBase() {
         try {
             URI uri = new URI(APP_URL + "../VAADIN/themes/"
-                    + SAMPLER_THEME_NAME + "/");
+                    + APP_THEME_NAME + "/");
             return uri.normalize().toString();
         } catch (Exception e) {
             System.err.println("Theme location could not be resolved:" + e);
         }
-        return "/VAADIN/themes/" + SAMPLER_THEME_NAME + "/";
+        return "/VAADIN/themes/" + APP_THEME_NAME + "/";
     }
 		
 	public void loginView() {
-		mainWindow.setContent(new UUserAuth());
+		UUserAuth auth = new UUserAuth(); 
+		auth.buildLoginForm();
+		mainWindow.setContent(auth);
 	}
 	
 	public void initView()  {

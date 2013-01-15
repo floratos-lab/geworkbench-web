@@ -4,6 +4,7 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.UserDirUtils;
+import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -20,11 +21,11 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
@@ -46,30 +47,31 @@ public class UUserAuth extends VerticalLayout {
 	public UUserAuth() {
 		setSizeFull();
 		addStyleName("background");
-		addComponent(buildLoginForm());
 	}
 
 	/*
 	 *  Here we are building login screen
 	 */
-	public Layout buildLoginForm() {
-
-		final VerticalLayout content 		= 	new VerticalLayout();
-		final Panel loginPanel 				= 	new Panel();
-		final FormLayout layout 			= 	new FormLayout();
+	public void buildLoginForm() {
+		
+		final VerticalLayout layout 		= 	new VerticalLayout();
+		final VerticalLayout loginPanel		=	new VerticalLayout();
 		final Label feedbackLabel 			= 	new Label();        
-		final TextField usernameField 		= 	new TextField("Username");
-		final PasswordField passwordField 	= 	new PasswordField("Password");
+		final TextField usernameField 		= 	new TextField();
+		final PasswordField passwordField 	= 	new PasswordField();
 		
 		usernameField.setWidth("145px");
+		usernameField.setInputPrompt("Username");
 		passwordField.setWidth("145px");
+		passwordField.setInputPrompt("Password");
+		loginPanel.setSpacing(true);
 		
+		addComponent(layout);
+		layout.setSizeFull();
+		setComponentAlignment(layout, Alignment.BOTTOM_CENTER);
+
 		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
 	    Embedded image = new Embedded("", resource);
-		
-		loginPanel.setStyleName(Reindeer.PANEL_LIGHT);
-		loginPanel.setWidth("270px");
-		loginPanel.setHeight("220px");
 		
 		Button login = new Button("Login", new ClickListener() {
 
@@ -83,11 +85,6 @@ public class UUserAuth extends VerticalLayout {
 				try {
 					AuthenticationUtil.authenticate(username, password);
 					getApplication().getMainWindow().setContent(new UMainLayout());
-					
-					/**
-					 *	Vaadin 7
-					 *	Root.getCurrent().setContent(new UMainLayout());
-					 */
 				} catch (InvalidCredentialsException e) {
 					feedbackLabel.setValue("Either username or password was wrong");
 				} catch (AccountLockedException e) {
@@ -107,10 +104,9 @@ public class UUserAuth extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				content.removeAllComponents();
 				Component registrationWindow = buildRegisterForm();
-				content.addComponent(registrationWindow);
-				content.setComponentAlignment(registrationWindow, Alignment.MIDDLE_CENTER);
+				layout.removeAllComponents();
+				layout.addComponent(registrationWindow);
 			}
 		});
 		
@@ -119,18 +115,29 @@ public class UUserAuth extends VerticalLayout {
 		group.addComponent(register);
 		group.addComponent(login);
 		
-		layout.addComponent(usernameField);
-		layout.addComponent(passwordField);
-		layout.addComponent(group);
+		loginPanel.addComponent(image);
+		loginPanel.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
+		loginPanel.addComponent(usernameField);
+		loginPanel.setComponentAlignment(usernameField, Alignment.MIDDLE_CENTER);
+		loginPanel.addComponent(passwordField);
+		loginPanel.setComponentAlignment(passwordField, Alignment.MIDDLE_CENTER);
+		loginPanel.addComponent(group);
+		loginPanel.setComponentAlignment(group, Alignment.MIDDLE_CENTER);
+	
+		loginPanel.addComponent(feedbackLabel);
+		loginPanel.setComponentAlignment(feedbackLabel, Alignment.MIDDLE_CENTER);
 		
-		layout.addComponent(feedbackLabel);
-		loginPanel.addComponent(layout);
-		content.setSizeFull();
-		content.addComponent(image);
-		content.setComponentAlignment(image, Alignment.BOTTOM_CENTER);	
-		content.addComponent(loginPanel);
-		content.setComponentAlignment(loginPanel, Alignment.TOP_CENTER);		
-		return content;
+		final FancyCssLayout cssLayout = new FancyCssLayout();
+		cssLayout.setSlideEnabled(true);
+		cssLayout.setWidth("700px");
+		
+		CustomLayout custom = new CustomLayout("about");
+	    cssLayout.addComponent(custom);
+		loginPanel.addComponent(cssLayout);
+		loginPanel.setComponentAlignment(cssLayout, Alignment.TOP_CENTER);
+		
+		layout.addComponent(loginPanel);
+		layout.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);
 	}
 
 	/*
@@ -210,11 +217,6 @@ public class UUserAuth extends VerticalLayout {
 				    }
 					getApplication().getMainWindow().showNotification( "You have successfully registered.");
 					getApplication().getMainWindow().removeAllComponents();
-					getApplication().getMainWindow().addComponent(buildLoginForm());
-					/**
-					 * Vaadin 7
-					 * Root.getCurrent().setContent(buildLoginForm());
-					 */
 					
 				} catch (TooShortPasswordException e) {
 					feedbackLabel
