@@ -35,6 +35,7 @@ import org.geworkbench.util.Util;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -74,7 +75,7 @@ import com.vaadin.ui.Window;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver{
+public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver, AnalysisUI {
 
 	private static final long serialVersionUID = 845011602285963638L;
 	private Log log = LogFactory.getLog(MarinaUI.class);
@@ -112,15 +113,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
 
+	private Long dataSetId = null;
+	
 	public MarinaUI(final Long dataSetId){
+		this.dataSetId = dataSetId;
 		
-		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
-		
-		this.dataSet = maSet;
-
-		((CSMicroarraySet)dataSet).getMarkers().correctMaps();
-
-		List<?> arraysets = SubSetOperations.getArraySetsForCurrentContext(dataSetId);
 		arraymap = new HashMap<String, String>();
 		cb1.setImmediate(true);
 		cb2.setImmediate(true);
@@ -128,22 +125,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		cb2.setWidth("135px");
 		tf1.setEnabled(false);
 		tf2.setEnabled(false);
-		for (Object arrayset : arraysets){
-			SubSet set = (SubSet)arrayset;
-			ArrayList<String> pos = set.getPositions();
-			if (pos == null || pos.isEmpty()) continue;
-			StringBuilder builder = new StringBuilder();
-			
-			for(int i=0; i<pos.size(); i++) {
-				builder.append(pos.get(i)+",");
-			}
-			
-			String positions = builder.toString();
-			arraymap.put(set.getName(), positions.substring(0, positions.length()-1));
-			cb1.addItem(set.getName());
-			cb2.addItem(set.getName());
-		}
-		arraymap.put(null, "");
+
+		setDataSetId(dataSetId);
+
 		cb1.addListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -3667564667049184754L;
 			public void valueChange(ValueChangeEvent event) {
@@ -298,7 +282,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ResultSet resultSet = storePendingResultSet("Marina", dataSetId);
+				ResultSet resultSet = storePendingResultSet();
 				
 				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 				params.put("bean", bean);
@@ -397,14 +381,14 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		return aNewSet;
 	}
 	
-	public ResultSet storePendingResultSet(String name, Long dataSetId) {
+	private ResultSet storePendingResultSet() {
 
 		ResultSet resultSet = new ResultSet();
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
-		String dataSetName = name + " - Pending";
+		String dataSetName = "Marina - Pending";
 		resultSet.setName(dataSetName);
-		resultSet.setType(name+"Results");
+		resultSet.setType("MarinaResults");
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(SessionHandler.get().getId());
 		FacadeFactory.getFacade().store(resultSet);
@@ -850,5 +834,41 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			submitButton.setComponentError(null);
 			return true;
 		}
+	}
+	
+	// FIXME most of the null checkings should be designed out of the process
+	// meaning if they are allowed to be null, it should be very clear when we expect them to be null
+	@Override
+	public void setDataSetId(Long dataId) {
+		this.dataSetId = dataId;
+		
+		byte[] byteArray = UserDirUtils.getDataSet(dataId);
+		if(byteArray==null)return;
+		
+		dataSet = (DSMicroarraySet) ObjectConversion.toObject(byteArray);
+		if(dataSet==null) return;
+
+		((CSMicroarraySet)dataSet).getMarkers().correctMaps();
+
+		List<?> arraysets = SubSetOperations.getArraySetsForCurrentContext(dataId);
+		arraymap.clear();
+		cb1.removeAllItems();
+		cb2.removeAllItems();
+		for (Object arrayset : arraysets){
+			SubSet set = (SubSet)arrayset;
+			ArrayList<String> pos = set.getPositions();
+			if (pos == null || pos.isEmpty()) continue;
+			StringBuilder builder = new StringBuilder();
+			
+			for(int i=0; i<pos.size(); i++) {
+				builder.append(pos.get(i)+",");
+			}
+			
+			String positions = builder.toString();
+			arraymap.put(set.getName(), positions.substring(0, positions.length()-1));
+			cb1.addItem(set.getName());
+			cb2.addItem(set.getName());
+		}
+		arraymap.put(null, "");
 	}
 }

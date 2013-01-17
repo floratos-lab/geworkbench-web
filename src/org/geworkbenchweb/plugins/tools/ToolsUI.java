@@ -74,8 +74,6 @@ public class ToolsUI extends VerticalLayout {
 			buildOneItem(a.getName(), a.getDescription());
 		}
 		
-		// MARINa
-		buildOneItem("MARINa", "MARINa Analysis");
 		//MarkUs
 		buildOneItem("MarkUs", "MarkUs is a web server to assist the assessment of the biochemical function " +
 				"for a given protein structure. MarkUs identifies related protein structures " +

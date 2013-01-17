@@ -44,72 +44,6 @@ public class MicroarrayUI extends VerticalLayout {
 			buildOneItem(analysis, analysisUI);
 
 		}
-
-	    /**
-	     * MARINa
-	     */
-		Button marina 	= 	new Button("MARINa", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("Marina", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
-			}
-		});
-	    final GridLayout marinaLayout = new GridLayout();
-	    marinaLayout.setColumns(2);
-	    marinaLayout.setRows(2);
-	    marinaLayout.setSizeFull();
-	    marinaLayout.setImmediate(true);
-	    marinaLayout.setColumnExpandRatio(1, 1.0f);
-
-		final FancyCssLayout marinaCssLayout = new FancyCssLayout();
-		marinaCssLayout.setWidth("95%");
-		marinaCssLayout.setSlideEnabled(true);
-		marinaCssLayout.addStyleName("lay");
-		
-		final Label marinaText = new Label(
-				"<p align = \"justify\">MARINa Analysis</p>");
-		marinaText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button marinaButton = new Button();
-		final Button marinaCancelButton = new Button();
-		marinaButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marinaCssLayout.removeAllComponents();
-				marinaLayout.removeComponent(marinaButton);
-				marinaLayout.addComponent(marinaCancelButton, 1, 0);
-				marinaCssLayout.addComponent(marinaText);
-				marinaLayout.addComponent(marinaCssLayout, 0, 1, 1, 1);
-			}
-		});
-		marinaCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				marinaCssLayout.removeAllComponents();
-				marinaLayout.removeComponent(marinaCancelButton);
-				marinaLayout.addComponent(marinaButton, 1, 0);
-				marinaLayout.removeComponent(marinaCssLayout);
-			}
-		});
-		
-		marinaButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marinaButton.setIcon(ICON);
-		marinaCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		marinaCancelButton.setIcon(CancelIcon);
-		addComponent(marinaLayout);
-		marinaLayout.setSpacing(true);
-		marinaLayout.addComponent(marina);
-	    marinaLayout.addComponent(marinaButton);
 		
 		/*
 		 * Differential Expression (TTest)
@@ -176,7 +110,6 @@ public class MicroarrayUI extends VerticalLayout {
 		ttestLayout.addComponent(ttest);
 		ttestLayout.addComponent(ttestButton);
 		
-		marina.setStyleName(Reindeer.BUTTON_LINK);
 		ttest.setStyleName(Reindeer.BUTTON_LINK);
 		
 		Label vis = new Label("Visualizations Available");

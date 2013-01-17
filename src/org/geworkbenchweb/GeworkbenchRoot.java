@@ -21,6 +21,8 @@ import org.geworkbenchweb.plugins.cnkb.CNKB;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClustering;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
+import org.geworkbenchweb.plugins.marina.Marina;
+import org.geworkbenchweb.plugins.marina.MarinaUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -189,6 +191,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 			pr.register(new Aracne(), new AracneUI(0L));
 			pr.register(new CNKB(), new CNKBUI(0L));
 			pr.register(new HierarchicalClustering(), new HierarchicalClusteringUI(0L));
+			pr.register(new Marina(), new MarinaUI(0L)); 
 			pluginRegistry.set(pr);
 		}
 		return pr;

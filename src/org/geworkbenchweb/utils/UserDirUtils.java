@@ -102,6 +102,8 @@ public class UserDirUtils {
 	 */
 	public static byte[] getDataSet(long dataId) {
 
+		if(dataId==0) return null; // 0 is used to a special 'initial' case. not the ideal design.
+		
 		String dataName 		=	String.valueOf(dataId);
 		String fileName 		= 	System.getProperty("user.home") + SLASH +
 				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
@@ -260,7 +262,7 @@ public class UserDirUtils {
 			data = (byte[]) ois.readObject();
 			ois.close();
 		}catch(Exception ex){
-			//ex.printStackTrace();
+			ex.printStackTrace();
 			return null;
 		} 
 		return data;
