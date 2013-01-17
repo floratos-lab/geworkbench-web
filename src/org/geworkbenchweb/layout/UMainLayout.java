@@ -949,6 +949,13 @@ public class UMainLayout extends VerticalLayout {
 	 * Sets the VisualPlugin 
 	 * @return
 	 */
+	/* FIXME this is fact a map from a 'VisualPlugin', say, Abc, to its corresponding AbcUI
+	 * Because of many problems in the basic design of VisualPlugin, I am changing things away from it.
+	 * For example, Analysis now is no long a VisualPuglin.
+	 * Many things would be simpler if they don't go through this mapping, e.g.
+	 * DataSet.getType() not "PDB File" -> tree node type set to be "Microarry" -> class Microarray -> MicroarrayUI would become
+	 * DataSet.getType() -> MicroarrayUI
+	 * */
 	public void setVisualPlugin(VisualPlugin f) {
 		if(f instanceof Microarray) {
 			toolBar.setEnabled(true);
