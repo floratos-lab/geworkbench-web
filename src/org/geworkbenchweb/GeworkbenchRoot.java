@@ -23,6 +23,8 @@ import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClustering;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
 import org.geworkbenchweb.plugins.marina.Marina;
 import org.geworkbenchweb.plugins.marina.MarinaUI;
+import org.geworkbenchweb.plugins.ttest.TTest;
+import org.geworkbenchweb.plugins.ttest.TTestUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -181,7 +183,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 	}	
 
 	// TODO compare whether registration of class is a better idea than doing it for instance; 
-	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-ins
+	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-in
 	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
 		PluginRegistry pr = pluginRegistry.get();
@@ -191,7 +193,8 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 			pr.register(new Aracne(), new AracneUI(0L));
 			pr.register(new CNKB(), new CNKBUI(0L));
 			pr.register(new HierarchicalClustering(), new HierarchicalClusteringUI(0L));
-			pr.register(new Marina(), new MarinaUI(0L)); 
+			pr.register(new Marina(), new MarinaUI(0L));
+			pr.register(new TTest(), new TTestUI(0L)); 
 			pluginRegistry.set(pr);
 		}
 		return pr;

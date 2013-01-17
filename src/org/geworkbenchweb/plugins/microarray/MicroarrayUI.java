@@ -20,6 +20,11 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
+/* TODO this is UI for one particular data type, namely microarray dataset.
+ * The design should be general enough so we have code of similar structure 
+ * for different data types, either as inputs or results
+ * 
+ */
 public class MicroarrayUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
@@ -37,7 +42,6 @@ public class MicroarrayUI extends VerticalLayout {
 		addComponent(analysisLabel);
 
 		// loop through all analysis plug-ins
-		// TODO convert all other analysis plug-ins other ANOVA later
 		for(final Analysis analysis : GeworkbenchRoot.getPluginRegistry().getAnalysisList()) {
 		
 			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
@@ -45,73 +49,8 @@ public class MicroarrayUI extends VerticalLayout {
 
 		}
 		
-		/*
-		 * Differential Expression (TTest)
-		 */
-		Button ttest 	= 	new Button("Differential Expression (T-Test)", new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("TTest", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);	
-			}
-		});
-	    final GridLayout ttestLayout = new GridLayout();
-	    ttestLayout.setColumns(2);
-	    ttestLayout.setRows(2);
-	    ttestLayout.setSizeFull();
-	    ttestLayout.setImmediate(true);
-	    ttestLayout.setColumnExpandRatio(1, 1.0f);
-
-		final FancyCssLayout ttestCssLayout = new FancyCssLayout();
-		ttestCssLayout.setWidth("95%");
-		ttestCssLayout.setSlideEnabled(true);
-		ttestCssLayout.addStyleName("lay");
-		
-		final Label ttestText = new Label(
-				"<p align = \"justify\">A t-Test analysis can be used to identify markers with statistically " +
-				"significant differential expression between two sets of microarrays.</p>");
-		ttestText.setContentMode(Label.CONTENT_XHTML);
-		
-		final Button ttestButton = new Button();
-		final Button ttestCancelButton = new Button();
-		ttestButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ttestCssLayout.removeAllComponents();
-				ttestLayout.removeComponent(ttestButton);
-				ttestLayout.addComponent(ttestCancelButton, 1, 0);
-				ttestCssLayout.addComponent(ttestText);
-				ttestLayout.addComponent(ttestCssLayout, 0, 1, 1, 1);
-			}
-		});
-		ttestCancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ttestCssLayout.removeAllComponents();
-				ttestLayout.removeComponent(ttestCancelButton);
-				ttestLayout.addComponent(ttestButton, 1, 0);
-				ttestLayout.removeComponent(ttestCssLayout);
-			}
-		});
-		
-		ttestButton.setStyleName(BaseTheme.BUTTON_LINK);
-		ttestButton.setIcon(ICON);
-		ttestCancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		ttestCancelButton.setIcon(CancelIcon);
-		addComponent(ttestLayout);
-		ttestLayout.setSpacing(true);
-		ttestLayout.addComponent(ttest);
-		ttestLayout.addComponent(ttestButton);
-		
-		ttest.setStyleName(Reindeer.BUTTON_LINK);
-		
+		// for now, there is only one visualization - tabular view
+		// but the design should be flexible enough to support multiple visualizations
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
 		vis.setContentMode(Label.CONTENT_PREFORMATTED);
@@ -186,16 +125,7 @@ public class MicroarrayUI extends VerticalLayout {
 		tableLayout.addComponent(table);
 		tableLayout.addComponent(tableButton);
 		
-		/**
-		 * HeatMap
-		 */
-		Button heatMap 	= 	new Button("Heat Map");
-		Label heatText 	=	new Label(
-				"<p align = \"justify\">Heat map for microarray expression data, organized by phenotypic or gene groupings.</p>");
-		heatText.setContentMode(Label.CONTENT_XHTML);
-		
 		table.setStyleName(Reindeer.BUTTON_LINK);
-		heatMap.setStyleName(Reindeer.BUTTON_LINK);
     }
 
 	private static Log log = LogFactory.getLog(MicroarrayUI.class);
@@ -296,8 +226,8 @@ public class MicroarrayUI extends VerticalLayout {
 			"../runo/icons/16/cancel.png");
 
 	// build one item and add to the UI
-	// TODO this is copied from ToolsUI, but not exactly the same, especially that this needs to trigger the actual analysis.
-	// the version in ToolsUI should not have the misleading link looking
+	// this is copied from ToolsUI, but not exactly the same, especially that this needs to trigger the actual analysis.
+	// in the version in ToolsUI, the link-looking analysis names have not action
 	private void buildOneItem(final Analysis analysis,
 			final AnalysisUI analysisUI) {
 

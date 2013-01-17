@@ -8,6 +8,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -34,7 +35,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * TTest Analysis for microarray dataset
  * @author Nikhil Reddy
  */
-public class TTestUI extends VerticalLayout {
+public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -81,29 +82,17 @@ public class TTestUI extends VerticalLayout {
 		tabs.addTab(buildAlphaCorrections(), "Alpha Corrections", null);
 		tabs.addTab(buildDegOfFreedom(), "Degree of Freedom", null);
 		
-		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
-		
 		selectCase.setNullSelectionAllowed(false);
 		selectCase.setInputPrompt("Select Case from Phenotypes sets");
 		selectCase.setWidth("400px");
 		selectCase.setImmediate(true);
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			selectCase.addItem(((SubSet) arraySubSets.get(m)).getId());
-			selectCase.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
 	
 		selectControl.setNullSelectionAllowed(false);
 		selectControl.setWidth("400px");
 		selectControl.setInputPrompt("Select Control from Phenotypes sets");
 		selectControl.setImmediate(true);
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			selectControl.addItem(((SubSet) arraySubSets.get(m)).getId());
-			selectControl.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
+		
+		setDataSetId(dId);
 		
 		submit = new Button("Submit", new Button.ClickListener() {
 			
@@ -334,5 +323,28 @@ public class TTestUI extends VerticalLayout {
 		c.addComponent(groupVariances);
 		
 		return c;
+	}
+
+	@Override
+	public void setDataSetId(Long dataId) {
+		this.dataSetId = dataId;
+		
+		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
+
+		selectCase.removeAllItems();
+		for (int m = 0; m < (arraySubSets).size(); m++) {
+			selectCase.addItem(((SubSet) arraySubSets.get(m)).getId());
+			selectCase.setItemCaption(
+					((SubSet) arraySubSets.get(m)).getId(),
+					((SubSet) arraySubSets.get(m)).getName());
+		}
+
+		selectControl.removeAllItems();
+		for (int m = 0; m < (arraySubSets).size(); m++) {
+			selectControl.addItem(((SubSet) arraySubSets.get(m)).getId());
+			selectControl.setItemCaption(
+					((SubSet) arraySubSets.get(m)).getId(),
+					((SubSet) arraySubSets.get(m)).getName());
+		}
 	}
 }

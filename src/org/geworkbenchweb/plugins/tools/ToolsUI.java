@@ -69,7 +69,7 @@ public class ToolsUI extends VerticalLayout {
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
 		
-		// TODO convert other analysis plugins
+		// loop through all analysis plug-ins
 		for(Analysis a : analysisList) {
 			buildOneItem(a.getName(), a.getDescription());
 		}
@@ -79,9 +79,6 @@ public class ToolsUI extends VerticalLayout {
 				"for a given protein structure. MarkUs identifies related protein structures " +
 				"and sequences, detects protein cavities, and calculates the surface electrostatic " +
 				"potentials and amino acid conservation profile.");
-		// t-test
-		buildOneItem("Differential Expression (T-Test)", "A t-Test analysis can be used to identify markers with statistically " +
-				"significant differential expression between two sets of microarrays.");
 		
 		// second part: visualizations
 		Label vis = new Label("Visualizations Available");
