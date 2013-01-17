@@ -846,7 +846,6 @@ public class UMainLayout extends VerticalLayout {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("unchecked")
 			public void valueChange(ValueChangeEvent event) {
 
 				Item selectedItem = tree.getItem(event.getProperty().getValue());
@@ -865,56 +864,41 @@ public class UMainLayout extends VerticalLayout {
 								annotationBar.getItems().get(i).setVisible(true);	
 							}
 						}
-						if(className.contains("Results")) {
 
-							if (selectedItem.getItemProperty("Name").toString().contains("Pending")){
-								pluginView.removeAllComponents();
-								return;
-							}
-
-							ClassLoader classLoader = this.getClass().getClassLoader();
-							String packageName = className.substring(0, className.length() - 7);
-
-							String loadClass = "org.geworkbenchweb.plugins." + 
-									packageName.toLowerCase()+
-									".results." +
-									className;
-							@SuppressWarnings("rawtypes")
-							Class aClass = classLoader.loadClass(loadClass);
-							dataSetId = (Long) event.getProperty().getValue();    
-
-							f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
-							removeComponent(annotationLayout);
-							setVisualPlugin(f);
-						}else {
-							ClassLoader classLoader = this.getClass().getClassLoader();
-							String loadClass = "org.geworkbenchweb.plugins." + 
-									className.toLowerCase() +
-									"."+
-									className;
-							@SuppressWarnings("rawtypes")
-							Class aClass = classLoader.loadClass(loadClass);
-							dataSetId = (Long) event.getProperty().getValue();
-							
-							if (className.equals("Microarray")){
-								DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
-								Map<String, Object> parameters = new HashMap<String, Object>();	
-								parameters.put("datasetid", dataSetId);	
-								List<Annotation> annots = FacadeFactory.getFacade().list(
-										"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
-								if (!annots.isEmpty()){
-									APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
-									AnnotationParser.setFromSerializable(aps);
-								}else {
-									AnnotationParser.setCurrentDataSet(maSet);
-								}
-								((CSMicroarraySet)maSet).getMarkers().correctMaps();
-							}
-
-							f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
-							removeComponent(annotationLayout);
-							setVisualPlugin(f);
+						if (className.contains("Results") && selectedItem.getItemProperty("Name").toString().contains("Pending")){
+							pluginView.removeAllComponents();
+							return;
 						}
+						
+						dataSetId = (Long) event.getProperty().getValue();    
+						
+						if (className.equals("Microarray")){
+							DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+							Map<String, Object> parameters = new HashMap<String, Object>();	
+							parameters.put("datasetid", dataSetId);	
+							List<Annotation> annots = FacadeFactory.getFacade().list(
+									"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
+							if (!annots.isEmpty()){
+								APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
+								AnnotationParser.setFromSerializable(aps);
+							}else {
+								AnnotationParser.setCurrentDataSet(maSet);
+							}
+							((CSMicroarraySet)maSet).getMarkers().correctMaps();
+						}
+						
+						ClassLoader classLoader = this.getClass().getClassLoader();
+						String packageName = className.toLowerCase();
+						if(className.contains("Results")) {
+							packageName = className.substring(0, className.length() - 7).toLowerCase()+".results";
+
+						}
+						String loadClass = "org.geworkbenchweb.plugins." + packageName
+								+ "." + className;
+						Class<?> aClass = classLoader.loadClass(loadClass);
+						f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
+						removeComponent(annotationLayout);
+						setVisualPlugin(f);
 					}
 				}catch (Exception e) {
 					VisualPlugin tools = new Tools(null);
