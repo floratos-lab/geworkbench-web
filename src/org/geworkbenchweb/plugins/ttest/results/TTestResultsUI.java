@@ -100,14 +100,14 @@ public class TTestResultsUI extends VerticalLayout {
 		double minPlotValue 		= 	Double.MAX_VALUE;
 		double maxPlotValue 		= 	Double.MIN_VALUE;
 
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+		LinkedHashSet<DecimalPoint> points 	= 	new LinkedHashSet<DecimalPoint>();
 		
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
 		for (int i = 0; i < significance.getSignificantMarkers().size(); i++) {
 			
 			DSGeneMarker mark 	= 	significance.getSignificantMarkers().get(i);
 			double sigValue 	= 	significance.getSignificance(mark);
-			
+		
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
 				sigValue = 4.9E-45;
 			} 
@@ -132,7 +132,9 @@ public class TTestResultsUI extends VerticalLayout {
 				if (plotVal > maxPlotValue) {
 					maxPlotValue = plotVal;
 				}
-				points.add(new DecimalPoint(series, xVal, yVal));
+				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
+				a.setName(mark.getLabel());
+				points.add(a);
 			} else {
 				//log.debug("Marker " + i + " was infinite or NaN.");
 			}
@@ -148,13 +150,12 @@ public class TTestResultsUI extends VerticalLayout {
 			
 			DecimalPoint a =  (DecimalPoint) (points.toArray())[i] ;
 			Color aC = colormap.getColor(Math.abs(a.getX()) * Math.abs(a.getY()));
-
+			
 			SymbolMarker pMarker = new SymbolMarker(5);
 			pMarker.setFillColor(new RGB(aC.getRed(), aC.getGreen(), aC.getBlue()));
 
 			PointConfig aCfg = new PointConfig(pMarker);
 			a.setConfig(aCfg);
-			a.setName(significance.getSignificantMarkers().get(i).getLabel());
 			newPoints.add(a);
 		}
 		series.setSeriesPoints(newPoints);
