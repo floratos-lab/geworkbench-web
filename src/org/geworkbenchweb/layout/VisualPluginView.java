@@ -1,11 +1,13 @@
 package org.geworkbenchweb.layout;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+import org.geworkbenchweb.plugins.DataTypeUI;
+
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import org.apache.commons.collections.map.MultiKeyMap;
 
 /**
  * ViusalPluginView sets the visualplugin to the main layout.
@@ -37,6 +39,7 @@ public class VisualPluginView extends HorizontalLayout {
 		setImmediate(true);
 	}
 	
+	// TODO phase out this, especially the 'non-visualizer' part first
 	@SuppressWarnings("deprecation")
 	public void setVisualPlugin(VisualPlugin plugin) {
 		
@@ -98,6 +101,61 @@ public class VisualPluginView extends HorizontalLayout {
 			}
 			addComponent(getLayoutFor(plugin));
 		}
+	}
+
+	// FIXME this starts as copying from the previous method, but meant to be specific for data node UI
+	@SuppressWarnings("deprecation")
+	public void setDataUI(DataTypeUI plugin) {
+		
+			removeAllComponents();
+			setSizeFull();
+			HorizontalLayout pluginLayout = new HorizontalLayout();
+			pluginLayout.removeAllComponents();
+			pluginLayout.setImmediate(true);
+			pluginLayout.setWidth("100%");
+			pluginLayout.setSpacing(true);
+			pluginLayout.setMargin(true);
+			pluginLayout.setStyleName("sample-view");
+			
+			left = new VerticalLayout();
+			left.setWidth("100%");
+			left.setSpacing(true);
+			left.setMargin(false);
+			
+			VerticalLayout rightLayout = new VerticalLayout();
+			right = new Panel(rightLayout);
+			rightLayout.setMargin(true, false, false, false);
+			right.setStyleName(Panel.STYLE_LIGHT);
+			right.addStyleName("feature-info");
+			right.setWidth("319px");
+
+			controls = new HorizontalLayout();
+			controls.setWidth("100%");
+			controls.setStyleName("feature-controls");
+
+			title.setStyleName("title");
+			controls.addComponent(title);
+			controls.setExpandRatio(title, 1);
+			
+			pluginLayout.addComponent(left);
+			pluginLayout.setExpandRatio(left, 1);
+			pluginLayout.addComponent(right);
+			
+			//currentFeature = plugin; // FIXME what is the purpose
+
+			left.addComponent(controls);
+			title.setValue("<span>" + plugin.getCaption() + "</span>");
+			//left.addComponent(getLayoutFor(plugin));
+			left.addComponent(plugin);
+			right.setCaption("Description");
+			String desc = plugin.getDescription();
+			if (desc != null && desc != "") {
+				final Label l = new Label(
+						"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
+								+ desc + "</div></div>", Label.CONTENT_XHTML);
+				right.addComponent(l);
+			}
+			addComponent(pluginLayout);
 	}
 
 	private Component getLayoutFor(VisualPlugin f) {

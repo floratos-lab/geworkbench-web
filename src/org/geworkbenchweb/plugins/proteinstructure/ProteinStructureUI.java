@@ -2,6 +2,7 @@ package org.geworkbenchweb.plugins.proteinstructure;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.PluginEvent;
+import org.geworkbenchweb.plugins.DataTypeUI;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
@@ -13,13 +14,15 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
-public class ProteinStructureUI extends VerticalLayout {
+public class ProteinStructureUI extends VerticalLayout implements DataTypeUI {
 
 	private static final long serialVersionUID = 1L;
 	
 	private final Long dataId;
 	
 	public ProteinStructureUI(Long dataSetId) {
+		
+		setDescription("PDB File");
 		
 		setSizeFull();
 		
@@ -104,5 +107,7 @@ public class ProteinStructureUI extends VerticalLayout {
 		marcusLayout.setSpacing(true);
 		marcusLayout.addComponent(marcus);
 		marcusLayout.addComponent(marcusButton);
+		
+		setCaption("Protein Strucure Data");
 	}
 }

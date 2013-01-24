@@ -6,6 +6,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.plugins.Analysis;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.plugins.DataTypeUI;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
@@ -25,13 +26,15 @@ import com.vaadin.ui.themes.Reindeer;
  * for different data types, either as inputs or results
  * 
  */
-public class MicroarrayUI extends VerticalLayout {
+public class MicroarrayUI extends VerticalLayout implements DataTypeUI {
 
 	private static final long serialVersionUID = 1L;
 	
 	private final Long dataId;
 
 	public MicroarrayUI(Long dataSetId) {
+		
+		setDescription("Microarray Description");
 
 		setSpacing(true);
 		
@@ -126,6 +129,8 @@ public class MicroarrayUI extends VerticalLayout {
 		tableLayout.addComponent(tableButton);
 		
 		table.setStyleName(Reindeer.BUTTON_LINK);
+		
+		setCaption("Microarray Data");
     }
 
 	private static Log log = LogFactory.getLog(MicroarrayUI.class);

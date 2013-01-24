@@ -32,7 +32,10 @@ public class DataSet extends AbstractPojo {
 		this.name = name;
 	}
 
-	// FIXME the idea of hard-coded and inconsistent use of type name is very dangerous and already broke many reasonable behaviors of the application 
+	/*
+	 * Code is not changed since last revision,
+	 * but now this field strictly refers to the class name of the data set, subclass of DSDataSet 
+	 */
 	public String getType() {
 		return type;
 	}

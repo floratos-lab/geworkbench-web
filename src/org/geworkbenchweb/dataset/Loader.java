@@ -3,6 +3,7 @@ package org.geworkbenchweb.dataset;
 import java.io.File;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -36,7 +37,7 @@ public abstract class Loader {
 	// TODO the return value is used only by expression file's annotation
 	// implementation. this is an inconsistency in the design
 	static Long storeData(DSDataSet<? extends DSBioObject> dataSet,
-			String fileName, String dataType) {
+			String fileName) {
 		// FIXME dependency on annotation should be re-designed.
 		String annotationFileName = null;
 
@@ -46,7 +47,7 @@ public abstract class Loader {
 		DataSet dataset = new DataSet();
 
 		dataset.setName(fileName);
-		dataset.setType(dataType);
+		dataset.setType(dataSet.getClass().getName());
 		dataset.setOwner(user.getId());
 		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
 		FacadeFactory.getFacade().store(dataset);
@@ -60,14 +61,14 @@ public abstract class Loader {
 		dataHistory.setParent(dataset.getId());
 		StringBuilder data = new StringBuilder();
 		data.append("Data File Name : " + dataSet.getLabel() + "\n");
-		if (dataType.equalsIgnoreCase("microarray")) {
+		// TODO special things for CSMicroarraySet should be part of the overall design
+		// not an aftermath fix
+		if (dataSet.getClass()==CSMicroarraySet.class) {
+			// (1)
 			data.append("Annotation File - " + annotationFileName + "\n");
 			data.append("Gene Ontology File - \n");
-		}
-		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));
-		FacadeFactory.getFacade().store(dataHistory);
-
-		if (dataType.equalsIgnoreCase("microarray")) {
+			
+			// (2)
 			ExperimentInfo experimentInfo = new ExperimentInfo();
 			experimentInfo.setParent(dataset.getId());
 			StringBuilder info = new StringBuilder();
@@ -79,6 +80,8 @@ public abstract class Loader {
 					.toString()));
 			FacadeFactory.getFacade().store(experimentInfo);
 		}
+		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));
+		FacadeFactory.getFacade().store(dataHistory);
 
 		NodeAddEvent resultEvent = new NodeAddEvent(dataset);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);

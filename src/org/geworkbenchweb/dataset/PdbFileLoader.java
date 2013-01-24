@@ -28,7 +28,7 @@ public class PdbFileLoader extends Loader {
 		 * associate with annotation
 		 */
 		// FIXME hard-code type name breaks many things. kept only temporarily 
-		storeData(dataSet, file.getName(), "PDB File"); //this.getClass().getName());
+		storeData(dataSet, file.getName()); //this.getClass().getName());
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		microarraySet = parser.parseCSMicroarraySet(file);
 
 		// FIXME hard-code type name has to be fixed
-		datasetId = storeData(microarraySet, file.getName(), "microarray");
+		datasetId = storeData(microarraySet, file.getName());
 		//this.getClass().getName());
 	}
 

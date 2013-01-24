@@ -2,7 +2,7 @@ package org.geworkbenchweb.layout;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException; 
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -28,18 +28,18 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
+import org.geworkbenchweb.plugins.DataTypeUI;
 import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
 import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
 import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
-import org.geworkbenchweb.plugins.microarray.Microarray;
 import org.geworkbenchweb.plugins.tools.Tools;
 import org.geworkbenchweb.plugins.ttest.TTestAnalysisWeb;
 import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Comment;
+import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -91,7 +91,7 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
-import com.vaadin.ui.themes.Reindeer; 
+import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -151,17 +151,14 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Long selectedSubSetId;
 	
-	ThemeResource projectIcon 		= 	new ThemeResource("../custom/icons/project16x16.gif");
-	ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
-	ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
-	ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
-	ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
-	ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
-	ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
-	ThemeResource anovaIcon			=	new ThemeResource("../custom/icons/significance16x16.gif");
-	ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
-	ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
-	ThemeResource CancelIcon 		= 	new ThemeResource("../runo/icons/16/cancel.png");
+	static private ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
+	static private ThemeResource pendingIcon 	=	new ThemeResource("../custom/icons/pending.gif");
+	static private ThemeResource networkIcon 	=	new ThemeResource("../custom/icons/network16x16.gif");
+	static private ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
+	static private ThemeResource anovaIcon		=	new ThemeResource("../custom/icons/significance16x16.gif");
+	static private ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
+	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
+	static private ThemeResource CancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
 
 	public UMainLayout() {
 
@@ -851,7 +848,7 @@ public class UMainLayout extends VerticalLayout {
 				Item selectedItem = tree.getItem(event.getProperty().getValue());
 				VisualPlugin f;
 				try {				
-					if(!event.getProperty().getValue().equals(null) ) {
+					if( event.getProperty().getValue()!=null ) {
 
 						annotButton.setEnabled(true);
 						removeButton.setEnabled(true);
@@ -872,7 +869,11 @@ public class UMainLayout extends VerticalLayout {
 						
 						dataSetId = (Long) event.getProperty().getValue();    
 						
-						if (className.equals("Microarray")){
+						toolBar.setEnabled(false);
+						// TODO special things to do for microarray set should be considered as part of the overall design
+						// not as a special case patched as aftermath fix
+						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
+							// (1)
 							DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 							Map<String, Object> parameters = new HashMap<String, Object>();	
 							parameters.put("datasetid", dataSetId);	
@@ -885,6 +886,14 @@ public class UMainLayout extends VerticalLayout {
 								AnnotationParser.setCurrentDataSet(maSet);
 							}
 							((CSMicroarraySet)maSet).getMarkers().correctMaps();
+
+							// (2)
+							toolBar.setEnabled(true);
+							for(int i=0; i<toolBar.getItems().size(); i++) {
+								if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
+									toolBar.getItems().get(i).setEnabled(true);	
+								}
+							}
 						}
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
@@ -892,15 +901,28 @@ public class UMainLayout extends VerticalLayout {
 						if(className.contains("Results")) {
 							packageName = className.substring(0, className.length() - 7).toLowerCase()+".results";
 
+						} else {
+							// TODO try the input data type first. the same design will be extended to result data later
+							// input for now is only either microarray set or protein structure
+							Class<?> aClass = classLoader.loadClass(className);
+							removeComponent(annotationLayout);
+							Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
+							DataTypeUI dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+							pluginView.setDataUI(dataUI); // TODO to be implemented
+							return;
 						}
+						// FIXME this part can be reached by result only. 
+						// in other words, we only expect CSMcrioarraySet and CSProteinStructure (not VisualPlugin) if it is not result
 						String loadClass = "org.geworkbenchweb.plugins." + packageName
 								+ "." + className;
 						Class<?> aClass = classLoader.loadClass(loadClass);
 						f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
 						removeComponent(annotationLayout);
+						log.warn("set visual plugin f="+f.getClass()+" "+f.getName());
 						setVisualPlugin(f);
 					}
-				}catch (Exception e) {
+				}catch (Exception e) { // FIXME what kind of exception is expected here? why?
+					e.printStackTrace();
 					VisualPlugin tools = new Tools(null);
 					setVisualPlugin(tools);
 					removeComponent(annotationLayout);
@@ -957,19 +979,20 @@ public class UMainLayout extends VerticalLayout {
 	 * DataSet.getType() -> MicroarrayUI
 	 * */
 	public void setVisualPlugin(VisualPlugin f) {
-		if(f instanceof Microarray) {
-			toolBar.setEnabled(true);
-			for(int i=0; i<toolBar.getItems().size(); i++) {
-				if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
-					toolBar.getItems().get(i).setEnabled(true);	
-				}
-			}
-		} else {
+		// comment out the code that does not apply after some cleaning-up. to be removed. TODO
+//		if(f instanceof Microarray) {
+//			toolBar.setEnabled(true);
+//			for(int i=0; i<toolBar.getItems().size(); i++) {
+//				if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
+//					toolBar.getItems().get(i).setEnabled(true);	
+//				}
+//			}
+//		} else {
 			toolBar.setEnabled(false);
 			for(int i=0; i<toolBar.getItems().size(); i++) {
 				toolBar.getItems().get(i).setEnabled(false);	
 			}
-		} 
+//		} 
 		pluginView.setVisualPlugin(f);
 	}
 
@@ -1089,12 +1112,14 @@ public class UMainLayout extends VerticalLayout {
 
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
-			if(((DataSet) data.get(i)).getType().equalsIgnoreCase("microarray")) {
-				subItem.getItemProperty("Type").setValue("Microarray");
-				subItem.getItemProperty("Icon").setValue(microarrayIcon);
-			} else {
-				subItem.getItemProperty("Type").setValue("ProteinStructure");
-				subItem.getItemProperty("Icon").setValue(proteinIcon);
+			String className = ((DataSet) data.get(i)).getType();
+			subItem.getItemProperty("Type").setValue(className);
+			try {
+				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
+				subItem.getItemProperty("Icon").setValue(icon);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				//subItem.getItemProperty("Icon").setValue(icon);
 			}
 
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
@@ -1233,18 +1258,18 @@ public class UMainLayout extends VerticalLayout {
 				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId());
 			} else if(event.getData() instanceof DataSet) {
 				DataSet dS = (DataSet) event.getData();
-				String dataType;
+				String className = dS.getType();
 				navigationTree.addItem(dS.getId());
 				navigationTree.setChildrenAllowed(dS.getId(), false);
-				if(dS.getType().equalsIgnoreCase("PDB File")) {
-					dataType = "ProteinStructure";
-					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(proteinIcon);
-				} else { // FIXME (1) hard-coded type name is not reliable (2) incorrect to assume that everything else is microarray
-					dataType = "Microarray";
-					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(microarrayIcon);
+				try {
+					ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
+					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
 				}
+
 				navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
-				navigationTree.getContainerProperty(dS.getId(), "Type").setValue(dataType);
+				navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
 				navigationTree.select(dS.getId());
 			}
 		}
