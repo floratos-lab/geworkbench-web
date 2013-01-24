@@ -35,7 +35,7 @@ import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
 import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
 import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
-import org.geworkbenchweb.plugins.tools.Tools;
+import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.plugins.ttest.TTestAnalysisWeb;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
@@ -179,7 +179,7 @@ public class UMainLayout extends VerticalLayout {
 		addComponent(pusher);
 
 		HorizontalLayout topBar 		= 	new HorizontalLayout();
-		final UMainToolBar mainToolBar 	= 	new UMainToolBar();
+		final UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView);
 		
 		addComponent(topBar);
 		topBar.setHeight("44px");
@@ -644,8 +644,7 @@ public class UMainLayout extends VerticalLayout {
 				annotButton.setEnabled(false);
 				removeButton.setEnabled(false);
 				set.setEnabled(false);
-				VisualPlugin tools = new Tools(null);
-				setVisualPlugin(tools);
+				pluginView.setDataUI(new ToolsUI());
 			}
 		});
 
@@ -770,8 +769,6 @@ public class UMainLayout extends VerticalLayout {
 		
 		annotationLayout = new FancyCssLayout();
 		annotationLayout.setSlideEnabled(true);
-		VisualPlugin tools = new Tools(null);
-		setVisualPlugin(tools);
 		
 		annotationBar = new MenuBar();
 		annotationBar.setWidth("100%");
@@ -822,10 +819,7 @@ public class UMainLayout extends VerticalLayout {
 		annotationBar.setVisible(false);
 		addComponent(annotationBar);
 		
-		pluginView.setVisualPlugin(new Tools(0L));
-		
-		
-		
+		pluginView.setDataUI(new ToolsUI());
 	}
 
 	/**
@@ -921,10 +915,9 @@ public class UMainLayout extends VerticalLayout {
 						log.warn("set visual plugin f="+f.getClass()+" "+f.getName());
 						setVisualPlugin(f);
 					}
-				}catch (Exception e) { // FIXME what kind of exception is expected here? why?
+				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
 					e.printStackTrace();
-					VisualPlugin tools = new Tools(null);
-					setVisualPlugin(tools);
+					pluginView.setDataUI(new ToolsUI());
 					removeComponent(annotationLayout);
 					annotationBar.setVisible(false);
 				}
@@ -979,20 +972,11 @@ public class UMainLayout extends VerticalLayout {
 	 * DataSet.getType() -> MicroarrayUI
 	 * */
 	public void setVisualPlugin(VisualPlugin f) {
-		// comment out the code that does not apply after some cleaning-up. to be removed. TODO
-//		if(f instanceof Microarray) {
-//			toolBar.setEnabled(true);
-//			for(int i=0; i<toolBar.getItems().size(); i++) {
-//				if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
-//					toolBar.getItems().get(i).setEnabled(true);	
-//				}
-//			}
-//		} else {
-			toolBar.setEnabled(false);
-			for(int i=0; i<toolBar.getItems().size(); i++) {
-				toolBar.getItems().get(i).setEnabled(false);	
-			}
-//		} 
+		toolBar.setEnabled(false);
+		for (int i = 0; i < toolBar.getItems().size(); i++) {
+			toolBar.getItems().get(i).setEnabled(false);
+		}
+
 		pluginView.setVisualPlugin(f);
 	}
 

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.PluginEvent;
+import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
@@ -32,8 +33,10 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class UMainToolBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
+	private final VisualPluginView pluginView;
 
-	public UMainToolBar() {
+	public UMainToolBar(final VisualPluginView pluginView) {
+		this.pluginView = pluginView;
 		
 		setImmediate(true);
 		setStyleName("transparent");
@@ -54,8 +57,7 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				PluginEvent loadPlugin = new PluginEvent("Tools", WorkspaceUtils.getActiveWorkSpace());
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
+				UMainToolBar.this.pluginView.setDataUI(new ToolsUI());
 			}
 			
 		});

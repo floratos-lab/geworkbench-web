@@ -59,22 +59,18 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 	private static Log log = LogFactory.getLog(DataTypeMenuPage.class);
 	
-	// FIXME
-	// the entire implementation of the action after you click on an analysis name to bring up the parameter does not make any sense
-	// I will re-write it gradually while maintaining so not to break the observable behavior. 
 	@SuppressWarnings("deprecation")
 	private void showAnalysisParameterPanel(Analysis analysis,
 			AnalysisUI analysisUI, Long dataSetId) {
 
+		if (analysisUI==null) {
+			log.debug("no analysis UI is chosen");
+			return; // do thing. reusing this makes it easier to implement Tools list
+		}
+		
 		Component layoutToBeUpdated = this.getParent().getParent(); // pluginLayout
 
-		if (!(analysisUI instanceof AnalysisUI)) {
-			log.warn(analysisUI.getClass() + " not supported yet.");
-			return; // TODO all analysis UIs need to implement necessary method,
-					// e.g. setDataSetId
-		}
-		AnalysisUI ui = (AnalysisUI) analysisUI;
-		ui.setDataSetId(dataId);
+		analysisUI.setDataSetId(dataId);
 
 		HorizontalLayout pluginLayout = (HorizontalLayout) layoutToBeUpdated;
 		pluginLayout.removeAllComponents();
@@ -105,7 +101,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		pluginLayout.addComponent(right);
 
 		left.addComponent(controls);
-		left.addComponent(ui);
+		left.addComponent(analysisUI);
 		right.setCaption("Description");
 		String desc = analysis.getDescription();
 		if (desc != null && desc != "") {
@@ -154,10 +150,10 @@ public class DataTypeMenuPage extends VerticalLayout {
 	private final ThemeResource CancelIcon = new ThemeResource(
 			"../runo/icons/16/cancel.png");
 
-	// build one item and add to the UI
-	// this is copied from ToolsUI, but not exactly the same, especially that this needs to trigger the actual analysis.
+	// TODO once ToolsUI is totally cleaned up, this should be private
+	// this needs to trigger the actual analysis.
 	// in the version in ToolsUI, the link-looking analysis names have not action
-	private void buildOneItem(final Analysis analysis,
+	protected void buildOneItem(final Analysis analysis,
 			final AnalysisUI analysisUI) {
 
 		final ItemLayout itemLayout = new ItemLayout();

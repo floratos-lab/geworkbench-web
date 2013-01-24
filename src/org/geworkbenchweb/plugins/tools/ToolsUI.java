@@ -1,148 +1,42 @@
 package org.geworkbenchweb.plugins.tools;
 
-import java.util.List;
-
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.Analysis;
-import org.vaadin.alump.fancylayouts.FancyCssLayout;
+import org.geworkbenchweb.plugins.DataTypeMenuPage;
+import org.geworkbenchweb.plugins.DataTypeUI;
 
-import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
-/* FIXME This is a temporary quick solution. the visualPlugin in UMainLayout and many other stuff need to fixed first. */
-//most of the code is copied from MicroarrayUI.java
-//FIXME eventually we need a registry for all the 'visual plugins' or some other better name
-//FIXME visual plugins (or another better name) need some common interface(s)
-// FIXME MicroarrayUI and similar classes should be fixed like this class as well
-public class ToolsUI extends VerticalLayout {
+/* FIXME This is a temporary solution. the visualPlugin in UMainLayout and many other stuff need to fixed first. */
+public class ToolsUI extends DataTypeMenuPage implements DataTypeUI {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static class ItemLayout extends GridLayout {
-
-		private static final long serialVersionUID = -2801145303701009347L;
+	public ToolsUI() {
+		super("The list of all the available tools.", "Tools", null, null);
 		
-		private final FancyCssLayout cssLayout = new FancyCssLayout();
+		// first part: analysis. taken care of in DataTypeMenuPage
 		
-		private ItemLayout() {
-			setColumns(2);
-			setRows(2);
-			setSizeFull();
-			setImmediate(true);
-			setColumnExpandRatio(1, 1.0f);
-
-			cssLayout.setSlideEnabled(true);
-			cssLayout.setWidth("95%");
-			cssLayout.addStyleName("lay");
-		}
-	
-		private void addDescription(String itemDescription) {
-			Label tableText = new Label(
-					"<p align = \"justify\">"+itemDescription+"</p>");
-			tableText.setContentMode(Label.CONTENT_XHTML);
-			cssLayout.addComponent(tableText);
-			addComponent(cssLayout, 0, 1, 1, 1);
-		}
-		
-		private void clearDescription() {
-			cssLayout.removeAllComponents();
-			removeComponent(cssLayout);
-		}
-	}
-
-	// FIXME when I tested, this constructor seemed to be called twice
-	public ToolsUI(Long dummy) {
-
-		setSpacing(true);
-		
-		List<Analysis> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(null);
-		
-		// first part: analysis
-		Label analysisLabel = new Label("Analysis Available");
-		analysisLabel.setStyleName(Reindeer.LABEL_H2);
-		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(analysisLabel);
-		
-		// loop through all analysis plug-ins
-		for(Analysis a : analysisList) {
-			buildOneItem(a.getName(), a.getDescription());
-		}
-		
-		// second part: visualizations
+		// second part: visualizations. eventually this should be covered by DataTypeMenuPage as well
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
 		vis.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(vis);
 		
 		// tabular view
-		buildOneItem("Tabular Microarray Viewer", "Presents the numerical values of the expression measurements in a table format. " +
-				"One row is created per individual marker/probe and one column per microarray.");
+		buildOneItem(new Analysis("Tabular Microarray Viewer", "Presents the numerical values of the expression measurements in a table format. " +
+				"One row is created per individual marker/probe and one column per microarray."), null);
 		// anova result
-		buildOneItem("ANOVA Result Viewer", "Show ANOVA result as a table");
+		buildOneItem(new Analysis("ANOVA Result Viewer", "Show ANOVA result as a table"), null);
 		// aracne result
-		buildOneItem("Cytoscape", "Show network in cytoscape web, or in text view.");
+		buildOneItem(new Analysis("Cytoscape", "Show network in cytoscape web, or in text view."), null);
 		// cnkb result
-		buildOneItem("CNKB Result View", "Show CNKB Result including throttle plot.");
+		buildOneItem(new Analysis("CNKB Result View", "Show CNKB Result including throttle plot."), null);
 		// hierarchical result
-		buildOneItem("Dendrogram plus heat map", "Show result from hierarchical clustering.");
+		buildOneItem(new Analysis("Dendrogram plus heat map", "Show result from hierarchical clustering."), null);
 		// marina result
-		buildOneItem("MARINa result viewer", "Show result of MARINa analysis");
+		buildOneItem(new Analysis("MARINa result viewer", "Show result of MARINa analysis"), null);
 		// markus result
-		buildOneItem("MARKUS result viewer", "Show result MARKUS result in embbed browser");
-	}
-
-	private final ThemeResource ICON = new ThemeResource(
-			"../custom/icons/icon_info.gif");
-	private final ThemeResource CancelIcon = new ThemeResource(
-			"../runo/icons/16/cancel.png");
-
-	// build one item and add to the UI
-	private void buildOneItem (String itemName, final String itemDescription) {
-
-		final ItemLayout itemLayout 		=	new ItemLayout();
-		final Button infoButton 			= 	new Button();
-		final Button cancelButton 		= 	new Button();	
-		
-		Button toolNameText 	= 	new Button(itemName); // FIXME, not a button, a text label really
-		toolNameText.setStyleName(Reindeer.BUTTON_LINK);
-		
-		infoButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				itemLayout.removeComponent(infoButton);
-				itemLayout.addComponent(cancelButton, 1, 0);
-				itemLayout.addDescription(itemDescription);
-			}
-		});
-		cancelButton.addListener(new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				itemLayout.removeComponent(cancelButton);
-				itemLayout.addComponent(infoButton, 1, 0);
-				itemLayout.clearDescription();
-			}
-		});
-		
-		infoButton.setStyleName(BaseTheme.BUTTON_LINK);
-		infoButton.setIcon(ICON);
-		cancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cancelButton.setIcon(CancelIcon);
-		itemLayout.setSpacing(true);
-		itemLayout.addComponent(toolNameText);
-		itemLayout.addComponent(infoButton);
-
-		addComponent(itemLayout);
+		buildOneItem(new Analysis("MARKUS result viewer", "Show result MARKUS result in embbed browser"), null);
 	}
 }

@@ -16,7 +16,7 @@ public class Analysis {
     
 	final private String name, description;
 	
-	Analysis(String name, String description) {
+	public Analysis(String name, String description) {
 		this.name = name;
 		this.description = description;
 	}
