@@ -144,7 +144,7 @@ public class VisualPluginView extends HorizontalLayout {
 			//currentFeature = plugin; // FIXME what is the purpose
 
 			left.addComponent(controls);
-			title.setValue("<span>" + plugin.getCaption() + "</span>");
+			title.setValue("<span>" + plugin.getTitle() + "</span>");
 			//left.addComponent(getLayoutFor(plugin));
 			left.addComponent(plugin);
 			right.setCaption("Description");

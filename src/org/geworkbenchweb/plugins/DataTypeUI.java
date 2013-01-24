@@ -12,5 +12,6 @@ import com.vaadin.ui.ComponentContainer;
  */
 public interface DataTypeUI extends ComponentContainer {
 
+	String getTitle();
 	String getDescription();
 }

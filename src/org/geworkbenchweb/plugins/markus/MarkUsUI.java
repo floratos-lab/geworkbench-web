@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 
@@ -25,7 +26,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-public class MarkUsUI extends VerticalLayout {
+public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	
 	private static final long serialVersionUID = 988711785863720384L;
 
@@ -70,11 +71,6 @@ public class MarkUsUI extends VerticalLayout {
 
 	public MarkUsUI(Long dataSetId) {
 		
-		this.dataSetId 				= 	dataSetId;	
-		DSProteinStructure prtSet 	=	(DSProteinStructure) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
-
-		this.dataSet = prtSet;
-		
 		setImmediate(true);
 		setSpacing(true);
 
@@ -92,6 +88,7 @@ public class MarkUsUI extends VerticalLayout {
 		final Button submitButton 	= 	new Button("Submit", new SubmitListener(this));
 		addComponent(submitButton);
 
+		setDataSetId(dataSetId);
 	}
 	
 	private class SubmitListener implements Button.ClickListener{
@@ -116,7 +113,9 @@ public class MarkUsUI extends VerticalLayout {
 	private Panel buildOptionalPanel() {
 		cbxChain = new ComboBox("Chain", getChains());
 		cbxChain.setNullSelectionAllowed(false);
-		cbxChain.setValue(cbxChain.getItemIds().iterator().next());
+		if(cbxChain.size()>0) {
+			cbxChain.setValue(cbxChain.getItemIds().iterator().next());
+		}
 
 		GridLayout layout = new GridLayout(4, 1);
 		layout.setSpacing(true);
@@ -139,9 +138,10 @@ public class MarkUsUI extends VerticalLayout {
 	}
 
 	private int chainoffset = 21;
-	public HashSet<String> getChains() {
+	private HashSet<String> getChains() {
 		HashSet<String> chains = new HashSet<String>();
 		CSProteinStructure dataset = (CSProteinStructure)dataSet;
+		if(dataSet==null) return chains; // this happens at the 'initial' time when dataSetId is zero
 		String str= dataset.getContent();
 
 		for (String line : str.split("\n")){
@@ -592,5 +592,17 @@ public class MarkUsUI extends VerticalLayout {
 		}
 		return res;
     }
+    
+	@Override
+	public void setDataSetId(Long dataId) {
+		this.dataSetId = dataId;
+		if(dataId==0) return;
+		
+		dataSet 	=	(DSProteinStructure) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		cbxChain.removeAllItems();
+		for(String itemId: getChains()) {
+			cbxChain.addItem(itemId);
+		}
+	}
 
 }

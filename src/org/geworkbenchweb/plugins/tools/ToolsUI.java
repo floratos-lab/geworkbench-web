@@ -61,7 +61,7 @@ public class ToolsUI extends VerticalLayout {
 
 		setSpacing(true);
 		
-		List<Analysis> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList();
+		List<Analysis> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(null);
 		
 		// first part: analysis
 		Label analysisLabel = new Label("Analysis Available");
@@ -73,12 +73,6 @@ public class ToolsUI extends VerticalLayout {
 		for(Analysis a : analysisList) {
 			buildOneItem(a.getName(), a.getDescription());
 		}
-		
-		//MarkUs
-		buildOneItem("MarkUs", "MarkUs is a web server to assist the assessment of the biochemical function " +
-				"for a given protein structure. MarkUs identifies related protein structures " +
-				"and sequences, detects protein cavities, and calculates the surface electrostatic " +
-				"potentials and amino acid conservation profile.");
 		
 		// second part: visualizations
 		Label vis = new Label("Visualizations Available");

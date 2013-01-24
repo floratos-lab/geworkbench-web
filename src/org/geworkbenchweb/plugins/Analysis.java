@@ -6,15 +6,22 @@ package org.geworkbenchweb.plugins;
 /**
  * Analysis.
  * 
- * TODO this eventually should define the exact interface for all analysis plug-ins.
- * At this point, let us use as a simple marker interface. 
+ * TODO this could be used to define the exact interface for all analysis plug-ins.
+ * At this point, it is simply used as an identifier. Actual analysis is in its *UI class. 
  * 
  * @author zji
  *
  */
-public interface Analysis {
+public class Analysis {
     
-	String getName();
-    String getDescription();
+	final private String name, description;
+	
+	Analysis(String name, String description) {
+		this.name = name;
+		this.description = description;
+	}
+	
+	public String getName() {return name;}
+    public String getDescription() {return description;}
 
 }

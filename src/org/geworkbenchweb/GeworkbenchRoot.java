@@ -13,18 +13,6 @@ import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
-import org.geworkbenchweb.plugins.anova.Anova;
-import org.geworkbenchweb.plugins.anova.AnovaUI;
-import org.geworkbenchweb.plugins.aracne.Aracne;
-import org.geworkbenchweb.plugins.aracne.AracneUI;
-import org.geworkbenchweb.plugins.cnkb.CNKB;
-import org.geworkbenchweb.plugins.cnkb.CNKBUI;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClustering;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
-import org.geworkbenchweb.plugins.marina.Marina;
-import org.geworkbenchweb.plugins.marina.MarinaUI;
-import org.geworkbenchweb.plugins.ttest.TTest;
-import org.geworkbenchweb.plugins.ttest.TTestUI;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -182,19 +170,12 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}	
 
-	// TODO compare whether registration of class is a better idea than doing it for instance; 
-	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-in
 	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
 		PluginRegistry pr = pluginRegistry.get();
 		if(pr==null) {
 			pr = new PluginRegistry();
-			pr.register(new Anova(), new AnovaUI(0L));
-			pr.register(new Aracne(), new AracneUI(0L));
-			pr.register(new CNKB(), new CNKBUI(0L));
-			pr.register(new HierarchicalClustering(), new HierarchicalClusteringUI(0L));
-			pr.register(new Marina(), new MarinaUI(0L));
-			pr.register(new TTest(), new TTestUI(0L)); 
+			pr.init();
 			pluginRegistry.set(pr);
 		}
 		return pr;
