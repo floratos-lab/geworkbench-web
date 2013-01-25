@@ -169,7 +169,7 @@ public class CSVUtil {
 		}
 	}
 	
-	public static void saveSetToFile(String savefname, SubSet subSet, Window window){
+	public static void saveSetToFile(String savefname, SubSet subSet){
 		BufferedWriter bw = null;
 		try{
 			bw = new BufferedWriter(new FileWriter(savefname));
@@ -186,10 +186,5 @@ public class CSVUtil {
 				e.printStackTrace();
 			}
 		}
-		MessageBox mb = new MessageBox(window,
-				"Save Done", MessageBox.Icon.INFO,
-				"Set has been saved to "+savefname,
-				new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-		mb.show();
 	}
 }

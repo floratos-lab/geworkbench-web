@@ -1,6 +1,8 @@
 package org.geworkbenchweb.layout;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
@@ -63,10 +65,11 @@ import org.vaadin.easyuploads.UploadField.StorageMode;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.FilesystemContainer;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.DownloadStream;
+import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
@@ -85,7 +88,6 @@ import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.SplitPanel;
@@ -158,6 +160,8 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Long selectedSubSetId;
 	
+	private String saveSetDir = System.getProperty("user.home") + "/temp/" + user.getUsername() + "/savedSet/";
+
 	static private ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
 	static private ThemeResource pendingIcon 	=	new ThemeResource("../custom/icons/pending.gif");
 	static private ThemeResource networkIcon 	=	new ThemeResource("../custom/icons/network16x16.gif");
@@ -806,7 +810,6 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		final Tree filesystem = new Tree();
 		saveSetButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
@@ -814,70 +817,27 @@ public class UMainLayout extends VerticalLayout {
 				if(selectedSubSetId == null) return;
 				final SubSet subSet = FacadeFactory.getFacade().find(SubSet.class, selectedSubSetId);
 
-				File saveDir = new File(System.getProperty("user.home"));
-				FilesystemContainer fsc = new FilesystemContainer(saveDir, true);
-				/*for (File file : fsc.getItemIds()){
-					if (file.isDirectory()){
-						filesystem.addItem(file);
-					}
-				}*/
-				filesystem.setContainerDataSource(fsc);
-				VerticalLayout vlayout = new VerticalLayout();
-				vlayout.setMargin(true);
-				vlayout.setSpacing(true);
-				final Window directoryWindow = new Window();
-				directoryWindow.setContent(vlayout);
-				directoryWindow.setWidth("55%");
-				directoryWindow.center();
+				if (!new File(saveSetDir).exists())	new File(saveSetDir).mkdir();
+				String savefname = saveSetDir + subSet.getName() + ".csv";
+				CSVUtil.saveSetToFile(savefname, subSet);
 
-				Button confirmButton = new Button("Save");
-				confirmButton.addListener(new Button.ClickListener() {
-					private static final long serialVersionUID = 1689040017522939604L;
-					public void buttonClick(ClickEvent event) {
-						String dirname = filesystem.getValue().toString();
-						if (new File(dirname).isDirectory()){
-							final String savefname = dirname + File.separator + subSet.getName() + ".csv";
-							final Window mainWindow = getApplication().getMainWindow();
-							mainWindow.removeWindow(directoryWindow);
-							if (new File(savefname).exists()){
-								MessageBox mb = new MessageBox(mainWindow, 
-										"Warning", MessageBox.Icon.INFO, "File exists: \"" +
-										savefname + "\". Click \"Ok\" to overwrite the file." +
-										" or Click \"Cancel\" to choose different folder",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
-										new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
-								mb.show(new MessageBox.EventListener() {
-									private static final long serialVersionUID = 1L;
-									public void buttonClicked(ButtonType buttonType) {
-										if(buttonType.equals(ButtonType.OK)) {
-											CSVUtil.saveSetToFile(savefname, subSet, mainWindow);
-										}
-									}
-								});
-							}else
-								CSVUtil.saveSetToFile(savefname, subSet, mainWindow);
-						}
-					}
-				});
-				Button cancelButton = new Button("Cancel");
-				cancelButton.addListener(new Button.ClickListener() {
-					private static final long serialVersionUID = 9003258492370674637L;
-					public void buttonClick(ClickEvent event) {
-						directoryWindow.getParent().removeWindow(directoryWindow);
-					}
-				});
-				HorizontalLayout hlayout = new HorizontalLayout();
-				hlayout.setSpacing(true);
-				hlayout.addComponent(confirmButton);
-				hlayout.addComponent(cancelButton);
-				
-				Panel fspanel = new Panel("Please select a directory to save "+subSet.getName()+".csv");
-				fspanel.addComponent(filesystem);
-				fspanel.setHeight("200px");
-				
-				vlayout.addComponent(fspanel);
-				vlayout.addComponent(hlayout);
-				getWindow().addWindow(directoryWindow);
+				FileResource resource = new FileResource(new File(savefname), getApplication()){
+					private static final long serialVersionUID = -4237233790958289183L;
+					public DownloadStream getStream() {
+				        try {
+				            final DownloadStream ds = new DownloadStream(new FileInputStream(
+				                    getSourceFile()), getMIMEType(), getFilename());
+				            ds.setParameter("Content-Disposition", "attachment; filename="
+				                    + getFilename());
+				            ds.setCacheTime(0);
+				            return ds;
+				        } catch (final FileNotFoundException e) {
+				            e.printStackTrace();
+				            return null;
+				        }
+				    }
+				};
+				getApplication().getMainWindow().open(resource);
 			}
 		});
 
