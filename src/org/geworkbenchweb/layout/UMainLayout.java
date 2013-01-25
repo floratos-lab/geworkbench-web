@@ -2,7 +2,6 @@ package org.geworkbenchweb.layout;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,8 +26,6 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
-import org.geworkbenchweb.events.PluginEvent;
-import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.plugins.DataTypeUI;
 import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
@@ -177,9 +174,6 @@ public class UMainLayout extends VerticalLayout {
 		/* Add listeners here */
 		NodeAddListener addNodeListener = new NodeAddListener();
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
-
-		PluginListener pluginListener = new PluginListener();
-		GeworkbenchRoot.getBlackboard().addListener(pluginListener);
 
 		AnalysisListener analysisListener = new AnalysisListener();
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
@@ -1019,7 +1013,6 @@ public class UMainLayout extends VerticalLayout {
 			public void valueChange(ValueChangeEvent event) {
 
 				Item selectedItem = tree.getItem(event.getProperty().getValue());
-				VisualPlugin f;
 				try {				
 					if( event.getProperty().getValue()!=null ) {
 
@@ -1070,13 +1063,22 @@ public class UMainLayout extends VerticalLayout {
 						}
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
-						String packageName = className.toLowerCase();
 						if(className.contains("Results")) {
-							packageName = className.substring(0, className.length() - 7).toLowerCase()+".results";
+							String packageName = className.substring(0, className.length() - 7).toLowerCase()+".results";
 
+							String loadClass = "org.geworkbenchweb.plugins." + packageName
+									+ "." + className;
+							Class<?> aClass = classLoader.loadClass(loadClass);
+							VisualPlugin f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
+							removeComponent(annotationLayout);
+							toolBar.setEnabled(false);
+							for (int i = 0; i < toolBar.getItems().size(); i++) {
+								toolBar.getItems().get(i).setEnabled(false);
+							}
+
+							pluginView.setVisualPlugin(f);
 						} else {
-							// TODO try the input data type first. the same design will be extended to result data later
-							// input for now is only either microarray set or protein structure
+							// For now, we only expect CSMcrioarraySet and CSProteinStructure
 							Class<?> aClass = classLoader.loadClass(className);
 							removeComponent(annotationLayout);
 							Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
@@ -1084,15 +1086,6 @@ public class UMainLayout extends VerticalLayout {
 							pluginView.setDataUI(dataUI); // TODO to be implemented
 							return;
 						}
-						// FIXME this part can be reached by result only. 
-						// in other words, we only expect CSMcrioarraySet and CSProteinStructure (not VisualPlugin) if it is not result
-						String loadClass = "org.geworkbenchweb.plugins." + packageName
-								+ "." + className;
-						Class<?> aClass = classLoader.loadClass(loadClass);
-						f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
-						removeComponent(annotationLayout);
-						log.warn("set visual plugin f="+f.getClass()+" "+f.getName());
-						setVisualPlugin(f);
 					}
 				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
 					e.printStackTrace();
@@ -1137,26 +1130,6 @@ public class UMainLayout extends VerticalLayout {
 		});
 		
 		return tree;
-	}
-
-	/**
-	 * Sets the VisualPlugin 
-	 * @return
-	 */
-	/* FIXME this is fact a map from a 'VisualPlugin', say, Abc, to its corresponding AbcUI
-	 * Because of many problems in the basic design of VisualPlugin, I am changing things away from it.
-	 * For example, Analysis now is no long a VisualPuglin.
-	 * Many things would be simpler if they don't go through this mapping, e.g.
-	 * DataSet.getType() not "PDB File" -> tree node type set to be "Microarry" -> class Microarray -> MicroarrayUI would become
-	 * DataSet.getType() -> MicroarrayUI
-	 * */
-	public void setVisualPlugin(VisualPlugin f) {
-		toolBar.setEnabled(false);
-		for (int i = 0; i < toolBar.getItems().size(); i++) {
-			toolBar.getItems().get(i).setEnabled(false);
-		}
-
-		pluginView.setVisualPlugin(f);
 	}
 
 	/**
@@ -1435,53 +1408,6 @@ public class UMainLayout extends VerticalLayout {
 				navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
 				navigationTree.select(dS.getId());
 			}
-		}
-	}
-
-	/**
-	 * PluginListener class listenes to the PluginEvent and sets the desired VisualPlugin
-	 * @author np2417
-	 */
-	public class PluginListener implements PluginEventListener {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void pluginSet(PluginEvent event) {
-
-			navigationTree.unselect(event.getDataId());
-			String pluginName = event.getPluginName();
-			Long dataSetId = event.getDataId();
-
-			ClassLoader classLoader = this.getClass().getClassLoader();
-			String loadClass = "org.geworkbenchweb.plugins." + 
-					pluginName.toLowerCase() +
-					"."+
-					pluginName;
-
-			@SuppressWarnings("rawtypes")
-			Class aClass = null;
-			try {
-				aClass = classLoader.loadClass(loadClass);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			VisualPlugin f = null;
-			try {
-				f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} 
-			setVisualPlugin(f);
 		}
 	}
 

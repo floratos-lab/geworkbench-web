@@ -3,15 +3,16 @@ package org.geworkbenchweb.plugins.microarray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.PluginEvent;
+import org.geworkbenchweb.layout.VisualPluginView;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.plugins.DataTypeUI;
+import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.BaseTheme;
@@ -26,7 +27,7 @@ public class MicroarrayUI extends DataTypeMenuPage implements DataTypeUI {
 
 	private static final long serialVersionUID = 1L;
 	
-	public MicroarrayUI(Long dataSetId) {
+	public MicroarrayUI(final Long dataSetId) {
 		super("Microarray Description", "Microarray Data", DSMicroarraySet.class, dataSetId);
 		
 		// TODO visualization eventually should be covered by DataTypeMenuPage as well
@@ -62,8 +63,12 @@ public class MicroarrayUI extends DataTypeMenuPage implements DataTypeUI {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				PluginEvent loadPlugin = new PluginEvent("TabularView", dataId);
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
+				Component pluginView = MicroarrayUI.this.getParent().getParent().getParent();
+				if(pluginView instanceof VisualPluginView) {
+					((VisualPluginView)pluginView).setContent(new TabularViewUI(dataSetId));
+				} else {
+					log.error("pluginView is "+pluginView.getClass());
+				}
 			}
 		});
 		

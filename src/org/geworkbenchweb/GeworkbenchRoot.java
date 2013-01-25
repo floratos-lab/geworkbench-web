@@ -9,8 +9,6 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
-import org.geworkbenchweb.events.PluginEvent;
-import org.geworkbenchweb.events.PluginEvent.PluginEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -166,7 +164,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		
 		/* This event should be fired whenever new ResultNode is added */
 		getBlackboard().register(NodeAddEventListener.class, NodeAddEvent.class);
-		getBlackboard().register(PluginEventListener.class, PluginEvent.class);
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}	
 
@@ -181,4 +178,3 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		return pr;
 	}
 }
-

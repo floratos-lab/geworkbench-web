@@ -49,6 +49,11 @@ public class VisualPluginView extends HorizontalLayout {
 		addComponent(ex);
 	}
 
+	public void setContent(Component content) {
+		removeAllComponents();
+		addComponent(content);
+	}
+	
 	/**
 	 *  Set the content of this panel. Generic version.
 	 * 
