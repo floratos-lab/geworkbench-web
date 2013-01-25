@@ -75,7 +75,7 @@ public class UploadDataUI extends VerticalLayout {
 	private File annotFile;
 	private static final String tempDir = System.getProperty("user.home") + "/temp/";
 	
-	public UploadDataUI(Long dataSetId) {
+	public UploadDataUI() {
 
 		setImmediate(true);
 		

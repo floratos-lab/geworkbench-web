@@ -67,6 +67,10 @@ public class DataTypeMenuPage extends VerticalLayout {
 			log.debug("no analysis UI is chosen");
 			return; // do thing. reusing this makes it easier to implement Tools list
 		}
+		if (dataSetId==null) {
+			log.debug("no data set is chosen");
+			return; // do thing. reusing this makes it easier to implement Tools list
+		}
 		
 		Component layoutToBeUpdated = this.getParent().getParent(); // pluginLayout
 

@@ -4,9 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.PluginEvent;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
+import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
@@ -16,11 +15,11 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -47,8 +46,7 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				PluginEvent loadPlugin = new PluginEvent("UploadData", WorkspaceUtils.getActiveWorkSpace());
-				GeworkbenchRoot.getBlackboard().fire(loadPlugin);
+				UMainToolBar.this.pluginView.setContent(new UploadDataUI(), "Upload Data", "Please use this interface to upload data");
 			}
 			
 		});

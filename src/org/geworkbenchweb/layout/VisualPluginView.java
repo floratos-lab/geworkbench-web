@@ -18,14 +18,6 @@ public class VisualPluginView extends HorizontalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-	private Panel right;
-	
-	private VerticalLayout left;
-
-	private HorizontalLayout controls;
-
-	private Label title = new Label("", Label.CONTENT_XHTML);
-
 	/** Contians 
 	 * key1 - plugin 
 	 * key2 - dataSetId of plugin 
@@ -37,21 +29,24 @@ public class VisualPluginView extends HorizontalLayout {
 		setImmediate(true);
 	}
 	
-	// TODO phase out this, especially the 'non-visualizer' part first
+	// TODO phase out this
 	public void setVisualPlugin(VisualPlugin plugin) {
-		
-		if (plugin.checkForVisualizer() == false) {
-			setContent((ComponentContainer) getLayoutFor(plugin),
-					plugin.getName(), plugin.getDescription());
+		// plugin.checkForVisualizer() always return true now
+		this.removeAllComponents();
+		if (plugin.getName().contains("HierarchicalClusteringResults")) {
+			setSizeUndefined();
 		} else {
-			this.removeAllComponents();
-			if (plugin.getName().contains("HierarchicalClusteringResults")) {
-				setSizeUndefined();
-			} else {
-				setSizeFull();
-			}
-			addComponent(getLayoutFor(plugin));
+			setSizeFull();
 		}
+
+		Component ex = (Component) pluginCache.get(plugin,
+				plugin.getDataSetId());
+		if (ex == null) {
+			Long data = plugin.getDataSetId();
+			ex = plugin.getLayout(data);
+			pluginCache.put(plugin, plugin.getDataSetId(), ex);
+		}
+		addComponent(ex);
 	}
 
 	/**
@@ -71,22 +66,23 @@ public class VisualPluginView extends HorizontalLayout {
 		pluginLayout.setMargin(true);
 		pluginLayout.setStyleName("sample-view");
 		
-		left = new VerticalLayout();
+		VerticalLayout left = new VerticalLayout();
 		left.setWidth("100%");
 		left.setSpacing(true);
 		left.setMargin(false);
 		
 		VerticalLayout rightLayout = new VerticalLayout();
-		right = new Panel(rightLayout);
+		Panel right = new Panel(rightLayout);
 		rightLayout.setMargin(true, false, false, false);
 		right.setStyleName(Panel.STYLE_LIGHT);
 		right.addStyleName("feature-info");
 		right.setWidth("319px");
 
-		controls = new HorizontalLayout();
+		HorizontalLayout controls = new HorizontalLayout();
 		controls.setWidth("100%");
 		controls.setStyleName("feature-controls");
 
+		Label title = new Label("<span>" + titleText + "</span>", Label.CONTENT_XHTML);
 		title.setStyleName("title");
 		controls.addComponent(title);
 		controls.setExpandRatio(title, 1);
@@ -96,8 +92,6 @@ public class VisualPluginView extends HorizontalLayout {
 		pluginLayout.addComponent(right);
 		
 		left.addComponent(controls);
-		title.setValue("<span>" + titleText + "</span>");
-		//left.addComponent(getLayoutFor(plugin));
 		left.addComponent(content);
 		right.setCaption("Description");
 		if (description != null && description != "") {
@@ -111,21 +105,5 @@ public class VisualPluginView extends HorizontalLayout {
 	
 	public void setDataUI(DataTypeUI plugin) {
 		setContent(plugin, plugin.getTitle(), plugin.getDescription());
-	}
-
-	private Component getLayoutFor(VisualPlugin f) {
-		Component ex = null;
-		if(f.checkForVisualizer()) {
-			ex 	= (Component) pluginCache.get(f, f.getDataSetId());
-			if (ex == null) {
-				Long data = f.getDataSetId();
-				ex = f.getLayout(data);
-				pluginCache.put(f, f.getDataSetId(), ex);
-			}
-		} else {
-			Long data = f.getDataSetId();
-			ex = f.getLayout(data);
-		}
-		return ex;
 	}
 }
