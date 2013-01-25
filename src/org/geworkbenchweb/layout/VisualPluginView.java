@@ -33,11 +33,7 @@ public class VisualPluginView extends HorizontalLayout {
 	public void setVisualPlugin(VisualPlugin plugin) {
 		// plugin.checkForVisualizer() always return true now
 		this.removeAllComponents();
-		if (plugin.getName().contains("HierarchicalClusteringResults")) {
-			setSizeUndefined();
-		} else {
-			setSizeFull();
-		}
+		setSizeFull();
 
 		Component ex = (Component) pluginCache.get(plugin,
 				plugin.getDataSetId());

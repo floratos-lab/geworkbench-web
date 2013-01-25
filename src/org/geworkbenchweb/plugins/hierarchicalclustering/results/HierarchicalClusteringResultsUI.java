@@ -23,113 +23,120 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
-public class HierarchicalClusteringResultsUI extends VerticalLayout {
+public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-     * The underlying micorarray set used in the hierarchical clustering
-     * analysis.
-     */
-    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = null;
+	 * The underlying micorarray set used in the hierarchical clustering
+	 * analysis.
+	 */
+	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = null;
 
-    /**
-     * The current marker cluster being rendered in the marker Dendrogram
-     */
-    private MarkerHierCluster currentMarkerCluster = null;
+	/**
+	 * The current marker cluster being rendered in the marker Dendrogram
+	 */
+	private MarkerHierCluster currentMarkerCluster = null;
 
-    /**
-     * The leaf marker clusters in <code>currentMarkerCluster</code>.
-     */
-    private Cluster[] leafMarkers = null;
+	/**
+	 * The leaf marker clusters in <code>currentMarkerCluster</code>.
+	 */
+	private Cluster[] leafMarkers = null;
 
-    /**
-     * The current array cluster being rendered in the marker Dendrogram
-     */
-    private MicroarrayHierCluster currentArrayCluster = null;
+	/**
+	 * The current array cluster being rendered in the marker Dendrogram
+	 */
+	private MicroarrayHierCluster currentArrayCluster = null;
 
-    /**
-     * The leaf microarrays clusters in <code>currentArrayCluster</code>.
-     */
-    private Cluster[] leafArrays = null;
+	/**
+	 * The leaf microarrays clusters in <code>currentArrayCluster</code>.
+	 */
+	private Cluster[] leafArrays = null;
 
-    private double intensity = 1.0;
-    
-    /**
-     * The String is passed to the client side
-     * Marker String
-     */
-    private StringBuffer markerString; 
-    
-    /**
-     * The string is passed to the client side
-     * Array String
-     */
-    private StringBuffer arrayString; 
-    
-    User user = SessionHandler.get();
-    
-    private transient Object lock = new Object();
-    
-    private Clustergram dendrogram;
-    
-    private int geneNo;
-    
-    private int chipNo;
-    
-    private String[] markerNames; 
-    
+	private double intensity = 1.0;
+
+	/**
+	 * The String is passed to the client side
+	 * Marker String
+	 */
+	private StringBuffer markerString; 
+
+	/**
+	 * The string is passed to the client side
+	 * Array String
+	 */
+	private StringBuffer arrayString; 
+
+	User user = SessionHandler.get();
+
+	private transient Object lock = new Object();
+
+	private Clustergram dendrogram;
+
+	private int geneNo;
+
+	private int chipNo;
+
+	private String[] markerNames; 
+
 	private String[] arrayNames	;	
-	
+
 	private String[] colors; 
-	
+
 	private String mString;
-	
+
 	private String aString;
-	
+
 	private int geneHeight 	= 	5;
-	
+
 	private int geneWidth 	= 	10;
-	
-	private Button in;
-	
-	private Button out;
-	
+
+	private MenuBar toolBar;
+
 	@SuppressWarnings({ "unchecked" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
-		
+
+		setSizeFull();
 		setImmediate(true);
-		setStyleName(Reindeer.LAYOUT_WHITE);
-		
-		
+		setStyleName(Reindeer.SPLITPANEL_SMALL);
+		setLocked(true);
+		setSplitPosition((float) 2.3);
+
+		toolBar =  new MenuBar();
+		toolBar.setSizeFull();
+		toolBar.setStyleName("transparent");
+
 		final ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
-        microarraySet	 				= 	(DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
-        currentMarkerCluster 			= 	(MarkerHierCluster)dataSet.getCluster(0);
-    	currentArrayCluster 			= 	(MicroarrayHierCluster)dataSet.getCluster(1);
-    	
-    	if (currentMarkerCluster != null) {
-            java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
-            leafMarkers = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
-            leaves.toArray(leafMarkers);
-        }
-    	
-    	 if (currentArrayCluster != null) {
-             java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
-             leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
-             leaves.toArray(leafArrays);
-         }
-    	 
-      
+		microarraySet	 				= 	(DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
+		currentMarkerCluster 			= 	(MarkerHierCluster)dataSet.getCluster(0);
+		currentArrayCluster 			= 	(MicroarrayHierCluster)dataSet.getCluster(1);
+
+		if (currentMarkerCluster != null) {
+			java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
+			leafMarkers = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
+			leaves.toArray(leafMarkers);
+		}
+
+		if (currentArrayCluster != null) {
+			java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
+			leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
+			leaves.toArray(leafArrays);
+		}
+
+
 		if (currentMarkerCluster == null) {
 			geneNo = microarraySet.markers().size();
 		} else {
@@ -141,12 +148,12 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		} else {
 			chipNo = leafArrays.length;
 		}
-		
+
 		markerNames 	= 	new String[geneNo];
 		arrayNames		= 	new String[chipNo];
 		colors 			= 	new String[chipNo*geneNo];
 		int k = 0;
-		
+
 		for (int i = 0; i < geneNo; i++) {
 			DSGeneMarker stats = null;
 
@@ -165,11 +172,11 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 				} else {
 					mArray = microarraySet.get(j);
 				}
-				
+
 				if(i == 0) {
 					arrayNames[j] = mArray.getLabel();
 				}
-				
+
 				DSMarkerValue marker 	= 	mArray.getMarkerValue(stats);
 				Color color 			= 	getMarkerValueColor(marker, stats, (float) intensity);
 				String rgb 				= 	Integer.toHexString(color.getRGB());
@@ -178,7 +185,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 				k++;
 			}
 		}
-		
+
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
 		markerString 	= 	new StringBuffer();
@@ -188,33 +195,29 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
 			mString = markerString.toString();
 		}
-			
+
 		if(arrayCluster != null) {
 			@SuppressWarnings("unused")
 			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
 			aString = arrayString.toString();
 		}
-		
+
 		dendrogram = new Clustergram();
-		
+		dendrogram.setSizeUndefined();
+
 		/**
 		 * default gene height and width for the dendrogram
 		 */
 		dendrogram.setGeneHeight(geneHeight);
 		dendrogram.setGeneWidth(geneWidth);
-		
-        setWidth("100%");
-        setHeight("100%");
-		
-        HorizontalLayout controlLayout = new HorizontalLayout();
-        
-        
-        in	= 	new Button("+", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = -7814134578733193087L;
+
+		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-In-icon.png"), 
+				new Command() {
+
+			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void menuSelected(MenuItem selectedItem) {
 				removeComponent(dendrogram);
 				geneHeight 	= 	geneHeight*2;
 				geneWidth 	=	geneWidth*2;
@@ -224,12 +227,13 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 				addDendrogram();
 			}
 		});
-        out 	= 	new Button("-", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = -396773583444901979L;
+		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-Out-icon.png"),
+				new Command(){
+
+			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void menuSelected(MenuItem selectedItem) {
 				removeComponent(dendrogram);
 				dendrogram = new Clustergram();
 				geneHeight 	= 	geneHeight/2;
@@ -237,15 +241,15 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 				dendrogram.setGeneHeight(geneHeight);
 				dendrogram.setGeneWidth(geneWidth);
 				addDendrogram();
-				
 			}
 		});
-		Button reset = new Button("Reset", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = -7814134578733193087L;
+
+		MenuBar.MenuItem resetI		=	toolBar.addItem("Reset", new Command(){
+
+			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void menuSelected(MenuItem selectedItem) {
 				removeComponent(dendrogram);
 				geneHeight 	= 	5;
 				geneWidth 	=	10;
@@ -256,64 +260,13 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			}
 		});
 		
-		Button arraySet = new Button("Save Phenotypes to Set", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void buttonClick(ClickEvent event) {
-				final Window nameWindow = new Window();
-				nameWindow.setModal(true);
-				nameWindow.setClosable(true);
-				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-				nameWindow.setWidth("300px");
-				nameWindow.setHeight("150px");
-				nameWindow.setResizable(false);
-				nameWindow.setCaption("Add Phenotypes to Set");
-				nameWindow.setImmediate(true);
-
-				final TextField setName = new TextField();
-				setName.setInputPrompt("Please enter set name");
-				setName.setImmediate(true);
-
-				Button submit = new Button("Submit", new Button.ClickListener() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						try {
-							if(setName.getValue() != null) {
-								ArrayList<String> arrays = new ArrayList<String>();
-								String[] temp 	= 	dendrogram.getArrayLabels();
-								for(int i=0; i<temp.length; i++) {
-									arrays.add(temp[i].trim());
-								}
-								
-								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
-								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.getParent());
-								getApplication().getMainWindow().removeWindow(nameWindow);
-							}
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-				submit.setClickShortcut(KeyCode.ENTER);
-				nameWindow.addComponent(setName);
-				nameWindow.addComponent(submit);
-				getApplication().getMainWindow().addWindow(nameWindow);
-			}
-		});
-		
-		Button markerSet = new Button("Save Markers to Set", new Button.ClickListener() {
+		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", new Command(){
 
 			private static final long serialVersionUID = 1L;
 
 			@SuppressWarnings("deprecation")
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void menuSelected(MenuItem selectedItem) {
 				final Window nameWindow = new Window();
 				nameWindow.setModal(true);
 				nameWindow.setClosable(true);
@@ -358,28 +311,79 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			}
 		});
 		
-		Button exportSVG = new Button("Export as HTML", new Button.ClickListener() {
+		MenuBar.MenuItem saveP 		=	toolBar.addItem("Save Phenotypes", new Command(){
+
+			private static final long serialVersionUID = 1L;
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				final Window nameWindow = new Window();
+				nameWindow.setModal(true);
+				nameWindow.setClosable(true);
+				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
+				nameWindow.setWidth("300px");
+				nameWindow.setHeight("150px");
+				nameWindow.setResizable(false);
+				nameWindow.setCaption("Add Phenotypes to Set");
+				nameWindow.setImmediate(true);
+
+				final TextField setName = new TextField();
+				setName.setInputPrompt("Please enter set name");
+				setName.setImmediate(true);
+
+				Button submit = new Button("Submit", new Button.ClickListener() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void buttonClick(ClickEvent event) {
+						try {
+							if(setName.getValue() != null) {
+								ArrayList<String> arrays = new ArrayList<String>();
+								String[] temp 	= 	dendrogram.getArrayLabels();
+								for(int i=0; i<temp.length; i++) {
+									arrays.add(temp[i].trim());
+								}
+
+								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
+								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.getParent());
+								getApplication().getMainWindow().removeWindow(nameWindow);
+							}
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				submit.setClickShortcut(KeyCode.ENTER);
+				nameWindow.addComponent(setName);
+				nameWindow.addComponent(submit);
+				getApplication().getMainWindow().addWindow(nameWindow);
+			}
+		});
+		
+		MenuBar.MenuItem export 	= 	toolBar.addItem("Export HTML", new Command(){
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void menuSelected(MenuItem selectedItem) {
 				dendrogram.setSVGFlag("true");
 			}
 		});
-		controlLayout.setSpacing(true);
-		controlLayout.addComponent(in);
-		controlLayout.addComponent(out);
-		controlLayout.addComponent(reset);
-		controlLayout.addComponent(markerSet);
-		controlLayout.addComponent(arraySet);
-		controlLayout.addComponent(exportSVG);
-		addComponent(controlLayout);
+
+		resetI.setStyleName("plugin");
+		saveM.setStyleName("plugin");
+		saveP.setStyleName("plugin");
+		export.setStyleName("plugin");
+
+		setFirstComponent(toolBar);
 		addDendrogram();
 	}
-	
+
 	public void addDendrogram() {
-		
-		if(geneHeight == 1) {
+
+		/*if(geneHeight == 1) {
 			out.setEnabled(false);
 		} else {
 			out.setEnabled(true);
@@ -388,7 +392,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			in.setEnabled(false);
 		} else {
 			in.setEnabled(true);
-		}
+		}*/
 		dendrogram.setMarkerCluster(mString);
 		dendrogram.setArrayCluster(aString);
 		dendrogram.setColors(colors);
@@ -397,17 +401,15 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		dendrogram.setMarkerLabels(markerNames);
 		dendrogram.setArrayLabels(arrayNames);
 		dendrogram.setImmediate(true);
-		dendrogram.setSizeFull();
-		
-		this.addComponent(dendrogram);
-		this.setExpandRatio(dendrogram, 1);
+		//dendrogram.setSizeFull();
+		setSecondComponent(dendrogram);
 	}
 
 	private ClusterNode convertMarkerCluster(Cluster hierCluster) {
-	
+
 		markerString.append("(");
 		ClusterNode cluster = null;
-		
+
 		if(hierCluster.isLeaf()) {
 			markerString.append(")");
 		} else {	
@@ -415,18 +417,18 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 			ClusterNode c1 		= 	convertMarkerCluster(child[0]);
 			ClusterNode c2 		= 	convertMarkerCluster(child[1]);
 			cluster 			= 	new ClusterNode(c1, c2);
-			
+
 			markerString.append(")");
-		
+
 		}
 		return cluster;
 	}
-	
+
 	private ClusterNode convertArrayCluster(Cluster hierCluster) {
 
 		arrayString.append("(");
 		ClusterNode cluster = null;
-		
+
 		if(hierCluster.isLeaf()) {
 			arrayString.append(")");
 		} else {	
@@ -438,7 +440,7 @@ public class HierarchicalClusteringResultsUI extends VerticalLayout {
 		}
 		return cluster;
 	}
-	
+
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {
 
 		//      intensity *= 2;
