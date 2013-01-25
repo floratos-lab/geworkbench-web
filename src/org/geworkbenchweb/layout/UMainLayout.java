@@ -1,5 +1,6 @@
 package org.geworkbenchweb.layout;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
@@ -48,6 +49,7 @@ import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
+import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -57,10 +59,14 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
+import org.vaadin.easyuploads.UploadField;
+import org.vaadin.easyuploads.UploadField.FieldType;
+import org.vaadin.easyuploads.UploadField.StorageMode;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.FilesystemContainer;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -81,6 +87,8 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.SplitPanel;
@@ -145,6 +153,8 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Button removeSetButton;
 	
+	private Button openSetButton, saveSetButton;
+			
 	private ComboBox contextSelector;
 	
 	private VerticalLayout contextpane;
@@ -159,6 +169,8 @@ public class UMainLayout extends VerticalLayout {
 	static private ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
 	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
 	static private ThemeResource CancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
+	static private ThemeResource openSetIcon	=	new ThemeResource("../custom/icons/open_set.png");
+	static private ThemeResource saveSetIcon	=	new ThemeResource("../custom/icons/save_set.png");
 
 	public UMainLayout() {
 
@@ -198,6 +210,8 @@ public class UMainLayout extends VerticalLayout {
 		annotButton 	= 	new Button();
 		removeButton	=	new Button();
 		removeSetButton =	new Button();
+		openSetButton	=	new Button();
+		saveSetButton	=	new Button();
 		
 		annotButton.setDescription("Show Annotation");
 		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
@@ -211,9 +225,19 @@ public class UMainLayout extends VerticalLayout {
 		removeSetButton.setStyleName(BaseTheme.BUTTON_LINK);
 		removeSetButton.setIcon(CancelIcon);
 		
+		openSetButton.setDescription("Open Set");
+		openSetButton.setStyleName(BaseTheme.BUTTON_LINK);
+		openSetButton.setIcon(openSetIcon);
+		
+		saveSetButton.setDescription("Save Set");
+		saveSetButton.setStyleName(BaseTheme.BUTTON_LINK);
+		saveSetButton.setIcon(saveSetIcon);
+		
 		annotButton.setEnabled(false);
 		removeButton.setEnabled(false);
 		removeSetButton.setVisible(false);
+		openSetButton.setVisible(false);
+		saveSetButton.setVisible(false);
 		
 		annotButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -251,6 +275,8 @@ public class UMainLayout extends VerticalLayout {
 				navigationTree.setVisible(false);
 				
 				removeSetButton.setVisible(true);
+				openSetButton.setVisible(true);
+				saveSetButton.setVisible(true);
 
 				markerTree	 	= 	new Tree();
 				arrayTree 		=	new Tree();
@@ -484,6 +510,8 @@ public class UMainLayout extends VerticalLayout {
 				removeButton.setVisible(true);
 				annotButton.setVisible(true);
 				removeSetButton.setVisible(false);
+				openSetButton.setVisible(false);
+				saveSetButton.setVisible(false);
 				navigationTree.setVisible(true);
 				markerTree.setVisible(false);
 				contextpane.setVisible(false);
@@ -712,6 +740,153 @@ public class UMainLayout extends VerticalLayout {
 				}
 			}
 		});
+
+		final Window openSetWindow = new Window("Open Set");
+		openSetWindow.center();
+		openSetWindow.setWidth("20%");
+		openSetWindow.setHeight("40%");
+
+		VerticalLayout vlayout = (VerticalLayout) openSetWindow.getContent();
+        vlayout.setMargin(true);
+        vlayout.setSpacing(true);
+
+        final OptionGroup setGroup = new OptionGroup("Please choose a set type");
+        setGroup.addItem("Marker Set");
+        setGroup.addItem("Array Set");
+        setGroup.setValue("Array Set");
+        setGroup.setImmediate(true);
+        vlayout.addComponent(setGroup);
+
+        final OptionGroup markerGroup = new OptionGroup("Markers are represented by");
+		markerGroup.addItem("Marker ID");
+		markerGroup.addItem("Gene Symbol");
+		markerGroup.setValue("Marker ID");
+		vlayout.addComponent(markerGroup);
+		markerGroup.setVisible(false);
+
+		setGroup.addListener(new Property.ValueChangeListener(){
+			private static final long serialVersionUID = 2481194620858021204L;
+			public void valueChange(ValueChangeEvent event) {
+				if (event.getProperty().getValue().equals("Marker Set"))
+					markerGroup.setVisible(true);
+				else
+					markerGroup.setVisible(false);
+			}
+        });
+		
+		UploadField openFile = new UploadField(StorageMode.MEMORY){
+			private static final long serialVersionUID = -212174451849906591L;
+			protected void updateDisplay(){
+				Window pWindow = openSetWindow.getParent();
+				if (pWindow!= null)  pWindow.removeWindow(openSetWindow);
+        		String filename = getLastFileName();
+				byte[] bytes = (byte[])getValue();
+	            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
+	            	if (setGroup.getValue().equals("Array Set")){
+	            		CSVUtil.loadArraySet(filename, bytes, dataSetId, arraySetTree);
+	            	}else{
+	            		CSVUtil.loadMarkerSet(filename, bytes, dataSetId, markerSetTree, (String)markerGroup.getValue());
+	            	}
+        		}else{
+					MessageBox mb = new MessageBox(pWindow,
+							"File Format Error", MessageBox.Icon.WARN,
+							filename + " is not a CSV file",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+        		}
+			}
+		};
+		openFile.setButtonCaption("Open File");
+        openFile.setFieldType(FieldType.BYTE_ARRAY);
+		vlayout.addComponent(openFile);
+
+		openSetButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = -5166425513891423653L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if (openSetWindow.getParent() != null) {
+                    getWindow().showNotification("Window is already open");
+                } else {
+                    getWindow().addWindow(openSetWindow);
+                }
+			}
+		});
+
+		final Tree filesystem = new Tree();
+		saveSetButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = -5166425513891423653L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(selectedSubSetId == null) return;
+				final SubSet subSet = FacadeFactory.getFacade().find(SubSet.class, selectedSubSetId);
+
+				File saveDir = new File(System.getProperty("user.home"));
+				FilesystemContainer fsc = new FilesystemContainer(saveDir, true);
+				/*for (File file : fsc.getItemIds()){
+					if (file.isDirectory()){
+						filesystem.addItem(file);
+					}
+				}*/
+				filesystem.setContainerDataSource(fsc);
+				VerticalLayout vlayout = new VerticalLayout();
+				vlayout.setMargin(true);
+				vlayout.setSpacing(true);
+				final Window directoryWindow = new Window();
+				directoryWindow.setContent(vlayout);
+				directoryWindow.setWidth("55%");
+				directoryWindow.center();
+
+				Button confirmButton = new Button("Save");
+				confirmButton.addListener(new Button.ClickListener() {
+					private static final long serialVersionUID = 1689040017522939604L;
+					public void buttonClick(ClickEvent event) {
+						String dirname = filesystem.getValue().toString();
+						if (new File(dirname).isDirectory()){
+							final String savefname = dirname + File.separator + subSet.getName() + ".csv";
+							final Window mainWindow = getApplication().getMainWindow();
+							mainWindow.removeWindow(directoryWindow);
+							if (new File(savefname).exists()){
+								MessageBox mb = new MessageBox(mainWindow, 
+										"Warning", MessageBox.Icon.INFO, "File exists: \"" +
+										savefname + "\". Click \"Ok\" to overwrite the file." +
+										" or Click \"Cancel\" to choose different folder",  
+										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
+										new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
+								mb.show(new MessageBox.EventListener() {
+									private static final long serialVersionUID = 1L;
+									public void buttonClicked(ButtonType buttonType) {
+										if(buttonType.equals(ButtonType.OK)) {
+											CSVUtil.saveSetToFile(savefname, subSet, mainWindow);
+										}
+									}
+								});
+							}else
+								CSVUtil.saveSetToFile(savefname, subSet, mainWindow);
+						}
+					}
+				});
+				Button cancelButton = new Button("Cancel");
+				cancelButton.addListener(new Button.ClickListener() {
+					private static final long serialVersionUID = 9003258492370674637L;
+					public void buttonClick(ClickEvent event) {
+						directoryWindow.getParent().removeWindow(directoryWindow);
+					}
+				});
+				HorizontalLayout hlayout = new HorizontalLayout();
+				hlayout.setSpacing(true);
+				hlayout.addComponent(confirmButton);
+				hlayout.addComponent(cancelButton);
+				
+				Panel fspanel = new Panel("Please select a directory to save "+subSet.getName()+".csv");
+				fspanel.addComponent(filesystem);
+				fspanel.setHeight("200px");
+				
+				vlayout.addComponent(fspanel);
+				vlayout.addComponent(hlayout);
+				getWindow().addWindow(directoryWindow);
+			}
+		});
+
 		dataNavigation.addComponent(toolBar);
 		dataNavigation.addComponent(annotButton);
 		dataNavigation.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
@@ -719,6 +894,10 @@ public class UMainLayout extends VerticalLayout {
 		dataNavigation.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
 		dataNavigation.addComponent(removeSetButton);
 		dataNavigation.setComponentAlignment(removeSetButton, Alignment.MIDDLE_LEFT);
+		dataNavigation.addComponent(openSetButton);
+		dataNavigation.setComponentAlignment(openSetButton, Alignment.MIDDLE_LEFT);
+		dataNavigation.addComponent(saveSetButton);
+		dataNavigation.setComponentAlignment(saveSetButton, Alignment.MIDDLE_LEFT);
 		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
 		dataNavigation.addComponent(mainToolBar);
 		dataNavigation.setExpandRatio(mainToolBar, 1);
