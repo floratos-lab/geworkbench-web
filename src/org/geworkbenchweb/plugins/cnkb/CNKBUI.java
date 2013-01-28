@@ -7,11 +7,14 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -94,7 +97,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 					resultSet.setDateField(date);
 					String dataSetName	=	"CNKB - Pending"; 
 					resultSet.setName(dataSetName);
-					resultSet.setType("CNKBResults");
+					resultSet.setType(getResultType().getName());
 					resultSet.setParent(dataSetId);
 					resultSet.setOwner(user.getId());	
 					FacadeFactory.getFacade().store(resultSet);	
@@ -104,7 +107,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 					
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params);
+					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params, CNKBUI.this);
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 						
 				} catch (Exception e) {	
@@ -232,5 +235,20 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	public void setDataSetId(Long dataId) {
 		this.dataSetId = dataId;
 		this.removeAllComponents();
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		// FIXME this return type is too generic
+		return Vector.class;
+	}
+
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		CNKBInteractions cnkb = new CNKBInteractions();
+		Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB((DSMicroarraySet) dataset, params);
+		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(hits));
+		return "CNKB";
 	}
 }

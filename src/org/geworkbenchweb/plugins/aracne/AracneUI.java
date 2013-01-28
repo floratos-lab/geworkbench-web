@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -407,7 +409,7 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 						resultSet.setDateField(date);
 						String dataSetName = "Aracne - Pending";
 						resultSet.setName(dataSetName);
-						resultSet.setType("AracneResults");
+						resultSet.setType(getResultType().getName());
 						resultSet.setParent(dataSetId);
 						resultSet.setOwner(SessionHandler.get().getId());
 						FacadeFactory.getFacade().store(resultSet);
@@ -416,7 +418,7 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 						GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-								maSet, resultSet, params);
+								maSet, resultSet, params, AracneUI.this);
 						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 					}
 
@@ -607,5 +609,18 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 					((SubSet) arraySubSets.get(m)).getName());
 		}
 		arraySetSelect.select("All Arrays");
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return AdjacencyMatrixDataSet.class;
+	}
+
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		AracneAnalysisWeb analyze = new AracneAnalysisWeb((DSMicroarraySet) dataset, params);
+		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(analyze.execute()));
+		return "Aracne";
 	}
 }

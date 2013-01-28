@@ -10,6 +10,7 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
@@ -21,6 +22,7 @@ import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
+import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -411,7 +413,7 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 			resultSet.setDateField(date);
 			String dataSetName = "Cytoscape - Pending";
 			resultSet.setName(dataSetName);
-			resultSet.setType("CytoscapeResults");
+			resultSet.setType(AdjacencyMatrixDataSet.class.getName());
 			resultSet.setParent(parentId);
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);
@@ -420,7 +422,7 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-					null, resultSet, params);
+					null, resultSet, params, new NetworkCreation());
 			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 		}
 	}

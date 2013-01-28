@@ -7,21 +7,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.anova.AnovaUI;
+import org.geworkbenchweb.plugins.anova.results.AnovaResultsUI;
 import org.geworkbenchweb.plugins.aracne.AracneUI;
+import org.geworkbenchweb.plugins.aracne.results.AracneResultsUI;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI;
+import org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
+import org.geworkbenchweb.plugins.hierarchicalclustering.results.HierarchicalClusteringResultsUI;
 import org.geworkbenchweb.plugins.marina.MarinaUI;
+import org.geworkbenchweb.plugins.marina.results.MarinaResultsUI;
 import org.geworkbenchweb.plugins.markus.MarkUsUI;
+import org.geworkbenchweb.plugins.markus.results.MarkusResultsUI;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
 import org.geworkbenchweb.plugins.ttest.TTestUI;
+import org.geworkbenchweb.plugins.ttest.results.TTestResultsUI;
 
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.Component;
 
 /**
  * Central control of all Plug-ins. 
@@ -38,27 +53,48 @@ public class PluginRegistry {
 	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeUI>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeUI>>(); 
 	private Map<Class<? extends DSDataSet<?>>, List<Analysis>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<Analysis>>();
 	
+	// TODO for now, let maintain a separate list for result type. this may not necessary eventually
+	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
+	private Map<Class<?>, Class<? extends Component>> resultUiMap = new HashMap<Class<?>, Class<? extends Component>>(); 
+	
 	static private ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
 	static private ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
 	// the following are for result node
-	/*
 	static private ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
-	static private ThemeResource pendingIcon	 	=	new ThemeResource("../custom/icons/pending.gif");
-	static private ThemeResource networkIcon	 	=	new ThemeResource("../custom/icons/network16x16.gif");
+	static private ThemeResource networkIcon	=	new ThemeResource("../custom/icons/network16x16.gif");
 	static private ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
-	static private ThemeResource anovaIcon			=	new ThemeResource("../custom/icons/significance16x16.gif");
+	static private ThemeResource anovaIcon		=	new ThemeResource("../custom/icons/significance16x16.gif");
 	static private ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
+	// other icons
+	/*
+	static private ThemeResource pendingIcon	=	new ThemeResource("../custom/icons/pending.gif");
 	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
-	static private ThemeResource CancelIcon 		= 	new ThemeResource("../runo/icons/16/cancel.png");
+	static private ThemeResource cancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
 	*/
 
 	// TODO compare whether registration of class is a better idea than doing it for instance; 
 	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-in
 	/** Add all the initial registry entries.*/
 	public void init() {
+		resultIconMap.put(CSHierClusterDataSet.class, hcIcon); // hierarchical clustering result
+		resultIconMap.put(Vector.class, networkIcon); // cnkb result // FIXME this result type is too generic
+		resultIconMap.put(AdjacencyMatrixDataSet.class, networkIcon); // aracne result or 'cytoscape' result
+		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
+		resultIconMap.put(CSAnovaResultSet.class, anovaIcon); // anova result
+		resultIconMap.put(DSSignificanceResultSet.class, anovaIcon); // t-test result
+		resultIconMap.put(CSMasterRegulatorTableResultSet.class, marinaIcon); // marina result
+
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);
 		iconMap.put(DSProteinStructure.class, proteinIcon);
 
+		resultUiMap.put(CSHierClusterDataSet.class, HierarchicalClusteringResultsUI.class);
+		resultUiMap.put(Vector.class, CNKBResultsUI.class);
+		resultUiMap.put(AdjacencyMatrixDataSet.class, AracneResultsUI.class);
+		resultUiMap.put(MarkUsResultDataSet.class, MarkusResultsUI.class);
+		resultUiMap.put(CSAnovaResultSet.class, AnovaResultsUI.class);
+		resultUiMap.put(DSSignificanceResultSet.class, TTestResultsUI.class);
+		resultUiMap.put(CSMasterRegulatorTableResultSet.class, MarinaResultsUI.class);
+		
 		uiMap.put(DSMicroarraySet.class, MicroarrayUI.class);
 		uiMap.put(DSProteinStructure.class, ProteinStructureUI.class);
 		
@@ -131,11 +167,30 @@ public class PluginRegistry {
 		return null; // TODO should be a default icon instead of null
 	}
 
+	public ThemeResource getResultIcon(Class<?> clazz) {
+		for(Class<?> c : resultIconMap.keySet()) {
+			if(c.isAssignableFrom(clazz)) {
+				return resultIconMap.get(c);
+			}
+		}
+		return null; // TODO should be a default icon instead of null
+	}
+
 	// clazz is a data type we support
 	public Class<? extends DataTypeUI> getDataUI(Class<?> clazz) {
 		for(Class<? extends DSDataSet<?>> c : uiMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return uiMap.get(c);
+			}
+		}
+		return null; // TODO return the complete list (like by 'tools' menu) may be the best option
+	}
+
+	// clazz is a result data type
+	public Class<? extends Component> getResultUI(Class<?> clazz) {
+		for(Class<?> c : resultUiMap.keySet()) {
+			if(c.isAssignableFrom(clazz)) {
+				return resultUiMap.get(c);
 			}
 		}
 		return null; // TODO return the complete list (like by 'tools' menu) may be the best option

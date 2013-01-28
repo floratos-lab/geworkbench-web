@@ -1,13 +1,18 @@
 package org.geworkbenchweb.plugins.markus;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
+import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -603,6 +608,22 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		for(String itemId: getChains()) {
 			cbxChain.addItem(itemId);
 		}
+		if(cbxChain.size()>0) {
+			cbxChain.setValue(cbxChain.getItemIds().iterator().next());
+		}
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return MarkUsResultDataSet.class;
+	}
+	
+	// TODO this analysis does thing with a different work-flow (not fire AnalysisSubmissionEvent as other analysis plug-ins do)
+	// we need reconcile the design if the difference is really necessary
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		return null;
 	}
 
 }

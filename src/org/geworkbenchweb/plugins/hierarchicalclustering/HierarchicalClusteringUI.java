@@ -3,7 +3,10 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -161,7 +164,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					resultSet.setDateField(date);
 					String dataSetName = "Hierarchical Clustering - Pending" ;
 					resultSet.setName(dataSetName);
-					resultSet.setType("HierarchicalClusteringResults");
+					resultSet.setType(getResultType().getName());
 					resultSet.setParent(dataSetId);
 					resultSet.setOwner(SessionHandler.get().getId());	
 					FacadeFactory.getFacade().store(resultSet);	
@@ -178,7 +181,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params);
+					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params, HierarchicalClusteringUI.this);
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
 					
 				} catch (Exception e) {	
@@ -318,6 +321,20 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 				
 			}
 
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return CSHierClusterDataSet.class;
+	}
+
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
+				(DSMicroarraySet) dataset, params);
+		UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
+		return "Hierarchical Clustering";
 	}
 }
 

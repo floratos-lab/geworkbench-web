@@ -39,6 +39,7 @@ public class ResultSet extends AbstractPojo {
 		return type;
 	}
 
+	// this field strictly refers to the class name of the result. for now it can be anything; but eventually it should be subclass of a specific interface 
 	public void setType(String type) {
 		this.type = type;
 	}

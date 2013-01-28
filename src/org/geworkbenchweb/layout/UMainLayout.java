@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,22 +19,14 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.DataTypeUI;
-import org.geworkbenchweb.plugins.anova.AnovaAnalysis;
-import org.geworkbenchweb.plugins.anova.AnovaUI;
-import org.geworkbenchweb.plugins.aracne.AracneAnalysisWeb;
-import org.geworkbenchweb.plugins.cnkb.CNKBInteractions;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringWrapper;
-import org.geworkbenchweb.plugins.marina.MarinaAnalysis;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
-import org.geworkbenchweb.plugins.ttest.TTestAnalysisWeb;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.Context;
@@ -162,12 +152,7 @@ public class UMainLayout extends VerticalLayout {
 	
 	private String saveSetDir = System.getProperty("user.home") + "/temp/" + user.getUsername() + "/savedSet/";
 
-	static private ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
 	static private ThemeResource pendingIcon 	=	new ThemeResource("../custom/icons/pending.gif");
-	static private ThemeResource networkIcon 	=	new ThemeResource("../custom/icons/network16x16.gif");
-	static private ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
-	static private ThemeResource anovaIcon		=	new ThemeResource("../custom/icons/significance16x16.gif");
-	static private ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
 	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
 	static private ThemeResource CancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
 	static private ThemeResource openSetIcon	=	new ThemeResource("../custom/icons/open_set.png");
@@ -1025,23 +1010,17 @@ public class UMainLayout extends VerticalLayout {
 						}
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
-						if(className.contains("Results")) {
-							String packageName = className.substring(0, className.length() - 7).toLowerCase()+".results";
-
-							String loadClass = "org.geworkbenchweb.plugins." + packageName
-									+ "." + className;
-							Class<?> aClass = classLoader.loadClass(loadClass);
-							VisualPlugin f = (VisualPlugin) aClass.getDeclaredConstructor(Long.class).newInstance(dataSetId); 
+						Class<?> aClass = classLoader.loadClass(className);
+						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
+						if(resultUiClass!=null) { // "is result"
 							removeComponent(annotationLayout);
 							toolBar.setEnabled(false);
 							for (int i = 0; i < toolBar.getItems().size(); i++) {
 								toolBar.getItems().get(i).setEnabled(false);
 							}
 
-							pluginView.setVisualPlugin(f);
-						} else {
-							// For now, we only expect CSMcrioarraySet and CSProteinStructure
-							Class<?> aClass = classLoader.loadClass(className);
+							pluginView.setContentUsingCache(resultUiClass, dataSetId);
+						} else { // "not result". For now, we only expect CSMcrioarraySet and CSProteinStructure
 							removeComponent(annotationLayout);
 							Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
 							DataTypeUI dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
@@ -1068,14 +1047,25 @@ public class UMainLayout extends VerticalLayout {
                     Object propertyId) {
                if (itemId != null)
                {
-            	    
             		   long id = Long.parseLong(itemId.toString());
-            		   Item item = tree.getItem(itemId);            		   
-            		   String className = (String) item.getItemProperty("Type").getValue();
-            		   if(!className.contains("Results")) 
-            		   {
-            			    		    
-            		       DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(UserDirUtils.getDataSet(id));
+            		   Item item = tree.getItem(itemId);
+            		   String className = (String)item.getItemProperty("Type").getValue();
+            		   try {
+            				Class<?> clazz = Class.forName(className);
+            				Class<? extends Component> uiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(clazz);
+            				if(uiClass!=null) {
+            					return null; // "is result"
+            				}
+            			} catch (ClassNotFoundException e) {
+            				e.printStackTrace();
+            			}
+
+            			   byte[] byteArray = UserDirUtils.getDataSet(id);
+            			   if(byteArray==null) {
+            				   // this may happen when the file is corrupted or for other reason does not exist any more
+            				   return null;
+            			   }
+            			   DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(byteArray);
             		       String description = null;
             		       try {
             		    	   description = df.getDescription();
@@ -1083,7 +1073,6 @@ public class UMainLayout extends VerticalLayout {
             		    	   log.error(e.getMessage());
             		       }
             	           return description;
-            		   }            	  
             	    
                }                
                 
@@ -1240,23 +1229,12 @@ public class UMainLayout extends VerticalLayout {
 				if(subId.contains("Pending")) {
 					res.getItemProperty("Icon").setValue(pendingIcon);
 				} else {
-					if(type.equalsIgnoreCase("HierarchicalClusteringResults")) {
-						res.getItemProperty("Icon").setValue(hcIcon);
-					} else if(type.equalsIgnoreCase("CNKBResults")) {
-						res.getItemProperty("Icon").setValue(networkIcon);
-					} else if(type.equalsIgnoreCase("CytoscapeResults")) {
-						res.getItemProperty("Icon").setValue(networkIcon);
-					} else if(type.equalsIgnoreCase("MarkusResults")) {
-						res.getItemProperty("Icon").setValue(markusIcon);
-					} else if(type.equalsIgnoreCase("AnovaResults")) {
-						res.getItemProperty("Icon").setValue(anovaIcon);
-					} else if (type.equalsIgnoreCase("AracneResults")) {
-						res.getItemProperty("Icon").setValue(networkIcon);
-					} else if(type.equalsIgnoreCase("MarinaResults")) {
-						res.getItemProperty("Icon").setValue(marinaIcon);
-					} else if(type.equalsIgnoreCase("TTestResults")) {
-						res.getItemProperty("Icon").setValue(anovaIcon);
-					} 
+					try {
+						ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
+						res.getItemProperty("Icon").setValue(icon);
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 				dataSets.setChildrenAllowed(subSetId, false);
 				dataSets.setParent(subSetId, dataId);
@@ -1333,27 +1311,17 @@ public class UMainLayout extends VerticalLayout {
 				if(res.getName().contains("Pending")) {
 					navigationTree.getContainerProperty(res.getId(), "Icon").setValue(pendingIcon);
 				} else {
-					if(res.getType().equalsIgnoreCase("HierarchicalClusteringResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(hcIcon);
-					} else if(res.getType().equalsIgnoreCase("CNKBResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
-					} else if(res.getType().equalsIgnoreCase("CytoscapeResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
-					} else if (res.getType().equalsIgnoreCase("MarkusResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(markusIcon);
-					} else if (res.getType().equalsIgnoreCase("AnovaResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
-					} else if (res.getType().equalsIgnoreCase("AracneResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(networkIcon);
-					} else if (res.getType().equalsIgnoreCase("MarinaResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(marinaIcon);
-					} else if (res.getType().equalsIgnoreCase("TTestResults")) {
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(anovaIcon);
-					} 
+					try {
+						String type = res.getType();
+						ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
+						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(icon);
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 				navigationTree.setChildrenAllowed(res.getId(), false);
 				navigationTree.setParent(res.getId(), res.getParent());
-				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId());
+				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId()); // FIXME if this is necessary, probably it is necessary for other result type too
 			} else if(event.getData() instanceof DataSet) {
 				DataSet dS = (DataSet) event.getData();
 				String className = dS.getType();
@@ -1396,52 +1364,23 @@ public class UMainLayout extends VerticalLayout {
 						// FIXME catching all clause is evil; catching all and doing nothing is the evil of evils
 						e.printStackTrace();
 					}
-					// FIXME this particular if/else structure destroys any value of OO paradigm
-					if(resultSet.getType().contains("HierarchicalClusteringResults")) {
-						HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
-								dataSet, params);
-						resultSet.setName("Hierarchical Clustering");
-						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
-					} else if(resultSet.getType().contains("CNKBResults")) {
-						CNKBInteractions cnkb = new CNKBInteractions();
-						Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB(dataSet, params);
-						resultSet.setName("CNKB");
-						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(hits));
-					} else if(resultSet.getType().contains("CytoscapeResults")) {
-						CNKBInteractions cnkb = new CNKBInteractions();
-						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(cnkb.CreateNetwork(params)));	
-						resultSet.setName("Cytoscape");
-						 
-					} else if(resultSet.getType().contains("AnovaResults")) {
-						AnovaAnalysis analysis = new AnovaAnalysis(dataSet, (AnovaUI) params.get("form"));
-						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
-						resultSet.setName("Anova");
-					} else if(resultSet.getType().contains("AracneResults")) {
-						AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSet, params);
-						UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analyze.execute()));
-						resultSet.setName("Aracne");
-					} else if(resultSet.getType().contains("TTestResults")) {
-							TTestAnalysisWeb analyze = new TTestAnalysisWeb(dataSet, params);
-							UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analyze.execute()));
-							resultSet.setName("TTest");
-					}else if(resultSet.getType().contains("MarinaResults")) {
-						MarinaAnalysis analyze = new MarinaAnalysis(dataSet, params);
-						try{
-							CSMasterRegulatorTableResultSet mraRes = analyze.execute();
-							UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(mraRes));
-							resultSet.setName("Marina - " + mraRes.getLabel());
-						}catch(RemoteException e){
-							String msg = e.getMessage().replaceAll("\n", "<br>");
-							MessageBox mb = new MessageBox(getWindow(), 
-									"Analysis Problem", MessageBox.Icon.ERROR, msg,  
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-							mb.show();	
-							FacadeFactory.getFacade().delete(resultSet);
-							navigationTree.removeItem(resultSet.getId());
-							pusher.push();
-							return;	
-						}
+					AnalysisUI analysisUI = event.getAnalaysisUI();
+					String resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
+
+					if(resultName.startsWith(">>>RemoteException:")) { // TODO special case from marina. this should be "designed away"
+						String msg = resultName.substring(">>>RemoteException:".length()).replaceAll("\n", "<br>");
+						MessageBox mb = new MessageBox(getWindow(), 
+								"Analysis Problem", MessageBox.Icon.ERROR, msg,  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show();	
+						FacadeFactory.getFacade().delete(resultSet);
+						navigationTree.removeItem(resultSet.getId());
+						pusher.push();
+						return;	
 					}
+					
+					resultSet.setName(resultName);
+
 					FacadeFactory.getFacade().store(resultSet);	
 					synchronized(getApplication()) {
 						MessageBox mb = new MessageBox(getWindow(), 

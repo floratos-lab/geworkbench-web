@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -145,7 +147,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setDateField(date);
 				String dataSetName = "TTest - Pending";
 				resultSet.setName(dataSetName);
-				resultSet.setType("TTestResults");
+				resultSet.setType(getResultType().getName());
 				resultSet.setParent(dataSetId);
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
@@ -154,7 +156,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-						maSet, resultSet, params);
+						maSet, resultSet, params, TTestUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 				
 			}
@@ -346,5 +348,18 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) arraySubSets.get(m)).getId(),
 					((SubSet) arraySubSets.get(m)).getName());
 		}
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return DSSignificanceResultSet.class;
+	}
+
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		TTestAnalysisWeb analyze = new TTestAnalysisWeb((DSMicroarraySet) dataset, params);
+		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(analyze.execute()));
+		return "TTest";
 	}
 }

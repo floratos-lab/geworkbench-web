@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,9 +27,11 @@ import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.Util;
@@ -287,7 +290,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 				params.put("bean", bean);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params);
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params, MarinaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		});
@@ -388,7 +391,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		resultSet.setDateField(date);
 		String dataSetName = "Marina - Pending";
 		resultSet.setName(dataSetName);
-		resultSet.setType("MarinaResults");
+		resultSet.setType(getResultType().getName());
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(SessionHandler.get().getId());
 		FacadeFactory.getFacade().store(resultSet);
@@ -870,5 +873,24 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			cb2.addItem(set.getName());
 		}
 		arraymap.put(null, "");
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return CSMasterRegulatorTableResultSet.class;
+	}
+
+	@Override
+	public String execute(Long resultId, DSDataSet<?> dataset,
+			HashMap<Serializable, Serializable> parameters) {
+		MarinaAnalysis analyze = new MarinaAnalysis(dataSet, parameters);
+		try {
+			CSMasterRegulatorTableResultSet mraRes = analyze.execute();
+			UserDirUtils.saveResultSet(resultId,
+					ObjectConversion.convertToByte(mraRes));
+			return "Marina - " + mraRes.getLabel();
+		} catch (RemoteException e) {
+			return ">>>RemoteException:"+e.getMessage();
+		}
 	}
 }

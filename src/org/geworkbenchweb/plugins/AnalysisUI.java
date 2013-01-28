@@ -3,6 +3,11 @@
  */
 package org.geworkbenchweb.plugins;
 
+import java.io.Serializable;
+import java.util.HashMap;
+
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+
 import com.vaadin.ui.ComponentContainer;
 
 /**
@@ -19,4 +24,10 @@ public interface AnalysisUI extends ComponentContainer {
 	 */
 	// TODO using an arbitrary, machine-generated ID to identify the dataset may not be the best approach 
 	void setDataSetId(Long dataId);
+	
+	// TODO this eventually (or conceptually) should be part of Analysis, not AnalysisUI
+	Class<?> getResultType();
+	// TODO this is not clean design either, just easier to improve the overall design
+	// return the result data note's name
+	String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters);
 }

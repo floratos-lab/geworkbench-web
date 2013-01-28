@@ -96,7 +96,7 @@ public class MarkusAnalysis {
 		resultSet.setDateField(date);
 		String dataSetName 	=	results;
 		resultSet.setName(dataSetName);
-		resultSet.setType("MarkusResults");
+		resultSet.setType(MarkUsResultDataSet.class.getName());
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(sessionId);	
 		FacadeFactory.getFacade().store(resultSet);

@@ -1,5 +1,7 @@
 package org.geworkbenchweb.layout;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.geworkbenchweb.plugins.DataTypeUI;
 
@@ -48,6 +50,32 @@ public class VisualPluginView extends HorizontalLayout {
 	public void setContent(Component content) {
 		removeAllComponents();
 		addComponent(content);
+	}
+	
+	public void setContentUsingCache(Class<? extends Component> resultUiClass, Long dataSetId) {
+		removeAllComponents();
+		Object object = pluginCache.get(resultUiClass, dataSetId);
+		if(object!=null) {
+			addComponent((Component)object);
+		} else {
+			try {
+				Component resultUI = resultUiClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+				pluginCache.put(resultUiClass, dataSetId, resultUI);
+				addComponent(resultUI);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
