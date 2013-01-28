@@ -115,10 +115,10 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 												FacadeFactory.getFacade().store(markerset);
 												markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
 												for(int j=0; j<newmarkers.size(); j++) {
-													markerSetTree.addItem(newmarkers.get(j)+j);
-													markerSetTree.getContainerProperty(newmarkers.get(j)+j, "setName").setValue(newmarkers.get(j));
-													markerSetTree.setParent(newmarkers.get(j)+j, markerset.getId());
-													markerSetTree.setChildrenAllowed(newmarkers.get(j)+j, false);
+													markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
+													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), "setName").setValue(newmarkers.get(j));
+													markerSetTree.setParent(newmarkers.get(j)+markerset.getId(), markerset.getId());
+													markerSetTree.setChildrenAllowed(newmarkers.get(j)+markerset.getId(), false);
 												}
 											}
 										}
@@ -141,10 +141,10 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						markerSetTree.setParent(subSetId, "MarkerSets");
 						markerSetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<markers.size(); j++) {
-							markerSetTree.addItem(markers.get(j)+j);
-							markerSetTree.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
-							markerSetTree.setParent(markers.get(j)+j, subSetId);
-							markerSetTree.setChildrenAllowed(markers.get(j)+j, false);
+							markerSetTree.addItem(markers.get(j)+subSetId);
+							markerSetTree.getContainerProperty(markers.get(j)+subSetId, "setName").setValue(markers.get(j));
+							markerSetTree.setParent(markers.get(j)+subSetId, subSetId);
+							markerSetTree.setChildrenAllowed(markers.get(j)+subSetId, false);
 						}
 						sender.getApplication().getMainWindow().removeWindow(nameWindow);
 					}

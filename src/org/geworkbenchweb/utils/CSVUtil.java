@@ -162,10 +162,10 @@ public class CSVUtil {
 		tree.setParent(subSetId, parentSet);
 		tree.setChildrenAllowed(subSetId, true);
 		for(int j=0; j<panel.size(); j++) {
-			tree.addItem(panel.get(j)+j);
-			tree.getContainerProperty(panel.get(j)+j, "setName").setValue(panel.get(j));
-			tree.setParent(panel.get(j)+j, subSetId);
-			tree.setChildrenAllowed(panel.get(j)+j, false);
+			tree.addItem(panel.get(j)+subSetId);
+			tree.getContainerProperty(panel.get(j)+subSetId, "setName").setValue(panel.get(j));
+			tree.setParent(panel.get(j)+subSetId, subSetId);
+			tree.setChildrenAllowed(panel.get(j)+subSetId, false);
 		}
 	}
 	

@@ -295,15 +295,16 @@ public class UMainLayout extends VerticalLayout {
 				mainItem.getItemProperty("setName").setValue("Marker Sets");
 				for (int i=0; i<sets.size(); i++) {
 					List<String> markers = ((SubSet) sets.get(i)).getPositions();
-					markerData.addItem(((SubSet) sets.get(i)).getId());
-					markerData.getContainerProperty(((SubSet) sets.get(i)).getId(), "setName").setValue(((SubSet) sets.get(i)).getName() + " [" + markers.size() + "]");
-					markerData.setParent(((SubSet) sets.get(i)).getId(), "MarkerSets");
-					markerData.setChildrenAllowed(((SubSet) sets.get(i)).getId(), true);
+					Long subSetId = ((SubSet) sets.get(i)).getId();
+					markerData.addItem(subSetId);
+					markerData.getContainerProperty(subSetId, "setName").setValue(((SubSet) sets.get(i)).getName() + " [" + markers.size() + "]");
+					markerData.setParent(subSetId, "MarkerSets");
+					markerData.setChildrenAllowed(subSetId, true);
 					for(int j=0; j<markers.size(); j++) {
-						markerData.addItem(markers.get(j)+j);
-						markerData.getContainerProperty(markers.get(j)+j, "setName").setValue(markers.get(j));
-						markerData.setParent(markers.get(j)+j, ((SubSet) sets.get(i)).getId());
-						markerData.setChildrenAllowed(markers.get(j)+j, false);
+						markerData.addItem(markers.get(j)+subSetId);
+						markerData.getContainerProperty(markers.get(j)+subSetId, "setName").setValue(markers.get(j));
+						markerData.setParent(markers.get(j)+subSetId, subSetId);
+						markerData.setChildrenAllowed(markers.get(j)+subSetId, false);
 					}
 				}
 				markerSetTree.setImmediate(true);
@@ -332,15 +333,16 @@ public class UMainLayout extends VerticalLayout {
 				
 				for (int i=0; i<aSets.size(); i++) {
 					List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
-					arrayData.addItem(((SubSet) aSets.get(i)).getId());
-					arrayData.getContainerProperty(((SubSet) aSets.get(i)).getId(), "setName").setValue(((SubSet) aSets.get(i)).getName() + " [" + arrays.size() + "]");
-					arrayData.setParent(((SubSet) aSets.get(i)).getId(), "arraySets");
-					arrayData.setChildrenAllowed(((SubSet) aSets.get(i)).getId(), true);
+					Long subSetId = ((SubSet) aSets.get(i)).getId();
+					arrayData.addItem(subSetId);
+					arrayData.getContainerProperty(subSetId, "setName").setValue(((SubSet) aSets.get(i)).getName() + " [" + arrays.size() + "]");
+					arrayData.setParent(subSetId, "arraySets");
+					arrayData.setChildrenAllowed(subSetId, true);
 					for(int j=0; j<arrays.size(); j++) {
-						arrayData.addItem(arrays.get(j)+j);
-						arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
-						arrayData.setParent(arrays.get(j)+j, ((SubSet) aSets.get(i)).getId());
-						arrayData.setChildrenAllowed(arrays.get(j)+j, false);
+						arrayData.addItem(arrays.get(j)+subSetId);
+						arrayData.getContainerProperty(arrays.get(j)+subSetId, "setName").setValue(arrays.get(j));
+						arrayData.setParent(arrays.get(j)+subSetId, subSetId);
+						arrayData.setChildrenAllowed(arrays.get(j)+subSetId, false);
 					}
 				}
 				arraySetTree.setImmediate(true);
@@ -413,10 +415,10 @@ public class UMainLayout extends VerticalLayout {
 								arrayData.setParent(id, "arraySets");
 								arrayData.setChildrenAllowed(id, true);
 								for(int j=0; j<arrays.size(); j++) {
-									arrayData.addItem(arrays.get(j)+j);
-									arrayData.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
-									arrayData.setParent(arrays.get(j)+j, id);
-									arrayData.setChildrenAllowed(arrays.get(j)+j, false);
+									arrayData.addItem(arrays.get(j)+id);
+									arrayData.getContainerProperty(arrays.get(j)+id, "setName").setValue(arrays.get(j));
+									arrayData.setParent(arrays.get(j)+id, id);
+									arrayData.setChildrenAllowed(arrays.get(j)+id, false);
 								}
 							}
 						}
@@ -817,7 +819,7 @@ public class UMainLayout extends VerticalLayout {
 				if(selectedSubSetId == null) return;
 				final SubSet subSet = FacadeFactory.getFacade().find(SubSet.class, selectedSubSetId);
 
-				if (!new File(saveSetDir).exists())	new File(saveSetDir).mkdir();
+				if (!new File(saveSetDir).exists())	new File(saveSetDir).mkdirs();
 				String savefname = saveSetDir + subSet.getName() + ".csv";
 				CSVUtil.saveSetToFile(savefname, subSet);
 

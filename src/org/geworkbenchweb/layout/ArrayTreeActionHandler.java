@@ -126,10 +126,10 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 												FacadeFactory.getFacade().store(arrayset);
 												arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name1 + " [" + arrays.size() + "]");
 												for(int j=0; j<newarrays.size(); j++) {
-													arraySetTree.addItem(newarrays.get(j)+j);
-													arraySetTree.getContainerProperty(newarrays.get(j)+j, "setName").setValue(newarrays.get(j));
-													arraySetTree.setParent(newarrays.get(j)+j, arrayset.getId());
-													arraySetTree.setChildrenAllowed(newarrays.get(j)+j, false);
+													arraySetTree.addItem(newarrays.get(j)+arrayset.getId());
+													arraySetTree.getContainerProperty(newarrays.get(j)+arrayset.getId(), "setName").setValue(newarrays.get(j));
+													arraySetTree.setParent(newarrays.get(j)+arrayset.getId(), arrayset.getId());
+													arraySetTree.setChildrenAllowed(newarrays.get(j)+arrayset.getId(), false);
 												}
 											}
 										}
@@ -150,10 +150,10 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 						arraySetTree.setParent(subSetId, "arraySets");
 						arraySetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<arrays.size(); j++) {
-							arraySetTree.addItem(arrays.get(j)+j);
-							arraySetTree.getContainerProperty(arrays.get(j)+j, "setName").setValue(arrays.get(j));
-							arraySetTree.setParent(arrays.get(j)+j, subSetId);
-							arraySetTree.setChildrenAllowed(arrays.get(j)+j, false);
+							arraySetTree.addItem(arrays.get(j)+subSetId);
+							arraySetTree.getContainerProperty(arrays.get(j)+subSetId, "setName").setValue(arrays.get(j));
+							arraySetTree.setParent(arrays.get(j)+subSetId, subSetId);
+							arraySetTree.setChildrenAllowed(arrays.get(j)+subSetId, false);
 						}
 						sender.getApplication().getMainWindow().removeWindow(nameWindow);
 					}
