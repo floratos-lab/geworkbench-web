@@ -188,6 +188,13 @@ public class PluginRegistry {
 
 	// clazz is a result data type
 	public Class<? extends Component> getResultUI(Class<?> clazz) {
+		// TODO this is not ideal - that both perfect match and super class are allowed
+		// get the perfect match first
+		Class<? extends Component> uiClass = resultUiMap.get(clazz);
+		if(uiClass!=null) {
+			return uiClass;
+		}
+		
 		for(Class<?> c : resultUiMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return resultUiMap.get(c);
