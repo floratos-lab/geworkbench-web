@@ -304,6 +304,7 @@ public class UMainLayout extends VerticalLayout {
 					public void itemClick(ItemClickEvent event) {
 						try {
 							arraySetTree.select(null);
+							if (!(event.getItemId() instanceof Long)) selectedSubSetId = null;
 							selectedSubSetId = (Long) event.getItemId();
 						}catch (Exception e) {							
 						}
@@ -342,6 +343,7 @@ public class UMainLayout extends VerticalLayout {
 					public void itemClick(ItemClickEvent event) {
 						try {
 							markerSetTree.select(null);
+							if (!(event.getItemId() instanceof Long)) selectedSubSetId = null;
 							selectedSubSetId = (Long) event.getItemId();
 						}catch (Exception e) {							
 						}
