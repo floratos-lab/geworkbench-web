@@ -31,22 +31,6 @@ public class VisualPluginView extends HorizontalLayout {
 		setImmediate(true);
 	}
 	
-	// TODO phase out this
-	public void setVisualPlugin(VisualPlugin plugin) {
-		// plugin.checkForVisualizer() always return true now
-		this.removeAllComponents();
-		setSizeFull();
-
-		Component ex = (Component) pluginCache.get(plugin,
-				plugin.getDataSetId());
-		if (ex == null) {
-			Long data = plugin.getDataSetId();
-			ex = plugin.getLayout(data);
-			pluginCache.put(plugin, plugin.getDataSetId(), ex);
-		}
-		addComponent(ex);
-	}
-
 	public void setContent(Component content) {
 		removeAllComponents();
 		addComponent(content);
