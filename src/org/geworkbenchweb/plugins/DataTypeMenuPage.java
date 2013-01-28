@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.layout.VisualPluginView;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
@@ -11,9 +12,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
@@ -59,7 +58,6 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 	private static Log log = LogFactory.getLog(DataTypeMenuPage.class);
 	
-	@SuppressWarnings("deprecation")
 	private void showAnalysisParameterPanel(Analysis analysis,
 			AnalysisUI analysisUI, Long dataSetId) {
 
@@ -72,47 +70,13 @@ public class DataTypeMenuPage extends VerticalLayout {
 			return; // do thing. reusing this makes it easier to implement Tools list
 		}
 		
-		Component layoutToBeUpdated = this.getParent().getParent(); // pluginLayout
-
 		analysisUI.setDataSetId(dataId);
-
-		HorizontalLayout pluginLayout = (HorizontalLayout) layoutToBeUpdated;
-		pluginLayout.removeAllComponents();
-
-		VerticalLayout left = new VerticalLayout();
-		left.setWidth("100%");
-		left.setSpacing(true);
-		left.setMargin(false);
-
-		VerticalLayout rightLayout = new VerticalLayout();
-		Panel right = new Panel(rightLayout);
-		rightLayout.setMargin(true, false, false, false);
-		right.setStyleName(Panel.STYLE_LIGHT);
-		right.addStyleName("feature-info");
-		right.setWidth("319px");
-
-		HorizontalLayout controls = new HorizontalLayout();
-		controls.setWidth("100%");
-		controls.setStyleName("feature-controls");
-
-		Label title = new Label("<span>" + analysis.getName() + "</span>", Label.CONTENT_XHTML);
-		title.setStyleName("title");
-		controls.addComponent(title);
-		controls.setExpandRatio(title, 1);
-
-		pluginLayout.addComponent(left);
-		pluginLayout.setExpandRatio(left, 1);
-		pluginLayout.addComponent(right);
-
-		left.addComponent(controls);
-		left.addComponent(analysisUI);
-		right.setCaption("Description");
-		String desc = analysis.getDescription();
-		if (desc != null && desc != "") {
-			final Label l = new Label(
-					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
-							+ desc + "</div></div>", Label.CONTENT_XHTML);
-			right.addComponent(l);
+		Component component = this.getParent().getParent().getParent(); // VisualPluginView
+		if(component instanceof VisualPluginView) {
+			VisualPluginView visualPluginView = (VisualPluginView)component;
+			visualPluginView.setContent(analysisUI, analysis.getName(), analysis.getDescription());
+		} else {
+			log.error(component+" is not VisualPluginView");
 		}
 	}
 
