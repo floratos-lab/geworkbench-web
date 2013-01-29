@@ -816,8 +816,8 @@ public class UMainLayout extends VerticalLayout {
 				        try {
 				            final DownloadStream ds = new DownloadStream(new FileInputStream(
 				                    getSourceFile()), getMIMEType(), getFilename());
-				            ds.setParameter("Content-Disposition", "attachment; filename="
-				                    + getFilename());
+				            ds.setParameter("Content-Disposition", "attachment; filename=\""
+				                    + getFilename()+"\"");
 				            ds.setCacheTime(0);
 				            return ds;
 				        } catch (final FileNotFoundException e) {
@@ -985,6 +985,8 @@ public class UMainLayout extends VerticalLayout {
 						dataSetId = (Long) event.getProperty().getValue();    
 						
 						toolBar.setEnabled(false);
+						selectedSubSetId = null;
+
 						// TODO special things to do for microarray set should be considered as part of the overall design
 						// not as a special case patched as aftermath fix
 						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
