@@ -218,13 +218,13 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
+				
 				removeComponent(dendrogram);
 				geneHeight 	= 	geneHeight*2;
 				geneWidth 	=	geneWidth*2;
-				dendrogram = new Clustergram();
 				dendrogram.setGeneHeight(geneHeight);
 				dendrogram.setGeneWidth(geneWidth);
-				addDendrogram();
+				setSecondComponent(dendrogram);
 			}
 		});
 		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-Out-icon.png"),
@@ -234,13 +234,15 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				removeComponent(dendrogram);
-				dendrogram = new Clustergram();
-				geneHeight 	= 	geneHeight/2;
-				geneWidth 	=	geneWidth/2;
-				dendrogram.setGeneHeight(geneHeight);
-				dendrogram.setGeneWidth(geneWidth);
-				addDendrogram();
+				
+				if(geneHeight != 1) {
+					removeComponent(dendrogram);
+					geneHeight 	= 	geneHeight/2;
+					geneWidth 	=	geneWidth/2;
+					dendrogram.setGeneHeight(geneHeight);
+					dendrogram.setGeneWidth(geneWidth);
+					setSecondComponent(dendrogram);
+				}
 			}
 		});
 
