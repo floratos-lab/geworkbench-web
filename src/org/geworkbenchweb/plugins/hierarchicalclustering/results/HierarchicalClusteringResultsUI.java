@@ -67,18 +67,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private double intensity = 1.0;
 
-	/**
-	 * The String is passed to the client side
-	 * Marker String
-	 */
-	private StringBuffer markerString; 
-
-	/**
-	 * The string is passed to the client side
-	 * Array String
-	 */
-	private StringBuffer arrayString; 
-
 	User user = SessionHandler.get();
 
 	private transient Object lock = new Object();
@@ -188,17 +176,16 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
-		markerString 	= 	new StringBuffer();
-		arrayString 	=	new StringBuffer();
+
 		if(markerCluster != null) {
-			@SuppressWarnings("unused")
-			ClusterNode clusterNode 	= 	convertMarkerCluster(markerCluster);
+			StringBuffer markerString 	= 	new StringBuffer();
+			convertToString(markerString, markerCluster);
 			mString = markerString.toString();
 		}
 
 		if(arrayCluster != null) {
-			@SuppressWarnings("unused")
-			ClusterNode clusterNode 	= convertArrayCluster(arrayCluster);
+			StringBuffer arrayString 	= 	new StringBuffer();
+			convertToString(arrayString, arrayCluster);
 			aString = arrayString.toString();
 		}
 
@@ -407,40 +394,23 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		setSecondComponent(dendrogram);
 	}
 
-	private ClusterNode convertMarkerCluster(Cluster hierCluster) {
+	/**
+	 * 
+	 * Recursively convert Cluster to string.
+	 * result stored in a StringBuffer buffer, so buffer should be set to empty before starting from the root
+	 * @param hierCluster
+	 * @return
+	 */
+	static private void convertToString(final StringBuffer buffer, Cluster hierCluster) {
 
-		markerString.append("(");
-		ClusterNode cluster = null;
+		buffer.append("(");
 
-		if(hierCluster.isLeaf()) {
-			markerString.append(")");
-		} else {	
-			Cluster[] child 	= 	hierCluster.getChildrenNodes();
-			ClusterNode c1 		= 	convertMarkerCluster(child[0]);
-			ClusterNode c2 		= 	convertMarkerCluster(child[1]);
-			cluster 			= 	new ClusterNode(c1, c2);
-
-			markerString.append(")");
-
+		if (!hierCluster.isLeaf()) {
+			Cluster[] child = hierCluster.getChildrenNodes();
+			convertToString(buffer, child[0]);
+			convertToString(buffer, child[1]);
 		}
-		return cluster;
-	}
-
-	private ClusterNode convertArrayCluster(Cluster hierCluster) {
-
-		arrayString.append("(");
-		ClusterNode cluster = null;
-
-		if(hierCluster.isLeaf()) {
-			arrayString.append(")");
-		} else {	
-			Cluster[] child 	= 	hierCluster.getChildrenNodes();
-			ClusterNode c1 		= 	convertArrayCluster(child[0]);	
-			ClusterNode c2 		= 	convertArrayCluster(child[1]);
-			cluster 			= 	new ClusterNode(c1, c2);
-			arrayString.append(")");
-		}
-		return cluster;
+		buffer.append(")");
 	}
 
 	public Color getMarkerValueColor(DSMarkerValue mv, DSGeneMarker mInfo, float intensity) {
