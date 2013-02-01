@@ -1047,41 +1047,43 @@ public class UMainLayout extends VerticalLayout {
 
 			@SuppressWarnings("unchecked")
 			@Override
-            public String generateDescription(Component source, Object itemId,
-                    Object propertyId) {
-               if (itemId != null)
-               {
-            		   long id = Long.parseLong(itemId.toString());
-            		   Item item = tree.getItem(itemId);
-            		   String className = (String)item.getItemProperty("Type").getValue();
-            		   try {
-            				Class<?> clazz = Class.forName(className);
-            				Class<? extends Component> uiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(clazz);
-            				if(uiClass!=null) {
-            					return null; // "is result"
-            				}
-            			} catch (ClassNotFoundException e) {
-            				e.printStackTrace();
-            			}
+			public String generateDescription(Component source, Object itemId,
+					Object propertyId) {
+				if (!(itemId instanceof Long)) {
+					System.out.println("does this happen at all? I don't think this should ever happen.");
+					return null;
+				}
 
-            			   byte[] byteArray = UserDirUtils.getDataSet(id);
-            			   if(byteArray==null) {
-            				   // this may happen when the file is corrupted or for other reason does not exist any more
-            				   return null;
-            			   }
-            			   DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(byteArray);
-            		       String description = null;
-            		       try {
-            		    	   description = df.getDescription();
-            		       } catch (NullPointerException e) { // CSProteinStrcuture has null pointer exception not handled
-            		    	   log.error(e.getMessage());
-            		       }
-            	           return description;
-            	    
-               }                
-                
-                return null;
-            }
+				Item item = tree.getItem(itemId);
+				String className = (String) item.getItemProperty("Type").getValue();
+				Class<?> clazz;
+				try {
+					clazz = Class.forName(className);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+					return null;
+				}
+
+				// show tooltip only for DSDataSet for now
+				if (DSDataSet.class.isAssignableFrom(clazz)) {
+					byte[] byteArray = (byte[])UserDirUtils.getData((Long) itemId);
+					if (byteArray==null) {
+						// this may happen when the file is corrupted or for
+						// other reason does not exist any more
+						log.error("the deserialized data object is null");
+						return null;
+					}
+					try {
+						DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(byteArray);
+						return df.getDescription();
+					} catch (NullPointerException e) { // CSProteinStrcuture has null pointer exception not handled
+						e.printStackTrace();
+						return null;
+					}
+				} else {
+					return null;
+				}
+			}
 		});
 		
 		return tree;

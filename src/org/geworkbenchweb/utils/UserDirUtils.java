@@ -95,6 +95,55 @@ public class UserDirUtils {
 		return true;
 	}
 
+	// get either the input dataset or the result set
+	// (1) separation of dataset and result seems unnecessary and complicates the design
+	// (2) going through byte array is not necessary
+	public static Object getData(long datasetID) {
+		Long userId = SessionHandler.get().getId();
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
+				+ DATASETS + SLASH + datasetID + DATA_EXTENSION;
+		String fileName2 = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
+				+ RESULTSETS + SLASH + datasetID + RES_EXTENSION;
+
+		ObjectInputStream ois = null, ois2 = null;
+		Object obj = null;
+		try {
+			ois = new ObjectInputStream(new FileInputStream(fileName));
+			obj = ois.readObject();
+		} catch (FileNotFoundException e) {
+			try {
+				ois2 = new ObjectInputStream(new FileInputStream(fileName2));
+				obj = ois2.readObject();
+			} catch (FileNotFoundException e2) {
+				// no-op: this may be the case when the result node is just created
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ois != null)
+					ois.close();
+				if (ois2 != null)
+					ois2.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return obj;
+	}
+	
 	/**
 	 * Retrieves byte data from file
 	 * @param Dataset Id
