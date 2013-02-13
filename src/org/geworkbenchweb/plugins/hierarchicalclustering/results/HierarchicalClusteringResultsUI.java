@@ -100,10 +100,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		setImmediate(true);
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		setLocked(true);
-		setSplitPosition((float) 2.3);
+		setSplitPosition(25, com.vaadin.terminal.Sizeable.UNITS_PIXELS); //((float) 2.3);
 
 		toolBar =  new MenuBar();
-		toolBar.setSizeFull();
 		toolBar.setStyleName("transparent");
 
 		final ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
