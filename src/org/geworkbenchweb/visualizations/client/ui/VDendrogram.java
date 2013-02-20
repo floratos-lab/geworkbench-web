@@ -120,10 +120,9 @@ public class VDendrogram extends Widget implements Paintable {
 		index = 0; // this must be reset to start reading the cluster string
 		List<Double> bracketCoordinates = new ArrayList<Double>();
 		final char[] clusters = arrayCluster.toCharArray();
-		MidPoint midPoint = prepareBrackets(0, clusters.length-1, clusters, bracketCoordinates); // ignore the top level return value?
+		MidPoint midPoint = prepareBrackets(0, clusters.length-1, clusters, bracketCoordinates, cellWidth);
 
-		final int EXTA_SPACE = 5;
-		int arrayClusterHeight = (int)midPoint.height + EXTA_SPACE;
+		int arrayClusterHeight = (int)midPoint.height + deltaH; // add some extra space on top
 		arrayDendrogramCanvas.setCoordinateSpaceHeight(arrayClusterHeight);
 		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
 
@@ -152,9 +151,9 @@ public class VDendrogram extends Widget implements Paintable {
 		index = 0; // this must be reset to start reading the cluster string
 		List<Double> bracketCoordinates2 = new ArrayList<Double>();
 		final char[] clusters2 = markerCluster.toCharArray();
-		MidPoint midPoint2 = prepareBrackets(0, clusters2.length-1, clusters2, bracketCoordinates2); // ignore the top level return value?
+		MidPoint midPoint2 = prepareBrackets(0, clusters2.length-1, clusters2, bracketCoordinates2, cellHeight); 
 
-		markerClusterHeight = (int)midPoint2.height + EXTA_SPACE;
+		markerClusterHeight = (int)midPoint2.height + deltaH; // add some extra space to the left
 		markerDendrogramCanvas.setCoordinateSpaceWidth(markerClusterHeight);
 		// rotate and move it to the left hand side area
 		markerDendrogramContext.rotate(0.5*Math.PI);
@@ -234,11 +233,7 @@ public class VDendrogram extends Widget implements Paintable {
 		MidPoint(double mid, double height) { this.mid = mid; this.height = height;}
 	}
 	
-	private static double deltaH = 5; // the increment of the dendrogram height
-	
-	// FIXME temporary
-	static double x0 = 0;
-	static double deltaX = 10;
+	private static int deltaH = 5; // the increment of the dendrogram height
 	
 	/**
 	 * Prepare the collection of three points coordinates to draw the brackets,
@@ -246,9 +241,10 @@ public class VDendrogram extends Widget implements Paintable {
 	 * 
 	 * precondition: clusters[left]=='(', clusters[right]=')'
 	 */
-	static private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates) {
+	static private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates, 
+			int deltaX) { // side-way width
 		if(right-left==1) { 
-			MidPoint m = new MidPoint(x0+(index+0.5)*deltaX, 0);
+			MidPoint m = new MidPoint((index+0.5)*deltaX, 0);
 			index++;
 			return m;
 		}
@@ -257,8 +253,8 @@ public class VDendrogram extends Widget implements Paintable {
 		int split = split(left + 1, right -1, clusters);
 
 		// by now, [0, index) is the left child; [index, length-1] is the right child
-		MidPoint leftMidPoint = prepareBrackets(left+1, split-1, clusters, coordinates);
-		MidPoint rightMidPoint = prepareBrackets(split, right-1, clusters, coordinates);
+		MidPoint leftMidPoint = prepareBrackets(left+1, split-1, clusters, coordinates, deltaX);
+		MidPoint rightMidPoint = prepareBrackets(split, right-1, clusters, coordinates, deltaX);
 		double height = Math.max(leftMidPoint.height, rightMidPoint.height) + deltaH;
 		double x1 = 0.5+(int)leftMidPoint.mid; // trick to create crisp line if width 1
 		double x2 = 0.5+(int)rightMidPoint.mid;
