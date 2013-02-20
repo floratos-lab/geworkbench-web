@@ -7,6 +7,7 @@ import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.dom.client.CanvasElement;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
@@ -27,15 +28,26 @@ public class VDendrogram extends Widget implements Paintable {
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 
-	/** width and height of each cell in the heat map */
-	private int cellWidth = 10, cellHeight = 5;
+	private Element div = DOM.createDiv();
+	
+	private Canvas canvas = Canvas.createIfSupported();
+	private Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
+	private Canvas markerDendrogramCanvas = Canvas.createIfSupported();
+	private Canvas arrayLabelCanvas = Canvas.createIfSupported();
+	private Canvas markerLabelCanvas = Canvas.createIfSupported();
+
 	/**
 	 * The constructor should first call super() to initialize the component and
 	 * then handle any initialization relevant to Vaadin.
 	 */
 	public VDendrogram() {   
 		
-		setElement(DOM.createDiv());
+		setElement(div);
+		div.appendChild(canvas.getCanvasElement());
+		div.appendChild(arrayDendrogramCanvas.getCanvasElement());
+		div.appendChild(markerDendrogramCanvas.getCanvasElement());
+		div.appendChild(arrayLabelCanvas.getCanvasElement());
+		div.appendChild(markerLabelCanvas.getCanvasElement());
 
 		/** Set the CSS class name to allow styling. */
 //		setStyleName(CLASSNAME);
@@ -44,6 +56,7 @@ public class VDendrogram extends Widget implements Paintable {
     /**
      * Called whenever an update is received from the server 
      */
+	@Override
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
 		
 		if (client.updateComponent(this, uidl, true)) {
@@ -61,8 +74,6 @@ public class VDendrogram extends Widget implements Paintable {
 
 		//client.updateVariable(paintableId, "variablName", "newValue", isImmediate);
 		
-		Canvas canvas = Canvas.createIfSupported();
-		
 		if (canvas == null) {
             // "Sorry, your browser doesn't support the HTML5 Canvas element";
             return;
@@ -76,6 +87,9 @@ public class VDendrogram extends Widget implements Paintable {
 		int[] colors = uidl.getIntArrayAttribute("colors");
 		String[] arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
 		String[] markerLabels = uidl.getStringArrayAttribute("markerLabels");
+		
+		int cellWidth = uidl.getIntAttribute("cellWidth");
+		int cellHeight = uidl.getIntAttribute("cellHeight");
 		
 		int canvasWidth = cellWidth*arrayNumber; // TODO this should be decided by the available space from container, not the entire heatmap
 //		canvas.setWidth(canvasWidth + "px");
@@ -115,7 +129,6 @@ public class VDendrogram extends Widget implements Paintable {
 		}
 
 		// canvas for microarray dendrogram
-		Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
 		arrayDendrogramCanvas.setCoordinateSpaceWidth(canvasWidth);
 		Context2d arrayDendrogramContext = arrayDendrogramCanvas.getContext2d();
 		
@@ -131,7 +144,6 @@ public class VDendrogram extends Widget implements Paintable {
 		drawBrackets(arrayDendrogramContext, bracketCoordinates);
 
 		// canvas for marker dendrogram
-		Canvas markerDendrogramCanvas = Canvas.createIfSupported();
 		int markerClusterHeight = 0;
 		markerDendrogramCanvas.setCoordinateSpaceHeight(canvasHeight); // note this is heatmap canvas height
 		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
@@ -156,46 +168,42 @@ public class VDendrogram extends Widget implements Paintable {
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(0, Unit.PX);
 		style.setLeft(markerClusterHeight, Unit.PX);
-		this.getElement().appendChild(arrayDendrogram);
 		
 		CanvasElement markerDendrogram = markerDendrogramCanvas.getCanvasElement();
 		style = markerDendrogram.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight, Unit.PX);
 		style.setLeft(0, Unit.PX);
-		this.getElement().appendChild(markerDendrogram);
 
 		CanvasElement heatmap = canvas.getCanvasElement();
 		style = heatmap.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight, Unit.PX);
 		style.setLeft(markerClusterHeight, Unit.PX);
-		this.getElement().appendChild(heatmap);
 		
 		// array labels on the bottom
-		Canvas canvas3 = Canvas.createIfSupported();
-		canvas3.setCoordinateSpaceWidth(canvasWidth);
+		arrayLabelCanvas.setCoordinateSpaceWidth(canvasWidth);
 		//canvas3.setCoordinateSpaceHeight(height);
-		Context2d context3 = canvas3.getContext2d();
+		Context2d context3 = arrayLabelCanvas.getContext2d();
 		context3.rotate(0.5*Math.PI);
 		context3.translate(0, -canvasWidth);
-		//context3.setFont("20px sans-serif");
+		if(cellWidth<10) {
+			context3.setFont((cellWidth-1)+"px sans-serif");
+		}
 		int y = cellWidth;
 		for(int i=0; i<arrayLabels.length; i++) {
 			context3.fillText(arrayLabels[i], 5, y);
 			y += cellWidth;
 		}
-		CanvasElement element3 = canvas3.getCanvasElement();
+		CanvasElement element3 = arrayLabelCanvas.getCanvasElement();
 		style = element3.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight+canvasHeight, Unit.PX);
 		style.setLeft(markerClusterHeight, Unit.PX);
-		this.getElement().appendChild(element3);
 		
 		// markers labels on the right
-		Canvas canvas4 = Canvas.createIfSupported();
-		canvas4.setCoordinateSpaceHeight(canvasHeight);
-		Context2d context4 = canvas4.getContext2d();
+		markerLabelCanvas.setCoordinateSpaceHeight(canvasHeight);
+		Context2d context4 = markerLabelCanvas.getContext2d();
 		if(cellHeight<10) {
 			context4.setFont((cellHeight-1)+"px sans-serif");
 		}
@@ -204,12 +212,11 @@ public class VDendrogram extends Widget implements Paintable {
 			context4.fillText(markerLabels[i], 5, y);
 			y += cellHeight;
 		}
-		CanvasElement element4 = canvas4.getCanvasElement();
+		CanvasElement element4 = markerLabelCanvas.getCanvasElement();
 		style = element4.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight, Unit.PX);
 		style.setLeft(markerClusterHeight+canvasWidth, Unit.PX);
-		this.getElement().appendChild(element4);
 	}
 	
 	private static void drawBrackets(final Context2d context, List<Double> bracketCoordinates) {

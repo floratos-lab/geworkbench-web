@@ -7,7 +7,7 @@ import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
 
 /**
- * Server side component for the ... widget.
+ * Server side component for the dendrogram widget.
  */
 @com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VDendrogram.class)
 public class Dendrogram extends AbstractComponent {
@@ -23,13 +23,21 @@ public class Dendrogram extends AbstractComponent {
 	private String arrayCluster, markerCluster;
 	private String[] arrayLabels, markerLabels;
 	
-	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster, String markerCluster, String[] arrayLabels, String[] markerLabels) {
+	private int cellWidth = 10, cellHeight = 5;
+	
+	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster, String markerCluster, String[] arrayLabels, String[] markerLabels, int[] colors) {
 		this.arrayNumber = arrayNumber;
 		this.markerNumber = markerNumber;
 		this.arrayCluster = arrayCluster;
 		this.markerCluster = markerCluster;
 		this.arrayLabels = arrayLabels;
 		this.markerLabels = markerLabels;
+		 
+		/* element value range [-255, 255] */
+		this.colors = new Integer[colors.length];
+		for(int i=0; i<colors.length; i++) {
+			this.colors[i] = colors[i];
+		}
 	}
 
 
@@ -45,7 +53,10 @@ public class Dendrogram extends AbstractComponent {
 		target.addAttribute("markerCluster", markerCluster); 
 		target.addAttribute("colors", colors);
 		target.addAttribute("arrayLabels", arrayLabels);
-		target.addAttribute("markerLabels", markerLabels); 
+		target.addAttribute("markerLabels", markerLabels);
+		
+		target.addAttribute("cellWidth", cellWidth);
+		target.addAttribute("cellHeight", cellHeight);
 	}
 
 
@@ -70,15 +81,15 @@ public class Dendrogram extends AbstractComponent {
 	}
 
 
-	public void setGeneHeight(int geneHeight) {
-		// TODO Auto-generated method stub
-		
+	public void setCellHeight(int cellHeight) {
+		this.cellHeight = cellHeight;
+		requestRepaint();
 	}
 
 
-	public void setGeneWidth(int geneWidth) {
-		// TODO Auto-generated method stub
-		
+	public void setCellWidth(int cellWidth) {
+		this.cellWidth = cellWidth;
+		requestRepaint();
 	}
 
 
@@ -98,13 +109,6 @@ public class Dendrogram extends AbstractComponent {
 	public void setSVGFlag(String string) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	public void setColors(int[] colors) { /* element value range [-255, 255] */
-		this.colors = new Integer[colors.length];
-		for(int i=0; i<colors.length; i++) {
-			this.colors[i] = colors[i];
-		}
 	}
 
 }

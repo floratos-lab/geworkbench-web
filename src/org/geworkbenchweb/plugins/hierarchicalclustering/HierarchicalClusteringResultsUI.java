@@ -1,18 +1,14 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -41,12 +37,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private Dendrogram dendrogram;
 
-	private int geneNo;
-
-	private int chipNo;
-
-	private int[] colors; /* range [-255, 255] */ 
-
 	private int geneHeight 	= 	5;
 
 	private int geneWidth 	= 	10;
@@ -67,67 +57,25 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
-		MarkerHierCluster currentMarkerCluster 			= 	(MarkerHierCluster)dataSet.getCluster(0);
-		MicroarrayHierCluster currentArrayCluster 			= 	(MicroarrayHierCluster)dataSet.getCluster(1);
+		final int geneNo = microarraySet.markers().size();
+		final int chipNo = microarraySet.items().size();
 
-		Cluster[] leafMarkers = null;
-		if (currentMarkerCluster != null) {
-			java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
-			leafMarkers = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
-			leaves.toArray(leafMarkers);
-		}
-
-		Cluster[] leafArrays = null;
-		if (currentArrayCluster != null) {
-			java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
-			leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
-			leaves.toArray(leafArrays);
-		}
-
-
-		if (currentMarkerCluster == null) {
-			geneNo = microarraySet.markers().size();
-		} else {
-			geneNo = leafMarkers.length;
-		}
-
-		if (currentArrayCluster == null) {
-			chipNo = microarraySet.items().size();
-		} else {
-			chipNo = leafArrays.length;
-		}
-
-		final String[] markerNames 	= 	new String[geneNo];
-		final String[] arrayNames		= 	new String[chipNo];
-		colors 			= 	new int[chipNo*geneNo];
+		final String[] markerNames = new String[geneNo];
+		final String[] arrayNames = new String[chipNo];
+		final int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
 		int k = 0;
 
+		for (int j = 0; j < chipNo; j++) {
+			arrayNames[j] = microarraySet.get(j).getLabel();
+		}
 		for (int i = 0; i < geneNo; i++) {
-			DSGeneMarker stats = null;
+			DSGeneMarker marker = microarraySet.markers().get(i);
 
-			if (leafMarkers != null) {
-				stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
-			} else {
-				stats = microarraySet.markers().get(i);
-			}
-
-			markerNames[i] = stats.getLabel();
+			markerNames[i] = marker.getLabel();
 			for (int j = 0; j < chipNo; j++) {
-				DSMicroarray mArray = null;
-				if (leafArrays != null) {
-					mArray = ((MicroarrayHierCluster) leafArrays[j])
-							.getMicroarray();
-				} else {
-					mArray = microarraySet.get(j);
-				}
-
-				if(i == 0) {
-					arrayNames[j] = mArray.getLabel();
-				}
-
-				DSMarkerValue marker 	= 	mArray.getMarkerValue(stats);
-				colors[k] 				= 	getMarkerValueColor(marker.getValue(), stats, 1.0f);
-				k++;
+				double value = microarraySet.get(j).getMarkerValue(marker)
+						.getValue();
+				colors[k++] = getMarkerValueColor(value, marker, 1.0f);
 			}
 		}
 
@@ -147,14 +95,17 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		final String arrayClusterString = arrayString.toString();
 
 		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
-				arrayNames, markerNames);
+				arrayNames, markerNames, colors);
 		dendrogram.setSizeUndefined();
 
 		/**
 		 * default gene height and width for the dendrogram
 		 */
-		dendrogram.setGeneHeight(geneHeight);
-		dendrogram.setGeneWidth(geneWidth);
+		dendrogram.setCellHeight(geneHeight);
+		dendrogram.setCellWidth(geneWidth);
+
+		dendrogram.setImmediate(true);
+		//dendrogram.setSizeFull(); // FIXME why not
 
 		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-In-icon.png"), 
 				new Command() {
@@ -167,8 +118,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 				removeComponent(dendrogram);
 				geneHeight 	= 	geneHeight*2;
 				geneWidth 	=	geneWidth*2;
-				dendrogram.setGeneHeight(geneHeight);
-				dendrogram.setGeneWidth(geneWidth);
+				dendrogram.setCellHeight(geneHeight);
+				dendrogram.setCellWidth(geneWidth);
 				setSecondComponent(dendrogram);
 			}
 		});
@@ -184,8 +135,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 					removeComponent(dendrogram);
 					geneHeight 	= 	geneHeight/2;
 					geneWidth 	=	geneWidth/2;
-					dendrogram.setGeneHeight(geneHeight);
-					dendrogram.setGeneWidth(geneWidth);
+					dendrogram.setCellHeight(geneHeight);
+					dendrogram.setCellWidth(geneWidth);
 					setSecondComponent(dendrogram);
 				}
 			}
@@ -201,11 +152,10 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 				geneHeight 	= 	5;
 				geneWidth 	=	10;
 				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
-						arrayNames, markerNames);
-				dendrogram.setGeneHeight(geneHeight);
-				dendrogram.setGeneWidth(geneWidth);
+						arrayNames, markerNames, colors);
+				dendrogram.setCellHeight(geneHeight);
+				dendrogram.setCellWidth(geneWidth);
 
-				dendrogram.setColors(colors);
 				dendrogram.setImmediate(true);
 				//dendrogram.setSizeFull();
 				setSecondComponent(dendrogram);			}
@@ -330,9 +280,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 		setFirstComponent(toolBar);
 
-		dendrogram.setColors(colors);
-		dendrogram.setImmediate(true);
-		//dendrogram.setSizeFull(); // FIXME why not
 		setSecondComponent(dendrogram);
 	}
 
