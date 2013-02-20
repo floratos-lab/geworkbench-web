@@ -133,7 +133,6 @@ public class VDendrogram extends Widget implements Paintable {
 		// canvas for marker dendrogram
 		Canvas markerDendrogramCanvas = Canvas.createIfSupported();
 		int markerClusterHeight = 0;
-		if(markerCluster.length()>0) {
 		markerDendrogramCanvas.setCoordinateSpaceHeight(canvasHeight); // note this is heatmap canvas height
 		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
 		
@@ -149,7 +148,6 @@ public class VDendrogram extends Widget implements Paintable {
 		markerDendrogramContext.translate(0, -markerClusterHeight);
 
 		drawBrackets(markerDendrogramContext, bracketCoordinates2);
-		}
 
 		// <div><canvas id=array_dendrogram></canvas><canvas id=array_heatmap></canvas><canvas id=array_labels></canvas></div>
 		// place things in place
@@ -248,7 +246,7 @@ public class VDendrogram extends Widget implements Paintable {
 	 */
 	static private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates, 
 			int deltaX) { // side-way width
-		if(right-left==1) { 
+		if(right-left<=1) { // 1: leaf node; -1: empty cluster
 			MidPoint m = new MidPoint((index+0.5)*deltaX, 0);
 			index++;
 			return m;
