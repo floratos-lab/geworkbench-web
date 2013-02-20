@@ -51,8 +51,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private int[] colors; /* range [-255, 255] */ 
 
-	private String mString;
-
 	private int geneHeight 	= 	5;
 
 	private int geneWidth 	= 	10;
@@ -140,11 +138,11 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		HierCluster markerCluster 		= 	dataSet.getCluster(0);
 		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
 
+		StringBuffer markerString 	= 	new StringBuffer();
 		if(markerCluster != null) {
-			StringBuffer markerString 	= 	new StringBuffer();
 			convertToString(markerString, markerCluster);
-			mString = markerString.toString();
 		}
+		final String markerClusterString = markerString.toString();
 
 		StringBuffer arrayString 	= 	new StringBuffer();
 		if(arrayCluster != null) {
@@ -152,7 +150,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		}
 		final String arrayClusterString = arrayString.toString();
 
-		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString);
+		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString);
 		dendrogram.setSizeUndefined();
 
 		/**
@@ -205,11 +203,10 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 				removeComponent(dendrogram);
 				geneHeight 	= 	5;
 				geneWidth 	=	10;
-				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString);
+				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString);
 				dendrogram.setGeneHeight(geneHeight);
 				dendrogram.setGeneWidth(geneWidth);
 
-				dendrogram.setMarkerCluster(mString);
 				dendrogram.setColors(colors);
 				dendrogram.setMarkerLabels(markerNames);
 				dendrogram.setArrayLabels(arrayNames);
@@ -337,7 +334,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 		setFirstComponent(toolBar);
 
-		dendrogram.setMarkerCluster(mString);
 		dendrogram.setColors(colors);
 		dendrogram.setMarkerLabels(markerNames);
 		dendrogram.setArrayLabels(arrayNames);

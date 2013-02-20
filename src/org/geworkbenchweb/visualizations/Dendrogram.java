@@ -20,12 +20,13 @@ public class Dendrogram extends AbstractComponent {
 
 	private int markerNumber;
 
-	private String arrayCluster;
+	private String arrayCluster, markerCluster;
 	
-	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster) {
+	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster, String markerCluster) {
 		this.arrayNumber = arrayNumber;
 		this.markerNumber = markerNumber;
 		this.arrayCluster = arrayCluster;
+		this.markerCluster = markerCluster;
 	}
 
 
@@ -38,6 +39,7 @@ public class Dendrogram extends AbstractComponent {
 		target.addAttribute("arrayNumber", arrayNumber);
 		target.addAttribute("markerNumber", markerNumber);
 		target.addAttribute("arrayCluster", arrayCluster);
+		target.addAttribute("markerCluster", markerCluster); 
 		target.addAttribute("colors", colors);
 	}
 
@@ -92,19 +94,6 @@ public class Dendrogram extends AbstractComponent {
 		// TODO Auto-generated method stub
 		
 	}
-
-
-	public void setMarkerCluster(String mString) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void setArrayCluster(String aString) {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 	public void setColors(int[] colors) { /* element value range [-255, 255] */
 		this.colors = new Integer[colors.length];

@@ -6,6 +6,10 @@ import java.util.List;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.dom.client.CanvasElement;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Position;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
@@ -68,6 +72,7 @@ public class VDendrogram extends Widget implements Paintable {
 		int arrayNumber = uidl.getIntAttribute("arrayNumber");
 		int markerNumber = uidl.getIntAttribute("markerNumber");
 		String arrayCluster = uidl.getStringAttribute("arrayCluster");
+		String markerCluster = uidl.getStringAttribute("markerCluster");
 		int[] colors = uidl.getIntArrayAttribute("colors");
 
 		int canvasWidth = cellWidth*arrayNumber; // TODO this should be decided by the available space from container, not the entire heatmap
@@ -81,13 +86,13 @@ public class VDendrogram extends Widget implements Paintable {
 		
 		Context2d context = canvas.getContext2d();
 
-		int index = 0;
+		int valueIndex = 0;
 		
 		for (int y = 0; y < canvasHeight; y+=cellHeight) {
 
 			for (int x = 0; x < cellWidth*arrayNumber; x+=cellWidth) {
 
-				int color = colors[index++];
+				int color = colors[valueIndex++];
 				int r, g, b;
 				if(color>0) {
 					r = 255;
@@ -137,18 +142,91 @@ public class VDendrogram extends Widget implements Paintable {
 		}
 		arrayDendrogramContext.stroke();
 
-		// <div><canvas id=array_dendrogram></canvas><canvas id=array_heatmap></canvas><canvas id=array_labels></canvas></div>
-		this.getElement().appendChild(arrayDendrogramCanvas.getCanvasElement());
-		this.getElement().appendChild(canvas.getCanvasElement());
+		// canvas for marker dendrogram
+		Canvas markerDendrogramCanvas = Canvas.createIfSupported();
+		int markerClusterHeight = 0;
+		if(markerCluster.length()>0) {
+		markerDendrogramCanvas.setCoordinateSpaceHeight(canvasHeight); // note this is heatmap canvas height
+		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
 		
+		index = 0; // this must be reset to start reading the cluster string
+		List<Double> bracketCoordinates2 = new ArrayList<Double>();
+		final char[] clusters2 = markerCluster.toCharArray();
+		MidPoint midPoint2 = prepareBrackets(0, clusters2.length-1, clusters2, bracketCoordinates2); // ignore the top level return value?
+
+		markerClusterHeight = (int)midPoint2.height + EXTA_SPACE;
+		markerDendrogramCanvas.setCoordinateSpaceWidth(markerClusterHeight);
+		// rotate and move it to the left hand side area
+		markerDendrogramContext.rotate(0.5*Math.PI);
+		markerDendrogramContext.translate(0, -markerClusterHeight);
+
+		// draw brackets
+		markerDendrogramContext.beginPath();
+		for(int i=0; i<bracketCoordinates2.size(); i+=5) {
+			double x1 = bracketCoordinates2.get(i);
+			double x2 = bracketCoordinates2.get(i+1);
+			double y1 = bracketCoordinates2.get(i+2);
+			double y = bracketCoordinates2.get(i+3);
+			double y2 = bracketCoordinates2.get(i+4);
+			markerDendrogramContext.moveTo(x1, y1);
+			markerDendrogramContext.lineTo(x1, y);
+			markerDendrogramContext.lineTo(x2, y);
+			markerDendrogramContext.lineTo(x2, y2);
+		}
+		markerDendrogramContext.stroke();
+		}
+
+		// <div><canvas id=array_dendrogram></canvas><canvas id=array_heatmap></canvas><canvas id=array_labels></canvas></div>
+		// place things in place
+		CanvasElement arrayDendrogram = arrayDendrogramCanvas.getCanvasElement();
+		Style style = arrayDendrogram.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(0, Unit.PX);
+		style.setLeft(markerClusterHeight, Unit.PX);
+		this.getElement().appendChild(arrayDendrogram);
+		
+		CanvasElement markerDendrogram = markerDendrogramCanvas.getCanvasElement();
+		style = markerDendrogram.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(arrayClusterHeight, Unit.PX);
+		style.setLeft(0, Unit.PX);
+		this.getElement().appendChild(markerDendrogram);
+
+		CanvasElement heatmap = canvas.getCanvasElement();
+		style = heatmap.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(arrayClusterHeight, Unit.PX);
+		style.setLeft(markerClusterHeight, Unit.PX);
+		this.getElement().appendChild(heatmap);
+		
+		// array labels on the bottom
 		Canvas canvas3 = Canvas.createIfSupported();
 		Context2d context3 = canvas3.getContext2d();
-		context3.setFont("20px");
-		context3.fillText("... microarray labels go here ...", 10, 30); // TODO
-		this.getElement().appendChild(canvas3.getCanvasElement());
+		context3.rotate(0.5*Math.PI);
+		context3.translate(0, -canvasWidth);
+		//context3.setFont("20px sans-serif");
+		context3.fillText("... microarray labels go here ..."+context3.getFont(), 10, 30); // TODO
+		CanvasElement arrayLabels = canvas3.getCanvasElement();
+		style = arrayLabels.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(arrayClusterHeight+canvasHeight, Unit.PX);
+		style.setLeft(markerClusterHeight, Unit.PX);
+		this.getElement().appendChild(arrayLabels);
+		
+		// markers labels on the right
+		Canvas canvas4 = Canvas.createIfSupported();
+		Context2d context4 = canvas4.getContext2d();
+		//context4.setFont("20px sans-serif");
+		context4.fillText("... marker labels go here ..."+context4.getFont(), 10, 30); // TODO
+		CanvasElement markerLabels = canvas4.getCanvasElement();
+		style = markerLabels.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(arrayClusterHeight, Unit.PX);
+		style.setLeft(markerClusterHeight+canvasWidth, Unit.PX);
+		this.getElement().appendChild(markerLabels);
 	}
 	
-	transient private int index;
+	transient static private int index;
 	
 	private static class MidPoint {
 		final double mid;
@@ -168,7 +246,7 @@ public class VDendrogram extends Widget implements Paintable {
 	 * 
 	 * precondition: clusters[left]=='(', clusters[right]=')'
 	 */
-	private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates) {
+	static private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates) {
 		if(right-left==1) { 
 			MidPoint m = new MidPoint(x0+(index+0.5)*deltaX, 0);
 			index++;
