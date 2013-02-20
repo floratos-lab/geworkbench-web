@@ -45,10 +45,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private int chipNo;
 
-	private String[] markerNames; 
-
-	private String[] arrayNames	;	
-
 	private int[] colors; /* range [-255, 255] */ 
 
 	private int geneHeight 	= 	5;
@@ -101,8 +97,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 			chipNo = leafArrays.length;
 		}
 
-		markerNames 	= 	new String[geneNo];
-		arrayNames		= 	new String[chipNo];
+		final String[] markerNames 	= 	new String[geneNo];
+		final String[] arrayNames		= 	new String[chipNo];
 		colors 			= 	new int[chipNo*geneNo];
 		int k = 0;
 
@@ -150,7 +146,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		}
 		final String arrayClusterString = arrayString.toString();
 
-		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString);
+		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
+				arrayNames, markerNames);
 		dendrogram.setSizeUndefined();
 
 		/**
@@ -203,13 +200,12 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 				removeComponent(dendrogram);
 				geneHeight 	= 	5;
 				geneWidth 	=	10;
-				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString);
+				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
+						arrayNames, markerNames);
 				dendrogram.setGeneHeight(geneHeight);
 				dendrogram.setGeneWidth(geneWidth);
 
 				dendrogram.setColors(colors);
-				dendrogram.setMarkerLabels(markerNames);
-				dendrogram.setArrayLabels(arrayNames);
 				dendrogram.setImmediate(true);
 				//dendrogram.setSizeFull();
 				setSecondComponent(dendrogram);			}
@@ -335,8 +331,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		setFirstComponent(toolBar);
 
 		dendrogram.setColors(colors);
-		dendrogram.setMarkerLabels(markerNames);
-		dendrogram.setArrayLabels(arrayNames);
 		dendrogram.setImmediate(true);
 		//dendrogram.setSizeFull(); // FIXME why not
 		setSecondComponent(dendrogram);

@@ -74,7 +74,9 @@ public class VDendrogram extends Widget implements Paintable {
 		String arrayCluster = uidl.getStringAttribute("arrayCluster");
 		String markerCluster = uidl.getStringAttribute("markerCluster");
 		int[] colors = uidl.getIntArrayAttribute("colors");
-
+		String[] arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
+		String[] markerLabels = uidl.getStringArrayAttribute("markerLabels");
+		
 		int canvasWidth = cellWidth*arrayNumber; // TODO this should be decided by the available space from container, not the entire heatmap
 //		canvas.setWidth(canvasWidth + "px");
         canvas.setCoordinateSpaceWidth(canvasWidth);
@@ -126,20 +128,7 @@ public class VDendrogram extends Widget implements Paintable {
 		arrayDendrogramCanvas.setCoordinateSpaceHeight(arrayClusterHeight);
 		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
 
-		// draw brackets
-		arrayDendrogramContext.beginPath();
-		for(int i=0; i<bracketCoordinates.size(); i+=5) {
-			double x1 = bracketCoordinates.get(i);
-			double x2 = bracketCoordinates.get(i+1);
-			double y1 = bracketCoordinates.get(i+2);
-			double y = bracketCoordinates.get(i+3);
-			double y2 = bracketCoordinates.get(i+4);
-			arrayDendrogramContext.moveTo(x1, y1);
-			arrayDendrogramContext.lineTo(x1, y);
-			arrayDendrogramContext.lineTo(x2, y);
-			arrayDendrogramContext.lineTo(x2, y2);
-		}
-		arrayDendrogramContext.stroke();
+		drawBrackets(arrayDendrogramContext, bracketCoordinates);
 
 		// canvas for marker dendrogram
 		Canvas markerDendrogramCanvas = Canvas.createIfSupported();
@@ -159,20 +148,7 @@ public class VDendrogram extends Widget implements Paintable {
 		markerDendrogramContext.rotate(0.5*Math.PI);
 		markerDendrogramContext.translate(0, -markerClusterHeight);
 
-		// draw brackets
-		markerDendrogramContext.beginPath();
-		for(int i=0; i<bracketCoordinates2.size(); i+=5) {
-			double x1 = bracketCoordinates2.get(i);
-			double x2 = bracketCoordinates2.get(i+1);
-			double y1 = bracketCoordinates2.get(i+2);
-			double y = bracketCoordinates2.get(i+3);
-			double y2 = bracketCoordinates2.get(i+4);
-			markerDendrogramContext.moveTo(x1, y1);
-			markerDendrogramContext.lineTo(x1, y);
-			markerDendrogramContext.lineTo(x2, y);
-			markerDendrogramContext.lineTo(x2, y2);
-		}
-		markerDendrogramContext.stroke();
+		drawBrackets(markerDendrogramContext, bracketCoordinates2);
 		}
 
 		// <div><canvas id=array_dendrogram></canvas><canvas id=array_heatmap></canvas><canvas id=array_labels></canvas></div>
@@ -200,29 +176,58 @@ public class VDendrogram extends Widget implements Paintable {
 		
 		// array labels on the bottom
 		Canvas canvas3 = Canvas.createIfSupported();
+		canvas3.setCoordinateSpaceWidth(canvasWidth);
+		//canvas3.setCoordinateSpaceHeight(height);
 		Context2d context3 = canvas3.getContext2d();
 		context3.rotate(0.5*Math.PI);
 		context3.translate(0, -canvasWidth);
 		//context3.setFont("20px sans-serif");
-		context3.fillText("... microarray labels go here ..."+context3.getFont(), 10, 30); // TODO
-		CanvasElement arrayLabels = canvas3.getCanvasElement();
-		style = arrayLabels.getStyle();
+		int y = cellWidth;
+		for(int i=0; i<arrayLabels.length; i++) {
+			context3.fillText(arrayLabels[i], 5, y);
+			y += cellWidth;
+		}
+		CanvasElement element3 = canvas3.getCanvasElement();
+		style = element3.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight+canvasHeight, Unit.PX);
 		style.setLeft(markerClusterHeight, Unit.PX);
-		this.getElement().appendChild(arrayLabels);
+		this.getElement().appendChild(element3);
 		
 		// markers labels on the right
 		Canvas canvas4 = Canvas.createIfSupported();
+		canvas4.setCoordinateSpaceHeight(canvasHeight);
 		Context2d context4 = canvas4.getContext2d();
-		//context4.setFont("20px sans-serif");
-		context4.fillText("... marker labels go here ..."+context4.getFont(), 10, 30); // TODO
-		CanvasElement markerLabels = canvas4.getCanvasElement();
-		style = markerLabels.getStyle();
+		if(cellHeight<10) {
+			context4.setFont((cellHeight-1)+"px sans-serif");
+		}
+		y = cellHeight;
+		for(int i=0; i<markerLabels.length; i++) {
+			context4.fillText(markerLabels[i], 5, y);
+			y += cellHeight;
+		}
+		CanvasElement element4 = canvas4.getCanvasElement();
+		style = element4.getStyle();
 		style.setPosition(Position.ABSOLUTE);
 		style.setTop(arrayClusterHeight, Unit.PX);
 		style.setLeft(markerClusterHeight+canvasWidth, Unit.PX);
-		this.getElement().appendChild(markerLabels);
+		this.getElement().appendChild(element4);
+	}
+	
+	private static void drawBrackets(final Context2d context, List<Double> bracketCoordinates) {
+		context.beginPath();
+		for(int i=0; i<bracketCoordinates.size(); i+=5) {
+			double x1 = bracketCoordinates.get(i);
+			double x2 = bracketCoordinates.get(i+1);
+			double y1 = bracketCoordinates.get(i+2);
+			double y = bracketCoordinates.get(i+3);
+			double y2 = bracketCoordinates.get(i+4);
+			context.moveTo(x1, y1);
+			context.lineTo(x1, y);
+			context.lineTo(x2, y);
+			context.lineTo(x2, y2);
+		}
+		context.stroke();
 	}
 	
 	transient static private int index;
