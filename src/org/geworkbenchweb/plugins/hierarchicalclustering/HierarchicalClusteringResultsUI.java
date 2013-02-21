@@ -1,7 +1,5 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
-import java.util.ArrayList;
-
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
@@ -9,27 +7,21 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-/* This is based on the older version under ...results. package after fixing many problems. */
+/* This is started from the class with the same name under the .results. package. */
 public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 
@@ -47,16 +39,15 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 
-		final ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
-		final int geneNo = microarraySet.markers().size();
-		final int chipNo = microarraySet.items().size();
+		int geneNo = microarraySet.markers().size();
+		int chipNo = microarraySet.items().size();
 
-		final String[] markerNames = new String[geneNo];
-		final String[] arrayNames = new String[chipNo];
-		final int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
+		String[] markerNames = new String[geneNo];
+		String[] arrayNames = new String[chipNo];
+		int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
 		int k = 0;
 
 		for (int j = 0; j < chipNo; j++) {
@@ -80,13 +71,13 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		if(markerCluster != null) {
 			convertToString(markerString, markerCluster);
 		}
-		final String markerClusterString = markerString.toString();
+		String markerClusterString = markerString.toString();
 
 		StringBuffer arrayString 	= 	new StringBuffer();
 		if(arrayCluster != null) {
 			convertToString(arrayString, arrayCluster);
 		}
-		final String arrayClusterString = arrayString.toString();
+		String arrayClusterString = arrayString.toString();
 
 		final Dendrogram dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
 				arrayNames, markerNames, colors);
@@ -126,107 +117,13 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 			}
 		});
 		
-		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", new Command(){
-
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				final Window nameWindow = new Window();
-				nameWindow.setModal(true);
-				nameWindow.setClosable(true);
-				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-				nameWindow.setWidth("300px");
-				nameWindow.setHeight("150px");
-				nameWindow.setResizable(false);
-				nameWindow.setCaption("Add Markers to Set");
-				nameWindow.setImmediate(true);
-
-				final TextField setName = new TextField();
-				setName.setInputPrompt("Please enter set name");
-				setName.setImmediate(true);
-
-				Button submit = new Button("Submit", new Button.ClickListener() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						try {
-							if(setName.getValue() != null) {
-								ArrayList<String> markers = new ArrayList<String>();
-								String[] temp 	= 	new String[0]; // TODO selected markers
-								for(int i=0; i<temp.length; i++) {
-									String label = temp[i].trim();
-									markers.add(label);
-								}
-								String subSetName = (String) setName.getValue() + " ["+markers.size()+ "]";
-								SubSetOperations.storeData(markers, "marker", subSetName , data.getParent());
-								getApplication().getMainWindow().removeWindow(nameWindow);
-							}
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-				submit.setClickShortcut(KeyCode.ENTER);
-				nameWindow.addComponent(setName);
-				nameWindow.addComponent(submit);
-				getApplication().getMainWindow().addWindow(nameWindow);
-			}
-		});
+		ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		Long parentId = data.getParent();
+		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", 
+				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId));
 		
-		MenuBar.MenuItem saveP 		=	toolBar.addItem("Save Phenotypes", new Command(){
-
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				final Window nameWindow = new Window();
-				nameWindow.setModal(true);
-				nameWindow.setClosable(true);
-				((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
-				nameWindow.setWidth("300px");
-				nameWindow.setHeight("150px");
-				nameWindow.setResizable(false);
-				nameWindow.setCaption("Add Phenotypes to Set");
-				nameWindow.setImmediate(true);
-
-				final TextField setName = new TextField();
-				setName.setInputPrompt("Please enter set name");
-				setName.setImmediate(true);
-
-				Button submit = new Button("Submit", new Button.ClickListener() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						try {
-							if(setName.getValue() != null) {
-								ArrayList<String> arrays = new ArrayList<String>();
-								String[] temp 	= 	new String[0]; //TODO selected arrays
-								for(int i=0; i<temp.length; i++) {
-									arrays.add(temp[i].trim());
-								}
-
-								String subSetName =  (String) setName.getValue() + " [" + arrays.size() + "]";
-								SubSetOperations.storeArraySetInCurrentContext(arrays, subSetName, data.getParent());
-								getApplication().getMainWindow().removeWindow(nameWindow);
-							}
-						} catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-				submit.setClickShortcut(KeyCode.ENTER);
-				nameWindow.addComponent(setName);
-				nameWindow.addComponent(submit);
-				getApplication().getMainWindow().addWindow(nameWindow);
-			}
-		});
+		MenuBar.MenuItem saveP 		=	toolBar.addItem("Save Phenotypes",
+				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId));
 		
 		MenuBar.MenuItem export 	= 	toolBar.addItem("Export Image", new Command(){
 
