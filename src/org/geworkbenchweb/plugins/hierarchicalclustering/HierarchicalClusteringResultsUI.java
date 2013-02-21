@@ -35,12 +35,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 	private static final long serialVersionUID = 8018658107854483097L;
 
-	private Dendrogram dendrogram;
-
-	private int geneHeight 	= 	5;
-
-	private int geneWidth 	= 	10;
-
 	@SuppressWarnings({ "unchecked" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
 
@@ -94,15 +88,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		}
 		final String arrayClusterString = arrayString.toString();
 
-		dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
+		final Dendrogram dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
 				arrayNames, markerNames, colors);
 		dendrogram.setSizeUndefined();
-
-		/**
-		 * default gene height and width for the dendrogram
-		 */
-		dendrogram.setCellHeight(geneHeight);
-		dendrogram.setCellWidth(geneWidth);
 
 		dendrogram.setImmediate(true);
 		//dendrogram.setSizeFull(); // FIXME why not
@@ -114,13 +102,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				
-				removeComponent(dendrogram);
-				geneHeight 	= 	geneHeight*2;
-				geneWidth 	=	geneWidth*2;
-				dendrogram.setCellHeight(geneHeight);
-				dendrogram.setCellWidth(geneWidth);
-				setSecondComponent(dendrogram);
+				dendrogram.zoomIn();
 			}
 		});
 		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-Out-icon.png"),
@@ -130,15 +112,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				
-				if(geneHeight != 1) {
-					removeComponent(dendrogram);
-					geneHeight 	= 	geneHeight/2;
-					geneWidth 	=	geneWidth/2;
-					dendrogram.setCellHeight(geneHeight);
-					dendrogram.setCellWidth(geneWidth);
-					setSecondComponent(dendrogram);
-				}
+				dendrogram.zoomOut();
 			}
 		});
 
@@ -148,17 +122,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				removeComponent(dendrogram);
-				geneHeight 	= 	5;
-				geneWidth 	=	10;
-				dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
-						arrayNames, markerNames, colors);
-				dendrogram.setCellHeight(geneHeight);
-				dendrogram.setCellWidth(geneWidth);
-
-				dendrogram.setImmediate(true);
-				//dendrogram.setSizeFull();
-				setSecondComponent(dendrogram);			}
+				dendrogram.reset();
+			}
 		});
 		
 		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", new Command(){
@@ -191,7 +156,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 						try {
 							if(setName.getValue() != null) {
 								ArrayList<String> markers = new ArrayList<String>();
-								String[] temp 	= 	dendrogram.getMarkerLabels();
+								String[] temp 	= 	new String[0]; // TODO selected markers
 								for(int i=0; i<temp.length; i++) {
 									String label = temp[i].trim();
 									markers.add(label);
@@ -242,7 +207,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 						try {
 							if(setName.getValue() != null) {
 								ArrayList<String> arrays = new ArrayList<String>();
-								String[] temp 	= 	dendrogram.getArrayLabels();
+								String[] temp 	= 	new String[0]; //TODO selected arrays
 								for(int i=0; i<temp.length; i++) {
 									arrays.add(temp[i].trim());
 								}
@@ -263,13 +228,13 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 			}
 		});
 		
-		MenuBar.MenuItem export 	= 	toolBar.addItem("Export HTML", new Command(){
+		MenuBar.MenuItem export 	= 	toolBar.addItem("Export Image", new Command(){
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				dendrogram.setSVGFlag("true");
+				// TODO 
 			}
 		});
 

@@ -80,35 +80,25 @@ public class Dendrogram extends AbstractComponent {
 
 	}
 
-
-	public void setCellHeight(int cellHeight) {
-		this.cellHeight = cellHeight;
+	public void zoomIn() {
+		cellWidth *= 2;
+		cellHeight *= 2;
 		requestRepaint();
 	}
 
-
-	public void setCellWidth(int cellWidth) {
-		this.cellWidth = cellWidth;
-		requestRepaint();
-	}
-
-
-	public String[] getMarkerLabels() {
-		// TODO Auto-generated method stub
-		// null WILL crash the caller
-		return null;
-	}
-
-
-	public String[] getArrayLabels() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	public void setSVGFlag(String string) {
-		// TODO Auto-generated method stub
+	public void zoomOut() {
+		if(cellHeight<=1 || cellWidth<=1) return;
 		
+		cellWidth /= 2;
+		cellHeight /= 2;
+		requestRepaint();
 	}
-
+	
+	public void reset() {
+		cellWidth = 10;
+		cellHeight = 5;
+		// TDOD reset the selection as well
+		requestRepaint();
+	}
+	
 }
