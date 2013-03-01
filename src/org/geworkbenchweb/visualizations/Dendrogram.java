@@ -73,7 +73,7 @@ public class Dendrogram extends AbstractComponent {
 		target.addAttribute("cellWidth", cellWidth);
 		target.addAttribute("cellHeight", cellHeight);
 		
-		target.addAttribute("firstMarker", firstMarker);
+		target.addVariable(this, "firstMarker", firstMarker);
 	}
 
 	private int firstMarker = 0;
@@ -94,14 +94,6 @@ public class Dendrogram extends AbstractComponent {
 			paintableMarkers = (Integer) variables.get("paintableMarkers");
 			requestRepaint();
 		}
-//		if (variables.containsKey("marker")) {
-//			markerLabels	= 	(String[]) variables.get("markerLabels");
-//			markerCluster 	= 	(String) variables.get("marker");
-//			colors  		= 	(String[]) variables.get("markerColor");
-//			numMarkers 		= 	(Integer) variables.get("markerNumber");
-//			requestRepaint();
-//		}
-
 	}
 
 	public void zoomIn() {

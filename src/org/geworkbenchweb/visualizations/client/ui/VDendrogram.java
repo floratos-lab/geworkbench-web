@@ -39,10 +39,6 @@ public class VDendrogram extends Composite implements Paintable {
 
 	private final Canvas downArrowCanvas, upArrowCanvas;
 	
-	/**
-	 * The constructor should first call super() to initialize the component and
-	 * then handle any initialization relevant to Vaadin.
-	 */
 	public VDendrogram() {   
 		
 		initWidget(panel);
@@ -56,9 +52,6 @@ public class VDendrogram extends Composite implements Paintable {
 		upArrowCanvas = createRetrievingButton(false);
 		panel.add(downArrowCanvas);
 		panel.add(upArrowCanvas); 
-		
-		/** Set the CSS class name to allow styling. */
-//		setStyleName(CLASSNAME);
 	}
 	
 	private int firstMarker = 0;
@@ -84,8 +77,8 @@ public class VDendrogram extends Composite implements Paintable {
 			} else {
 				firstMarker -= 100;
 			}
-			client.updateVariable(paintableId, "firstMarker", firstMarker, false);
-			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, true);
+			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, false);
+			client.updateVariable(paintableId, "firstMarker", firstMarker, true);
 		}
     	
     };
@@ -124,84 +117,55 @@ public class VDendrogram extends Composite implements Paintable {
 		int cellWidth = uidl.getIntAttribute("cellWidth");
 		int cellHeight = uidl.getIntAttribute("cellHeight");
 		
-		firstMarker = uidl.getIntAttribute("firstMarker");
+		firstMarker = uidl.getIntVariable("firstMarker");
 		
 		// [1] array labels on the bottom
-		int canvasWidth = cellWidth*arrayNumber;
-		arrayLabelCanvas.setCoordinateSpaceWidth(canvasWidth);
-		//canvas3.setCoordinateSpaceHeight(height);
+		int heatmapWidth = cellWidth*arrayNumber;
+		sizeCanvas(arrayLabelCanvas, heatmapWidth, 150); // default height
 		Context2d context3 = arrayLabelCanvas.getContext2d();
 		context3.rotate(0.5*Math.PI);
-		context3.translate(0, -canvasWidth);
+		context3.translate(0, -heatmapWidth);
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
 		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, 0);
         
 		// [2] canvas for microarray dendrogram
-		arrayDendrogramCanvas.setCoordinateSpaceWidth(canvasWidth);
-		Context2d arrayDendrogramContext = arrayDendrogramCanvas.getContext2d();
-		
 		index = 0; // this must be reset to start reading the cluster string
 		List<Double> bracketCoordinates = new ArrayList<Double>();
 		final char[] clusters = arrayCluster.toCharArray();
 		MidPoint midPoint = prepareBrackets(0, clusters.length-1, clusters, bracketCoordinates, cellWidth);
 
 		int arrayClusterHeight = (int)midPoint.height + deltaH; // add some extra space on top
-		arrayDendrogramCanvas.setCoordinateSpaceHeight(arrayClusterHeight);
-		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
+		sizeCanvas(arrayDendrogramCanvas, heatmapWidth, arrayClusterHeight);
 
+		Context2d arrayDendrogramContext = arrayDendrogramCanvas.getContext2d();
+		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
 		drawBrackets(arrayDendrogramContext, bracketCoordinates);
 
 		// [3] heatmap
 		paintableMarkers = Math.min(markerNumber, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
-        int canvasHeight = paintableMarkers*cellHeight;
-		if(firstMarker+paintableMarkers<markerNumber) {
-			Context2d context = downArrowCanvas.getContext2d();
-			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
-			context.fillRect(150, 2, 340, 16);
-			context.setFillStyle(CssColor.make(0, 0, 0));
-			context.fillText("Displayed to row #"+(firstMarker+paintableMarkers)+". Click to scroll down.", 150, 15);
-			downArrowCanvas.setVisible(true);
-			Style s = downArrowCanvas.getCanvasElement().getStyle();
-			s.setTop(canvasHeight+arrayClusterHeight-22, Unit.PX);
-		} else {
-			downArrowCanvas.setVisible(false);
-		}
-		if(firstMarker>0) {
-			Context2d context = upArrowCanvas.getContext2d();
-			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
-			context.fillRect(150, 2, 340, 16);
-			context.setFillStyle(CssColor.make(0, 0, 0));
-			context.fillText("Displayed to row #"+firstMarker+". Click to scroll up.", 150, 15);
-			upArrowCanvas.setVisible(true);
-			Style s = upArrowCanvas.getCanvasElement().getStyle();
-			s.setTop(arrayClusterHeight+2, Unit.PX);
-		} else {
-			upArrowCanvas.setVisible(false);
-		}
+        int heatmapHeight = paintableMarkers*cellHeight;
+        updateArrowCanvas(heatmapHeight, arrayClusterHeight);
         drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth);
 
 		// [4] canvas for marker dendrogram
-		int markerClusterHeight = 0;
-		markerDendrogramCanvas.setCoordinateSpaceHeight(canvasHeight); // note this is heatmap canvas height
-		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
-		
 		index = 0; // this must be reset to start reading the cluster string
 		List<Double> bracketCoordinates2 = new ArrayList<Double>();
 		final char[] clusters2 = markerCluster.toCharArray();
 		MidPoint midPoint2 = prepareBrackets(0, clusters2.length-1, clusters2, bracketCoordinates2, cellHeight); 
 
-		markerClusterHeight = (int)midPoint2.height + deltaH; // add some extra space to the left
-		markerDendrogramCanvas.setCoordinateSpaceWidth(markerClusterHeight);
+		int markerClusterHeight = (int)midPoint2.height + deltaH; // add some extra space to the left
+		sizeCanvas(markerDendrogramCanvas, markerClusterHeight, heatmapHeight);
+
 		// rotate and move it to the left hand side area
+		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
 		markerDendrogramContext.rotate(0.5*Math.PI);
 		markerDendrogramContext.translate(0, -markerClusterHeight);
-
 		drawBrackets(markerDendrogramContext, bracketCoordinates2);
 
 		// [5] markers labels on the right
-		markerLabelCanvas.setCoordinateSpaceHeight(canvasHeight);
+		sizeCanvas(markerLabelCanvas, 300, heatmapHeight); // default width
 		Context2d context4 = markerLabelCanvas.getContext2d();
 		if(cellHeight<10) {
 			context4.setFont((cellHeight-1)+"px sans-serif");
@@ -209,40 +173,61 @@ public class VDendrogram extends Composite implements Paintable {
 		int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
 		
 		// place things in place
-		CanvasElement arrayDendrogram = arrayDendrogramCanvas.getCanvasElement();
-		Style style = arrayDendrogram.getStyle();
-		style.setPosition(Position.ABSOLUTE);
-		style.setTop(0, Unit.PX);
-		style.setLeft(markerClusterHeight, Unit.PX);
-		
-		CanvasElement markerDendrogram = markerDendrogramCanvas.getCanvasElement();
-		style = markerDendrogram.getStyle();
-		style.setPosition(Position.ABSOLUTE);
-		style.setTop(arrayClusterHeight, Unit.PX);
-		style.setLeft(0, Unit.PX);
-
-		CanvasElement heatmap = canvas.getCanvasElement();
-		style = heatmap.getStyle();
-		style.setPosition(Position.ABSOLUTE);
-		style.setTop(arrayClusterHeight, Unit.PX);
-		style.setLeft(markerClusterHeight, Unit.PX);
-		
-		CanvasElement element3 = arrayLabelCanvas.getCanvasElement();
-		style = element3.getStyle();
-		style.setTop(arrayClusterHeight+canvasHeight, Unit.PX);
-		style.setLeft(markerClusterHeight, Unit.PX);
-
-		CanvasElement element4 = markerLabelCanvas.getCanvasElement();
-		style = element4.getStyle();
-		style.setTop(arrayClusterHeight, Unit.PX);
-		style.setLeft(markerClusterHeight+canvasWidth, Unit.PX);
+		positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
+		positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
+		positionCanvas(canvas, arrayClusterHeight, markerClusterHeight);
+		positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
+		positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
 		
 		// calculate the proper panel size
-		int width0 = canvasWidth + markerClusterHeight +  markerLabelWidth;
-		int height0 = canvasHeight + arrayClusterHeight +  arrayLabelHeight;
+		int width0 = heatmapWidth + markerClusterHeight +  markerLabelWidth;
+		int height0 = heatmapHeight + arrayClusterHeight +  arrayLabelHeight;
 		panel.setWidth(Math.min(width0, MAX_WIDTH) + "px");
 		panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px");
-
+	}
+	
+	private void updateArrowCanvas(final int heatmapHeight,
+			final int arrayClusterHeight) {
+		if (firstMarker + paintableMarkers < markerNumber) {
+			Context2d context = downArrowCanvas.getContext2d();
+			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
+			context.fillRect(150, 2, 340, 16);
+			context.setFillStyle(CssColor.make(0, 0, 0));
+			context.fillText("Displayed to row #"
+					+ (firstMarker + paintableMarkers)
+					+ ". Click to scroll down.", 150, 15);
+			downArrowCanvas.setVisible(true);
+			positionCanvas(downArrowCanvas, heatmapHeight + arrayClusterHeight - 22, 100);
+		} else {
+			downArrowCanvas.setVisible(false);
+		}
+		
+		if (firstMarker > 0) {
+			Context2d context = upArrowCanvas.getContext2d();
+			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
+			context.fillRect(150, 2, 340, 16);
+			context.setFillStyle(CssColor.make(0, 0, 0));
+			context.fillText("Displayed to row #" + firstMarker
+					+ ". Click to scroll up.", 150, 15);
+			upArrowCanvas.setVisible(true);
+			positionCanvas(upArrowCanvas, arrayClusterHeight + 2, 100);
+		} else {
+			upArrowCanvas.setVisible(false);
+		}
+	}
+	
+	static private void sizeCanvas(Canvas canvas, int width, int height) {
+		canvas.setPixelSize(width, height); // when necessary?
+		canvas.setCoordinateSpaceWidth(width);
+		canvas.setCoordinateSpaceHeight(height);
+	}
+	
+	static private void positionCanvas(Canvas canvas, int top, int left) {
+		CanvasElement element = canvas.getCanvasElement();
+		Style style = element.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		style.setTop(top, Unit.PX);
+		style.setLeft(left, Unit.PX);
 	}
 	
 	// colors[] must be of the size of row*column, where paintable<row. (The logic is still ok if paintable==row)
@@ -250,17 +235,13 @@ public class VDendrogram extends Composite implements Paintable {
 		int height = cellHeight*paintable;
 		int width = cellWidth*column;
 		
-//		heatmapCanvas.setWidth(width + "px");
-//		heatmapCanvas.setHeight(height + "px"); // necessary?
-		heatmapCanvas.setCoordinateSpaceWidth(width);
-		heatmapCanvas.setCoordinateSpaceHeight(height);
+		sizeCanvas(heatmapCanvas, width, height);
         
 		Context2d context = heatmapCanvas.getContext2d();
 
 		int valueIndex = 0;
 		
 		for (int y = 0; y < height; y+=cellHeight) {
-
 			for (int x = 0; x < width; x+=cellWidth) {
 
 				int color = colors[valueIndex++];
@@ -275,10 +256,8 @@ public class VDendrogram extends Composite implements Paintable {
 					b = 255;
 				}
 
-				CssColor cellColor = CssColor.make("rgb(" + r + ", " + g
-						+ "," + b + ")");
-
-				context.setFillStyle(cellColor);
+				context.setFillStyle(CssColor.make("rgb(" + r + ", " + g + ","
+						+ b + ")"));
 				context.fillRect(x, y, cellWidth, cellHeight);
 			}
 		}
@@ -381,10 +360,7 @@ public class VDendrogram extends Composite implements Paintable {
 		Canvas canvas = Canvas.createIfSupported();
 		if(canvas==null) return null; // canvas not supported
 		 
-		canvas.setWidth("500px");
-		canvas.setHeight("20px");
-		canvas.setCoordinateSpaceWidth(500);
-		canvas.setCoordinateSpaceHeight(20);
+		sizeCanvas(canvas, 500, 20);
 		Context2d context = canvas.getContext2d();
 		context.setFillStyle(CssColor.make(225, 255, 225)); // light green
 		context.fillRect(0, 0, 500, 20);
