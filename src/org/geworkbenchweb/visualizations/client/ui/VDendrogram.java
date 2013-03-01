@@ -12,7 +12,6 @@ import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
@@ -38,7 +37,7 @@ public class VDendrogram extends Composite implements Paintable {
 	private Canvas arrayLabelCanvas = Canvas.createIfSupported();
 	private Canvas markerLabelCanvas = Canvas.createIfSupported();
 
-	private final Canvas arrowCanvas;
+	private final Canvas downArrowCanvas, upArrowCanvas;
 	
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -53,22 +52,40 @@ public class VDendrogram extends Composite implements Paintable {
 		panel.add(arrayLabelCanvas);
 		panel.add(markerLabelCanvas);
 
-		arrowCanvas = createRetrievingButton(handler);
-		panel.add(arrowCanvas);
+		downArrowCanvas = createRetrievingButton(true);
+		upArrowCanvas = createRetrievingButton(false);
+		panel.add(downArrowCanvas);
+		panel.add(upArrowCanvas); 
 		
 		/** Set the CSS class name to allow styling. */
 //		setStyleName(CLASSNAME);
 	}
 	
 	private int firstMarker = 0;
+	// the following variables are necessary to be member variables only to handle the last 'page'
+	private int markerNumber = 0; 
+	private int paintableMarkers = 0;
 	
-    private ClickHandler handler = new ClickHandler() {
+    private class ArrowHandler implements ClickHandler {
 
+    	final private boolean down;
+    	
+    	ArrowHandler(boolean down) {
+    		this.down = down;
+    	}
+    	
 		@Override
 		public void onClick(ClickEvent event) {
-			firstMarker += 100;
-			client.updateVariable(paintableId, "firstMarker", firstMarker, true);
-			Window.alert("not implemented. new firstMarker is "+firstMarker);
+			if(firstMarker+paintableMarkers>markerNumber) { // last 'page'
+				return;
+			}
+			if(down) {
+				firstMarker += 100;
+			} else {
+				firstMarker -= 100;
+			}
+			client.updateVariable(paintableId, "firstMarker", firstMarker, false);
+			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, true);
 		}
     	
     };
@@ -97,17 +114,18 @@ public class VDendrogram extends Composite implements Paintable {
 		// the difference between Attribute and Variable: in general, if not to be changed here (in client), use attribute
 		// see https://vaadin.com/forum/-/message_boards/view_message/192733
 		int arrayNumber = uidl.getIntAttribute("arrayNumber");
-		int markerNumber = uidl.getIntAttribute("markerNumber");
+		markerNumber = uidl.getIntAttribute("markerNumber");
 		String arrayCluster = uidl.getStringAttribute("arrayCluster");
 		String markerCluster = uidl.getStringAttribute("markerCluster");
-		int[] colors = uidl.getIntArrayAttribute("colors"); // truncate the data sent if it is not needed due to the maximum display size
+		int[] colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
 		String[] arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
 		String[] markerLabels = uidl.getStringArrayAttribute("markerLabels");
 		
 		int cellWidth = uidl.getIntAttribute("cellWidth");
 		int cellHeight = uidl.getIntAttribute("cellHeight");
 		
-
+		firstMarker = uidl.getIntAttribute("firstMarker");
+		
 		// [1] array labels on the bottom
 		int canvasWidth = cellWidth*arrayNumber;
 		arrayLabelCanvas.setCoordinateSpaceWidth(canvasWidth);
@@ -118,7 +136,7 @@ public class VDendrogram extends Composite implements Paintable {
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
-		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth);
+		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, 0);
         
 		// [2] canvas for microarray dendrogram
 		arrayDendrogramCanvas.setCoordinateSpaceWidth(canvasWidth);
@@ -136,14 +154,33 @@ public class VDendrogram extends Composite implements Paintable {
 		drawBrackets(arrayDendrogramContext, bracketCoordinates);
 
 		// [3] heatmap
-        int countPaintableMarkers = Math.min(markerNumber, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
-		if(countPaintableMarkers<markerNumber) {
-			arrowCanvas.setVisible(true);
-			Style s = arrowCanvas.getCanvasElement().getStyle();
-			s.setTop(countPaintableMarkers*cellHeight+arrayClusterHeight-22, Unit.PX);
+		paintableMarkers = Math.min(markerNumber, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
+        int canvasHeight = paintableMarkers*cellHeight;
+		if(firstMarker+paintableMarkers<markerNumber) {
+			Context2d context = downArrowCanvas.getContext2d();
+			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
+			context.fillRect(150, 2, 340, 16);
+			context.setFillStyle(CssColor.make(0, 0, 0));
+			context.fillText("Displayed to row #"+(firstMarker+paintableMarkers)+". Click to scroll down.", 150, 15);
+			downArrowCanvas.setVisible(true);
+			Style s = downArrowCanvas.getCanvasElement().getStyle();
+			s.setTop(canvasHeight+arrayClusterHeight-22, Unit.PX);
+		} else {
+			downArrowCanvas.setVisible(false);
 		}
-        drawHeatmap(canvas, colors, countPaintableMarkers, arrayNumber, cellHeight, cellWidth);
-        int canvasHeight = countPaintableMarkers*cellHeight;
+		if(firstMarker>0) {
+			Context2d context = upArrowCanvas.getContext2d();
+			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
+			context.fillRect(150, 2, 340, 16);
+			context.setFillStyle(CssColor.make(0, 0, 0));
+			context.fillText("Displayed to row #"+firstMarker+". Click to scroll up.", 150, 15);
+			upArrowCanvas.setVisible(true);
+			Style s = upArrowCanvas.getCanvasElement().getStyle();
+			s.setTop(arrayClusterHeight+2, Unit.PX);
+		} else {
+			upArrowCanvas.setVisible(false);
+		}
+        drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth);
 
 		// [4] canvas for marker dendrogram
 		int markerClusterHeight = 0;
@@ -169,7 +206,7 @@ public class VDendrogram extends Composite implements Paintable {
 		if(cellHeight<10) {
 			context4.setFont((cellHeight-1)+"px sans-serif");
 		}
-		int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight);
+		int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
 		
 		// place things in place
 		CanvasElement arrayDendrogram = arrayDendrogramCanvas.getCanvasElement();
@@ -201,16 +238,16 @@ public class VDendrogram extends Composite implements Paintable {
 		style.setLeft(markerClusterHeight+canvasWidth, Unit.PX);
 		
 		// calculate the proper panel size
-		int width0 = arrayNumber*cellWidth + markerClusterHeight +  markerLabelWidth;
-		int height0 = markerNumber*cellHeight + arrayClusterHeight +  arrayLabelHeight;
+		int width0 = canvasWidth + markerClusterHeight +  markerLabelWidth;
+		int height0 = canvasHeight + arrayClusterHeight +  arrayLabelHeight;
 		panel.setWidth(Math.min(width0, MAX_WIDTH) + "px");
 		panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px");
 
 	}
 	
-	// colors[] must be of the size of row*column
-	private static void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int row, int column, int cellHeight, int cellWidth) {
-		int height = cellHeight*row;
+	// colors[] must be of the size of row*column, where paintable<row. (The logic is still ok if paintable==row)
+	private static void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth) {
+		int height = cellHeight*paintable;
 		int width = cellWidth*column;
 		
 //		heatmapCanvas.setWidth(width + "px");
@@ -247,11 +284,11 @@ public class VDendrogram extends Composite implements Paintable {
 		}
 	}
 	
-	private static int drawLabels(final Canvas canvas, String[] labels, int interval) {
+	private static int drawLabels(final Canvas canvas, String[] labels, int interval, int first) {
 		Context2d context = canvas.getContext2d();
 		String longestArrayName = "";
 		int y = interval;
-		for(int i=0; i<labels.length; i++) {
+		for(int i=first; i<labels.length; i++) {
 			context.fillText(labels[i], 5, y);
 			y += interval;
 			if(labels[i].length()>longestArrayName.length()) {
@@ -340,7 +377,7 @@ public class VDendrogram extends Composite implements Paintable {
 		return split;
 	}
 
-	static private Canvas createRetrievingButton(final ClickHandler handler) {
+	private Canvas createRetrievingButton(boolean downDirection) {
 		Canvas canvas = Canvas.createIfSupported();
 		if(canvas==null) return null; // canvas not supported
 		 
@@ -353,14 +390,19 @@ public class VDendrogram extends Composite implements Paintable {
 		context.fillRect(0, 0, 500, 20);
 		context.strokeRect(0, 0, 500, 20);
 		context.beginPath();
-		context.moveTo(100, 2);
-		context.lineTo(110, 18);
-		context.lineTo(120, 2);
+		if(downDirection) { // down triangle
+			context.moveTo(100, 2);
+			context.lineTo(110, 18);
+			context.lineTo(120, 2);
+		} else { // up triangle
+			context.moveTo(100, 18);
+			context.lineTo(110, 2);
+			context.lineTo(120, 18);
+		}
 		context.setFillStyle(CssColor.make(0, 100, 50)); // dark green
 		context.fill();
-		context.fillText("Click to scroll down 100 more rows.", 150, 15);
 		canvas.setVisible(false);
-		canvas.addClickHandler(handler);
+		canvas.addClickHandler(new ArrowHandler(downDirection));
 		Style s = canvas.getCanvasElement().getStyle();
 		s.setPosition(Position.ABSOLUTE);
 		s.setLeft(100,  Unit.PX);
