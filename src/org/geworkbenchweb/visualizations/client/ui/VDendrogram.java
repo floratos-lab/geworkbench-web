@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.dom.client.CanvasElement;
 import com.google.gwt.dom.client.Style;
@@ -123,8 +124,9 @@ public class VDendrogram extends Composite implements Paintable {
 		int heatmapWidth = cellWidth*arrayNumber;
 		sizeCanvas(arrayLabelCanvas, heatmapWidth, 150); // default height
 		Context2d context3 = arrayLabelCanvas.getContext2d();
-		context3.rotate(0.5*Math.PI);
-		context3.translate(0, -heatmapWidth);
+		context3.rotate(-0.5*Math.PI);
+		context3.translate(-10, 0); // because of using right align
+		context3.setTextAlign(TextAlign.RIGHT);
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
