@@ -93,7 +93,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		clusterMethod.setCaption("Clustering Method");
 		clusterMethod.addItem("Single Linkage");
 		clusterMethod.addItem("Average Linkage");
-		clusterMethod.addItem("Total linkage");
+		clusterMethod.addItem("Total Linkage");
 		clusterMethod.setNullSelectionAllowed(false);
 		clusterMethod.select(clusterMethod.getItemIds().iterator().next());
 		clusterMethod.setWidth("50%");
@@ -227,7 +227,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		if(d == null) {
 			return 0;
 		}
-		if(d.equals("Eucledian Distance")) {
+		if(d.equals("Euclidean Distance")) {
 			return 0;
 		} else if(d.equals("Pearson's Correlation")) {
 			return 1;
@@ -245,7 +245,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 			return 0;
 		} else if(method.equals("Average Linkage")) {
 			return 1;
-		} else if(method.equals("Total linkage")) {
+		} else if(method.equals("Total Linkage")) {
 			return 2;
 		} else {
 			return 0;

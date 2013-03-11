@@ -62,7 +62,7 @@ public class UMainToolBar extends MenuBar {
 		final MenuBar.MenuItem workspace = this.addItem("Workspaces",
 				null);
 		
-		workspace.addItem("Create WorkSpace", new Command() {
+		workspace.addItem("Create Workspace", new Command() {
 
 			private static final long serialVersionUID = 1L;
 

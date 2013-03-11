@@ -115,6 +115,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
+	private static final String analysisName = "MARINa";
 
 	private Long dataSetId = null;
 	
@@ -226,6 +227,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			private static final long serialVersionUID = 4805200657491765148L;
 			public Field createField(Item item, Object propertyId, Component uiContext) {
 				Field f = super.createField(item, propertyId, uiContext);
+				fieldTitleToUppercase(f, "Gsea");
+				fieldTitleToUppercase(f, "Id");
 				if (propertyId.equals("minimumTargetNumber") || propertyId.equals("gseaPermutationNumber") ||
 	            	propertyId.equals("minimumSampleNumber") || propertyId.equals("gseaTailNumber")) {
 					TextField tf = (TextField) f;
@@ -297,6 +300,15 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getFooter().addComponent(submitButton);
 
 		addComponent(form);
+	}
+	
+	/* 
+	 * convert abbrev in field title to uppercase
+	 */
+	private void fieldTitleToUppercase(Field f, String abbrev){
+		String caption = f.getCaption();
+		if (caption.contains(abbrev))
+			f.setCaption(caption.replace(abbrev, abbrev.toUpperCase()));
 	}
 	
 	private String parseCSV(String filename, byte[] bytes){
@@ -389,7 +401,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		ResultSet resultSet = new ResultSet();
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
-		String dataSetName = "Marina - Pending";
+		String dataSetName = analysisName + " - Pending";
 		resultSet.setName(dataSetName);
 		resultSet.setType(getResultType().getName());
 		resultSet.setParent(dataSetId);
@@ -888,7 +900,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			CSMasterRegulatorTableResultSet mraRes = analyze.execute();
 			UserDirUtils.saveResultSet(resultId,
 					ObjectConversion.convertToByte(mraRes));
-			return "Marina - " + mraRes.getLabel();
+			return analysisName + " - " + mraRes.getLabel();
 		} catch (RemoteException e) {
 			return ">>>RemoteException:"+e.getMessage();
 		}
