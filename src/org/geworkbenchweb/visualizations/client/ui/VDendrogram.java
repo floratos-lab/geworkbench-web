@@ -1,8 +1,5 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
@@ -13,6 +10,7 @@ import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
@@ -52,7 +50,10 @@ public class VDendrogram extends Composite implements Paintable {
 		downArrowCanvas = createRetrievingButton(true);
 		upArrowCanvas = createRetrievingButton(false);
 		panel.add(downArrowCanvas);
-		panel.add(upArrowCanvas); 
+		panel.add(upArrowCanvas);
+		
+		arrayDendrogramCanvas.addClickHandler(microarrayClusterHandler);
+		markerDendrogramCanvas.addClickHandler(markerClusterHandler);
 	}
 	
 	private int firstMarker = 0;
@@ -84,9 +85,64 @@ public class VDendrogram extends Composite implements Paintable {
     	
     };
     
+    private abstract class ClusterHandler implements ClickHandler {
+
+    	private ClusterNode root;
+    	
+    	void setDendrogramRoot(final ClusterNode root) {
+    		this.root = root;
+    	}
+    	
+    	transient int x, y;
+    	/* get the coordinates in the dendrogram BEFORE transformation for display */
+    	abstract void getOriginal(int x, int y);
+    	
+		@Override
+		public void onClick(ClickEvent event) {
+			getOriginal(event.getX(), event.getY());
+			ClusterNode lowestMatch = findNode(x, y, root);
+			if(lowestMatch.selected) {
+				ClusterNode highestSelect = root.getSelected();
+				// TODO replace this with real functionality
+				Window.alert("Selected: "+highestSelect.x1+" "+highestSelect.x2+" "+highestSelect.y);
+				root.select( false ); // clear the selection
+			} else {
+				root.select( false ); // clear the selection
+				lowestMatch.select( true ); // highlight a new selection
+			}
+			paint();
+		}
+    	
+    };
+    
     final private int MAX_WIDTH = 3000;
     final private int MAX_HEIGHT = 2000;
 
+    private ClusterNode microarrayDendrogramRoot;
+    private ClusterNode markerDendrogramRoot;
+    
+    private int arrayClusterHeight = 0;
+    private int markerClusterHeight = 0;
+	
+    private ClusterHandler microarrayClusterHandler = new ClusterHandler() {
+
+		@Override
+		void getOriginal(int x, int y) {
+			this.x = x;
+			this.y = arrayClusterHeight-y; // flip y
+		}
+    };
+    
+    private ClusterHandler markerClusterHandler = new ClusterHandler() {
+
+		@Override
+		void getOriginal(int x, int y) {
+			this.x = y;
+			this.y = markerClusterHeight - x;
+		}
+    	
+    };
+    
     /**
      * Called whenever an update is received from the server 
      */
@@ -107,18 +163,44 @@ public class VDendrogram extends Composite implements Paintable {
 
 		// the difference between Attribute and Variable: in general, if not to be changed here (in client), use attribute
 		// see https://vaadin.com/forum/-/message_boards/view_message/192733
-		int arrayNumber = uidl.getIntAttribute("arrayNumber");
+		arrayNumber = uidl.getIntAttribute("arrayNumber");
 		markerNumber = uidl.getIntAttribute("markerNumber");
-		String arrayCluster = uidl.getStringAttribute("arrayCluster");
-		String markerCluster = uidl.getStringAttribute("markerCluster");
-		int[] colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
-		String[] arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
-		String[] markerLabels = uidl.getStringArrayAttribute("markerLabels");
+		arrayCluster = uidl.getStringAttribute("arrayCluster");
+		markerCluster = uidl.getStringAttribute("markerCluster");
+		colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
+		arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
+		markerLabels = uidl.getStringArrayAttribute("markerLabels");
 		
-		int cellWidth = uidl.getIntAttribute("cellWidth");
-		int cellHeight = uidl.getIntAttribute("cellHeight");
+		cellWidth = uidl.getIntAttribute("cellWidth");
+		cellHeight = uidl.getIntAttribute("cellHeight");
 		
 		firstMarker = uidl.getIntVariable("firstMarker");
+
+		index = 0; // this must be reset to start reading the cluster string
+		final char[] clusters = arrayCluster.toCharArray();
+		microarrayDendrogramRoot = prepareClusterNodeTree(0, clusters.length-1, clusters, cellWidth);
+		microarrayClusterHandler.setDendrogramRoot(microarrayDendrogramRoot);
+
+		index = 0; // this must be reset to start reading the cluster string
+		final char[] clusters2 = markerCluster.toCharArray();
+		markerDendrogramRoot = prepareClusterNodeTree(0, clusters2.length-1, clusters2, cellHeight);
+		markerClusterHandler.setDendrogramRoot(markerDendrogramRoot);
+
+		paint();
+	}
+
+	/* variables from server side */
+	private int arrayNumber;
+	private String arrayCluster;
+	private String markerCluster;
+	private int cellWidth;
+	private int cellHeight;
+	private String[] arrayLabels;
+	private String[] markerLabels;
+	private int[] colors;
+	
+	/* separate from updateFromUIDL because it is not always necessary to get back to server side */
+	private void paint() {
 		
 		// [1] array labels on the bottom
 		int heatmapWidth = cellWidth*arrayNumber;
@@ -133,17 +215,12 @@ public class VDendrogram extends Composite implements Paintable {
 		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, 0);
         
 		// [2] canvas for microarray dendrogram
-		index = 0; // this must be reset to start reading the cluster string
-		List<Double> bracketCoordinates = new ArrayList<Double>();
-		final char[] clusters = arrayCluster.toCharArray();
-		MidPoint midPoint = prepareBrackets(0, clusters.length-1, clusters, bracketCoordinates, cellWidth);
-
-		int arrayClusterHeight = (int)midPoint.height + deltaH; // add some extra space on top
+		arrayClusterHeight = (int)microarrayDendrogramRoot.y + deltaH; // add some extra space on top
 		sizeCanvas(arrayDendrogramCanvas, heatmapWidth, arrayClusterHeight);
 
 		Context2d arrayDendrogramContext = arrayDendrogramCanvas.getContext2d();
 		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
-		drawBrackets(arrayDendrogramContext, bracketCoordinates);
+		drawBrackets(arrayDendrogramContext, microarrayDendrogramRoot);
 
 		// [3] heatmap
 		paintableMarkers = Math.min(markerNumber, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
@@ -152,19 +229,14 @@ public class VDendrogram extends Composite implements Paintable {
         drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth);
 
 		// [4] canvas for marker dendrogram
-		index = 0; // this must be reset to start reading the cluster string
-		List<Double> bracketCoordinates2 = new ArrayList<Double>();
-		final char[] clusters2 = markerCluster.toCharArray();
-		MidPoint midPoint2 = prepareBrackets(0, clusters2.length-1, clusters2, bracketCoordinates2, cellHeight); 
-
-		int markerClusterHeight = (int)midPoint2.height + deltaH; // add some extra space to the left
+		markerClusterHeight = (int)markerDendrogramRoot.y + deltaH; // add some extra space to the left
 		sizeCanvas(markerDendrogramCanvas, markerClusterHeight, heatmapHeight);
 
 		// rotate and move it to the left hand side area
 		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
 		markerDendrogramContext.rotate(0.5*Math.PI);
 		markerDendrogramContext.translate(0, -markerClusterHeight);
-		drawBrackets(markerDendrogramContext, bracketCoordinates2);
+		drawBrackets(markerDendrogramContext, markerDendrogramRoot);
 
 		// [5] markers labels on the right
 		sizeCanvas(markerLabelCanvas, 300, heatmapHeight); // default width
@@ -188,6 +260,30 @@ public class VDendrogram extends Composite implements Paintable {
 		panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px");
 	}
 	
+	/* find the lowest level node that matches the position */
+	private static ClusterNode findNode(int x, int y, ClusterNode node) {
+		// note that left and right children will not match at the the same time
+		if(node.left!=null) {
+			ClusterNode match = findNode(x, y, node.left);
+			if(match!=null) {
+				return match;
+			}
+		}
+		
+		if(node.right!=null) {
+			ClusterNode match = findNode(x, y, node.right);
+			if(match!=null) {
+				return match;
+			}
+		}
+		
+		if(x>node.x1 && x<node.x2 & y<node.y){
+			return node;
+		}
+
+		return null;
+	}
+
 	private void updateArrowCanvas(final int heatmapHeight,
 			final int arrayClusterHeight) {
 		if (firstMarker + paintableMarkers < markerNumber) {
@@ -282,43 +378,85 @@ public class VDendrogram extends Composite implements Paintable {
 		style.setPosition(Position.ABSOLUTE);
 		return height;
 	}
+
+	private final static CssColor SELECTED_COLOR = CssColor.make(225, 255, 225);
+	private final static CssColor UNSELECTED_COLOR = CssColor.make(255, 255, 255);
 	
-	private static void drawBrackets(final Context2d context, List<Double> bracketCoordinates) {
-		context.beginPath();
-		for(int i=0; i<bracketCoordinates.size(); i+=5) {
-			double x1 = bracketCoordinates.get(i);
-			double x2 = bracketCoordinates.get(i+1);
-			double y1 = bracketCoordinates.get(i+2);
-			double y = bracketCoordinates.get(i+3);
-			double y2 = bracketCoordinates.get(i+4);
-			context.moveTo(x1, y1);
-			context.lineTo(x1, y);
-			context.lineTo(x2, y);
-			context.lineTo(x2, y2);
+	private static void drawBrackets(final Context2d context, ClusterNode node) {
+		/* note the interesting and dangerous part of this: because this is compiled into javascript so you will not see null pointer exception in java*/
+		if(node.left==null || node.right==null) { // do nothing for the leave node
+			return;
 		}
+		
+		context.beginPath();
+		context.moveTo(node.x1, 0);
+		context.lineTo(node.x1, node.y);
+		context.lineTo(node.x2, node.y);
+		context.lineTo(node.x2, 0);
 		context.stroke();
+		
+		if(node.selected)
+			context.setFillStyle(SELECTED_COLOR);
+		else
+			context.setFillStyle(UNSELECTED_COLOR);
+		context.fillRect(node.x1+0.5, 0, node.x2-node.x1-1, node.y);
+		
+		drawBrackets(context, node.left);
+		drawBrackets(context, node.right);
 	}
 	
 	transient static private int index;
 	
-	private static class MidPoint {
-		final double mid;
-		final double height;
-		MidPoint(double mid, double height) { this.mid = mid; this.height = height;}
+	/* Cluster node in tersm of the coordinates to draw. */
+	private static class ClusterNode {
+		final double x1, x2, y;
+		final ClusterNode left, right;
+		boolean selected = false;
+		
+		ClusterNode(double x1, double x2, double y, ClusterNode left, ClusterNode right) {
+			this.x1 = x1; 
+			this.x2 = x2;
+			this.y = y;;
+			this.left = left;
+			this.right = right;
+		}
+		
+		ClusterNode getSelected() {
+			if(selected) return this;
+			// note that left and right children are never selected at the same time if the parent is not selected
+			if(left!=null) {
+				ClusterNode highest = left.getSelected();
+				if(highest!=null) return highest;
+			}
+			if(right!=null) {
+				ClusterNode highest = right.getSelected();
+				if(highest!=null) return highest;
+			}
+			return null;
+		}
+
+		double getMidPointX() {
+			return 0.5+(int)((x1+x2)*0.5); // trick to create crisp line if width 1
+		}
+		
+		void select(boolean s) {
+			selected = s;
+			if(left!=null) left.select(s);
+			if(right!=null) right.select(s);
+		}
 	}
 	
 	private static int deltaH = 5; // the increment of the dendrogram height
 	
 	/**
-	 * Prepare the collection of three points coordinates to draw the brackets,
-	 * and calculate the height so the container know the size of the resulted dendrogram.
+	 * Prepare the tree of cluster node coordinates to draw the dendrogram.
 	 * 
 	 * precondition: clusters[left]=='(', clusters[right]=')'
 	 */
-	static private MidPoint prepareBrackets(int left, int right, final char[] clusters, final List<Double> coordinates, 
+	static private ClusterNode prepareClusterNodeTree(int left, int right, final char[] clusters,
 			int deltaX) { // side-way width
 		if(right-left<=1) { // 1: leaf node; -1: empty cluster
-			MidPoint m = new MidPoint((index+0.5)*deltaX, 0);
+			ClusterNode m = new ClusterNode(index*deltaX, (index+1)*deltaX, 0, null, null);
 			index++;
 			return m;
 		}
@@ -327,22 +465,15 @@ public class VDendrogram extends Composite implements Paintable {
 		int split = split(left + 1, right -1, clusters);
 
 		// by now, [0, index) is the left child; [index, length-1] is the right child
-		MidPoint leftMidPoint = prepareBrackets(left+1, split-1, clusters, coordinates, deltaX);
-		MidPoint rightMidPoint = prepareBrackets(split, right-1, clusters, coordinates, deltaX);
-		double height = Math.max(leftMidPoint.height, rightMidPoint.height) + deltaH;
-		double x1 = 0.5+(int)leftMidPoint.mid; // trick to create crisp line if width 1
-		double x2 = 0.5+(int)rightMidPoint.mid;
-		double y = 0.5+(int)height;
-		// five coordinate values needed to draw a bracket
-		coordinates.add(x1);
-		coordinates.add(x2);
-		coordinates.add(leftMidPoint.height);
-		coordinates.add(y);
-		coordinates.add(rightMidPoint.height);
+		ClusterNode leftChild = prepareClusterNodeTree(left+1, split-1, clusters, deltaX);
+		ClusterNode rightChild = prepareClusterNodeTree(split, right-1, clusters, deltaX);
+		double x1 = leftChild.getMidPointX();
+		double x2 = rightChild.getMidPointX();
+		double y = 0.5+(int)( Math.max(leftChild.y, rightChild.y) + deltaH);
 	
-		return new MidPoint(0.5*(leftMidPoint.mid+rightMidPoint.mid), height);
+		return new ClusterNode(x1, x2, y, leftChild, rightChild);
 	}
-	
+
 	// assume [begin, end] contains two nodes, returns the starting position of the second one
 	static private int split(int begin, int end, char[] clusters) {
 		int split = begin;
