@@ -20,110 +20,53 @@ import com.vaadin.terminal.gwt.client.UIDL;
 /**
  * Client side code for Dendrogram widget.
  */
-public class VDendrogram extends Composite implements Paintable {
+public final class VDendrogram extends Composite implements Paintable {
 
+	/* two variables to communicate back to the server side*/
 	/** The client side widget identifier */
-	protected String paintableId;
+	private String paintableId;
 
 	/** Reference to the server connection object. */
-	protected ApplicationConnection client;
+	private ApplicationConnection client;
 
-	private AbsolutePanel panel = new AbsolutePanel();
+	/* GUI elements */
+	private final AbsolutePanel panel = new AbsolutePanel();
 	
-	private Canvas canvas = Canvas.createIfSupported();
-	private Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
-	private Canvas markerDendrogramCanvas = Canvas.createIfSupported();
-	private Canvas arrayLabelCanvas = Canvas.createIfSupported();
-	private Canvas markerLabelCanvas = Canvas.createIfSupported();
+	private final Canvas canvas = Canvas.createIfSupported();
+	private final Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
+	private final Canvas markerDendrogramCanvas = Canvas.createIfSupported();
+	private final Canvas arrayLabelCanvas = Canvas.createIfSupported();
+	private final Canvas markerLabelCanvas = Canvas.createIfSupported();
 
 	private final Canvas downArrowCanvas, upArrowCanvas;
 	
-	public VDendrogram() {   
-		
-		initWidget(panel);
-		panel.add(canvas);
-		panel.add(arrayDendrogramCanvas);
-		panel.add(markerDendrogramCanvas);
-		panel.add(arrayLabelCanvas);
-		panel.add(markerLabelCanvas);
-
-		downArrowCanvas = createRetrievingButton(true);
-		upArrowCanvas = createRetrievingButton(false);
-		panel.add(downArrowCanvas);
-		panel.add(upArrowCanvas);
-		
-		arrayDendrogramCanvas.addClickHandler(microarrayClusterHandler);
-		markerDendrogramCanvas.addClickHandler(markerClusterHandler);
-	}
-	
+	/* the status variables that are needed even without communication with server side */
 	private int firstMarker = 0;
 	// the following variables are necessary to be member variables only to handle the last 'page'
 	private int markerNumber = 0; 
 	private int paintableMarkers = 0;
 	
-    private class ArrowHandler implements ClickHandler {
-
-    	final private boolean down;
-    	
-    	ArrowHandler(boolean down) {
-    		this.down = down;
-    	}
-    	
-		@Override
-		public void onClick(ClickEvent event) {
-			if(firstMarker+paintableMarkers>markerNumber) { // last 'page'
-				return;
-			}
-			if(down) {
-				firstMarker += 100;
-			} else {
-				firstMarker -= 100;
-			}
-			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, false);
-			client.updateVariable(paintableId, "firstMarker", firstMarker, true);
-		}
-    	
-    };
-    
-    private abstract class ClusterHandler implements ClickHandler {
-
-    	private ClusterNode root;
-    	
-    	void setDendrogramRoot(final ClusterNode root) {
-    		this.root = root;
-    	}
-    	
-    	transient int x, y;
-    	/* get the coordinates in the dendrogram BEFORE transformation for display */
-    	abstract void getOriginal(int x, int y);
-    	
-		@Override
-		public void onClick(ClickEvent event) {
-			getOriginal(event.getX(), event.getY());
-			ClusterNode lowestMatch = findNode(x, y, root);
-			if(lowestMatch.selected) {
-				ClusterNode highestSelect = root.getSelected();
-				// TODO replace this with real functionality
-				Window.alert("Selected: "+highestSelect.x1+" "+highestSelect.x2+" "+highestSelect.y);
-				root.select( false ); // clear the selection
-			} else {
-				root.select( false ); // clear the selection
-				lowestMatch.select( true ); // highlight a new selection
-			}
-			paint();
-		}
-    	
-    };
-    
-    final private int MAX_WIDTH = 3000;
-    final private int MAX_HEIGHT = 2000;
-
     private ClusterNode microarrayDendrogramRoot;
     private ClusterNode markerDendrogramRoot;
     
     private int arrayClusterHeight = 0;
     private int markerClusterHeight = 0;
+    
+	/* variables from server side. they are also part of status */
+	private int arrayNumber;
+	private int cellWidth;
+	private int cellHeight;
+	private String[] arrayLabels;
+	private String[] markerLabels;
+	private int[] colors;
 	
+    /* constants */
+    final static private int MAX_WIDTH = 3000;
+    final static private int MAX_HEIGHT = 2000;
+    final static private CssColor SELECTED_COLOR = CssColor.make(225, 255, 225);
+    final static private CssColor UNSELECTED_COLOR = CssColor.make(255, 255, 255);
+	final static private int deltaH = 5; // the increment of the dendrogram height
+
     private ClusterHandler microarrayClusterHandler = new ClusterHandler() {
 
 		@Override
@@ -142,6 +85,25 @@ public class VDendrogram extends Composite implements Paintable {
 		}
     	
     };
+
+    /* the only constructor */
+	public VDendrogram() {   
+		
+		initWidget(panel);
+		panel.add(canvas);
+		panel.add(arrayDendrogramCanvas);
+		panel.add(markerDendrogramCanvas);
+		panel.add(arrayLabelCanvas);
+		panel.add(markerLabelCanvas);
+
+		downArrowCanvas = createRetrievingButton(true, new PagingHandler(true));
+		upArrowCanvas = createRetrievingButton(false, new PagingHandler(false));
+		panel.add(downArrowCanvas);
+		panel.add(upArrowCanvas);
+		
+		arrayDendrogramCanvas.addClickHandler(microarrayClusterHandler);
+		markerDendrogramCanvas.addClickHandler(markerClusterHandler);
+	}
     
     /**
      * Called whenever an update is received from the server 
@@ -165,8 +127,8 @@ public class VDendrogram extends Composite implements Paintable {
 		// see https://vaadin.com/forum/-/message_boards/view_message/192733
 		arrayNumber = uidl.getIntAttribute("arrayNumber");
 		markerNumber = uidl.getIntAttribute("markerNumber");
-		arrayCluster = uidl.getStringAttribute("arrayCluster");
-		markerCluster = uidl.getStringAttribute("markerCluster");
+		String arrayCluster = uidl.getStringAttribute("arrayCluster");
+		String markerCluster = uidl.getStringAttribute("markerCluster");
 		colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
 		arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
 		markerLabels = uidl.getStringArrayAttribute("markerLabels");
@@ -176,28 +138,15 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		firstMarker = uidl.getIntVariable("firstMarker");
 
-		index = 0; // this must be reset to start reading the cluster string
-		final char[] clusters = arrayCluster.toCharArray();
-		microarrayDendrogramRoot = prepareClusterNodeTree(0, clusters.length-1, clusters, cellWidth);
+		ClusterParser parser = new ClusterParser();
+		microarrayDendrogramRoot = parser.parse(arrayCluster, cellWidth);
 		microarrayClusterHandler.setDendrogramRoot(microarrayDendrogramRoot);
 
-		index = 0; // this must be reset to start reading the cluster string
-		final char[] clusters2 = markerCluster.toCharArray();
-		markerDendrogramRoot = prepareClusterNodeTree(0, clusters2.length-1, clusters2, cellHeight);
+		markerDendrogramRoot = parser.parse(markerCluster, cellHeight);
 		markerClusterHandler.setDendrogramRoot(markerDendrogramRoot);
 
 		paint();
 	}
-
-	/* variables from server side */
-	private int arrayNumber;
-	private String arrayCluster;
-	private String markerCluster;
-	private int cellWidth;
-	private int cellHeight;
-	private String[] arrayLabels;
-	private String[] markerLabels;
-	private int[] colors;
 	
 	/* separate from updateFromUIDL because it is not always necessary to get back to server side */
 	private void paint() {
@@ -260,30 +209,6 @@ public class VDendrogram extends Composite implements Paintable {
 		panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px");
 	}
 	
-	/* find the lowest level node that matches the position */
-	private static ClusterNode findNode(int x, int y, ClusterNode node) {
-		// note that left and right children will not match at the the same time
-		if(node.left!=null) {
-			ClusterNode match = findNode(x, y, node.left);
-			if(match!=null) {
-				return match;
-			}
-		}
-		
-		if(node.right!=null) {
-			ClusterNode match = findNode(x, y, node.right);
-			if(match!=null) {
-				return match;
-			}
-		}
-		
-		if(x>node.x1 && x<node.x2 & y<node.y){
-			return node;
-		}
-
-		return null;
-	}
-
 	private void updateArrowCanvas(final int heatmapHeight,
 			final int arrayClusterHeight) {
 		if (firstMarker + paintableMarkers < markerNumber) {
@@ -314,6 +239,31 @@ public class VDendrogram extends Composite implements Paintable {
 		}
 	}
 	
+	/* the following methods are static, namely independent of the GUI status */
+	/* find the lowest level node that matches the position */
+	static private ClusterNode findNode(int x, int y, ClusterNode node) {
+		// note that left and right children will not match at the the same time
+		if(node.left!=null) {
+			ClusterNode match = findNode(x, y, node.left);
+			if(match!=null) {
+				return match;
+			}
+		}
+		
+		if(node.right!=null) {
+			ClusterNode match = findNode(x, y, node.right);
+			if(match!=null) {
+				return match;
+			}
+		}
+		
+		if(x>node.x1 && x<node.x2 & y<node.y){
+			return node;
+		}
+
+		return null;
+	}
+	
 	static private void sizeCanvas(Canvas canvas, int width, int height) {
 		canvas.setPixelSize(width, height); // when necessary?
 		canvas.setCoordinateSpaceWidth(width);
@@ -329,7 +279,7 @@ public class VDendrogram extends Composite implements Paintable {
 	}
 	
 	// colors[] must be of the size of row*column, where paintable<row. (The logic is still ok if paintable==row)
-	private static void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth) {
+	static private void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth) {
 		int height = cellHeight*paintable;
 		int width = cellWidth*column;
 		
@@ -361,7 +311,7 @@ public class VDendrogram extends Composite implements Paintable {
 		}
 	}
 	
-	private static int drawLabels(final Canvas canvas, String[] labels, int interval, int first) {
+	static private int drawLabels(final Canvas canvas, String[] labels, int interval, int first) {
 		Context2d context = canvas.getContext2d();
 		String longestArrayName = "";
 		int y = interval;
@@ -379,10 +329,7 @@ public class VDendrogram extends Composite implements Paintable {
 		return height;
 	}
 
-	private final static CssColor SELECTED_COLOR = CssColor.make(225, 255, 225);
-	private final static CssColor UNSELECTED_COLOR = CssColor.make(255, 255, 255);
-	
-	private static void drawBrackets(final Context2d context, ClusterNode node) {
+	static private void drawBrackets(final Context2d context, ClusterNode node) {
 		/* note the interesting and dangerous part of this: because this is compiled into javascript so you will not see null pointer exception in java*/
 		if(node.left==null || node.right==null) { // do nothing for the leave node
 			return;
@@ -404,92 +351,8 @@ public class VDendrogram extends Composite implements Paintable {
 		drawBrackets(context, node.left);
 		drawBrackets(context, node.right);
 	}
-	
-	transient static private int index;
-	
-	/* Cluster node in tersm of the coordinates to draw. */
-	private static class ClusterNode {
-		final double x1, x2, y;
-		final ClusterNode left, right;
-		boolean selected = false;
-		
-		ClusterNode(double x1, double x2, double y, ClusterNode left, ClusterNode right) {
-			this.x1 = x1; 
-			this.x2 = x2;
-			this.y = y;;
-			this.left = left;
-			this.right = right;
-		}
-		
-		ClusterNode getSelected() {
-			if(selected) return this;
-			// note that left and right children are never selected at the same time if the parent is not selected
-			if(left!=null) {
-				ClusterNode highest = left.getSelected();
-				if(highest!=null) return highest;
-			}
-			if(right!=null) {
-				ClusterNode highest = right.getSelected();
-				if(highest!=null) return highest;
-			}
-			return null;
-		}
 
-		double getMidPointX() {
-			return 0.5+(int)((x1+x2)*0.5); // trick to create crisp line if width 1
-		}
-		
-		void select(boolean s) {
-			selected = s;
-			if(left!=null) left.select(s);
-			if(right!=null) right.select(s);
-		}
-	}
-	
-	private static int deltaH = 5; // the increment of the dendrogram height
-	
-	/**
-	 * Prepare the tree of cluster node coordinates to draw the dendrogram.
-	 * 
-	 * precondition: clusters[left]=='(', clusters[right]=')'
-	 */
-	static private ClusterNode prepareClusterNodeTree(int left, int right, final char[] clusters,
-			int deltaX) { // side-way width
-		if(right-left<=1) { // 1: leaf node; -1: empty cluster
-			ClusterNode m = new ClusterNode(index*deltaX, (index+1)*deltaX, 0, null, null);
-			index++;
-			return m;
-		}
-
-		// the general case that includes child clusters, and they must be two.
-		int split = split(left + 1, right -1, clusters);
-
-		// by now, [0, index) is the left child; [index, length-1] is the right child
-		ClusterNode leftChild = prepareClusterNodeTree(left+1, split-1, clusters, deltaX);
-		ClusterNode rightChild = prepareClusterNodeTree(split, right-1, clusters, deltaX);
-		double x1 = leftChild.getMidPointX();
-		double x2 = rightChild.getMidPointX();
-		double y = 0.5+(int)( Math.max(leftChild.y, rightChild.y) + deltaH);
-	
-		return new ClusterNode(x1, x2, y, leftChild, rightChild);
-	}
-
-	// assume [begin, end] contains two nodes, returns the starting position of the second one
-	static private int split(int begin, int end, char[] clusters) {
-		int split = begin;
-		int count = 0;
-		do {
-			if(clusters[split]=='(') {
-				count++;
-			} else { // this must be ')'. 
-				count--;
-			}
-			split++;
-		} while (count>0 || split==end);
-		return split;
-	}
-
-	private Canvas createRetrievingButton(boolean downDirection) {
+	static private Canvas createRetrievingButton(boolean downDirection, PagingHandler pagingHandler) {
 		Canvas canvas = Canvas.createIfSupported();
 		if(canvas==null) return null; // canvas not supported
 		 
@@ -511,7 +374,7 @@ public class VDendrogram extends Composite implements Paintable {
 		context.setFillStyle(CssColor.make(0, 100, 50)); // dark green
 		context.fill();
 		canvas.setVisible(false);
-		canvas.addClickHandler(new ArrowHandler(downDirection));
+		canvas.addClickHandler(pagingHandler);
 		Style s = canvas.getCanvasElement().getStyle();
 		s.setPosition(Position.ABSOLUTE);
 		s.setLeft(100,  Unit.PX);
@@ -519,4 +382,61 @@ public class VDendrogram extends Composite implements Paintable {
 		
 		return canvas;
 	}
+	
+	/* private inner classes: mouse click handlers */
+	/* handle for scrolling to more 'pages' of large heat map */
+    private class PagingHandler implements ClickHandler {
+
+    	final private boolean down;
+    	
+    	PagingHandler(boolean down) {
+    		this.down = down;
+    	}
+    	
+		@Override
+		public void onClick(ClickEvent event) {
+			if(firstMarker+paintableMarkers>markerNumber) { // last 'page'
+				return;
+			}
+			if(down) {
+				firstMarker += 100;
+			} else {
+				firstMarker -= 100;
+			}
+			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, false);
+			client.updateVariable(paintableId, "firstMarker", firstMarker, true);
+		}
+    	
+    };
+    
+    private abstract class ClusterHandler implements ClickHandler {
+
+    	private ClusterNode root;
+    	
+    	void setDendrogramRoot(final ClusterNode root) {
+    		this.root = root;
+    	}
+    	
+    	transient int x, y;
+    	/* get the coordinates in the dendrogram BEFORE transformation for display */
+    	abstract void getOriginal(int x, int y);
+    	
+		@Override
+		public void onClick(ClickEvent event) {
+			getOriginal(event.getX(), event.getY());
+			ClusterNode lowestMatch = findNode(x, y, root);
+			if(lowestMatch.selected) {
+				ClusterNode highestSelect = root.getSelected();
+				// TODO replace this with real functionality
+				Window.alert("Selected: "+highestSelect.x1+" "+highestSelect.x2+" "+highestSelect.y);
+				root.select( false ); // clear the selection
+			} else {
+				root.select( false ); // clear the selection
+				lowestMatch.select( true ); // highlight a new selection
+			}
+			paint();
+		}
+    	
+    };
+
 }
