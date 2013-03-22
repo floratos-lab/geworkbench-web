@@ -1,5 +1,10 @@
 package org.geworkbenchweb.authentication;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
@@ -16,12 +21,16 @@ import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsExceptio
 import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.ClassResource;
+import com.vaadin.terminal.DownloadStream;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -30,8 +39,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
@@ -43,6 +51,8 @@ import com.vaadin.ui.themes.Reindeer;
 public class UUserAuth extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
+	
+	private Window aboutWindow = null;
 	
 	public UUserAuth() {
 		setSizeFull();
@@ -110,10 +120,30 @@ public class UUserAuth extends VerticalLayout {
 			}
 		});
 		
+        Button aboutButton = new Button("About", new ClickListener() {
+
+			private static final long serialVersionUID = -2258433668354584723L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(aboutWindow==null) {
+					aboutWindow = buildAboutWindow();
+				}
+		        if (aboutWindow.getParent() == null) { // not already showing
+		        	Window parent = getWindow();
+		        	aboutWindow.setHeight(parent.getHeight()/2, UNITS_PIXELS);
+		        	aboutWindow.setWidth(parent.getWidth()/2, UNITS_PIXELS);
+                    parent.addWindow(aboutWindow);
+                }
+			}
+			
+		});
+		
 		HorizontalLayout group = new HorizontalLayout();
 		group.setSpacing(true);
 		group.addComponent(register);
 		group.addComponent(login);
+		group.addComponent(aboutButton);
 		
 		loginPanel.addComponent(image);
 		loginPanel.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
@@ -131,13 +161,53 @@ public class UUserAuth extends VerticalLayout {
 		cssLayout.setSlideEnabled(true);
 		cssLayout.setWidth("700px");
 		
-		CustomLayout custom = new CustomLayout("about");
-	    cssLayout.addComponent(custom);
 		loginPanel.addComponent(cssLayout);
 		loginPanel.setComponentAlignment(cssLayout, Alignment.TOP_CENTER);
 		
 		layout.addComponent(loginPanel);
 		layout.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);
+	}
+	
+	private Window buildAboutWindow() {
+		final Window aboutWindow = new Window("About");
+		aboutWindow.setModal(true);
+        VerticalLayout aboutWindowLayout = (VerticalLayout) aboutWindow.getContent();
+        aboutWindowLayout.setMargin(true);
+        aboutWindowLayout.setSpacing(true);
+        
+        DownloadStream downloadStream = new ClassResource("aboutMessage.html", getApplication()).getStream();
+        InputStream inputstream = downloadStream.getStream();
+        String text = "Sorry, 'About' text is missing."; // default text
+        StringBuilder sb = new StringBuilder();
+        if(inputstream!=null) {
+	        BufferedReader br = new BufferedReader(new InputStreamReader (inputstream) );
+			try {
+				String line = br.readLine();
+		        while(line!=null) {
+		        	sb.append(line);
+		        	line = br.readLine();
+		        }
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			text = sb.toString();
+        }
+
+        Label aboutMessage = new Label(text);
+        aboutMessage.setContentMode(Label.CONTENT_XHTML);
+        aboutWindow.addComponent(aboutMessage);
+
+        Button close = new Button("Close", new Button.ClickListener() {
+			private static final long serialVersionUID = 8498615289854877295L;
+
+            public void buttonClick(ClickEvent event) {
+                (aboutWindow.getParent()).removeWindow(aboutWindow);
+            }
+        });
+        aboutWindowLayout.addComponent(close);
+        aboutWindowLayout.setComponentAlignment(close, Alignment.TOP_RIGHT);
+        
+        return aboutWindow;
 	}
 
 	/*
