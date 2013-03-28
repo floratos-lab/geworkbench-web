@@ -212,8 +212,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	 * Create a connection with the server.
 	 */
 	private void loadApplicationProperty() {
-		//String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-		String interactionsServletUrl = "http://localhost:8080/InteractionsServlet/InteractionsServlet";
+		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+		//String interactionsServletUrl = "http://localhost:8080/InteractionsServlet/InteractionsServlet";
 		ResultSetlUtil.setUrl(interactionsServletUrl);
 		ResultSetlUtil.setTimeout(timeout);
 	}
