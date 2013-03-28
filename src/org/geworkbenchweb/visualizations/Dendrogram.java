@@ -37,7 +37,7 @@ public class Dendrogram extends AbstractComponent {
 		this.colors = colors;
 		
 		// this is the upper limit because on the client side the space is smaller by excluding microarray dendrogram and microarray labels
-		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);;
+		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 	}
 
     final private int MAX_HEIGHT = 2000;
@@ -107,12 +107,14 @@ public class Dendrogram extends AbstractComponent {
 		
 		cellWidth /= 2;
 		cellHeight /= 2;
+		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 		requestRepaint();
 	}
 	
 	public void reset() {
 		cellWidth = 10;
 		cellHeight = 5;
+		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 		// TODO reset the selection as well
 		requestRepaint();
 	}

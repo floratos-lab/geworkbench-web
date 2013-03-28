@@ -10,7 +10,6 @@ import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
@@ -43,11 +42,13 @@ public final class VDendrogram extends Composite implements Paintable {
 	/* the status variables that are needed even without communication with server side */
 	private int firstMarker = 0;
 	// the following variables are necessary to be member variables only to handle the last 'page'
-	private int markerNumber = 0; 
+	//private int markerNumber = 0; 
 	private int paintableMarkers = 0;
 	
     private ClusterNode microarrayDendrogramRoot;
     private ClusterNode markerDendrogramRoot;
+    private ClusterNode microarrayDendrogramSelected;
+    private ClusterNode markerDendrogramSelected;
     
     private int arrayClusterHeight = 0;
     private int markerClusterHeight = 0;
@@ -67,12 +68,25 @@ public final class VDendrogram extends Composite implements Paintable {
     final static private CssColor UNSELECTED_COLOR = CssColor.make(255, 255, 255);
 	final static private int deltaH = 5; // the increment of the dendrogram height
 
+	/* support part selection of dendrogram*/
+	private int xIndex1;
+	private int xIndex2;
+	private int yIndex1;
+	private int yIndex2;
+	
     private ClusterHandler microarrayClusterHandler = new ClusterHandler() {
 
 		@Override
 		void getOriginal(int x, int y) {
-			this.x = x;
+			this.x = x + xIndex1*cellWidth;
 			this.y = arrayClusterHeight-y; // flip y
+		}
+
+		@Override
+		void setDendrogramSelected(ClusterNode selected) {
+			microarrayDendrogramSelected = selected;
+			xIndex1 = microarrayDendrogramSelected.index1;
+			xIndex2 = microarrayDendrogramSelected.index2;
 		}
     };
     
@@ -80,8 +94,15 @@ public final class VDendrogram extends Composite implements Paintable {
 
 		@Override
 		void getOriginal(int x, int y) {
-			this.x = y;
+			this.x = y + yIndex1*cellHeight;
 			this.y = markerClusterHeight - x;
+		}
+
+		@Override
+		void setDendrogramSelected(ClusterNode selected) {
+			markerDendrogramSelected = selected;
+			yIndex1 = markerDendrogramSelected.index1;
+			yIndex2 = markerDendrogramSelected.index2;
 		}
     	
     };
@@ -126,7 +147,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		// the difference between Attribute and Variable: in general, if not to be changed here (in client), use attribute
 		// see https://vaadin.com/forum/-/message_boards/view_message/192733
 		arrayNumber = uidl.getIntAttribute("arrayNumber");
-		markerNumber = uidl.getIntAttribute("markerNumber");
+		int markerNumber = uidl.getIntAttribute("markerNumber"); // TODO how much use of this on server side?
 		String arrayCluster = uidl.getStringAttribute("arrayCluster");
 		String markerCluster = uidl.getStringAttribute("markerCluster");
 		colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
@@ -141,18 +162,30 @@ public final class VDendrogram extends Composite implements Paintable {
 		ClusterParser parser = new ClusterParser();
 		microarrayDendrogramRoot = parser.parse(arrayCluster, cellWidth);
 		microarrayClusterHandler.setDendrogramRoot(microarrayDendrogramRoot);
+		if(arrayCluster.length()==0) { // no cluster
+			xIndex1 = 0;
+			xIndex2 = arrayNumber-1;
+		}
 
 		markerDendrogramRoot = parser.parse(markerCluster, cellHeight);
 		markerClusterHandler.setDendrogramRoot(markerDendrogramRoot);
+		if(markerCluster.length()==0) { // no cluster
+			yIndex1 = 0;
+			yIndex2 = markerNumber - 1;
+		}
 
 		paint();
 	}
 	
 	/* separate from updateFromUIDL because it is not always necessary to get back to server side */
+	/* similar to previous version of paint except for supporing part painting */
 	private void paint() {
 		
+		int arrayNumberToPaint = xIndex2 - xIndex1 +1;
+		int markerNumberToPaint = yIndex2 - yIndex1 +1;
+		
 		// [1] array labels on the bottom
-		int heatmapWidth = cellWidth*arrayNumber;
+		int heatmapWidth = cellWidth*arrayNumberToPaint;
 		sizeCanvas(arrayLabelCanvas, heatmapWidth, 150); // default height
 		Context2d context3 = arrayLabelCanvas.getContext2d();
 		context3.rotate(-0.5*Math.PI);
@@ -161,31 +194,34 @@ public final class VDendrogram extends Composite implements Paintable {
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
-		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, 0);
+		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
         
 		// [2] canvas for microarray dendrogram
-		arrayClusterHeight = (int)microarrayDendrogramRoot.y + deltaH; // add some extra space on top
+		arrayClusterHeight = (int)microarrayDendrogramSelected.y + deltaH; // add some extra space on top
 		sizeCanvas(arrayDendrogramCanvas, heatmapWidth, arrayClusterHeight);
 
 		Context2d arrayDendrogramContext = arrayDendrogramCanvas.getContext2d();
 		arrayDendrogramContext.transform(1, 0, 0, -1, 0, arrayClusterHeight); // flip upside down
-		drawBrackets(arrayDendrogramContext, microarrayDendrogramRoot);
+		arrayDendrogramContext.translate(-xIndex1*cellWidth, 0); // this is to handle the case when we draw part of the drendrogram 
+		drawBrackets(arrayDendrogramContext, microarrayDendrogramSelected);
 
 		// [3] heatmap
-		paintableMarkers = Math.min(markerNumber, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
+		paintableMarkers = Math.min(markerNumberToPaint, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
         int heatmapHeight = paintableMarkers*cellHeight;
         updateArrowCanvas(heatmapHeight, arrayClusterHeight);
-        drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth);
+        drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth,
+        		xIndex1, xIndex2, yIndex1, yIndex2);
 
 		// [4] canvas for marker dendrogram
-		markerClusterHeight = (int)markerDendrogramRoot.y + deltaH; // add some extra space to the left
+		markerClusterHeight = (int)markerDendrogramSelected.y + deltaH; // add some extra space to the left
 		sizeCanvas(markerDendrogramCanvas, markerClusterHeight, heatmapHeight);
 
 		// rotate and move it to the left hand side area
 		Context2d markerDendrogramContext = markerDendrogramCanvas.getContext2d();
 		markerDendrogramContext.rotate(0.5*Math.PI);
 		markerDendrogramContext.translate(0, -markerClusterHeight);
-		drawBrackets(markerDendrogramContext, markerDendrogramRoot);
+		markerDendrogramContext.translate(-yIndex1*cellHeight, 0); // this is to handle the case when we draw part of the drendrogram
+		drawBrackets(markerDendrogramContext, markerDendrogramSelected);
 
 		// [5] markers labels on the right
 		sizeCanvas(markerLabelCanvas, 300, heatmapHeight); // default width
@@ -211,7 +247,8 @@ public final class VDendrogram extends Composite implements Paintable {
 	
 	private void updateArrowCanvas(final int heatmapHeight,
 			final int arrayClusterHeight) {
-		if (firstMarker + paintableMarkers < markerNumber) {
+		int markerNumberToPaint = yIndex2 - yIndex1 +1;
+		if (firstMarker + paintableMarkers < markerNumberToPaint) {
 			Context2d context = downArrowCanvas.getContext2d();
 			context.setFillStyle(CssColor.make(225, 255, 225)); // light green
 			context.fillRect(150, 2, 340, 16);
@@ -220,7 +257,7 @@ public final class VDendrogram extends Composite implements Paintable {
 					+ (firstMarker + paintableMarkers)
 					+ ". Click to scroll down.", 150, 15);
 			downArrowCanvas.setVisible(true);
-			positionCanvas(downArrowCanvas, heatmapHeight + arrayClusterHeight - 22, 100);
+			positionCanvas(downArrowCanvas, heatmapHeight + arrayClusterHeight - 22, 100 + markerClusterHeight);
 		} else {
 			downArrowCanvas.setVisible(false);
 		}
@@ -233,7 +270,7 @@ public final class VDendrogram extends Composite implements Paintable {
 			context.fillText("Displayed to row #" + firstMarker
 					+ ". Click to scroll up.", 150, 15);
 			upArrowCanvas.setVisible(true);
-			positionCanvas(upArrowCanvas, arrayClusterHeight + 2, 100);
+			positionCanvas(upArrowCanvas, arrayClusterHeight + 2, 100 + markerClusterHeight);
 		} else {
 			upArrowCanvas.setVisible(false);
 		}
@@ -279,17 +316,35 @@ public final class VDendrogram extends Composite implements Paintable {
 	}
 	
 	// colors[] must be of the size of row*column, where paintable<row. (The logic is still ok if paintable==row)
-	static private void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth) {
+	/* this version draw a portion of heatmap although all the data is available */
+	// note the careful way to skip the portion not to paint. it is not the most obvious code, but necessary to stay efficient.
+	/**
+	 * 
+	 * @param heatmapCanvas
+	 * @param colors the actual color data in the form of a one-dimensional array
+	 * @param paintable the number of row we may want to draw. that should cover [yIndex1, yIndex2]
+	 * @param column total number of columns
+	 * @param cellHeight
+	 * @param cellWidth
+	 * @param xIndex1
+	 * @param xIndex2
+	 * @param yIndex1
+	 * @param yIndex2
+	 */
+	static private void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth,
+			int xIndex1, int xIndex2, int yIndex1, int yIndex2) {
 		int height = cellHeight*paintable;
-		int width = cellWidth*column;
+		int width = cellWidth*(xIndex2-xIndex1+1);
 		
 		sizeCanvas(heatmapCanvas, width, height);
         
 		Context2d context = heatmapCanvas.getContext2d();
 
-		int valueIndex = 0;
+		int skipOnRight = column -1 - xIndex2;
+		int valueIndex = yIndex1*column; // skip the unpainted rows
 		
 		for (int y = 0; y < height; y+=cellHeight) {
+			valueIndex += xIndex1; // skip the unpainted column on the left side
 			for (int x = 0; x < width; x+=cellWidth) {
 
 				int color = colors[valueIndex++];
@@ -308,6 +363,7 @@ public final class VDendrogram extends Composite implements Paintable {
 						+ b + ")"));
 				context.fillRect(x, y, cellWidth, cellHeight);
 			}
+			valueIndex += skipOnRight; // skip the unpainted column on the right side
 		}
 	}
 	
@@ -395,7 +451,8 @@ public final class VDendrogram extends Composite implements Paintable {
     	
 		@Override
 		public void onClick(ClickEvent event) {
-			if(firstMarker+paintableMarkers>markerNumber) { // last 'page'
+			int markerNumberToPaint = yIndex2 - yIndex1 +1;
+			if(firstMarker+paintableMarkers>markerNumberToPaint) { // last 'page'
 				return;
 			}
 			if(down) {
@@ -403,6 +460,7 @@ public final class VDendrogram extends Composite implements Paintable {
 			} else {
 				firstMarker -= 100;
 			}
+			if(firstMarker<0)firstMarker = 0;
 			client.updateVariable(paintableId, "paintableMarkers", paintableMarkers, false);
 			client.updateVariable(paintableId, "firstMarker", firstMarker, true);
 		}
@@ -415,7 +473,10 @@ public final class VDendrogram extends Composite implements Paintable {
     	
     	void setDendrogramRoot(final ClusterNode root) {
     		this.root = root;
+    		setDendrogramSelected(root);
     	}
+
+    	abstract void setDendrogramSelected(ClusterNode selected);
     	
     	transient int x, y;
     	/* get the coordinates in the dendrogram BEFORE transformation for display */
@@ -426,9 +487,7 @@ public final class VDendrogram extends Composite implements Paintable {
 			getOriginal(event.getX(), event.getY());
 			ClusterNode lowestMatch = findNode(x, y, root);
 			if(lowestMatch.selected) {
-				ClusterNode highestSelect = root.getSelected();
-				// TODO replace this with real functionality
-				Window.alert("Selected: "+highestSelect.x1+" "+highestSelect.x2+" "+highestSelect.y);
+				setDendrogramSelected( root.getSelected() );
 				root.select( false ); // clear the selection
 			} else {
 				root.select( false ); // clear the selection

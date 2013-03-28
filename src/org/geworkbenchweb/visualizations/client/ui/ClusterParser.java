@@ -32,7 +32,7 @@ public class ClusterParser {
 	private ClusterNode prepareClusterNodeTree(int left, int right, final char[] clusters,
 			int deltaX) { // side-way width
 		if(right-left<=1) { // 1: leaf node; -1: empty cluster
-			ClusterNode m = new ClusterNode(index*deltaX, (index+1)*deltaX, 0, null, null);
+			ClusterNode m = new ClusterNode(index*deltaX, (index+1)*deltaX, 0, index);
 			index++;
 			return m;
 		}
