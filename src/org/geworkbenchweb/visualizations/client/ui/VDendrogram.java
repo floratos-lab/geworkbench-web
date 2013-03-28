@@ -31,7 +31,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	/* GUI elements */
 	private final AbsolutePanel panel = new AbsolutePanel();
 	
-	private final Canvas canvas = Canvas.createIfSupported();
+	private final Canvas heatmapCanvas = Canvas.createIfSupported();
 	private final Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
 	private final Canvas markerDendrogramCanvas = Canvas.createIfSupported();
 	private final Canvas arrayLabelCanvas = Canvas.createIfSupported();
@@ -43,7 +43,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	private int firstMarker = 0;
 	// the following variables are necessary to be member variables only to handle the last 'page'
 	//private int markerNumber = 0; 
-	private int paintableMarkers = 0;
+	private int paintableMarkers = 0; // the number of row we may want to draw. that should cover [yIndex1, yIndex2]
 	
     private ClusterNode microarrayDendrogramRoot;
     private ClusterNode markerDendrogramRoot;
@@ -59,7 +59,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	private int cellHeight;
 	private String[] arrayLabels;
 	private String[] markerLabels;
-	private int[] colors;
+	private int[] colors; // the actual color data in the form of a one-dimensional array
 	
     /* constants */
     final static private int MAX_WIDTH = 3000;
@@ -111,7 +111,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	public VDendrogram() {   
 		
 		initWidget(panel);
-		panel.add(canvas);
+		panel.add(heatmapCanvas);
 		panel.add(arrayDendrogramCanvas);
 		panel.add(markerDendrogramCanvas);
 		panel.add(arrayLabelCanvas);
@@ -139,7 +139,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		this.client = client;
 		paintableId = uidl.getId();
 
-		if (canvas == null) {
+		if (heatmapCanvas == null) {
             // "Sorry, your browser doesn't support the HTML5 Canvas element";
             return;
 		}
@@ -209,8 +209,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		paintableMarkers = Math.min(markerNumberToPaint, (MAX_HEIGHT-arrayLabelHeight-arrayClusterHeight)/cellHeight);
         int heatmapHeight = paintableMarkers*cellHeight;
         updateArrowCanvas(heatmapHeight, arrayClusterHeight);
-        drawHeatmap(canvas, colors, paintableMarkers, arrayNumber, cellHeight, cellWidth,
-        		xIndex1, xIndex2, yIndex1, yIndex2);
+        drawHeatmap();
 
 		// [4] canvas for marker dendrogram
 		markerClusterHeight = (int)markerDendrogramSelected.y + deltaH; // add some extra space to the left
@@ -234,7 +233,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		// place things in place
 		positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
 		positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
-		positionCanvas(canvas, arrayClusterHeight, markerClusterHeight);
+		positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight);
 		positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
 		positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
 		
@@ -318,30 +317,16 @@ public final class VDendrogram extends Composite implements Paintable {
 	// colors[] must be of the size of row*column, where paintable<row. (The logic is still ok if paintable==row)
 	/* this version draw a portion of heatmap although all the data is available */
 	// note the careful way to skip the portion not to paint. it is not the most obvious code, but necessary to stay efficient.
-	/**
-	 * 
-	 * @param heatmapCanvas
-	 * @param colors the actual color data in the form of a one-dimensional array
-	 * @param paintable the number of row we may want to draw. that should cover [yIndex1, yIndex2]
-	 * @param column total number of columns
-	 * @param cellHeight
-	 * @param cellWidth
-	 * @param xIndex1
-	 * @param xIndex2
-	 * @param yIndex1
-	 * @param yIndex2
-	 */
-	static private void drawHeatmap(final Canvas heatmapCanvas, int[] colors, int paintable, int column, int cellHeight, int cellWidth,
-			int xIndex1, int xIndex2, int yIndex1, int yIndex2) {
-		int height = cellHeight*paintable;
+	private void drawHeatmap() {
+		int height = cellHeight*paintableMarkers;
 		int width = cellWidth*(xIndex2-xIndex1+1);
 		
 		sizeCanvas(heatmapCanvas, width, height);
         
 		Context2d context = heatmapCanvas.getContext2d();
 
-		int skipOnRight = column -1 - xIndex2;
-		int valueIndex = yIndex1*column; // skip the unpainted rows
+		int skipOnRight = arrayNumber -1 - xIndex2;
+		int valueIndex = yIndex1*arrayNumber; // skip the unpainted rows
 		
 		for (int y = 0; y < height; y+=cellHeight) {
 			valueIndex += xIndex1; // skip the unpainted column on the left side
