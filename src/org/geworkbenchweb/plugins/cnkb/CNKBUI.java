@@ -11,10 +11,13 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
+import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -31,11 +34,17 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.PasswordField;
 
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import javax.servlet.http.HttpSession;
 /**
  * Parameter panel for CNKB
  * @author Nikhil
@@ -54,14 +63,20 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 	
 	User user = SessionHandler.get();
-	
+
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 	
-	private long dataSetId;
+	private long dataSetId;	
 	
+	DSMicroarraySet maSet = null;
+ 
+	private int interaction_flag = 1;	
+ 
 	public CNKBUI(Long dataSetId) {
 		this.dataSetId = dataSetId;
 		this.setSpacing(true);
+		this.setImmediate(true);
+	
 	}
 	
 	// FIXME why the GUI implementation of this analysis is different from other analysis plug-ins
@@ -69,11 +84,14 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		super.attach();
 		loadApplicationProperty();
-		final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
 		try {
-			contextList = interactionsConnection.getInteractomeNames();
+			contextList = interactionsConnection.getDatasetAndInteractioCount();
+		}catch(UnAuthenticatedException uae)
+		{
+		   uae.printStackTrace();		 
 		} catch (ConnectException e1) {
 			e1.printStackTrace();
 		} catch (SocketTimeoutException e1) {
@@ -92,24 +110,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 			public void buttonClick(ClickEvent event) {
 				try {
-					resultSet = new ResultSet();
-					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-					resultSet.setDateField(date);
-					String dataSetName	=	"CNKB - Pending"; 
-					resultSet.setName(dataSetName);
-					resultSet.setType(getResultType().getName());
-					resultSet.setParent(dataSetId);
-					resultSet.setOwner(user.getId());	
-					FacadeFactory.getFacade().store(resultSet);	
-			
-					generateHistoryString();
-					
-					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-					GeworkbenchRoot.getBlackboard().fire(resultEvent);
-					
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params, CNKBUI.this);
-					GeworkbenchRoot.getBlackboard().fire(analysisEvent);
-						
+					submitCnkbEvent();
 				} catch (Exception e) {	
 					e.printStackTrace();
 				}		
@@ -195,7 +196,13 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}	
+				}				
+			    catch(UnAuthenticatedException uae)
+			    {
+			    	// TODO Auto-generated catch block
+			         uae.printStackTrace();		 
+			    }
+				
 			}
 		});
 		addComponent(markerSetBox);
@@ -205,8 +212,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	 * Create a connection with the server.
 	 */
 	private void loadApplicationProperty() {
-		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-		//String interactionsServletUrl = "http://localhost:8080/InteractionsServlet/InteractionsServlet";
+		//String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+		String interactionsServletUrl = "http://localhost:8080/InteractionsServlet/InteractionsServlet";
 		ResultSetlUtil.setUrl(interactionsServletUrl);
 		ResultSetlUtil.setTimeout(timeout);
 	}
@@ -245,10 +252,154 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
-		CNKBInteractions cnkb = new CNKBInteractions();
-		Vector<CellularNetWorkElementInformation> hits = cnkb.CNKB((DSMicroarraySet) dataset, params);
-		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(hits));
+			HashMap<Serializable, Serializable> parameters) {	
+		try { 
+		     Vector<CellularNetWorkElementInformation> hits = getInteractions((DSMicroarraySet) dataset, params);
+		     UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(hits));
+		}catch(UnAuthenticatedException uae)
+		{
+			creatAuthenticationDialog();
+			return "UnAuthenticatedException";
+		}
+		catch(Exception ex)
+		{
+			return ">>>RemoteException:"+ ex.getMessage();
+		}
 		return "CNKB";
+		
+	}
+	
+	
+	public Vector<CellularNetWorkElementInformation> getInteractions (
+			DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params) throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException, Exception{	 
+
+		Vector<CellularNetWorkElementInformation> hits = null;
+		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+		String context = (String) params.get(CNKBParameters.INTERACTOME);
+		String version = (String) params.get(CNKBParameters.VERSION);		 
+		HttpSession session = ((WebApplicationContext)getApplication().getContext()).getHttpSession();
+		String userInfo = null;
+	    if (session.getAttribute(CNKBParameters.CNKB_USERINFO) != null)
+		   userInfo = session.getAttribute(CNKBParameters.CNKB_USERINFO).toString();
+		
+		Long subSetId = Long.parseLong(((String) params
+				.get(CNKBParameters.MARKER_SET_ID)).trim());
+
+		@SuppressWarnings("unchecked")
+		List<SubSet> data = (List<SubSet>) SubSetOperations
+				.getMarkerSet(subSetId);
+		SubSet markerSet = data.get(0);
+
+		ArrayList<String> markers = markerSet.getPositions();
+		hits = new Vector<CellularNetWorkElementInformation>();
+
+		for (int i = 0; i < dataSet.getMarkers().size(); i++) {
+			if (markers.contains(dataSet.getMarkers().get(i).getLabel())) {
+				hits.addElement(new CellularNetWorkElementInformation(dataSet
+						.getMarkers().get(i)));
+			}
+		}
+		 
+		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+
+				DSGeneMarker marker = cellularNetWorkElementInformation
+						.getdSGeneMarker();
+
+				if (marker != null && marker.getGeneId() != 0
+						&& cellularNetWorkElementInformation.isDirty()) {
+
+					List<InteractionDetail> interactionDetails = null;
+				 
+						if (interaction_flag == 0) {
+							interactionDetails = interactionsConnection
+									.getInteractionsByEntrezIdOrGeneSymbol_1(
+											marker, context, version, userInfo);
+						} else {
+							interactionDetails = interactionsConnection
+									.getInteractionsByEntrezIdOrGeneSymbol_2(
+											marker, context, version, userInfo);
+						}
+				 
+					cellularNetWorkElementInformation.setDirty(false);
+					cellularNetWorkElementInformation
+							.setInteractionDetails(interactionDetails);
+				}
+			}
+		 
+		
+		return hits;
+	}
+	
+	
+	 
+	 
+	private void creatAuthenticationDialog()
+	{
+		final Window dialog = new Window("Authentication");
+		
+		dialog.setModal(true);
+		dialog.setDraggable(false);
+		dialog.setResizable(false);
+		dialog.setImmediate(true);
+		dialog.setWidth("300px");
+		
+		FormLayout form = new FormLayout();
+		
+		final TextField usertf 	= 	new TextField();
+		final PasswordField passwordtf 	= 	new PasswordField();
+		Button submit 			= 	new Button("Submit", new Button.ClickListener() {
+			
+			private static final long serialVersionUID = -6393819962372106745L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+                String userName = usertf.getValue().toString().trim();
+                String passwd = passwordtf.getValue().toString().trim();            
+            	HttpSession session = ((WebApplicationContext)getApplication().getContext()).getHttpSession();
+            	session.setAttribute(CNKBParameters.CNKB_USERINFO, userName + ":" +  passwd);             
+            	submitCnkbEvent();
+            	getApplication().getMainWindow().removeWindow(dialog); 
+                
+			}
+		});
+		
+		usertf.setCaption("User");
+		passwordtf.setCaption("Password");
+		
+		form.setMargin(true);
+		form.setImmediate(true);
+		form.setSpacing(true);
+		form.addComponent(usertf);
+		form.addComponent(passwordtf);
+		form.addComponent(submit);				 
+		
+		dialog.addComponent(form);
+		getApplication().getMainWindow().addWindow(dialog);
+		
+	
+	}
+	
+	private void submitCnkbEvent()
+	{		
+		resultSet = new ResultSet();
+		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+		resultSet.setDateField(date);
+		String dataSetName	=	"CNKB - Pending"; 
+		resultSet.setName(dataSetName);
+		resultSet.setType(getResultType().getName());
+		resultSet.setParent(dataSetId);
+		resultSet.setOwner(user.getId());	
+		 
+		FacadeFactory.getFacade().store(resultSet);	
+
+		generateHistoryString();
+		
+		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		
+		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params, CNKBUI.this);
+		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+		 
 	}
 }

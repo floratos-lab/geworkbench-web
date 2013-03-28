@@ -117,7 +117,7 @@ public class UMainLayout extends VerticalLayout {
 	private Long dataSetId;
 
 	User user = SessionHandler.get();
-
+			
 	private Tree markerTree;
 
 	private Tree arrayTree;
@@ -1384,6 +1384,14 @@ public class UMainLayout extends VerticalLayout {
 						pusher.push();
 						return;	
 					}
+					else if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
+					{
+						FacadeFactory.getFacade().delete(resultSet);
+						navigationTree.removeItem(resultSet.getId());
+						pusher.push();
+						return;	
+					}
+					
 					
 					resultSet.setName(resultName);
 
