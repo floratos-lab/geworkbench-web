@@ -88,6 +88,12 @@ public final class VDendrogram extends Composite implements Paintable {
 			xIndex1 = microarrayDendrogramSelected.index1;
 			xIndex2 = microarrayDendrogramSelected.index2;
 		}
+
+		@Override
+		void updateServerSideSelection() {
+			client.updateVariable(paintableId, "arrayIndex1", xIndex1, false);
+			client.updateVariable(paintableId, "arrayIndex2", xIndex2, true);
+		}
     };
     
     private ClusterHandler markerClusterHandler = new ClusterHandler() {
@@ -104,7 +110,12 @@ public final class VDendrogram extends Composite implements Paintable {
 			yIndex1 = markerDendrogramSelected.index1;
 			yIndex2 = markerDendrogramSelected.index2;
 		}
-    	
+
+		@Override
+		void updateServerSideSelection() {
+			client.updateVariable(paintableId, "markerIndex1", yIndex1, false);
+			client.updateVariable(paintableId, "markerIndex2", yIndex2, true);
+		}
     };
 
     /* the only constructor */
@@ -479,7 +490,10 @@ public final class VDendrogram extends Composite implements Paintable {
 				lowestMatch.select( true ); // highlight a new selection
 			}
 			paint();
+			updateServerSideSelection();
 		}
+
+		abstract void updateServerSideSelection();
     	
     };
 

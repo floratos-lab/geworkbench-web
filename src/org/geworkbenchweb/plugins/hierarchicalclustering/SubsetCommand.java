@@ -6,6 +6,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 import java.util.ArrayList;
 
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.visualizations.Dendrogram;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -24,7 +25,6 @@ import com.vaadin.ui.Window;
  * @author zji
  * 
  */
-// TODO no real selection was implemented yet
 public class SubsetCommand implements Command {
 
 	private static final long serialVersionUID = 1348332795447686854L;
@@ -36,11 +36,14 @@ public class SubsetCommand implements Command {
 	final private SetType setType;
 	final private Long parentId;
 	
-	SubsetCommand(final String caption, final Component parent, SetType setType, Long parentId) {
+	final private Dendrogram dendrogram;
+	
+	SubsetCommand(final String caption, final Component parent, SetType setType, Long parentId, final Dendrogram dendrogram) {
 		this.caption = caption;
 		this.parent = parent;
 		this.setType = setType;
 		this.parentId = parentId;
+		this.dendrogram = dendrogram;
 	}
 	
 	@SuppressWarnings("deprecation") // for getLayout()
@@ -71,17 +74,15 @@ public class SubsetCommand implements Command {
 			public void buttonClick(ClickEvent event) {
 				try {
 					if(setName.getValue() != null) {
-						ArrayList<String> items = new ArrayList<String>();
-						String[] temp 	= 	new String[0]; // TODO placeholder for the actually selected markers/arrays
-						for(int i=0; i<temp.length; i++) {
-							String label = temp[i].trim();
-							items.add(label);
-						}
-						String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
 						// TODO why are marker and arrays treated differently? 
+						// TODO use List instead of ArrayList when possible
 						if(setType == SetType.MARKER) {
+							ArrayList<String> items = (ArrayList<String>) dendrogram.getSelectedMarkerLabels();
+							String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
 							SubSetOperations.storeData(items, "marker", subSetName , parentId);
 						} else { // MICRORRAY
+							ArrayList<String> items = (ArrayList<String>)dendrogram.getSelectedArrayLabels();
+							String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
 							SubSetOperations.storeArraySetInCurrentContext(items, subSetName, parentId);
 						}
 						mainWindow.removeWindow(nameWindow);

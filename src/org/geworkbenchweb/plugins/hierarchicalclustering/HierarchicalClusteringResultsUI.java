@@ -120,10 +120,10 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long parentId = data.getParent();
 		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", 
-				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId));
+				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId, dendrogram));
 		
 		MenuBar.MenuItem saveP 		=	toolBar.addItem("Save Phenotypes",
-				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId));
+				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId, dendrogram));
 		
 		MenuBar.MenuItem export 	= 	toolBar.addItem("Export Image", new Command(){
 

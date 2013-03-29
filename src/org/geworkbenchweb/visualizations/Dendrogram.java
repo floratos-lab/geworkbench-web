@@ -1,5 +1,7 @@
 package org.geworkbenchweb.visualizations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.vaadin.terminal.PaintException;
@@ -35,6 +37,11 @@ public class Dendrogram extends AbstractComponent {
 		 
 		/* element value range [-255, 255] */
 		this.colors = colors;
+		
+		arrayIndex1 = 0;
+		arrayIndex2 = arrayNumber - 1;
+		markerIndex1 = 0;
+		markerIndex2 = markerNumber - 1;
 		
 		// this is the upper limit because on the client side the space is smaller by excluding microarray dendrogram and microarray labels
 		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
@@ -78,6 +85,9 @@ public class Dendrogram extends AbstractComponent {
 
 	private int firstMarker = 0;
 	private int paintableMarkers;
+
+	private int arrayIndex1, arrayIndex2;
+	private int markerIndex1, markerIndex2;
 	
 	/**
 	 * Receive and handle events and other variable changes from the client.
@@ -88,8 +98,13 @@ public class Dendrogram extends AbstractComponent {
 	public void changeVariables(Object source, Map<String, Object> variables) {
 		super.changeVariables(source, variables);
 
-		// get the variable for server side
-		if (variables.containsKey("firstMarker")) {
+		if(variables.containsKey("arrayIndex2")) {
+			arrayIndex1 = (Integer) variables.get("arrayIndex1");
+			arrayIndex2 = (Integer) variables.get("arrayIndex2");
+		} else if (variables.containsKey("markerIndex2")) {
+			markerIndex1 = (Integer) variables.get("markerIndex1");
+			markerIndex2 = (Integer) variables.get("markerIndex2");
+		} else if (variables.containsKey("firstMarker")) {
 			firstMarker = (Integer) variables.get("firstMarker");
 			paintableMarkers = (Integer) variables.get("paintableMarkers");
 			requestRepaint();
@@ -118,5 +133,20 @@ public class Dendrogram extends AbstractComponent {
 		// TODO reset the selection as well
 		requestRepaint();
 	}
+
+	public List<String> getSelectedArrayLabels() {
+		List<String> list = new ArrayList<String>();
+		for(int i=arrayIndex1; i<=arrayIndex2; i++) {
+			list.add(arrayLabels[i]);
+		}
+		return list;
+	}
 	
+	public List<String> getSelectedMarkerLabels() {
+		List<String> list = new ArrayList<String>();
+		for(int i=markerIndex1; i<=markerIndex2; i++) {
+			list.add(markerLabels[i]);
+		}
+		return list;
+	}
 }
