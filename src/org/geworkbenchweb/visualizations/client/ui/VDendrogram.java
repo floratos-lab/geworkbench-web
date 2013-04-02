@@ -10,6 +10,7 @@ import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
@@ -186,8 +187,37 @@ public final class VDendrogram extends Composite implements Paintable {
 		}
 
 		paint();
+
+		if(uidl.getBooleanVariable("exportImage")) {
+			// this does not show in eclipse workspace browser somehow
+			Canvas offline = createOfflineImage();
+			// use the fixed window name so the window is reused for this functionality
+			Window.open(offline.toDataUrl("image/png"), "dendrogram_snapshot", "");
+//			client.updateVariable(paintableId, "imageUrl", heatmapCanvas.toDataUrl("image/png"), true);
+		}
 	}
 	
+	private Canvas createOfflineImage() {
+		int heatmapWidth = cellWidth*(xIndex2 - xIndex1 +1);
+        int heatmapHeight = paintableMarkers*cellHeight;
+		int width = markerClusterHeight + heatmapWidth + 300;
+		int height = arrayClusterHeight+heatmapHeight + 150;
+		
+		Canvas offline = Canvas.createIfSupported();
+//		offline.setPixelSize(width, height); // when necessary?
+		offline.setCoordinateSpaceWidth(width);
+		offline.setCoordinateSpaceHeight(height);
+		Context2d context = offline.getContext2d();
+		
+		context.drawImage(arrayDendrogramCanvas.getCanvasElement(), markerClusterHeight, 0);
+		context.drawImage(markerDendrogramCanvas.getCanvasElement(), 0, arrayClusterHeight);
+		context.drawImage(heatmapCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight);
+		context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight+heatmapHeight);
+		context.drawImage(markerLabelCanvas.getCanvasElement(), markerClusterHeight+heatmapWidth, arrayClusterHeight);
+
+		return offline;
+	}
+
 	/* separate from updateFromUIDL because it is not always necessary to get back to server side */
 	/* similar to previous version of paint except for supporing part painting */
 	private void paint() {

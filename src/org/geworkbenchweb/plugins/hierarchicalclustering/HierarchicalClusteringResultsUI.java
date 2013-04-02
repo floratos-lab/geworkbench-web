@@ -131,7 +131,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				// TODO 
+				dendrogram.exportImage();
 			}
 		});
 

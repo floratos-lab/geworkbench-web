@@ -53,6 +53,12 @@ public class Dendrogram extends AbstractComponent {
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
 		
+		if(requestExportImage) {
+			target.addVariable(this, "exportImage", true);
+			requestExportImage = false;
+			//return;
+		}
+		
 		/* get a subset of color values */
         if(firstMarker+paintableMarkers>markerNumber) { // handle the last 'page'
         	firstMarker = markerNumber - paintableMarkers; 
@@ -108,6 +114,9 @@ public class Dendrogram extends AbstractComponent {
 			firstMarker = (Integer) variables.get("firstMarker");
 			paintableMarkers = (Integer) variables.get("paintableMarkers");
 			requestRepaint();
+//		}  else if (variables.containsKey("imageUrl")) {
+//			String imageUrl = (String) variables.get("imageUrl");
+//			// TODO what to do with it?
 		}
 	}
 
@@ -148,5 +157,11 @@ public class Dendrogram extends AbstractComponent {
 			list.add(markerLabels[i]);
 		}
 		return list;
+	}
+
+	private boolean requestExportImage = false;
+	public void exportImage() {
+		requestExportImage = true;
+		requestRepaint();
 	}
 }

@@ -25,7 +25,7 @@ import org.geworkbenchweb.plugins.aracne.results.AracneResultsUI;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI;
 import org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
-import org.geworkbenchweb.plugins.hierarchicalclustering.results.HierarchicalClusteringResultsUI;
+import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI;
 import org.geworkbenchweb.plugins.marina.MarinaUI;
 import org.geworkbenchweb.plugins.marina.results.MarinaResultsUI;
 import org.geworkbenchweb.plugins.markus.MarkUsUI;
