@@ -21,8 +21,6 @@
 	<inherits name="com.google.gwt.json.JSON" /> 
     
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
-
-	<inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
    	
    	<!-- Invient charts JavaScript Libraries -->
    	<script src="js/jquery-1.4.4.min.js" />
