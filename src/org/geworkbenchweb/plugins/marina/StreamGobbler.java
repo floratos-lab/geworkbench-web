@@ -117,6 +117,12 @@ public class StreamGobbler extends Thread {
                             case ERROR:
                                 log.error(line);
                                 break;
+                            case FATAL:
+                            	log.error("[FATAL]"+line);
+                            	break;
+                            default:
+                            	log.error("[default]"+line);
+                            	break;
                         }
                     }
                 }
