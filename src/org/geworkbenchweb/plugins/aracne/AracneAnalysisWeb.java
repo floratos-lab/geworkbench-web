@@ -18,7 +18,6 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
-import edu.columbia.c2b2.aracne.Parameter; 
 
 import javax.xml.namespace.QName;
 
@@ -51,8 +50,6 @@ public class AracneAnalysisWeb {
 	private static String url = null;
 	
 	private DSMicroarraySet dataSet = null;
-
-	final Parameter p = new Parameter();
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
