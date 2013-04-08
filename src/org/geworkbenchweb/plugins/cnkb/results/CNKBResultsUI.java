@@ -16,6 +16,7 @@ import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -65,6 +66,8 @@ import com.vaadin.ui.Button.ClickListener;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
+import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
+
 /**
  * This class displays CNKB results in a Table and also a graph
  * 
@@ -79,22 +82,27 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 	private ArrayList<Double> totalInteractionConfidence = new ArrayList<Double>();
 
-	private Map<String, List<Double>> confidenceMap = new HashMap<String, List<Double>>();
+	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
 	private static InvientCharts plot;
 
 	private static CNKBResultsUI menuBarInstance;
 
 	private static Table dataTable;
+	private static Map<String, String> confidentTypeMap = null;
 
 	private Cytoscape cy;
 
 	public CNKBResultsUI(Long dataSetId) {
 
-		@SuppressWarnings("unchecked")
-		Vector<CellularNetWorkElementInformation> hits = (Vector<CellularNetWorkElementInformation>) ObjectConversion
+		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
-
+		final Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
+		final Short confidentType  = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		
+		if (confidentTypeMap == null)
+			loadConfidentTypeMap();
+		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("id", dataSetId);
 		List<ResultSet> data = FacadeFactory.getFacade().list(
@@ -120,23 +128,23 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 		IndexedContainer dataIn = new IndexedContainer();
 
-		List<String> selectedTypes = getInteractionTypes(hits);
+		List<String> selectedTypes = getInteractionTypes(resultSet);
 
 		for (int j = 0; j < hits.size(); j++) {
 			Item item = dataIn.addItem(j);
 			ArrayList<InteractionDetail> interactionDetail = hits.get(j)
-					.getSelectedInteractions(selectedTypes);
+					.getSelectedInteractions(selectedTypes, confidentType);
 			if (interactionDetail != null) {
 				for (InteractionDetail interaction : interactionDetail) {
 					totalInteractionConfidence.add(interaction
 							.getConfidenceValue(interaction
 									.getConfidenceTypes().get(0)));
 					String interactionType = interaction.getInteractionType();
-					if (confidenceMap.get(interactionType) == null) {
+					if (ConfidentDataMap.get(interactionType) == null) {
 						List<Double> confidenceList = new ArrayList<Double>();
-						confidenceMap.put(interactionType, confidenceList);
+						ConfidentDataMap.put(interactionType, confidenceList);
 					}
-					confidenceMap.get(interactionType).add(
+					ConfidentDataMap.get(interactionType).add(
 							interaction.getConfidenceValue(interaction
 									.getConfidenceTypes().get(0)));
 				}
@@ -167,7 +175,7 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 			for (String selectedType : selectedTypes)
 				item.getItemProperty(selectedType + " #").setValue(
-						(hits.get(j).getSelectedInteractions(selectedType))
+						(hits.get(j).getSelectedInteractions(selectedType, confidentType))
 								.size());
 
 		}
@@ -177,14 +185,14 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		dataTable.setColumnWidth("Annotation", 150);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
 
-		plot = drawPlot();
+		plot = drawPlot(resultSet);
 		tabPanel.setFirstComponent(plot);
 		tabPanel.setSecondComponent(dataTable);
 
 		Button createNetworkButton;
 		createNetworkButton = new Button("Create Network");
 		createNetworkButton.addListener(new CreateNetworkListener(parentId,
-				hits, selectedTypes));
+				resultSet, selectedTypes));
 
 		addComponent(createNetworkButton);
 		addComponent(tabPanel);
@@ -196,21 +204,28 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 	 * This method draws the Throttle Graph using Invient Charts Add-on.
 	 * 
 	 */
-	private InvientCharts drawPlot() {
+	private InvientCharts drawPlot(CNKBResultSet resultSet) {
 
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setMargin(new Margin());
 		chartConfig.getGeneralChartConfig().getMargin().setRight(30);
 
-		chartConfig.getTitle().setText("CNKB - Throttle Graph");
+		chartConfig.getTitle().setText(resultSet.getCellularNetworkPreference().getTitle());
 
 		NumberXAxis numberXAxis = new NumberXAxis();
-		numberXAxis.setTitle(new AxisTitle("Likelihood"));
+		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		String axisTile = null;
+		if (confidenceType != null)
+			axisTile = confidentTypeMap.get(confidenceType.toString());
+		if (axisTile != null)
+			numberXAxis.setTitle(new AxisTitle(axisTile));
+		else			
+		   numberXAxis.setTitle(new AxisTitle("Likelihood"));
 
 		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
 		xAxesSet.add(numberXAxis);
-		chartConfig.setXAxes(xAxesSet);
-
+		chartConfig.setXAxes(xAxesSet);		
+		
 		NumberYAxis numberYAxis = new NumberYAxis();
 		numberYAxis.setGrid(new Grid());
 		numberYAxis.getGrid().setLineWidth(1);
@@ -224,7 +239,21 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		// Series data label formatter
 		LineConfig lineCfg = new LineConfig();
 		chartConfig.addSeriesConfig(lineCfg);
-
+       
+	    double maxX  = 1.00001d;
+	    double smallestIncrement = 0.01d;
+		Double maxConfidenceValue = resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType);
+		if (maxConfidenceValue != null && maxConfidenceValue > 1) {
+			int a = (int) Math.log10(maxConfidenceValue);
+			double b = maxConfidenceValue / (Math.pow(10, a));
+			maxX  = Math.ceil(b);
+			maxX = maxX * (Math.pow(10, a));
+			smallestIncrement = (long) maxX / 100;			 
+		}
+		else		
+		    numberXAxis.setMax(maxX);
+		
+         
 		/* Tooltip formatter */
 		chartConfig.getTooltip().setFormatterJsFunc(
 				"function() { "
@@ -235,12 +264,12 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		InvientCharts chart = new InvientCharts(chartConfig);
 
 		XYSeries seriesData = new XYSeries("Total Distribution");
-		seriesData.setSeriesPoints(getTotalDistribution(seriesData));
+		seriesData.setSeriesPoints(getTotalDistribution(seriesData, smallestIncrement));
 		chart.addSeries(seriesData);
 
-		for (String interactionType : confidenceMap.keySet()) {
-			seriesData = new XYSeries(interactionType);
-			seriesData.setSeriesPoints(getDistribution(interactionType));
+		for (String interactionType : ConfidentDataMap.keySet()) {
+			seriesData = new XYSeries(interactionType);			 
+			seriesData.setSeriesPoints(getDistribution(interactionType, smallestIncrement));
 			chart.addSeries(seriesData);
 		}
 
@@ -251,7 +280,7 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 	 * Method is used to calculate the graph points for Protein-Protein
 	 * Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getDistribution(String interactionType) {
+	private LinkedHashSet<DecimalPoint> getDistribution(String interactionType, double smallestIncrement) {
 
 		XYSeries seriesData = new XYSeries(interactionType);
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
@@ -259,22 +288,20 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		Double y = null;
 		int[] distribution = new int[101];
 
-		List<Double> confidenceList = confidenceMap.get(interactionType);
+		List<Double> confidenceList = ConfidentDataMap.get(interactionType);
 		for (int m = 0; m < confidenceList.size(); m++) {
-			int confidence = (int) ((confidenceList.get(m)) * 100);
-			//To do: need to fix later for those confidence value > 1
-			if (confidence > 100) confidence = 100;
+			int confidence = (int) ((confidenceList.get(m))  / smallestIncrement);		 
 			if (confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
 			}
 		}
-		x = 0.005d;
+		x = 0.0;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
 			points.add(new DecimalPoint(seriesData, x, y));
-			x = x + 0.01d;
+			x = x + smallestIncrement;
 		}
 		return points;
 	}
@@ -282,7 +309,7 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 	/**
 	 * Method is used to calculate the graph points for all Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getTotalDistribution(XYSeries seriesData) {
+	private LinkedHashSet<DecimalPoint> getTotalDistribution(XYSeries seriesData, double smallestIncrement) {
 
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
 
@@ -291,20 +318,18 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		int[] distribution = new int[101];
 
 		for (int m = 0; m < totalInteractionConfidence.size(); m++) {
-			int confidence = (int) ((totalInteractionConfidence.get(m)) * 100);
-			//To do: need to fix later for those confidence value > 1
-			if (confidence > 100) confidence = 100;
-			if (confidence >= 0) {
+			int confidence = (int) ((totalInteractionConfidence.get(m))   / smallestIncrement);		 		
+			if (confidence >= 0) {				 
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
 				}
 			}
 		}
-		x = 0.005d;
+		x = 0.0d;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
 			points.add(new DecimalPoint(seriesData, x, y));
-			x = x + 0.01d;
+			x = x + smallestIncrement;
 		}
 		return points;
 	}
@@ -361,28 +386,26 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 		private static final long serialVersionUID = 831124091338570481L;
 
-		private Long parentId;
-		private Vector<CellularNetWorkElementInformation> hits;
-		ArrayList<String> selectedTypes;
-
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private Long parentId;		
+		private CNKBResultSet resultSet;		 
+	 
 		public CreateNetworkListener(Long parentId,
-				Vector<CellularNetWorkElementInformation> hits,
+				CNKBResultSet resultSet,
 				List<String> selectedTypes) {
 
 			this.parentId = parentId;
-			this.hits = hits;
-			this.selectedTypes = (ArrayList) selectedTypes;
-
+			this.resultSet = resultSet;            
 		}
 
-		private int getInteractionTotalNum() {
+		private int getInteractionTotalNum(short confidentType) {
 
 			int interactionNum = 0;
+			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
+			List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
 			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 				ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-						.getSelectedInteractions(selectedTypes);
+						.getSelectedInteractions(selectedTypes, confidentType);
 
 				interactionNum = interactionNum + arrayList.size();
 
@@ -395,7 +418,8 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		@Override
 		public void buttonClick(ClickEvent event) {
 
-			if (hits == null || getInteractionTotalNum() == 0) {
+			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
+			if (hits == null || getInteractionTotalNum(resultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
 
 				MessageBox mb = new MessageBox(getWindow(), "Warning",
 						MessageBox.Icon.INFO,
@@ -405,9 +429,8 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 				return;
 			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
-			params.put(CNKBParameters.NETWORK_ELEMENT_INFO, hits);
-			params.put(CNKBParameters.SELECTED_INTERACTION_TYPES, selectedTypes);
-
+			params.put(CNKBParameters.CNKB_RESULTSET, resultSet);
+			 
 			ResultSet resultSet = new ResultSet();
 			java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 			resultSet.setDateField(date);
@@ -427,24 +450,19 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		}
 	}
 
-	private List<String> getInteractionTypes(
-			Vector<CellularNetWorkElementInformation> hits) {
+	private List<String> getInteractionTypes(CNKBResultSet  resultSet)
+	{
 
-		if (ResultSetlUtil.getUrl() == null)
-			loadApplicationProperty();
-		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
-		List<String> allInteractionTypes = null;
-		try {
-			allInteractionTypes = interactionsConnection.getInteractionTypes();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
+		short confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		List<String> interactionTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
+	 
 		List<String> selectedTypes = new ArrayList<String>();
 
 		for (int j = 0; j < hits.size(); j++) {
 
 			ArrayList<InteractionDetail> interactionDetail = hits.get(j)
-					.getSelectedInteractions(allInteractionTypes);
+					.getSelectedInteractions(interactionTypes, confidentType);
 			if (interactionDetail != null) {
 				for (InteractionDetail interaction : interactionDetail) {
 					String interactionType = interaction.getInteractionType();
@@ -458,18 +476,27 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		}
 
 		return selectedTypes;
-	}
+	} 
 	
-	/**
-	 * Create a connection with the server.
-	 */
-	private void loadApplicationProperty() {
-		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";		 
-		ResultSetlUtil.setUrl(interactionsServletUrl);
-		ResultSetlUtil.setTimeout(3000);
+	private void loadConfidentTypeMap()
+	{
+		if (ResultSetlUtil.getUrl() == null || ResultSetlUtil.getUrl().trim().equals(""))
+		{
+			String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";			 
+			ResultSetlUtil.setUrl(interactionsServletUrl);
+			ResultSetlUtil.setTimeout(3000);
+		}
+		
+		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+		try{
+		   confidentTypeMap =  interactionsConnection.getConfidenceTypeMap();
+		}
+		   catch(Exception ex)
+		{
+			   ex.printStackTrace();
+		}
+		
 		 
 	}
-	
-	
 
 }

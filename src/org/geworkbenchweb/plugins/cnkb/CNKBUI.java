@@ -17,6 +17,7 @@ import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -56,7 +57,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	
 	private ResultSet resultSet;
 	
-	private int timeout = 3000;
+	private static final int timeout = 3000;
 	
 	private List<String> contextList = new ArrayList<String>();
 	
@@ -66,9 +67,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 	
-	private long dataSetId;	
-	
-	DSMicroarraySet maSet = null;
+	private long dataSetId;		
  
 	private int interaction_flag = 1;	
  
@@ -84,7 +83,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		super.attach();
 		loadApplicationProperty();
-		maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
 		try {
@@ -110,7 +109,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 			public void buttonClick(ClickEvent event) {
 				try {
-					submitCnkbEvent();
+					submitCnkbEvent(maSet);
 				} catch (Exception e) {	
 					e.printStackTrace();
 				}		
@@ -245,20 +244,19 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	@Override
-	public Class<?> getResultType() {
-		// FIXME this return type is too generic
-		return Vector.class;
+	public Class<?> getResultType() {		 
+		return CNKBResultSet.class;
 	}
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
 			HashMap<Serializable, Serializable> parameters) {	
 		try { 
-		     Vector<CellularNetWorkElementInformation> hits = getInteractions((DSMicroarraySet) dataset, params);
-		     UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(hits));
+		      CNKBResultSet resultSet = getInteractions((DSMicroarraySet) dataset, params);
+		      UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(resultSet));
 		}catch(UnAuthenticatedException uae)
 		{
-			creatAuthenticationDialog();
+			creatAuthenticationDialog((DSMicroarraySet) dataset);
 			return "UnAuthenticatedException";
 		}
 		catch(Exception ex)
@@ -270,7 +268,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	}
 	
 	
-	public Vector<CellularNetWorkElementInformation> getInteractions (
+	private CNKBResultSet getInteractions (
 			DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params) throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException, Exception{	 
 
@@ -301,6 +299,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			}
 		}
 		 
+		CellularNetworkPreference cnkbPref = new CellularNetworkPreference("Throttle Graph(" +context + version + ")" );
+		cnkbPref.setContext(context);
+		cnkbPref.setVersion(version);
+		List<String> interactionTypes = interactionsConnection.getInteractionTypesByInteractomeVersion(context, version); 
+		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);		
+		
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 				DSGeneMarker marker = cellularNetWorkElementInformation
@@ -322,19 +326,19 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 						}
 				 
 					cellularNetWorkElementInformation.setDirty(false);
-					cellularNetWorkElementInformation
-							.setInteractionDetails(interactionDetails);
+					cellularNetWorkElementInformation.
+							setInteractionDetails(interactionDetails, cnkbPref);
 				}
 			}
 		 
 		
-		return hits;
+		return new CNKBResultSet(hits, cnkbPref);
 	}
 	
 	
 	 
 	 
-	private void creatAuthenticationDialog()
+	private void creatAuthenticationDialog(final DSMicroarraySet maSet)
 	{
 		final Window dialog = new Window("Authentication");
 		
@@ -358,7 +362,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
                 String passwd = passwordtf.getValue().toString().trim();            
             	HttpSession session = ((WebApplicationContext)getApplication().getContext()).getHttpSession();
             	session.setAttribute(CNKBParameters.CNKB_USERINFO, userName + ":" +  passwd);             
-            	submitCnkbEvent();
+            	submitCnkbEvent(maSet);
             	getApplication().getMainWindow().removeWindow(dialog); 
                 
 			}
@@ -380,7 +384,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	
 	}
 	
-	private void submitCnkbEvent()
+	private void submitCnkbEvent(DSMicroarraySet maSet)
 	{		
 		resultSet = new ResultSet();
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());

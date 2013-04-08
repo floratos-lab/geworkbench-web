@@ -37,26 +37,29 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		return AdjacencyMatrixDataSet.class;
 	}
 
-	@SuppressWarnings("unchecked")
+	 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dummy,
 			HashMap<Serializable, Serializable> params) {
 		Vector<CellularNetWorkElementInformation> hits = null;
-
-		if (params.get(CNKBParameters.NETWORK_ELEMENT_INFO) != null)
-			hits = (Vector<CellularNetWorkElementInformation>) params
-					.get(CNKBParameters.NETWORK_ELEMENT_INFO);
-
+		CNKBResultSet resultSet = null;
+		Short confidentType = null;
+		if (params.get(CNKBParameters.CNKB_RESULTSET) != null)
+		{	
+			resultSet = (CNKBResultSet) params
+					.get(CNKBParameters.CNKB_RESULTSET);
+		    hits = resultSet.getCellularNetWorkElementInformations();
+		    confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		}
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
 
-		List<String> selectedTypes = (ArrayList<String>) params
-				.get(CNKBParameters.SELECTED_INTERACTION_TYPES);
-
+		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
+				 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-					.getSelectedInteractions(selectedTypes);
+					.getSelectedInteractions(selectedTypes, confidentType);
 
 			DSGeneMarker marker1 = cellularNetWorkElementInformation
 					.getdSGeneMarker();

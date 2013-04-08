@@ -6,8 +6,7 @@ package org.geworkbenchweb.plugins;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.Map; 
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -23,6 +22,7 @@ import org.geworkbenchweb.plugins.anova.results.AnovaResultsUI;
 import org.geworkbenchweb.plugins.aracne.AracneUI;
 import org.geworkbenchweb.plugins.aracne.results.AracneResultsUI;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI;
+import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 import org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
 import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI;
@@ -77,7 +77,7 @@ public class PluginRegistry {
 	/** Add all the initial registry entries.*/
 	public void init() {
 		resultIconMap.put(CSHierClusterDataSet.class, hcIcon); // hierarchical clustering result
-		resultIconMap.put(Vector.class, networkIcon); // cnkb result // FIXME this result type is too generic
+		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result // FIXME this result type is too generic
 		resultIconMap.put(AdjacencyMatrixDataSet.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(CSAnovaResultSet.class, anovaIcon); // anova result
@@ -88,7 +88,7 @@ public class PluginRegistry {
 		iconMap.put(DSProteinStructure.class, proteinIcon);
 
 		resultUiMap.put(CSHierClusterDataSet.class, HierarchicalClusteringResultsUI.class);
-		resultUiMap.put(Vector.class, CNKBResultsUI.class);
+		resultUiMap.put(CNKBResultSet.class, CNKBResultsUI.class);
 		resultUiMap.put(AdjacencyMatrixDataSet.class, AracneResultsUI.class);
 		resultUiMap.put(MarkUsResultDataSet.class, MarkusResultsUI.class);
 		resultUiMap.put(CSAnovaResultSet.class, AnovaResultsUI.class);

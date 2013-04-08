@@ -6,7 +6,7 @@ public class CNKBParameters {
 	public static String VERSION		= 	"version";
 	public static String CNKB_USERINFO		= 	"cnkbUserInfo";
 	//for cytoscape
-	public static String NETWORK_ELEMENT_INFO		= 	"netWorkElementInformation";
+	public static String CNKB_RESULTSET		= 	"cnkbResultSet";
 	public static String SELECTED_INTERACTION_TYPES		= "selectedInteractionTypes";
 
 
