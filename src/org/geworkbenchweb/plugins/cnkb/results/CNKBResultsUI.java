@@ -229,7 +229,8 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		NumberYAxis numberYAxis = new NumberYAxis();
 		numberYAxis.setGrid(new Grid());
 		numberYAxis.getGrid().setLineWidth(1);
-
+		numberYAxis.setMin(0d);
+		
 		numberYAxis.setTitle(new AxisTitle("# Interactions"));
 		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
 		yAxesSet.add(numberYAxis);
@@ -255,11 +256,19 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		
          
 		/* Tooltip formatter */
-		chartConfig.getTooltip().setFormatterJsFunc(
+		if (maxConfidenceValue != null && maxConfidenceValue <= 1 )
+		    chartConfig.getTooltip().setFormatterJsFunc(
 				"function() { "
 						+ " return '<b>' + this.series.name + '</b><br/>' +  "
 						+ "Math.round(((this.x+0.005)*100))/100 + ' '+ "
 						+ "' to 1 - ' + " + "this.y + ' interactions'" + "}");
+
+		else //this need to be fixed. Don't know how to pass maxX to function
+			 chartConfig.getTooltip().setFormatterJsFunc(
+						"function() { "
+								+ " return '<b>' + this.series.name + '</b><br/>' +  "
+								+ "Math.round(((this.x+0.005)*100))/100 + ' to max value - '+ "
+								+ "this.y + ' interactions'" + "}");
 
 		InvientCharts chart = new InvientCharts(chartConfig);
 
