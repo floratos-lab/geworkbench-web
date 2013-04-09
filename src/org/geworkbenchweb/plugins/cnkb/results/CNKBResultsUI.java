@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
@@ -21,7 +22,7 @@ import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
-import org.geworkbenchweb.visualizations.Cytoscape;
+import org.geworkbenchweb.visualizations.Cytoscape; 
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
 import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -68,6 +69,9 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * This class displays CNKB results in a Table and also a graph
  * 
@@ -77,6 +81,8 @@ import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static Log log = LogFactory.getLog(CNKBResultsUI.class);
 
 	private VerticalSplitPanel tabPanel;
 
@@ -249,7 +255,9 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 			double b = maxConfidenceValue / (Math.pow(10, a));
 			maxX  = Math.ceil(b);
 			maxX = maxX * (Math.pow(10, a));
-			smallestIncrement = (long) maxX / 100;			 
+			smallestIncrement =  maxX / 100;	
+			log.debug("maxConfidenceValue is " + maxConfidenceValue);
+			log.debug("maxX is " + maxX + ", smallestIncrement is " + smallestIncrement);
 		}
 		else		
 		    numberXAxis.setMax(maxX);
@@ -299,7 +307,12 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 		List<Double> confidenceList = ConfidentDataMap.get(interactionType);
 		for (int m = 0; m < confidenceList.size(); m++) {
-			int confidence = (int) ((confidenceList.get(m))  / smallestIncrement);		 
+			int confidence = (int) ((confidenceList.get(m))  / smallestIncrement);	
+			if (confidence >= distribution.length )
+			{				
+				log.warn("This shall not happen: confidence = " + confidence );
+				confidence = distribution.length - 1;				
+			}
 			if (confidence >= 0) {
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
@@ -328,6 +341,11 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 		for (int m = 0; m < totalInteractionConfidence.size(); m++) {
 			int confidence = (int) ((totalInteractionConfidence.get(m))   / smallestIncrement);		 		
+			if (confidence >= distribution.length)
+			{
+				confidence = distribution.length - 1;
+				log.warn("This shall not happen: confidence = " + confidence );
+			}
 			if (confidence >= 0) {				 
 				for (int i = 0; i <= confidence; i++) {
 					distribution[i]++;
