@@ -3,7 +3,6 @@ package org.geworkbenchweb.layout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,11 +19,8 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
-import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.DataTypeUI;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.pojos.Annotation;
@@ -163,9 +159,6 @@ public class UMainLayout extends VerticalLayout {
 		/* Add listeners here */
 		NodeAddListener addNodeListener = new NodeAddListener();
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
-
-		AnalysisListener analysisListener = new AnalysisListener();
-		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 
 		setSizeFull();
 		setImmediate(true);
@@ -942,8 +935,16 @@ public class UMainLayout extends VerticalLayout {
 		addComponent(annotationBar);
 		
 		pluginView.setDataUI(new ToolsUI());
-	}
 
+		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
+		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
+	} // end of the constructor. TODO too long
+
+	void removeItem(Long itemId) {
+		navigationTree.removeItem(itemId);
+		pusher.push();
+	}
+	
 	/**
 	 * Creates the data tree for the project panel
 	 * @return Tree
@@ -1347,81 +1348,6 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
-	/**
-	 * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
-	 * analysis is complete in the background.
-	 * @author Nikhil
-	 */
-	public class AnalysisListener implements AnalysisSubmissionEventListener {
-
-		@Override
-		public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
-
-			Thread analysisThread = new Thread() {
-				@Override
-				public void run() {
-					final ResultSet resultSet = event.getResultSet();
-					HashMap<Serializable, Serializable> params = event.getParameters();
-
-					DSMicroarraySet dataSet = null;
-					try {
-						dataSet = (DSMicroarraySet) event.getDataSet();
-					} catch (Exception e) {
-						// FIXME catching all clause is evil; catching all and doing nothing is the evil of evils
-						e.printStackTrace();
-					}
-					AnalysisUI analysisUI = event.getAnalaysisUI();
-					String resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
-
-					if(resultName.startsWith(">>>RemoteException:")) { // TODO special case from marina. this should be "designed away"
-						String msg = resultName.substring(">>>RemoteException:".length()).replaceAll("\n", "<br>");
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Analysis Problem", MessageBox.Icon.ERROR, msg,  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();	
-						FacadeFactory.getFacade().delete(resultSet);
-						navigationTree.removeItem(resultSet.getId());
-						pusher.push();
-						return;	
-					}
-					else if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
-					{
-						FacadeFactory.getFacade().delete(resultSet);
-						navigationTree.removeItem(resultSet.getId());
-						pusher.push();
-						return;	
-					}
-					
-					
-					resultSet.setName(resultName);
-
-					FacadeFactory.getFacade().store(resultSet);	
-					synchronized(getApplication()) {
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Analysis Completed", 
-								MessageBox.Icon.INFO, 
-								"Analysis you submitted is now completed. " +
-										"Click on the node to see the results",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show(new MessageBox.EventListener() {
-							private static final long serialVersionUID = 1L;
-							@Override
-							public void buttonClicked(ButtonType buttonType) {    	
-								if(buttonType == ButtonType.OK) {
-									NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-									GeworkbenchRoot.getBlackboard().fire(resultEvent);
-								}
-							}
-						});	
-					}
-					pusher.push();
-				}
-			};
-			analysisThread.start();
-		}
-	}
-
-	 
 	private TabSheet buildAnnotationTabSheet() {
 		HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
 		dLayout.setSplitPosition(60);
