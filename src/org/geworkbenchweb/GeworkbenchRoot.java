@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
@@ -18,13 +21,14 @@ import org.vaadin.artur.icepush.ICEPush;
 import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
+import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Window;
 
 /**
  * This is the application entry point.
  * @author Nikhil Reddy
  */
-public class GeworkbenchRoot extends Application implements TransactionListener {
+public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
 	
 	private static final long serialVersionUID = 6853924772669700361L;
 	
@@ -177,4 +181,22 @@ public class GeworkbenchRoot extends Application implements TransactionListener 
 		}
 		return pr;
 	}
+
+	@Override
+	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
+		if (request != null) {
+			String requestURL= request.getRequestURL().toString();
+			if (requestURL.endsWith("geworkbench")){
+				try{
+					//bug fix #3264
+					response.sendRedirect(requestURL+"/");
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+	 	}
+	}
+
+	@Override
+	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {}
 }
