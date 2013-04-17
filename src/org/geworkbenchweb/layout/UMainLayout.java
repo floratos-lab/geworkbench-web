@@ -1303,6 +1303,45 @@ public class UMainLayout extends VerticalLayout {
 		return tableData;
 	}
 
+	// this may need to be public if we don't use event listener to trigger it.
+	private void addResultSetNode(ResultSet res) {
+		navigationTree.setChildrenAllowed(res.getParent(), true);
+		navigationTree.addItem(res.getId());
+		navigationTree.getContainerProperty(res.getId(), "Name").setValue(res.getName());
+		navigationTree.getContainerProperty(res.getId(), "Type").setValue(res.getType());
+		if(res.getName().contains("Pending")) {
+			navigationTree.getContainerProperty(res.getId(), "Icon").setValue(pendingIcon);
+		} else {
+			try {
+				String type = res.getType();
+				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
+				navigationTree.getContainerProperty(res.getId(), "Icon").setValue(icon);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		navigationTree.setChildrenAllowed(res.getId(), false);
+		navigationTree.setParent(res.getId(), res.getParent());
+		if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId()); // FIXME if this is necessary, probably it is necessary for other result type too
+	}
+	
+	// this may need to be public if we don't use event listener to trigger it.
+	private void addDataSet(DataSet dS) {
+		String className = dS.getType();
+		navigationTree.addItem(dS.getId());
+		navigationTree.setChildrenAllowed(dS.getId(), false);
+		try {
+			ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
+			navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
+		navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
+		navigationTree.select(dS.getId());
+	}
+	
 	/**
 	 * Adds the node to the dataTree  
 	 */
@@ -1311,39 +1350,10 @@ public class UMainLayout extends VerticalLayout {
 		public void addNode(NodeAddEvent event) {	
 			if(event.getData() instanceof ResultSet ) {
 				ResultSet  res = (ResultSet) event.getData();
-				navigationTree.setChildrenAllowed(res.getParent(), true);
-				navigationTree.addItem(res.getId());
-				navigationTree.getContainerProperty(res.getId(), "Name").setValue(res.getName());
-				navigationTree.getContainerProperty(res.getId(), "Type").setValue(res.getType());
-				if(res.getName().contains("Pending")) {
-					navigationTree.getContainerProperty(res.getId(), "Icon").setValue(pendingIcon);
-				} else {
-					try {
-						String type = res.getType();
-						ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
-						navigationTree.getContainerProperty(res.getId(), "Icon").setValue(icon);
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-				}
-				navigationTree.setChildrenAllowed(res.getId(), false);
-				navigationTree.setParent(res.getId(), res.getParent());
-				if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId()); // FIXME if this is necessary, probably it is necessary for other result type too
+				addResultSetNode(res);
 			} else if(event.getData() instanceof DataSet) {
 				DataSet dS = (DataSet) event.getData();
-				String className = dS.getType();
-				navigationTree.addItem(dS.getId());
-				navigationTree.setChildrenAllowed(dS.getId(), false);
-				try {
-					ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
-					navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-
-				navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
-				navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
-				navigationTree.select(dS.getId());
+				addDataSet(dS);
 			}
 		}
 	}
