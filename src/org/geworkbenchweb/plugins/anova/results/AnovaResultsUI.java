@@ -59,10 +59,12 @@ public class AnovaResultsUI extends VerticalLayout {
 			}
 		};
 
+		 
 		dataTable.setContainerDataSource(getIndexedContainer());
 		dataTable.setSizeFull();
 		dataTable.setColumnCollapsingAllowed(true);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
+		 
 		
 		Button exportButton;
 		exportButton = new Button("Export", new ExportListener());
@@ -70,6 +72,8 @@ public class AnovaResultsUI extends VerticalLayout {
 		addComponent(exportButton);
 		addComponent(dataTable);
 		setExpandRatio(dataTable, 1);
+		
+		
 
 	}
 
