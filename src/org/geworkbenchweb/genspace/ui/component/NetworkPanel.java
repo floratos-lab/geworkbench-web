@@ -1,0 +1,250 @@
+package org.geworkbenchweb.genspace.ui.component;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.geworkbench.components.genspace.server.stubs.Network;
+import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.wrapper.UserWrapper;
+import org.vaadin.addon.borderlayout.BorderLayout;
+
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.Select;
+import com.vaadin.ui.VerticalLayout;
+
+public class NetworkPanel extends SocialPanel{
+	
+	private GenSpaceLogin login;
+	
+	private String title;
+	
+	private Panel networkPanel;
+	
+	private HorizontalLayout mainLayout;
+	
+	private VerticalLayout nwPresentationLayout;
+	
+	private VerticalLayout selectionLayout;
+	
+	private String selectTitle = "Join/Leave a network";
+	
+	private String go = "Go";
+	
+	private String leaveSNet = "Leave selected network";
+	
+	private String networkLabelName = "Moderated by ";
+	
+	private Select networkSelect;
+	
+	private Network selectedNet;
+	
+	private BeanItemContainer<UserNetwork> usrNetContainer = new BeanItemContainer<UserNetwork>(UserNetwork.class);
+	
+	private BeanItemContainer<Network> container = new BeanItemContainer<Network>(Network.class);
+		
+	private List<UserNetwork> cachedMyNetWorks;
+	
+	private List<Network> cachedAllNetWorks;
+	
+	private BorderLayout blLayout;
+	
+	public NetworkPanel(String panelTitle, GenSpaceLogin login) {
+		this.login = login;
+		
+		this.blLayout = new BorderLayout();
+		this.setCompositionRoot(blLayout);
+		this.title = panelTitle;
+		
+		/*this.networkPanel = new Panel(this.title);
+		this.networkPanel.setHeight("1000px");
+		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
+		this.cachedAllNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getAllNetworks();
+		this.createMainLayout();
+		this.networkPanel.addComponent(mainLayout);
+		this.blLayout.addComponent(networkPanel, BorderLayout.Constraint.CENTER);*/
+		this.updatePanel();
+	}
+	
+	public String getPanelTitle() {
+		return this.title;
+	}
+	
+	public void updatePanel() {
+		if (blLayout.getComponentCount() > 0) {
+			blLayout.removeAllComponents();
+		}
+		
+		this.networkPanel = new Panel(this.title);
+		this.networkPanel.setHeight("1000px");
+		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
+		this.cachedAllNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getAllNetworks();
+		this.createMainLayout();
+		this.networkPanel.addComponent(mainLayout);
+		this.blLayout.addComponent(networkPanel, BorderLayout.Constraint.CENTER);
+	}
+	
+	private void createMainLayout() {		
+		mainLayout = new HorizontalLayout();
+				
+		nwPresentationLayout = new VerticalLayout();
+				
+		if(this.usrNetContainer.size() > 0)
+			this.usrNetContainer.removeAllItems();
+		
+		if(this.container.size() > 0)
+			this.container.removeAllItems();
+		
+		Iterator<UserNetwork> unIT = this.cachedMyNetWorks.iterator();
+		UserNetwork tmpNet;
+		while(unIT.hasNext()) {
+			tmpNet = unIT.next();
+			System.out.println("User net: " + tmpNet.getNetwork().getName());
+			this.usrNetContainer.addBean(tmpNet);
+			addNetwork(tmpNet.getNetwork().getName(), new UserWrapper(tmpNet.getNetwork().getOwner(), this.login).getFullName());
+		}
+		
+		Iterator<Network> nIT = this.cachedAllNetWorks.iterator();
+		while(nIT.hasNext()) {
+			this.container.addBean(nIT.next());
+		}
+		
+		mainLayout.addComponent(nwPresentationLayout);
+		
+		Label emptyLabel = new Label();
+		emptyLabel.setWidth("40px");
+		mainLayout.addComponent(emptyLabel);
+		
+		selectionLayout = new VerticalLayout();
+		this.makeActionItems();
+		mainLayout.addComponent(selectionLayout);
+	}
+	
+	private void addNetwork(String netName, String usrName) {
+		if (netName == null || netName.isEmpty() || usrName == null || usrName.isEmpty()) {
+			return ;
+		}
+		Panel newPanel = new Panel(netName);
+		Label moderationInfo = new Label(this.networkLabelName + usrName);
+		newPanel.addComponent(moderationInfo);
+		this.nwPresentationLayout.addComponent(newPanel);
+		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
+	}
+	
+	private void elimNetwork(String networkName) {
+		if (networkName == null) {
+			return ;
+		}
+		
+		Iterator<Component> networkPanelIT = this.nwPresentationLayout.getComponentIterator();
+		Component tempPanel = null;
+		while(networkPanelIT.hasNext()) {
+			tempPanel = networkPanelIT.next();
+			if (tempPanel.getCaption().equals(networkName)) {
+				this.nwPresentationLayout.removeComponent(tempPanel);
+				this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
+				break;
+			}
+		}
+	}
+	
+	private void makeActionItems() {
+		if(networkSelect != null)
+			networkSelect = null;
+		
+		networkSelect = new Select(this.selectTitle, this.container);
+		networkSelect.setImmediate(true);
+		networkSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
+		networkSelect.setItemCaptionPropertyId("name");
+		networkSelect.addListener(new Property.ValueChangeListener(){
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent event){
+				selectedNet = (Network)event.getProperty().getValue();
+				System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
+			}
+		});
+		
+		//For testing purpose
+		/*this.addSelectionItem("Mike Test");
+		this.addSelectionItem("Mike Test2");*/
+		
+		/*Iterator<Network> netIT = this.cachedAllNetWorks.iterator();
+		while(netIT.hasNext()){
+			this.addSelectionItem(netIT.next());
+		}*/
+		
+		Button goButton = new Button(this.go);
+		goButton.setWidth("150px");
+		goButton.addListener(new Button.ClickListener(){
+			private static final long serialVersionUID = 1L;
+
+			public void buttonClick(ClickEvent event){
+					if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()){
+						if (isCachedMyNetWorks() == null) {						
+							NetConfirmWindow ncw = new NetConfirmWindow(selectedNet.getName());
+							getApplication().getMainWindow().addWindow(ncw);
+							
+							//Should wait for administrator's approval?
+							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
+							addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
+							//createMainLayout();
+						}
+					}
+			}
+		});
+		
+		Button leaveButton = new Button(this.leaveSNet);
+		leaveButton.addListener(new Button.ClickListener(){
+			private static final long serialVersionUID = 1L;
+						
+			public void buttonClick(ClickEvent event){
+				System.out.println("In leave: " + selectedNet.getName());
+				if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
+					System.out.println("selected network captured by the leave button: " + selectedNet.getName());
+					UserNetwork un = isCachedMyNetWorks();
+					if(un != null) {
+						System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
+						
+						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
+						elimNetwork(selectedNet.getName());
+						//createMainLayout();
+					}
+				}
+			}
+		});
+		leaveButton.setWidth("150px");
+		
+		this.selectionLayout.addComponent(networkSelect);
+		this.selectionLayout.addComponent(goButton);
+		this.selectionLayout.addComponent(leaveButton);
+	}
+	
+	private void addSelectionItem(Network select) {
+		/*Object itemID = networkSelect.addItem();
+		networkSelect.setItemCaption(itemID, select);
+		networkSelect.setValue(itemID);*/
+		networkSelect.addItem(select);
+		networkSelect.setItemCaption(select, select.getName());
+	}
+	
+	private UserNetwork isCachedMyNetWorks() {
+		if(this.selectedNet == null)
+			return null;
+		
+		for(UserNetwork un: cachedMyNetWorks) {
+			if(un.getNetwork().getName().equals(selectedNet.getName()))
+				return un;
+		}
+		return null;
+	}
+
+}
