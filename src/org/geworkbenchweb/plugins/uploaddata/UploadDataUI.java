@@ -70,6 +70,7 @@ public class UploadDataUI extends VerticalLayout {
 	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
 	private AnnotFileReceiver annotFileReceiver = 	new AnnotFileReceiver();
 	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
+	private Button uploadButton = new Button("Add to workspace");
 	
 	private File dataFile;
 	private File annotFile;
@@ -93,6 +94,7 @@ public class UploadDataUI extends VerticalLayout {
 				Object type = fileCombo.getValue();
 				if (type != null) {
 					Loader loader = (Loader) type;
+					uploadButton.setEnabled(false);
 					if (loader instanceof LoaderUsingAnnotation) {
 						getAnnotChoices();
 						annotChoices.setValue(Anno.NO);
@@ -122,7 +124,7 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadStarted(StartedEvent event) {
                 // This method gets called immediatedly after upload is started
             	uploadField.setVisible(false);
-                fileUploadStatus.setValue("Uploading file \"" + event.getFilename()
+                fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
             }
         });
@@ -134,6 +136,7 @@ public class UploadDataUI extends VerticalLayout {
                 // This method gets called when the upload finished successfully
                 fileUploadStatus.setValue(" The data file \"" + event.getFilename()
                         + "\" is selected");
+				uploadButton.setEnabled(true);
             }
         });
 
@@ -204,7 +207,7 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadStarted(StartedEvent event) {
                 // This method gets called immediatedly after upload is started
 				annotUploadField.setVisible(false);
-				annotUploadStatus.setValue("Uploading file \"" + event.getFilename()
+				annotUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
             }
         });
@@ -242,7 +245,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		setSpacing(true);
 		annotUploadField.setButtonCaption("Add Annotation File");
-		Button uploadButton = new Button("Upload");
+		
 		addComponent(fileUploadStatus);
 		addComponent(uploadField);
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
@@ -256,6 +259,7 @@ public class UploadDataUI extends VerticalLayout {
 		annoLayout.addComponent(uploadLayout);
 		addComponent(annoLayout);
 		addComponent(uploadButton);
+		uploadButton.setEnabled(false);
 		uploadButton.addListener(new UploadButtonListener());
 	}
 
