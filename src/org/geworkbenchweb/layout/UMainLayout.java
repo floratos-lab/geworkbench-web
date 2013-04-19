@@ -21,6 +21,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
+import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.DataTypeUI;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.pojos.Annotation;
@@ -147,6 +150,8 @@ public class UMainLayout extends VerticalLayout {
 	private Long selectedSubSetId;
 	
 	private String saveSetDir = System.getProperty("user.home") + "/temp/" + user.getUsername() + "/savedSet/";
+	
+	private GenspaceLogger genspaceLogger;
 
 	static private ThemeResource pendingIcon 	=	new ThemeResource("../custom/icons/pending.gif");
 	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
@@ -160,6 +165,10 @@ public class UMainLayout extends VerticalLayout {
 		NodeAddListener addNodeListener = new NodeAddListener();
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
 
+		/*Enable genspace logger in geWorkbench*/
+		genspaceLogger = new GenspaceLogger();
+		GeworkbenchRoot.getBlackboard().addListener(genspaceLogger);
+		
 		setSizeFull();
 		setImmediate(true);
 		
@@ -167,7 +176,7 @@ public class UMainLayout extends VerticalLayout {
 		addComponent(pusher);
 
 		HorizontalLayout topBar 		= 	new HorizontalLayout();
-		final UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView);
+		final UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView, genspaceLogger);
 		
 		addComponent(topBar);
 		topBar.setHeight("44px");
@@ -1497,6 +1506,10 @@ public class UMainLayout extends VerticalLayout {
 		data.addTab(infoSplit, "Data Information");
 		data.addTab(dLayout, "User Comments");	
 		return data;
+	}
+	
+	public GenspaceLogger getGenspaceLogger() {
+		return this.genspaceLogger;
 	}
 }
 

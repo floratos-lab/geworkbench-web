@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -33,9 +36,12 @@ public class UMainToolBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
 	private final VisualPluginView pluginView;
+	private GenspaceLogger genSpaceLogger;
 
-	public UMainToolBar(final VisualPluginView pluginView) {
+	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
+		/*genSpaceLogger is for GenSpaceWindow*/
+		this.genSpaceLogger = genSpaceLogger;
 		
 		setImmediate(true);
 		setStyleName("transparent");
@@ -113,7 +119,7 @@ public class UMainToolBar extends MenuBar {
 					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 
 					    	mb.show();
-					    	getApplication().getMainWindow().setContent(new UMainLayout());					    	
+					    	getApplication().getMainWindow().setContent(new UMainLayout());				    	
 
 					    } catch(Exception e) {
 					    	e.printStackTrace();
@@ -228,6 +234,19 @@ public class UMainToolBar extends MenuBar {
 		});*/
 		
 		this.addItem("Account", null);
+		
+		/* Add an entry to genSpace */
+		this.addItem("genSpace", new Command() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
+				genSpaceWindow.setWidth("70%");
+				genSpaceWindow.setHeight("70%");
+				getApplication().getMainWindow().addWindow(genSpaceWindow);
+			}
+		});
 		
 		this.addItem("Logout", new Command() {
 
