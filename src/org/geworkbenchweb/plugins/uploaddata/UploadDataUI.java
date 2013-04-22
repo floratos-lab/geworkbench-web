@@ -30,6 +30,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Upload;
@@ -66,15 +67,21 @@ public class UploadDataUI extends VerticalLayout {
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
 	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver();
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
+    private HorizontalLayout pLayout		=	new HorizontalLayout();
+    private ProgressIndicator pIndicator	=	new ProgressIndicator();
 	
 	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
 	private AnnotFileReceiver annotFileReceiver = 	new AnnotFileReceiver();
 	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
+    private HorizontalLayout annotPLayout		=	new HorizontalLayout();
+    private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
+
 	private Button uploadButton = new Button("Add to workspace");
 	
 	private File dataFile;
 	private File annotFile;
 	private static final String tempDir = System.getProperty("user.home") + "/temp/";
+	private static final String dataDir = "/data/";
 	
 	public UploadDataUI() {
 
@@ -126,8 +133,20 @@ public class UploadDataUI extends VerticalLayout {
             	uploadField.setVisible(false);
                 fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
+                pLayout.setVisible(true);
+                pIndicator.setValue(0f);
+                pIndicator.setPollingInterval(500);
+                uploadButton.setEnabled(false);
             }
         });
+
+        uploadField.addListener(new Upload.ProgressListener(){	
+        	private static final long serialVersionUID = 1L;
+            public void updateProgress(final long readBytes,
+                    final long contentLength) {
+                pIndicator.setValue(new Float(readBytes / (float) contentLength));
+            }
+		});
 
         uploadField.addListener(new Upload.SucceededListener() {
 			private static final long serialVersionUID = 1L;
@@ -145,7 +164,14 @@ public class UploadDataUI extends VerticalLayout {
 
 			public void uploadFailed(FailedEvent event) {
                 // This method gets called when the upload failed
-                fileUploadStatus.setValue("Uploading interrupted");
+                float v = 100 * (Float)(pIndicator.getValue());
+                fileUploadStatus.setValue("Upload interrupted at " + Math.round(v) + "%");
+
+                if (dataFile != null){ 
+                	if(!dataFile.delete())
+                		log.warn("problem in deleting " + dataFile);
+                	dataFile = null;
+				}
             }
         });
 
@@ -155,11 +181,26 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadFinished(FinishedEvent event) {
                 // This method gets called always when the upload finished,
                 // either succeeding or failing
+				pLayout.setVisible(false);
                 uploadField.setVisible(true);
                 uploadField.setCaption("Select different file");
             }
         });
 		
+        Button cancelUpload = new Button("Cancel");
+        cancelUpload.setStyleName("small");
+        cancelUpload.addListener(new Button.ClickListener() {
+        	private static final long serialVersionUID = 1L;
+            public void buttonClick(ClickEvent event) {
+                uploadField.interruptUpload();
+            }
+        });
+		
+        pLayout.setSpacing(true);
+        pLayout.setVisible(false);
+        pLayout.addComponent(pIndicator);
+        pLayout.addComponent(cancelUpload);
+
 		annotChoices = new Tree("Choose annotation");
 		annotChoices.setNullSelectionAllowed(false);
 		annotChoices.setWidth(220, 0);
@@ -209,8 +250,19 @@ public class UploadDataUI extends VerticalLayout {
 				annotUploadField.setVisible(false);
 				annotUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
+				annotPLayout.setVisible(true);
+                annotPIndicator.setValue(0f);
+                annotPIndicator.setPollingInterval(500);
             }
         });
+
+        annotUploadField.addListener(new Upload.ProgressListener(){	
+        	private static final long serialVersionUID = 1L;
+            public void updateProgress(final long readBytes,
+                    final long contentLength) {
+                annotPIndicator.setValue(new Float(readBytes / (float) contentLength));
+            }
+		});
 
 		annotUploadField.addListener(new Upload.SucceededListener() {
 			private static final long serialVersionUID = 1L;
@@ -227,7 +279,14 @@ public class UploadDataUI extends VerticalLayout {
 
 			public void uploadFailed(FailedEvent event) {
                 // This method gets called when the upload failed
-				annotUploadStatus.setValue("Uploading interrupted");
+				float v = 100 * (Float)(annotPIndicator.getValue());
+                annotUploadStatus.setValue("Upload interrupted at " + Math.round(v) + "%");
+
+                if (annotFile != null){ 
+                	if(!annotFile.delete())
+                		log.warn("problem in deleting " + annotFile);
+                	annotFile = null;
+				}
             }
         });
 
@@ -237,17 +296,31 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadFinished(FinishedEvent event) {
                 // This method gets called always when the upload finished,
                 // either succeeding or failing
+				annotPLayout.setVisible(false);
 				annotUploadField.setVisible(true);
 				annotUploadField.setCaption("Select different file");
             }
         });
 		
+		Button annotCancelUpload = new Button("Cancel");
+		annotCancelUpload.setStyleName("small");
+        annotCancelUpload.addListener(new Button.ClickListener() {
+        	private static final long serialVersionUID = 1L;
+            public void buttonClick(ClickEvent event) {
+                annotUploadField.interruptUpload();
+            }
+        });
+		
+        annotPLayout.setSpacing(true);
+        annotPLayout.setVisible(false);
+        annotPLayout.addComponent(annotPIndicator);
+        annotPLayout.addComponent(annotCancelUpload);
 
 		setSpacing(true);
-		annotUploadField.setButtonCaption("Add Annotation File");
 		
 		addComponent(fileUploadStatus);
 		addComponent(uploadField);
+		addComponent(pLayout);
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
 		HorizontalLayout annoLayout = new HorizontalLayout();
 		annoLayout.addComponent(annotChoices);
@@ -256,6 +329,7 @@ public class UploadDataUI extends VerticalLayout {
 		uploadLayout.addComponent(annotTypes);
 		uploadLayout.addComponent(annotUploadStatus);
 		uploadLayout.addComponent(annotUploadField);
+		uploadLayout.addComponent(annotPLayout);
 		annoLayout.addComponent(uploadLayout);
 		addComponent(annoLayout);
 		addComponent(uploadButton);
@@ -447,7 +521,10 @@ public class UploadDataUI extends VerticalLayout {
             fileName = filename;
             mtype = mimetype;
             FileOutputStream fos = null; // Output stream to write to
-            dataFile = new File(tempDir + filename);
+            String dir = tempDir + SessionHandler.get().getUsername() + dataDir;
+			if (!new File(dir).exists())
+				new File(dir).mkdirs();
+			dataFile = new File(dir, fileName);
             try {
                 // Open the file for writing.
                 fos = new FileOutputStream(dataFile);
