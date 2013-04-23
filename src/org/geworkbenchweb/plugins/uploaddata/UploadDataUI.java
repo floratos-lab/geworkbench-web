@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
 import org.geworkbenchweb.dataset.Loader;
 import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
+import org.geworkbenchweb.layout.VisualPluginView;
 import org.geworkbenchweb.pojos.Annotation;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -28,9 +30,11 @@ import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Upload;
@@ -43,6 +47,7 @@ import com.vaadin.ui.VerticalLayout;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
+@SuppressWarnings("deprecation")
 public class UploadDataUI extends VerticalLayout {
 
 	private static Log log = LogFactory.getLog(UploadDataUI.class);
@@ -77,6 +82,7 @@ public class UploadDataUI extends VerticalLayout {
     private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
 
 	private Button uploadButton = new Button("Add to workspace");
+	private Button cancelButton = new Button("Cancel");
 	
 	private File dataFile;
 	private File annotFile;
@@ -129,6 +135,8 @@ public class UploadDataUI extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			public void uploadStarted(StartedEvent event) {
+				enableUMainLayout(false);
+				
                 // This method gets called immediatedly after upload is started
             	uploadField.setVisible(false);
                 fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
@@ -332,11 +340,41 @@ public class UploadDataUI extends VerticalLayout {
 		uploadLayout.addComponent(annotPLayout);
 		annoLayout.addComponent(uploadLayout);
 		addComponent(annoLayout);
-		addComponent(uploadButton);
 		uploadButton.setEnabled(false);
 		uploadButton.addListener(new UploadButtonListener());
+		HorizontalLayout btnLayout = new HorizontalLayout();
+		btnLayout.setSpacing(true);
+		btnLayout.addComponent(uploadButton);
+		btnLayout.addComponent(cancelButton);
+		cancelButton.addListener(new Button.ClickListener(){
+			private static final long serialVersionUID = 1L;
+			public void buttonClick(ClickEvent event) {
+				VisualPluginView pluginView = enableUMainLayout(true);
+				pluginView.setContent(new UploadDataUI(), "Upload Data", "Please use this interface to upload data");
+			}
+		});
+		addComponent(btnLayout);
 	}
 
+	/**
+	 * enable or disable components in UMainLayout except pluginView
+	 * @param enabled
+	 * @return pluginView
+	 */
+	private VisualPluginView enableUMainLayout(boolean enabled){
+		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
+		VisualPluginView pluginView = null;
+		while(it.hasNext()){
+			Component c = it.next();
+			if(c instanceof SplitPanel){
+				SplitPanel sp = (SplitPanel)c;
+				sp.getFirstComponent().setEnabled(enabled);
+				pluginView = (VisualPluginView)sp.getSecondComponent(); 
+			}else c.setEnabled(enabled);
+		}
+		return pluginView;
+	}
+	
 	private void getAnnotChoices(){
 		annotChoices.removeAllItems();
 		for (Anno anno : Anno.values()){
@@ -385,6 +423,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		@Override
 		public void buttonClick(ClickEvent event) {
+			enableUMainLayout(true);
 			
 			Loader loader 				= 	(Loader) fileCombo.getValue();
 			Object choice 				= 	annotChoices.getValue();
