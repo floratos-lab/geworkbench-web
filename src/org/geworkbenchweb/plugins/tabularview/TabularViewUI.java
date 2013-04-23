@@ -300,7 +300,7 @@ public class TabularViewUI extends VerticalLayout {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				
-				Window filterWindow = new FilterWindow(getTabularViewUI(), displayTable,  tabViewPreferences, dataSetId, userId);
+				Window filterWindow = new FilterWindow(getTabularViewUI(), displayTable,  tabViewPreferences, dataSetId);
 				getApplication().getMainWindow().addWindow(filterWindow); 		
 			 
 			}
@@ -349,9 +349,7 @@ public class TabularViewUI extends VerticalLayout {
 				
 				search.addListener(new TextChangeListener() {
 					private static final long serialVersionUID = 1048639156493298177L;
-
-					//Filter filter = null;
-
+ 
 					public void textChange(TextChangeEvent event) { 
 						 currentPageIndex = 1;
 						 displayTable.setContainerDataSource(tabularView(currentPageIndex, Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences,event.getText()));
@@ -386,7 +384,7 @@ public class TabularViewUI extends VerticalLayout {
 			public void menuSelected(MenuItem selectedItem) {			 
 				searchStr = null;
 			    currentPageIndex = 1;
-				displayTable.setContainerDataSource(tabularView(currentPageIndex, Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences,searchStr));
+				displayTable.setContainerDataSource(tabularView(currentPageIndex, Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
 				 setPaginationBar();
 				selectedItem.setEnabled(false);
 			}
@@ -714,7 +712,12 @@ public class TabularViewUI extends VerticalLayout {
 		this.currentPageIndex = currentPageIndex;
 	}
 	
+	long getUserId()
+	{
+		return userId;
+	}
 	
+	 
 	
 	 
 }

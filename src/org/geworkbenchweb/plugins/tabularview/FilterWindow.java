@@ -24,12 +24,10 @@ import com.vaadin.ui.Button.ClickEvent;
 public class FilterWindow extends Window {
 	 
 	private static final long serialVersionUID = 5480097015206241444L;
-	private TabularViewUI parent;
-	
-    public FilterWindow(TabularViewUI parentUi,  final TableView table,  final TabularViewPreferences tabViewPreferences, final long dataSetId, final long userId)
+	 
+    public FilterWindow(final TabularViewUI parent,  final TableView table,  final TabularViewPreferences tabViewPreferences, final long dataSetId)
     {
-    	
-    	this.parent  = parentUi;
+     
     	final GridLayout gridLayout1 = new GridLayout(2, 4);			
 		
 		gridLayout1.setSpacing(true);
@@ -169,19 +167,19 @@ public class FilterWindow extends Window {
 					 FilterInfo markerFilter = new FilterInfo(null, getSelectedSet(value));
 					 
 					 
-					 Preference p = PreferenceOperations.getData(dataSetId, Constants.MARKER_FILTER_CONTROL, userId);
+					 Preference p = PreferenceOperations.getData(dataSetId, Constants.MARKER_FILTER_CONTROL, parent.getUserId());
 					 if (p != null)
 						PreferenceOperations.setValue(markerFilter, p);
 					 else
-						PreferenceOperations.storeData(markerFilter, FilterInfo.class.getName(), Constants.MARKER_FILTER_CONTROL, dataSetId, userId);
+						PreferenceOperations.storeData(markerFilter, FilterInfo.class.getName(), Constants.MARKER_FILTER_CONTROL, dataSetId, parent.getUserId());
 					 
 					 value = arraySetSelect.getValue().toString();	
 					 FilterInfo arrayFilter = new FilterInfo((Context)arrayContextCB.getValue(), getSelectedSet(value));
-					 p = PreferenceOperations.getData(dataSetId, Constants.ARRAY_FILTER_CONTROL, userId);
+					 p = PreferenceOperations.getData(dataSetId, Constants.ARRAY_FILTER_CONTROL, parent.getUserId());
 					 if (p != null)
 						PreferenceOperations.setValue(arrayFilter, p);
 					 else
-						PreferenceOperations.storeData(arrayFilter, FilterInfo.class.getName(), Constants.ARRAY_FILTER_CONTROL, dataSetId, userId);					 
+						PreferenceOperations.storeData(arrayFilter, FilterInfo.class.getName(), Constants.ARRAY_FILTER_CONTROL, dataSetId, parent.getUserId());					 
 					 table.setContainerDataSource(parent.tabularView(1, Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
 					
 					 parent.setPaginationBar();
