@@ -2,6 +2,8 @@ package org.geworkbenchweb.plugins.tabularview;
 
 public class Constants {
 	 
+	 
+	public final static int DEFAULT_PAGE_SIZE = 50;		
 	public static final String MARKER_HEADER = "Marker";
 	public static final String GENE_SYMBOL_HEADER = "Gene Symbol";
 	public static final String ANNOTATION_HEADER = "Annotation";
