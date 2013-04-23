@@ -1,38 +1,21 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
-import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
-import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
-import org.geworkbenchweb.plugins.Analysis;
-import org.geworkbenchweb.plugins.AnalysisUI;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.Roster;
 
 import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTab{
 	
