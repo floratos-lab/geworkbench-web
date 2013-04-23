@@ -19,7 +19,7 @@ import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.utils.PreferenceOperations;
 
  
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.utils.UserDirUtils; 
 import org.geworkbenchweb.utils.TableView;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 
@@ -29,18 +29,18 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
  
  
-import com.vaadin.data.Container.Filter; 
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.util.filter.Or;
-import com.vaadin.data.util.filter.SimpleStringFilter;
- 
+import com.vaadin.data.Property.ValueChangeEvent; 
+import com.vaadin.data.util.IndexedContainer; 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
@@ -66,30 +66,30 @@ public class TabularViewUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	 
+	private final static int DEFAULT_PAGE_SIZE = 50;	
+	
 	private PaginationBarListener paginationBarListener;
 	private int paginationBarIndex;
 	private int totalPages;
 	private int currentPageIndex;
  
 	private DSMicroarraySet maSet;
-	private int pageSize = 50;
-	
-	private TabularViewPreferences tabViewPreferences = new TabularViewPreferences();
+	 
 	private Long userId;
-	private long currentContextId;
-	private int precisonNumber =2;
+	 
+	private int precisonNumber = 2;
+	
+	private String searchStr;
 	 
 	public TabularViewUI(final Long dataSetId) {
 		setSizeFull();
 		setImmediate(true);
 		
 		userId = SessionHandler.get().getId();
-		Context context = SubSetOperations.getCurrentContext(dataSetId);
-		if (context != null)
-		     currentContextId = context.getId();
+		 
+		final TabularViewPreferences tabViewPreferences = new TabularViewPreferences();
 		
-		
-		final TableView table = new TableView(){
+		final TableView displayTable = new TableView(){
   
 			private static final long serialVersionUID = 5268979064889636700L;
 
@@ -105,6 +105,7 @@ public class TabularViewUI extends VerticalLayout {
 				return super.formatPropertyValue(rowId, colId, property);
 			}
 		};
+		final TableView exportTempTable = new TableView();
 
 		final MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
@@ -159,7 +160,7 @@ public class TabularViewUI extends VerticalLayout {
 							else
 								PreferenceOperations.storeData(value, Integer.class.getName(), Constants.MARKER_DISPLAY_CONTROL, null, userId);
 							 
-							table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));
+							displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));							 
 							mainWindow.removeWindow(displayPrefWindow);
 						} catch(Exception e) {
 							e.printStackTrace();
@@ -219,7 +220,7 @@ public class TabularViewUI extends VerticalLayout {
 							else
 								PreferenceOperations.storeData(value, Integer.class.getName(), Constants.ANNOTATION_DISPLAY_CONTROL, null, userId);
 							 
-							table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));
+							displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));						 
 							mainWindow.removeWindow(displayPrefWindow);
 						} catch(Exception e) {
 							e.printStackTrace();
@@ -272,8 +273,11 @@ public class TabularViewUI extends VerticalLayout {
 								PreferenceOperations.setValue(new Integer(value.toString().trim()), p);
 							else
 								PreferenceOperations.storeData(new Integer(value.toString().trim()), Integer.class.getName(), Constants.NUMBER_PRECISION_CONTROL, null, userId);
-							 
-							table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));							
+							
+							
+							displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
+							
+							
 							mainWindow.removeWindow(displayPrefWindow);
 						}catch(NumberFormatException nfe)
 						{
@@ -303,21 +307,86 @@ public class TabularViewUI extends VerticalLayout {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				final Window filterWindow = new Window();
+				final GridLayout gridLayout1 = new GridLayout(2, 4);			
+				
+				gridLayout1.setSpacing(true);
+				gridLayout1.setImmediate(true);
+				
 				filterWindow.setModal(true);
-				filterWindow.setClosable(true);
-				((AbstractOrderedLayout) filterWindow.getLayout()).setSpacing(true);
-				filterWindow.setWidth("420px");
+				filterWindow.setClosable(true);				 ;
+				filterWindow.setWidth("500px");
 				filterWindow.setHeight("320px");
 				filterWindow.setResizable(false);
 				filterWindow.setCaption("Filter Setting");
 				filterWindow.setImmediate(true);
+				
+				Label spaceLabel = new Label("                       ");
 
+				final ComboBox markerContextCB =  new ComboBox("Marker Context");	
+				markerContextCB.setWidth("160px");
+				markerContextCB.setImmediate(true);	
+				markerContextCB.setNullSelectionAllowed(false);
+				markerContextCB.addItem("default");	
+				markerContextCB.setValue("default");
+				
 				final ListSelect markerSetSelect = new ListSelect("Select Marker Sets:");
-				final ListSelect arraySetSelect = new ListSelect("Select Array Sets:");
 				markerSetSelect.setMultiSelect(true);
 				markerSetSelect.setRows(5);
 				markerSetSelect.setColumns(15);
 				markerSetSelect.setImmediate(true);
+				
+				final ComboBox arrayContextCB =  new ComboBox("Array Context");
+				arrayContextCB.setWidth("160px");
+				arrayContextCB.setImmediate(true);	
+				arrayContextCB.setNullSelectionAllowed(false);
+				
+				final ListSelect arraySetSelect = new ListSelect("Select Array Sets:");
+				arraySetSelect.setMultiSelect(true);
+				arraySetSelect.setRows(5);
+				arraySetSelect.setColumns(15);
+				arraySetSelect.setImmediate(true);
+			 
+			
+				arrayContextCB.addListener(new Property.ValueChangeListener() {
+					private static final long serialVersionUID = 5667499645414167736L;
+					public void valueChange(ValueChangeEvent event) {						 
+					 
+						Object val = arrayContextCB.getValue();
+						if (val != null){
+							Context context = (Context)val;							 
+							List<SubSet> arraySubSets = SubSetOperations.getArraySetsForContext(context);
+							arraySetSelect.removeAllItems();
+							arraySetSelect.addItem("All Arrays");
+							for (int m = 0; m < (arraySubSets).size(); m++) {					 
+								arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
+								arraySetSelect.setItemCaption(
+										((SubSet) arraySubSets.get(m)).getId(),
+										((SubSet) arraySubSets.get(m)).getName());
+								 
+							}
+						}
+					}
+				});
+
+				
+				
+				Context selectedtContext = null;
+				if (tabViewPreferences.getMarkerFilter() != null)
+					selectedtContext = tabViewPreferences.getArrayFilter().getContext();
+				if (selectedtContext == null)
+					selectedtContext = SubSetOperations.getCurrentContext(dataSetId);
+				List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);		 
+				for (Context c : contexts){
+					arrayContextCB.addItem(c);	
+					if (selectedtContext!=null && c.getId().longValue()==selectedtContext.getId().longValue()) 
+						arrayContextCB.setValue(c);
+				}
+				
+				arrayContextCB.setValue(selectedtContext);
+				
+				
+				
+			
 				
 				List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
 
@@ -348,26 +417,12 @@ public class TabularViewUI extends VerticalLayout {
 				}
 			 
 				
-				
-				arraySetSelect.setMultiSelect(true);
-				arraySetSelect.setRows(5);
-				arraySetSelect.setColumns(15);
-				arraySetSelect.setImmediate(true);
-
-				List<?> arraySubSets = SubSetOperations.getArraySetsForCurrentContext(dataSetId);
-				arraySetSelect.removeAllItems();
-				arraySetSelect.addItem("All Arrays");
-				for (int m = 0; m < (arraySubSets).size(); m++) {					 
-					arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
-					arraySetSelect.setItemCaption(
-							((SubSet) arraySubSets.get(m)).getId(),
-							((SubSet) arraySubSets.get(m)).getName());
-				}
+			 
 				 
 				String[] selectedArraySet = null;
 				if (tabViewPreferences.getArrayFilter() != null)
 					selectedArraySet= tabViewPreferences.getArrayFilter().getSelectedSet();
-				if (selectedArraySet != null && selectedArraySet.length > 0 && tabViewPreferences.getArrayFilter().getContextId() == currentContextId)
+				if (selectedArraySet != null && selectedArraySet.length > 0)
 				{
 					int startIndex =0;
 					if (selectedArraySet[0].equalsIgnoreCase("All Arrays"))
@@ -390,7 +445,7 @@ public class TabularViewUI extends VerticalLayout {
 					public void buttonClick(ClickEvent event) {
 						try {							 
 							 String value = markerSetSelect.getValue().toString();						   
-							 FilterInfo markerFilter = new FilterInfo(currentContextId, getSelectedSet(value));
+							 FilterInfo markerFilter = new FilterInfo(null, getSelectedSet(value));
 							 
 							 
 							 Preference p = PreferenceOperations.getData(dataSetId, Constants.MARKER_FILTER_CONTROL, userId);
@@ -400,14 +455,14 @@ public class TabularViewUI extends VerticalLayout {
 								PreferenceOperations.storeData(markerFilter, FilterInfo.class.getName(), Constants.MARKER_FILTER_CONTROL, dataSetId, userId);
 							 
 							 value = arraySetSelect.getValue().toString();	
-							 FilterInfo arrayFilter = new FilterInfo(currentContextId, getSelectedSet(value));
+							 FilterInfo arrayFilter = new FilterInfo((Context)arrayContextCB.getValue(), getSelectedSet(value));
 							 p = PreferenceOperations.getData(dataSetId, Constants.ARRAY_FILTER_CONTROL, userId);
 							 if (p != null)
 								PreferenceOperations.setValue(arrayFilter, p);
 							 else
 								PreferenceOperations.storeData(arrayFilter, FilterInfo.class.getName(), Constants.ARRAY_FILTER_CONTROL, dataSetId, userId);
 							 currentPageIndex = 1;
-							 table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));
+							 displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
 							 setPaginationBar();
 							 mainWindow.removeWindow(filterWindow);
 							 
@@ -417,9 +472,13 @@ public class TabularViewUI extends VerticalLayout {
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
-				filterWindow.addComponent(markerSetSelect);
-				filterWindow.addComponent(arraySetSelect);
-				filterWindow.addComponent(submit);
+				gridLayout1.addComponent(markerContextCB, 0, 0);
+				gridLayout1.addComponent(arrayContextCB, 1, 0);
+				gridLayout1.addComponent(markerSetSelect, 0 , 1);
+				gridLayout1.addComponent(arraySetSelect, 1, 1);
+				gridLayout1.addComponent(spaceLabel, 0, 2);	
+				gridLayout1.addComponent(submit, 0, 3);				 
+				filterWindow.addComponent(gridLayout1);
 				mainWindow.addWindow(filterWindow);
 			}
 		});
@@ -432,13 +491,15 @@ public class TabularViewUI extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				table.csvExport("TabularViewTable.csv");				 
+			public void menuSelected(MenuItem selectedItem) {					 
+				exportTempTable.setContainerDataSource(tabularView(1, maSet.getMarkers().size(), dataSetId, tabViewPreferences, searchStr));					 
+			    exportTempTable.csvExport("tabularViewTable.csv");
+				exportTempTable.removeAllItems();				 
 			}
 		});
 		exportItem.setStyleName("plugin");		
 		
-		MenuBar.MenuItem  searchItem = toolBar.addItem("search", new Command(){
+		MenuBar.MenuItem  searchItem = toolBar.addItem("Search", new Command(){
 
 			private static final long serialVersionUID = 1L;
 
@@ -466,23 +527,23 @@ public class TabularViewUI extends VerticalLayout {
 				search.addListener(new TextChangeListener() {
 					private static final long serialVersionUID = 1048639156493298177L;
 
-					Filter filter = null;
+					//Filter filter = null;
 
-					public void textChange(TextChangeEvent event) {
-
-						IndexedContainer hc = (IndexedContainer)table.getContainerDataSource();
-						hc.removeAllContainerFilters();
-
-					 
-						filter = new Or(new SimpleStringFilter(Constants.MARKER_HEADER, event.getText(),
-								true, false), new SimpleStringFilter(Constants.GENE_SYMBOL_HEADER, event.getText(),
-										true, false));
-
-						hc.addContainerFilter(filter);
-						if (event.getText() != null && event.getText().length() > 0 )					 
-							toolBar.getItems().get(4).setEnabled(true);					 
-						else
-							toolBar.getItems().get(4).setEnabled(false);	
+					public void textChange(TextChangeEvent event) { 
+						 currentPageIndex = 1;
+						 displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences,event.getText()));
+						 setPaginationBar();	
+						 
+						 if (event.getText() != null && event.getText().length() > 0 )					 
+						 {
+							 toolBar.getItems().get(4).setEnabled(true);
+							 searchStr = event.getText();
+						 }
+						  else
+						  {
+							  toolBar.getItems().get(4).setEnabled(false);	
+							  searchStr = null;
+						  }
  
 					}
 				});
@@ -500,8 +561,11 @@ public class TabularViewUI extends VerticalLayout {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				IndexedContainer hc = (IndexedContainer)table.getContainerDataSource();
-				hc.removeAllContainerFilters();
+				IndexedContainer hc = (IndexedContainer)displayTable.getContainerDataSource();
+				searchStr = null;
+			    currentPageIndex = 1;
+				displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences,searchStr));
+				 setPaginationBar();
 				selectedItem.setEnabled(false);
 			}
 		});
@@ -509,6 +573,7 @@ public class TabularViewUI extends VerticalLayout {
 		
 		clearItem.setStyleName("plugin");
 		clearItem.setEnabled(false); 
+		searchStr = null;
 		 
 		
 		MenuBar.MenuItem  resetItem = toolBar.addItem("Reset", new Command(){
@@ -519,9 +584,10 @@ public class TabularViewUI extends VerticalLayout {
 			public void menuSelected(MenuItem selectedItem) {
 				PreferenceOperations.deleteAllPreferences(dataSetId, userId, "TabularViewUI%");
 				currentPageIndex = 1;
-				table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));
+				displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
 				setPaginationBar();
 				clearItem.setEnabled(false);
+				searchStr = null;
 			}
 		});
 		
@@ -531,26 +597,28 @@ public class TabularViewUI extends VerticalLayout {
 		
 
 	
-		table.setSizeFull();
-		table.setImmediate(true);
-		table.setStyleName(Reindeer.TABLE_STRONG);
+		displayTable.setSizeFull();
+		displayTable.setImmediate(true);
+		displayTable.setStyleName(Reindeer.TABLE_STRONG);
 
 		DataSet data 	= 	DataSetOperations.getDataSet(dataSetId);
 		maSet 			= 	(DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(data.getId()));
 
 		addComponent(toolBar);
-		addComponent(table);
-		setExpandRatio(table, 1);		
-		currentPageIndex = 1;
-		table.setContainerDataSource(tabularView(currentPageIndex, dataSetId));
-		table.setColumnWidth(Constants.MARKER_HEADER, 150);
+		addComponent(displayTable);
+		setExpandRatio(displayTable, 1);	
+		addComponent(exportTempTable);
+		exportTempTable.setVisible(false);
+		currentPageIndex = 1;		 
+		displayTable.setContainerDataSource(tabularView(currentPageIndex, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));	
+		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150);
 		
 
 	    
 		paginationBarListener=new PaginationBarListener() {
 			@Override
 			public void pageRequested(int pageIndexRequested) {
-				table.setContainerDataSource(tabularView(pageIndexRequested, dataSetId));
+				displayTable.setContainerDataSource(tabularView(pageIndexRequested, DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
 				currentPageIndex = pageIndexRequested;
 			}
 		};	
@@ -559,21 +627,22 @@ public class TabularViewUI extends VerticalLayout {
 		 
 		
 	}
-
+	
+	
 	/**
 	 * Method is called everytime user wants to to see more items in the table.
 	 * Implements lazy loading principle.
 	 * @param pageIndex
 	 * @return IndexedContainer with Table Items
 	 */
-	private IndexedContainer tabularView(int pageIndex, Long dataSetId) {
+	private IndexedContainer tabularView(int pageIndex, int pageSize, Long dataSetId, TabularViewPreferences tabViewPreferences, String search) {
 
-		getTabViewPreferences(dataSetId);		
+		getTabViewPreferences(dataSetId, tabViewPreferences);		
 		IndexedContainer dataIn = new IndexedContainer();		
-		List<String> colHeaders = getTabViewColHeaders();		 
-		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers();
+		List<String> colHeaders = getTabViewColHeaders(tabViewPreferences);		 
+		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers(search, tabViewPreferences);
 		
-	    int displayPrefColunmNum = getDisplayPrefColunmNum();
+	    int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
 	    precisonNumber = tabViewPreferences.getNumberPrecisionControl();
 		
 	    totalPages = (int) Math.ceil((double) selectedMarkers.size()/(double) pageSize);
@@ -589,6 +658,8 @@ public class TabularViewUI extends VerticalLayout {
 				if (k < displayPrefColunmNum) {					 
 					dataIn.addContainerProperty(colHeaders.get(k), String.class,
 							null);
+					if (selectedMarkers.size() == 0)
+						continue;
 					if (colHeaders.get(k).equalsIgnoreCase(Constants.MARKER_HEADER))
 					     item.getItemProperty(colHeaders.get(k)).setValue(
 					    		 selectedMarkers.get(i-1).getLabel());
@@ -603,6 +674,8 @@ public class TabularViewUI extends VerticalLayout {
 				} else {					 
 					dataIn.addContainerProperty(colHeaders.get(k), Float.class,
 							null);
+					if (selectedMarkers.size() == 0)
+						continue;
 					item.getItemProperty(colHeaders.get(k)).setValue(
 							(float) maSet.get(colHeaders.get(k)).getMarkerValue(selectedMarkers.get(i-1).getSerial()).getValue());
 				}
@@ -613,8 +686,13 @@ public class TabularViewUI extends VerticalLayout {
 		return dataIn;
 	}
 	
+	private IndexedContainer tabularView(int pageIndex, int pageSize, Long dataSetId, TabularViewPreferences tabViewPreferences) {
+
+		   return  tabularView(pageIndex, pageSize, dataSetId, tabViewPreferences, null);  
+	}
 	
-	private void getTabViewPreferences(Long dataSetId)
+		
+	private void getTabViewPreferences(Long dataSetId, TabularViewPreferences tabViewPreferences)
 	{
 		
 		List<Preference> preferences = PreferenceOperations.getAllPreferences(dataSetId, userId, "TabularViewUI%");
@@ -644,16 +722,10 @@ public class TabularViewUI extends VerticalLayout {
 			{
 				if (p.getValue() != null)
 				{
-				   FilterInfo arrayFilter = (FilterInfo)(ObjectConversion.toObject(p.getValue()));				 
-				 
-				   if (arrayFilter != null && arrayFilter.getContextId() == currentContextId)
-					   tabViewPreferences.setArrayFilter(arrayFilter);
-		            else
-		            {
-		            	tabViewPreferences.setArrayFilter(null);
-		            	if (arrayFilter != null)
-		            	   PreferenceOperations.setValue(null, p);
-		            }
+				   FilterInfo arrayFilter = (FilterInfo)(ObjectConversion.toObject(p.getValue()));				  
+		           tabViewPreferences.setArrayFilter(arrayFilter);
+		            	 
+		           
 				}
 			}
 			 
@@ -662,7 +734,7 @@ public class TabularViewUI extends VerticalLayout {
 	}
 	
 	
-	private List<String> getTabViewColHeaders()
+	private List<String> getTabViewColHeaders(TabularViewPreferences tabViewPreferences)
 	{
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both.ordinal())
@@ -685,7 +757,7 @@ public class TabularViewUI extends VerticalLayout {
 		if (arrayFilter != null)
 			selectedArraySet = arrayFilter.getSelectedSet();
 		 
-		if (selectedArraySet == null || selectedArraySet[0].equalsIgnoreCase("All Arrays") || arrayFilter.getContextId() != currentContextId)
+		if (selectedArraySet == null || selectedArraySet[0].equalsIgnoreCase("All Arrays"))
 		{
 			 for (int i = 0; i < maSet.size(); i++)  
 				 colHeaders.add(maSet.get(i).getLabel());			
@@ -712,7 +784,7 @@ public class TabularViewUI extends VerticalLayout {
 	}
 	
 	
-	private int getDisplayPrefColunmNum()
+	private int getDisplayPrefColunmNum(TabularViewPreferences tabViewPreferences)
 	{
 		int count = 0;
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both.ordinal())
@@ -728,53 +800,85 @@ public class TabularViewUI extends VerticalLayout {
 		return count;
 		
 	}
-	
-	
-	private DSItemList<DSGeneMarker> getTabViewMarkers()
+	 
+	private DSItemList<DSGeneMarker> getTabViewMarkers(String search, TabularViewPreferences tabViewPreferences)
 	{		 
-		DSItemList<DSGeneMarker> selectedMarkers = null;
-		String[] selectedMarkerSet = null;
-		
+		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();;
+		String[] selectedMarkerSet = null;		
+		 
 		FilterInfo markerFilter = tabViewPreferences.getMarkerFilter();
 		if(markerFilter != null)
 		selectedMarkerSet = markerFilter.getSelectedSet();
-		
+		 
+		int markerDisplayControl = tabViewPreferences.getMarkerDisplayControl();
 		if (selectedMarkerSet != null && selectedMarkerSet.length >0 && (!selectedMarkerSet[0].equalsIgnoreCase("All Markers"))) {		 
-			selectedMarkers = new CSItemList<DSGeneMarker>();
+			
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				List<?> subSet = SubSetOperations.getMarkerSet(Long
 						.parseLong(selectedMarkerSet[i].trim()));
 				if (subSet == null ||  subSet.size() == 0)
 					continue;
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
-				for (int m = 0; m < positions.size(); m++) {
-					String temp = ((positions.get(m)).split("\\s+"))[0].trim();
-					DSGeneMarker marker = maSet.getMarkers().get(temp);
-					if (marker != null) 
-						selectedMarkers.add(marker);				 
-				}
-
+				 
+				    for (int m = 0; m < positions.size(); m++) {
+					      String temp = ((positions.get(m)).split("\\s+"))[0].trim();
+					      DSGeneMarker marker = maSet.getMarkers().get(temp);
+				       	  if (marker != null && isMatchSearch(marker, search, markerDisplayControl)) 
+					      {					       		 
+						     selectedMarkers.add(marker);				 
+					      }
+				    }
+			 
+			}
+		}else
+		{	 
+			for (int i=0; i<maSet.getMarkers().size(); i++)
+			{
+				DSGeneMarker marker = maSet.getMarkers().get(i);
+				if (isMatchSearch(marker, search, markerDisplayControl)) 			     				       		 
+				    selectedMarkers.add(marker);				 
+			      
 			}
 		}
-		
-		if (selectedMarkers == null || selectedMarkers.size() == 0)  
-			selectedMarkers = maSet.getMarkers();		
-		
 		
 		return selectedMarkers;
 		
 
 	} 
 	 
+	private boolean isMatchSearch ( DSGeneMarker marker , String search, int markerDisplayControl)
+	{
+		if (search == null || search.trim().length() == 0)
+		   return true;
+		   
+		boolean isMatch = false;	
+		search = search.toUpperCase();
+   		if (markerDisplayControl == Constants.MarkerDisplayControl.both.ordinal())
+		    {
+   		    if (marker.getLabel().toUpperCase().contains(search) || marker.getGeneName().toUpperCase().contains(search))
+		           isMatch = true;
+		    }
+		else if (markerDisplayControl == Constants.MarkerDisplayControl.marker.ordinal())
+		{
+			if (marker.getLabel().toUpperCase().contains(search))
+				isMatch = true;
+				  
+		}else
+		{
+			if (marker.getGeneName().toUpperCase().contains(search.trim().toUpperCase()))
+			      isMatch = true;
+	    }
+   		return isMatch;
+	}
 	
-	private String[] getSelectedSet(String temp)
+	private String[] getSelectedSet(String selectedList)
 	{
 		String[] selectedSet = null;
 		
 		 
-			if (!temp.equals("[]"))					 
-				selectedSet = temp.substring(1,
-						temp.length() - 1).split(",");	        
+			if (!selectedList.equals("[]"))					 
+				selectedSet = selectedList.substring(1,
+						selectedList.length() - 1).split(",");	        
 		 
 		
 		return selectedSet;
