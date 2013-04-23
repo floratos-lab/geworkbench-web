@@ -9,10 +9,10 @@ import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 @Entity
 @Table(name="preference")
-public class Preference extends AbstractPojo { 
- 
-	private static final long serialVersionUID = -9147722804345338953L;
-	 	 
+public class Preference extends AbstractPojo {  
+  
+	private static final long serialVersionUID = 748965788408502114L;
+
 	@Column(columnDefinition="BLOB")
 	private byte[] value; 	
 	 
