@@ -51,7 +51,7 @@ public class PluginRegistry {
 	
 	private Map<PluginEntry, AnalysisUI> analysisUIMap = new HashMap<PluginEntry, AnalysisUI>();
 	private Map<Class<? extends DSDataSet<?>>, ThemeResource> iconMap = new HashMap<Class<? extends DSDataSet<?>>, ThemeResource>();
-	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeUI>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeUI>>(); 
+	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<? extends DSDataSet<?>>, List<PluginEntry>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<PluginEntry>>();
 	
 	// TODO for now, let maintain a separate list for result type. this may not necessary eventually
@@ -191,7 +191,7 @@ public class PluginRegistry {
 	}
 
 	// clazz is a data type we support
-	public Class<? extends DataTypeUI> getDataUI(Class<?> clazz) {
+	public Class<? extends DataTypeMenuPage> getDataUI(Class<?> clazz) {
 		for(Class<? extends DSDataSet<?>> c : uiMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return uiMap.get(c);

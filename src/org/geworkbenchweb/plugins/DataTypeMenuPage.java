@@ -20,14 +20,14 @@ import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * UI for a data type.
+ * UI for a data type, a menu-like page.
  * 
  */
 public class DataTypeMenuPage extends VerticalLayout {
 
 	private static final long serialVersionUID = 1540643922901498218L;
 
-	protected final Long dataId; // this should be private once the visualization part of MicroarrayUI is also cleaned up.
+	private final Long dataId;
 	
 	private final String title;
 	
@@ -73,8 +73,8 @@ public class DataTypeMenuPage extends VerticalLayout {
 		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
 
 			try {
-				final Visualizer visualizer = (Visualizer) visualizerClass
-						.getConstructor(Long.class).newInstance(dataId);
+				final Visualizer visualizer = visualizerClass.getConstructor(
+						Long.class).newInstance(dataId);
 				buildOneItem(visualizerGroup, visualizer.getPluginEntry(),
 						visualizer);
 			} catch (IllegalArgumentException e) {
@@ -166,21 +166,6 @@ public class DataTypeMenuPage extends VerticalLayout {
 	private final ThemeResource CancelIcon = new ThemeResource(
 			"../runo/icons/16/cancel.png");
 
-	// TODO to be fixed: this is temporary setting for the visualizer group
-	// TODO once ToolsUI is totally cleaned up, this should be private
-	// this needs to trigger the actual analysis.
-	// in the version in ToolsUI, the link-looking analysis names have not action
-	protected void buildOneItem(final PluginEntry analysis,
-			final AnalysisUI analysisUI) {
-		if(visualizationGroup==null) {
-			visualizationGroup = new VerticalLayout();
-			visualizationGroup.setMargin(true);
-			addComponent(visualizationGroup);
-		}
-		buildOneItem(visualizationGroup, analysis, analysisUI);
-	}
-	private VerticalLayout visualizationGroup = null;
-	
 	private void buildOneItem(VerticalLayout group,
 			final PluginEntry analysis,
 			final Object container) { //ComponentContainer
@@ -201,7 +186,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 						} else if (container instanceof Visualizer) {
 							showVisualizer((Visualizer)container);
 						} else {
-							log.error("unkown menu page item "+container.getClass());
+							log.error("unkown view type "+container.getClass());
 						}
 					}
 				});

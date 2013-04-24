@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
-import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
@@ -36,12 +34,9 @@ public class UMainToolBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
 	private final VisualPluginView pluginView;
-	private GenspaceLogger genSpaceLogger;
 
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
-		/*genSpaceLogger is for GenSpaceWindow*/
-		this.genSpaceLogger = genSpaceLogger;
 		
 		setImmediate(true);
 		setStyleName("transparent");
@@ -61,7 +56,7 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				UMainToolBar.this.pluginView.setDataUI(new ToolsUI());
+				UMainToolBar.this.pluginView.showToolList();
 			}
 			
 		});

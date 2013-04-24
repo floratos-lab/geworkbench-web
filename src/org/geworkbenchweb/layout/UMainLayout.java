@@ -22,8 +22,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.plugins.DataTypeUI;
-import org.geworkbenchweb.plugins.tools.ToolsUI;
+import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.Context;
@@ -659,7 +658,7 @@ public class UMainLayout extends VerticalLayout {
 				annotButton.setEnabled(false);
 				removeButton.setEnabled(false);
 				set.setEnabled(false);
-				pluginView.setDataUI(new ToolsUI());
+				pluginView.showToolList();
 			}
 		});
 
@@ -941,7 +940,7 @@ public class UMainLayout extends VerticalLayout {
 		annotationBar.setVisible(false);
 		addComponent(annotationBar);
 		
-		pluginView.setDataUI(new ToolsUI());
+		pluginView.showToolList();
 
 		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
@@ -1023,12 +1022,12 @@ public class UMainLayout extends VerticalLayout {
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
 						Class<?> aClass = classLoader.loadClass(className);
-						Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
+						Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
 						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
 						removeComponent(annotationLayout);
 						if(uiComponentClass!=null) { // "not result" - menu page. For now, we only expect CSMcrioarraySet and CSProteinStructure
-							DataTypeUI dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
-							pluginView.setDataUI(dataUI);
+							DataTypeMenuPage dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+							pluginView.setContent(dataUI, dataUI.getTitle(), dataUI.getDescription());
 						} else if(resultUiClass!=null) { // "is result" - visualizer
 							toolBar.setEnabled(false);
 							for (int i = 0; i < toolBar.getItems().size(); i++) {
@@ -1040,7 +1039,7 @@ public class UMainLayout extends VerticalLayout {
 					}
 				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
 					e.printStackTrace();
-					pluginView.setDataUI(new ToolsUI());
+					pluginView.showToolList();
 					removeComponent(annotationLayout);
 					annotationBar.setVisible(false);
 				}

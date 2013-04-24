@@ -3,7 +3,7 @@ package org.geworkbenchweb.layout;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.geworkbenchweb.plugins.DataTypeUI;
+import org.geworkbenchweb.plugins.tools.ToolsUI;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -116,7 +116,8 @@ public class VisualPluginView extends HorizontalLayout {
 		addComponent(pluginLayout);
 	}
 	
-	public void setDataUI(DataTypeUI plugin) {
-		setContent(plugin, plugin.getTitle(), plugin.getDescription());
+	public void showToolList() {
+		ToolsUI toolList = new ToolsUI();
+		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
 }

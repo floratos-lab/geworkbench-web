@@ -1,12 +1,11 @@
 package org.geworkbenchweb.plugins.tools;
 
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
-import org.geworkbenchweb.plugins.DataTypeUI;
 
 /**
  * List of all plug-ins regardless of data type. 
 */
-public class ToolsUI extends DataTypeMenuPage implements DataTypeUI {
+public class ToolsUI extends DataTypeMenuPage {
 
 	private static final long serialVersionUID = 1L;
 	

@@ -2,9 +2,8 @@ package org.geworkbenchweb.plugins.proteinstructure;
 
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
-import org.geworkbenchweb.plugins.DataTypeUI;
 
-public class ProteinStructureUI extends DataTypeMenuPage implements DataTypeUI {
+public class ProteinStructureUI extends DataTypeMenuPage {
 
 	private static final long serialVersionUID = 1L;
 	
