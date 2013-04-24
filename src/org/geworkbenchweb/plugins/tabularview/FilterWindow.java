@@ -5,8 +5,7 @@ import java.util.List;
 import org.geworkbenchweb.pojos.Context; 
 import org.geworkbenchweb.pojos.SubSet; 
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.TableView;
-
+ 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
