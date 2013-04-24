@@ -2,10 +2,8 @@ package org.geworkbenchweb.plugins.tabularview;
 
 import java.util.List;
 
-import org.geworkbenchweb.pojos.Context;
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.pojos.Context; 
+import org.geworkbenchweb.pojos.SubSet; 
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.TableView;
 
@@ -17,18 +15,22 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-
+import com.vaadin.ui.Window; 
 
 public class FilterWindow extends Window {
 	 
 	private static final long serialVersionUID = 5480097015206241444L;
-	 
-    public FilterWindow(final TabularViewUI parent,  final TableView table,  final TabularViewPreferences tabViewPreferences, final long dataSetId)
+	
+	private GridLayout gridLayout1;
+	private ComboBox markerContextCB;  
+	private ListSelect markerSetSelect;
+	private ComboBox arrayContextCB;
+	private ListSelect arraySetSelect;
+	private Button submit; 
+    public FilterWindow(final TabularViewPreferences tabViewPreferences, final long dataSetId)
     {
      
-    	final GridLayout gridLayout1 = new GridLayout(2, 4);			
+    	gridLayout1 = new GridLayout(2, 4);			
 		
 		gridLayout1.setSpacing(true);
 		gridLayout1.setImmediate(true);
@@ -43,25 +45,25 @@ public class FilterWindow extends Window {
 		
 		Label spaceLabel = new Label("                       ");
 
-		final ComboBox markerContextCB =  new ComboBox("Marker Context");	
+		markerContextCB =  new ComboBox("Marker Context");	
 		markerContextCB.setWidth("160px");
 		markerContextCB.setImmediate(true);	
 		markerContextCB.setNullSelectionAllowed(false);
 		markerContextCB.addItem("default");	
 		markerContextCB.setValue("default");
 		
-		final ListSelect markerSetSelect = new ListSelect("Select Marker Sets:");
+		markerSetSelect = new ListSelect("Select Marker Sets:");
 		markerSetSelect.setMultiSelect(true);
 		markerSetSelect.setRows(5);
 		markerSetSelect.setColumns(15);
 		markerSetSelect.setImmediate(true);
 		
-		final ComboBox arrayContextCB =  new ComboBox("Array Context");
+		arrayContextCB =  new ComboBox("Array Context");
 		arrayContextCB.setWidth("160px");
 		arrayContextCB.setImmediate(true);	
 		arrayContextCB.setNullSelectionAllowed(false);
 		
-		final ListSelect arraySetSelect = new ListSelect("Select Array Sets:");
+		arraySetSelect = new ListSelect("Select Array Sets:");
 		arraySetSelect.setMultiSelect(true);
 		arraySetSelect.setRows(5);
 		arraySetSelect.setColumns(15);
@@ -103,10 +105,7 @@ public class FilterWindow extends Window {
 				arrayContextCB.setValue(c);
 		}
 		
-		arrayContextCB.setValue(selectedtContext);
-		
-		
-		
+		arrayContextCB.setValue(selectedtContext);	
 	
 		
 		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
@@ -156,41 +155,7 @@ public class FilterWindow extends Window {
 		}
 	 
 		
-		Button submit = new Button("Submit", new Button.ClickListener() {
-
-			private static final long serialVersionUID = -4799561372701936132L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				try {							 
-					 String value = markerSetSelect.getValue().toString();						   
-					 FilterInfo markerFilter = new FilterInfo(null, getSelectedSet(value));
-					 
-					 
-					 Preference p = PreferenceOperations.getData(dataSetId, Constants.MARKER_FILTER_CONTROL, parent.getUserId());
-					 if (p != null)
-						PreferenceOperations.setValue(markerFilter, p);
-					 else
-						PreferenceOperations.storeData(markerFilter, FilterInfo.class.getName(), Constants.MARKER_FILTER_CONTROL, dataSetId, parent.getUserId());
-					 
-					 value = arraySetSelect.getValue().toString();	
-					 FilterInfo arrayFilter = new FilterInfo((Context)arrayContextCB.getValue(), getSelectedSet(value));
-					 p = PreferenceOperations.getData(dataSetId, Constants.ARRAY_FILTER_CONTROL, parent.getUserId());
-					 if (p != null)
-						PreferenceOperations.setValue(arrayFilter, p);
-					 else
-						PreferenceOperations.storeData(arrayFilter, FilterInfo.class.getName(), Constants.ARRAY_FILTER_CONTROL, dataSetId, parent.getUserId());					 
-					 table.setContainerDataSource(parent.tabularView(1, Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
-					
-					 parent.setPaginationBar();
-					 getApplication().getMainWindow().removeWindow(getFilterWindow());
-					 
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
+		   submit = new Button("Submit");
 		 
 		submit.setClickShortcut(KeyCode.ENTER);
 		gridLayout1.addComponent(markerContextCB, 0, 0);
@@ -217,11 +182,25 @@ public class FilterWindow extends Window {
 		
 		return selectedSet;
 	}
+      
     
-    
-    private FilterWindow getFilterWindow()
+    Button getSubmitButton()
     {
-    	return this;
+    	return submit;
+    }
+    
+    FilterInfo getMarkerFilter()
+    {
+         String value = markerSetSelect.getValue().toString();						   
+	     FilterInfo markerFilter = new FilterInfo(null, getSelectedSet(value));
+	     return markerFilter;
+    }
+    
+    FilterInfo getArrayFilter()
+    {
+    	 String value = arraySetSelect.getValue().toString();	
+		 FilterInfo arrayFilter = new FilterInfo((Context)arrayContextCB.getValue(), getSelectedSet(value));
+         return arrayFilter;
     }
     
   
