@@ -8,6 +8,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
@@ -17,7 +19,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.TextArea;
 
-public class AracneResultsUI extends VerticalLayout {
+public class AracneResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,7 +32,11 @@ public class AracneResultsUI extends VerticalLayout {
  
 	private AdjacencyMatrixDataSet adjMatrixDataSet = null;
 
+	final private Long datasetId;
+	
 	public AracneResultsUI(Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
 
 		adjMatrixDataSet = (AdjacencyMatrixDataSet) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
@@ -206,6 +212,16 @@ public class AracneResultsUI extends VerticalLayout {
 
 		}
 
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("Cytoscape", "Show network in cytoscape web, or in text view.");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 
 }

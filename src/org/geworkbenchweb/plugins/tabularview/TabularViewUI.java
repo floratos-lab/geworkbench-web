@@ -15,6 +15,8 @@ import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.tabularview.Constants;
 
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -56,7 +58,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * 
  * @author Nikhil
  */
-public class TabularViewUI extends VerticalLayout {
+public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,7 +75,12 @@ public class TabularViewUI extends VerticalLayout {
 
 	private String searchStr;
 
+	final private Long datasetId;
+
 	public TabularViewUI(final Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
+		
 		setSizeFull();
 		setImmediate(true);
 
@@ -856,6 +863,18 @@ public class TabularViewUI extends VerticalLayout {
 		HorizontalLayout pageBar = paginationBar.createPagination();
 		addComponent(pageBar);
 		paginationBarIndex = getComponentIndex(pageBar);
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("Tabular Microarray Viewer", 
+				"Presents the numerical values of the expression measurements in a table format. " +
+				"One row is created per individual marker/probe and one column per microarray.");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 
 }

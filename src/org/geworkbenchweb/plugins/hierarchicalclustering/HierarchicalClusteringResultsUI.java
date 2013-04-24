@@ -7,6 +7,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -22,14 +24,18 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 /* This is started from the class with the same name under the .results. package. */
-public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
+public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implements Visualizer {
 
 
 	private static final long serialVersionUID = 8018658107854483097L;
+	
+	final private Long datasetId;
 
 	@SuppressWarnings({ "unchecked" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
-
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
+		
 		setSizeFull();
 		setImmediate(true);
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
@@ -39,6 +45,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 
+		/* FIXME at this time, this line may throw NullPointerException or FileNotFoundException
+		 * no matter how we will approach the underlying issues, the exceptions should be handled here without being thrown.
+		 */
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
@@ -181,5 +190,15 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel {
 		if (colVal > 255) colVal = 255;
 
 		return colVal;
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("Dendrogram plus heat map", "Show result from hierarchical clustering.");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

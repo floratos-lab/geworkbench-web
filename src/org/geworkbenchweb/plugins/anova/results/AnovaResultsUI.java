@@ -2,6 +2,8 @@ package org.geworkbenchweb.plugins.anova.results;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.TableView;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -13,7 +15,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
-public class AnovaResultsUI extends VerticalLayout {
+public class AnovaResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 3115606230292029231L;
 
@@ -26,11 +28,13 @@ public class AnovaResultsUI extends VerticalLayout {
 
 	private CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 
-	Button submitButton;
+	final private Long datasetId;
 
 	@SuppressWarnings("unchecked")
 	public AnovaResultsUI(Long dataSetId) {
-
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
+		
 		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
 	
@@ -171,5 +175,15 @@ public class AnovaResultsUI extends VerticalLayout {
 			dataTable.csvExport("anovaTable.csv");
 
 		}
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("ANOVA Result Viewer", "Show ANOVA result as a table");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

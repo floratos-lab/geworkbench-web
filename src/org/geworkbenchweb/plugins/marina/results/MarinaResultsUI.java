@@ -1,17 +1,23 @@
 package org.geworkbenchweb.plugins.marina.results;
 
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class MarinaResultsUI  extends VerticalLayout {
+public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1781213075723503210L;
 
+	final private Long datasetId;
+	
 	public MarinaResultsUI(Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
 		
 		CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet) 
 				ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
@@ -38,5 +44,15 @@ public class MarinaResultsUI  extends VerticalLayout {
 		mraTable.setColumnCollapsingAllowed(true);
 		setSizeFull();
 		addComponent(mraTable);
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("MARINa result viewer", "Show result of MARINa analysis");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

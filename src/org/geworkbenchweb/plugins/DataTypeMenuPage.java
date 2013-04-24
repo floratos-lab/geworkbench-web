@@ -1,5 +1,7 @@
 package org.geworkbenchweb.plugins;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -33,32 +35,68 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 	public DataTypeMenuPage(String description, String title, Class<? extends DSDataSet<?>> dataType, Long dataId) {
 		this.dataId = dataId;
+		this.title = title;
 		
 		setDescription(description);
 
 		setSpacing(true);
 		
+		// first part: analysis
 		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
 
+		VerticalLayout analysisGroup = new VerticalLayout();
+		analysisGroup.setMargin(true);
 		// loop through all analysis plug-ins
-		for(final Analysis analysis : GeworkbenchRoot.getPluginRegistry().getAnalysisList(dataType)) {
+		for(final PluginEntry analysis : GeworkbenchRoot.getPluginRegistry().getAnalysisList(dataType)) {
 		
 			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
-			buildOneItem(analysis, analysisUI);
+			buildOneItem(analysisGroup, analysis, analysisUI);
 
 		}
+		addComponent(analysisGroup);
 		
-		// TODO visualization should be implemented similarly to the analysis part
+		// second part: visualizations
+		Class<? extends Visualizer>[] visualizers = GeworkbenchRoot.getPluginRegistry().getVisualizers(dataType);
+		if(visualizers.length==0) return;
 		
-		this.title = title;
+		Label vis = new Label("Visualizations Available");
+		vis.setStyleName(Reindeer.LABEL_H2);
+		vis.setContentMode(Label.CONTENT_PREFORMATTED);
+		addComponent(vis);
+		
+		VerticalLayout visualizerGroup = new VerticalLayout();
+		visualizerGroup.setMargin(true);
+		// loop through all analysis plug-ins
+		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
+
+			try {
+				final Visualizer visualizer = (Visualizer) visualizerClass
+						.getConstructor(Long.class).newInstance(dataId);
+				buildOneItem(visualizerGroup, visualizer.getPluginEntry(),
+						visualizer);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
+		addComponent(visualizerGroup);
     }
 
 	private static Log log = LogFactory.getLog(DataTypeMenuPage.class);
 	
-	private void showAnalysisParameterPanel(Analysis analysis,
+	private void showAnalysisParameterPanel(PluginEntry analysis,
 			AnalysisUI analysisUI, Long dataSetId) {
 
 		if (analysisUI==null) {
@@ -80,7 +118,17 @@ public class DataTypeMenuPage extends VerticalLayout {
 		}
 	}
 
-	// this is copied from ToolsUI. probably we should refactor to have only one
+	private void showVisualizer(Visualizer visualizer) {
+		if(visualizer.getDatasetId()==null) return; //no-op
+		
+		Component pluginView = this.getParent().getParent().getParent();
+		if(pluginView instanceof VisualPluginView) {
+			((VisualPluginView)pluginView).setContent(visualizer);
+		} else {
+			log.error("pluginView is "+pluginView.getClass());
+		}
+	}
+	
 	private static class ItemLayout extends GridLayout {
 
 		private static final long serialVersionUID = -2801145303701009347L;
@@ -118,11 +166,24 @@ public class DataTypeMenuPage extends VerticalLayout {
 	private final ThemeResource CancelIcon = new ThemeResource(
 			"../runo/icons/16/cancel.png");
 
+	// TODO to be fixed: this is temporary setting for the visualizer group
 	// TODO once ToolsUI is totally cleaned up, this should be private
 	// this needs to trigger the actual analysis.
 	// in the version in ToolsUI, the link-looking analysis names have not action
-	protected void buildOneItem(final Analysis analysis,
+	protected void buildOneItem(final PluginEntry analysis,
 			final AnalysisUI analysisUI) {
+		if(visualizationGroup==null) {
+			visualizationGroup = new VerticalLayout();
+			visualizationGroup.setMargin(true);
+			addComponent(visualizationGroup);
+		}
+		buildOneItem(visualizationGroup, analysis, analysisUI);
+	}
+	private VerticalLayout visualizationGroup = null;
+	
+	private void buildOneItem(VerticalLayout group,
+			final PluginEntry analysis,
+			final Object container) { //ComponentContainer
 
 		final ItemLayout itemLayout = new ItemLayout();
 		final Button infoButton = new Button();
@@ -135,7 +196,13 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						showAnalysisParameterPanel(analysis, analysisUI, dataId);
+						if(container instanceof AnalysisUI) {
+							showAnalysisParameterPanel(analysis, (AnalysisUI)container, dataId);
+						} else if (container instanceof Visualizer) {
+							showVisualizer((Visualizer)container);
+						} else {
+							log.error("unkown menu page item "+container.getClass());
+						}
 					}
 				});
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
@@ -172,7 +239,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		itemLayout.addComponent(toolButton);
 		itemLayout.addComponent(infoButton);
 
-		addComponent(itemLayout);
+		group.addComponent(itemLayout);
 	}
 
 }

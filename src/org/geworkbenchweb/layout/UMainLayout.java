@@ -22,8 +22,6 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
-import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.DataTypeUI;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 import org.geworkbenchweb.pojos.Annotation;
@@ -1025,22 +1023,20 @@ public class UMainLayout extends VerticalLayout {
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
 						Class<?> aClass = classLoader.loadClass(className);
+						Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
 						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
-						if(resultUiClass!=null) { // "is result"
-							removeComponent(annotationLayout);
+						removeComponent(annotationLayout);
+						if(uiComponentClass!=null) { // "not result" - menu page. For now, we only expect CSMcrioarraySet and CSProteinStructure
+							DataTypeUI dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+							pluginView.setDataUI(dataUI);
+						} else if(resultUiClass!=null) { // "is result" - visualizer
 							toolBar.setEnabled(false);
 							for (int i = 0; i < toolBar.getItems().size(); i++) {
 								toolBar.getItems().get(i).setEnabled(false);
 							}
 
 							pluginView.setContentUsingCache(resultUiClass, dataSetId);
-						} else { // "not result". For now, we only expect CSMcrioarraySet and CSProteinStructure
-							removeComponent(annotationLayout);
-							Class<? extends DataTypeUI> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
-							DataTypeUI dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
-							pluginView.setDataUI(dataUI); // TODO to be implemented
-							return;
-						}
+						} 
 					}
 				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
 					e.printStackTrace();

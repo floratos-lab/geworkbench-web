@@ -1,6 +1,8 @@
 package org.geworkbenchweb.plugins.markus.results;
 
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import com.vaadin.terminal.ExternalResource;
@@ -11,12 +13,16 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.VerticalLayout;
 
-public class MarkusResultsUI extends VerticalLayout{
+public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 7444564617594626988L;
 	private static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 
+	final private Long datasetId;
+	
 	public MarkusResultsUI(Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
 		
 		MarkUsResultDataSet resultset = (MarkUsResultDataSet) 
 				ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
@@ -50,5 +56,15 @@ public class MarkusResultsUI extends VerticalLayout{
 		public void buttonClick(ClickEvent event) {
 			browser.requestRepaint();
 		}
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("MARKUS result viewer", "Show result MARKUS result in embbed browser");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

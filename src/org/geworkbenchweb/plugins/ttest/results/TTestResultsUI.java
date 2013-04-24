@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.LinkedHashSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import com.invient.vaadin.charts.InvientCharts;
@@ -30,14 +32,18 @@ import com.vaadin.ui.VerticalLayout;
  * @author Nikhil
  */
 
-public class TTestResultsUI extends VerticalLayout {
+public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 
 	private DSSignificanceResultSet<DSGeneMarker> significance;
 
+	final private Long datasetId;
+	
 	@SuppressWarnings("unchecked")
 	public TTestResultsUI(Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
 
 		setImmediate(true);
 		setSizeFull();	
@@ -161,5 +167,15 @@ public class TTestResultsUI extends VerticalLayout {
 		series.setSeriesPoints(newPoints);
 		chart.addSeries(series);
 		return chart;
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("T-test result viewer", "Viewing t-test result as a Volcano plot.");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

@@ -23,6 +23,8 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape; 
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
 import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -78,7 +80,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
-public class CNKBResultsUI extends VerticalLayout { // TabSheet {
+public class CNKBResultsUI extends VerticalLayout implements Visualizer { // TabSheet {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -99,7 +101,11 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 
 	private Cytoscape cy;
 
+	final private Long datasetId;
+
 	public CNKBResultsUI(Long dataSetId) {
+		datasetId = dataSetId;
+		if(dataSetId==null) return;
 
 		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
@@ -524,6 +530,16 @@ public class CNKBResultsUI extends VerticalLayout { // TabSheet {
 		}
 		
 		 
+	}
+
+	@Override
+	public PluginEntry getPluginEntry() {
+		return new PluginEntry("CNKB Result View", "Show CNKB Result including throttle plot.");
+	}
+
+	@Override
+	public Long getDatasetId() {
+		return datasetId;
 	}
 
 }
