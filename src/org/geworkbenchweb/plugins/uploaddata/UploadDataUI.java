@@ -349,6 +349,8 @@ public class UploadDataUI extends VerticalLayout {
 		cancelButton.addListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			public void buttonClick(ClickEvent event) {
+				uploadField.interruptUpload();
+				annotUploadField.interruptUpload();
 				VisualPluginView pluginView = enableUMainLayout(true);
 				pluginView.setContent(new UploadDataUI(), "Upload Data", "Please use this interface to upload data");
 			}
