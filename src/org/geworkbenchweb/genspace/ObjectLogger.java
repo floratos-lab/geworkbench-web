@@ -27,6 +27,8 @@ import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 
+import com.vaadin.ui.Window.Notification;
+
 
 /**
  * The event logger
@@ -61,13 +63,14 @@ public class ObjectLogger {
 		return this.curTransactions;
 	}
 	
-	private Transaction prepareTransaction(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {
+	private Transaction prepareTransaction(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {		
 		System.out.println("DEBUG prepareTransaction: " + analysisName + " " + dataSetName);
 		String hostname = "";
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e1) {
-//			e1.printStackTrace();
+			e1.printStackTrace();
+			return null;
 		}
 		Transaction curTransaction = curTransactions.get(dataSetName);
 		if(curTransaction == null || !curTransaction.getClientID().equals(login.getGenSpaceServerFactory().getUsername() + hostname + transactionId))
@@ -100,7 +103,7 @@ public class ObjectLogger {
 			}
 			catch(Exception ex)
 			{
-//				ex.printStackTrace();
+				ex.printStackTrace();
 				//be silent
 			}
 			if(done != null)
@@ -129,6 +132,7 @@ public class ObjectLogger {
 			e.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 		} catch (DatatypeConfigurationException e2) {
 			e2.printStackTrace();
+			return null;
 		} 
 		e.setTransaction(curTransaction);
 		HashSet<AnalysisEventParameter> params = new HashSet<AnalysisEventParameter>();
@@ -177,7 +181,8 @@ public class ObjectLogger {
 		}
 		catch(Exception ex)
 		{
-//			ex.printStackTrace();
+			ex.printStackTrace();
+			return null;
 			//be silent on errors... if we get them, we'll just log to the file instead
 		}
 		
@@ -248,31 +253,45 @@ public class ObjectLogger {
 			fw.close();
 		} catch (Exception e1) {
 			e1.printStackTrace();
+			return null;
 //			GenSpace.logger.warn("Unable to write log file",e1);
+			//this.handleExceptions(e1);
 		}
 		
 		return null;
 	}
 	
-	private void completeLoggin(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {
+	private boolean completeLoggin(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {
 		Transaction ret = null;
 		System.out.println("DEBUG dataset name in completeLogging: " + dataSetName);
 		try {
 			ret = this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
 		} catch (Exception e) {
-			login.getGenSpaceServerFactory().clearCache();
+			//login.getGenSpaceServerFactory().clearCache();
+			//this.handleExceptions(e);
+			e.printStackTrace();
+			return false;
 		}
 		
 		if(ret != null)
 		{
 			curTransactions.put(dataSetName, ret);
+			return true;
 		}
+		
+		return false;
+	}
+	
+	private void handleExceptions(Exception e) {
+		Notification msg = new Notification("Some error occurs: " + e.getMessage() + "Please try again.",
+				Notification.TYPE_ERROR_MESSAGE);
+		login.getApplication().getMainWindow().showNotification(msg);
 	}
 	
 	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
 		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
-		this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event);
-		this.login.getPusher().push();
+		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event))
+			this.login.getPusher().push();
 	}
 
 /*	public void log(final String analysisName,final String dataSetName,

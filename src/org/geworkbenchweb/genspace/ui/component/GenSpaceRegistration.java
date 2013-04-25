@@ -14,8 +14,10 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
@@ -45,11 +47,21 @@ public class GenSpaceRegistration extends CustomComponent implements
 	GenSpaceLogin login;
 	
 	private GridLayout gridLayout = new GridLayout(2, 15);
+	
+	private VerticalLayout vLayout = new VerticalLayout();
+	
+	private Panel regPanel = new Panel();
 
 	public GenSpaceRegistration(GenSpaceLogin login) {
 		this.login = login;
 		initComponents();
-		setCompositionRoot(gridLayout);
+		setCompositionRoot(vLayout);
+		this.vLayout.addComponent(regPanel);
+		this.regPanel.addComponent(gridLayout);
+		this.regPanel.setWidth("400px");
+		this.regPanel.setHeight("600px");
+		this.regPanel.setScrollable(true);
+		//setCompositionRoot(gridLayout);
 		gridLayout.setWidth("100%");
 	}
 

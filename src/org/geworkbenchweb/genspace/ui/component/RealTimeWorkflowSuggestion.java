@@ -314,6 +314,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		workflowVisualizationPanel.render(ret);
 		login.currentWorkflow = new WorkflowWrapper(newCWF);
 		displayCWF();
+		this.viewerStatus.setValue("Your current analysis: " + cwf.getLastTool().getName());
 	}
 
 	private List<Workflow> getRealTimeWorkFlowSuggestion(WorkflowWrapper cwf) {

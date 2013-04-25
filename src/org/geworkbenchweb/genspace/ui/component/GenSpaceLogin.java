@@ -94,6 +94,7 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		mainLayout.setExpandRatio(p, 1.0f);
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(this.push);
+		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 		//push = new ICEPush();
 	}
 	
@@ -301,14 +302,29 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		getApplication().getMainWindow().addWindow(chatHandler.rf);
 		chatHandler.rf.setPositionX(getApplication().getMainWindow().getBrowserWindowWidth()/2 + 100);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
+		// Fire event in RosterFrame to avoid potential exception, although this is no harm
+		//GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
 		
-		afWindow = new ActivityFeedWindow(this);
+		/*afWindow = new ActivityFeedWindow(this);
 		getApplication().getMainWindow().addWindow(afWindow);
 		afWindow.setPositionX(chatHandler.rf.getPositionX());
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);*/
+		this.createAFWindow();
 		
 		genSpaceParent.fireLoggedIn();
+	}
+	
+	public void createAFWindow() {
+		if (afWindow == null) {
+			afWindow = new ActivityFeedWindow(this);
+			getApplication().getMainWindow().addWindow(afWindow);
+			afWindow.setPositionX(chatHandler.rf.getPositionX());
+			GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
+		}
+	}
+	
+	public ActivityFeedWindow getAFWindow() {
+		return this.afWindow;
 	}
 
 	public void clear(ClickEvent event) {

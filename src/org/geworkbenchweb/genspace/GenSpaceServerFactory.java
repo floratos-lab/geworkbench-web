@@ -39,6 +39,8 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowRepositoryServic
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 
+import com.vaadin.ui.Window.Notification;
+
 
 
 public class GenSpaceServerFactory {
@@ -117,21 +119,19 @@ public class GenSpaceServerFactory {
 		}
 	}
 	
-	public void handleExecutionException(String msg, Exception e)
+	/*public void handleExecutionException(String msg, Exception e)
 	{
-//		e.printStackTrace();
-		//GenSpaceServerFactory.clearCache();
+		e.printStackTrace();
 		this.clearCache();
 		JOptionPane.showMessageDialog(null, "There was an error communicating with the genSpace server:\n"+msg, "Error communicating with server", JOptionPane.ERROR_MESSAGE);
-	}
+	}*/
 	
-	public void handleExecutionException(Exception e)
+	/*public void handleExecutionException(Exception e)
 	{
-//		e.printStackTrace();
-		//GenSpaceServerFactory.clearCache();
+		e.printStackTrace();
 		this.clearCache();
 		JOptionPane.showMessageDialog(null, "There was an error communicating with the genSpace server.\n Please try your request again", "Error communicating with server", JOptionPane.ERROR_MESSAGE);
-	}
+	}*/
 	
 	public void clearCache()
 	{
@@ -145,7 +145,7 @@ public class GenSpaceServerFactory {
 	
 	public static void handleException(Exception e)
 	{
-//		e.printStackTrace();
+		e.printStackTrace();
 	}
 	
 	private void addCredentials(BindingProvider svc)
@@ -269,7 +269,8 @@ public class GenSpaceServerFactory {
 		try {
 			user = getPublicFacade().register(u);
 		} catch (Exception e) {
-			handleExecutionException(e);
+			//handleExecutionException(e);
+			return false;
 		}
 
 		if(user != null)

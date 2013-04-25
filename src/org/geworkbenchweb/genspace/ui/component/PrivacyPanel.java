@@ -205,10 +205,12 @@ public class PrivacyPanel extends SocialPanel{
 						System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getUsername());
 						//System.out.println(GenSpaceServerFactory.getFriendOps().getFriends().get(0).getUsername());
 						//GenSpaceServerFactory.getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
+						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
 					} else {
 						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getId());
 						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getUsername());
 						//GenSpaceServerFactory.getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
+						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
 					}
 				}
 			}

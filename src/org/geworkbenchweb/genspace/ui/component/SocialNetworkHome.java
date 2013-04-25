@@ -282,6 +282,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				}*/
 				System.out.println("In the chat button");
 				searchRosterFrame();
+				searchAFWindow();
 			}
 		});
 		
@@ -403,8 +404,22 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			System.out.println("Roster frame from invisible to visible");
 		} else if (!getApplication().getMainWindow().getChildWindows().contains(chatHandler.rf)){      
 			System.out.println("RosterFrame visible: " + this.chatHandler.rf.isVisible());
-			System.out.println("RosterFrame closable: " + this.chatHandler.rf.isClosable());
 			getApplication().getMainWindow().addWindow(chatHandler.rf);
+		}
+	}
+	
+	private void searchAFWindow() {
+		ActivityFeedWindow tmp = this.login.getAFWindow();
+		if (tmp == null) {
+			this.login.createAFWindow();
+			System.out.println("Create a new AFWindow");
+		} else if (!tmp.isVisible()) {
+			tmp.setVisible(true);
+			tmp.focus();
+			System.out.println("AFWindow from invisible to visible");
+		} else if (!getApplication().getMainWindow().getChildWindows().contains(tmp)){      
+			System.out.println("AFWindow visible: " + this.chatHandler.rf.isVisible());
+			getApplication().getMainWindow().addWindow(tmp);
 		}
 	}
 

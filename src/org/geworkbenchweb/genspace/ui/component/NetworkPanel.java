@@ -19,6 +19,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Select;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 public class NetworkPanel extends SocialPanel{
@@ -41,11 +42,17 @@ public class NetworkPanel extends SocialPanel{
 	
 	private String leaveSNet = "Leave selected network";
 	
+	private String createTitle = "Create a network";
+	
 	private String networkLabelName = "Moderated by ";
 	
-	private Select networkSelect;
+	private Select networkSelect = null;
 	
-	private Network selectedNet;
+	private Network selectedNet = null;
+	
+	private TextField createNet;
+	
+	private String createNetString;
 	
 	private BeanItemContainer<UserNetwork> usrNetContainer = new BeanItemContainer<UserNetwork>(UserNetwork.class);
 	
@@ -195,7 +202,8 @@ public class NetworkPanel extends SocialPanel{
 							
 							//Should wait for administrator's approval?
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
-							addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
+							//addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
+							updatePanel();
 							//createMainLayout();
 						}
 					}
@@ -215,7 +223,8 @@ public class NetworkPanel extends SocialPanel{
 						System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
 						
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
-						elimNetwork(selectedNet.getName());
+						//elimNetwork(selectedNet.getName());
+						updatePanel();
 						//createMainLayout();
 					}
 				}
@@ -226,6 +235,27 @@ public class NetworkPanel extends SocialPanel{
 		this.selectionLayout.addComponent(networkSelect);
 		this.selectionLayout.addComponent(goButton);
 		this.selectionLayout.addComponent(leaveButton);
+		
+		Label emptyLabel = new Label();
+		emptyLabel.setHeight("20px");
+		this.selectionLayout.addComponent(emptyLabel);
+		
+		this.createNet = new TextField(this.createNetString);
+		Button createButton = new Button(this.createTitle);
+		createButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+			
+			public void buttonClick(ClickEvent event) {
+				String textValue = createNet.getValue().toString();
+				if (textValue != null && !textValue.isEmpty()) {
+					login.getGenSpaceServerFactory().getNetworkOps().createNetwork(textValue);
+					getApplication().getMainWindow().showNotification("This network has been created");
+					updatePanel();
+				}
+			}
+		});
+		this.selectionLayout.addComponent(createNet);
+		this.selectionLayout.addComponent(createButton);
 	}
 	
 	private void addSelectionItem(Network select) {
