@@ -3,7 +3,9 @@ package org.geworkbenchweb.plugins.tabularview;
 import java.util.List;
 
 import org.geworkbenchweb.pojos.Context; 
+import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet; 
+import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
  
 import com.vaadin.data.Property;
@@ -15,6 +17,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Window; 
+import com.vaadin.ui.Button.ClickEvent;
 
 public class FilterWindow extends Window {
 	 
@@ -26,11 +29,12 @@ public class FilterWindow extends Window {
 	private ComboBox arrayContextCB;
 	private ListSelect arraySetSelect;
 	private Button submit; 
-    public FilterWindow(final TabularViewPreferences tabViewPreferences, final long dataSetId)
+	private long datasetId;
+    public FilterWindow(final TabularViewUI parent)
     {
      
+    	datasetId = parent.getDatasetId();
     	gridLayout1 = new GridLayout(2, 4);			
-		
 		gridLayout1.setSpacing(true);
 		gridLayout1.setImmediate(true);
 		
@@ -91,13 +95,13 @@ public class FilterWindow extends Window {
 		});
 
 		
-		
+		TabularViewPreferences tabViewPreferences = parent.getTabViewPreferences();
 		Context selectedtContext = null;
 		if (tabViewPreferences.getMarkerFilter() != null)
 			selectedtContext = tabViewPreferences.getArrayFilter().getContext();
 		if (selectedtContext == null)
-			selectedtContext = SubSetOperations.getCurrentContext(dataSetId);
-		List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);		 
+			selectedtContext = SubSetOperations.getCurrentContext(datasetId);
+		List<Context> contexts = SubSetOperations.getAllContexts(datasetId);		 
 		for (Context c : contexts){
 			arrayContextCB.addItem(c);	
 			if (selectedtContext!=null && c.getId().longValue()==selectedtContext.getId().longValue()) 
@@ -107,7 +111,7 @@ public class FilterWindow extends Window {
 		arrayContextCB.setValue(selectedtContext);	
 	
 		
-		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
+		List<?> markerSubSets = SubSetOperations.getMarkerSets(datasetId);
 
 		markerSetSelect.removeAllItems();
 		markerSetSelect.addItem("All Markers");
@@ -155,6 +159,59 @@ public class FilterWindow extends Window {
 	 
 		
 		   submit = new Button("Submit");
+		   
+		   submit.addListener(
+					new Button.ClickListener() {
+
+						private static final long serialVersionUID = -4799561372701936132L;
+
+						@Override
+						public void buttonClick(ClickEvent event) {
+							try {
+
+								FilterInfo markerFilter = getMarkerFilter();
+
+								Preference p = PreferenceOperations
+										.getData(
+												datasetId,
+												Constants.MARKER_FILTER_CONTROL,
+												parent.getUserId());
+								if (p != null)
+									PreferenceOperations.setValue(
+											markerFilter, p);
+								else
+									PreferenceOperations.storeData(
+											markerFilter,
+											FilterInfo.class.getName(),
+											Constants.MARKER_FILTER_CONTROL,
+											datasetId, parent.getUserId());
+
+								FilterInfo arrayFilter = getArrayFilter();
+								p = PreferenceOperations.getData(datasetId,
+										Constants.ARRAY_FILTER_CONTROL,
+										parent.getUserId());
+								if (p != null)
+									PreferenceOperations.setValue(
+											arrayFilter, p);
+								else
+									PreferenceOperations.storeData(
+											arrayFilter,
+											FilterInfo.class.getName(),
+											Constants.ARRAY_FILTER_CONTROL,
+											datasetId, parent.getUserId());
+								parent.getDisplayTable()
+										.setContainerDataSource(parent.tabularView());
+							 
+								getApplication().getMainWindow()
+										.removeWindow(getFilterWindow());
+								 
+
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+
 		 
 		submit.setClickShortcut(KeyCode.ENTER);
 		gridLayout1.addComponent(markerContextCB, 0, 0);
@@ -180,27 +237,26 @@ public class FilterWindow extends Window {
 		 
 		
 		return selectedSet;
-	}
-      
+	}      
+     
     
-    Button getSubmitButton()
-    {
-    	return submit;
-    }
-    
-    FilterInfo getMarkerFilter()
+    private FilterInfo getMarkerFilter()
     {
          String value = markerSetSelect.getValue().toString();						   
 	     FilterInfo markerFilter = new FilterInfo(null, getSelectedSet(value));
 	     return markerFilter;
     }
     
-    FilterInfo getArrayFilter()
+    private FilterInfo getArrayFilter()
     {
     	 String value = arraySetSelect.getValue().toString();	
 		 FilterInfo arrayFilter = new FilterInfo((Context)arrayContextCB.getValue(), getSelectedSet(value));
          return arrayFilter;
     }
     
+    private FilterWindow getFilterWindow()
+    {
+    	return this;
+    }
   
 }

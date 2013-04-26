@@ -7,11 +7,12 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.ObjectConversion; 
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -19,12 +20,11 @@ import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.tabularview.Constants;
 
-import org.geworkbenchweb.utils.UserDirUtils;
-import org.geworkbenchweb.utils.TableView;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 
-import com.host900.PaginationBar.PaginationBar;
-import com.host900.PaginationBar.PaginationBarListener;
+import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.utils.PagedTableView;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+ 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
@@ -34,10 +34,8 @@ import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
-import com.vaadin.ui.Button;
-
-import com.vaadin.ui.HorizontalLayout;
-
+import com.vaadin.ui.Button; 
+ 
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
@@ -52,43 +50,35 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
- * Displays Tabular View for Microarray Data. For the begining display it shows
- * 50 markers and then loaded using lazy loading principle as per user request.
- * Uses PaginationBar Addon from Vaadin.
+ * Displays Tabular View for Microarray Data.  
  * 
  * @author Nikhil
  */
 public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
-
-	private PaginationBarListener paginationBarListener;
-	private int paginationBarIndex;
-	private int totalPages;
-	private int currentPageIndex;
-
+   
 	private DSMicroarraySet maSet;
-
 	private Long userId;
-
 	private int precisonNumber = 2;
-
-	private String searchStr;
-
+	private String searchStr;	
+	private TabularViewPreferences tabViewPreferences;
+    private PagedTableView displayTable;
+    
 	final private Long datasetId;
 
 	public TabularViewUI(final Long dataSetId) {
+ 
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 		
+ 
 		setSizeFull();
-		setImmediate(true);
-
+		setImmediate(true);		 
+            
 		userId = SessionHandler.get().getId();
-
-		final TabularViewPreferences tabViewPreferences = new TabularViewPreferences();
-
-		final TableView displayTable = new TableView() {
+		tabViewPreferences = new TabularViewPreferences();
+		displayTable = new PagedTableView() {
 
 			private static final long serialVersionUID = 5268979064889636700L;
 
@@ -104,8 +94,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 				return super.formatPropertyValue(rowId, colId, property);
 			}
 		};
-		final TableView exportTempTable = new TableView();
-
+	 
 		final MenuBar toolBar = new MenuBar();
 		toolBar.setStyleName("transparent");
 
@@ -118,6 +107,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("deprecation")
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						final Window displayPrefWindow = new Window();
@@ -180,15 +170,11 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 														null, userId);
 
 											displayTable
-													.setContainerDataSource(tabularView(
-															currentPageIndex,
-															Constants.DEFAULT_PAGE_SIZE,
-															dataSetId,
-															tabViewPreferences));
+													.setContainerDataSource(tabularView());				 
+													 
 											mainWindow
 													.removeWindow(displayPrefWindow);
-											toolBar.getItems().get(4).setEnabled(false);	
-											searchStr = null;
+									 
 										} catch (Exception e) {
 											e.printStackTrace();
 										}
@@ -208,6 +194,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("deprecation")
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						final Window displayPrefWindow = new Window();
@@ -266,15 +253,11 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 														null, userId);
 
 											displayTable
-													.setContainerDataSource(tabularView(
-															currentPageIndex,
-															Constants.DEFAULT_PAGE_SIZE,
-															dataSetId,
-															tabViewPreferences));
+													.setContainerDataSource(tabularView());		 
+															 
 											mainWindow
 													.removeWindow(displayPrefWindow);
-										    toolBar.getItems().get(4).setEnabled(false);	
-											  searchStr = null;
+										    
 										} catch (Exception e) {
 											e.printStackTrace();
 										}
@@ -294,6 +277,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("deprecation")
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						final Window displayPrefWindow = new Window();
@@ -345,13 +329,11 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 																		.getName(),
 																Constants.NUMBER_PRECISION_CONTROL,
 																null, userId);
-
+											
+											precisonNumber = new Integer(value.toString().trim());											
 											displayTable
-													.setContainerDataSource(tabularView(
-															currentPageIndex,
-															Constants.DEFAULT_PAGE_SIZE,
-															dataSetId,
-															tabViewPreferences, searchStr));
+											.setContainerDataSource(displayTable.getContainerDataSource());
+											tabViewPreferences.setNumberPrecisionControl(precisonNumber);
 											mainWindow
 													.removeWindow(displayPrefWindow);
 										 
@@ -385,68 +367,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 
-				final FilterWindow filterWindow = new FilterWindow( tabViewPreferences,
-						dataSetId);
-				filterWindow.getSubmitButton().addListener(
-						new Button.ClickListener() {
-
-							private static final long serialVersionUID = -4799561372701936132L;
-
-							@Override
-							public void buttonClick(ClickEvent event) {
-								try {
-
-									FilterInfo markerFilter = filterWindow
-											.getMarkerFilter();
-
-									Preference p = PreferenceOperations
-											.getData(
-													dataSetId,
-													Constants.MARKER_FILTER_CONTROL,
-													userId);
-									if (p != null)
-										PreferenceOperations.setValue(
-												markerFilter, p);
-									else
-										PreferenceOperations.storeData(
-												markerFilter,
-												FilterInfo.class.getName(),
-												Constants.MARKER_FILTER_CONTROL,
-												dataSetId, userId);
-
-									FilterInfo arrayFilter = filterWindow
-											.getArrayFilter();
-									p = PreferenceOperations.getData(dataSetId,
-											Constants.ARRAY_FILTER_CONTROL,
-											userId);
-									if (p != null)
-										PreferenceOperations.setValue(
-												arrayFilter, p);
-									else
-										PreferenceOperations.storeData(
-												arrayFilter,
-												FilterInfo.class.getName(),
-												Constants.ARRAY_FILTER_CONTROL,
-												dataSetId, userId);
-									displayTable
-											.setContainerDataSource(tabularView(
-													1,
-													Constants.DEFAULT_PAGE_SIZE,
-													dataSetId,
-													tabViewPreferences));
-
-									setPaginationBar();
-									getApplication().getMainWindow()
-											.removeWindow(filterWindow);
-									toolBar.getItems().get(4).setEnabled(false);	
-									searchStr = null;
-
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						});
-
+				final FilterWindow filterWindow = new FilterWindow(getTabularViewUI());			 
 				getApplication().getMainWindow().addWindow(filterWindow);
 
 			}
@@ -459,12 +380,9 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				exportTempTable.setContainerDataSource(tabularView(1, maSet
-						.getMarkers().size(), dataSetId, tabViewPreferences,
-						searchStr));
-				exportTempTable.csvExport("tabularViewTable.csv");
-				exportTempTable.removeAllItems();
+			public void menuSelected(MenuItem selectedItem) {				 
+				displayTable.csvExport("tabularViewTable.csv");				 
+				 
 			}
 		});
 		exportItem.setStyleName("plugin");
@@ -473,10 +391,10 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 			private static final long serialVersionUID = 1L;
 
+			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				final Window searchWindow = new Window();
-				// searchWindow.setModal(true);
+				final Window searchWindow = new Window();			 
 				searchWindow.setClosable(true);
 				((AbstractOrderedLayout) searchWindow.getLayout())
 						.setSpacing(true);
@@ -499,20 +417,16 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 					private static final long serialVersionUID = 1048639156493298177L;
 
 					public void textChange(TextChangeEvent event) {
-						currentPageIndex = 1;
-						displayTable.setContainerDataSource(tabularView(
-								currentPageIndex, Constants.DEFAULT_PAGE_SIZE,
-								dataSetId, tabViewPreferences, event.getText()));
-						setPaginationBar();
-
 						if (event.getText() != null
 								&& event.getText().length() > 0) {
 							toolBar.getItems().get(4).setEnabled(true);
-							searchStr = event.getText();
+							searchStr = event.getText().trim().toUpperCase();
 						} else {
 							toolBar.getItems().get(4).setEnabled(false);
 							searchStr = null;
 						}
+						displayTable.setContainerDataSource(tabularView());				 
+							 
 
 					}
 				});
@@ -532,11 +446,8 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						searchStr = null;
-						currentPageIndex = 1;
-						displayTable.setContainerDataSource(tabularView(
-								currentPageIndex, Constants.DEFAULT_PAGE_SIZE,
-								dataSetId, tabViewPreferences));
-						setPaginationBar();
+					 
+						displayTable.setContainerDataSource(tabularView());						 
 						selectedItem.setEnabled(false);
 					}
 				});
@@ -553,11 +464,8 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				PreferenceOperations.deleteAllPreferences(dataSetId, userId,
 						"TabularViewUI%");
-				currentPageIndex = 1;
-				displayTable.setContainerDataSource(tabularView(
-						currentPageIndex, Constants.DEFAULT_PAGE_SIZE,
-						dataSetId, tabViewPreferences));
-				setPaginationBar();
+				 
+				displayTable.setContainerDataSource(tabularView());			 
 				clearItem.setEnabled(false);
 				searchStr = null;
 			}
@@ -575,26 +483,15 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 		addComponent(toolBar);
 		addComponent(displayTable);
-		setExpandRatio(displayTable, 1);
-		addComponent(exportTempTable);
-		exportTempTable.setVisible(false);
-		currentPageIndex = 1;
-		displayTable.setContainerDataSource(tabularView(currentPageIndex,
-				Constants.DEFAULT_PAGE_SIZE, dataSetId, tabViewPreferences));
-		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150);
+		setExpandRatio(displayTable, 1);		 
+	 
+		displayTable.setContainerDataSource(tabularView());
+		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
-		paginationBarListener = new PaginationBarListener() {
-			@Override
-			public void pageRequested(int pageIndexRequested) {
-				displayTable.setContainerDataSource(tabularView(
-						pageIndexRequested, Constants.DEFAULT_PAGE_SIZE,
-						dataSetId, tabViewPreferences));
-				currentPageIndex = pageIndexRequested;
-			}
-		};
+		addComponent(displayTable.createControls());
 
-		setPaginationBar();
-
+		 
+	 
 	}
 
 	/**
@@ -604,30 +501,19 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 	 * @param pageIndex
 	 * @return IndexedContainer with Table Items
 	 */
-	private IndexedContainer tabularView(int pageIndex, int pageSize,
-			Long dataSetId, TabularViewPreferences tabViewPreferences,
-			String search) {
+	 IndexedContainer tabularView() {
 
-		getTabViewPreferences(dataSetId, tabViewPreferences);
+		loadTabViewPreferences();
 		IndexedContainer dataIn = new IndexedContainer();
-		List<String> colHeaders = getTabViewColHeaders(tabViewPreferences);
-		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers(search,
-				tabViewPreferences);
+		List<String> colHeaders = getTabViewColHeaders();
+		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers();
 
 		int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
-
-		totalPages = (int) Math.ceil((double) selectedMarkers.size()
-				/ (double) pageSize);
-
-		/* Last page might not have all 50 elements */
-		int flag = selectedMarkers.size() + 1;
-		if (pageIndex == totalPages) {
-			flag = selectedMarkers.size();
-		}
-		for (int i = ((pageIndex - 1) * pageSize + 1); i <= (pageIndex - 1)
-				* pageSize + pageSize; i++) {
-			Item item = dataIn.addItem(i - 1);
+ 
+		for (int i = 0; i < selectedMarkers.size(); i++)
+		{		 
+			Item item = dataIn.addItem(i);
 			for (int k = 0; k < colHeaders.size(); k++) {
 				if (k < displayPrefColunmNum) {
 					dataIn.addContainerProperty(colHeaders.get(k),
@@ -637,17 +523,23 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 					if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.MARKER_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i - 1).getLabel());
+								selectedMarkers.get(i).getLabel());
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i - 1).getGeneName());
+								selectedMarkers.get(i).getGeneName());
 
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))
-						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i - 1).getDescription());
-
+					{
+						String[] list = AnnotationParser.getInfo(selectedMarkers.get(i)
+								.getLabel(), AnnotationParser.DESCRIPTION);
+						if (list != null && list.length > 0)							 
+						    item.getItemProperty(colHeaders.get(k)).setValue(list[0]);
+						else
+							item.getItemProperty(colHeaders.get(k)).setValue("---");
+                        
+					}
 				} else {
 					dataIn.addContainerProperty(colHeaders.get(k), Float.class,
 							null);
@@ -657,29 +549,20 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 							(float) maSet
 									.get(colHeaders.get(k))
 									.getMarkerValue(
-											selectedMarkers.get(i - 1)
+											selectedMarkers.get(i)
 													.getSerial()).getValue());
 				}
 			}
-			if (i == flag)
-				break;
+			 
 		}
 
 		return dataIn;
 	}
-
-	private IndexedContainer tabularView(int pageIndex, int pageSize, Long dataSetId,
-			TabularViewPreferences tabViewPreferences) {
-
-		return tabularView(pageIndex, pageSize, dataSetId, tabViewPreferences,
-				null);
-	}
-
-	private void getTabViewPreferences(Long dataSetId,
-			TabularViewPreferences tabViewPreferences) {
+ 
+	void loadTabViewPreferences() {
 
 		List<Preference> preferences = PreferenceOperations.getAllPreferences(
-				dataSetId, userId, "TabularViewUI%");
+				datasetId, userId, "TabularViewUI%");
 		if (preferences == null) {
 			tabViewPreferences.reset();
 			return;
@@ -717,8 +600,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	private List<String> getTabViewColHeaders(
-			TabularViewPreferences tabViewPreferences) {
+	private List<String> getTabViewColHeaders() {			 
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
 				.ordinal()) {
@@ -782,8 +664,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	private DSItemList<DSGeneMarker> getTabViewMarkers(String search,
-			TabularViewPreferences tabViewPreferences) {
+	private DSItemList<DSGeneMarker> getTabViewMarkers() {		 
 		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();
 		;
 		String[] selectedMarkerSet = null;
@@ -808,7 +689,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 					String temp = ((positions.get(m)).split("\\s+"))[0].trim();
 					DSGeneMarker marker = maSet.getMarkers().get(temp);
 					if (marker != null
-							&& isMatchSearch(marker, search,
+							&& isMatchSearch(marker, 
 									markerDisplayControl)) {
 						selectedMarkers.add(marker);
 					}
@@ -818,7 +699,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 		} else {
 			for (int i = 0; i < maSet.getMarkers().size(); i++) {
 				DSGeneMarker marker = maSet.getMarkers().get(i);
-				if (isMatchSearch(marker, search, markerDisplayControl))
+				if (isMatchSearch(marker, markerDisplayControl))
 					selectedMarkers.add(marker);
 
 			}
@@ -828,43 +709,51 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	private boolean isMatchSearch(DSGeneMarker marker, String search,
+	private boolean isMatchSearch(DSGeneMarker marker,  
 			int markerDisplayControl) {
-		if (search == null || search.trim().length() == 0)
+		if (searchStr == null || searchStr.trim().length() == 0)
 			return true;
 
-		boolean isMatch = false;
-		search = search.toUpperCase();
+		boolean isMatch = false;	 
 		if (markerDisplayControl == Constants.MarkerDisplayControl.both
 				.ordinal()) {
-			if (marker.getLabel().toUpperCase().contains(search)
-					|| marker.getGeneName().toUpperCase().contains(search))
+			if (marker.getLabel().toUpperCase().contains(searchStr)
+					|| marker.getGeneName().toUpperCase().contains(searchStr))
 				isMatch = true;
 		} else if (markerDisplayControl == Constants.MarkerDisplayControl.marker
 				.ordinal()) {
-			if (marker.getLabel().toUpperCase().contains(search))
+			if (marker.getLabel().toUpperCase().contains(searchStr))
 				isMatch = true;
 
 		} else {
 			if (marker.getGeneName().toUpperCase()
-					.contains(search.trim().toUpperCase()))
+					.contains(searchStr.trim().toUpperCase()))
 				isMatch = true;
 		}
 		return isMatch;
 	}
-
+	 
+	TabularViewUI getTabularViewUI()
+	{
+		return this;
+	}
 	
-
-	private void setPaginationBar() {
-		if (paginationBarIndex != 0)
-			this.removeComponent(getComponent(paginationBarIndex));
-		PaginationBar paginationBar = new PaginationBar(totalPages,
-				paginationBarListener);
-		HorizontalLayout pageBar = paginationBar.createPagination();
-		addComponent(pageBar);
-		paginationBarIndex = getComponentIndex(pageBar);
+	PagedTableView getDisplayTable()
+	{
+		return displayTable;
+	}
+	
+	TabularViewPreferences getTabViewPreferences()
+	{
+		return tabViewPreferences;
+	} 
+	
+	Long getUserId()
+	{
+		return userId;
 	}
 
+ 
 	@Override
 	public PluginEntry getPluginEntry() {
 		return new PluginEntry("Tabular Microarray Viewer", 
@@ -877,4 +766,5 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 		return datasetId;
 	}
 
+ 
 }
