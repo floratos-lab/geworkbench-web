@@ -16,6 +16,8 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
@@ -31,7 +33,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class ActivityFeedWindow extends Window implements LogCompleteEventListener{
+public class ActivityFeedWindow extends Window implements LogCompleteEventListener, FriendStatusChangeListener{
 	
 	/**
 	 * 
@@ -186,6 +188,13 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	@Override
 	public void completeLog(LogCompleteEvent evt) {
 		System.out.println("Get fired event in AF Window");
+		this.updateQueryString();
+		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
+		this.makeAFLayout();
+	}
+	
+	@Override
+	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		this.updateQueryString();
 		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 		this.makeAFLayout();

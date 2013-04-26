@@ -1,10 +1,11 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 
-import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -12,13 +13,11 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-public class UserSearchWindow extends Window implements RefreshListener{
+public class UserSearchWindow extends Window {
 	
 	private GenSpaceLogin login;
 	
 	private SocialNetworkHome sHome;
-	
-	private Refresher refresher;
 	
 	private VerticalLayout vLayout = new VerticalLayout();
 	
@@ -54,12 +53,7 @@ public class UserSearchWindow extends Window implements RefreshListener{
 		this.caption = this.friend.getUsername() + "'s  genSpace profile";
 		setCaption(this.caption);
 		
-		this.addComponent(vLayout);
-		
-		/*this.refresher = new Refresher();
-		this.refresher.setRefreshInterval(100);
-		this.addComponent(refresher);*/
-		
+		this.addComponent(vLayout);		
 		this.updateWindowContents();
 	}
 	
@@ -138,10 +132,11 @@ public class UserSearchWindow extends Window implements RefreshListener{
 						getApplication().getMainWindow().showNotification(removeFriend);
 												
 						sHome.getInstance().updateForm();
-						/*login.getChatHandler().getRosterFrame().removedCache.add(friend.getUsername() + "@genspace");
-						login.getChatHandler().getRosterFrame().refresh();*/
 						updateWindowContents();
 						login.getPusher().push();
+						//When user decide to remove a friend, fire the event.
+						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(friend.getUsername()));
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}
@@ -167,8 +162,6 @@ public class UserSearchWindow extends Window implements RefreshListener{
 						getApplication().getMainWindow().showNotification(cancelFriend);
 						
 						sHome.getInstance().updateForm();
-						/*login.getChatHandler().getRosterFrame().removedCache.add(friend.getUsername() + "@genspace");
-						login.getChatHandler().getRosterFrame().refresh();*/
 						updateWindowContents();
 						login.getPusher().push();
 					} catch (Exception e) {
@@ -195,7 +188,6 @@ public class UserSearchWindow extends Window implements RefreshListener{
 						getApplication().getMainWindow().showNotification(addFriend);
 						
 						sHome.getInstance().updateForm();
-						//login.getChatHandler().getRosterFrame().refresh();
 						updateWindowContents();
 						login.getPusher().push();
 					} catch (Exception e) {
@@ -215,11 +207,5 @@ public class UserSearchWindow extends Window implements RefreshListener{
 		login.getGenSpaceServerFactory().otherUserUpdate(friend);
 		login.getGenSpaceServerFactory().getFriendOps().getFriends();
 		this.friend = login.getGenSpaceServerFactory().getUserOps().getProfile(this.friend.getUsername());
-	}
-
-	@Override
-	public void refresh(Refresher source) {
-		// TODO Auto-generated method stub
-		updateWindowContents();
 	}
 }

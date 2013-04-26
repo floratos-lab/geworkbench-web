@@ -70,14 +70,6 @@ public class NetworkPanel extends SocialPanel{
 		this.blLayout = new BorderLayout();
 		this.setCompositionRoot(blLayout);
 		this.title = panelTitle;
-		
-		/*this.networkPanel = new Panel(this.title);
-		this.networkPanel.setHeight("1000px");
-		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
-		this.cachedAllNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getAllNetworks();
-		this.createMainLayout();
-		this.networkPanel.addComponent(mainLayout);
-		this.blLayout.addComponent(networkPanel, BorderLayout.Constraint.CENTER);*/
 		this.updatePanel();
 	}
 	
@@ -180,15 +172,6 @@ public class NetworkPanel extends SocialPanel{
 			}
 		});
 		
-		//For testing purpose
-		/*this.addSelectionItem("Mike Test");
-		this.addSelectionItem("Mike Test2");*/
-		
-		/*Iterator<Network> netIT = this.cachedAllNetWorks.iterator();
-		while(netIT.hasNext()){
-			this.addSelectionItem(netIT.next());
-		}*/
-		
 		Button goButton = new Button(this.go);
 		goButton.setWidth("150px");
 		goButton.addListener(new Button.ClickListener(){
@@ -259,9 +242,6 @@ public class NetworkPanel extends SocialPanel{
 	}
 	
 	private void addSelectionItem(Network select) {
-		/*Object itemID = networkSelect.addItem();
-		networkSelect.setItemCaption(itemID, select);
-		networkSelect.setValue(itemID);*/
 		networkSelect.addItem(select);
 		networkSelect.setItemCaption(select, select.getName());
 	}

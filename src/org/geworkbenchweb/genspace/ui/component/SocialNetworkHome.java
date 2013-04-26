@@ -8,7 +8,6 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 
-import com.github.wolfie.refresher.Refresher;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -55,12 +54,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	
 	private String back = "Back";
 	
-	private int pPanelIdx;
-	
 	private List<User> friendList;
 	
 	private List<UserNetwork> uNetworkList;
-	
 	
 	private ComboBox search;
 	
@@ -81,8 +77,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	private Stack<SocialPanel> last;
 	
 	private SocialNetworkHome instance;
-	
-	private Refresher refresher;
 	
 	{
 		init();
@@ -146,11 +140,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		sbcLayout.addComponent(bcLayout);
 		
 		mainLayout.addComponent(sbcLayout);
-		
-		/*refresher = new Refresher();
-		refresher.setRefreshInterval(100);*/
-		//refresher.setRefreshInterval(5 * 1000);
-		//mainLayout.addComponent(refresher);
 	}
 	
 	private void makeSearchLayout() {
@@ -207,13 +196,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
-				//createDefaultPanel();
-				/*ProfilePanel pPanel = new ProfilePanel(title);
-				contentLayout.removeAllComponents();
-				contentLayout.addComponent(pPanel);*/
-				
-				/*ProfilePanel pPanel = new ProfilePanel(title, login);
-				setContent(pPanel);*/
 				proPanel.updatePanel();
 				setContent(proPanel);
 			}
@@ -226,8 +208,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
-				/*NetworkPanel nPanel = new NetworkPanel(myNet, login);
-				setContent(nPanel);*/
 				netPanel.updatePanel();
 				setContent(netPanel);
 			}
@@ -239,9 +219,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
-					/*List<User> friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
-					FriendPanel fPanel = new FriendPanel(myFriends, friendList);
-					setContent(fPanel);*/
 					friendPanel.updatePanel();
 					setContent(friendPanel);
 				}
@@ -254,32 +231,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent e) {
-				/*Iterator<Window> windowIT = getApplication().getMainWindow().getChildWindows().iterator();
-				RosterFrame buddy = null;
-				Window temp;
-				while(windowIT.hasNext()) {
-					temp = windowIT.next();
-					if(temp.getCaption().equals("Buddies")) {
-						buddy = (RosterFrame)temp;
-					}
-				}
-				
-				if (buddy != null) {
-					buddy.setVisible(true);
-					buddy.focus();
-				} else {
-					System.out.println("Buddy window is gone");
-					System.out.println("Test username: " + login.getGenSpaceServerFactory().getUsername());
-					chatHandler = login.getChatHandler();
-					Roster r = chatHandler.getConnection().getRoster();
-					r.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
-
-					chatHandler.rf.setRoster(r);
-					chatHandler.rf.setVisible(true);
-					chatHandler.rf.focus();
-
-					getApplication().getMainWindow().addWindow(chatHandler.rf);
-				}*/
 				System.out.println("In the chat button");
 				searchRosterFrame();
 				searchAFWindow();
@@ -292,10 +243,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
-					/*List<User> friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
-					List<UserNetwork> uNetworkList = login.getGenSpaceServerFactory().getUserOps().getMyNetworks();
-					PrivacyPanel pPanel = new PrivacyPanel(settings, friendList, uNetworkList, login);
-					setContent(pPanel);*/
 					privacyPanel.updatePanel();
 					setContent(privacyPanel);
 				}			
@@ -307,8 +254,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
-				/*RequestPanel rPanel = new RequestPanel(pRequests, login);
-				setContent(rPanel);*/
 				viewPanel.updatePanel();
 				setContent(viewPanel);
 			}
@@ -344,8 +289,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.contentLayout = new VerticalLayout();
 		proPanel = new ProfilePanel(title, login);
 		this.setRealContent(proPanel);
-
-		this.pPanelIdx = contentLayout.getComponentIndex(proPanel);	
 	}
 	
 	private void setContent(SocialPanel sp) {
@@ -426,23 +369,16 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	@Override
 	public void tabSelected() {
 		// TODO Auto-generated method stub
-		ProfilePanel tmp = (ProfilePanel)contentLayout.getComponent(this.pPanelIdx);
+		//ProfilePanel tmp = (ProfilePanel)contentLayout.getComponent(this.pPanelIdx);
+		//tmp.createProfileForm();
+		ProfilePanel tmp = (ProfilePanel)this.proPanel;
 		tmp.createProfileForm();
 	}
 
 	@Override
 	public void loggedIn() {
 		// TODO Auto-generated method stub
-		System.out.println("Log in: " + login.getGenSpaceServerFactory().getUsername());
-		
-		/*this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
-		this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
-		this.friendPanel = new FriendPanel(this.myFriends, this.friendList);
-		this.netPanel = new NetworkPanel(this.myNet, this.login);
-		this.privacyPanel = new PrivacyPanel(this.settings, this.friendList, this.uNetworkList, this.login);
-		this.viewPanel = new RequestPanel(this.pRequests, this.login);
-		
-		this.loadSearchItems();*/
+		//System.out.println("Log in: " + login.getGenSpaceServerFactory().getUsername());
 		this.initForm();
 		this.chatHandler = this.login.getChatHandler();
 	}
@@ -450,7 +386,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	@Override
 	public void loggedOut() {
 		// TODO Auto-generated method stub
-		System.out.println("Log out: " + login.getGenSpaceServerFactory().getUsername());
+		//System.out.println("Log out: " + login.getGenSpaceServerFactory().getUsername());
 		this.last.clear();
 		this.clearSettings();
 	}
@@ -458,6 +394,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	private void clearSettings() {
 		this.friendList = null;
 		this.uNetworkList = null;
+		this.proPanel = null;
 		this.friendPanel = null;
 		this.netPanel = null;
 		this.privacyPanel = null;
@@ -485,28 +422,24 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 			this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 			this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
-			//this.evtList = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents("2012-06-01");
 			this.friendPanel = new FriendPanel(this.myFriends, this.login);
 			this.netPanel = new NetworkPanel(this.myNet, this.login);
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
 			this.loadSearchItems();
-			//this.makeGentifyLayout();
 		}
 	}
 	
 	public void updateForm() {
 		this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 		this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
-		//this.evtList = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents("2012-06-01");
-		
+		this.proPanel.updatePanel();
 		this.friendPanel.updatePanel();
 		this.netPanel.updatePanel();
 		this.privacyPanel.updatePanel();
 		this.viewPanel.updatePanel();
 		this.chatHandler.rf.refresh();
 		this.loadSearchItems();
-		//this.makeGentifyLayout();
 	}
 
 }

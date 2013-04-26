@@ -25,8 +25,6 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.vaadin.artur.icepush.ICEPush;
 
-import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
@@ -194,8 +192,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		chats.remove(user);
 	}
 
-	public void refresh(Refresher source) {
+	/*public void refresh(Refresher source) {
 		// TODO Auto-generated method stub
 		this.rf.refresh();
-	}
+	}*/
 }

@@ -27,8 +27,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.sun.jimi.core.Jimi;
 import com.sun.jimi.core.JimiException;
 import com.vaadin.data.Item;

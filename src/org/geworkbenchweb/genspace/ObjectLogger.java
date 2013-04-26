@@ -83,10 +83,15 @@ public class ObjectLogger {
 			} catch (DatatypeConfigurationException e1) {
 				e1.printStackTrace();
 			} //TODO verify
-			
-			curTransaction.setClientID(login.getGenSpaceServerFactory().getUsername() + hostname + transactionId);
-			curTransaction.setHostname(hostname);
-			curTransaction.setUser(login.getGenSpaceServerFactory().getUser());
+			if(login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
+				curTransaction.setClientID(hostname + transactionId);
+				curTransaction.setUser(null);
+			} else {
+				curTransaction.setClientID(login.getGenSpaceServerFactory().getUsername() + hostname + transactionId);
+				curTransaction.setHostname(hostname);
+				curTransaction.setUser(login.getGenSpaceServerFactory().getUser());
+			}
+				
 		}
 		File f = new File(FilePathnameUtils.getUserSettingDirectoryPath()
 				+ "geworkbench_log.xml");

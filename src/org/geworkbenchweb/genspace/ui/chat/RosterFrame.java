@@ -23,6 +23,8 @@ import java.util.Set;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
@@ -34,8 +36,6 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.github.wolfie.refresher.Refresher;
-import com.github.wolfie.refresher.Refresher.RefreshListener;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -54,7 +54,7 @@ import com.vaadin.ui.themes.Runo;
  * 
  * @author jsb2125
  */
-public class RosterFrame extends Window implements RosterListener, ChatStatusChangeEventListener {
+public class RosterFrame extends Window implements RosterListener, ChatStatusChangeEventListener, FriendStatusChangeListener {
 	public Set<String> removedCache = new HashSet<String>();
 	
 	private static String[] statuses = { "Available", "Away", "Offline" };
@@ -124,12 +124,6 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 			this.roster = roster;
 			rootGroups = new ArrayList<RosterGroup>();
 			children = new HashMap<RosterGroup, ArrayList<RosterEntry>>();
-			
-			/*Iterator<RosterEntry> entryIT = roster.getEntries().iterator();
-			while(entryIT.hasNext()) {
-				System.out.println("Read all entries: " + entryIT.next().getName());
-			}*/
-			
 
 			for(RosterGroup g: roster.getGroups())
 			{
@@ -259,38 +253,6 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		roster = newr;
 		roster.addRosterListener(this);
 		this.setUpRosterTree();
-
-		/*RosterModel model = new RosterModel();
-		model.setData(roster);
-		Iterator<RosterGroup> rgIT = model.getRosterGroup().iterator();
-		RosterGroup tmpRG;
-		
-		HierarchicalContainer hBeans = new HierarchicalContainer();
-		hBeans.addContainerProperty("name", String.class, "");
-		hBeans.addContainerProperty("rGroup", RosterGroup.class, null);
-		hBeans.addContainerProperty("rEntry", RosterEntry.class, null);
-		hBeans.addContainerProperty("group", Boolean.class, true);
-
-		
-		while(rgIT.hasNext()) {
-			tmpRG = rgIT.next();
-			//System.out.println("Set up IM contents: " + tmpRG.getName());
-			this.setHierarchicalContainer(hBeans, tmpRG);
-		}
-		//rosterTree.setContainerDataSource(rgBeans);
-		rosterTree.setContainerDataSource(hBeans);
-		rosterTree.setItemCaptionPropertyId("name");
-		rosterTree.setItemCaptionMode(Tree.ITEM_CAPTION_MODE_PROPERTY);
-		
-		Iterator idIT = rosterTree.getItemIds().iterator();
-		Object itemID;
-		while(idIT.hasNext()) {
-			itemID = idIT.next();
-			
-			if(rosterTree.getItem(itemID).getItemProperty("group").getValue().toString().equals("true")) {
-				rosterTree.expandItemsRecursively(itemID);
-			}
-		}*/
 	}
 	
 	private void setUpRosterTree() {
@@ -305,12 +267,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		hBeans.addContainerProperty("rEntry", RosterEntry.class, null);
 		hBeans.addContainerProperty("group", Boolean.class, true);
 		hBeans.addContainerProperty("icon", Resource.class, null);
-		
-		/*Iterator propertyIT = hBeans.getContainerPropertyIds().iterator();
-		while(propertyIT.hasNext()) {
-			System.out.println(propertyIT.next().toString());
-		}*/
-		
+
 		while(rgIT.hasNext()) {
 			tmpRG = rgIT.next();
 			//System.out.println("Set up IM contents: " + tmpRG.getName());
@@ -385,18 +342,12 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		cr.getConnection().sendPacket(pr);
 		cmbStatus.setValue("Available");
 		bringToFront();
-		//cmbStatus.setSelectedIndex(0);
 	}
 	/** Creates new form RosterFrame */
 	public RosterFrame(final GenSpaceLogin login, final ChatReceiver cr) {
-		/*setWidth("15%");
-		setHeight("50%");*/
-		//center();
 		setWidth("300px");
 		setHeight("400px");
-		
-		System.out.println("In the roster frame");
-		
+
 		this.login = login;
 		this.cr = cr;
 		this.username = this.login.getGenSpaceServerFactory().getUsername();
@@ -425,7 +376,6 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 	 * @param e
 	 */
 	private void cmbStatusActionPerformed(ValueChangeEvent e) {
-		//String status = cmbStatus.getSelectedItem().toString();
 		String status = e.getProperty().getValue().toString();
 		Presence pr;
 		
@@ -480,7 +430,6 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		vScrollPane1.getContent().setSizeUndefined();
 		vScrollPane1.setScrollable(true);
 		vScrollPane1.setHeight("280px");
-		//bLayout.addComponent(vScrollPane1, BorderLayout.Constraint.CENTER);
 		vMainLayout.addComponent(vScrollPane1);
 
 		rosterTree = new Tree();
@@ -501,8 +450,8 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 					if (p.getType().equals(Presence.Type.unavailable))
 						return ;
 
-					System.out.println("Test tree listener: " + e.getName());
-					System.out.println("Test manager: " + cr.getManager());
+					/*System.out.println("Test tree listener: " + e.getName());
+					System.out.println("Test manager: " + cr.getManager());*/
 					cr.getManager().createChat(e.getUser(), null);
 				}
 			}
@@ -534,25 +483,11 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		emptyLabel.setWidth("15px");
 		
 		statusLayout.addComponent(emptyLabel);
-		/*iconPanel = new Panel();
-		iconPanel.setHeight("30px");
-		iconPanel.addStyleName(Runo.PANEL_LIGHT);
-		iconPanel.addComponent(new Embedded(null, this.onlineIcon));*/
 		
 		iconLayout = new HorizontalLayout();
 		iconLayout.addComponent(this.onlineEmbed);
 		statusLayout.addComponent(iconLayout);
 		vMainLayout.addComponent(statusLayout);
-		//vMainLayout.addComponent(cmbStatus);
-		
-		//bLayout.addComponent(cmbStatus, BorderLayout.Constraint.CENTER);
-		/*cmbStatus.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				cmbStatusActionPerformed(e);
-			}
-
-		});*/
 
 		vMenuBar1 = new MenuBar();
 		vMenu1 = vMenuBar1.addItem("File", null, null);
@@ -577,17 +512,12 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		System.out.println("DEBUG: " + this.username + " got a status change event");
 		this.refresh();
 		this.login.getPusher().push();
-		/*Iterator<RosterEntry> eIT = roster.getEntries().iterator();
-		RosterEntry tmp;
-		while (eIT.hasNext()) {
-			tmp = eIT.next(); 
-			if (tmp.getUser().equals(evt.getUsername())) {
-				this.refresh();
-				login.getPusher().push();
-				System.out.println("DEBUG: " + this.username + " got a status change event");
-				
-				break;
-			}
-		}*/
+	}
+	
+	@Override
+	public void changeFriendStatus(FriendStatusChangeEvent evt) {
+		System.out.println("Get event from " + evt.getFriendName());
+		this.refresh();
+		this.login.getPusher().push();
 	}
 }

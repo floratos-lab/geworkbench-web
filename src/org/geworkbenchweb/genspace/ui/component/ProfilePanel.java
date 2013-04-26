@@ -113,7 +113,6 @@ public class ProfilePanel extends SocialPanel{
 		
 		profilePanel = new Panel(this.panelTitle);
 		this.createProfileForm();
-		/*bLayout.addComponent(profilePanel, BorderLayout.Constraint.CENTER);*/
 	}
 	
 	public String getPanelTitle() {

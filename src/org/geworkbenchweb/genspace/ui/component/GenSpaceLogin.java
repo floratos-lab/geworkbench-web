@@ -6,6 +6,8 @@ import javax.swing.JLabel;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
+import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
@@ -301,14 +303,10 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		
 		getApplication().getMainWindow().addWindow(chatHandler.rf);
 		chatHandler.rf.setPositionX(getApplication().getMainWindow().getBrowserWindowWidth()/2 + 100);
+		// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-		// Fire event in RosterFrame to avoid potential exception, although this is no harm
-		//GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
-		
-		/*afWindow = new ActivityFeedWindow(this);
-		getApplication().getMainWindow().addWindow(afWindow);
-		afWindow.setPositionX(chatHandler.rf.getPositionX());
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);*/
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+
 		this.createAFWindow();
 		
 		genSpaceParent.fireLoggedIn();
@@ -319,6 +317,8 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 			afWindow = new ActivityFeedWindow(this);
 			getApplication().getMainWindow().addWindow(afWindow);
 			afWindow.setPositionX(chatHandler.rf.getPositionX());
+			// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
+			GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
 			GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
 		}
 	}

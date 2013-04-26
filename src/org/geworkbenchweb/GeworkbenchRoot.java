@@ -176,9 +176,8 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 		
 		/* Register two new events for genSpace. */
-		/* LogCompleteEvent is for updating ActivityFeeders for friends. ChatStatusChangeEvent is for updating Chatter*/
-		getBlackboard().register(LogCompleteEventListener.class, LogCompleteEvent.class);
-		getBlackboard().register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);
+		/*getBlackboard().register(LogCompleteEventListener.class, LogCompleteEvent.class);
+		getBlackboard().register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);*/
 	}	
 
 	// TODO verify when .get() returns null and code accordingly to be explicit

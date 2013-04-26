@@ -7,6 +7,8 @@ import java.util.List;
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
@@ -66,13 +68,6 @@ public class RequestPanel extends SocialPanel{
 		this.panelTitle = panelTitle;
 		this.blLayout = new BorderLayout();
 		setCompositionRoot(blLayout);
-
-		/*this.retrieveBasicInfo();
-		this.requestPanel = new Panel(this.panelTitle);
-		this.requestPanel.setWidth("800px");
-		createMainLayout();
-		requestPanel.addComponent(hLayout);
-		blLayout.addComponent(requestPanel, BorderLayout.Constraint.CENTER);*/
 		this.updatePanel();
 	}
 	
@@ -124,8 +119,6 @@ public class RequestPanel extends SocialPanel{
 	
 	private void createFriendLayout() {
 		fLayout = new VerticalLayout();
-		/*friendPanel = new Panel(this.friend);
-		friendPanel.setWidth("300px");*/
 		
 		this.loadFriends();
 		
@@ -188,9 +181,14 @@ public class RequestPanel extends SocialPanel{
 						if(ar.equals(aFriend)) {
 							System.out.println("Accept from user: " + tmpUser.getUsername());
 							login.getGenSpaceServerFactory().getFriendOps().addFriend(tmpUser.getId());
+							//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
+							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(tmpUser.getUsername()));
+							login.getPusher().push();
 						} else if (ar.equals(rFriend)) {
 							System.out.println("Reject from user: " + tmpUser.getUsername());
 							login.getGenSpaceServerFactory().getFriendOps().rejectFriend(tmpUser.getId());
+							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(tmpUser.getUsername()));
+							login.getPusher().push();
 						}
 					}
 				}
@@ -264,9 +262,11 @@ public class RequestPanel extends SocialPanel{
 						if(ar.equals(accept)) {
 							System.out.println("Accept request from network: " + tmpUnr.getName());
 							login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(tmpUnr.getId());
+							login.getPusher().push();
 						} else if(ar.equals(reject)) {
 							System.out.println("Reject request from network: " + tmpUnr.getName());
 							login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(tmpUnr.getId());
+							login.getPusher().push();
 						}
 					}
 				}
