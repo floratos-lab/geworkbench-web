@@ -365,7 +365,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		TTestAnalysisWeb analyze = new TTestAnalysisWeb((DSMicroarraySet) dataset, params);
 		DSSignificanceResultSet<DSGeneMarker> sigSet = analyze.execute();
 		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(sigSet));
-		/*if (!sigSet.getSignificantMarkers().isEmpty())
+		if (!sigSet.getSignificantMarkers().isEmpty())
 		{			 
 			List<String> significantMarkerNames = new ArrayList<String>();
 			for(int i=0; i<sigSet.getSignificantMarkers().size(); i++)
@@ -373,7 +373,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 			java.util.Collections.sort(significantMarkerNames);
 			SubSetOperations.storeSignificance(significantMarkerNames, dataSetId, userId);
 		
-		}*/
+		} 
 		 
 		return "TTest";
 	}
