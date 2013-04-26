@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.anova;
- 
+
+import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -29,12 +30,10 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.utils.SubSetOperations;
 
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-
+ 
 /**
  * 
  * This class submits Anova Analysis from web application
@@ -74,18 +73,17 @@ public class AnovaAnalysis {
 		CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 
 		int[] featuresIndexes = output.getFeaturesIndexes();
-		double[] significances = output.getSignificances();
-		String[] significantMarkerNames = new String[featuresIndexes.length];
-
+		double[] significances = output.getSignificances();		
 		int[] significantPositions = new int[featuresIndexes.length];
-		
+		List<String> significantMarkerNames = new ArrayList<String>();
+
 		for (int i = 0; i < featuresIndexes.length; i++) {
 			DSGeneMarker item = selectedMarkers.get(featuresIndexes[i]);
 			log.debug("SignificantMarker: " + item.getLabel()
 					+ ", with apFM: " + significances[i]);
 
 			sigSet.setSignificance(item, significances[i]);
-			significantMarkerNames[i] = item.getLabel();
+			significantMarkerNames.add(item.getLabel());
 			significantPositions[i] = item.getSerial();
 		}
 
@@ -94,18 +92,19 @@ public class AnovaAnalysis {
 
 		anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(dataView,
 				"Anova Analysis Result Set", selectedArraySetNames,
-				paramForm.getPValThreshold(), significantMarkerNames, output.getResult2DArray());
-		log.debug(significantMarkerNames.length
+				paramForm.getPValThreshold(), significantMarkerNames.toArray(new String[0]), output.getResult2DArray());
+		log.debug(significantMarkerNames.size()
 				+ " Markers added to anovaResultSet.");
 		anovaResultSet.getSignificantMarkers().addAll(
 				sigSet.getSignificantMarkers());
 		log.debug(sigSet.getSignificantMarkers().size()
 				+ " Markers added to anovaResultSet.getSignificantMarkers().");
 
-		if (significantMarkerNames.length > 0)
+		if (significantMarkerNames.size() > 0)
 		{
-			anovaResultSet.sortMarkersBySignificance();
-			storeSignificance(significantMarkerNames);
+			anovaResultSet.sortMarkersBySignificance();	
+			java.util.Collections.sort(significantMarkerNames);
+			SubSetOperations.storeSignificance(significantMarkerNames, paramForm.getDataSetId(), paramForm.getUserId());
 		}		
 		return anovaResultSet;
 	}
@@ -255,27 +254,7 @@ public class AnovaAnalysis {
 		return output;
 	}
 	
-	public void storeSignificance(String[] significantMarkers) {
-
-		ArrayList<String> data = new ArrayList<String>();
-		for(int i=0;i<significantMarkers.length; i++) {
-			data.add(significantMarkers[i]);
-		}
-		int  significantNum = significantMarkers.length;
-		int  significanSetNum = SubSetOperations.getSignificanceSetNum(paramForm.getDataSetId());
-		 
-		SubSet subset  	= 	new SubSet();
-		if (significanSetNum == 0)
-		   subset.setName("Significant Genes [" + significantNum + "]");
-		else	 
-		   subset.setName("Significant Genes(" + significanSetNum + ") ");
-		 
-		subset.setOwner(paramForm.getUserId());
-		subset.setType("marker");
-	    subset.setParent(paramForm.getDataSetId());
-	    subset.setPositions(data);
-	    FacadeFactory.getFacade().store(subset);
-	}
+	 
 	
 	private void getWebServiceUrl()
 	{

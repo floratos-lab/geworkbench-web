@@ -1,11 +1,13 @@
 package org.geworkbenchweb.plugins.ttest;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -42,6 +44,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 1L;
 	
 	private Long dataSetId;
+	private Long userId;
 	
 	private Accordion tabs;
 	
@@ -149,7 +152,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setName(dataSetName);
 				resultSet.setType(getResultType().getName());
 				resultSet.setParent(dataSetId);
-				resultSet.setOwner(SessionHandler.get().getId());
+				userId = SessionHandler.get().getId();
+				resultSet.setOwner(userId);
 				FacadeFactory.getFacade().store(resultSet);
 
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
@@ -359,7 +363,18 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	public String execute(Long resultId, DSDataSet<?> dataset,
 			HashMap<Serializable, Serializable> parameters) {
 		TTestAnalysisWeb analyze = new TTestAnalysisWeb((DSMicroarraySet) dataset, params);
-		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(analyze.execute()));
+		DSSignificanceResultSet<DSGeneMarker> sigSet = analyze.execute();
+		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(sigSet));
+		/*if (!sigSet.getSignificantMarkers().isEmpty())
+		{			 
+			List<String> significantMarkerNames = new ArrayList<String>();
+			for(int i=0; i<sigSet.getSignificantMarkers().size(); i++)
+				significantMarkerNames.add(sigSet.getSignificantMarkers().get(i).getLabel());
+			java.util.Collections.sort(significantMarkerNames);
+			SubSetOperations.storeSignificance(significantMarkerNames, dataSetId, userId);
+		
+		}*/
+		 
 		return "TTest";
 	}
 }

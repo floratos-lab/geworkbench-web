@@ -77,14 +77,32 @@ public class SubSetOperations {
 	}
 
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void storeSignificance(List<String> data, Long dataSetId, Long userId) {
+ 
+		int  significanSetNum = SubSetOperations.getSignificanceSetNum(dataSetId);
+		 
+		SubSet subset  	= 	new SubSet();
+		if (significanSetNum == 0)
+		   subset.setName("Significant Genes ");
+		else	 
+		   subset.setName("Significant Genes(" + significanSetNum + ") ");
+		 
+		subset.setOwner(userId);
+		subset.setType("marker");
+	    subset.setParent(dataSetId);
+	    subset.setPositions((ArrayList)data);
+	    FacadeFactory.getFacade().store(subset);
+	}
+	
 	public static int getSignificanceSetNum(Long dataSetId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("parent", dataSetId);
 		parameters.put("type", "marker");
-		parameters.put("name", "Significan Genes%");
-
+		parameters.put("name", "Significant Genes%");
+		                         
 		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type and p.name like :name", parameters);
 
 		if (data != null)	  
