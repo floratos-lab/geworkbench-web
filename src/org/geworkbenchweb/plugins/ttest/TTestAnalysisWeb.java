@@ -259,16 +259,20 @@ public class TTestAnalysisWeb {
 				alpha, isLogNormalized
 		);
 	
-		for (int i = 0; i < output.getSignificanceIndex().length; i++) {
-			int index = (output.getSignificanceIndex())[i];
-			DSGeneMarker m = dataSetView.markers().get(index);
-			sigSet.setSignificance(m, (output.getpValue())[index]);
-			sigSet.setTValue(m, (output.gettValue())[index]);
+		if (output.getSignificanceIndex() != null)
+		{
+			for (int i = 0; i < output.getSignificanceIndex().length; i++) {
 			
-			sigSet.setFoldChange(m, (output.getFoldChange())[index]);
-		}
+				int index = (output.getSignificanceIndex())[i];
+			    DSGeneMarker m = dataSetView.markers().get(index);
+			    sigSet.setSignificance(m, (output.getpValue())[index]);
+			    sigSet.setTValue(m, (output.gettValue())[index]);
+			
+			    sigSet.setFoldChange(m, (output.getFoldChange())[index]);
+		    }
+		    sigSet.sortMarkersBySignificance();
 		
-		sigSet.sortMarkersBySignificance();
+		}
 		
 		return sigSet;
 	}
