@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
 
@@ -16,14 +14,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
-import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.DataSet;
 
 /**
  * A handler used to log events.
@@ -33,7 +28,6 @@ import org.geworkbenchweb.pojos.DataSet;
  */
 public final class ObjectHandler {
 
-	//private static Log log = LogFactory.getLog(ObjectHandler.class);
 	private Log log = LogFactory.getLog(ObjectHandler.class);
 	private HashMap<String, Long> lastRunTimes = new HashMap<String, Long>();
 	private long defaultRunTime = 1000 * 60 * 10; // 10 min
@@ -90,7 +84,6 @@ public final class ObjectHandler {
 			}
 
 			incrementTransactionId(dataSetName);
-//			ObjectLogger o = null;
 			String analysisName = "";
 			analysisName = ase.getResultSet().getName().replace(" - Pending", "");
 			@SuppressWarnings("rawtypes")
@@ -152,6 +145,10 @@ public final class ObjectHandler {
 		sw.execute();
 	}
 
+	/*
+	 * Keep eventAborted and related logic first.
+	 * It's possible that we will have aborted event in the future
+	 */
 	public void eventAborted(final AnalysisInvokedEvent invokeEvent) {
 		throw new NotImplementedException();
 //		if (invokeEvent != null)

@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
@@ -301,8 +300,7 @@ public class GenSpaceServerFactory {
 			System.setProperty("java.security.auth.login.config", "login.conf");
 			try {
 				logout();
-				/*GenSpaceServerFactory.username = username;
-				GenSpaceServerFactory.password = UserWrapper.getEncryptedPassword(password.toCharArray());*/
+
 				this.username = username;
 				this.password = UserWrapper.getEncryptedPassword(password.toCharArray());
 				

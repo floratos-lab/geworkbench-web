@@ -14,18 +14,11 @@ import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.MessageTypeFilter;
-import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.vaadin.artur.icepush.ICEPush;
-
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 
@@ -63,11 +56,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			this.createRosterFrame();
 			/*rf = new RosterFrame(login, this);
 			rf.setRoster(r);
-			rf.setVisible(true);
-			final Refresher refresher = new Refresher();
-			refresher.setRefreshInterval(50);
-			refresher.addListener(this);
-			this.rf.addComponent(refresher);*/
+			rf.setVisible(true);*/
 
 			manager.addChatListener(this);
 		} else
@@ -86,12 +75,6 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.rf.setVisible(true);
 		this.rf.setPositionX(10);
 		this.rf.setPositionY(10);
-		
-		//Mike 0408
-		/*final Refresher refresher = new Refresher();
-		refresher.setRefreshInterval(1000);
-		refresher.addListener(this);
-		this.rf.addComponent(refresher);*/
 	}
 	
 	public boolean tryLogin(String u, String p) {
@@ -121,11 +104,6 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			rf.getApplication().getMainWindow().addWindow(cw);
 		}
 		c.addMessageListener(this);
-		
-		/*Iterator<MessageListener> lIT = c.getListeners().iterator();
-		while (lIT.hasNext()) {
-			System.out.println("Print listener: " + lIT.next().toString());
-		}*/
 		
 		System.out.println("A new chat is created in ChatReceiver.chatCreated");
 		
@@ -191,9 +169,4 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		
 		chats.remove(user);
 	}
-
-	/*public void refresh(Refresher source) {
-		// TODO Auto-generated method stub
-		this.rf.refresh();
-	}*/
 }

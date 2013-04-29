@@ -21,17 +21,9 @@ package org.geworkbenchweb.genspace;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-//import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-//import org.geworkbench.components.genspace.server.stubs.ProteinSequence;
-//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel;
-//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel.MSARecommenderCallback;
-import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AnalysisAbortEvent;
 import org.geworkbench.events.AnalysisCompleteEvent;
 import org.geworkbench.events.AnalysisInvokedEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.LogCompleteEvent;
@@ -97,7 +89,6 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 
 	@Override
 	public void SubmitAnalysis(AnalysisSubmissionEvent event) {
-		//System.out.println("Analysdis submitted: " + event.getParameters());
 		System.out.println("Analysis name: " + event.getResultSet().getName().replace(" - Pending", ""));
 		System.out.println("Analysis params: " + event.getParameters());
 		System.out.println("Analysis dataset: " + event.getDataSet().getLabel());

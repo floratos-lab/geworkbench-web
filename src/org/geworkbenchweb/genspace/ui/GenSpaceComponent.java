@@ -161,8 +161,7 @@ public class GenSpaceComponent extends CustomComponent {
 		ObjectLogger objectLogger = genSpaceLogger.getObjectLogger();
 		objectLogger.addCWFListener(realTimeWorkflowSuggestion_1);
 		objectLogger.addNotebookDataListener(notebookPanel);
-//		objectLogger.setGenSpaceLogin(genSpaceLogin_1);
-		
+//		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
 //		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);
 	}
 	public void fireLoggedOut()
@@ -251,11 +250,6 @@ public class GenSpaceComponent extends CustomComponent {
 		socialNetworkHome.setWidth("100.0%");
 		socialNetworkHome.setHeight("100.0%");
 		tabSheet_1.addTab(socialNetworkHome, "Communicator", null);
-		
-		/*ObjectLogger objectLogger = genSpaceLogger.getObjectLogger();
-		objectLogger.addCWFListener(realTimeWorkflowSuggestion_1);
-		objectLogger.addNotebookDataListener(notebookPanel);
-		objectLogger.setGenSpaceLogin(genSpaceLogin_1);*/
 		
 		return tabSheet_1;
 	}

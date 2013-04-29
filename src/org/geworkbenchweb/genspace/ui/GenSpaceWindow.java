@@ -32,10 +32,8 @@ public class GenSpaceWindow extends Window{
 	public GenSpaceWindow(GenspaceLogger genSpaceLogger)
 	{
 		setCaption("genSpace");
-		//logger = new GenspaceLogger();
 		this.logger = genSpaceLogger;
 		this.pusher = new ICEPush();
-		//this.pusher = pusher;
 		this.component = new GenSpaceComponent(this.logger, this.pusher);
 		this.addComponent(this.pusher);
 		this.setContent(component);		

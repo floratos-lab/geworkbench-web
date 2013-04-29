@@ -6,38 +6,23 @@
 
 package org.geworkbenchweb.genspace.ui.chat;
 
-
-import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow.messageTypes;
-import org.geworkbench.engine.config.GUIFramework;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.sun.jimi.core.Jimi;
-import com.sun.jimi.core.JimiException;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.event.FieldEvents;
-import com.vaadin.event.FieldEvents.FocusEvent;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -75,24 +60,10 @@ public class ChatWindow extends Window implements Action.Handler{
 
 	/** Creates new form ChatWindow */
 	public ChatWindow(GenSpaceLogin login) {
-		/*this.setWidth("15%");
-		this.setHeight("35%");*/
 		this.setWidth("400px");
 		this.setHeight("350px");
 		initComponents();
 		this.login = login;
-		/*ogm.requestFocusInWindow();
-		this.addWindowFocusListener(new WindowFocusListener() {
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				ogm.requestFocusInWindow();
-			}
-
-			@Override
-			public void windowLostFocus(WindowEvent e) {
-
-			};
-		});*/
 	}
 
 	/**
@@ -135,7 +106,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		System.out.println("Test chatTest: " + chatText);
 		System.out.println("Test label: " + txtMsging.getValue());
 		this.txtMsging.setValue("<html><body>" + chatText + "</body></html>");
-//		this.txtMsging.requestRepaint();
 		this.requestRepaintAll();
 		System.out.println("Test label after: " + txtMsging.getValue());
 		
@@ -204,11 +174,10 @@ public class ChatWindow extends Window implements Action.Handler{
 		startSendingScreen(ip, port);
 	}
 
-	//static JFrame screenShareFrame;
-
 	/**
 	 * Start receiving screens based upon this message
-	 * 
+	 * No screen sharing in web version temporarily.
+	 * Keep the logic here
 	 * @param m
 	 */
 	private void processScreenRequestMessage(Message m) {
@@ -288,25 +257,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * @param m
 	 */
 	private void processWorkflowVisualizationMessage(Message m) {
-		//JFrame fr = new JFrame();
-		/*Window fr = new Window();
-		WorkflowVisualizationPanel p = new WorkflowVisualizationPanel();
-		fr.setWidth("600");
-		fr.setHeight("500");
-		
-		fr.addComponent(p);
-		p.setWidth("600");
-		p.setHeight("500");
-		fr.setVisible(true);
-		
-		p.setSize(600, 500);
-		fr.setVisible(true);*/
-
-		//p.render(new WorkflowWrapper((Workflow) m.getProperty("workflow")));
-		//fr.setTitle("Workflow from " + m.getFrom());
-//		p.render(m.getBody(), "Workflow from " + m.getFrom());
-		
-		//fr.setCaption("Workflow from" + m.getFrom());
 		Window workflowWindow = new Window();
 		WorkflowVisualizationPanel panel = new WorkflowVisualizationPanel();
 		workflowWindow.setWidth("600");
@@ -315,44 +265,11 @@ public class ChatWindow extends Window implements Action.Handler{
 		
 		workflowWindow.addComponent(panel);
 		ArrayList<WorkflowWrapper> fakeList = new ArrayList<WorkflowWrapper>();
-		//System.out.println("WF received: " + new WorkflowWrapper((Workflow) m.getProperty("workflow")).toString());
 		fakeList.add(new WorkflowWrapper((Workflow) m.getProperty("workflow")));
 		workflowWindow.setCaption("Workflow from " + m.getFrom().replace("/Smack", ""));
 		panel.render(fakeList);
 		
 		getApplication().getMainWindow().addWindow(workflowWindow);
-	}
-
-	/**
-	 * Send a text message in this chat
-	 * 
-	 * @param evt
-	 */
-	private void ogmKeyPressed(java.awt.event.KeyEvent evt) {
-		/*if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-			// Send the message
-			try {
-				Message m = new Message();
-				m.setBody(ogm.getText());
-				m.setProperty("specialType", messageTypes.CHAT);
-				chat.sendMessage(m);
-			} catch (XMPPException e) {
-				GenSpace.logger.warn("Error",e);
-			}
-			if (!last.equals(lastChatter.ME)) {
-				chatText += "<br><font color=\"green\">You      "
-						+ Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-						+ ":"
-						+ Calendar.getInstance().get(Calendar.MINUTE)
-						+ "</font>";
-			}
-			last = lastChatter.ME;
-			chatText += "<br>" + ogm.getText();
-			txtMsging.setText("<html><body>" + chatText + "</body></html>");
-			txtMsging.setCaretPosition(txtMsging.getDocument().getLength());
-			ogm.setText("");
-
-		}*/
 	}
 	
 	private void handleEnter() {
@@ -560,69 +477,13 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * WARNING: Do NOT modify this code. The content of this method is always
 	 * regenerated by the Form Editor.
 	 */
-	private void initComponents() {
-
-		/*ogm = new javax.swing.JTextField();
-		jScrollPane1 = new javax.swing.JScrollPane();
-		txtMsging = new javax.swing.JTextPane();
-		jMenuBar1 = new javax.swing.JMenuBar();
-		jMenu1 = new javax.swing.JMenu();
-		mnuSendWorkflow = new javax.swing.JMenuItem();
-		mnuShareScreen = new javax.swing.JMenuItem();
-		mnuEndChat = new javax.swing.JMenuItem();*/
-		
+	private void initComponents() {		
 		blLayout = new BorderLayout();
 		vMainLayout = new VerticalLayout();
 		blLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		
 		this.setCaption("Chat with XXX");
 		this.addComponent(blLayout);
-		
-		//setTitle("Chat with XXX");
-
-		/*ogm.addKeyListener(new java.awt.event.KeyAdapter() {
-			@Override
-			public void keyPressed(java.awt.event.KeyEvent evt) {
-				ogmKeyPressed(evt);
-			}
-		});*/
-
-		//http://docs.oracle.com/javase/6/docs/api/javax/swing/JScrollPane.html
-		/*txtMsging.setContentType("text/html");
-		txtMsging.setEditable(false);
-		jScrollPane1.setViewportView(txtMsging);
-
-		jMenu1.setText("File");*/
-		
-		/*mnuSendWorkflow.setText("Send Current Workflow");
-		mnuSendWorkflow.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				mnuSendWorkflowActionPerformed(evt);
-			}
-		});
-		jMenu1.add(mnuSendWorkflow);*/
-		
-		/*mnuShareScreen.setText("Share Screen");
-		mnuShareScreen.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				mnuShareScreenActionPerformed(evt);
-			}
-		});*/
-//		jMenu1.add(mnuShareScreen);
-		
-		/*mnuEndChat.setText("End Chat");
-		mnuEndChat.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				mnuEndChatActionPerformed(evt);
-			}
-		});
-		mnuEndChat.setMnemonic('W');
-		jMenu1.add(mnuEndChat);*/
-
-		//jMenuBar1.add(jMenu1);
 		
 		vMenuBar = new MenuBar();
 		vMenuBar.setWidth("100%");
@@ -658,12 +519,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		
 		vMainLayout.addComponent(vMenuBar);
 		
-
-		
-		//ogm.setWidth("100%");
-		//ogm.setHeight("100%");
-		//vScrollPanel = new Panel();
-		
 		txtMsging = new Label();
 		txtMsging.setContentMode(Label.CONTENT_XHTML);
 		txtMsging.setWidth("100%");
@@ -687,71 +542,24 @@ public class ChatWindow extends Window implements Action.Handler{
 
 		vMainLayout.addComponent(ogm);
 		
-		/*txtPanel = new Panel();
-		txtPanel.setWidth("300px");
-		txtPanel.setHeight("300px");
-		txtPanel.addComponent(txtMsging);*/
-		
 		//Add handler for shortcut
 		this.addActionHandler(this);
-		
-		/*final Refresher refresher = new Refresher();
-		refresher.setRefreshInterval(50);
-		refresher.addListener(this);
-		vMainLayout.addComponent(refresher);*/
-		
-		/*setJMenuBar(jMenuBar1);
-
-		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(
-				getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout
-				.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-				.add(ogm, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 271,
-						Short.MAX_VALUE)
-				.add(jScrollPane1,
-						org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 271,
-						Short.MAX_VALUE));
-		layout.setVerticalGroup(layout
-				.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-				.add(org.jdesktop.layout.GroupLayout.TRAILING,
-						layout.createSequentialGroup()
-								.add(jScrollPane1,
-										org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-										150, Short.MAX_VALUE)
-								.addPreferredGap(
-										org.jdesktop.layout.LayoutStyle.RELATED)
-								.add(ogm,
-										org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-										org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-										org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
-
-		pack();*/
-	}// </editor-fold>
+	}
 
 	// Variables declaration - do not modify
 	private BorderLayout blLayout;
 	
 	private VerticalLayout vMainLayout;
 	
-	//private javax.swing.JMenu jMenu1;
 	private MenuItem vMenuItem;
-	//private javax.swing.JMenuBar jMenuBar1;
 	private MenuBar vMenuBar;
-	//private javax.swing.JScrollPane jScrollPane1;
 	private Panel vScrollPanel;
-	//private javax.swing.JMenuItem mnuEndChat;
 	private Item mnuEndchat;
-	//private javax.swing.JMenuItem mnuSendWorkflow;
 	private Item mnuSendWorkflow;
-	//private javax.swing.JMenuItem mnuShareScreen;
 	private Item mnuShareScrenn;
-	//private javax.swing.JTextField ogm;
 	private Panel txtPanel;
 	private TextField ogm;
-	//private javax.swing.JTextPane txtMsging;
 	private Label txtMsging;
-	// End of variables declaration
 	private static final Action wEsc = new ShortcutAction("Shortcut: ESC", ShortcutAction.KeyCode.ESCAPE, null);
 	
 	private static final Action enterAction = new ShortcutAction("Enter", ShortcutAction.KeyCode.ENTER, null);
@@ -775,11 +583,4 @@ public class ChatWindow extends Window implements Action.Handler{
 			this.handleEnter();
 		}
 	}
-	
-
-	/*@Override
-	public void refresh(Refresher source) {
-		// TODO Auto-generated method stub
-		//System.out.println("Good news: we are refreshed!!!");
-	}*/
 }
