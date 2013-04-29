@@ -41,109 +41,10 @@
 
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
 
-    
-
     <inherits name="org.vaadin.alump.fancylayouts.widgetset.FancyLayoutsWidgetset" />
 
     <inherits name="org.vaadin.peter.multibutton.MultibuttonWidgetset" />
 
-    <inherits name="com.github.wolfie.refresher.RefresherApplicationWidgetset" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
     <inherits name="com.bibounde.vprotovis.gwt.VProtovisWidgetSet" />
 
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
-
-    <inherits name="com.pantar.widget.graph.GraphWidget" />
 </module>
