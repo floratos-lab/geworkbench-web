@@ -1071,14 +1071,15 @@ public class UMainLayout extends VerticalLayout {
 
 				// show tooltip only for DSDataSet for now
 				if (DSDataSet.class.isAssignableFrom(clazz)) {
-					byte[] byteArray = (byte[])UserDirUtils.getData((Long) itemId);
-					if (byteArray==null) {
+					Object object = UserDirUtils.getData((Long) itemId);
+					if (object==null || !(object instanceof byte[])) { // FIXME temporary we should not use byte[][ in the first place
 						// this may happen when the file is corrupted or for
 						// other reason does not exist any more
-						log.error("the deserialized data object is null");
+						log.warn("the deserialized data object is null");
 						return null;
 					}
 					try {
+						byte[] byteArray = (byte[])object;
 						DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) ObjectConversion.toObject(byteArray);
 						return df.getDescription();
 					} catch (NullPointerException e) { // CSProteinStrcuture has null pointer exception not handled

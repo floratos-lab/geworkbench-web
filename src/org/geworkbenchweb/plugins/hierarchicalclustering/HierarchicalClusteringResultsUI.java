@@ -1,5 +1,8 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
@@ -11,12 +14,12 @@ import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
@@ -45,10 +48,28 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 
-		/* FIXME at this time, this line may throw NullPointerException or FileNotFoundException
-		 * no matter how we will approach the underlying issues, the exceptions should be handled here without being thrown.
-		 */
-		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) {
+			setFirstComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (IOException e) {
+			setFirstComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			setFirstComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof CSHierClusterDataSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			setFirstComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		// TODO the above cases could happen for either corrupted/missing file or pending node. we need to differentiate and update (remove cache) in the second case
+
+		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) object;
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
 		int geneNo = microarraySet.markers().size();

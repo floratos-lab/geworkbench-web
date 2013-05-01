@@ -165,6 +165,7 @@ public class UserDirUtils {
 	 * @param Byte data of the resultset
 	 * @return
 	 */
+	// FIXME conversion through byte[] does not make sense
 	public static boolean saveResultSet(long resultSetId, byte[] byteObject) {
 
 		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
@@ -175,6 +176,27 @@ public class UserDirUtils {
 		boolean sucess 			=	createFile(fileName, byteObject);
 		if(!sucess) return false; 
 		return true;
+	}
+	
+	/* serializeResultSet */
+	public static void serializeResultSet(Long resultSetId, Object object)
+			throws IOException {
+
+		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
+				resultSetId);
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH + res.getOwner()
+				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
+
+		File file = new File(fileName);
+		file.createNewFile();
+		FileOutputStream f_out = new FileOutputStream(file);
+		ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
+
+		obj_out.writeObject(object);
+		obj_out.close();
 	}
 	
 	/**
@@ -198,6 +220,7 @@ public class UserDirUtils {
 	 * @param resultset Id
 	 * @return byte[]
 	 */
+	// FIXME conversion through byte[] does not make sense
 	public static byte[] getResultSet(long resultSetId) {
 
 		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
@@ -208,6 +231,22 @@ public class UserDirUtils {
 		return getDataFromFile(fileName);
 	}
 
+	/* deserialize the result set content */
+	public static Object deserializeResultSet(Long resultSetId) throws FileNotFoundException, IOException, ClassNotFoundException {
+		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
+				resultSetId);
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH + res.getOwner()
+				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
+		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
+				fileName));
+		Object object = ois.readObject();
+		ois.close();
+
+		return object;
+	}
 
 	/**
 	 * @param Annotation Id from the annotation table
@@ -302,6 +341,7 @@ public class UserDirUtils {
 	 * @param String (File Name)
 	 * @return Byte array
 	 */
+	// FIXME conversion through byte[] does not make sense
 	private static byte[] getDataFromFile(String fileName) {
 
 		byte[] data;

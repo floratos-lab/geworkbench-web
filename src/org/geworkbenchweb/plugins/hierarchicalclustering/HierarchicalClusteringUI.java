@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -333,8 +334,13 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 			HashMap<Serializable, Serializable> parameters) {
 		HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
 				(DSMicroarraySet) dataset, params);
-		UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(analysis.execute()));
-		return "Hierarchical Clustering";
+		CSHierClusterDataSet result = analysis.execute();
+		try {
+			UserDirUtils.serializeResultSet(resultSet.getId(), result);
+		} catch (IOException e) {
+			return "EXCEPTION: "+e;
+		}
+		return result.getLabel(); //"Hierarchical Clustering";
 	}
 }
 
