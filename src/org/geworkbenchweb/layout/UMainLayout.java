@@ -18,18 +18,9 @@ import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.Comment;
-import org.geworkbenchweb.pojos.Context;
-import org.geworkbenchweb.pojos.CurrentContext;
-import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.DataSetAnnotation;
-import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
@@ -41,7 +32,6 @@ import org.vaadin.artur.icepush.ICEPush;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
@@ -53,8 +43,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
@@ -62,19 +50,15 @@ import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.SplitPanel;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 /**
  * UMainLayout sets up the basic layout and style of the application.
  * @author Nikhil Reddy
+ * @version $Id$
  */
 @SuppressWarnings("deprecation")
 public class UMainLayout extends VerticalLayout {
@@ -83,47 +67,47 @@ public class UMainLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6214334663802788473L;
 
-	private final SplitPanel mainSplit;
-
-	private ComboBox search;
-
-	private final Tree navigationTree;
-
-	final private VisualPluginView pluginView = new VisualPluginView();
-
-	private HorizontalLayout dataNavigation;
-
-	private Long dataSetId;
-
-	final private User user = SessionHandler.get();
-			
-	final private CssLayout leftMainLayout;
-
-	private ICEPush pusher;
-	
-	private MenuBar annotationBar;
-	
-	final MenuBar toolBar = new MenuBar();
- 
-	private FancyCssLayout annotationLayout;
-	
-	private Button annotButton; 		
-	
-	private Button removeButton;	
-	
-	private Button removeSetButton;
-	
-	private Button openSetButton, saveSetButton;
-			
-	final private GenspaceLogger genspaceLogger = new GenspaceLogger();;
-
 	static private ThemeResource pendingIcon 	=	new ThemeResource("../custom/icons/pending.gif");
 	static private ThemeResource annotIcon 		= 	new ThemeResource("../custom/icons/icon_info.gif");
 	static private ThemeResource CancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
 	static private ThemeResource openSetIcon	=	new ThemeResource("../custom/icons/open_set.png");
 	static private ThemeResource saveSetIcon	=	new ThemeResource("../custom/icons/save_set.png");
 
-	final UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView, genspaceLogger);
+	final private SplitPanel mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
+
+	final private VisualPluginView pluginView = new VisualPluginView();
+
+	final private HorizontalLayout dataNavigation = new HorizontalLayout();
+
+	final private User user = SessionHandler.get();
+			
+	final private CssLayout leftMainLayout = new CssLayout();
+
+	final private ICEPush pusher = GeworkbenchRoot.getPusher();
+	
+	final private MenuBar annotationBar = new MenuBar();
+	
+	final private MenuBar toolBar = new MenuBar();
+ 
+	final private FancyCssLayout annotationLayout = new FancyCssLayout();
+	
+	final private Button annotButton = new Button(); 		
+	
+	final private Button removeButton = new Button();	
+	
+	final private Button removeSetButton = new Button();
+	
+	final private Button openSetButton = new Button(), saveSetButton = new Button();
+			
+	final private GenspaceLogger genspaceLogger = new GenspaceLogger();;
+
+	final private UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView, genspaceLogger);
+
+	final private MenuItem setViewMeuItem;
+	
+	final private Tree navigationTree = createNavigationTree();;
+	
+	private Long dataSetId;
 	
 	public UMainLayout() {
 
@@ -137,7 +121,6 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		setImmediate(true);
 		
-		pusher = GeworkbenchRoot.getPusher();
 		addComponent(pusher);
 
 		HorizontalLayout topBar 		= 	new HorizontalLayout();
@@ -148,7 +131,6 @@ public class UMainLayout extends VerticalLayout {
 		topBar.setStyleName("topbar");
 		topBar.setSpacing(true);
 
-		dataNavigation = new HorizontalLayout();
 		dataNavigation.setHeight("24px");
 		dataNavigation.setWidth("100%");
 		dataNavigation.setStyleName("menubar");
@@ -156,12 +138,6 @@ public class UMainLayout extends VerticalLayout {
 		dataNavigation.setMargin(false);
 		dataNavigation.setImmediate(true);
 
-		annotButton 	= 	new Button();
-		removeButton	=	new Button();
-		removeSetButton =	new Button();
-		openSetButton	=	new Button();
-		saveSetButton	=	new Button();
-		
 		annotButton.setDescription("Show Annotation");
 		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
 		annotButton.setIcon(annotIcon);
@@ -204,7 +180,7 @@ public class UMainLayout extends VerticalLayout {
 						annotationBar.getItems().get(i).setVisible(false);	
 					}
 				}
-				annotationLayout.addComponent(buildAnnotationTabSheet());	
+				annotationLayout.addComponent(new AnnotationTabSheet(dataSetId));	
 				addComponent(annotationLayout);
 			}
 		});
@@ -213,8 +189,8 @@ public class UMainLayout extends VerticalLayout {
 		toolBar.setImmediate(true);
 		toolBar.setStyleName("transparent");
 		final SetViewCommand setViewCommand = new SetViewCommand(this);
-		final MenuItem set = toolBar.addItem("Set View", setViewCommand);
-		set.setEnabled(false);
+		setViewMeuItem = toolBar.addItem("Set View", setViewCommand);
+		setViewMeuItem.setEnabled(false);
 		final MenuItem project = toolBar.addItem("Project View", new Command() {
 
 			private static final long serialVersionUID = 1L;
@@ -229,7 +205,7 @@ public class UMainLayout extends VerticalLayout {
 				navigationTree.setVisible(true);
 				setViewCommand.hideSetView();
 				selectedItem.setEnabled(false);
-				set.setEnabled(true);
+				setViewMeuItem.setEnabled(true);
 				pluginView.setEnabled(true);
 				mainToolBar.setEnabled(true);
 			}
@@ -238,155 +214,9 @@ public class UMainLayout extends VerticalLayout {
 		project.setEnabled(false);
 		
 		/* Deletes the data set and its dependencies from DB */
-		removeButton.addListener(new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
+		removeButton.addListener(new RemoveButtonListener(this));
 
-			@Override
-			public void buttonClick(ClickEvent event) {
-				
-				
-				MessageBox mbMain = new MessageBox(getWindow(), 
-						"Information", 
-						MessageBox.Icon.INFO, 
-						"This action will delete the selected data.", 
-						new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"),
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				
-				mbMain.show(new MessageBox.EventListener() {
-					
-					private static final long serialVersionUID = 1L;
-					
-					@Override
-					public void buttonClicked(ButtonType buttonType) {    	
-						if(buttonType == ButtonType.OK) {
-							Long dataId = dataSetId;
-
-							DataSet data =  FacadeFactory.getFacade().find(DataSet.class, dataId);
-							if(data != null) {
-								
-								Map<String, Object> params 		= 	new HashMap<String, Object>();
-								params.put("parent", dataId);
-
-								List<?> SubSets =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent =:parent", params);
-								if(SubSets.size() != 0){
-									for(int i=0;i<SubSets.size();i++) {
-										FacadeFactory.getFacade().delete((SubSet) SubSets.get(i));
-									}
-								}
-								
-								Map<String, Object> param 		= 	new HashMap<String, Object>();
-								param.put("parent", dataId);
-
-								List<?> resultSets =  FacadeFactory.getFacade().list("Select p from ResultSet as p where p.parent =:parent", param);
-								if(resultSets.size() != 0){
-									for(int i=0;i<resultSets.size();i++) {
-										Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-										cParam.put("parent", ((ResultSet) resultSets.get(i)).getId());
-
-										List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-										if(comments.size() != 0){
-											for(int j=0;j<comments.size();j++) {
-												FacadeFactory.getFacade().delete((Comment) comments.get(j));
-											}
-										}
-										boolean success =  UserDirUtils.deleteResultSet(((ResultSet) resultSets.get(i)).getId());
-										if(!success) {
-											MessageBox mb = new MessageBox(getWindow(), 
-													"Error", 
-													MessageBox.Icon.ERROR, 
-													"Unable to delete the selected data. Please contact administrator.", 
-													new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-											mb.show();
-										}
-										FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
-										navigationTree.removeItem(((ResultSet) resultSets.get(i)).getId());
-									}
-								}
-								Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-								cParam.put("parent", dataId);
-
-								List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-								if(comments.size() != 0){
-									for(int j=0;j<comments.size();j++) {
-										FacadeFactory.getFacade().delete((Comment) comments.get(j));
-									}
-								}
-
-								cParam.clear();
-								cParam.put("datasetid", dataId);
-								List<DataSetAnnotation> dsannot = FacadeFactory.getFacade().list("Select p from DataSetAnnotation as p where p.datasetid=:datasetid", cParam);
-								if (dsannot.size() > 0){
-									Long annotId = dsannot.get(0).getAnnotationId();
-									FacadeFactory.getFacade().delete(dsannot.get(0));
-
-									Annotation annot = FacadeFactory.getFacade().find(Annotation.class, annotId);
-									if (annot!=null && annot.getOwner()!=null){
-										cParam.clear();
-										cParam.put("annotationid", annotId);
-										List<Annotation> annots = FacadeFactory.getFacade().list("select p from DataSetAnnotation as p where p.annotationid=:annotationid", cParam);
-										if (annots.size()==0) FacadeFactory.getFacade().delete(annot);
-									}
-								}
-
-								List<Context> contexts = SubSetOperations.getAllContexts(dataId);
-								for (Context c : contexts) {
-									cParam.clear();
-									cParam.put("contextid", c.getId());	
-									List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", cParam);
-									FacadeFactory.getFacade().deleteAll(subcontexts);
-									FacadeFactory.getFacade().delete(c);
-								}
-
-								cParam.clear();
-								cParam.put("datasetid", dataId);
-								List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
-								if (cc.size()>0) FacadeFactory.getFacade().delete(cc.get(0));
-
-								boolean success = UserDirUtils.deleteDataSet(data.getId());
-								if(!success) {
-									MessageBox mb = new MessageBox(getWindow(), 
-											"Error", 
-											MessageBox.Icon.ERROR, 
-											"Unable to delete the selected data. Please contact administrator.", 
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-								}
-								FacadeFactory.getFacade().delete(data);
-							}else {
-								Map<String, Object> cParam 		= 	new HashMap<String, Object>();
-								cParam.put("parent", dataId);
-
-								List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", cParam);
-								if(comments.size() != 0){
-									for(int j=0;j<comments.size();j++) {
-										FacadeFactory.getFacade().delete((Comment) comments.get(j));
-									}
-								}
-								ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
-								boolean success = UserDirUtils.deleteResultSet(result.getId());
-								if(!success) {
-									MessageBox mb = new MessageBox(getWindow(), 
-											"Error", 
-											MessageBox.Icon.ERROR, 
-											"Unable to delete the selected data. Please contact administrator.", 
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-								}
-								FacadeFactory.getFacade().delete(result);
-							} 
-							navigationTree.removeItem(dataId);
-						}
-					}
-				});	
-				
-				annotButton.setEnabled(false);
-				removeButton.setEnabled(false);
-				set.setEnabled(false);
-				pluginView.showToolList();
-			}
-		});
-
-		/* Deletes seletected subset from the datatree. */
+		/* Deletes selected subset from the datatree. */
 		removeSetButton.addListener(new Button.ClickListener() {
 		
 			private static final long serialVersionUID = 1L;
@@ -436,19 +266,16 @@ public class UMainLayout extends VerticalLayout {
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
 
-		mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
 		mainSplit.setSizeFull();
 		mainSplit.setStyleName("main-split");
 
 		addComponent(mainSplit);
 		setExpandRatio(mainSplit, 1);
 
-		leftMainLayout = new CssLayout();
 		leftMainLayout.setImmediate(true);
 		leftMainLayout.setSizeFull();
 		leftMainLayout.addStyleName("mystyle");
 
-		navigationTree = createMenuTree();
 		navigationTree.setImmediate(true);
 		
 		navigationTree.setItemCaptionPropertyId("Name");
@@ -473,10 +300,8 @@ public class UMainLayout extends VerticalLayout {
 		Component treeSwitch = createTreeSwitch();
 		quicknav.addComponent(treeSwitch);
 		
-		annotationLayout = new FancyCssLayout();
 		annotationLayout.setSlideEnabled(true);
 		
-		annotationBar = new MenuBar();
 		annotationBar.setWidth("100%");
 		MenuBar.MenuItem up = annotationBar.addItem("", new ThemeResource(
 				"../runo/icons/16/arrow-up.png"), new Command() {
@@ -490,7 +315,7 @@ public class UMainLayout extends VerticalLayout {
 				annotationLayout.setHeight("250px");
 				annotationLayout.setWidth("100%");
 				annotationLayout.setImmediate(true);
-				annotationLayout.addComponent(buildAnnotationTabSheet());	
+				annotationLayout.addComponent(new AnnotationTabSheet(dataSetId));	
 				addComponent(annotationLayout);	
 
 				for(int i=0; i<annotationBar.getItems().size(); i++) {
@@ -529,8 +354,15 @@ public class UMainLayout extends VerticalLayout {
 
 		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
-	} // end of the constructor. TODO too long
+	} // end of the constructor.
 
+	void noSelection() {
+		annotButton.setEnabled(false);
+		removeButton.setEnabled(false);
+		setViewMeuItem.setEnabled(false);
+		pluginView.showToolList();
+	}
+	
 	void removeItem(Long itemId) {
 		navigationTree.removeItem(itemId);
 		pusher.push();
@@ -540,7 +372,7 @@ public class UMainLayout extends VerticalLayout {
 	 * Creates the data tree for the project panel
 	 * @return Tree
 	 */
-	private Tree createMenuTree() {
+	private Tree createNavigationTree() {
 		final Tree tree = new Tree();
 		tree.setImmediate(true);
 		tree.setStyleName("menu");
@@ -700,7 +532,7 @@ public class UMainLayout extends VerticalLayout {
 	 * Search
 	 */
 	private Component createSearch() {
-		search = new ComboBox();
+		final ComboBox search = new ComboBox();
 		search.setWidth("160px");
 		search.setNewItemsAllowed(false);
 		search.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
@@ -885,147 +717,6 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
-	private TabSheet buildAnnotationTabSheet() {
-		HorizontalSplitPanel dLayout 	=  	new HorizontalSplitPanel();
-		dLayout.setSplitPosition(60);
-		dLayout.setSizeFull();
-		dLayout.setImmediate(true);
-		dLayout.setStyleName(Reindeer.SPLITPANEL_SMALL);
-		dLayout.setLocked(true);
-		
-		final VerticalLayout commentsLayout = new VerticalLayout();
-		commentsLayout.setImmediate(true);
-		commentsLayout.setMargin(true);
-		commentsLayout.setSpacing(true);
-		commentsLayout.setSizeUndefined();
-		
-		Label cHeading 		=	new Label("User Comments:");
-		cHeading.setStyleName(Reindeer.LABEL_H2);
-		cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
-		commentsLayout.addComponent(cHeading);
-		
-		Map<String, Object> params 		= 	new HashMap<String, Object>();
-		params.put("parent", dataSetId);
-
-		List<?> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", params);
-		if(comments.size() != 0){
-			for(int i=0;i<comments.size();i++) {
-				java.sql.Date date = ((Comment) comments.get(i)).getDate();
-				Label comment = new Label(date.toString()+
-						" - " +
-						((Comment) comments.get(i)).getComment());
-				commentsLayout.addComponent(comment);
-			}
-		}
-
-		dLayout.setFirstComponent(commentsLayout);
-		
-		VerticalLayout commentArea = new VerticalLayout();
-		commentArea.setImmediate(true);
-		commentArea.setMargin(true);
-		commentArea.setSpacing(true);
-		
-		Label commentHead 		=	new Label("Enter new comment here:");
-		commentHead.setStyleName(Reindeer.LABEL_H2);
-		commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
-		final TextArea dataArea = 	new TextArea();
-		dataArea.setRows(6);
-		dataArea.setWidth("100%");
-		Button submitComment	=	new Button("Add Comment", new Button.ClickListener() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(!dataArea.getValue().toString().isEmpty()) {
-					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-					
-					Comment c = new Comment();
-					c.setParent(dataSetId);
-					c.setComment(dataArea.getValue().toString());
-					c.setDate(date);
-					FacadeFactory.getFacade().store(c);
-					
-					Label comment = new Label(date.toString()+
-							" - " +
-							dataArea.getValue().toString());
-					commentsLayout.addComponent(comment);
-					dataArea.setValue("");
-				}
-			}
-		});
-		submitComment.setClickShortcut(KeyCode.ENTER);
-		commentArea.addComponent(commentHead);
-		commentArea.setComponentAlignment(commentHead, Alignment.MIDDLE_LEFT);
-		commentArea.addComponent(dataArea);
-		commentArea.setComponentAlignment(dataArea, Alignment.MIDDLE_LEFT);
-		commentArea.addComponent(submitComment);
-		commentArea.setComponentAlignment(submitComment, Alignment.MIDDLE_LEFT);
-		dLayout.setSecondComponent(commentArea);
-		
-		HorizontalSplitPanel infoSplit 	=  	new HorizontalSplitPanel();
-		infoSplit.setSplitPosition(50);
-		infoSplit.setSizeFull();
-		infoSplit.setImmediate(true);
-		infoSplit.setStyleName(Reindeer.SPLITPANEL_SMALL);
-		infoSplit.setLocked(true);
-				
-		VerticalLayout dataHistory 	= 	new VerticalLayout();
-		VerticalLayout expInfo		=	new VerticalLayout();
-		
-		dataHistory.setSizeUndefined();
-		dataHistory.setMargin(true);
-		dataHistory.setSpacing(true);
-		dataHistory.setImmediate(true);
-
-		Label historyHead 		=	new Label("Data History:");
-		historyHead.setStyleName(Reindeer.LABEL_H2);
-		historyHead.setContentMode(Label.CONTENT_PREFORMATTED);
-		dataHistory.addComponent(historyHead);
-		
-		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
-		eParams.put("parent", dataSetId);
-
-		List<?> histories =  FacadeFactory.getFacade().list("Select p from DataHistory as p where p.parent =:parent", eParams);
-		for(int i=0; i<histories.size(); i++) {
-			DataHistory dH = (DataHistory) histories.get(i);
-			Label d = new Label((String) ObjectConversion.toObject(dH.getData()));
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
-			dataHistory.addComponent(d);
-		}
-		
-		expInfo.setSizeUndefined();
-		expInfo.setMargin(true);
-		expInfo.setSpacing(true);
-		
-		Label infoHead 		=	new Label("Experiment Information:");
-		infoHead.setStyleName(Reindeer.LABEL_H2);
-		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
-		expInfo.addComponent(infoHead);
-		
-		Map<String, Object> iParams 		= 	new HashMap<String, Object>();
-		iParams.put("parent", dataSetId);
-
-		List<?> info =  FacadeFactory.getFacade().list("Select p from ExperimentInfo as p where p.parent =:parent", iParams);
-		for(int i=0; i<info.size(); i++) {
-			ExperimentInfo eI = (ExperimentInfo) info.get(i);
-			Label d = new Label((String) ObjectConversion.toObject(eI.getInfo()));
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
-			expInfo.addComponent(d);
-		}
-	
-		infoSplit.setFirstComponent(dataHistory);
-		infoSplit.setSecondComponent(expInfo);
-		TabSheet data = new TabSheet();
-		data.setStyleName(Reindeer.TABSHEET_SMALL);
-		data.setSizeFull();
-		data.setImmediate(true);
-	
-		data.addTab(infoSplit, "Data Information");
-		data.addTab(dLayout, "User Comments");	
-		return data;
-	}
-	
 	void switchToSetView() {
 		removeButton.setVisible(false);
 		annotButton.setVisible(false);
@@ -1058,4 +749,3 @@ public class UMainLayout extends VerticalLayout {
 		return dataSetId;
 	}
 }
-
