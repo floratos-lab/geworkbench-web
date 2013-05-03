@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -19,6 +20,7 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
@@ -29,20 +31,19 @@ import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.VerticalLayout; 
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Button.ClickEvent;
 
-public class AracneUI extends GridLayout implements AnalysisUI {
+public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
 
 	private Long dataSetId;
-
+	private Long userId  = null;
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	private ListSelect markerSetSelect = new ListSelect("Select Marker Sets:");;
-	private ListSelect arraySetSelect = new ListSelect("Select Array Sets:");;
+	private MarkerArraySelector markerArraySelector;	 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox modeBox = new ComboBox();
 	private ComboBox algoBox = new ComboBox();
@@ -63,11 +64,19 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 	public AracneUI(Long dataId) {
 
 		this.dataSetId = dataId;
+		User user = SessionHandler.get();
+		if(user!=null)
+			userId  = user.getId();
 
-		setColumns(4);
-		setRows(11);
 		setSpacing(true);
 		setImmediate(true);
+		
+		final GridLayout gridLayout = new GridLayout(4, 10);
+		
+		gridLayout.setSpacing(true);		 
+		gridLayout.setImmediate(true);
+		 
+		
 
 		/**
 		 * Params default values
@@ -89,34 +98,9 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
 		params.put(AracneParameters.MERGEPS, "No");
 
-		markerSetSelect.setMultiSelect(true);
-		markerSetSelect.setRows(5);
-		markerSetSelect.setColumns(15);
-		markerSetSelect.setImmediate(true);
-
-		markerSetSelect.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.MARKER_SET, String
-						.valueOf(valueChangeEvent.getProperty().getValue()));
-			}
-		});
-
-		arraySetSelect.setMultiSelect(true);
-		arraySetSelect.setRows(5);
-		arraySetSelect.setColumns(15);
-		arraySetSelect.setImmediate(true);
-
-		arraySetSelect.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.ARRAY_SET, String
-						.valueOf(valueChangeEvent.getProperty().getValue()));
-			}
-		});
-
+		 
+		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "AracneUI");
+	 
 		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets");
 		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
@@ -417,6 +401,8 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 						NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 						GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
+						params.put(AracneParameters.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
+						params.put(AracneParameters.ARRAY_SET,markerArraySelector.getSelectedArraySet());
 						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 								maSet, resultSet, params, AracneUI.this);
 						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
@@ -427,24 +413,26 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 			}
 		});
 
-		addComponent(markerSetSelect, 0, 0);
-		addComponent(arraySetSelect, 1, 0);
-		addComponent(hubGeneMarkerSetBox, 0, 1);
-		addComponent(modeBox, 1, 1);
-		addComponent(algoBox, 0, 2);
-		addComponent(kernelWidth, 1, 2);
-		addComponent(widthValue, 2, 2);
-		addComponent(thresholdType, 0, 3);
-		addComponent(threshold, 1, 3);
-		addComponent(correction, 2, 3);
-		addComponent(dpiTolerance, 0, 4);
-		addComponent(tolerance, 1, 4);
-		addComponent(dpiTargetList, 0, 5);
-		addComponent(dpiTargetSetBox, 1, 5);
-		addComponent(bootStrapNumber, 0, 6);
-		addComponent(consensusThreshold, 1, 6);
-		addComponent(mergeProbeSets, 0, 7);
-		addComponent(submitButton, 0, 8);
+		 
+		gridLayout.addComponent(hubGeneMarkerSetBox, 0, 0);
+		gridLayout.addComponent(modeBox, 1, 0);
+		gridLayout.addComponent(algoBox, 0, 1);
+		gridLayout.addComponent(kernelWidth, 1, 1);
+		gridLayout.addComponent(widthValue, 2, 1);
+		gridLayout.addComponent(thresholdType, 0, 2);
+		gridLayout.addComponent(threshold, 1, 2);
+		gridLayout.addComponent(correction, 2, 2);
+		gridLayout.addComponent(dpiTolerance, 0, 3);
+		gridLayout.addComponent(tolerance, 1, 3);
+		gridLayout.addComponent(dpiTargetList, 0, 4);
+		gridLayout.addComponent(dpiTargetSetBox, 1, 4);
+		gridLayout.addComponent(bootStrapNumber, 0, 5);
+		gridLayout.addComponent(consensusThreshold, 1, 5);
+		gridLayout.addComponent(mergeProbeSets, 0, 6);
+		gridLayout.addComponent(submitButton, 0, 7);
+		
+		addComponent(markerArraySelector);		
+		addComponent(gridLayout);
 
 	}
 
@@ -565,20 +553,15 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
+		User user = SessionHandler.get();
+		if (user != null) {
+			userId = user.getId();
+		}
+
 		this.dataSetId = dataSetId;
+		markerArraySelector.setData(dataSetId, userId);
 
 		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
-
-		markerSetSelect.removeAllItems();
-		markerSetSelect.addItem("All Markers");
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
-			markerSetSelect.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}
-		markerSetSelect.select("All Markers");
-
 		hubGeneMarkerSetBox.removeAllItems();
 		hubGeneMarkerSetBox.addItem("All vs. All");
 		for (int m = 0; m < (markerSubSets).size(); m++) {
@@ -598,17 +581,7 @@ public class AracneUI extends GridLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getName());
 		}
 
-		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
-
-		arraySetSelect.removeAllItems();
-		arraySetSelect.addItem("All Arrays");
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
-			arraySetSelect.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
-		arraySetSelect.select("All Arrays");
+		 
 	}
 
 	@Override

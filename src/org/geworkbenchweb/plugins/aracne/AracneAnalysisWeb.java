@@ -169,15 +169,8 @@ public class AracneAnalysisWeb {
 		List<String> selectedMarkerNames = null;
 		DSItemList<DSGeneMarker> selectedMarkers = null;
 		String[] selectedMarkerSet = null;
-
-		String selectedMarkerSetStr = params.get(AracneParameters.MARKER_SET)
-				.toString();
-		if (!selectedMarkerSetStr.equals("[]")
-				&& !selectedMarkerSetStr.contains("All Markers")) {
-			selectedMarkerSet = selectedMarkerSetStr.substring(1,
-					selectedMarkerSetStr.length() - 1).split(",");
-
-		}
+		if (params.get(AracneParameters.MARKER_SET) !=  null)
+			selectedMarkerSet = (String[])params.get(AracneParameters.MARKER_SET);	 
 
 		selectedMarkerNames = new ArrayList<String>();
 		if (selectedMarkerSet == null) {
@@ -204,13 +197,8 @@ public class AracneAnalysisWeb {
 
 		// get selected array setss
 		String[] selectedArraySet = null;
-		String selectedArraySetStr = params.get(AracneParameters.ARRAY_SET)
-				.toString();
-		if (!selectedArraySetStr.equals("[]")
-				&& !selectedArraySetStr.contains("All Arrays"))
-			selectedArraySet = selectedArraySetStr.substring(1,
-					selectedArraySetStr.length() - 1).split(",");
-
+		if (params.get(AracneParameters.ARRAY_SET) !=  null)
+			selectedArraySet = (String[])params.get(AracneParameters.ARRAY_SET);	
 		// get total SelectedArray Num
 		int totalSelectedArrayNum = 0;
 		if (selectedArraySet == null) {
