@@ -23,7 +23,6 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
-import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -85,11 +84,9 @@ public class UMainLayout extends VerticalLayout {
 
 	final private ICEPush pusher = GeworkbenchRoot.getPusher();
 	
-	final private MenuBar annotationBar = new MenuBar();
-	
 	final private MenuBar toolBar = new MenuBar();
  
-	final private FancyCssLayout annotationLayout = new FancyCssLayout();
+	final private DataAnnotationPanel annotationPanel = new DataAnnotationPanel();;
 	
 	final private Button annotButton = new Button(); 		
 	
@@ -169,19 +166,7 @@ public class UMainLayout extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				annotationLayout.removeAllComponents();
-				annotationLayout.setMargin(true);
-				annotationLayout.setHeight("250px");
-				annotationLayout.setWidth("100%");
-				for(int i=0; i<annotationBar.getItems().size(); i++) {
-					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
-						annotationBar.getItems().get(i).setVisible(true);	
-					} else {
-						annotationBar.getItems().get(i).setVisible(false);	
-					}
-				}
-				annotationLayout.addComponent(new AnnotationTabSheet(dataSetId));	
-				addComponent(annotationLayout);
+				annotationPanel.expand();
 			}
 		});
 		
@@ -300,55 +285,9 @@ public class UMainLayout extends VerticalLayout {
 		Component treeSwitch = createTreeSwitch();
 		quicknav.addComponent(treeSwitch);
 		
-		annotationLayout.setSlideEnabled(true);
-		
-		annotationBar.setWidth("100%");
-		MenuBar.MenuItem up = annotationBar.addItem("", new ThemeResource(
-				"../runo/icons/16/arrow-up.png"), new Command() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				annotationLayout.removeAllComponents();
-				annotationLayout.setMargin(true);
-				annotationLayout.setHeight("250px");
-				annotationLayout.setWidth("100%");
-				annotationLayout.setImmediate(true);
-				annotationLayout.addComponent(new AnnotationTabSheet(dataSetId));	
-				addComponent(annotationLayout);	
-
-				for(int i=0; i<annotationBar.getItems().size(); i++) {
-					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
-						annotationBar.getItems().get(i).setVisible(true);	
-					} else {
-						annotationBar.getItems().get(i).setVisible(false);	
-					}
-				}
-			}
-		});
-		up.setDescription("View Annotation");
-		MenuBar.MenuItem down = annotationBar.addItem("", new ThemeResource(
-				"../runo/icons/16/arrow-down.png"), new Command() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				removeComponent(annotationLayout);
-				for(int i=0; i<annotationBar.getItems().size(); i++) {
-					if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
-						annotationBar.getItems().get(i).setVisible(false);	
-					} else {
-						annotationBar.getItems().get(i).setVisible(true);	
-					}
-				}
-			}
-		});
-		down.setDescription("Close Annotation");
-		down.setVisible(false);
-		annotationBar.setVisible(false);
-		addComponent(annotationBar);
+		annotationPanel.hide();
+		this.addComponent(annotationPanel.menuBar);
+		this.addComponent(annotationPanel); // invisible until a dataset ID is set
 		
 		pluginView.showToolList();
 
@@ -392,21 +331,15 @@ public class UMainLayout extends VerticalLayout {
 						annotButton.setEnabled(true);
 						removeButton.setEnabled(true);
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
-						annotationBar.setVisible(true);
-						for(int i=0; i<annotationBar.getItems().size(); i++) {
-							if(annotationBar.getItems().get(i).getDescription().equalsIgnoreCase("Close Annotation")) {
-								annotationBar.getItems().get(i).setVisible(false);	
-							} else {
-								annotationBar.getItems().get(i).setVisible(true);	
-							}
-						}
 
 						if (className.contains("Results") && selectedItem.getItemProperty("Name").toString().contains("Pending")){
 							pluginView.removeAllComponents();
 							return;
 						}
 						
+						/* this is the only place that dataset ID may change */
 						dataSetId = (Long) event.getProperty().getValue();    
+						annotationPanel.setDatasetId(dataSetId);
 						
 						toolBar.setEnabled(false);
 
@@ -440,7 +373,6 @@ public class UMainLayout extends VerticalLayout {
 						Class<?> aClass = classLoader.loadClass(className);
 						Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
 						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
-						removeComponent(annotationLayout);
 						if(uiComponentClass!=null) { // "not result" - menu page. For now, we only expect CSMcrioarraySet and CSProteinStructure
 							DataTypeMenuPage dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
 							pluginView.setContent(dataUI, dataUI.getTitle(), dataUI.getDescription());
@@ -456,8 +388,7 @@ public class UMainLayout extends VerticalLayout {
 				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
 					e.printStackTrace();
 					pluginView.showToolList();
-					removeComponent(annotationLayout);
-					annotationBar.setVisible(false);
+					annotationPanel.hide();
 				}
 			}
 		});
