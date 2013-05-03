@@ -34,16 +34,17 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.themes.Reindeer;
  
 import com.vaadin.ui.Label;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.GridLayout; 
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Select;
+ 
 
  
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.terminal.UserError;
+
+import org.geworkbenchweb.utils.MarkerArraySelector;
 
 /**
  * Builds the Parameter Form for Anova Analysis
@@ -54,8 +55,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = -738580934848570913L;
  
-	private ListSelect markerSetSelect;
-	private ListSelect arraySetSelect;
+	private MarkerArraySelector markerArraySelector;	 
 	private Label pValEstLabel;
 	private Label pValEstCbxLabel;
 	private ComboBox pValEstCbx;
@@ -86,33 +86,23 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 			userId  = user.getId();
 
 		this.dataSetId = dataSetId;
-			
-		final GridLayout gridLayout1 = new GridLayout(2, 2);
-		final GridLayout gridLayout2 = new GridLayout(4, 3);
-		final GridLayout gridLayout3 = new GridLayout(3, 1);
+	 
+		final GridLayout gridLayout1 = new GridLayout(4, 3);
+		final GridLayout gridLayout2 = new GridLayout(3, 1);
 
+	 
 		gridLayout1.setSpacing(true);
 		gridLayout2.setSpacing(true);
-		gridLayout3.setSpacing(true);
+		 
 		gridLayout1.setImmediate(true);
 		gridLayout2.setImmediate(true);
-		gridLayout3.setImmediate(true);
 
 		setSpacing(true);
 		setImmediate(true);
+		
+		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "AnovaUI");
 
-		markerSetSelect = new ListSelect("Select Marker Sets:");
-		markerSetSelect.setMultiSelect(true);
-		markerSetSelect.setRows(5);
-		markerSetSelect.setColumns(10);
-		markerSetSelect.setImmediate(true);
-
-		arraySetSelect = new ListSelect("Select array sets:");
-		arraySetSelect.setMultiSelect(true);
-		arraySetSelect.setRows(5);
-		arraySetSelect.setColumns(10);
-		arraySetSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
-		arraySetSelect.setImmediate(true);
+	  
 
 		pValEstLabel = new Label(
 				"P-Value Estimation----------------------------------------------------------------------");
@@ -146,7 +136,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 						  og.select(FalseDiscoveryRateControl.alpha.ordinal());
 					  }
 					  
-					  gridLayout3.setVisible(false);
+					  gridLayout2.setVisible(false);
 				  }
 		          else
 		          {
@@ -158,7 +148,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 					 
 					  if (og.getValue().equals(FalseDiscoveryRateControl.number.ordinal()) || og.getValue().equals(FalseDiscoveryRateControl.proportion.ordinal()))
 					  {
-						  gridLayout3.setVisible(true);
+						  gridLayout2.setVisible(true);
 					  }
 					 
 		          }
@@ -215,7 +205,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				 
 					  if (og.getValue().equals(FalseDiscoveryRateControl.number.ordinal()) ) 
 					  {
-						  gridLayout3.setVisible(true);
+						  gridLayout2.setVisible(true);
 						  falseSignificantGenesLimit.setValue(10);
 						  falseSignificantGenesLimit.removeAllValidators();
 						  falseSignificantGenesLimit.addValidator(new IntegerValidator("Not an integer"));
@@ -224,13 +214,13 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		              else if ( og.getValue().equals(FalseDiscoveryRateControl.proportion.ordinal()) ) 
 		              {
 				 
-					     gridLayout3.setVisible(true);
+					     gridLayout2.setVisible(true);
 					     falseSignificantGenesLimit.setValue(0.05);
 					     falseSignificantGenesLimit.removeAllValidators();
 						  falseSignificantGenesLimit.addValidator(new DoubleValidator("Not a double"));
 		              }
 		              else		            	  
-		            	  gridLayout3.setVisible(false);
+		            	  gridLayout2.setVisible(false);
 			}
 		}); 
 		
@@ -241,31 +231,28 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		permutationsOnly.setStyleName(Reindeer.LABEL_SMALL);
 		 
 		submitButton = new Button("Submit", new SubmitListener());
-
-		gridLayout1.addComponent(markerSetSelect, 0, 0);
-		gridLayout1.addComponent(arraySetSelect, 1, 0);
-
-		addComponent(gridLayout1);
+ 
+		addComponent(markerArraySelector);
 		addComponent(pValEstLabel);
 
-		gridLayout2.addComponent(pValEstCbxLabel, 0, 0);
-		gridLayout2.addComponent(pValEstCbx, 1, 0);
-		gridLayout2.addComponent(permNumberLabel, 2, 0);
-		gridLayout2.addComponent(permNumber, 3, 0);
-		gridLayout2.addComponent(pValThresholdLabel, 0, 1);
-		gridLayout2.addComponent(pValThreshold, 1, 1);
+		gridLayout1.addComponent(pValEstCbxLabel, 0, 0);
+		gridLayout1.addComponent(pValEstCbx, 1, 0);
+		gridLayout1.addComponent(permNumberLabel, 2, 0);
+		gridLayout1.addComponent(permNumber, 3, 0);
+		gridLayout1.addComponent(pValThresholdLabel, 0, 1);
+		gridLayout1.addComponent(pValThreshold, 1, 1);
 
-		addComponent(gridLayout2);
+		addComponent(gridLayout1);
 		addComponent(pValCorrectionLabel);
 		addComponent(og);
 		
-		gridLayout3.addComponent(new Label("             "), 0, 0);
-		gridLayout3.addComponent(falseSignificantGenesLimit, 1, 0);
-		gridLayout3.addComponent(permutationsOnly, 2, 0);
-		gridLayout3.setVisible(false);
+		gridLayout2.addComponent(new Label("             "), 0, 0);
+		gridLayout2.addComponent(falseSignificantGenesLimit, 1, 0);
+		gridLayout2.addComponent(permutationsOnly, 2, 0);
+		gridLayout2.setVisible(false);
 		
 		
-		addComponent(gridLayout3);
+		addComponent(gridLayout2);
 		addComponent(new Label("   "));
 		addComponent(submitButton);
 
@@ -311,43 +298,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	}
 	
 	
-	public  String[] getSelectedMarkerSet() {
-		String[] selectList = null;
-		String selectStr = markerSetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
-			
-		}
-			
-		return selectList;
-	}
-	
-	public  String[] getSelectedArraySet() {		 
-		String[] selectList = null;
-		String selectStr = arraySetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
-			
-		}
-			
-		return selectList;
-	}
-	
-	public  String[] getSelectedArraySetNames() {		 
-		String[] selectList = null;
-		String selectStr = arraySetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
-		    for(int i=0; i<selectList.length; i++ )
-		    	selectList[i] = arraySetSelect.getItemCaption(Long.parseLong(selectList[i].trim()));
-		}		
-			
-		return selectList;
-	}
-	
+	 
 
 	public int getPValueEstimation() {		 
 		return Integer.parseInt(pValEstCbx.getValue().toString().trim());
@@ -388,10 +339,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		String[] selectedArraySet = null;
 	 
 		/* check for minimum number of activated groups */		 
-		selectedArraySet = getSelectedArraySet();
+		selectedArraySet = markerArraySelector.getSelectedArraySet();
 		 
 		if ( selectedArraySet == null || selectedArraySet.length < 3)
-		{	arraySetSelect.setComponentError(
+		{	markerArraySelector.getArraySetSelect().setComponentError(
 	                new UserError("Minimum of 3 array groups must be activated."));
 		    return false;
 		}
@@ -404,14 +355,14 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 						.parseLong(selectedArraySet[i].trim()));
 			
 			if (arrays.size() < 2)
-			{	arraySetSelect.setComponentError(
+			{	markerArraySelector.getArraySetSelect().setComponentError(
 		                new UserError("Each microarray group must contains at least 2 arrays."));
 			    return false;
 			}	 
 			 
 			for (int j = 0; j < arrays.size(); j++) {
 				if (microarrayPosList.contains(arrays.get(j))) {				
-					arraySetSelect.setComponentError(
+					markerArraySelector.getArraySetSelect().setComponentError(
 			                new UserError("Same array (" + arrays.get(j)
 									+ ") exists in multiple groups."));
 				    
@@ -422,7 +373,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 			}
 
 		}
-		arraySetSelect.setComponentError(null);
+		markerArraySelector.getArraySetSelect().setComponentError(null);
 	 
 	   if (!permNumber.isValid())
 	   {
@@ -476,6 +427,20 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	}
 	
 	
+
+	public  String[] getSelectedMarkerSet() {	 
+		return markerArraySelector.getSelectedMarkerSet();
+	}
+	
+	public  String[] getSelectedArraySet() {			
+		return markerArraySelector.getSelectedArraySet();
+	}
+	
+	public  String[] getSelectedArraySetNames() {	 
+		return markerArraySelector.getSelectedArraySetNames();
+	}	
+	
+	
 	/**
 	 * Create Array Data for selected markerSet
 	 */
@@ -509,32 +474,8 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		}
 
 		this.dataSetId = dataSetId;
-
-		markerSetSelect.removeAllItems();
-		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
-		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
-		if (subMarkerSets != null)
-			for (int m = 0; m < (subMarkerSets).size(); m++) {
-
-				markerSetSelect
-						.addItem(((SubSet) subMarkerSets.get(m)).getId());
-				markerSetSelect.setItemCaption(
-						((SubSet) subMarkerSets.get(m)).getId(),
-						((SubSet) subMarkerSets.get(m)).getName());
-
-			}
-
-		arraySetSelect.removeAllItems();
-		if (subArraySets != null)
-			for (int m = 0; m < (subArraySets).size(); m++) {
-
-				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId()
-						.longValue());
-				arraySetSelect.setItemCaption(
-						((SubSet) subArraySets.get(m)).getId(),
-						((SubSet) subArraySets.get(m)).getName());
-
-			}
+		markerArraySelector.setData(dataSetId, userId);
+		 
 	}
 
 
