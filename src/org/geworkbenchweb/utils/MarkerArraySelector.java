@@ -22,7 +22,7 @@ public class MarkerArraySelector extends GridLayout{
 	private static final long serialVersionUID = -6214265705833965798L;
 	
 	private final String ARRAYCONTEXT = "ArrayContext";
-	private final String MARKERCONTEXT = "MarkerContext";
+	//private final String MARKERCONTEXT = "MarkerContext";
 	
 	private ComboBox markerContextCB;  
 	private ListSelect markerSetSelect;
