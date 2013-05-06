@@ -636,7 +636,10 @@ public class UMainLayout extends VerticalLayout {
 
 		navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
 		navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
-		if(!pending) navigationTree.select(dS.getId());
+		if(!pending) {
+			// FIXME we need to update the looking in case it was pending node before
+			navigationTree.select(dS.getId());
+		}
 	}
 	
 	/**
@@ -663,9 +666,6 @@ public class UMainLayout extends VerticalLayout {
 		removeSetButton.setVisible(true);
 		openSetButton.setVisible(true);
 		saveSetButton.setVisible(true);
-
-		pluginView.setEnabled(false);
-		mainToolBar.setEnabled(false);
 
 		for(int i=0; i<toolBar.getItems().size(); i++) {
 			if(toolBar.getItems().get(i).getText().equalsIgnoreCase("PROJECT VIEW")) {
