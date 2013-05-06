@@ -6,16 +6,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
-import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /** data set parser */
@@ -28,7 +24,7 @@ public abstract class Loader {
 	 * @throws GeWorkbenchLoaderException
 	 */
 	// TODO return or indicate the type of data set thus created
-	public abstract void load(File file) throws GeWorkbenchLoaderException;
+	public abstract void load(File file, DataSet dataset) throws GeWorkbenchLoaderException;
 
 	// this method was written like being shared mechanism (for now) to store
 	// data
@@ -37,22 +33,15 @@ public abstract class Loader {
 	// TODO the return value is used only by expression file's annotation
 	// implementation. this is an inconsistency in the design
 	static Long storeData(DSDataSet<? extends DSBioObject> dataSet,
-			String fileName) {
+			String fileName, DataSet dataset) {
 		// FIXME dependency on annotation should be re-designed.
 		String annotationFileName = null;
-
-		User user = SessionHandler.get();
-
-		// TODO DataSet needs to be re-engineered to have some logic in it.
-		DataSet dataset = new DataSet();
-
+		
 		dataset.setName(fileName);
 		dataset.setType(dataSet.getClass().getName());
-		dataset.setOwner(user.getId());
-		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
 		FacadeFactory.getFacade().store(dataset);
 
-		boolean success = UserDirUtils.saveDataSet(dataset.getId(), ObjectConversion.convertToByte(dataSet));
+		boolean success = UserDirUtils.saveDataSet(dataset.getId(), ObjectConversion.convertToByte(dataSet), dataset.getOwner());
 		if(!success) {
 			System.out.println("something went wrong");
 		}
@@ -83,9 +72,21 @@ public abstract class Loader {
 		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));
 		FacadeFactory.getFacade().store(dataHistory);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(dataset);
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		//NodeAddEvent resultEvent = new NodeAddEvent(dataset);
+		//GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		return dataset.getId();
+	}
+	
+	public DataSet storePendingData(String fileName, Long userId){
+
+		DataSet dataset = new DataSet();
+		dataset.setName(fileName + " - Pending");
+		dataset.setType(DSDataSet.class.getName());
+		dataset.setOwner(userId);
+		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
+		FacadeFactory.getFacade().store(dataset);
+		
+		return dataset;
 	}
 }

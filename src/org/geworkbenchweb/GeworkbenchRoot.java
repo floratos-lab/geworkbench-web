@@ -10,13 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
-import org.geworkbenchweb.events.ChatStatusChangeEvent;
-import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
-import org.geworkbenchweb.events.LogCompleteEvent;
-import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
-import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.events.UploadStartedEvent;
+import org.geworkbenchweb.events.UploadStartedEvent.UploadStartedListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -174,6 +171,9 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		/* This event should be fired whenever new ResultNode is added */
 		getBlackboard().register(NodeAddEventListener.class, NodeAddEvent.class);
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
+		
+		/* Register event for data upload */
+		getBlackboard().register(UploadStartedListener.class, UploadStartedEvent.class);
 		
 		/* Register two new events for genSpace. */
 		/*getBlackboard().register(LogCompleteEventListener.class, LogCompleteEvent.class);

@@ -68,12 +68,12 @@ public class UserDirUtils {
 	 * @param Byte data of the dataset
 	 * @return
 	 */
-	public static boolean saveDataSet(long dataId, byte[] byteObject) {
+	public static boolean saveDataSet(long dataId, byte[] byteObject, Long userId) {
 
 		String dataName 		=	String.valueOf(dataId);
 		String fileName 		= 	System.getProperty("user.home") + SLASH +
 				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-				SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
+				SLASH + userId + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
 		boolean sucess 			=	createFile(fileName, byteObject);
 		if(!sucess) return false; 
 		return true;

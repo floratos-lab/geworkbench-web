@@ -22,6 +22,7 @@ import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -42,7 +43,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	};
 
 	@Override
-	public void load(File file) throws GeWorkbenchLoaderException {
+	public void load(File file, DataSet dataset) throws GeWorkbenchLoaderException {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".exp")) {
 			throw new GeWorkbenchLoaderException(
@@ -53,7 +54,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		microarraySet = parser.parseCSMicroarraySet(file);
 
 		// FIXME hard-code type name has to be fixed
-		datasetId = storeData(microarraySet, file.getName());
+		datasetId = storeData(microarraySet, file.getName(), dataset);
 		//this.getClass().getName());
 	}
 

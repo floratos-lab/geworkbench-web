@@ -293,6 +293,7 @@ public class UMainLayout extends VerticalLayout {
 
 		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
+		GeworkbenchRoot.getBlackboard().addListener(new UploadDataListener(this, pusher));
 	} // end of the constructor.
 
 	void noSelection() {
@@ -346,6 +347,7 @@ public class UMainLayout extends VerticalLayout {
 						// TODO special things to do for microarray set should be considered as part of the overall design
 						// not as a special case patched as aftermath fix
 						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
+							if (selectedItem.getItemProperty("Name").toString().contains("Pending")) return;
 							// (1)
 							DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 							Map<String, Object> parameters = new HashMap<String, Object>();	
@@ -620,16 +622,21 @@ public class UMainLayout extends VerticalLayout {
 		String className = dS.getType();
 		navigationTree.addItem(dS.getId());
 		navigationTree.setChildrenAllowed(dS.getId(), false);
-		try {
-			ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
-			navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		boolean pending = dS.getName().contains("Pending");
+		if(pending) {
+			navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(pendingIcon);
+		} else {
+			try {
+				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
+				navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 
 		navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
 		navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
-		navigationTree.select(dS.getId());
+		if(!pending) navigationTree.select(dS.getId());
 	}
 	
 	/**

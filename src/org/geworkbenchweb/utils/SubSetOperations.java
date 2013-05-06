@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -215,11 +216,12 @@ public class SubSetOperations {
 	public static Long storeArraySetInContext(ArrayList<String> arrayList,
 			String name, long datasetId, long contextId) {
 
+		DataSet dataset	=	FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		SubSet subset  	= 	new SubSet();
 
 		subset.setName(name);
 		subset.setType("microarray");
-		subset.setOwner(SessionHandler.get().getId());
+		subset.setOwner(dataset.getOwner());
 		subset.setParent(datasetId);
 		subset.setPositions(arrayList);
 		FacadeFactory.getFacade().store(subset);

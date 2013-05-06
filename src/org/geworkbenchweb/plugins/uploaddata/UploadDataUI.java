@@ -1,7 +1,9 @@
 package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,12 +14,15 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
 import org.geworkbenchweb.dataset.Loader;
 import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
-import org.geworkbenchweb.layout.VisualPluginView;
+import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.events.UploadStartedEvent;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -29,6 +34,7 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -69,6 +75,7 @@ public class UploadDataUI extends VerticalLayout {
 	private Tree annotChoices;
 	private ComboBox annotTypes;
 
+    private CheckBox sleep					=	new CheckBox("Simulate slow upload speed");
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
 	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver();
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
@@ -82,7 +89,6 @@ public class UploadDataUI extends VerticalLayout {
     private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
 
 	private Button uploadButton = new Button("Add to workspace");
-	private Button cancelButton = new Button("Cancel");
 	
 	private File dataFile;
 	private File annotFile;
@@ -135,16 +141,16 @@ public class UploadDataUI extends VerticalLayout {
 			private static final long serialVersionUID = 1L;
 
 			public void uploadStarted(StartedEvent event) {
+                // This method gets called immediatedly after upload is started
 				enableUMainLayout(false);
 				
-                // This method gets called immediatedly after upload is started
             	uploadField.setVisible(false);
                 fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
+				sleep.setVisible(false);
                 pLayout.setVisible(true);
                 pIndicator.setValue(0f);
                 pIndicator.setPollingInterval(500);
-                uploadButton.setEnabled(false);
             }
         });
 
@@ -163,7 +169,6 @@ public class UploadDataUI extends VerticalLayout {
                 // This method gets called when the upload finished successfully
                 fileUploadStatus.setValue(" The data file \"" + event.getFilename()
                         + "\" is selected");
-				uploadButton.setEnabled(true);
             }
         });
 
@@ -189,6 +194,7 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadFinished(FinishedEvent event) {
                 // This method gets called always when the upload finished,
                 // either succeeding or failing
+				sleep.setVisible(true);
 				pLayout.setVisible(false);
                 uploadField.setVisible(true);
                 uploadField.setCaption("Select different file");
@@ -326,7 +332,17 @@ public class UploadDataUI extends VerticalLayout {
 
 		setSpacing(true);
 		
+        sleep.setImmediate(true);
+        sleep.setDescription("Simulate slow upload speed to show progress indicator under fast network.");
+        sleep.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = 1L;
+			public void buttonClick(ClickEvent event) {
+				fileReceiver.setSlow(event.getButton().booleanValue());
+            }
+        });
+
 		addComponent(fileUploadStatus);
+		addComponent(sleep);
 		addComponent(uploadField);
 		addComponent(pLayout);
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
@@ -345,36 +361,29 @@ public class UploadDataUI extends VerticalLayout {
 		HorizontalLayout btnLayout = new HorizontalLayout();
 		btnLayout.setSpacing(true);
 		btnLayout.addComponent(uploadButton);
-		btnLayout.addComponent(cancelButton);
-		cancelButton.addListener(new Button.ClickListener(){
-			private static final long serialVersionUID = 1L;
-			public void buttonClick(ClickEvent event) {
-				uploadField.interruptUpload();
-				annotUploadField.interruptUpload();
-				VisualPluginView pluginView = enableUMainLayout(true);
-				pluginView.setContent(new UploadDataUI(), "Upload Data", "Please use this interface to upload data");
-			}
-		});
 		addComponent(btnLayout);
+	}
+	
+	public void cancelUpload(){
+		uploadField.interruptUpload();
+		annotUploadField.interruptUpload();
 	}
 
 	/**
 	 * enable or disable components in UMainLayout except pluginView
 	 * @param enabled
-	 * @return pluginView
+	 * @return
 	 */
-	private VisualPluginView enableUMainLayout(boolean enabled){
+	private void enableUMainLayout(boolean enabled){
 		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
-		VisualPluginView pluginView = null;
 		while(it.hasNext()){
 			Component c = it.next();
 			if(c instanceof SplitPanel){
 				SplitPanel sp = (SplitPanel)c;
 				sp.getFirstComponent().setEnabled(enabled);
-				pluginView = (VisualPluginView)sp.getSecondComponent(); 
 			}else c.setEnabled(enabled);
 		}
-		return pluginView;
+		uploadButton.setEnabled(!enabled);
 	}
 	
 	private void getAnnotChoices(){
@@ -517,8 +526,41 @@ public class UploadDataUI extends VerticalLayout {
 				}
 			}
 
+			// store pending dataset
+			DataSet dataset = loader.storePendingData(dataFile==null?"DataSet":dataFile.getName(), SessionHandler.get().getId());
+			
+			// send upload start event
+			HashMap<String, Object> params = new HashMap<String, Object>();
+			params.put("loader", loader);
+			params.put("choice", choice);
+			params.put("owner", annotOwner);
+			params.put("type", annotType);
+			UploadStartedEvent analysisEvent = new UploadStartedEvent(dataset, params, UploadDataUI.this);
+			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+
+			// add pending dataset node
+			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
+			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
+		}};
+		
+		
+	public boolean startUpload(DataSet dataSet, HashMap<String, Object> params){
+			while(uploadField.isUploading()){
+				try{
+					Thread.sleep(1000);
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+			if (dataFile == null) return false;
+			
+			Loader loader 				= 	(Loader)params.get("loader");
+			Object choice 				= 	params.get("choice");
+			User annotOwner 			= 	(User)params.get("owner");
+			AnnotationType annotType 	= 	(AnnotationType)params.get("type");
+		
 			try {
-				loader.load(dataFile);
+				loader.load(dataFile, dataSet);
 				if (loader instanceof LoaderUsingAnnotation) {
 					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
 					expressionFileLoader.parseAnnotation(annotFile, annotType,
@@ -535,6 +577,7 @@ public class UploadDataUI extends VerticalLayout {
 				// if(!dataFile.delete()) {
 				// Log.warn("problem in deleting "+dataFile);
 				// }
+				return true;
 			} catch (GeWorkbenchLoaderException e) {
 				MessageBox mb = new MessageBox(getWindow(), 
 						"Loading problem", 
@@ -542,9 +585,39 @@ public class UploadDataUI extends VerticalLayout {
 						e.getMessage(),  
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();	
+				return false;
 			}
+
+	}
+	
+    /**
+     * FileOutputStream with 'sleep' flag to toggle slow/normal writing speed
+     */
+	private class SlowFileOutputStream extends FileOutputStream{
+        private boolean sleep;
+
+        /**
+         * @param file
+         * @param sleep	If set to true, sleep for 100ms/writingBlock to simulate slow speed;
+         * 				if set to false, write with normal speed
+         * @throws FileNotFoundException
+         */
+		public SlowFileOutputStream(File file, boolean sleep) throws FileNotFoundException {
+			super(file);
+			this.sleep = sleep;
 		}
 
+		@Override
+	    public void write(byte b[], int off, int len) throws IOException {
+			super.write(b, off, len);
+            if (sleep) {
+                try {
+                    Thread.sleep(100);
+                } catch (final InterruptedException e) {
+                     e.printStackTrace();
+                }
+            }
+		}
 	}
 	
 	/**
@@ -557,18 +630,19 @@ public class UploadDataUI extends VerticalLayout {
 
 		private String fileName;
         private String mtype;
+        private boolean sleep;
 
         public OutputStream receiveUpload(String filename, String mimetype) {
             fileName = filename;
             mtype = mimetype;
-            FileOutputStream fos = null; // Output stream to write to
+            SlowFileOutputStream fos = null; // Output stream to write to
             String dir = tempDir + SessionHandler.get().getUsername() + dataDir;
 			if (!new File(dir).exists())
 				new File(dir).mkdirs();
 			dataFile = new File(dir, fileName);
             try {
                 // Open the file for writing.
-                fos = new FileOutputStream(dataFile);
+                fos = new SlowFileOutputStream(dataFile, sleep);
             } catch (final java.io.FileNotFoundException e) {
                 // Error while opening the file. Not reported here.
                 e.printStackTrace();
@@ -583,6 +657,9 @@ public class UploadDataUI extends VerticalLayout {
 
         public String getMimeType() {
             return mtype;
+        }
+        public void setSlow(final boolean value) {
+            sleep = value;
         }
     }
 	

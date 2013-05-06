@@ -8,6 +8,7 @@ import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -34,6 +35,7 @@ public class UMainToolBar extends MenuBar {
 
 	private static final long serialVersionUID = 1L;
 	private final VisualPluginView pluginView;
+	private UploadDataUI uploadDataUI;
 
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
@@ -47,7 +49,17 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				UMainToolBar.this.pluginView.setContent(new UploadDataUI(), "Upload Data", "Please use this interface to upload data");
+				if (uploadPending()) {
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Upload in progress", 
+							MessageBox.Icon.INFO, 
+							"Data upload is in progress. ",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+				}else{
+					uploadDataUI = new UploadDataUI();
+					UMainToolBar.this.pluginView.setContent(uploadDataUI, "Upload Data", "Please use this interface to upload data");
+				}
 			}
 			
 		});
@@ -249,11 +261,41 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				SessionHandler.logout();
-				getApplication().close();
+				if (uploadPending()) {
+					MessageBox mb = new MessageBox(
+							getWindow(),
+							"Logout confirmation",
+							MessageBox.Icon.QUESTION,
+							"File upload is in progress. Logging out will cancel it. Do you really want to log out?",
+							new MessageBox.ButtonConfig(MessageBox.ButtonType.YES, "Yes"),
+							new MessageBox.ButtonConfig(MessageBox.ButtonType.NO, "No"));
+					mb.show(new MessageBox.EventListener() {
+						private static final long serialVersionUID = -7400025137319016325L;
+						@Override
+						public void buttonClicked(ButtonType buttonType) {
+							if (buttonType.toString() == "YES") {
+								uploadDataUI.cancelUpload();
+								SessionHandler.logout();
+								getApplication().close();
+							}
+						}
+					});
+				}else{
+					SessionHandler.logout();
+					getApplication().close();
+				}
 			}
 		});
 		
 	}
 	
+	private boolean uploadPending(){
+		Map<String, Object> parameters = new HashMap<String, Object>();	
+		parameters.put("owner", SessionHandler.get().getId());	
+		parameters.put("name", "% - Pending");
+		List<DataSet> datasets = FacadeFactory.getFacade().list(
+				"Select d from DataSet d where d.owner=:owner and d.name like :name", parameters);
+		return !datasets.isEmpty();
+	}
+
 }

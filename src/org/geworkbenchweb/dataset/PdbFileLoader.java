@@ -5,6 +5,7 @@ import java.io.File;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.parsers.PDBFileFormat;
+import org.geworkbenchweb.pojos.DataSet;
 
 public class PdbFileLoader extends Loader {
 
@@ -13,7 +14,7 @@ public class PdbFileLoader extends Loader {
 	};
 
 	@Override
-	public void load(File file) throws GeWorkbenchLoaderException {
+	public void load(File file, DataSet dataset) throws GeWorkbenchLoaderException {
 		// this should have been checked earlier one
 		if (!file.getName().toLowerCase().endsWith(".pdb")) {
 			throw new GeWorkbenchLoaderException(
@@ -28,7 +29,7 @@ public class PdbFileLoader extends Loader {
 		 * associate with annotation
 		 */
 		// FIXME hard-code type name breaks many things. kept only temporarily 
-		storeData(dataSet, file.getName()); //this.getClass().getName());
+		storeData(dataSet, file.getName(), dataset); //this.getClass().getName());
 	}
 
 	@Override
