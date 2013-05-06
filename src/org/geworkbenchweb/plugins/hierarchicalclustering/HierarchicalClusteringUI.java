@@ -2,8 +2,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashMap; 
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -14,19 +13,17 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
+ 
+import org.geworkbenchweb.utils.MarkerArraySelector;
+import org.geworkbenchweb.utils.ObjectConversion; 
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Select;
+import com.vaadin.ui.ComboBox; 
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.VerticalLayout;
 
@@ -47,7 +44,10 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	
 	private String clustMetric = "Euclidean Distance";
 	
+	private MarkerArraySelector markerArraySelector;	 
+	
 	private Long dataSetId;
+	private Long userId;
 	
 	private ResultSet resultSet;
 	
@@ -56,40 +56,19 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	public HierarchicalClusteringUI(Long dataId) {
 		
 		this.dataSetId = dataId;
+		User user = SessionHandler.get();
+		if(user!=null)
+			userId  = user.getId();
 		
 		setImmediate(true);
 		setSpacing(true);
 		
+		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "HierarchicalClusteringUI");
+		addComponent(markerArraySelector);
+		
 		ComboBox clusterMethod 	= 	new ComboBox();
 		ComboBox clusterDim 	= 	new ComboBox();
-		ComboBox clusterMetric 	= 	new ComboBox();
-		
-		markerSetSelect = new ListSelect("Select Marker Sets:");
-		markerSetSelect.setMultiSelect(true);
-		markerSetSelect.setRows(5);
-		markerSetSelect.setColumns(10);
-		markerSetSelect.setImmediate(true);
-		markerSetSelect.addItem("");
-		markerSetSelect.setItemCaption("", "All markers");
-		
-
-		arraySetSelect = new ListSelect("Select array sets:");
-		arraySetSelect.setMultiSelect(true);
-		arraySetSelect.setRows(5);
-		arraySetSelect.setColumns(10);
-		arraySetSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
-		arraySetSelect.setImmediate(true);
-		arraySetSelect.addItem("");
-		arraySetSelect.setItemCaption("", "All microarrays");
-
-		final GridLayout gridLayout1 = new GridLayout(2, 2);
-		gridLayout1.setSpacing(true);
-		gridLayout1.setImmediate(true);
-		gridLayout1.addComponent(markerSetSelect, 0, 0);
-		gridLayout1.addComponent(arraySetSelect, 1, 0);
-
-		addComponent(gridLayout1);
-		//... end of code copied from ANOVA component
+		ComboBox clusterMetric 	= 	new ComboBox();	 
 
 		clusterMethod.setCaption("Clustering Method");
 		clusterMethod.addItem("Single Linkage");
@@ -170,8 +149,8 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					resultSet.setOwner(SessionHandler.get().getId());	
 					FacadeFactory.getFacade().store(resultSet);	
 
-					params.put(HierarchicalClusteringParams.MARKER_SET, getMarkerSet());
-					params.put(HierarchicalClusteringParams.MICROARRAY_SET, getMicroarraySet());
+					params.put(HierarchicalClusteringParams.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
+					params.put(HierarchicalClusteringParams.MICROARRAY_SET, markerArraySelector.getSelectedArraySet());
 					params.put(HierarchicalClusteringParams.CLUSTER_METHOD, parseMethod(clustMethod));
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
@@ -196,31 +175,6 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		addComponent(clusterMetric);
 		addComponent(submitButton);
 		
-	}
-	
-	private ListSelect markerSetSelect;
-	private ListSelect arraySetSelect;
-	
-	// I copied the mechanism from ANOVA component. not sure if this is the best way
-	private Serializable getMicroarraySet() {
-		String selectStr = arraySetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			return selectStr.substring(1, selectStr.length()-1).split(",");			 
-		} else {
-			return null;
-		}
-	}
-
-	// I copied the mechanism from ANOVA component. not sure if this is the best way
-	private Serializable getMarkerSet() {
-		String selectStr = markerSetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			return selectStr.substring(1, selectStr.length()-1).split(",");			 
-		} else {
-			return null;
-		}
 	}
 
 	private static int parseDistanceMetric(String d) {
@@ -292,35 +246,15 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	}
 
 	@Override
-	public void setDataSetId(Long dataId) {
-		this.dataSetId = dataId;
-		
-		List<?> subMarkerSets = SubSetOperations.getMarkerSets(dataSetId);
-		List<?> subArraySets = SubSetOperations.getArraySets(dataSetId);
-		
-		markerSetSelect.removeAllItems();
-		markerSetSelect.addItem("");
-		markerSetSelect.setItemCaption("", "All markers");
+	public void setDataSetId(Long dataSetId) {
+		User user = SessionHandler.get();
+		if (user != null) {
+			userId = user.getId();
+		}
 
-		arraySetSelect.removeAllItems();
-		arraySetSelect.addItem("");
-		arraySetSelect.setItemCaption("", "All microarrays");
-		
-		if (subMarkerSets != null)
-			for (int m = 0; m < (subMarkerSets).size(); m++) {
+		this.dataSetId = dataSetId;
+		markerArraySelector.setData(dataSetId, userId);
 
-				markerSetSelect.addItem(((SubSet) subMarkerSets.get(m)).getId());
-				markerSetSelect.setItemCaption(((SubSet) subMarkerSets.get(m)).getId(), ((SubSet) subMarkerSets.get(m)).getName());
-
-			}
-
-		if (subArraySets != null)
-			for (int m = 0; m < (subArraySets).size(); m++) {
-
-				arraySetSelect.addItem(((SubSet) subArraySets.get(m)).getId().longValue());
-				arraySetSelect.setItemCaption(((SubSet) subArraySets.get(m)).getId(), ((SubSet) subArraySets.get(m)).getName());
-				
-			}
 
 	}
 
