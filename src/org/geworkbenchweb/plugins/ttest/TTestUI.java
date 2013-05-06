@@ -27,6 +27,8 @@ import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -36,8 +38,9 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
- * TTest Analysis for microarray dataset
+ * t-Test Analysis for microarray dataset
  * @author Nikhil Reddy
+ * @version $Id$
  */
 public class TTestUI extends VerticalLayout implements AnalysisUI {
 
@@ -165,8 +168,18 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				
 			}
 		});
-		addComponent(selectCase);
-		addComponent(selectControl);
+		HorizontalLayout casePanel = new HorizontalLayout();
+		Label caseLabel = new Label("Case:");
+		caseLabel.setWidth("100px");
+		casePanel.addComponent(caseLabel);
+		casePanel.addComponent(selectCase);
+		HorizontalLayout controlPanel = new HorizontalLayout();
+		Label controlLabel = new Label("Control:");
+		controlLabel.setWidth("100px");
+		controlPanel.addComponent(controlLabel);
+		controlPanel.addComponent(selectControl);
+		addComponent(casePanel);
+		addComponent(controlPanel);
 		addComponent(tabs);
 		addComponent(submit);
 	}
