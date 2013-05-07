@@ -1,5 +1,6 @@
 package org.geworkbenchweb.layout;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -51,7 +52,13 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					e.printStackTrace();
 				}
 				AnalysisUI analysisUI = event.getAnalaysisUI();
-				String resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
+				String resultName = null;
+				try {
+					resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
 
 				if(resultName.startsWith(">>>RemoteException:")) { // TODO special case from marina. this should be "designed away"
 					String msg = resultName.substring(">>>RemoteException:".length()).replaceAll("\n", "<br>");

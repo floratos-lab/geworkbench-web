@@ -1,18 +1,22 @@
 package org.geworkbenchweb.plugins.anova.results;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.TableView;
 import org.geworkbenchweb.utils.UserDirUtils;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 public class AnovaResultsUI extends VerticalLayout implements Visualizer {
@@ -35,8 +39,28 @@ public class AnovaResultsUI extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 		
-		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) ObjectConversion
-				.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) { 
+			// TODO pending node should be designed and implemented explicitly as so, eventually
+			// let's make a naive assumption for now that "file not found" means pending computation
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		} catch (IOException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof CSAnovaResultSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) object;
 	
 		setSpacing(true);
 		setImmediate(true);

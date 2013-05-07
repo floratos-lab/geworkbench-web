@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.anova;
 
  
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
  
 import org.geworkbench.components.anova.PValueEstimation;
@@ -78,7 +80,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	
 	private Long userId  = null;
 	
-	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
+	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
+
+	private Long resultSetId; 
 
 	public AnovaUI(Long dataSetId) {
 		User user = SessionHandler.get();
@@ -286,6 +290,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setParent(dataSetId);
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
+				resultSetId = resultSet.getId(); // must be after store
 
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
@@ -486,9 +491,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 
 	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) {
+	public String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) throws IOException {
 		AnovaAnalysis analysis = new AnovaAnalysis((DSMicroarraySet) dataset, (AnovaUI) params.get("form"));
-		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(analysis.execute()));
+		CSAnovaResultSet<DSGeneMarker> result = analysis.execute();
+		UserDirUtils.serializeResultSet(resultSetId, result);
 		return "Anova";
 	}
 	

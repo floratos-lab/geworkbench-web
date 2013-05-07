@@ -3,6 +3,7 @@
  */
 package org.geworkbenchweb.plugins;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -29,5 +30,5 @@ public interface AnalysisUI extends ComponentContainer {
 	Class<?> getResultType();
 	// TODO this is not clean design either, just easier to improve the overall design
 	// return the result data note's name
-	String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters);
+	String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) throws IOException;
 }
