@@ -37,28 +37,31 @@ public class VisualPluginView extends HorizontalLayout {
 	}
 	
 	public void setContentUsingCache(Class<? extends Component> resultUiClass, Long dataSetId) {
-		removeAllComponents();
 		Object object = pluginCache.get(resultUiClass, dataSetId);
 		if(object!=null) {
-			addComponent((Component)object);
+			setContent((Component)object);
 		} else {
-			try {
-				Component resultUI = resultUiClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
-				pluginCache.put(resultUiClass, dataSetId, resultUI);
-				addComponent(resultUI);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
+			setContentUpdatingCache(resultUiClass, dataSetId);
+		}
+	}
+	
+	public void setContentUpdatingCache(Class<? extends Component> resultUiClass, Long dataSetId) {
+		try {
+			Component resultUI = resultUiClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+			pluginCache.put(resultUiClass, dataSetId, resultUI);
+			setContent(resultUI);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
 		}
 	}
 	

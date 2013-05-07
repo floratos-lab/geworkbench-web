@@ -606,8 +606,11 @@ public class UMainLayout extends VerticalLayout {
 		} else {
 			try {
 				String type = res.getType();
-				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
+				Class<?> visualizerClass = Class.forName(type);
+				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(visualizerClass);
 				navigationTree.getContainerProperty(res.getId(), "Icon").setValue(icon);
+				Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(visualizerClass);
+				pluginView.setContentUpdatingCache(resultUiClass, res.getId());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -637,7 +640,6 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
 		navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
 		if(!pending) {
-			// FIXME we need to update the looking in case it was pending node before
 			navigationTree.select(dS.getId());
 		}
 	}
