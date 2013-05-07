@@ -95,7 +95,8 @@ public class MarkerArraySelector extends GridLayout{
 					Context context = (Context)val;							 
 					List<SubSet> arraySubSets = SubSetOperations.getArraySetsForContext(context);
 					arraySetSelect.removeAllItems();
-					arraySetSelect.addItem("All Arrays");
+					arraySetSelect.addItem("");
+					arraySetSelect.setItemCaption("", "All Arrays");
 					for (int m = 0; m < (arraySubSets).size(); m++) {					 
 						arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
 						arraySetSelect.setItemCaption(
@@ -132,7 +133,8 @@ public class MarkerArraySelector extends GridLayout{
 		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
 
 		markerSetSelect.removeAllItems();
-		markerSetSelect.addItem("All Markers");
+		markerSetSelect.addItem("");
+		markerSetSelect.setItemCaption("", "All markers");
 		for (int m = 0; m < (markerSubSets).size(); m++) {
 			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
 			markerSetSelect.setItemCaption(
