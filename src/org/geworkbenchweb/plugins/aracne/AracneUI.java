@@ -1,24 +1,23 @@
 package org.geworkbenchweb.plugins.aracne;
 
+import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.utils.MarkerArraySelector;
-import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.MarkerArraySelector;
+import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -26,14 +25,13 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.VerticalLayout; 
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.VerticalLayout;
 
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
@@ -60,6 +58,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
+
+	private Long resultSetId;
 
 	public AracneUI(Long dataId) {
 
@@ -397,7 +397,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						resultSet.setParent(dataSetId);
 						resultSet.setOwner(SessionHandler.get().getId());
 						FacadeFactory.getFacade().store(resultSet);
-
+						resultSetId = resultSet.getId(); // must be after store
+						
 						NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 						GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
@@ -591,9 +592,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
+			HashMap<Serializable, Serializable> parameters) throws IOException {
 		AracneAnalysisWeb analyze = new AracneAnalysisWeb((DSMicroarraySet) dataset, params);
-		UserDirUtils.saveResultSet(resultId, ObjectConversion.convertToByte(analyze.execute()));
+		AdjacencyMatrixDataSet result = analyze.execute();
+		UserDirUtils.serializeResultSet(resultSetId, result);
 		return "Aracne";
 	}
 }

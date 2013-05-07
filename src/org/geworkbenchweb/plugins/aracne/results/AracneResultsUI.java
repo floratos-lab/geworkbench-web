@@ -1,23 +1,26 @@
 package org.geworkbenchweb.plugins.aracne.results;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
+
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.VerticalLayout;
+
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.TextArea;
 
 public class AracneResultsUI extends VerticalLayout implements Visualizer {
 
@@ -38,19 +41,34 @@ public class AracneResultsUI extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
-		adjMatrixDataSet = (AdjacencyMatrixDataSet) ObjectConversion
-				.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) { 
+			// TODO pending node should be designed and implemented explicitly as so, eventually
+			// let's make a naive assumption for now that "file not found" means pending computation
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		} catch (IOException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof AdjacencyMatrixDataSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		adjMatrixDataSet = (AdjacencyMatrixDataSet) object;
 
 		setImmediate(true);
 		setSizeFull();		 
 		getLimitCytoscapeObjectsNum();
-	}
 
-	@Override
-	public void attach() {	 
-		super.attach(); 
-		removeAllComponents();
-		
+		// the following code used to be attach - which is not really necessary and is not consistent with other plug-ins
 		int edgeNumber = adjMatrixDataSet.getMatrix().getConnectionNo();
 		int nodeNumber = adjMatrixDataSet.getMatrix().getNodeNumber();
 		if ((edgeNumber + nodeNumber) > limit_num) {
