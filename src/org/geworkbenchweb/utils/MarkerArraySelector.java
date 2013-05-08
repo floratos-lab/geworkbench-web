@@ -32,6 +32,7 @@ public class MarkerArraySelector extends GridLayout{
 	private Long dataSetId;
 	private long userId;
 	private String parentName = null;
+	private boolean isArrayContextSetByApp = false;
   
 	
 	public MarkerArraySelector(Long dataSetId, Long userId, String parentName) {
@@ -70,7 +71,7 @@ public class MarkerArraySelector extends GridLayout{
 		arraySetSelect.setImmediate(true);
 	 
 	
-		markerSetSelect.addListener(new Property.ValueChangeListener() {
+		markerContextCB.addListener(new Property.ValueChangeListener() {
 		  
 			private static final long serialVersionUID = -1701293764682250834L;
 
@@ -85,7 +86,7 @@ public class MarkerArraySelector extends GridLayout{
 			}
 		});
 
-		
+	 
 		arrayContextCB.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
@@ -104,7 +105,10 @@ public class MarkerArraySelector extends GridLayout{
 								((SubSet) arraySubSets.get(m)).getName());
 						 
 					}
-					saveArrayContextPreference();
+					if (!isArrayContextSetByApp)					 
+						saveArrayContextPreference();
+					isArrayContextSetByApp = false;
+					
 				}
 				
 				
@@ -155,13 +159,11 @@ public class MarkerArraySelector extends GridLayout{
 		for (Context c : contexts){
 			arrayContextCB.addItem(c);	
 			if (selectedtArrayContext!=null && c.getId().longValue()==selectedtArrayContext.getId().longValue()) 
+			{
+				isArrayContextSetByApp = true;
 				arrayContextCB.setValue(c);
-		}
-		
-		arrayContextCB.setValue(selectedtArrayContext);		
-		
-	
-		
+			}
+		}	
 	
 	}
 	
