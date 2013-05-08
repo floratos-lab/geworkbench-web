@@ -93,9 +93,16 @@ public class CSVUtil {
 	}
 
 	private static ArrayList<String> getPanel(String setType, String markerType, Long datasetId, ArrayList<String> selectedNames){
-		DSMicroarraySet dataSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(datasetId));
+		DSMicroarraySet dataSet;
+		try {
+			dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(datasetId, DSMicroarraySet.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			dataSet = null;
+		}
 
 		ArrayList<String> panel = new ArrayList<String>();
+		if(dataSet==null) return panel;
 		if (setType.equals("Array")){
 			for (DSMicroarray array: dataSet) {
 				if(selectedNames.contains(array.getLabel())) 

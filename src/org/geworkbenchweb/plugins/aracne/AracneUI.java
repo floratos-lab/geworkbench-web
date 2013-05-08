@@ -15,7 +15,6 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -384,8 +383,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				try {
 
 					if (validInputData()) {
-						DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion
-								.toObject(UserDirUtils.getDataSet(dataSetId));
+						DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
 
 						ResultSet resultSet = new ResultSet();
 						java.sql.Date date = new java.sql.Date(System

@@ -3,24 +3,23 @@ package org.geworkbenchweb.plugins.anova;
  
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
- 
+import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
-import org.geworkbench.components.anova.FalseDiscoveryRateControl; 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -28,25 +27,19 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
+import com.vaadin.data.validator.DoubleValidator;
+import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.OptionGroup; 
-import com.vaadin.ui.themes.Reindeer;
- 
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.GridLayout; 
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
- 
-
- 
-import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.data.validator.DoubleValidator;
-import com.vaadin.terminal.UserError;
-
-import org.geworkbenchweb.utils.MarkerArraySelector;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Builds the Parameter Form for Anova Analysis
@@ -295,7 +288,13 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-				DSMicroarraySet dataSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+				DSMicroarraySet dataSet;
+				try {
+					dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
+				} catch (Exception e) {
+					e.printStackTrace();
+					return;
+				}
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params, AnovaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}

@@ -478,8 +478,12 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
 
 		DataSet data = DataSetOperations.getDataSet(dataSetId);
-		maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils
-				.getDataSet(data.getId()));
+		try {
+			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
 
 		addComponent(toolBar);
 		addComponent(displayTable);
@@ -489,10 +493,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
-
-		 
-	 
-	}
+	} // end of constructor FIXMEME: too long
 
 	/**
 	 * Method is called everytime user wants to to see more items in the table.

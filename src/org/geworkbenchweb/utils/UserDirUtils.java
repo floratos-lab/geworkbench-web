@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -63,20 +65,21 @@ public class UserDirUtils {
 		return true;
 	}
 
-	/**
-	 * @param Data set Id from the database table
-	 * @param Byte data of the dataset
-	 * @return
-	 */
-	public static boolean saveDataSet(long dataId, byte[] byteObject, Long userId) {
+	/* this replaces the original saveDataSet */
+	public static void serializeDataSet(Long dataId, DSDataSet<? extends DSBioObject> dataset, Long userId) throws IOException {
 
-		String dataName 		=	String.valueOf(dataId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-				SLASH + userId + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
-		boolean sucess 			=	createFile(fileName, byteObject);
-		if(!sucess) return false; 
-		return true;
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
+				+ DATASETS + SLASH + dataId + DATA_EXTENSION;
+		File file = new File(fileName);
+		file.createNewFile();
+		FileOutputStream f_out = new FileOutputStream(file);
+		ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
+
+		obj_out.writeObject(dataset);
+		obj_out.close();
 	}
 	
 	/**
@@ -144,20 +147,32 @@ public class UserDirUtils {
 		return obj;
 	}
 	
-	/**
-	 * Retrieves byte data from file
-	 * @param Dataset Id
-	 * @return byte[]
-	 */
-	public static byte[] getDataSet(long dataId) {
+	/* this replaces the original getDataSet */
+	public static DSDataSet<? extends DSBioObject> deserializeDataSet(
+			Long dataId, final Class<? extends DSDataSet<?>> correctType)
+			throws Exception {
 
-		if(dataId==0) return null; // 0 is used to a special 'initial' case. not the ideal design.
-		
-		String dataName 		=	String.valueOf(dataId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-				SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
-		return getDataFromFile(fileName);
+		if (dataId == 0)
+			return null; // 0 is used to a special 'initial' case. not the ideal
+							// design.
+
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH
+				+ SessionHandler.get().getId() + SLASH + DATASETS + SLASH
+				+ dataId + DATA_EXTENSION;
+		FileInputStream fin = new FileInputStream(fileName);
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		Object dataset = ois.readObject();
+		ois.close();
+
+		if (correctType.isInstance(dataset)) {
+			return correctType.cast(dataset);
+		} else {
+			throw new Exception("incorrect type " + correctType
+					+ " to deserialize " + fileName);
+		}
 	}
 
 	/**

@@ -857,10 +857,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	public void setDataSetId(Long dataId) {
 		this.dataSetId = dataId;
 		
-		byte[] byteArray = UserDirUtils.getDataSet(dataId);
-		if(byteArray==null)return;
-		
-		dataSet = (DSMicroarraySet) ObjectConversion.toObject(byteArray);
+		try {
+			dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataId, DSMicroarraySet.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
 		if(dataSet==null) return;
 
 		((CSMicroarraySet)dataSet).getMarkers().correctMaps();

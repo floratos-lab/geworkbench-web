@@ -1,6 +1,7 @@
 package org.geworkbenchweb.dataset;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
@@ -41,7 +42,13 @@ public abstract class Loader {
 		dataset.setType(dataSet.getClass().getName());
 		FacadeFactory.getFacade().store(dataset);
 
-		boolean success = UserDirUtils.saveDataSet(dataset.getId(), ObjectConversion.convertToByte(dataSet), dataset.getOwner());
+		boolean success = true;
+		try {
+			UserDirUtils.serializeDataSet(dataset.getId(), dataSet, dataset.getOwner());
+		} catch (IOException e) {
+			success = false;
+			e.printStackTrace();
+		}
 		if(!success) {
 			System.out.println("something went wrong");
 		}

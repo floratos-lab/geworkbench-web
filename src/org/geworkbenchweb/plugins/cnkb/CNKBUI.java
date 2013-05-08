@@ -83,7 +83,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		super.attach();
 		loadApplicationProperty();
-		final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
 		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		
 		try {
@@ -109,6 +108,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 			public void buttonClick(ClickEvent event) {
 				try {
+					DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
 					submitCnkbEvent(maSet);
 				} catch (Exception e) {	
 					e.printStackTrace();

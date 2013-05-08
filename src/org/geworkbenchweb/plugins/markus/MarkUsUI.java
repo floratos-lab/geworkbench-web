@@ -14,7 +14,6 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructu
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.vaadin.terminal.UserError;
@@ -603,7 +602,12 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		this.dataSetId = dataId;
 		if(dataId==0) return;
 		
-		dataSet 	=	(DSProteinStructure) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		try {
+			dataSet 	=	(DSProteinStructure) UserDirUtils.deserializeDataSet(dataSetId, DSProteinStructure.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
 		cbxChain.removeAllItems();
 		for(String itemId: getChains()) {
 			cbxChain.addItem(itemId);

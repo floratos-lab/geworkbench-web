@@ -18,7 +18,6 @@ import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -37,24 +36,25 @@ import com.vaadin.terminal.DownloadStream;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
  * @author zji
+ * @version $Id$
  *
  */
 // this is not a nice design, just an escape from chaos
@@ -253,7 +253,13 @@ public class SetViewCommand implements Command {
 		arrayTree.setSelectable(true);
 		arrayTree.setDescription("Phenotypes");
 
-		DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+		DSMicroarraySet maSet;
+		try {
+			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
 
 		markerTree.setContainerDataSource(markerTableView(maSet));
 		arrayTree.setContainerDataSource(arrayTableView(maSet));

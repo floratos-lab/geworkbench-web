@@ -155,7 +155,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
-					final DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+					final DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
 					generateHistoryString(maSet);
 					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);

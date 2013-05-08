@@ -349,7 +349,7 @@ public class UMainLayout extends VerticalLayout {
 						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
 							if (selectedItem.getItemProperty("Name").toString().contains("Pending")) return;
 							// (1)
-							DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion.toObject(UserDirUtils.getDataSet(dataSetId));
+							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
 							Map<String, Object> parameters = new HashMap<String, Object>();	
 							parameters.put("datasetid", dataSetId);	
 							List<Annotation> annots = FacadeFactory.getFacade().list(

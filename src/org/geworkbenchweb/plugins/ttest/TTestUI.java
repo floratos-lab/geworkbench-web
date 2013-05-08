@@ -144,8 +144,13 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 					}
 				}
 				
-				DSMicroarraySet maSet = (DSMicroarraySet) ObjectConversion
-						.toObject(UserDirUtils.getDataSet(dataSetId));
+				DSMicroarraySet maSet;
+				try {
+					maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
+				} catch (Exception e) {
+					e.printStackTrace();
+					return;
+				}
 
 				ResultSet resultSet = new ResultSet();
 				java.sql.Date date = new java.sql.Date(System
