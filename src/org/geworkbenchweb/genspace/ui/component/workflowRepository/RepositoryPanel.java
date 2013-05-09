@@ -5,6 +5,7 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Tree;
 
 public class RepositoryPanel extends Tree {
@@ -12,6 +13,8 @@ public class RepositoryPanel extends Tree {
 	 * 
 	 */
 	private static final long serialVersionUID = -7376733060873946250L;
+	
+	private UserWorkflow selectedWorkflow = null;
 
 	public static class RepositoryContainer extends HierarchicalContainer {
 		/**
@@ -64,5 +67,13 @@ public class RepositoryPanel extends Tree {
 
 	public void setContainer(RepositoryContainer container) {
 		this.container = container;
+	}
+	
+	public void setCurWorkFlow(UserWorkflow usrWorkFlow) {
+		this.selectedWorkflow = usrWorkFlow;
+	}
+	
+	public UserWorkflow getCurWorkFlow() {
+		return this.selectedWorkflow;
 	}
 }

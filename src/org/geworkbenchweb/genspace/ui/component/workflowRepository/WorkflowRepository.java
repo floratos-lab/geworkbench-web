@@ -17,9 +17,11 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
@@ -43,6 +45,9 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 	private Label infoLabel = new Label(
 			"Please login to genSpace to access this area.");
 	private VerticalLayout mainLayout = new VerticalLayout();
+	private Panel compRepoPanel = new Panel();
+	private Panel rootRepoPanel = new Panel();
+	private Button delete = new Button("Delete Selected");
 	
 	public WorkflowRepository(GenSpaceLogin login) {
 		super(login);
@@ -51,6 +56,7 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		
 		workflowDetailsPanel.setGenSpaceLogin(login);
 		workflowCommentsPanel.setGenSpaceLogin(login);
+		graphPanel.setGenSpaceLogin(login);
 	}
 
 	private AbstractLayout buildMainLayout() {
@@ -62,7 +68,26 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		repositoryPanel.addListener(this);
 		graphPanel.setSizeFull();
 		
-		jSplitPane3.addComponent(repositoryPanel);
+		rootRepoPanel.setSizeFull();
+		rootRepoPanel.setHeight("320px");
+		rootRepoPanel.addComponent(repositoryPanel);
+		//compRepoPanel.addComponent(repositoryPanel);
+		compRepoPanel.addComponent(rootRepoPanel);
+		compRepoPanel.addComponent(delete);
+		compRepoPanel.setSizeFull();
+		//jSplitPane3.addComponent(repositoryPanel);
+		delete.addListener(new Button.ClickListener() {
+			public void buttonClick(Button.ClickEvent evt) {
+				System.out.println("Delete test");
+				UserWorkflow curWorkflow = repositoryPanel.getCurWorkFlow();
+				
+				login.getGenSpaceServerFactory().getWorkflowOps().deleteMyWorkflow(curWorkflow.getId());
+				login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
+				repositoryPanel.recalculateAndReload();
+			}
+		});
+		jSplitPane3.addComponent(compRepoPanel);
+		
 		jSplitPane3.addComponent(inboxTable);
 		jSplitPane2.addComponent(graphPanel);
 		jSplitPane2.addComponent(tabSheet);
@@ -134,5 +159,6 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		graphPanel.render(list);
 		workflowDetailsPanel.setAndPrintWorkflow(userWorkflow.getWorkflow());
 		workflowCommentsPanel.setWorkflow(userWorkflow.getWorkflow());
+		repositoryPanel.setCurWorkFlow(userWorkflow);
 	}
 }

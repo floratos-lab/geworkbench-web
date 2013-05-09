@@ -64,7 +64,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		super(login);
 		buildMainLayout();
 		setCompositionRoot(splitter);
-
 	}
 
 	private AbstractLayout buildMainLayout() {
@@ -81,6 +80,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 //				35, 35, 142)));
 		workflowViewerPanel.addComponent(workflowVisualizationPanel, BorderLayout.Constraint.CENTER);
 		workflowVisualizationPanel.setHeight("60px");
+		workflowVisualizationPanel.setGenSpaceLogin(login);
 
 		// the info panel
 		GridLayout suggestionsPanel = new GridLayout(2, 1);

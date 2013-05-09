@@ -38,12 +38,17 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 	private HorizontalLayout selectPanel = new HorizontalLayout();
 	private WorkflowVisualizationPanel vis = new WorkflowVisualizationPanel();
 	private BorderLayout borderLayout = new BorderLayout();
+//	private GenSpaceLogin login;
 
 	public WorkflowVisualization(GenSpaceLogin login) {
 		super(login);
-		login = getGenspaceLogin();
+//		this.login = getGenspaceLogin();
 		initComponents();
 		setCompositionRoot(borderLayout);
+	}
+	
+	public GenSpaceLogin getGenSpaceLogin() {
+		return this.login;
 	}
 
 	private void initComponents() {
@@ -75,13 +80,14 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 
 		borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);
+		vis.setGenSpaceLogin(login);
 		vis.setSizeFull();
 	}
 
 	@Override
 	public void loggedIn() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override

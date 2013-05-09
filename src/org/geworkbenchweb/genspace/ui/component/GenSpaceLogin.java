@@ -370,5 +370,9 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 			button_3.setEnabled(true);
 		}
 	}
+	
+	public GenSpaceComponent getGenSpaceParent() {
+		return this.genSpaceParent;
+	}
 
 }

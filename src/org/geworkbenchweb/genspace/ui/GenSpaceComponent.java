@@ -253,5 +253,9 @@ public class GenSpaceComponent extends CustomComponent {
 		
 		return tabSheet_1;
 	}
+	
+	public WorkflowRepository getWorkflowRepository() {
+		return this.workflowRepository;
+	}
 
 }
