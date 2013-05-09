@@ -1,30 +1,33 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.LinkedHashSet;
+
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
+
+import com.invient.vaadin.charts.Color.RGB;
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
 import com.invient.vaadin.charts.InvientCharts.SeriesType;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.Color.RGB;
 import com.invient.vaadin.charts.InvientCharts.XYSeries;
+import com.invient.vaadin.charts.InvientChartsConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
 import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
+import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
 import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
+import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
-import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
-
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -48,8 +51,28 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		setImmediate(true);
 		setSizeFull();	
 
-		significance =  (DSSignificanceResultSet<DSGeneMarker>) ObjectConversion.toObject(
-				UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) { 
+			// TODO pending node should be designed and implemented explicitly as so, eventually
+			// let's make a naive assumption for now that "file not found" means pending computation
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		} catch (IOException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof DSSignificanceResultSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		significance =  (DSSignificanceResultSet<DSGeneMarker>)object;
 
 		addComponent(drawPlot());
 	}
