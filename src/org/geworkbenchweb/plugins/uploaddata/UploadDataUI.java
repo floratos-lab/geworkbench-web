@@ -515,12 +515,7 @@ public class UploadDataUI extends VerticalLayout {
 						.list("Select a from Annotation as a where a.owner=:owner and a.name=:name",
 								params);
 				if (!annots.isEmpty()) {
-					MessageBox mb = new MessageBox(getWindow(), 
-							"Loading problem", 
-							MessageBox.Icon.ERROR, 
-							"Annotation file with the same name found on server",  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();	
+					log.warn("Annotation file with the same name found on server. It's been overwritten.");
 					// if (annotFile.exists()) annotFile.delete();
 					// return;
 				}
