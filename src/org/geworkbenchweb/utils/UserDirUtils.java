@@ -274,7 +274,7 @@ public class UserDirUtils {
 		if(annot.getOwner() != null) {
 			String fileName 		= 	System.getProperty("user.home") + SLASH +
 					GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-					SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
+					SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
 			boolean sucess 			=	createFile(fileName, byteObject);
 			if(!sucess) return false; 
 			return true;
@@ -304,7 +304,7 @@ public class UserDirUtils {
 		if(annot.getOwner() != null) {
 			fileName 			= 	System.getProperty("user.home") + SLASH +
 										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
-										SLASH + SessionHandler.get().getId() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
+										SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
 		} else {
 			fileName 			= 	System.getProperty("user.home") + SLASH +
 										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
