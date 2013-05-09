@@ -233,7 +233,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		DataHistory his = new DataHistory();
 		his.setParent(resultSet.getId());
-		his.setData(ObjectConversion.convertToByte(mark.toString()));
+		his.setData(mark.toString());
 		FacadeFactory.getFacade().store(his);
 	}
 

@@ -10,7 +10,6 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -72,11 +71,10 @@ public abstract class Loader {
 					+ ((DSMicroarraySet) dataSet).size() + "\n");
 			info.append("Number of markers in the data set - "
 					+ ((DSMicroarraySet) dataSet).getMarkers().size() + "\n");
-			experimentInfo.setInfo(ObjectConversion.convertToByte(info
-					.toString()));
+			experimentInfo.setInfo(info.toString());
 			FacadeFactory.getFacade().store(experimentInfo);
 		}
-		dataHistory.setData(ObjectConversion.convertToByte(data.toString()));
+		dataHistory.setData(data.toString());
 		FacadeFactory.getFacade().store(dataHistory);
 
 		//NodeAddEvent resultEvent = new NodeAddEvent(dataset);

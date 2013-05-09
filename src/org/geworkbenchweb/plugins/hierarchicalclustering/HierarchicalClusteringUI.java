@@ -2,7 +2,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap; 
+import java.util.HashMap;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -13,9 +13,7 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
- 
 import org.geworkbenchweb.utils.MarkerArraySelector;
-import org.geworkbenchweb.utils.ObjectConversion; 
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -23,8 +21,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox; 
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -241,7 +239,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		
 		DataHistory his = new DataHistory();
 		his.setParent(resultSet.getId());
-		his.setData(ObjectConversion.convertToByte(mark.toString()));
+		his.setData(mark.toString());
 		FacadeFactory.getFacade().store(his);
 	}
 

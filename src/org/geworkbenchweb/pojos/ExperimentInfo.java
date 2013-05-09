@@ -1,7 +1,6 @@
 package org.geworkbenchweb.pojos;
 
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
@@ -14,8 +13,7 @@ public class ExperimentInfo extends AbstractPojo {
 
 	private Long parent;
 	
-	@Lob
-	private byte[] dataInfo;
+	private String dataInfo;
 
 	public Long getParent() {
 		return parent;
@@ -25,11 +23,11 @@ public class ExperimentInfo extends AbstractPojo {
 		this.parent = parent;
 	}
 
-	public byte[] getInfo() {
+	public String getInfo() {
 		return dataInfo;
 	}
 
-	public void setInfo(byte[] info) {
+	public void setInfo(String info) {
 		this.dataInfo = info;
 	}
 }

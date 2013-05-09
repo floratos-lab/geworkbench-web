@@ -10,18 +10,17 @@ import java.util.Map;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ExperimentInfo;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -141,7 +140,7 @@ public class AnnotationTabSheet extends TabSheet {
 		List<?> histories =  FacadeFactory.getFacade().list("Select p from DataHistory as p where p.parent =:parent", eParams);
 		for(int i=0; i<histories.size(); i++) {
 			DataHistory dH = (DataHistory) histories.get(i);
-			Label d = new Label((String) ObjectConversion.toObject(dH.getData()));
+			Label d = new Label(dH.getData());
 			d.setContentMode(Label.CONTENT_PREFORMATTED);
 			dataHistory.addComponent(d);
 		}
@@ -161,7 +160,7 @@ public class AnnotationTabSheet extends TabSheet {
 		List<?> info =  FacadeFactory.getFacade().list("Select p from ExperimentInfo as p where p.parent =:parent", iParams);
 		for(int i=0; i<info.size(); i++) {
 			ExperimentInfo eI = (ExperimentInfo) info.get(i);
-			Label d = new Label((String) ObjectConversion.toObject(eI.getInfo()));
+			Label d = new Label(eI.getInfo());
 			d.setContentMode(Label.CONTENT_PREFORMATTED);
 			expInfo.addComponent(d);
 		}
