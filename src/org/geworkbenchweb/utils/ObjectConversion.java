@@ -1,61 +1,38 @@
 package org.geworkbenchweb.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/* Convert between Object and byte array only if the reason to do is very clear.
+ * It is wasteful and harmful otherwise. */
 public class ObjectConversion {
-	
-	@SuppressWarnings("deprecation")
-	public static Object toObject(byte[] bytes){ 
 
-		Object object = null; 
-
-		try{ 
-
-			object = new java.io.ObjectInputStream(new 
-					java.io.ByteArrayInputStream(bytes)).readObject(); 
-
-		}catch(java.io.IOException ioe){ 
-
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					ioe.getMessage()); 
-
-		}catch(java.lang.ClassNotFoundException cnfe){ 
-
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					cnfe.getMessage()); 
-
-		} 
-
-		return object; 
-
-	}
-	
-	public static byte[] convertToByte(Object object) {
-
-		byte[] byteData = null;
-		ByteArrayOutputStream bos 	= 	new ByteArrayOutputStream();
-
+	public static byte[] convertToByte(Object obj) {
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-
-			ObjectOutputStream oos 	= 	new ObjectOutputStream(bos); 
-
-			oos.writeObject(object);
-			oos.flush(); 
-			oos.close(); 
-			bos.close();
-			byteData 				= 	bos.toByteArray();
-
-		} catch (IOException ex) {
-
-			System.out.println("Exception with in convertToByte");
-
+			ObjectOutputStream os = new ObjectOutputStream(out);
+		    os.writeObject(obj);
+		    return out.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
 		}
-
-		return byteData;
-
 	}
-
-
+	
+	public static Object toObject(byte[] data) {
+	    ByteArrayInputStream in = new ByteArrayInputStream(data);
+		try {
+			ObjectInputStream is = new ObjectInputStream(in);
+		    return is.readObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
