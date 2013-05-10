@@ -74,7 +74,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 			try {
 				final Visualizer visualizer = visualizerClass.getConstructor(
-						Long.class).newInstance(dataId);
+						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
 				buildOneItem(visualizerGroup, visualizer.getPluginEntry(),
 						visualizer);
 			} catch (IllegalArgumentException e) {
@@ -184,7 +184,24 @@ public class DataTypeMenuPage extends VerticalLayout {
 						if(container instanceof AnalysisUI) {
 							showAnalysisParameterPanel(analysis, (AnalysisUI)container, dataId);
 						} else if (container instanceof Visualizer) {
-							showVisualizer((Visualizer)container);
+							// a new instance (with actual data) is created because currently visualizer does not have set-dataset-ID method
+							Visualizer newVisualizer;
+							try {
+								newVisualizer = (Visualizer)container.getClass().getDeclaredConstructor(Long.class).newInstance(dataId);
+								showVisualizer(newVisualizer);
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+							} catch (SecurityException e) {
+								e.printStackTrace();
+							} catch (InstantiationException e) {
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								e.printStackTrace();
+							} catch (NoSuchMethodException e) {
+								e.printStackTrace();
+							}
 						} else {
 							log.error("unkown view type "+container.getClass());
 						}

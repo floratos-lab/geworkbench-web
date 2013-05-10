@@ -7,20 +7,14 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
-import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -38,7 +32,6 @@ import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -46,8 +39,6 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.PopupView;
-import com.vaadin.ui.PopupView.PopupVisibilityEvent;
 import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -213,7 +204,10 @@ public class UMainLayout extends VerticalLayout {
 
 		addComponent(createTopNavigationPanel());
 
-		Component logo = createLogo();
+		Button logo = new NativeButton();
+		logo.setDescription("geWorkbench Home");
+		logo.setStyleName(BaseTheme.BUTTON_LINK);
+		logo.addStyleName("logo");
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
 
@@ -244,12 +238,7 @@ public class UMainLayout extends VerticalLayout {
 		topBar.addComponent(quicknav);
 		topBar.setComponentAlignment(quicknav, Alignment.MIDDLE_RIGHT);
 		quicknav.setStyleName("segment");
-
-		Component searchComponent = createSearch();
-		quicknav.addComponent(searchComponent);
-
-		Component treeSwitch = createTreeSwitch();
-		quicknav.addComponent(treeSwitch);
+		quicknav.addComponent(createTreeSwitch());
 		
 		annotationPanel.hide();
 		this.addComponent(annotationPanel.menuBar);
@@ -316,6 +305,7 @@ public class UMainLayout extends VerticalLayout {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void valueChange(ValueChangeEvent event) {
 
 				Item selectedItem = tree.getItem(event.getProperty().getValue());
@@ -326,23 +316,25 @@ public class UMainLayout extends VerticalLayout {
 						removeButton.setEnabled(true);
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
 
-						if (className.contains("Results") && selectedItem.getItemProperty("Name").toString().contains("Pending")){
-							pluginView.removeAllComponents();
-							return;
-						}
-						
 						/* this is the only place that dataset ID may change */
 						dataSetId = (Long) event.getProperty().getValue();    
 						annotationPanel.setDatasetId(dataSetId);
 						
-						toolBar.setEnabled(false);
-
-						// TODO special things to do for microarray set should be considered as part of the overall design
-						// not as a special case patched as aftermath fix
 						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
-							if (selectedItem.getItemProperty("Name").toString().contains("Pending")) return;
-							// (1)
-							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
+							toolBar.setEnabled(true);
+							setViewMeuItem.setEnabled(true);
+						} else {
+							toolBar.setEnabled(false);
+						}
+
+						/* FIXME this block of valid code (exactly the same behavior as when it was active) is commented out for now because:
+						 * 1. it is very slow (due to deserialization);
+						 * 2. it does't do its job of supporting annotation correctly;
+						 * 3. even if it does (2.) right, it doesn't have to be here and invoked every time the user switches between data nodes.
+						 */
+						/*
+						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
+							CSMicroarraySet maSet = (CSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, CSMicroarraySet.class);
 							Map<String, Object> parameters = new HashMap<String, Object>();	
 							parameters.put("datasetid", dataSetId);	
 							List<Annotation> annots = FacadeFactory.getFacade().list(
@@ -353,16 +345,9 @@ public class UMainLayout extends VerticalLayout {
 							}else {
 								AnnotationParser.setCurrentDataSet(maSet);
 							}
-							((CSMicroarraySet)maSet).getMarkers().correctMaps();
-
-							// (2)
-							toolBar.setEnabled(true);
-							for(int i=0; i<toolBar.getItems().size(); i++) {
-								if(toolBar.getItems().get(i).getText().equalsIgnoreCase("SET VIEW")) {
-									toolBar.getItems().get(i).setEnabled(true);	
-								}
-							}
+							maSet.getMarkers().correctMaps();
 						}
+						*/
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
 						Class<?> aClass = classLoader.loadClass(className);
@@ -433,58 +418,6 @@ public class UMainLayout extends VerticalLayout {
 		});
 		
 		return tree;
-	}
-
-	/**
-	 * Creates the logo for the Application		
-	 * @return
-	 */
-	private Component createLogo() {
-		Button logo = new NativeButton("", new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
-			public void buttonClick(ClickEvent event) {
-
-			}
-		});
-		logo.setDescription("geWorkbench Home");
-		logo.setStyleName(Button.STYLE_LINK);
-		logo.addStyleName("logo");
-		return logo;
-	}
-
-	/**
-	 * Search
-	 */
-	private Component createSearch() {
-		final ComboBox search = new ComboBox();
-		search.setWidth("160px");
-		search.setNewItemsAllowed(false);
-		search.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
-		search.setNullSelectionAllowed(true);
-		search.setImmediate(true);
-		search.setInputPrompt("Search samples...");
-		/*
-		 * PopupView pv = new PopupView("", search) { public void
-		 * changeVariables(Object source, Map variables) {
-		 * super.changeVariables(source, variables); if (isPopupVisible()) {
-		 * search.focus(); } } };
-		 */
-		final PopupView pv = new PopupView("<span></span>", search);
-		pv.addListener(new PopupView.PopupVisibilityListener() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			public void popupVisibilityChange(PopupVisibilityEvent event) {
-				if (event.isPopupVisible()) {
-					search.focus();
-				}
-			}
-		});
-		pv.setStyleName("quickjump");
-		pv.setDescription("Quick jump");
-		return pv;
 	}
 	
 	/**
