@@ -1,10 +1,14 @@
 package org.geworkbenchweb.plugins.marina.results;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
+
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -19,8 +23,28 @@ public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 		
-		CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet) 
-				ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) { 
+			// TODO pending node should be designed and implemented explicitly as so, eventually
+			// let's make a naive assumption for now that "file not found" means pending computation
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		} catch (IOException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof CSMasterRegulatorTableResultSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet) object;
 
 		Object[][] rdata = resultset.getData();
 		Table mraTable= new Table();

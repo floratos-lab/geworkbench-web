@@ -2,6 +2,7 @@ package org.geworkbenchweb.layout;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -21,6 +22,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
  * analysis is complete in the background.
  * @author Nikhil
+ * @version $Id$
  */
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
@@ -55,13 +57,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				String resultName = null;
 				try {
 					resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
-
-				if(resultName.startsWith(">>>RemoteException:")) { // TODO special case from marina. this should be "designed away"
-					String msg = resultName.substring(">>>RemoteException:".length()).replaceAll("\n", "<br>");
+				} catch (RemoteException e) { // this may happen for marina analysis
+					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
@@ -69,14 +66,17 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
 				}
-				else if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
+
+				if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
 				{
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
 				}
-				
 				
 				resultSet.setName(resultName);
 

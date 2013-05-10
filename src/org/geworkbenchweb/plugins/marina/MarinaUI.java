@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +40,6 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -896,15 +894,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
+			HashMap<Serializable, Serializable> parameters) throws IOException {
 		MarinaAnalysis analyze = new MarinaAnalysis(dataSet, parameters);
-		try {
-			CSMasterRegulatorTableResultSet mraRes = analyze.execute();
-			UserDirUtils.saveResultSet(resultId,
-					ObjectConversion.convertToByte(mraRes));
-			return analysisName + " - " + mraRes.getLabel();
-		} catch (RemoteException e) {
-			return ">>>RemoteException:"+e.getMessage();
-		}
+
+		CSMasterRegulatorTableResultSet mraRes = analyze.execute();
+		UserDirUtils.serializeResultSet(resultId, mraRes);
+		return analysisName + " - " + mraRes.getLabel();
 	}
 }
