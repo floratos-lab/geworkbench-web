@@ -18,7 +18,6 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultData
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -41,7 +40,7 @@ public class MarkusAnalysis {
 		this.dataSetId = dataSetId;
 	}
 	
-	public ResultSet execute(){
+	void execute(){
 
 		File prtfile = dataSet.getFile();
 		String pdbname = prtfile.getName();
@@ -63,13 +62,11 @@ public class MarkusAnalysis {
 		String str = generateMarkusInput(pdbname, tmpfile);
 		String results = MarkusAnalysis.submitJob(str);			
 
-		if(results==null) return null;
-			//return new AlgorithmExecutionResults(false, "No result for MarkUs analysis", null);
+		if(results==null) return;
 			
 		String impossibleResult = results.toLowerCase();
 		if (impossibleResult.contains("error")
-				|| results.equals("cancelled") || results.equals("na")) return null;
-			//return new AlgorithmExecutionResults(false, "Error: unexpected results in MarkUs analysis service: " + impossibleResult, null);
+				|| results.equals("cancelled") || results.equals("na")) return;
 
 		// start waiting for this job's results
 		String url = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=" + results;
@@ -84,10 +81,10 @@ public class MarkusAnalysis {
 			urlstat = checkUrlStatus(url);
 		}
 
-		return getResultSet(results);
+		getResultSet(results);
 	}
 
-	public ResultSet getResultSet(String results){
+	void getResultSet(String results){
 		MarkUsResultDataSet musresult = new MarkUsResultDataSet(dataSet, results);
 		musresult.setResult(results);
 		
@@ -101,12 +98,15 @@ public class MarkusAnalysis {
 		resultSet.setOwner(sessionId);	
 		FacadeFactory.getFacade().store(resultSet);
 
-		UserDirUtils.saveResultSet(resultSet.getId(), ObjectConversion.convertToByte(musresult));
+		try {
+			UserDirUtils.serializeResultSet(resultSet.getId(), musresult);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
 		
 		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
-		
-		return resultSet;
 	}
 	
     public static java.lang.String submitJob(java.lang.String string) {

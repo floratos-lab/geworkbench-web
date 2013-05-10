@@ -1,16 +1,20 @@
 package org.geworkbenchweb.plugins.markus.results;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
+
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Embedded;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 public class MarkusResultsUI extends VerticalLayout implements Visualizer {
@@ -24,8 +28,28 @@ public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 		
-		MarkUsResultDataSet resultset = (MarkUsResultDataSet) 
-				ObjectConversion.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object = null;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) { 
+			// TODO pending node should be designed and implemented explicitly as so, eventually
+			// let's make a naive assumption for now that "file not found" means pending computation
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		} catch (IOException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		} catch (ClassNotFoundException e) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			return;
+		}
+		if(! (object instanceof MarkUsResultDataSet)) {
+			String type = null;
+			if(object!=null) type = object.getClass().getName();
+			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			return;
+		}
+		MarkUsResultDataSet resultset = (MarkUsResultDataSet) object;
 		String results = resultset.getResult();
 
 		Button refreshBtn = new Button("Refresh");
