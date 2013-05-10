@@ -367,7 +367,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 
-				final FilterWindow filterWindow = new FilterWindow(getTabularViewUI());			 
+				final FilterWindow filterWindow = new FilterWindow(TabularViewUI.this);			 
 				getApplication().getMainWindow().addWindow(filterWindow);
 
 			}
@@ -734,11 +734,6 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
 		return isMatch;
 	}
 	 
-	TabularViewUI getTabularViewUI()
-	{
-		return this;
-	}
-	
 	PagedTableView getDisplayTable()
 	{
 		return displayTable;
