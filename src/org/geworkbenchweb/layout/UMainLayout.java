@@ -76,8 +76,6 @@ public class UMainLayout extends VerticalLayout {
 
 	final private VisualPluginView pluginView = new VisualPluginView();
 
-	final private HorizontalLayout dataNavigation = new HorizontalLayout();
-
 	final private User user = SessionHandler.get();
 			
 	final private CssLayout leftMainLayout = new CssLayout();
@@ -101,6 +99,8 @@ public class UMainLayout extends VerticalLayout {
 	final private UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView, genspaceLogger);
 
 	final private MenuItem setViewMeuItem;
+	final private MenuItem workspaceViewMenuItem;
+	final private SetViewCommand setViewCommand;
 	
 	final private Tree navigationTree = createNavigationTree();;
 	
@@ -127,13 +127,6 @@ public class UMainLayout extends VerticalLayout {
 		topBar.setWidth("100%");
 		topBar.setStyleName("topbar");
 		topBar.setSpacing(true);
-
-		dataNavigation.setHeight("24px");
-		dataNavigation.setWidth("100%");
-		dataNavigation.setStyleName("menubar");
-		dataNavigation.setSpacing(false);
-		dataNavigation.setMargin(false);
-		dataNavigation.setImmediate(true);
 
 		annotButton.setDescription("Show Annotation");
 		annotButton.setStyleName(BaseTheme.BUTTON_LINK);
@@ -173,30 +166,19 @@ public class UMainLayout extends VerticalLayout {
 		toolBar.setEnabled(false);
 		toolBar.setImmediate(true);
 		toolBar.setStyleName("transparent");
-		final SetViewCommand setViewCommand = new SetViewCommand(this);
+		setViewCommand = new SetViewCommand(this);
 		setViewMeuItem = toolBar.addItem("Set View", setViewCommand);
 		setViewMeuItem.setEnabled(false);
-		final MenuItem project = toolBar.addItem("Project View", new Command() {
+		workspaceViewMenuItem = toolBar.addItem("Workspace View", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				removeButton.setVisible(true);
-				annotButton.setVisible(true);
-				removeSetButton.setVisible(false);
-				openSetButton.setVisible(false);
-				saveSetButton.setVisible(false);
-				navigationTree.setVisible(true);
-				setViewCommand.hideSetView();
-				selectedItem.setEnabled(false);
-				setViewMeuItem.setEnabled(true);
-				pluginView.setEnabled(true);
-				mainToolBar.setEnabled(true);
+				switchToWorkspaceView();
 			}
 		});
-
-		project.setEnabled(false);
+		workspaceViewMenuItem.setEnabled(false);
 		
 		/* Deletes the data set and its dependencies from DB */
 		removeButton.addListener(new RemoveButtonListener(this));
@@ -229,23 +211,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		dataNavigation.addComponent(toolBar);
-		dataNavigation.addComponent(annotButton);
-		dataNavigation.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
-		dataNavigation.addComponent(removeButton);
-		dataNavigation.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
-		dataNavigation.addComponent(removeSetButton);
-		dataNavigation.setComponentAlignment(removeSetButton, Alignment.MIDDLE_LEFT);
-		dataNavigation.addComponent(openSetButton);
-		dataNavigation.setComponentAlignment(openSetButton, Alignment.MIDDLE_LEFT);
-		dataNavigation.addComponent(saveSetButton);
-		dataNavigation.setComponentAlignment(saveSetButton, Alignment.MIDDLE_LEFT);
-		dataNavigation.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
-		dataNavigation.addComponent(mainToolBar);
-		dataNavigation.setExpandRatio(mainToolBar, 1);
-		dataNavigation.setComponentAlignment(mainToolBar, Alignment.TOP_RIGHT);
-
-		addComponent(dataNavigation);
+		addComponent(createTopNavigationPanel());
 
 		Component logo = createLogo();
 		topBar.addComponent(logo);
@@ -296,6 +262,33 @@ public class UMainLayout extends VerticalLayout {
 		GeworkbenchRoot.getBlackboard().addListener(new UploadDataListener(this, pusher));
 	} // end of the constructor.
 
+	private HorizontalLayout createTopNavigationPanel() {
+		HorizontalLayout p = new HorizontalLayout();
+		p.setHeight("24px");
+		p.setWidth("100%");
+		p.setStyleName("menubar");
+		p.setSpacing(false);
+		p.setMargin(false);
+		p.setImmediate(true);
+		
+		p.addComponent(toolBar);
+		p.addComponent(annotButton);
+		p.setComponentAlignment(annotButton, Alignment.MIDDLE_LEFT);
+		p.addComponent(removeButton);
+		p.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
+		p.addComponent(removeSetButton);
+		p.setComponentAlignment(removeSetButton, Alignment.MIDDLE_LEFT);
+		p.addComponent(openSetButton);
+		p.setComponentAlignment(openSetButton, Alignment.MIDDLE_LEFT);
+		p.addComponent(saveSetButton);
+		p.setComponentAlignment(saveSetButton, Alignment.MIDDLE_LEFT);
+		p.setComponentAlignment(toolBar, Alignment.TOP_LEFT);
+		p.addComponent(mainToolBar);
+		p.setExpandRatio(mainToolBar, 1);
+		p.setComponentAlignment(mainToolBar, Alignment.TOP_RIGHT);
+		return p;
+	}
+	
 	void noSelection() {
 		annotButton.setEnabled(false);
 		removeButton.setEnabled(false);
@@ -667,15 +660,25 @@ public class UMainLayout extends VerticalLayout {
 		openSetButton.setVisible(true);
 		saveSetButton.setVisible(true);
 
-		for(int i=0; i<toolBar.getItems().size(); i++) {
-			if(toolBar.getItems().get(i).getText().equalsIgnoreCase("PROJECT VIEW")) {
-				toolBar.getItems().get(i).setEnabled(true);	
-			}
-		}
+		workspaceViewMenuItem.setEnabled(true);
 		
 		// TODO this is a naughty way to get the previous set view away. definitely should be changed.
 		leftMainLayout.removeAllComponents();
 		leftMainLayout.addComponent(navigationTree);
+	}
+	
+	private void switchToWorkspaceView() {
+		removeButton.setVisible(true);
+		annotButton.setVisible(true);
+		removeSetButton.setVisible(false);
+		openSetButton.setVisible(false);
+		saveSetButton.setVisible(false);
+		navigationTree.setVisible(true);
+		setViewCommand.hideSetView();
+		workspaceViewMenuItem.setEnabled(false);
+		setViewMeuItem.setEnabled(true);
+		pluginView.setEnabled(true);
+		mainToolBar.setEnabled(true);
 	}
 
 	// TODO not a good idea. temporary solution for set view
