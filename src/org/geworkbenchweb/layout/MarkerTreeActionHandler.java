@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
  
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory; 
@@ -11,6 +14,7 @@ import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout; 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
@@ -25,12 +29,15 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class MarkerTreeActionHandler extends  TreeActionHandler {
   
 	private static final long serialVersionUID = -4045595188160846115L;
+	private static Log log = LogFactory.getLog(ArrayTreeActionHandler.class);
 	private Tree markerSetTree;
+	private ComboBox contextSelector;
 	
-	public MarkerTreeActionHandler(Long dataSetId, Tree markerSetTree)
+	public MarkerTreeActionHandler(Long dataSetId, Tree markerSetTree, ComboBox contextSelector)
 	{
 		super(dataSetId);
 		this.markerSetTree = markerSetTree;
+		this.contextSelector = contextSelector;
 	}
 	
  
@@ -75,11 +82,16 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 				try {
 					if(setName.getValue() != null) {
 						
+						Object contextObj = contextSelector.getValue();
+						if (contextObj == null) {
+							log.warn("Can't create arrayset: current context is null");
+							return;
+						}
+						Context context = (Context)contextObj;
 						String mark 	= 	sender.toString();
 						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
-						List<?> sets = SubSetOperations.getMarkerSets(dataSetId);;
-						for (Object set : sets){
-							final SubSet markerset = (SubSet)set;
+						List<SubSet> markersets = SubSetOperations.getSubSetsForContext(context);
+						for (final SubSet markerset : markersets){
 							String name = markerset.getName();
 							if (name.equals(setName.getValue())){
 								final String name1 = name;
@@ -135,7 +147,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							markers.add(dataA[0]);
 						}
 						String subSetName = (String) setName.getValue();
-						Long subSetId = SubSetOperations.storeMarkerSet(markers, subSetName , dataSetId);
+						Long subSetId = SubSetOperations.storeMarkerSetInContext(markers, subSetName , dataSetId, context);
 						markerSetTree.addItem(subSetId);
 						markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + markers.size()+ "]");
 						markerSetTree.setParent(subSetId, "MarkerSets");

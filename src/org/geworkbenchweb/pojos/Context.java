@@ -11,12 +11,14 @@ public class Context  extends AbstractPojo{
 	private static final long serialVersionUID = -2698052502056966328L;
 
 	private String name;
+	private String type;
 	private Long datasetid;
 	
 	public Context(){}
 
-	public Context(String c, Long i){
+	public Context(String c, String t, Long i){
 		name = c;
+		type = t;
 		datasetid = i;
 	}
 	public Long getDatasetId(){
@@ -30,6 +32,12 @@ public class Context  extends AbstractPojo{
 	}
 	public void setName(String cont){
 		name = cont;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	public String toString(){
 		return name;

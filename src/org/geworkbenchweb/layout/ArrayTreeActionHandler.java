@@ -89,7 +89,7 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 						Context context = (Context)contextObj;
 						String mark 	= 	sender.toString();
 						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
-						List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
+						List<SubSet> arraysets = SubSetOperations.getSubSetsForContext(context);
 						for (final SubSet arrayset : arraysets){
 							String name = arrayset.getName();
 							if (name.equals(setName.getValue())){
@@ -144,7 +144,7 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 							arrays.add((String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue());
 						}
 						String subSetName =  (String) setName.getValue();
-						Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context.getId());
+						Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context);
 						arraySetTree.addItem(subSetId);
 						arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + arrays.size() + "]");
 						arraySetTree.setParent(subSetId, "arraySets");

@@ -80,7 +80,7 @@ public class FilterWindow extends Window {
 				Object val = arrayContextCB.getValue();
 				if (val != null){
 					Context context = (Context)val;							 
-					List<SubSet> arraySubSets = SubSetOperations.getArraySetsForContext(context);
+					List<SubSet> arraySubSets = SubSetOperations.getSubSetsForContext(context);
 					arraySetSelect.removeAllItems();
 					arraySetSelect.addItem("All Arrays");
 					for (int m = 0; m < (arraySubSets).size(); m++) {					 
@@ -100,8 +100,8 @@ public class FilterWindow extends Window {
 		if (tabViewPreferences.getMarkerFilter() != null)
 			selectedtContext = tabViewPreferences.getArrayFilter().getContext();
 		if (selectedtContext == null)
-			selectedtContext = SubSetOperations.getCurrentContext(datasetId);
-		List<Context> contexts = SubSetOperations.getAllContexts(datasetId);		 
+			selectedtContext = SubSetOperations.getCurrentArrayContext(datasetId);
+		List<Context> contexts = SubSetOperations.getArrayContexts(datasetId);		 
 		for (Context c : contexts){
 			arrayContextCB.addItem(c);	
 			if (selectedtContext!=null && c.getId().longValue()==selectedtContext.getId().longValue()) 

@@ -70,7 +70,7 @@ public class SetViewCommand implements Command {
 
 	private Tree arraySetTree;
 
-	private VerticalLayout contextpane;
+	private VerticalLayout contextpane, mrkcontextpane;
 	
 	private Long selectedSubSetId;
 	
@@ -161,7 +161,6 @@ public class SetViewCommand implements Command {
 		arraySetTree 	= 	new Tree();
 		 
 		final Long dataSetId = mainLayout.getCurrentDatasetId();
-		markerTree.addActionHandler(new MarkerTreeActionHandler(dataSetId , markerSetTree));
 		markerTree.setImmediate(true);
 		markerTree.setSelectable(true);
 		markerTree.setMultiSelect(true);
@@ -276,6 +275,102 @@ public class SetViewCommand implements Command {
 		arraySetTree.setItemCaptionPropertyId("setName");
 		arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
+		//marker context
+		final ComboBox mrkcontextSelector = new ComboBox();
+		mrkcontextSelector.setWidth("160px");
+		mrkcontextSelector.setImmediate(true);
+		mrkcontextSelector.setNullSelectionAllowed(false);
+		mrkcontextSelector.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 5667499645414167736L;
+			public void valueChange(ValueChangeEvent event) {
+				Object val = mrkcontextSelector.getValue();
+				if (val != null){
+					Context context = (Context)val;
+					SubSetOperations.setCurrentMarkerContext(dataSetId, context);
+
+					HierarchicalContainer markerData = new HierarchicalContainer();
+					List<SubSet> markersets = SubSetOperations.getSubSetsForContext(context);
+					markerData.addContainerProperty("setName", String.class, null);
+					Item mainItem1 = markerData.addItem("MarkerSets");
+					mainItem1.getItemProperty("setName").setValue("Marker Sets");
+					markerSetTree.setContainerDataSource(markerData);
+
+					for (SubSet markerset : markersets){
+						List<String> markers = markerset.getPositions();
+						Long id = markerset.getId();
+						markerData.addItem(id);
+						markerData.getContainerProperty(id, "setName").setValue(markerset.getName() + " [" + markers.size() + "]");
+						markerData.setParent(id, "MarkerSets");
+						markerData.setChildrenAllowed(id, true);
+						for(int j=0; j<markers.size(); j++) {
+							markerData.addItem(markers.get(j)+id);
+							markerData.getContainerProperty(markers.get(j)+id, "setName").setValue(markers.get(j));
+							markerData.setParent(markers.get(j)+id, id);
+							markerData.setChildrenAllowed(markers.get(j)+id, false);
+						}
+					}
+				}
+			}
+		});
+
+		markerTree.addActionHandler(new MarkerTreeActionHandler(dataSetId , markerSetTree, mrkcontextSelector));
+
+		List<Context> mrkcontexts = SubSetOperations.getMarkerContexts(dataSetId);
+		Context mrkcurrent = SubSetOperations.getCurrentMarkerContext(dataSetId);
+		for (Context c : mrkcontexts){
+			mrkcontextSelector.addItem(c);
+			if (mrkcurrent!=null && c.getId()==mrkcurrent.getId()) mrkcontextSelector.setValue(c);
+		}
+
+		Button mrknewContextButton = new Button("New");
+		mrknewContextButton.addListener(new Button.ClickListener() {
+			private static final long serialVersionUID = -5508188056515818970L;
+			public void buttonClick(ClickEvent event) {
+				final Window nameWindow = new Window();
+				nameWindow.setModal(true);
+				nameWindow.setClosable(true);
+				nameWindow.setWidth("300px");
+				nameWindow.setHeight("150px");
+				nameWindow.setResizable(false);
+				nameWindow.setCaption("Add New MarkerSet Context");
+				nameWindow.setImmediate(true);
+
+				final TextField contextName = new TextField();
+				contextName.setInputPrompt("Please enter markerset context name");
+				contextName.setImmediate(true);
+				nameWindow.addComponent(contextName);
+				nameWindow.addComponent(new Button("Ok", new Button.ClickListener() {
+					private static final long serialVersionUID = 634733324392150366L;
+					public void buttonClick(ClickEvent event) {
+		                String name = (String)contextName.getValue();
+		                for (Context context : SubSetOperations.getMarkerContexts(dataSetId)){
+		                	if (context.getName().equals(name)){
+		                		MessageBox mb = new MessageBox(mainLayout.getWindow(), 
+										"Warning", MessageBox.Icon.WARN, "Name already exists",  
+										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+								mb.show();
+		                		return;
+		                	}
+		                }
+		                Context context = new Context(name, "marker", dataSetId);
+		                FacadeFactory.getFacade().store(context);
+		    			mainLayout.getApplication().getMainWindow().removeWindow(nameWindow);
+		                mrkcontextSelector.addItem(context);
+		                mrkcontextSelector.setValue(context);
+		            }}));
+				mainLayout.getApplication().getMainWindow().addWindow(nameWindow);
+			}
+		});
+		
+		mrkcontextpane = new VerticalLayout();
+		Label mrklabel = new Label("Context for Marker Sets");
+		mrkcontextpane.addComponent(mrklabel);
+		HorizontalLayout mrkhlayout = new HorizontalLayout();
+		mrkhlayout.addComponent(mrkcontextSelector);
+		mrkhlayout.addComponent(mrknewContextButton);
+		mrkcontextpane.addComponent(mrkhlayout);
+
+		//array context
 		final ComboBox contextSelector = new ComboBox();
 		contextSelector.setWidth("160px");
 		contextSelector.setImmediate(true);
@@ -286,10 +381,10 @@ public class SetViewCommand implements Command {
 				Object val = contextSelector.getValue();
 				if (val != null){
 					Context context = (Context)val;
-					SubSetOperations.setCurrentContext(dataSetId, context);
+					SubSetOperations.setCurrentArrayContext(dataSetId, context);
 
 					HierarchicalContainer arrayData = new HierarchicalContainer();
-					List<SubSet> arraysets = SubSetOperations.getArraySetsForContext(context);
+					List<SubSet> arraysets = SubSetOperations.getSubSetsForContext(context);
 					arrayData.addContainerProperty("setName", String.class, null);
 					Item mainItem1 = arrayData.addItem("arraySets");
 					mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
@@ -315,8 +410,8 @@ public class SetViewCommand implements Command {
 
 		arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId, arraySetTree, contextSelector));
 		
-		List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);
-		Context current = SubSetOperations.getCurrentContext(dataSetId);
+		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);
+		Context current = SubSetOperations.getCurrentArrayContext(dataSetId);
 		for (Context c : contexts){
 			contextSelector.addItem(c);
 			if (current!=null && c.getId()==current.getId()) contextSelector.setValue(c);
@@ -343,7 +438,7 @@ public class SetViewCommand implements Command {
 					private static final long serialVersionUID = 634733324392150366L;
 					public void buttonClick(ClickEvent event) {
 		                String name = (String)contextName.getValue();
-		                for (Context context : SubSetOperations.getAllContexts(dataSetId)){
+		                for (Context context : SubSetOperations.getArrayContexts(dataSetId)){
 		                	if (context.getName().equals(name)){
 		                		MessageBox mb = new MessageBox(mainLayout.getWindow(), 
 										"Warning", MessageBox.Icon.WARN, "Name already exists",  
@@ -352,7 +447,7 @@ public class SetViewCommand implements Command {
 		                		return;
 		                	}
 		                }
-		                Context context = new Context(name, dataSetId);
+		                Context context = new Context(name, "microarray", dataSetId);
 		                FacadeFactory.getFacade().store(context);
 		    			mainLayout.getApplication().getMainWindow().removeWindow(nameWindow);
 		                contextSelector.addItem(context);
@@ -372,6 +467,7 @@ public class SetViewCommand implements Command {
 		contextpane.addComponent(hlayout);
 		
 		CssLayout leftMainLayout = mainLayout.getLeftMainLayout();
+		leftMainLayout.addComponent(mrkcontextpane);
 		leftMainLayout.addComponent(markerTree);
 		leftMainLayout.addComponent(markerSetTree);
 		leftMainLayout.addComponent(contextpane);
@@ -530,6 +626,7 @@ public class SetViewCommand implements Command {
 
 	public void hideSetView() {
 		markerTree.setVisible(false);
+		mrkcontextpane.setVisible(false);
 		contextpane.setVisible(false);
 		arrayTree.setVisible(false);
 		markerSetTree.setVisible(false);

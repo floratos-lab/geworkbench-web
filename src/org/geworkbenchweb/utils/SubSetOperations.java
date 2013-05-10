@@ -141,62 +141,129 @@ public class SubSetOperations {
 	}
 	
 	/**
+	 * get all Contexts for dataset by type
+	 * @param dataSetId
+ 	 * @param type
+	 * @return all Contexts for dataset by type
+	 */
+	public static List<Context> getContextsForType(Long dataSetId, String type){
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+
+		parameters.put("datasetid", dataSetId);
+		parameters.put("type", type);
+
+		List<Context> contexts = FacadeFactory.getFacade().list("Select a from Context a where a.datasetid=:datasetid and a.type=:type", parameters);
+
+		return contexts;
+	}
+
+	/**
+	 * get all array Contexts for dataset
+	 * @param dataSetId
+	 * @return all array Contexts for dataset
+	 */
+	public static List<Context> getArrayContexts(Long dataSetId){
+		return getContextsForType(dataSetId, "microarray");
+	}
+	
+	/**
+	 * get all marker Contexts for dataset
+	 * @param dataSetId
+	 * @return all marker Contexts for dataset
+	 */
+	public static List<Context> getMarkerContexts(Long dataSetId){
+		return getContextsForType(dataSetId, "marker");
+	}
+	
+	/**
 	 * get arrays SubSets in current context
 	 * @param datasetId
 	 * @return all arrays SubSets in context
 	 */
 	public static List<SubSet> getArraySetsForCurrentContext(long datasetId) {
-		return getArraySetsForContext(getCurrentContext(datasetId));
+		return getSubSetsForContext(getCurrentArrayContext(datasetId));
 	}
 
 	/**
-	 * get arrays SubSets in context
-	 * @param context
-	 * @return all arrays SubSets in context
+	 * get markers SubSets in current context
+	 * @param datasetId
+	 * @return all markers SubSets in context
 	 */
-	public static List<SubSet> getArraySetsForContext(Context context) {
-		List<SubSet> arraysets = new ArrayList<SubSet>();
-		if (context == null) return arraysets;
+	public static List<SubSet> getMarkerSetsForCurrentContext(long datasetId) {
+		return getSubSetsForContext(getCurrentMarkerContext(datasetId));
+	}
+
+	/**
+	 * get SubSets in context
+	 * @param context
+	 * @return all SubSets in context
+	 */
+	public static List<SubSet> getSubSetsForContext(Context context) {
+		List<SubSet> subsets = new ArrayList<SubSet>();
+		if (context == null) return subsets;
 
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("contextid", context.getId());
 		List<SubSetContext> subcontexts = FacadeFactory.getFacade().list("Select a from SubSetContext a where a.contextid=:contextid", parameters);
 
 		for (SubSetContext subcontext : subcontexts){
-			SubSet arrayset = FacadeFactory.getFacade().find(SubSet.class, subcontext.getSubsetId());
-			if (arrayset!=null) arraysets.add(arrayset);
+			SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subcontext.getSubsetId());
+			if (subset!=null) subsets.add(subset);
 		}
-		return arraysets;
+		return subsets;
 	}
 	
 	/**
-	 * get current Context for dataset
+	 * get current Context for dataset by type
 	 * @param datasetId
-	 * @return current Context
+	 * @param type
+	 * @return current Context by type
 	 */
-	public static Context getCurrentContext(long datasetId){
+	public static Context getCurrentContextForType(long datasetId, String type){
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		parameters.put("datasetid", datasetId);
-		List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", parameters);
+		parameters.put("type", type);
+		List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid and p.type=:type", parameters);
 		if (cc.isEmpty()) return null;
 		return FacadeFactory.getFacade().find(Context.class, cc.get(0).getContextId());
 	}
 	
 	/**
-	 * set CurrentContext for dataset
+	 * get current array Context for dataset
+	 * @param datasetId
+	 * @return current array Context
+	 */
+	public static Context getCurrentArrayContext(long datasetId){
+		return getCurrentContextForType(datasetId, "microarray");
+	}
+	
+	/**
+	 * get current marker Context for dataset
+	 * @param datasetId
+	 * @return current maker Context
+	 */
+	public static Context getCurrentMarkerContext(long datasetId){
+		return getCurrentContextForType(datasetId, "marker");
+	}
+	
+	/**
+	 * set CurrentContext for dataset by type
 	 * @param datasetId
 	 * @param context
+	 * @param type
 	 */
-	public static void setCurrentContext(long datasetId, Context context){
+	public static void setCurrentContextForType(long datasetId, Context context, String type){
 		if (context == null) return;
 		CurrentContext cc = null;
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		parameters.put("datasetid", datasetId);
-		List<CurrentContext> ccs =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", parameters);
+		parameters.put("type", type);
+		List<CurrentContext> ccs =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid and p.type=:type", parameters);
 		if (ccs.isEmpty()){
 			cc = new CurrentContext();
 			cc.setDatasetId(datasetId);
+			cc.setType(type);
 		}else{
 			cc = ccs.get(0);
 			if (cc.getContextId() == context.getId()) return;
@@ -204,36 +271,82 @@ public class SubSetOperations {
 		cc.setContextId(context.getId());
 		FacadeFactory.getFacade().store(cc);
 	}
+	
+	/**
+	 * set current array Context for dataset
+	 * @param datasetId
+	 * @param context
+	 */
+	public static void setCurrentArrayContext(long datasetId, Context context){
+		setCurrentContextForType(datasetId, context, "microarray");
+	}
+
+	/**
+	 * set current marker Context for dataset
+	 * @param datasetId
+	 * @param context
+	 */
+	public static void setCurrentMarkerContext(long datasetId, Context context){
+		setCurrentContextForType(datasetId, context, "marker");
+	}
 
 	/**
 	 * store arrays SubSet and SubSetContext
-	 * @param arrayList names of arrays in arrayset
-	 * @param name      arrayset name
-	 * @param datasetId parent dataset id
-	 * @param contextId context containing this arrayset
-	 * @return arrays SubSet Id
+	 * @param itemList  names of items in subset
+	 * @param name      subset name
+	 * @param type		subset type
+	 * @param datasetId parent subset id
+	 * @param context   context containing this subset
+	 * @return SubSet Id
 	 */
-	public static Long storeArraySetInContext(ArrayList<String> arrayList,
-			String name, long datasetId, long contextId) {
+	public static Long storeSubSetInContext(ArrayList<String> itemList,
+			String name, String type, long datasetId, Context context) {
+		if (context == null || !type.equals(context.getType())) return null;
 
 		DataSet dataset	=	FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		SubSet subset  	= 	new SubSet();
 
 		subset.setName(name);
-		subset.setType("microarray");
+		subset.setType(type);
 		subset.setOwner(dataset.getOwner());
 		subset.setParent(datasetId);
-		subset.setPositions(arrayList);
+		subset.setPositions(itemList);
 		FacadeFactory.getFacade().store(subset);
 
 		SubSetContext subcontext = new SubSetContext();
-		subcontext.setContextId(contextId);
+		subcontext.setContextId(context.getId());
 		subcontext.setSubsetId(subset.getId());
 		FacadeFactory.getFacade().store(subcontext);
 
 		return subset.getId();
 	}
 	
+	/**
+	 * store arrays SubSet and SubSetContext
+	 * @param arrayList names of arrays in arrayset
+	 * @param name      arrayset name
+	 * @param datasetId parent dataset id
+	 * @param context   context containing this arrayset
+	 * @return arrays SubSet Id
+	 */
+	public static Long storeArraySetInContext(ArrayList<String> arrayList,
+			String name, long datasetId, Context context) {
+		return storeSubSetInContext(arrayList, name, "microarray", datasetId, context);
+	}
+
+	/**
+	 * store markers SubSet and SubSetContext
+	 * @param markerList names of markers in markerset
+	 * @param name       markerset name
+	 * @param datasetId  parent dataset id
+	 * @param context    context containing this markerset
+	 * @return markers SubSet Id
+	 */
+	public static Long storeMarkerSetInContext(ArrayList<String> markerList,
+			String name, long datasetId, Context context) {
+		return storeSubSetInContext(markerList, name, "marker", datasetId, context);
+	}
+
 	/**
 	 * store arrays SubSet and SubSetContext in current context
 	 * @param arrayList names of arrays in arrayset
@@ -243,7 +356,19 @@ public class SubSetOperations {
 	 */
 	public static Long storeArraySetInCurrentContext(ArrayList<String> arrayList,
 			String name, long datasetId) {
-		return storeArraySetInContext(arrayList, name, datasetId, getCurrentContext(datasetId).getId());
+		return storeArraySetInContext(arrayList, name, datasetId, getCurrentArrayContext(datasetId));
+	}
+
+	/**
+	 * store markers SubSet and SubSetContext in current context
+	 * @param markerList names of markers in arrayset
+	 * @param name       markerset name
+	 * @param datasetId  parent dataset id
+	 * @return markers SubSet Id
+	 */
+	public static Long storeMarkerSetInCurrentContext(ArrayList<String> markerList,
+			String name, long datasetId) {
+		return storeMarkerSetInContext(markerList, name, datasetId, getCurrentMarkerContext(datasetId));
 	}
 
 	/**

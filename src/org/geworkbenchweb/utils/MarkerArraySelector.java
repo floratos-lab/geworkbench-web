@@ -94,7 +94,7 @@ public class MarkerArraySelector extends GridLayout{
 				Object val = arrayContextCB.getValue();
 				if (val != null){
 					Context context = (Context)val;							 
-					List<SubSet> arraySubSets = SubSetOperations.getArraySetsForContext(context);
+					List<SubSet> arraySubSets = SubSetOperations.getSubSetsForContext(context);
 					arraySetSelect.removeAllItems();
 					arraySetSelect.addItem("");
 					arraySetSelect.setItemCaption("", "All Arrays");
@@ -153,8 +153,8 @@ public class MarkerArraySelector extends GridLayout{
 			selectedtArrayContext = (Context)ObjectConversion.toObject(pref.getValue());
 		}
 		if (selectedtArrayContext == null)
-			selectedtArrayContext = SubSetOperations.getCurrentContext(dataSetId);
-		List<Context> contexts = SubSetOperations.getAllContexts(dataSetId);		 
+			selectedtArrayContext = SubSetOperations.getCurrentArrayContext(dataSetId);
+		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);		 
 		arrayContextCB.removeAllItems();
 		for (Context c : contexts){
 			arrayContextCB.addItem(c);	
