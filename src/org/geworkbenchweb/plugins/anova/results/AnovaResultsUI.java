@@ -7,7 +7,9 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
-import org.geworkbenchweb.plugins.Visualizer;
+ 
+import org.geworkbenchweb.plugins.Tabular;
+import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.TableView;
 import org.geworkbenchweb.utils.UserDirUtils;
 
@@ -20,7 +22,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class AnovaResultsUI extends VerticalLayout implements Visualizer {
+public class AnovaResultsUI extends VerticalLayout implements Tabular {
 
 	private static final long serialVersionUID = 3115606230292029231L;
 
@@ -106,7 +108,8 @@ public class AnovaResultsUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	private IndexedContainer getIndexedContainer() {
+	 @Override
+	 public IndexedContainer getIndexedContainer() {
 
 		String[] header;
 		IndexedContainer dataIn = new IndexedContainer();
@@ -210,5 +213,26 @@ public class AnovaResultsUI extends VerticalLayout implements Visualizer {
 	@Override
 	public Long getDatasetId() {
 		return datasetId;
+	}
+	
+	@Override
+ 
+	public PagedTableView getPagedTableView()
+	{return null;}
+	@Override
+	 
+	   public
+	    void setSearchStr(String search){}
+
+	@Override
+	public Long getUserId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPrecisonNumber(int precisonNumber) {
+		// TODO Auto-generated method stub
+		
 	}
 }
