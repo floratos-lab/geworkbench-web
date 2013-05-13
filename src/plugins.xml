@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO a schema (xsd) need to be written -->
+<plugins xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="PluginConfigurationSchema.xsd">
+
+	<!-- analysis and visualizer are separated because they are currently implemented 
+		and used in different ways. -->
+	<analysis>
+	<inputType className="org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet">
+		<plugin>
+			<name>ANOVA</name>
+			<description>The geWorkbench ANOVA component implements a one-way
+				analysis of variance calculation
+				derived from TIGR's MeV
+				(MultiExperiment Viewer) (Saeed, 2003). At least
+				three groups of
+				arrays must be specified by defining and activating them in the
+				Arrays/Phenotypes component.
+			</description>
+			<uiClass>org.geworkbenchweb.plugins.anova.AnovaUI</uiClass>
+		</plugin>
+
+		<plugin>
+			<name>ARACNe</name>
+			<description>ARACNe (Algorithm for the Reconstruction of Accurate
+				Cellular Networks)
+				(Basso 2005, Margolin 2006a, 2006b) is an
+				information-theoretic algorithm
+				used
+				to identify transcriptional
+				interactions between gene products using
+				microarray
+				gene expression
+				profile data.
+			</description>
+			<uiClass>org.geworkbenchweb.plugins.aracne.AracneUI</uiClass>
+		</plugin>
+		<plugin>
+			<name>Cellular Network Knowledge Base</name>
+			<description>The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions,
+				including ones both computationally and experimentally derived. Sources for interactions
+				include both publicly available databases such as BioGRID and HPRD, as well as reverse-engineered
+				cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.</description>
+			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBUI</uiClass>
+		</plugin>
+		<plugin>
+			<name>Hierarchical Clustering</name>
+			<description>Hierarchical clustering is a method to group arrays and/or markers together based on similarity on their expression profiles.
+				geWorkbench implements its own code for agglomerative hierarchical clustering. Starting from individual points
+				(the leaves of the tree), nearest neighbors are found for individual points, and then for groups of points,
+				at each step building up a branched structure that converges toward a root that contains all points.
+				The resulting graph tends to group similar items together.</description>
+			<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI</uiClass>
+		</plugin>
+		<plugin>
+			<name>MARINa</name>
+			<description>MARINa Analysis</description>
+			<uiClass>org.geworkbenchweb.plugins.marina.MarinaUI</uiClass>
+		</plugin>
+		<plugin>
+			<name>Differential Expression (T-Test)</name>
+			<description>A t-Test analysis can be used to identify markers with statistically
+				significant differential expression between two sets of microarrays.</description>
+			<uiClass>org.geworkbenchweb.plugins.ttest.TTestUI</uiClass>
+		</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+		<plugin>
+			<name>MarkUs</name>
+			<description>MarkUs is a web server to assist the assessment of the biochemical function
+				for a given protein structure. MarkUs identifies related protein structures
+				and sequences, detects protein cavities, and calculates the surface electrostatic
+				potentials and amino acid conservation profile.</description>
+			<uiClass>org.geworkbenchweb.plugins.markus.MarkUsUI</uiClass>
+		</plugin>
+	</inputType>
+	</analysis>
+
+	<visualizer>
+	<inputType className="org.geworkbench.bison.model.clusters.CSHierClusterDataSet">
+	<plugin>
+		<name>Dendrogram plus heat map</name>
+		<description>Show result from hierarchical clustering.</description>
+		<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet">
+	<plugin>
+		<name>ANOVA Result Viewer</name>
+		<description>Show ANOVA result as a table.</description>
+		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet">
+	<plugin>
+		<name>Cytoscape</name>
+		<description>Show network in cytoscape web, or in text view.</description>
+		<uiClass>org.geworkbenchweb.plugins.aracne.results.AracneResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbenchweb.plugins.cnkb.CNKBResultSet">
+	<plugin>
+		<name>CNKB Result View</name>
+		<description>Show CNKB Result including throttle plot.</description>
+		<uiClass>org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet">
+	<plugin>
+		<name>MARINa result viewer</name>
+		<description>Show result of MARINa analysis.</description>
+		<uiClass>org.geworkbenchweb.plugins.marina.results.MarinaResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet">
+	<plugin>
+		<name>MARKUS result viewer</name>
+		<description>Show result MARKUS result in embedded browser</description>
+		<uiClass>org.geworkbenchweb.plugins.markus.results.MarkusResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet">
+	<plugin>
+		<name>Tabular Microarray Viewer</name>
+		<description>Presents the numerical values of the expression measurements in a table format.
+				One row is created per individual marker/probe and one column per microarray.</description>
+		<uiClass>org.geworkbenchweb.plugins.tabularview.TabularViewUI</uiClass>
+	</plugin>
+	</inputType>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet">
+	<plugin>
+		<name>T-test result viewer</name>
+		<description>Viewing t-test result as a Volcano plot.</description>
+		<uiClass>org.geworkbenchweb.plugins.ttest.results.TTestResultsUI</uiClass>
+	</plugin>
+	</inputType>
+	</visualizer>
+</plugins>

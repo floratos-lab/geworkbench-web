@@ -534,7 +534,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("CNKB Result View", "Show CNKB Result including throttle plot.");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

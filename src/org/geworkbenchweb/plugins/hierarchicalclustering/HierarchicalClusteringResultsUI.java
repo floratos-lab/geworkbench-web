@@ -10,6 +10,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
@@ -217,7 +218,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("Dendrogram plus heat map", "Show result from hierarchical clustering.");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

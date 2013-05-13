@@ -117,6 +117,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	private Long dataSetId = null;
 	
+	public MarinaUI() {
+		this(0L);
+	}
+	
 	public MarinaUI(final Long dataSetId){
 		this.dataSetId = dataSetId;
 		

@@ -75,6 +75,10 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 	
+	public TTestUI() {
+		this(0L);
+	}
+	
 	public TTestUI(Long dId) {
 		
 		this.dataSetId = dId;

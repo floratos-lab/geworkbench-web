@@ -73,6 +73,10 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	private TextField filter4 = new TextField("Identity Filter Percentage");
 	private ComboBox msa4 = new ComboBox("Multiple Sequence Alignment", Arrays.asList("Muscle", "ClustalW"));
 
+	public MarkUsUI() {	
+		this(0L);
+	}
+	
 	public MarkUsUI(Long dataSetId) {
 		
 		setImmediate(true);

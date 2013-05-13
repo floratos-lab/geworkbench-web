@@ -51,6 +51,10 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 	
+	public HierarchicalClusteringUI() {
+		this(0L);
+	}
+	
 	public HierarchicalClusteringUI(Long dataId) {
 		
 		this.dataSetId = dataId;

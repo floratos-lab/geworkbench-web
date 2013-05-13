@@ -60,6 +60,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private Long resultSetId;
 
+	public AracneUI() {
+		this(0L);
+	}
+
 	public AracneUI(Long dataId) {
 
 		this.dataSetId = dataId;

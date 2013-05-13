@@ -3,11 +3,13 @@
  */
 package org.geworkbenchweb.plugins;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.digester3.Digester;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -17,24 +19,10 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceR
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbenchweb.plugins.anova.AnovaUI;
-import org.geworkbenchweb.plugins.anova.results.AnovaResultsUI;
-import org.geworkbenchweb.plugins.aracne.AracneUI;
-import org.geworkbenchweb.plugins.aracne.results.AracneResultsUI;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-import org.geworkbenchweb.plugins.cnkb.CNKBUI;
-import org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI;
-import org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI;
-import org.geworkbenchweb.plugins.marina.MarinaUI;
-import org.geworkbenchweb.plugins.marina.results.MarinaResultsUI;
-import org.geworkbenchweb.plugins.markus.MarkUsUI;
-import org.geworkbenchweb.plugins.markus.results.MarkusResultsUI;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
-import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
-import org.geworkbenchweb.plugins.ttest.TTestUI;
-import org.geworkbenchweb.plugins.ttest.results.TTestResultsUI;
+import org.xml.sax.SAXException;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Component;
@@ -56,7 +44,8 @@ public class PluginRegistry {
 	
 	// TODO for now, let maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
-	private Map<Class<?>, Class<? extends Visualizer>> resultUiMap = new HashMap<Class<?>, Class<? extends Visualizer>>(); 
+	private Map<Class<?>, Class<? extends Visualizer>> resultUiMap = new HashMap<Class<?>, Class<? extends Visualizer>>();
+	private Map<Class<? extends Visualizer>, PluginEntry> visualizerPluginEntry = new HashMap<Class<? extends Visualizer>, PluginEntry>(); 
 	
 	static private ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
 	static private ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
@@ -88,64 +77,72 @@ public class PluginRegistry {
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);
 		iconMap.put(DSProteinStructure.class, proteinIcon);
 
-		resultUiMap.put(CSHierClusterDataSet.class, HierarchicalClusteringResultsUI.class);
-		resultUiMap.put(CNKBResultSet.class, CNKBResultsUI.class);
-		resultUiMap.put(AdjacencyMatrixDataSet.class, AracneResultsUI.class);
-		resultUiMap.put(MarkUsResultDataSet.class, MarkusResultsUI.class);
-		resultUiMap.put(CSAnovaResultSet.class, AnovaResultsUI.class);
-		resultUiMap.put(DSSignificanceResultSet.class, TTestResultsUI.class);
-		resultUiMap.put(CSMasterRegulatorTableResultSet.class, MarinaResultsUI.class);
-		resultUiMap.put(DSMicroarraySet.class, TabularViewUI.class);
-		
 		uiMap.put(DSMicroarraySet.class, MicroarrayUI.class);
 		uiMap.put(DSProteinStructure.class, ProteinStructureUI.class);
 		
-		PluginEntry anova = new PluginEntry("ANOVA", "The geWorkbench ANOVA component implements a one-way analysis of variance calculation " +
-				"derived from TIGR's MeV (MultiExperiment Viewer) (Saeed, 2003). At least three groups of " +
-				"arrays must be specified by defining and activating them in the Arrays/Phenotypes component.");
-		PluginEntry aracne = new PluginEntry("ARACNe", "ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) " +
-				"\n(Basso 2005, Margolin 2006a, 2006b) is an information-theoretic algorithm used " +
-				"\nto identify transcriptional interactions between gene products using microarray " +
-				"\ngene expression profile data.\n\n");
-		PluginEntry cnkb = new PluginEntry("Cellular Network Knowledge Base", "The Cellular Network Knowledge Base (CNKB) is a repository of molecular interactions, " +
-				"including ones both computationally and experimentally derived. Sources for interactions " +
-				"include both publicly available databases such as BioGRID and HPRD, as well as reverse-engineered " +
-				"cellular regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.");
-		PluginEntry hierarchicalClustering = new PluginEntry("Hierarchical Clustering", "Hierarchical clustering is a method to group arrays and/or markers together based on similarity on their expression profiles." +
-				" geWorkbench implements its own code for agglomerative hierarchical clustering. Starting from individual points " +
-				"(the leaves of the tree), nearest neighbors are found for individual points, and then for groups of points, " +
-				"at each step building up a branched structure that converges toward a root that contains all points. " +
-				"The resulting graph tends to group similar items together. " +
-				"Results of hierarchical clustering are displayed in the Dendrogram component.");
-		PluginEntry marina = new PluginEntry("MARINa", "MARINa Analysis");
-		PluginEntry ttest = new PluginEntry("Differential Expression (T-Test)", "A t-Test analysis can be used to identify markers with statistically " +
-				"significant differential expression between two sets of microarrays.");
-		List<PluginEntry> microarrayAnalysis = new ArrayList<PluginEntry>();
-		microarrayAnalysis.add(anova);
-		microarrayAnalysis.add(aracne);
-		microarrayAnalysis.add(cnkb);
-		microarrayAnalysis.add(hierarchicalClustering);
-		microarrayAnalysis.add(marina);
-		microarrayAnalysis.add(ttest);
-		
-		PluginEntry markus = new PluginEntry("MarkUs", "MarkUs is a web server to assist the assessment of the biochemical function " +
-				"for a given protein structure. MarkUs identifies related protein structures " +
-				"and sequences, detects protein cavities, and calculates the surface electrostatic " +
-				"potentials and amino acid conservation profile.");
-		List<PluginEntry> proteinStrcutureAnalysis = new ArrayList<PluginEntry>();
-		proteinStrcutureAnalysis.add(markus);
-		
-		analysisMap.put(DSMicroarraySet.class, microarrayAnalysis );
-		analysisMap.put(DSProteinStructure.class, proteinStrcutureAnalysis);
+		Digester digester = new Digester();
+		digester.addObjectCreate("plugins", ArrayList.class);
+		digester.addObjectCreate("plugins/analysis", ArrayList.class);
+		digester.addObjectCreate("plugins/analysis/inputType", DataTypeEntry.class);
+		digester.addSetProperties( "plugins/analysis/inputType", "className", "inputType");
+		digester.addObjectCreate("plugins/analysis/inputType/plugin", PluginInfo.class);
+		digester.addBeanPropertySetter( "plugins/analysis/inputType/plugin/name", "name" );
+		digester.addBeanPropertySetter( "plugins/analysis/inputType/plugin/description", "description" );
+		digester.addBeanPropertySetter( "plugins/analysis/inputType/plugin/uiClass", "uiClass");
+		digester.addSetNext("plugins/analysis/inputType/plugin", "add" );
+		digester.addSetNext("plugins/analysis/inputType", "add" );
+		digester.addSetNext("plugins/analysis", "add" );
 
-		analysisUIMap.put(anova, new AnovaUI(0L));
-		analysisUIMap.put(aracne, new AracneUI(0L));
-		analysisUIMap.put(cnkb, new CNKBUI(0L));
-		analysisUIMap.put(hierarchicalClustering, new HierarchicalClusteringUI(0L));
-		analysisUIMap.put(marina, new MarinaUI(0L));
-		analysisUIMap.put(ttest, new TTestUI(0L)); 
+		digester.addObjectCreate("plugins/visualizer", ArrayList.class);
+		digester.addObjectCreate("plugins/visualizer/inputType", DataTypeEntry.class);
+		digester.addSetProperties( "plugins/visualizer/inputType", "className", "inputType");
+		digester.addObjectCreate("plugins/visualizer/inputType/plugin", PluginInfo.class);
+		digester.addBeanPropertySetter( "plugins/visualizer/inputType/plugin/name", "name" );
+		digester.addBeanPropertySetter( "plugins/visualizer/inputType/plugin/description", "description" );
+		digester.addBeanPropertySetter( "plugins/visualizer/inputType/plugin/uiClass", "uiClass");
+		digester.addSetNext("plugins/visualizer/inputType/plugin", "add" );
+		digester.addSetNext("plugins/visualizer/inputType", "add" );
+		digester.addSetNext("plugins/visualizer", "add" );
 		
-		analysisUIMap.put(markus, new MarkUsUI(0L));
+		try {
+			// list.get(0) is analysis; list.get(1) is visualizer
+			List<List<DataTypeEntry>> list = digester.parse(this.getClass().getResourceAsStream("/plugins.xml"));
+			convert(list);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void convert(List<List<DataTypeEntry>> overall) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		List<DataTypeEntry> list = overall.get(0);
+		for(DataTypeEntry entry : list) {
+			List<PluginEntry> entryList = new ArrayList<PluginEntry>();
+			for(PluginInfo info : entry.getPluginList()) {
+				PluginEntry pluginEntry = new PluginEntry(info.name, info.description);
+				entryList.add(pluginEntry);
+				Class<?> uiClass = Class.forName(info.uiClass);
+				analysisUIMap.put(pluginEntry, (AnalysisUI) uiClass.newInstance());
+			}
+			analysisMap.put((Class<? extends DSDataSet<?>>) Class.forName(entry.getInputType()), entryList);
+		}
+		
+		List<DataTypeEntry> visualizerlist = overall.get(1);
+		for(DataTypeEntry entry : visualizerlist) {
+			PluginInfo info = entry.getPluginList().get(0);
+			Class<?> inputType = Class.forName(entry.inputType);
+			Class<?> uiType = Class.forName(info.uiClass);
+			resultUiMap.put(inputType, (Class<? extends Visualizer>) uiType);
+			visualizerPluginEntry.put((Class<? extends Visualizer>) uiType, new PluginEntry(info.name, info.description));
+		}
 	}
 
 	// query on null returns all analysis plug-ins
@@ -215,5 +212,76 @@ public class PluginRegistry {
 			}
 		}
 		return null; // TODO return the complete list (like by 'tools' menu) may be the best option
+	}
+	
+	/* this is class is for the convenience of parsing configuration file */
+	public static class PluginInfo {
+	    
+		private String name, description, uiClass;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		public String getUiClass() {
+			return uiClass;
+		}
+
+		public void setUiClass(String uiClass) {
+			this.uiClass = uiClass;
+		}
+		
+	}
+	
+	/* this is class is for the convenience of parsing configuration file */
+	public static class DataTypeEntry {
+		private String inputType;
+		private List<PluginInfo> pluginList;
+		
+		public DataTypeEntry() {
+			inputType = null;
+			pluginList = new ArrayList<PluginInfo>();
+		}
+		
+		public String getInputType() {
+			return inputType;
+		}
+		
+		public void setInputType(String inputType) {
+			this.inputType = inputType;
+		}
+		
+		public List<PluginInfo> getPluginList() {
+			return pluginList;
+		}
+		
+		public void add(PluginInfo entry) {
+			pluginList.add(entry);
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder(inputType+":");
+			for(PluginInfo entry : pluginList) {
+				sb.append(entry.getName()).append(",");
+			}
+			return sb.toString();
+		}
+	}
+
+	public PluginEntry getVisualizerPluginEntry(Class<? extends Visualizer> visualizerClass) {
+		return visualizerPluginEntry.get(visualizerClass);
 	}
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.TableView;
@@ -203,7 +204,7 @@ public class AnovaResultsUI extends VerticalLayout implements Visualizer {
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("ANOVA Result Viewer", "Show ANOVA result as a table");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

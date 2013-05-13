@@ -234,7 +234,7 @@ public class AracneResultsUI extends VerticalLayout implements Visualizer {
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("Cytoscape", "Show network in cytoscape web, or in text view.");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

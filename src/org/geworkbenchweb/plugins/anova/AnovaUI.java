@@ -77,6 +77,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	private Long resultSetId; 
 
+	public AnovaUI() {
+		this(0L);
+	}
+	
 	public AnovaUI(Long dataSetId) {
 		User user = SessionHandler.get();
 		if(user!=null)

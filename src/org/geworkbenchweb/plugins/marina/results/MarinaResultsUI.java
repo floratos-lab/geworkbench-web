@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -72,7 +73,7 @@ public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("MARINa result viewer", "Show result of MARINa analysis");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

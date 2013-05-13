@@ -9,6 +9,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -752,9 +753,7 @@ public class TabularViewUI extends VerticalLayout implements Visualizer {
  
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("Tabular Microarray Viewer", 
-				"Presents the numerical values of the expression measurements in a table format. " +
-				"One row is created per individual marker/probe and one column per microarray.");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -194,7 +195,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
 	@Override
 	public PluginEntry getPluginEntry() {
-		return new PluginEntry("T-test result viewer", "Viewing t-test result as a Volcano plot.");
+		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

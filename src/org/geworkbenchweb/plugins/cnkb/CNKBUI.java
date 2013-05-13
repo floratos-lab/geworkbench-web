@@ -71,6 +71,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
  
 	private int interaction_flag = 1;	
  
+	public CNKBUI() {
+		this(0L);
+	}
+	
 	public CNKBUI(Long dataSetId) {
 		this.dataSetId = dataSetId;
 		this.setSpacing(true);
