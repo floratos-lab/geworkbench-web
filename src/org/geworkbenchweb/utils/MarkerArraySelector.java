@@ -22,7 +22,7 @@ public class MarkerArraySelector extends GridLayout{
 	private static final long serialVersionUID = -6214265705833965798L;
 	
 	private final String ARRAYCONTEXT = "ArrayContext";
-	//private final String MARKERCONTEXT = "MarkerContext";
+	private final String MARKERCONTEXT = "MarkerContext";
 	
 	private ComboBox markerContextCB;  
 	private ListSelect markerSetSelect;
@@ -33,7 +33,7 @@ public class MarkerArraySelector extends GridLayout{
 	private long userId;
 	private String parentName = null;
 	private boolean isArrayContextSetByApp = false;
-  
+	private boolean isMarkerContextSetByApp = false;
 	
 	public MarkerArraySelector(Long dataSetId, Long userId, String parentName) {
  
@@ -49,9 +49,7 @@ public class MarkerArraySelector extends GridLayout{
 		markerContextCB =  new ComboBox("Marker Context");	
 		markerContextCB.setWidth("160px");
 		markerContextCB.setImmediate(true);	
-		markerContextCB.setNullSelectionAllowed(false);
-		markerContextCB.addItem("Default");	
-		markerContextCB.setValue("Default");
+		markerContextCB.setNullSelectionAllowed(false);		 
 		
 		markerSetSelect = new ListSelect("Select Marker Sets:");
 		markerSetSelect.setMultiSelect(true);
@@ -78,9 +76,22 @@ public class MarkerArraySelector extends GridLayout{
 			public void valueChange(ValueChangeEvent event) {						 
 			 
 				Object val = markerContextCB.getValue();
-				if (val != null){
-					 						 
-					 //todo 
+				if (val != null){					 						 
+					Context context = (Context)val;							 
+					List<SubSet> markerSubSets = SubSetOperations.getSubSetsForContext(context);
+					markerSetSelect.removeAllItems();
+					markerSetSelect.addItem("");
+					markerSetSelect.setItemCaption("", "All Arrays");
+					for (int m = 0; m < (markerSubSets).size(); m++) {					 
+						markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
+						markerSetSelect.setItemCaption(
+								((SubSet) markerSubSets.get(m)).getId(),
+								((SubSet) markerSubSets.get(m)).getName());
+						 
+					}
+					if (!isMarkerContextSetByApp)					 
+						saveMarkerContextPreference();
+					isMarkerContextSetByApp = false;
 				 
 				}
 			}
@@ -134,27 +145,35 @@ public class MarkerArraySelector extends GridLayout{
 		this.dataSetId = dataSetId;
 		this.userId = userId;
 		
-		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
-
-		markerSetSelect.removeAllItems();
-		markerSetSelect.addItem("");
-		markerSetSelect.setItemCaption("", "All markers");
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
-			markerSetSelect.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}		 
+		Context selectedMarkerContext = null;
+		Preference pref = PreferenceOperations.getData(dataSetId, parentName + "." + MARKERCONTEXT , userId);
+		if (pref != null)
+		{	
+			selectedMarkerContext = (Context)ObjectConversion.toObject(pref.getValue());
+		}
+		if (selectedMarkerContext == null)
+			selectedMarkerContext = SubSetOperations.getCurrentMarkerContext(dataSetId);
+		List<Context> contexts = SubSetOperations.getMarkerContexts(dataSetId);		 
+		markerContextCB.removeAllItems();
+		for (Context c : contexts){
+			markerContextCB.addItem(c);	
+			if (selectedMarkerContext!=null && c.getId().longValue()==selectedMarkerContext.getId().longValue()) 
+			{
+				isMarkerContextSetByApp = true;
+				markerContextCB.setValue(c);
+			}
+		}	
+	
 		
 		Context selectedtArrayContext = null;
-		Preference pref = PreferenceOperations.getData(dataSetId, parentName + "." + ARRAYCONTEXT , userId);
+		pref = PreferenceOperations.getData(dataSetId, parentName + "." + ARRAYCONTEXT , userId);
 		if (pref != null)
 		{	
 			selectedtArrayContext = (Context)ObjectConversion.toObject(pref.getValue());
 		}
 		if (selectedtArrayContext == null)
 			selectedtArrayContext = SubSetOperations.getCurrentArrayContext(dataSetId);
-		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);		 
+	    contexts = SubSetOperations.getArrayContexts(dataSetId);		 
 		arrayContextCB.removeAllItems();
 		for (Context c : contexts){
 			arrayContextCB.addItem(c);	
@@ -235,5 +254,21 @@ public class MarkerArraySelector extends GridLayout{
 					dataSetId, userId);
     }
     
-	
+    private void saveMarkerContextPreference()
+    {
+
+		Context markerContext = (Context)markerContextCB.getValue();
+		Preference p = PreferenceOperations.getData(dataSetId,
+				parentName + "." + MARKERCONTEXT, userId);
+				 
+		if (p != null)
+			PreferenceOperations.setValue(
+					markerContext, p);
+		else
+			PreferenceOperations.storeData(
+					markerContext,
+					Context.class.getName(),
+					parentName + "." + MARKERCONTEXT,
+					dataSetId, userId);
+    }
 }
