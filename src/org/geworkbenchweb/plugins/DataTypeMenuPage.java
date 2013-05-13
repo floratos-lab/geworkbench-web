@@ -69,7 +69,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		
 		VerticalLayout visualizerGroup = new VerticalLayout();
 		visualizerGroup.setMargin(true);
-		// loop through all analysis plug-ins
+		// loop through all visualizer plug-ins
 		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
 
 			try {
