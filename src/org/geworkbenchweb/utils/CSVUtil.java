@@ -160,7 +160,7 @@ public class CSVUtil {
 			subSetId = SubSetOperations.storeArraySetInCurrentContext(panel, setname, datasetId);
 			parentSet = "arraySets";
 		}else{
-			subSetId = SubSetOperations.storeMarkerSet(panel, setname, datasetId);
+			subSetId = SubSetOperations.storeMarkerSetInCurrentContext(panel, setname, datasetId);
 			parentSet = "MarkerSets";
 		}
 
