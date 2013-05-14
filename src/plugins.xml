@@ -77,6 +77,13 @@
 	</analysis>
 
 	<visualizer>
+	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+	<plugin>
+		<name>PDB File Viewer</name>
+		<description>A simple text viewer for PDB file.</description>
+		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
+	</plugin>
+	</inputType>
 	<inputType className="org.geworkbench.bison.model.clusters.CSHierClusterDataSet">
 	<plugin>
 		<name>Dendrogram plus heat map</name>
