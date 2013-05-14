@@ -160,7 +160,7 @@ public class SetViewCommand implements Command {
 		markerSetTree 	= 	new Tree();
 		arraySetTree 	= 	new Tree();
 		 
-		final Long dataSetId = mainLayout.getCurrentDatasetId();
+		final Long dataSetId = mainLayout.getMicroarraySetId();
 		markerTree.setImmediate(true);
 		markerTree.setSelectable(true);
 		markerTree.setMultiSelect(true);

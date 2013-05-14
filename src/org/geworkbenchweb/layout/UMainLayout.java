@@ -308,19 +308,32 @@ public class UMainLayout extends VerticalLayout {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 
-				Item selectedItem = tree.getItem(event.getProperty().getValue());
+				Object itemId = event.getProperty().getValue();
 				try {				
-					if( event.getProperty().getValue()!=null ) {
+					if( itemId instanceof Long ) {
 
 						annotButton.setEnabled(true);
 						removeButton.setEnabled(true);
+						Item selectedItem = tree.getItem(itemId);
 						String className = (String) selectedItem.getItemProperty("Type").getValue();
+						Object parentId = tree.getParent(itemId);
+						String parentItemClassName = null;
+						Item parentItem = tree.getItem(parentId);
+						if(parentItem!=null) {
+							parentItemClassName = (String) parentItem.getItemProperty("Type").getValue();
+						}
 
 						/* this is the only place that dataset ID may change */
-						dataSetId = (Long) event.getProperty().getValue();    
+						dataSetId = (Long) itemId;    
 						annotationPanel.setDatasetId(dataSetId);
 						
-						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
+						final String specialClassName = "org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet"; 
+						if (specialClassName.equals(className)) {
+							microarraySetId = dataSetId;
+							toolBar.setEnabled(true);
+							setViewMeuItem.setEnabled(true);
+						} else if (specialClassName.equals(parentItemClassName)) {
+							microarraySetId = (Long)parentId;
 							toolBar.setEnabled(true);
 							setViewMeuItem.setEnabled(true);
 						} else {
@@ -358,11 +371,6 @@ public class UMainLayout extends VerticalLayout {
 							dataUI.setVisualPluginView(pluginView);
 							pluginView.setContent(dataUI, dataUI.getTitle(), dataUI.getDescription());
 						} else if(resultUiClass!=null) { // "is result" - visualizer
-							toolBar.setEnabled(false);
-							for (int i = 0; i < toolBar.getItems().size(); i++) {
-								toolBar.getItems().get(i).setEnabled(false);
-							}
-
 							pluginView.setContentUsingCache(resultUiClass, dataSetId);
 						} 
 					}
@@ -622,5 +630,11 @@ public class UMainLayout extends VerticalLayout {
 
 	Long getCurrentDatasetId() {
 		return dataSetId;
+	}
+
+	/* this is only for the functionality of set view */
+	private Long microarraySetId = null;
+	Long getMicroarraySetId() {
+		return microarraySetId;
 	}
 }
