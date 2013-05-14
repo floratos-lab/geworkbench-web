@@ -12,7 +12,6 @@ import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -96,6 +95,14 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 	private static Log log = LogFactory.getLog(DataTypeMenuPage.class);
 	
+	private VisualPluginView visualPluginView = null;
+	
+	/* this method should be called before this instance is added to VisualPluginView because of the complicated multiple layers of layout */
+	public void setVisualPluginView(VisualPluginView v) {
+		// this should be the same as this.getParent().getParent().getParent().getParent();
+		visualPluginView = v;
+	}
+	
 	private void showAnalysisParameterPanel(PluginEntry analysis,
 			AnalysisUI analysisUI, Long dataSetId) {
 
@@ -109,23 +116,20 @@ public class DataTypeMenuPage extends VerticalLayout {
 		}
 		
 		analysisUI.setDataSetId(dataId);
-		Component component = this.getParent().getParent().getParent(); // VisualPluginView
-		if(component instanceof VisualPluginView) {
-			VisualPluginView visualPluginView = (VisualPluginView)component;
+		if(visualPluginView instanceof VisualPluginView) {
 			visualPluginView.setContent(analysisUI, analysis.getName(), analysis.getDescription());
 		} else {
-			log.error(component+" is not VisualPluginView");
+			log.error(visualPluginView+" is not VisualPluginView");
 		}
 	}
 
 	private void showVisualizer(Visualizer visualizer) {
 		if(visualizer.getDatasetId()==null) return; //no-op
 		
-		Component pluginView = this.getParent().getParent().getParent();
-		if(pluginView instanceof VisualPluginView) {
-			((VisualPluginView)pluginView).setContent(visualizer);
+		if(visualPluginView instanceof VisualPluginView) {
+			visualPluginView.setContent(visualizer);
 		} else {
-			log.error("pluginView is "+pluginView.getClass());
+			log.error("pluginView is "+visualPluginView.getClass());
 		}
 	}
 	

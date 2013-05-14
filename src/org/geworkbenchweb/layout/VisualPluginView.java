@@ -107,8 +107,13 @@ public class VisualPluginView extends HorizontalLayout {
 		pluginLayout.setExpandRatio(left, 1);
 		pluginLayout.addComponent(right);
 		
+		left.setSizeFull();
 		left.addComponent(controls);
-		left.addComponent(content);
+		Panel panel = new Panel();
+		panel.setSizeFull();
+		panel.addComponent(content);
+		left.addComponent(panel);
+		left.setExpandRatio(panel, 1);
 		right.setCaption("Description");
 		if (description != null && description != "") {
 			final Label l = new Label(
@@ -116,7 +121,8 @@ public class VisualPluginView extends HorizontalLayout {
 							+ description + "</div></div>", Label.CONTENT_XHTML);
 			right.addComponent(l);
 		}
-		addComponent(pluginLayout);
+		pluginLayout.setSizeFull();
+		this.addComponent(pluginLayout);
 	}
 	
 	public void showToolList() {

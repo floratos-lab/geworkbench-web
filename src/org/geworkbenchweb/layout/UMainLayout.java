@@ -355,6 +355,7 @@ public class UMainLayout extends VerticalLayout {
 						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
 						if(uiComponentClass!=null) { // "not result" - menu page. For now, we only expect CSMcrioarraySet and CSProteinStructure
 							DataTypeMenuPage dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
+							dataUI.setVisualPluginView(pluginView);
 							pluginView.setContent(dataUI, dataUI.getTitle(), dataUI.getDescription());
 						} else if(resultUiClass!=null) { // "is result" - visualizer
 							toolBar.setEnabled(false);
