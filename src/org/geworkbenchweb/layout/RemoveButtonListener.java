@@ -16,6 +16,7 @@ import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
+import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -101,6 +102,8 @@ public class RemoveButtonListener implements ClickListener {
 									mb.show();
 								}
 								FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
+								//delete resultset preference
+								PreferenceOperations.deleteAllPreferences(((ResultSet) resultSets.get(i)).getId());								
 								mainLayout.removeItem(((ResultSet) resultSets.get(i)).getId());
 							}
 						}
@@ -154,6 +157,7 @@ public class RemoveButtonListener implements ClickListener {
 							mb.show();
 						}
 						FacadeFactory.getFacade().delete(data);
+						 
 					}else {
 						Map<String, Object> cParam 		= 	new HashMap<String, Object>();
 						cParam.put("parent", dataId);
@@ -176,6 +180,10 @@ public class RemoveButtonListener implements ClickListener {
 						}
 						FacadeFactory.getFacade().delete(result);
 					} 
+					
+					// delete dataset preference
+					PreferenceOperations.deleteAllPreferences(dataId);
+					
 					mainLayout.removeItem(dataId);
 				}
 			}
