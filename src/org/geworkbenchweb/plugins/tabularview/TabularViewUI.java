@@ -91,7 +91,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			return;
 		}  
 		
-		final MenuBar toolBar = new TabularMenuSelector(this);
+		final MenuBar toolBar = new TabularMenuSelector(this, "TabularViewUI");
 		addComponent(toolBar);
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);		 

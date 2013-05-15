@@ -41,7 +41,7 @@ public class FilterWindow extends Window {
 
 		setModal(true);
 		setClosable(true);
-		;
+		 
 		setWidth("500px");
 		setHeight("320px");
 		setResizable(false);

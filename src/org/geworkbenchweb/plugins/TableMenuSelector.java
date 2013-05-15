@@ -23,14 +23,16 @@ public abstract class TableMenuSelector extends MenuBar {
 	private MenuItem searchItem;
 	private MenuItem clearItem;
 	private MenuItem resetItem;
-	protected Tabular parent;
+	private String tabularName;
+	Tabular parent;
 	
-	public TableMenuSelector(Tabular tabular) {	
+	public TableMenuSelector(Tabular tabular, String name) {	
 		 
 		setImmediate(true);
 		setStyleName("transparent");
 		
 		parent = tabular;
+		tabularName = name;
 		
 		displayPreferences = this.addItem(
 				"Display Preferences", null);
@@ -136,7 +138,7 @@ public abstract class TableMenuSelector extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				PreferenceOperations.deleteAllPreferences(parent.getDatasetId(), parent.getUserId(),
-						"TabularViewUI%");
+						tabularName + "%");
 				 
 				parent.getPagedTableView().setContainerDataSource(parent.getIndexedContainer());			 
 				clearItem.setEnabled(false);

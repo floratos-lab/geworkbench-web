@@ -30,9 +30,9 @@ public class TabularMenuSelector extends TableMenuSelector {
 	 
 	private static final long serialVersionUID = -2811557010017084202L;
 
-	public TabularMenuSelector(Tabular tabular)
+	public TabularMenuSelector(Tabular tabular, String name)
 	{
-		super(tabular);
+		super(tabular, name);
 		createDisplayPreferenceItems(getDisplayPreferences());
 		
 		
