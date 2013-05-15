@@ -203,16 +203,16 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 	@Override
 	public void createFilterWindow() {
 		
-		final Window displayPrefWindow = new Window();
-		displayPrefWindow.setModal(true);
-		displayPrefWindow.setClosable(true);
-		((AbstractOrderedLayout) displayPrefWindow.getLayout())
+		final Window filterWindow = new Window();
+		filterWindow.setModal(true);
+		filterWindow.setClosable(true);
+		((AbstractOrderedLayout) filterWindow.getLayout())
 				.setSpacing(true);
-		displayPrefWindow.setWidth("300px");
-		displayPrefWindow.setHeight("200px");
-		displayPrefWindow.setResizable(false);
-		displayPrefWindow.setCaption("Filter");
-		displayPrefWindow.setImmediate(true);
+		filterWindow.setWidth("300px");
+		filterWindow.setHeight("200px");
+		filterWindow.setResizable(false);
+		filterWindow.setCaption("Filter");
+		filterWindow.setImmediate(true);
 
 		final OptionGroup og;
 		og = new OptionGroup();
@@ -342,7 +342,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 									.setContainerDataSource(getTabular().getIndexedContainer());		 
 											 
 							mainWindow
-									.removeWindow(displayPrefWindow);
+									.removeWindow(filterWindow);
 						    
 					 
 						} catch (Exception e) {
@@ -351,10 +351,10 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 					}
 				});
 		submit.setClickShortcut(KeyCode.ENTER);
-		displayPrefWindow.addComponent(og);
-		displayPrefWindow.addComponent(threshold);
-		displayPrefWindow.addComponent(submit);
-		mainWindow.addWindow(displayPrefWindow);
+		filterWindow.addComponent(og);
+		filterWindow.addComponent(threshold);
+		filterWindow.addComponent(submit);
+		mainWindow.addWindow(filterWindow);
 
 	} 
 	
