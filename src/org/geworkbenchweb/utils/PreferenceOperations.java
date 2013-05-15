@@ -61,6 +61,19 @@ public class PreferenceOperations {
 			return  (List<Preference>)data;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static List<Preference> getAllPreferences(Long dataSetId) {
+		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
+		 	 
+		parameters.put("dataSet", dataSetId);	 
+		
+		List<?> data = FacadeFactory.getFacade().list("Select p from Preference as p where p.dataSet=:dataSet ", parameters);
+
+		if (data == null || data.size() ==0)
+			return null;
+		else
+			return  (List<Preference>)data;
+	}
 	
 	public static void deleteAllPreferences(Long dataSetId, Long userId, String namelike) {
 		
@@ -70,6 +83,16 @@ public class PreferenceOperations {
 		FacadeFactory.getFacade().deleteAll(preferences);
 	 
 	}
+	
+	
+public static void deleteAllPreferences(Long dataSetId) {
+		
+		List<Preference> preferences = PreferenceOperations.getAllPreferences(dataSetId);
+		if ( preferences == null)
+			return;
+		FacadeFactory.getFacade().deleteAll(preferences);
+	 
+}
 	
 	
 	public static void setValue(Object value, Preference pref) {
