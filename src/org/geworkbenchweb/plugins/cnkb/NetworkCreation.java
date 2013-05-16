@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.cnkb;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,14 +8,13 @@ import java.util.List;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -40,7 +40,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 	 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dummy,
-			HashMap<Serializable, Serializable> params) {
+			HashMap<Serializable, Serializable> params) throws IOException {
 		Vector<CellularNetWorkElementInformation> hits = null;
 		CNKBResultSet resultSet = null;
 		Short confidentType = null;
@@ -91,8 +91,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 1,
 				"Adjacency Matrix", "CNKB Interactions", null);
 
-		UserDirUtils.saveResultSet(resultId,
-				ObjectConversion.convertToByte(adjacencyMatrixdataSet));
+		UserDirUtils.serializeResultSet(resultId, adjacencyMatrixdataSet);
 		return "Cytoscape";
 	}
 
