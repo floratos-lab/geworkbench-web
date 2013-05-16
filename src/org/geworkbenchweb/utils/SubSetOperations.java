@@ -82,34 +82,29 @@ public class SubSetOperations {
 	public static void storeSignificance(List<String> data, Long dataSetId, Long userId) {
  
 		int  significanSetNum = SubSetOperations.getSignificanceSetNum(dataSetId);
-		 
-		SubSet subset  	= 	new SubSet();
+		String significanSetName = null;
 		if (significanSetNum == 0)
-		   subset.setName("Significant Genes ");
+			significanSetName = "Significant Genes ";
 		else	 
-		   subset.setName("Significant Genes(" + significanSetNum + ") ");
-		 
-		subset.setOwner(userId);
-		subset.setType("marker");
-	    subset.setParent(dataSetId);
-	    subset.setPositions((ArrayList)data);
-	    FacadeFactory.getFacade().store(subset);
+			significanSetName = "Significant Genes(" + significanSetNum + ") ";
+		storeMarkerSetInCurrentContext((ArrayList)data, significanSetName, dataSetId);
+	 
 	}
 	
 	public static int getSignificanceSetNum(Long dataSetId) {
 
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-
-		parameters.put("parent", dataSetId);
-		parameters.put("type", "marker");
-		parameters.put("name", "Significant Genes%");
-		                         
-		List<?> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type and p.name like :name", parameters);
-
-		if (data != null)	  
-			return data.size();
-		else
-			return 0;
+		List<SubSet> list = getMarkerSetsForCurrentContext(dataSetId);
+		int count = 0;
+		if (list != null && list.size() > 0)
+		{
+			for(SubSet s : list)
+			{
+				if (s.getName().contains("Significant Genes"))
+					count++;
+			}
+		}
+		return count;
+		 
 	}
 
 
