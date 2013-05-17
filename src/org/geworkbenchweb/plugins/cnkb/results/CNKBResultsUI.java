@@ -54,6 +54,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
@@ -201,12 +202,21 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		tabPanel.setFirstComponent(plot);
 		tabPanel.setSecondComponent(dataTable);
 
-		Button createNetworkButton;
-		createNetworkButton = new Button("Create Network");
-		createNetworkButton.addListener(new CreateNetworkListener(parentId,
-				resultSet, selectedTypes));
+		MenuBar menuBar = new MenuBar();
+		menuBar.setStyleName("transparent");
+		menuBar.addItem("Create Network", new CreateNetworkCommand(parentId,
+				resultSet)).setStyleName("plugin");
+		menuBar.addItem("Export", new Command() {
 
-		addComponent(createNetworkButton);
+			private static final long serialVersionUID = -4510368918141762449L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				new ExcelExport(dataTable).export();	
+			}
+			
+		}).setStyleName("plugin");
+		addComponent(menuBar);
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1);
 
@@ -415,16 +425,15 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 	}
 
-	private class CreateNetworkListener implements ClickListener {
+	private class CreateNetworkCommand implements Command {
 
 		private static final long serialVersionUID = 831124091338570481L;
 
-		private Long parentId;		
-		private CNKBResultSet resultSet;		 
+		final private Long parentId;		
+		final private CNKBResultSet resultSet;		 
 	 
-		public CreateNetworkListener(Long parentId,
-				CNKBResultSet resultSet,
-				List<String> selectedTypes) {
+		public CreateNetworkCommand(final Long parentId,
+				final CNKBResultSet resultSet) {
 
 			this.parentId = parentId;
 			this.resultSet = resultSet;            
@@ -449,7 +458,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		}
 
 		@Override
-		public void buttonClick(ClickEvent event) {
+		public void menuSelected(MenuItem selectedItem) {
 
 			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
 			if (hits == null || getInteractionTotalNum(resultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
