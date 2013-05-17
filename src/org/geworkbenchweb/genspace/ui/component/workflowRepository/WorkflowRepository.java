@@ -161,4 +161,12 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		workflowCommentsPanel.setWorkflow(userWorkflow.getWorkflow());
 		repositoryPanel.setCurWorkFlow(userWorkflow);
 	}
+	
+	public RepositoryPanel getRepositoryPanel() {
+		return this.repositoryPanel;
+	}
+	
+	public WorkflowCommentsPanel getWorkflowCommentsPanel() {
+		return this.workflowCommentsPanel;
+	}
 }
