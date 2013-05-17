@@ -555,15 +555,16 @@ public class UploadDataUI extends VerticalLayout {
 			AnnotationType annotType 	= 	(AnnotationType)params.get("type");
 		
 			try {
-				loader.load(dataFile, dataSet);
 				if (loader instanceof LoaderUsingAnnotation) {
 					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
 					expressionFileLoader.parseAnnotation(annotFile, annotType,
-							annotOwner);
+							annotOwner, dataSet.getId());
 					if (annotFile != null && choice == Anno.NEW && !annotFile.delete()) {
 						log.warn("problem in deleting " + annotFile);
 					}
 				}
+				loader.load(dataFile, dataSet);
+
 				/*
 				 * FIXME delete is correct behavior, but the current code,
 				 * particularly CSProteinStructure, depends on the retaining of

@@ -52,18 +52,21 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 
 		MicroarraySetParser parser = new MicroarraySetParser();
-		microarraySet = parser.parseCSMicroarraySet(file);
+		parser.parseExistingCSMicroarraySet(file, microarraySet);
 
 		// FIXME hard-code type name has to be fixed
 		datasetId = storeData(microarraySet, file.getName(), dataset);
 		//this.getClass().getName());
+		microarraySet = null;
 	}
 
 	// this has to be called right after parse to have access to microarraySet
 	// and datasetId
 	@Override
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
-			User annotOwner) throws GeWorkbenchLoaderException {
+			User annotOwner, Long dsId) throws GeWorkbenchLoaderException {
+		microarraySet = new CSMicroarraySet();
+		datasetId = dsId;
 		Long annotationId = storeAnnotation(microarraySet, annotFile,
 				annotType, annotOwner);
 
@@ -75,7 +78,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 
 		storeContext();
-		microarraySet = null;
 	}
 
 	private static Long storeAnnotation(DSMicroarraySet dataSet, File annotFile,
@@ -97,7 +99,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 				Long aid = annots.get(0).getId();
 				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
 				AnnotationParser.setFromSerializable(aps);
-				((CSMicroarraySet)dataSet).getMarkers().correctMaps();
+				parserLoadAnnotation(dataSet, annotFile, annots.get(0).getType());
 				return aid;
 			}
 		}
@@ -112,7 +114,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 				Long aid = annots.get(0).getId();
 				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
 				AnnotationParser.setFromSerializable(aps);
-				((CSMicroarraySet)dataSet).getMarkers().correctMaps();
+				parserLoadAnnotation(dataSet, annotFile, annots.get(0).getType());
 				return aid;
 			}
 			if (annotType == null){
@@ -126,17 +128,8 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			Log.warn("New annotation "+annotFile.getPath()+" not found on server.");
 			return null;
 		}
-		AffyAnnotationParser annotParser = null;
-		if (annotType.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION))
-			annotParser = new Affy3ExpressionAnnotationParser();
-		else if (annotType.equals(AnnotationType.AFFY_GENE_EXON_ST))
-			annotParser = new AffyGeneExonStAnnotationParser();
-		try {
-			AnnotationParser
-					.loadAnnotationFile(dataSet, annotFile, annotParser);
-		} catch (InputFileFormatException e) {
-			e.printStackTrace();
-		}
+		parserLoadAnnotation(dataSet, annotFile, annotType.toString());
+
 		Annotation annotation = new Annotation(annotFile.getName(),
 				annotType.toString());
 		annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
@@ -148,6 +141,21 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		boolean success = UserDirUtils.saveAnnotation(annotation.getId(), ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
 		if(!success) System.out.println("Annotation not saved"); 
 		return annotation.getId();
+	}
+	
+	private static void parserLoadAnnotation(DSMicroarraySet dataSet,
+			File annotFile, String type) {
+		AffyAnnotationParser annotParser = null;
+		if (type.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION.toString()))
+			annotParser = new Affy3ExpressionAnnotationParser();
+		else if (type.equals(AnnotationType.AFFY_GENE_EXON_ST.toString()))
+			annotParser = new AffyGeneExonStAnnotationParser();
+		try {
+			AnnotationParser
+					.loadAnnotationFile(dataSet, annotFile, annotParser);
+		} catch (InputFileFormatException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

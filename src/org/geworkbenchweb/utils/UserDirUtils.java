@@ -9,7 +9,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -168,6 +170,8 @@ public class UserDirUtils {
 		ois.close();
 
 		if (correctType.isInstance(dataset)) {
+			if (correctType == DSMicroarraySet.class)
+				AnnotationParser.setCurrentDataSet(correctType.cast(dataset));
 			return correctType.cast(dataset);
 		} else {
 			throw new Exception("incorrect type " + correctType
