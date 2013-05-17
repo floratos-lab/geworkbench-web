@@ -145,7 +145,7 @@ public class RemoveButtonListener implements ClickListener {
 						cParam.clear();
 						cParam.put("datasetid", dataId);
 						List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
-						if (cc.size()>0) FacadeFactory.getFacade().delete(cc.get(0));
+						if (cc.size()>0) FacadeFactory.getFacade().deleteAll(cc);
 
 						boolean success = UserDirUtils.deleteDataSet(data.getId());
 						if(!success) {
