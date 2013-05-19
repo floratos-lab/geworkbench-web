@@ -56,7 +56,10 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		
 		workflowDetailsPanel.setGenSpaceLogin(login);
 		workflowCommentsPanel.setGenSpaceLogin(login);
+		inboxTable.setGenSpaceLogin(login);
 		graphPanel.setGenSpaceLogin(login);
+		
+		inboxTable.setWorkflowRepository(this);
 	}
 
 	private AbstractLayout buildMainLayout() {
@@ -157,7 +160,8 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		wrapper.loadToolsFromCache();
 		list.add(wrapper);
 		graphPanel.render(list);
-		workflowDetailsPanel.setAndPrintWorkflow(userWorkflow.getWorkflow());
+		//workflowDetailsPanel.setAndPrintWorkflow(userWorkflow.getWorkflow());
+		workflowDetailsPanel.setAndPrintWorkflow(userWorkflow);
 		workflowCommentsPanel.setWorkflow(userWorkflow.getWorkflow());
 		repositoryPanel.setCurWorkFlow(userWorkflow);
 	}

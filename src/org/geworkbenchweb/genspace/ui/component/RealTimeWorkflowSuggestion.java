@@ -12,6 +12,7 @@ import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Alignment;
@@ -22,13 +23,17 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 
-public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements GenSpaceTab, CWFListener {
+public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements GenSpaceTab, CWFListener, Button.ClickListener {
 
 	private static final long serialVersionUID = 4806046453151557609L;
+	
+	private final static String NAME = "Name";
+	private final static String ORDER = "Order";
 //	JRadioButton log, logAnon, noLog;
 //	ButtonGroup group;
 //	JPanel radioPanel, saveReset;
@@ -51,6 +56,10 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 
 	private TextField infoArea = new TextField();
 	
+	private IndexedContainer model = new IndexedContainer();
+	
+	private List<Tool> results;
+	
 	private ListSelect toolListing = new ListSelect();
 	
 	private Button button = new Button("Search");
@@ -62,6 +71,10 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 	
 	public RealTimeWorkflowSuggestion(GenSpaceLogin login) {
 		super(login);
+		model.addContainerProperty(NAME, String.class, null);
+		model.addContainerProperty(ORDER, Integer.class, null);
+		toolListing.setContainerDataSource(model);
+		toolListing.setMultiSelect(true);
 		buildMainLayout();
 		setCompositionRoot(splitter);
 	}
@@ -97,11 +110,11 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		
 		GridLayout headerPanel = new GridLayout(1,2);
 		VerticalLayout resultsPanel = new VerticalLayout();
-		resultsPanel.setHeight("150px");
+		resultsPanel.setHeight("250px");
 		wfsPane = new TextField();
 		wfsPane.setValue("No results yet");
 		wfsPane.setWidth("100%");
-		wfsPane.setHeight("130px");
+		wfsPane.setHeight("200px");
 		
 		Label resultsLabel = new Label("Results:");
 //		toolPanel.setWidth("100%");
@@ -147,32 +160,48 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				wfsPane.removeAllValidators();
 				List<Tool> toolList = new ArrayList<Tool>();
 				Iterator toolListingIT = toolListing.getItemIds().iterator();
-				List<Tool> results = login.getGenSpaceServerFactory().getUsageOps().getAllTools();
+								
+				//List<Tool> results = login.getGenSpaceServerFactory().getUsageOps().getAllTools();
 				while(toolListingIT.hasNext()){
 					Object itemID = (Object)toolListingIT.next();
-					String tmpToolName;
+					Item tmpItem;
+					int tmpOrder;
 					Tool tmpTool;
 					if(toolListing.isSelected(itemID)){
-						//wfsPane.setValue(itemID);
-						for(Tool tool:results){
-							if(tool.getName().equals(itemID.toString())){
-								toolList.add(tool);
-								wfsPane.setValue(tool.getName());
-							}
-						}
+						tmpItem = model.getItem(itemID);
+						tmpOrder = (Integer)tmpItem.getItemProperty(ORDER).getValue();
+						tmpTool = results.get(tmpOrder);
+						toolList.add(tmpTool);
+						System.out.println("Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
 					}
 				}
 				
+				String criteriaString = "(";
+				List<Integer> toolsIds = new ArrayList<Integer>();
+				for (Tool t : toolList) {
+					toolsIds.add(t.getId());
+					criteriaString += "wt.tool_id=" + t.getId() + " or ";
+				}
+				criteriaString = criteriaString.substring(0, criteriaString.length()-4);
+				criteriaString += ") ";
+				System.out.println("CriteriaString: " + criteriaString);
+				
 				List<Workflow> workFlowList;
-				if(toolList.size()>0){
+				if(toolList.size() > 0){
 					workFlowList = login.getGenSpaceServerFactory().getUsageOps().getMahoutSimilarWorkflowsSuggestion(toolList);
-					disPlayWorkflow(workFlowList);
+					System.out.println("Suggested workflow list: " + workFlowList.size());
+					
+					if (workFlowList == null || workFlowList.size() == 0) {
+						wfsPane.setValue("No Workflow found");
+					} else {
+						displayWorkflow(workFlowList);
+					}
 				} else {
-					wfsPane.setValue("No Workflow found");
+					wfsPane.setValue("No tool is selected");
 				}
 			}
 			
-			public void disPlayWorkflow(List<Workflow> workFlowList){
+			public void displayWorkflow(List<Workflow> workFlowList){
 				int lim = 10;
 				int wfCounter = 1;
 				String wfsString = "";
@@ -193,6 +222,8 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		string += "Next best rated tool to use: none.";
 		infoArea.setValue(string);
 		infoArea.setSizeFull();
+		infoArea.setHeight("500px");
+		
 
 		toolListPanel.setSizeFull();
 		suggestionsPanel.addComponent(infoArea);
@@ -201,10 +232,24 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		
 		// add both panels
 		splitter.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);
+		
+		Panel leftPanel = new Panel();
+		leftPanel.setHeight("500px");
+		leftPanel.setScrollable(true);
+		leftPanel.addComponent(workflowViewerPanel);
+		
+		Panel rightPanel = new Panel();
+		rightPanel.setHeight("500px");
+		rightPanel.setScrollable(true);
+		rightPanel.addComponent(suggestionsPanel);
+		
+		splitter.addComponent(leftPanel);
+		splitter.addComponent(rightPanel);
 
-		splitter.addComponent(workflowViewerPanel);
+		/*splitter.addComponent(workflowViewerPanel);
 
-		splitter.addComponent(suggestionsPanel);
+		splitter.addComponent(suggestionsPanel);*/
+
 		
 		toolPanel.setExpandRatio(toolListing, 1.0f);
 		return splitter;
@@ -212,9 +257,18 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 	
 	private void updateAllToolList() {
 		toolListing.removeAllItems();
-		List<Tool>results = login.getGenSpaceServerFactory().getUsageOps().getAllTools();
-		for (Tool tool : results) {
-			toolListing.addItem(tool.getName());
+		results = login.getGenSpaceServerFactory().getUsageOps().getAllTools();
+		model.removeAllItems();
+		String toolName;
+		for (int i = 0; i < results.size(); i++) {
+			toolName = results.get(i).getName();
+			
+			if (toolName == null || toolName.isEmpty()) {
+				toolName = "";
+			}
+			Item item = this.model.addItem(toolName);
+			item.getItemProperty(NAME).setValue(toolName);
+			item.getItemProperty(ORDER).setValue(i);
 		}
 	}
 
@@ -325,6 +379,10 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public void buttonClick(Button.ClickEvent evt) {
+		
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
@@ -26,6 +27,7 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 	private static final long serialVersionUID = 2333272779885676592L;
 	private TextField textArea = new TextField();
 	private Workflow workflow;
+	private UserWorkflow usrWorkflow;
 	private TextField receiver = new TextField("Receiver");
 	private Button sendButton = new Button("Send Selected Workflow");
 	private GenSpaceLogin login;
@@ -47,9 +49,10 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.login = login;
 	}
 	
-	public void setAndPrintWorkflow(Workflow workflow) {
-		this.workflow = workflow;
-		String string = getWorkflowDetailsString(workflow);
+	public void setAndPrintWorkflow(UserWorkflow usrWorkflow) {
+		this.usrWorkflow = usrWorkflow;
+		//this.workflow = workflow;
+		String string = getWorkflowDetailsString(this.usrWorkflow.getWorkflow());
 		getTextArea().setValue(string);
 	}
 
@@ -81,11 +84,19 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 			boolean b = send();
 			if (b) {
 				receiver.setValue("");
+				getApplication().getMainWindow().showNotification("Your workflow has been sent successfully");
+			} else {
+				getApplication().getMainWindow().showNotification("Invalid receiver. Please input again");
 			}
 		}
 	}
 
 	private boolean send() {
+		String receiver = this.receiver.getValue().toString();
+		
+		if (receiver == null || receiver.isEmpty())
+			return false;
+		
 		IncomingWorkflow newW = new IncomingWorkflow();
 		try {
 			newW.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
@@ -95,10 +106,12 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 			e.printStackTrace();
 			return false;
 		}
-		newW.setName(workflow.getIdstr());
-		newW.setWorkflow(workflow);
+		Workflow tmpWorkflow = this.usrWorkflow.getWorkflow();
+		newW.setName(this.usrWorkflow.getName());
+		newW.setWorkflow(tmpWorkflow);
 		newW.setSender(login.getGenSpaceServerFactory().getUser());
-		return login.getGenSpaceServerFactory().getWorkflowOps().sendWorkflow(newW, (String) receiver.getValue());
+		//return login.getGenSpaceServerFactory().getWorkflowOps().sendWorkflow(newW, (String) receiver.getValue());
+		return login.getGenSpaceServerFactory().getWorkflowOps().sendWorkflow(newW, receiver);
 	}
 
 }

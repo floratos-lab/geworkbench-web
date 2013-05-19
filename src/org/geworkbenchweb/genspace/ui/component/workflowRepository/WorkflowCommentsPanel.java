@@ -111,7 +111,6 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			
 			oButton.addListener(new Button.ClickListener() {
 				public void buttonClick(Button.ClickEvent evt) {
-					System.out.println("Test input text: " + tf.getValue().toString());
 					newComment(tf.getValue().toString());
 					getApplication().getMainWindow().removeWindow(newWindow);
 				}
