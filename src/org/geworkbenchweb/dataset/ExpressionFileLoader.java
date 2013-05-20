@@ -56,6 +56,9 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 
 		// FIXME hard-code type name has to be fixed
 		datasetId = storeData(microarraySet, file.getName(), dataset);
+
+		storeContext();
+
 		//this.getClass().getName());
 		microarraySet = null;
 	}
@@ -76,8 +79,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			da.setAnnotationId(annotationId);
 			FacadeFactory.getFacade().store(da);
 		}
-
-		storeContext();
 	}
 
 	private static Long storeAnnotation(DSMicroarraySet dataSet, File annotFile,
