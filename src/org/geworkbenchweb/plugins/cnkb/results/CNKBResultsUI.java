@@ -100,8 +100,6 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	private static Table dataTable;
 	private static Map<String, String> confidentTypeMap = null;
 
-	private Cytoscape cy;
-
 	final private Long datasetId;
 
 	public CNKBResultsUI(Long dataSetId) {
