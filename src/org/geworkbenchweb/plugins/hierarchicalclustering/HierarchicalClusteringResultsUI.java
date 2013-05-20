@@ -2,14 +2,22 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
+import org.geworkbench.bison.model.clusters.MarkerHierCluster;
+import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
+import org.geworkbench.bison.util.Range;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
@@ -74,6 +82,23 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 
 		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) object;
 
+		HierCluster markerCluster 		= 	dataSet.getCluster(0);
+		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
+
+		reorderedMarker = new ArrayList<DSGeneMarker>();
+		StringBuffer markerString 	= 	new StringBuffer();
+		if(markerCluster != null) {
+			convertToString(markerString, markerCluster, true);
+		}
+		String markerClusterString = markerString.toString();
+
+		reorderedMicroarray = new ArrayList<DSMicroarray>();
+		StringBuffer arrayString 	= 	new StringBuffer();
+		if(arrayCluster != null) {
+			convertToString(arrayString, arrayCluster, false);
+		}
+		String arrayClusterString = arrayString.toString();
+
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
 		int geneNo = microarraySet.markers().size();
 		int chipNo = microarraySet.items().size();
@@ -83,35 +108,25 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
 		int k = 0;
 
-		for (int j = 0; j < chipNo; j++) {
-			arrayNames[j] = microarraySet.get(j).getLabel();
+		updateRange(microarraySet);
+		
+		int j = 0;
+		for (DSMicroarray a : reorderedMicroarray) {
+			arrayNames[j++] = a.getLabel();
 		}
-		for (int i = 0; i < geneNo; i++) {
-			DSGeneMarker marker = microarraySet.markers().get(i);
+		int i = 0;
+		for (DSGeneMarker marker : reorderedMarker) {
 
-			markerNames[i] = marker.getLabel();
-			for (int j = 0; j < chipNo; j++) {
-				double value = microarraySet.get(j).getMarkerValue(marker)
+			markerNames[i++] = marker.getLabel();
+			for (DSMicroarray a : reorderedMicroarray) {
+				double value = a.getMarkerValue(marker)
 						.getValue();
 				colors[k++] = getMarkerValueColor(value, marker, 1.0f);
 			}
 		}
-
-		HierCluster markerCluster 		= 	dataSet.getCluster(0);
-		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
-
-		StringBuffer markerString 	= 	new StringBuffer();
-		if(markerCluster != null) {
-			convertToString(markerString, markerCluster);
-		}
-		String markerClusterString = markerString.toString();
-
-		StringBuffer arrayString 	= 	new StringBuffer();
-		if(arrayCluster != null) {
-			convertToString(arrayString, arrayCluster);
-		}
-		String arrayClusterString = arrayString.toString();
-
+		reorderedMarker = null;
+		reorderedMicroarray = null;
+		
 		final Dendrogram dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
 				arrayNames, markerNames, colors);
 		dendrogram.setSizeUndefined();
@@ -178,6 +193,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		setSecondComponent(dendrogram);
 	}
 
+	private transient List<DSGeneMarker> reorderedMarker;
+	private transient List<DSMicroarray> reorderedMicroarray;
+	
 	/**
 	 * 
 	 * Recursively convert Cluster to string.
@@ -185,18 +203,62 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 	 * @param hierCluster
 	 * @return
 	 */
-	static private void convertToString(final StringBuffer buffer, Cluster hierCluster) {
+	private void convertToString(final StringBuffer buffer, Cluster hierCluster, boolean isMarker) {
 
 		buffer.append("(");
 
 		if (!hierCluster.isLeaf()) {
 			Cluster[] child = hierCluster.getChildrenNodes();
-			convertToString(buffer, child[0]);
-			convertToString(buffer, child[1]);
+			convertToString(buffer, child[0], isMarker);
+			convertToString(buffer, child[1], isMarker);
+		} else if(isMarker) {
+			MarkerHierCluster markerCluster = (MarkerHierCluster)hierCluster;
+			reorderedMarker.add(markerCluster.getMarkerInfo());
+		} else { // if is microarray
+			MicroarrayHierCluster microarrayCluster = (MicroarrayHierCluster)hierCluster;
+			reorderedMicroarray.add(microarrayCluster.getMicroarray());
 		}
 		buffer.append(")");
 	}
 
+	/* adapted from geWorkbench desktop version */
+	/* this is necessary to handle the mutability of value range of DSGeneMarker. very dangerous and confusing. */
+	private void updateRange(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+		DSMicroarraySet microarraySet = view.getMicroarraySet();
+		for (DSGeneMarker marker : microarraySet.getMarkers()) {
+			((DSRangeMarker) marker).reset(marker.getSerial());
+		}
+		if (view.items().size() == 1) {
+			DSMicroarray ma = view.items().get(0);
+			Range range = new org.geworkbench.bison.util.Range();
+			for (DSGeneMarker marker : microarraySet.getMarkers()) {
+				DSMutableMarkerValue mValue = (DSMutableMarkerValue) ma
+						.getMarkerValue(marker.getSerial());
+				double value = mValue.getValue();
+				range.min = Math.min(range.min, value);
+				range.max = Math.max(range.max, value);
+				range.norm.add(value);
+			}
+			for (DSGeneMarker marker : microarraySet.getMarkers()) {
+				Range markerRange = ((DSRangeMarker) marker)
+						.getRange();
+				markerRange.min = range.min;
+				markerRange.max = range.max;
+				markerRange.norm = range.norm;
+			}
+		} else {
+			for (DSGeneMarker marker : microarraySet.getMarkers()) {
+				DSItemList<DSMicroarray> items = view.items();
+				for (int i=0; i<items.size(); i++) {
+					DSMicroarray ma = items.get(i);
+					DSMutableMarkerValue mValue = (DSMutableMarkerValue) ma
+							.getMarkerValue(marker.getSerial());
+					((DSRangeMarker) marker).updateRange(mValue);
+				}
+			}
+		}
+	}
+	
 	// TODO important question: why is the original lock necessary?
 	/** return value, range  [-255, 255] */
 	private static int getMarkerValueColor(double value, DSGeneMarker mInfo,
