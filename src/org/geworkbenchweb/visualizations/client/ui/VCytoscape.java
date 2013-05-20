@@ -69,6 +69,7 @@ public class VCytoscape extends Widget implements Paintable {
 		nodes = uidl.getStringArrayVariable("nodes");
 		edges = uidl.getStringArrayVariable("edges");
 		
+		String layoutName = uidl.getStringAttribute("layoutName");
 		
 		if(networkPNG == "true") {
 			
@@ -85,7 +86,7 @@ public class VCytoscape extends Widget implements Paintable {
 		}else {	
 			
 			vis = Visualization.create(placeholder.getId());
-			vis.constructNetwork(wrapArray(nodes), wrapArray(edges));
+			vis.constructNetwork(wrapArray(nodes), wrapArray(edges), layoutName);
 		}
 	}
 

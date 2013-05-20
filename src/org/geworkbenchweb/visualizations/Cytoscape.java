@@ -30,9 +30,13 @@ public class Cytoscape extends AbstractComponent {
 	private String networkPNGData;
 	private String networkSVGData;
 	
+	private String layoutName = "ForceDirected"; // default
+	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
+		
+		target.addAttribute("layoutName", layoutName);
 
 		target.addVariable(this, "nodes", getNodes());
 		target.addVariable(this, "edges", getEdges());
@@ -201,6 +205,10 @@ public class Cytoscape extends AbstractComponent {
             e.printStackTrace();
         }
 		
+	}
+
+	public void setLayout(String layoutName) {
+		this.layoutName = layoutName;
 	}
 	
 }

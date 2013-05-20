@@ -1,4 +1,4 @@
-package org.geworkbenchweb.plugins.aracne.results;
+package org.geworkbenchweb.plugins;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,11 +10,13 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry;
-import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -22,11 +24,12 @@ import com.vaadin.ui.VerticalLayout;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-public class AracneResultsUI extends VerticalLayout implements Visualizer {
+/* this used to be AracneResultsUI, but is in fact used by both ARACNe result and CNKB result. */
+public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 
-	private Log log = LogFactory.getLog(AracneResultsUI.class);
+	private Log log = LogFactory.getLog(NetworkViewer.class);
 
 	private static final String LIMIT_CYTOSCAPE_OBJECTS = "limit.cytoscape.objects";
 	private static final int DEFAULT_LIMIT_CYTOSCAPE_OBJECTS = 5000;
@@ -37,7 +40,7 @@ public class AracneResultsUI extends VerticalLayout implements Visualizer {
 
 	final private Long datasetId;
 	
-	public AracneResultsUI(Long dataSetId) {
+	public NetworkViewer(Long dataSetId) {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
@@ -201,7 +204,7 @@ public class AracneResultsUI extends VerticalLayout implements Visualizer {
 			}
 		}
 
-		Cytoscape cy = new Cytoscape();
+		final Cytoscape cy = new Cytoscape();
 		cy.setImmediate(true);
 		cy.setSizeFull();
 
@@ -214,7 +217,37 @@ public class AracneResultsUI extends VerticalLayout implements Visualizer {
 		cy.setNodes(nodeArray);
 		cy.setEdges(edgeArray);		 
 	 
-		addComponent(cy);
+		ComboBox layoutNames = new ComboBox();
+		layoutNames.setNullSelectionAllowed(false);
+       	layoutNames.addItem("ForceDirected");
+       	layoutNames.addItem("Circle");
+       	layoutNames.addItem("Radial");
+       	layoutNames.addItem("Tree");
+       	layoutNames.addItem("CompoundSpringEmbedder");
+       	layoutNames.select("ForceDirected");
+       	layoutNames.addListener(new Property.ValueChangeListener() {
+
+			private static final long serialVersionUID = -3402504687143100248L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				cy.setLayout((String)event.getProperty().getValue());
+				cy.requestRepaint();
+			}
+       		
+       	});
+       	layoutNames.setStyleName("plugin");
+       	layoutNames.setImmediate(true);
+       	
+		HorizontalLayout toolBar =  new HorizontalLayout();
+		toolBar.setStyleName("transparent");
+		toolBar.addComponent(new Label("Please select a layout"));
+		toolBar.addComponent(layoutNames);
+		
+		this.setSpacing(true);
+		this.addComponent(toolBar);
+		this.addComponent(cy);
+		this.setExpandRatio(cy, 1);
 	}
 	
 	private void getLimitCytoscapeObjectsNum() {

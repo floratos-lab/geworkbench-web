@@ -102,7 +102,7 @@
 	<plugin>
 		<name>Cytoscape</name>
 		<description>Show network in cytoscape web, or in text view.</description>
-		<uiClass>org.geworkbenchweb.plugins.aracne.results.AracneResultsUI</uiClass>
+		<uiClass>org.geworkbenchweb.plugins.NetworkViewer</uiClass>
 	</plugin>
 	</inputType>
 	<inputType className="org.geworkbenchweb.plugins.cnkb.CNKBResultSet">

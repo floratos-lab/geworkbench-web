@@ -576,7 +576,7 @@ public class Visualization extends JavaScriptObject{
         this.draw(toDraw);
 	}-*/;
 	
-	public final native void constructNetwork(JsArrayString javaNodes, JsArrayString javaEdges) /*-{
+	public final native void constructNetwork(JsArrayString javaNodes, JsArrayString javaEdges, String layoutName) /*-{
 
 		var realNodes 			= 	$wnd.eval("new Array()");
 		var realEdges 			= 	$wnd.eval("new Array()");
@@ -670,7 +670,7 @@ public class Visualization extends JavaScriptObject{
 		};
 	
 		var layout 		= 	new $wnd.Object();
-		layout.name 	=	"ForceDirected";
+		layout.name 	=	layoutName;
 		var options		= 	new $wnd.Object();
 		options.autoautoStabilize = true;
 		
