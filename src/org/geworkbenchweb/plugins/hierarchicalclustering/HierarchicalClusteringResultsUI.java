@@ -110,6 +110,13 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 
 		updateRange(microarraySet);
 		
+		if(reorderedMarker.size()==0) {
+			reorderedMarker = microarraySet.markers();
+		}
+		if(reorderedMicroarray.size()==0) {
+			reorderedMicroarray = microarraySet.items();
+		}
+		
 		int j = 0;
 		for (DSMicroarray a : reorderedMicroarray) {
 			arrayNames[j++] = a.getLabel();
