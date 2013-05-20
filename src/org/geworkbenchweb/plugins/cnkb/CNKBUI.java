@@ -205,6 +205,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils
 									.deserializeDataSet(dataSetId,
 											DSMicroarraySet.class);
+							UserDirUtils.setAnnotationParser(dataSetId, maSet);
 							submitCnkbEvent(maSet);
 						} catch (Exception e) {
 							e.printStackTrace();
