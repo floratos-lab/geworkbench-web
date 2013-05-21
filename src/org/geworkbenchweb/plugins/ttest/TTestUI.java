@@ -14,16 +14,14 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.ResultSet; 
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.ResultSet;  
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.UserError;
+import com.vaadin.data.Property.ValueChangeEvent; 
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -402,8 +400,6 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		
 		return null;
 		
-	}
-	 
-	
+	}	
 	
 }
