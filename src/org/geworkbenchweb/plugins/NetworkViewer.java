@@ -13,11 +13,10 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
@@ -217,32 +216,27 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		cy.setNodes(nodeArray);
 		cy.setEdges(edgeArray);		 
 	 
-		ComboBox layoutNames = new ComboBox();
-		layoutNames.setNullSelectionAllowed(false);
-       	layoutNames.addItem("ForceDirected");
-       	layoutNames.addItem("Circle");
-       	layoutNames.addItem("Radial");
-       	layoutNames.addItem("Tree");
-       	layoutNames.addItem("CompoundSpringEmbedder");
-       	layoutNames.select("ForceDirected");
-       	layoutNames.addListener(new Property.ValueChangeListener() {
+       	Command layoutCommand = new Command() {
 
-			private static final long serialVersionUID = -3402504687143100248L;
+			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void valueChange(ValueChangeEvent event) {
-				cy.setLayout((String)event.getProperty().getValue());
+			public void menuSelected(MenuItem selectedItem) {
+				cy.setLayout(selectedItem.getText());
 				cy.requestRepaint();
 			}
        		
-       	});
-       	layoutNames.setStyleName("plugin");
-       	layoutNames.setImmediate(true);
-       	
-		HorizontalLayout toolBar =  new HorizontalLayout();
+       	};
+		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
-		toolBar.addComponent(new Label("Please select a layout"));
-		toolBar.addComponent(layoutNames);
+		MenuItem layoutNames = toolBar.addItem("Layout managers", null);
+		layoutNames.addItem("ForceDirected", layoutCommand);
+       	layoutNames.addItem("Circle", layoutCommand);
+       	layoutNames.addItem("Radial", layoutCommand);
+       	layoutNames.addItem("Tree", layoutCommand);
+       	layoutNames.addItem("CompoundSpringEmbedder", layoutCommand);
+
+       	layoutNames.setStyleName("plugin");
 		
 		this.setSpacing(true);
 		this.addComponent(toolBar);
