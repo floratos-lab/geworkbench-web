@@ -3,6 +3,8 @@ package org.geworkbenchweb.plugins.ttest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -12,8 +14,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.utils.SubSetOperations;
 
 import javax.xml.namespace.QName;
@@ -103,20 +104,35 @@ public class TTestAnalysisWeb {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView =  new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
-		Long caseSetId 		= 	(Long) params.get(TTestParameters.CASEARRAY);
-		Long controlSetId 	= 	(Long) params.get(TTestParameters.CONTROLARRAY);
+		String[] selectedCaseSets 		= 	(String[]) params.get(TTestParameters.CASEARRAY);
+		String[] selectedControlSets 	= 	(String[]) params.get(TTestParameters.CONTROLARRAY);
+		List<String> caseArrayPositions = new ArrayList<String>();
+		List<String> controlArrayPositions = new ArrayList<String>();
+		for (int i = 0; i < selectedCaseSets.length; i++) {			
+			 
+			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedCaseSets[i].trim()));			 
+			 for (int j = 0; j < arrays.size(); j++)  			 
+				caseArrayPositions.add(arrays.get(j));				 
+			 
+		}
+		for (int i = 0; i < selectedControlSets.length; i++) {			
+			 
+			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedControlSets[i].trim()));			 
+			 for (int j = 0; j < arrays.size(); j++)  			 
+				 controlArrayPositions.add(arrays.get(j));				 
+			 
+		}	
+	 
+		numberGroupA 		= 	caseArrayPositions.size();
+		numberGroupB 		= 	controlArrayPositions.size();
 		
-		SubSet caseSet 		= 	((SubSet) (SubSetOperations.getArraySet(caseSetId)).get(0));
-		SubSet controlSet 	= 	((SubSet) (SubSetOperations.getArraySet(controlSetId)).get(0));
+		List<String> aC = new ArrayList<String>();
+		List<String> bC = new ArrayList<String>();
 		
-		numberGroupA 		= 	caseSet.getPositions().size();
-		numberGroupB 		= 	controlSet.getPositions().size();
-		
-		ArrayList<String> aC = new ArrayList<String>();
-		ArrayList<String> bC = new ArrayList<String>();
-		
-		aC = caseSet.getPositions();
-		bC = controlSet.getPositions();
+		aC.addAll(caseArrayPositions);
+		bC.addAll(controlArrayPositions);
 		
 		aC.addAll(bC);
 		
@@ -151,26 +167,26 @@ public class TTestAnalysisWeb {
 		double[][] caseArray  	= 	new double[numGenes][numberGroupA];
 		double[][] controlArray = 	new double[numGenes][numberGroupB];
 		
-		String[] caseLabels 	= 	new String[caseSet.getPositions().size()];
-		String[] controlLabels 	= 	new String[controlSet.getPositions().size()];
 		
-		ArrayList<String> caseSet1 		= 	((SubSet) (SubSetOperations.getArraySet(caseSetId)).get(0)).getPositions();
-		ArrayList<String> controlSet1 	= 	((SubSet) (SubSetOperations.getArraySet(controlSetId)).get(0)).getPositions();
 		
+		
+		String[] caseLabels 	= 	new String[caseArrayPositions.size()];
+		String[] controlLabels 	= 	new String[controlArrayPositions.size()];
+	 
 		for (int i = 0; i < numGenes; i++) {	
 
 			int caseIndex 		=	0;
 			int controlIndex 	= 	0;
 
 			for(int j=0; j<numExps; j++) {
-				for(int r=0; r<caseSet1.size(); r++){
-					if(caseSet1.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
+				for(int r=0; r<caseArrayPositions.size(); r++){
+					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
 						caseArray[i][caseIndex] = dataSet.getValue(i, j);
 						caseIndex++;
 					}
 				}
-				for(int r=0; r<controlSet1.size(); r++){	
-					if(controlSet1.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
+				for(int r=0; r<controlArrayPositions.size(); r++){	
+					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
 						controlArray[i][controlIndex] = dataSet.getValue(i, j);
 						controlIndex++;
 					}
@@ -178,12 +194,12 @@ public class TTestAnalysisWeb {
 			}
 		}
 		
-		for(int i=0; i<caseSet.getPositions().size(); i++) {
-			caseLabels[i] = caseSet.getPositions().get(i);
+		for(int i=0; i<caseArrayPositions.size(); i++) {
+			caseLabels[i] = caseArrayPositions.get(i);
 		}
 		
-		for(int i=0; i<controlSet.getPositions().size(); i++) {
-			controlLabels[i] = controlSet.getPositions().get(i);
+		for(int i=0; i<controlArrayPositions.size(); i++) {
+			controlLabels[i] = controlArrayPositions.get(i);
 		}
 		TTestInput tTestInput = new TTestInput(numGenes, numberGroupA,
 				numberGroupB, caseArray, controlArray, m, alpha, isPermut,

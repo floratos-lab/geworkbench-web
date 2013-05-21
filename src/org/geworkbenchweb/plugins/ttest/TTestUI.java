@@ -14,7 +14,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.ResultSet; 
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -23,13 +23,13 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+ 
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -51,10 +51,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	
 	private Accordion tabs;
 	
-	private ComboBox selectCase;
-	
-	private ComboBox selectControl;
-	
+	private CaseControlSelector caseControlSelector;
+	 
 	private ComboBox pValue;
 	
 	private ComboBox logNorm;
@@ -82,27 +80,18 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	public TTestUI(Long dId) {
 		
 		this.dataSetId = dId;
+		userId = SessionHandler.get().getId();
 		
 		setSpacing(true);
 		setImmediate(true);
 		
 		tabs 			= 	new Accordion();
-		selectCase		=	new ComboBox();
-		selectControl 	=	new ComboBox();	
+		caseControlSelector = new CaseControlSelector(dataSetId, userId, "TTestUI");	 
 		
 		tabs.addTab(buildPValuePanel(), "P-Value Parameters", null);
 		tabs.addTab(buildAlphaCorrections(), "Alpha Corrections", null);
 		tabs.addTab(buildDegOfFreedom(), "Degree of Freedom", null);
-		
-		selectCase.setNullSelectionAllowed(false);
-		selectCase.setInputPrompt("Select Case from Phenotypes sets");
-		selectCase.setWidth("400px");
-		selectCase.setImmediate(true);
-	
-		selectControl.setNullSelectionAllowed(false);
-		selectControl.setWidth("400px");
-		selectControl.setInputPrompt("Select Control from Phenotypes sets");
-		selectControl.setImmediate(true);
+		 
 		
 		setDataSetId(dId);
 		
@@ -112,19 +101,24 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				try {
-					if(selectCase.getValue().equals(null) || selectControl.getValue().equals(null)) { }
-				}catch (NullPointerException e) {
-					MessageBox mb = new MessageBox(getWindow(), 
+				   
+					String[] selectedCaseSets = caseControlSelector.getSelectedCaseSet();
+					String[] selectedControlSets = caseControlSelector.getSelectedControlSet();
+					 String warnMsg = validInputData(selectedCaseSets, selectedControlSets);
+					if( warnMsg != null ) 
+					{ 
+						MessageBox mb = new MessageBox(getWindow(), 
+					 
 							"Warning", 
 							MessageBox.Icon.INFO, 
-							"Please select case array and control array ",
+							warnMsg,
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					return;
-				}
-				params.put(TTestParameters.CASEARRAY, (Serializable) selectCase.getValue());
-				params.put(TTestParameters.CONTROLARRAY, (Serializable) selectControl.getValue());
+					    mb.show();
+					    return;
+					}
+				 
+				params.put(TTestParameters.CASEARRAY, (Serializable) selectedCaseSets);
+				params.put(TTestParameters.CONTROLARRAY, (Serializable) selectedControlSets);
 				params.put(TTestParameters.ALPHA, (Serializable) criticalValue.getValue());
 				if(pValue.getValue().toString().equalsIgnoreCase("t-distribution")) {
 					params.put(TTestParameters.ISPERMUT, (Serializable) false);
@@ -163,8 +157,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				String dataSetName = "TTest - Pending";
 				resultSet.setName(dataSetName);
 				resultSet.setType(getResultType().getName());
-				resultSet.setParent(dataSetId);
-				userId = SessionHandler.get().getId();
+				resultSet.setParent(dataSetId);		
 				resultSet.setOwner(userId);
 				FacadeFactory.getFacade().store(resultSet);
 
@@ -177,18 +170,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				
 			}
 		});
-		HorizontalLayout casePanel = new HorizontalLayout();
-		Label caseLabel = new Label("Case:");
-		caseLabel.setWidth("100px");
-		casePanel.addComponent(caseLabel);
-		casePanel.addComponent(selectCase);
-		HorizontalLayout controlPanel = new HorizontalLayout();
-		Label controlLabel = new Label("Control:");
-		controlLabel.setWidth("100px");
-		controlPanel.addComponent(controlLabel);
-		controlPanel.addComponent(selectControl);
-		addComponent(casePanel);
-		addComponent(controlPanel);
+		 
+		addComponent(caseControlSelector);
 		addComponent(tabs);
 		addComponent(submit);
 	}
@@ -355,25 +338,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public void setDataSetId(Long dataId) {
-		this.dataSetId = dataId;
-		
-		List<?> arraySubSets = SubSetOperations.getArraySets(dataSetId);
-
-		selectCase.removeAllItems();
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			selectCase.addItem(((SubSet) arraySubSets.get(m)).getId());
-			selectCase.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
-
-		selectControl.removeAllItems();
-		for (int m = 0; m < (arraySubSets).size(); m++) {
-			selectControl.addItem(((SubSet) arraySubSets.get(m)).getId());
-			selectControl.setItemCaption(
-					((SubSet) arraySubSets.get(m)).getId(),
-					((SubSet) arraySubSets.get(m)).getName());
-		}
+		this.dataSetId = dataId;		
+		caseControlSelector.setData(dataId, userId);	 
 	}
 
 	@Override
@@ -399,4 +365,45 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		 
 		return "TTest";
 	}
+	
+	private String validInputData(String[] selectedCaseSets, String[] selectedControlSets)
+	{    
+	 
+		if(selectedCaseSets == null || selectedCaseSets.length == 0 || selectedControlSets == null || selectedControlSets.length ==0 ) 
+		{ 
+			 return "Please select case array and control array. ";
+		}
+		List<String> microarrayPosList = new ArrayList<String>();
+		List<String> caseSetList = new ArrayList<String>();
+		/* for each group */
+		for (int i = 0; i < selectedCaseSets.length; i++) {			
+			 caseSetList.add(selectedCaseSets[i].trim());
+			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedCaseSets[i].trim()));	 
+			 
+			 for (int j = 0; j < arrays.size(); j++) {
+				if (microarrayPosList.contains(arrays.get(j)))  				
+					 return "Same array (" + arrays.get(j) + ") exists in case array groups.";				 
+				microarrayPosList.add(arrays.get(j));				 
+			}
+		}
+		microarrayPosList.clear();
+		for (int i = 0; i < selectedControlSets.length; i++) {
+			 if (caseSetList.contains(selectedControlSets[i].trim()))
+				 return "Case and control groups have same array set " + selectedControlSets[i] + ".";
+			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedControlSets[i].trim()));	 			 
+			 for (int j = 0; j < arrays.size(); j++) {
+				if (microarrayPosList.contains(arrays.get(j)))  				
+					 return "Same array (" + arrays.get(j) + ") exists in control array groups.";				 
+				microarrayPosList.add(arrays.get(j));				 
+			}
+		}
+		
+		return null;
+		
+	}
+	 
+	
+	
 }

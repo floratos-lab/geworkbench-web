@@ -405,4 +405,23 @@ public class SubSetOperations {
 		List<?> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id", parameters);
 		return (SubSet) data.get(0);
 	}
+	
+	
+	
+	public static ArrayList<String> getArrayData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getArraySet(setNameId);
+		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
+
+		return positions;
+	}
+	
+	public static ArrayList<String> getMarkerData(long setNameId) {
+
+		@SuppressWarnings("rawtypes")
+		List subSet = SubSetOperations.getMarkerSet(setNameId);
+		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
+		return positions;
+	}
 }

@@ -15,8 +15,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.GeworkbenchRoot; 
 import org.geworkbenchweb.utils.SubSetOperations;
 
 import javax.xml.namespace.QName;
@@ -72,7 +71,7 @@ public class AracneAnalysisWeb {
 						.trim().equals("All vs. All")) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.HUB_MARKER_SET));
-			hubGeneList = getMarkerData(subSetId);
+			hubGeneList = SubSetOperations.getMarkerData(subSetId);
 		}
 
 		final AracneInput aracneInput = new AracneInput();
@@ -101,7 +100,7 @@ public class AracneAnalysisWeb {
 				.equalsIgnoreCase("Do Not Apply")) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.DPI_SET));
-			ArrayList<String> targetGeneList = getMarkerData(subSetId);
+			ArrayList<String> targetGeneList = SubSetOperations.getMarkerData(subSetId);
 			aracneInput
 					.setTargetGeneList(targetGeneList.toArray(new String[0]));
 		}
@@ -137,31 +136,7 @@ public class AracneAnalysisWeb {
 			return null;
 		}
 
-	}
-
-	/**
-	 * Create Dataset for selected markerSet
-	 */
-	public ArrayList<String> getMarkerData(Long subSetId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(subSetId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
-
-		return positions;
-	}
-
-	/**
-	 * Create Dataset for selected markerSet
-	 */
-	public ArrayList<String> getArrayData(Long subSetId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getArraySet(subSetId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
-
-		return positions;
-	}
+	} 
 
 	private void setDSMicroarraydata(AracneInput aracneInput) {
 
@@ -180,7 +155,7 @@ public class AracneAnalysisWeb {
 		} else {
 			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				ArrayList<String> temp = getMarkerData(Long
+				ArrayList<String> temp = SubSetOperations.getMarkerData(Long
 						.parseLong(selectedMarkerSet[i].trim()));
 
 				for (int m = 0; m < temp.size(); m++) {
@@ -206,7 +181,7 @@ public class AracneAnalysisWeb {
 		} else {
 			for (int i = 0; i < selectedArraySet.length; i++) {
 
-				ArrayList<String> arrays = getArrayData(Long
+				ArrayList<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
 				totalSelectedArrayNum = totalSelectedArrayNum + arrays.size();
 
@@ -232,7 +207,7 @@ public class AracneAnalysisWeb {
 
 		} else {
 			for (int i = 0; i < selectedArraySet.length; i++) {
-				ArrayList<String> arrayPositions = getArrayData(Long
+				ArrayList<String> arrayPositions = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
 
 				for (int j = 0; j < arrayPositions.size(); j++) {
