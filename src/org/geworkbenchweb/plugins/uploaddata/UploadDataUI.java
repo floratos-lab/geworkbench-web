@@ -342,7 +342,7 @@ public class UploadDataUI extends VerticalLayout {
         });
 
 		addComponent(fileUploadStatus);
-		addComponent(sleep);
+		//addComponent(sleep);
 		addComponent(uploadField);
 		addComponent(pLayout);
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
