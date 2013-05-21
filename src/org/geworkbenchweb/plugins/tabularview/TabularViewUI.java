@@ -86,6 +86,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		DataSet data = DataSetOperations.getDataSet(dataSetId);
 		try {
 			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
+			UserDirUtils.setAnnotationParser(dataSetId, maSet);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
