@@ -14,7 +14,8 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.ResultSet;  
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -388,7 +389,11 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		microarrayPosList.clear();
 		for (int i = 0; i < selectedControlSets.length; i++) {
 			 if (caseSetList.contains(selectedControlSets[i].trim()))
-				 return "Case and control groups have same array set " + selectedControlSets[i] + ".";
+			 {
+				  SubSet subset = (SubSet)SubSetOperations.getArraySet(Long
+							.parseLong(selectedControlSets[i].trim())).get(0);
+				 return "Case and control groups have same array set " + subset.getName() + ".";
+			 }
 			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedControlSets[i].trim()));	 			 
 			 for (int j = 0; j < arrays.size(); j++) {

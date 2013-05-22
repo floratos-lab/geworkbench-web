@@ -9,13 +9,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
+import java.io.Serializable; 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.HashMap; 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Map; 
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -30,25 +28,19 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.parsers.InputFileFormatException;
-import org.geworkbench.util.Util;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet; 
+import org.geworkbench.parsers.InputFileFormatException; 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.ResultSet; 
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.easyuploads.UploadField;
-import org.vaadin.easyuploads.UploadField.FieldType;
-import org.vaadin.easyuploads.UploadField.StorageMode;
-
-import com.Ostermiller.util.ExcelCSVParser;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory; 
+ 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -72,6 +64,7 @@ import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+ 
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -80,20 +73,15 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	private static final long serialVersionUID = 845011602285963638L;
 	private Log log = LogFactory.getLog(MarinaUI.class);
-	private DSMicroarraySet dataSet;
-	private Form form = new Form();
+	protected DSMicroarraySet dataSet;
+	protected Form form = new Form();
 	private Upload upload = null;
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
-	private Button submitButton = new Button("Submit", form, "commit");
-	private ComboBox cb1 = new ComboBox();
-	private ComboBox cb2 = new ComboBox();
-	private TextField tf1 = new TextField();
-	private TextField tf2 = new TextField();
-	private HorizontalLayout h1 = new HorizontalLayout();
-	private HorizontalLayout h2 = new HorizontalLayout();
-	private MarinaParamBean bean = null;
+	protected Button submitButton = new Button("Submit", form, "commit");
+	private ClassSelector classSelector = null;	 
+	protected MarinaParamBean bean = null;
 	private BeanItem<MarinaParamBean> item = null;
-	private HashMap<String, String> arraymap = null;
+	protected HashMap<String, String> arraymap = null;
 	private Window loadDialog;
 	private ComboBox formatBox;
 	private ComboBox presentBox;
@@ -125,94 +113,14 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		this.dataSetId = dataSetId;
 		
 		arraymap = new HashMap<String, String>();
-		cb1.setImmediate(true);
-		cb2.setImmediate(true);
-		cb1.setWidth("135px");
-		cb2.setWidth("135px");
-		tf1.setEnabled(false);
-		tf2.setEnabled(false);
+		classSelector = new ClassSelector(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this);
+	 
 
-		setDataSetId(dataSetId);
+		setDataSetId(dataSetId);	 
 
-		cb1.addListener( new Property.ValueChangeListener(){
-			private static final long serialVersionUID = -3667564667049184754L;
-			public void valueChange(ValueChangeEvent event) {
-				bean.setClass1(arraymap.get(cb1.getValue()));
-				tf1.setValue(arraymap.get(cb1.getValue()));
-				if (cb1.getValue() == null) {
-					tf1.setEnabled(false);
-					submitButton.setEnabled(false);
-				}else{
-					tf1.setEnabled(true);
-					if (form.getField("network").isEnabled())
-						submitButton.setEnabled(true);
-				}
-			}
-		});
-		cb2.addListener( new Property.ValueChangeListener(){
-			private static final long serialVersionUID = -5177825730266428335L;
-			public void valueChange(ValueChangeEvent event) {
-				bean.setClass2(arraymap.get(cb2.getValue()));
-				tf2.setValue(arraymap.get(cb2.getValue()));
-				if (cb2.getValue() == null){
-					tf2.setEnabled(false);
-				}else{
-					tf2.setEnabled(true);
-				}
-			}
-		});
-		UploadField uploadField1 = new UploadField(){
-			private static final long serialVersionUID = 3738084401913970304L;
-            protected void updateDisplay() {
-        		byte[] bytes = (byte[]) getValue();
-        		String filename = getLastFileName();
-	            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
-	            	String newset = parseCSV(filename, bytes);
-	            	if (newset != null) cb1.select(newset);
-        		}else{
-					MessageBox mb = new MessageBox(getWindow(),
-							"File Format Error", MessageBox.Icon.WARN,
-							filename + " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-        		}
-            }
-        };
-        uploadField1.setStorageMode(StorageMode.MEMORY);
-        uploadField1.setFieldType(FieldType.BYTE_ARRAY);
-
-		UploadField uploadField2 = new UploadField(){
-			private static final long serialVersionUID = 3738084401913970304L;
-            protected void updateDisplay() {
-        		byte[] bytes = (byte[]) getValue();
-        		String filename = getLastFileName();
-	            if (filename.endsWith(".csv")||filename.endsWith(".CSV")){
-	            	String newset = parseCSV(filename, bytes);
-	            	if (newset != null) cb2.select(newset);
-        		}else{
-					MessageBox mb = new MessageBox(getWindow(),
-							"File Format Error", MessageBox.Icon.WARN,
-							filename + " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-        		}
-            }
-        };
-        uploadField2.setStorageMode(StorageMode.MEMORY);
-        uploadField2.setFieldType(FieldType.BYTE_ARRAY);
-
-		h1.setSpacing(true);
-		h1.setCaption("Class1");
-		h1.addComponent(cb1);
-		h1.addComponent(tf1);
-		h1.addComponent(uploadField1);
-		h2.setSpacing(true);
-		h2.setCaption("Class2");
-		h2.addComponent(cb2);
-		h2.addComponent(tf2);
-		h2.addComponent(uploadField2);
-		form.getLayout().addComponent(h1);
-		form.getLayout().addComponent(h2);
+		form.getLayout().addComponent(classSelector.getArrayContextCB());
+		form.getLayout().addComponent(classSelector.getH1());
+		form.getLayout().addComponent(classSelector.getH2());
 		
 		//TODO: allow network to be loaded from adjacency matrix data node
 		upload = new Upload("Upload Network File", this);
@@ -264,19 +172,21 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					for (String item : order)
 						form.getField(item).setEnabled(false);
 					upload.setEnabled(false);
-					h1.setEnabled(false);
-					h2.setEnabled(false);
+					classSelector.getArrayContextCB().setEnabled(false);
+					classSelector.getH1().setEnabled(false);
+				    classSelector.getH2().setEnabled(false);
 					form.getField("retrievePriorResultWithId").setEnabled(true);
 					if (form.isValid()) submitButton.setEnabled(true);
 				}else {
 					for (String item : order)
 						form.getField(item).setEnabled(true);
 					upload.setEnabled(true);
-					h1.setEnabled(true);
-					h2.setEnabled(true);
+					classSelector.getArrayContextCB().setEnabled(true);
+					classSelector.getH1().setEnabled(true);
+					classSelector.getH2().setEnabled(true);
 					form.getField("retrievePriorResultWithId").setEnabled(false);
 					if (form.getField("network").getValue().equals("")) form.getField("network").setEnabled(false);
-					if (tf1.isEnabled() && form.getField("network").isEnabled())
+					if (classSelector.getTf1().isEnabled() && form.getField("network").isEnabled())
 						submitButton.setEnabled(true);
 					else submitButton.setEnabled(false);
 				}
@@ -289,7 +199,21 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			private static final long serialVersionUID = 1085633263164082701L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
+			public void buttonClick(ClickEvent event) {			 
+			    String warnMsg = validInputClassData(classSelector.getClass1ArraySet(), classSelector.getClass2ArraySet());
+				if( warnMsg != null ) 
+				{ 
+					MessageBox mb = new MessageBox(getWindow(), 
+				 
+						"Warning", 
+						MessageBox.Icon.INFO, 
+						warnMsg,
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				    mb.show();
+				    return;
+				}
+					
+					
 				ResultSet resultSet = storePendingResultSet();
 				
 				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
@@ -313,90 +237,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			f.setCaption(caption.replace(abbrev, abbrev.toUpperCase()));
 	}
 	
-	private String parseCSV(String filename, byte[] bytes){
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-		if (filename.toLowerCase().endsWith(".csv")) {
-			filename = filename.substring(0, filename.length() - 4);
-		}
-		// Ensure loaded set has unique name
-		Set<String> nameSet = new HashSet<String>();
-		nameSet.addAll(arraymap.keySet());
-
-		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-		try {
-			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
-			String[][] data = parser.getAllValues();
-			for (int i = 0; i < data.length; i++) {
-				String[] line = data[i];
-				if (line.length > 0) {
-					String setname = (line.length > 1 && line[1].trim().length() > 0)?
-									  line[1].trim() : filename;
-					List<String> selectedNames = map.get(setname);
-					if (selectedNames == null){
-						selectedNames = new ArrayList<String>();
-						map.put(setname, selectedNames);
-					}
-					selectedNames.add(line[0]);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// Lost cause
-				}
-			}
-		}
-
-		int missing = 0;
-		String aNewSet = null;
-		for (String setname : map.keySet()){
-			List<String> selectedNames = map.get(setname);
-			setname = Util.getUniqueName(setname, nameSet);
-			nameSet.add(setname);
-            int setsize=0;
-            StringBuilder builder = new StringBuilder();
-			for(DSMicroarray array: dataSet) {
-				if(selectedNames.contains(array.getLabel())) {
-					builder.append(array.getLabel()+",");
-					setsize++;
-				}
-			}
-			if(setsize != selectedNames.size())
-				missing += selectedNames.size() - setsize;
-		
-			if (setsize > 0) {
-				String positions = builder.toString();
-				arraymap.put(setname, positions.substring(0, positions.length()-1));
-				cb1.addItem(setname);
-				cb2.addItem(setname);
-				aNewSet = setname;
-			}
-		}
-		if(missing > 0) {
-			if (missing == 1){
-				MessageBox mb = new MessageBox(
-						getWindow(),
-						"Array Not Found",
-						MessageBox.Icon.WARN,
-						missing + " array listed in the CSV file is not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-			}else{
-				MessageBox mb = new MessageBox(
-						getWindow(),
-						"Array Not Found",
-						MessageBox.Icon.WARN,
-						missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-			}
-		}
-		return aNewSet;
-	}
+	 
 	
 	private ResultSet storePendingResultSet() {
 
@@ -452,7 +293,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private void networkLoaded(byte[] networkBytes){
 		bean.setNetworkBytes(networkBytes);
 		form.getField("network").setEnabled(true);
-		if (tf1.isEnabled())
+		if (classSelector.getTf1().isEnabled())
 			submitButton.setEnabled(true);
 	}
 
@@ -853,6 +694,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		}
 	}
 	
+	 
+	
 	// FIXME most of the null checkings should be designed out of the process
 	// meaning if they are allowed to be null, it should be very clear when we expect them to be null
 	@Override
@@ -868,28 +711,55 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		if(dataSet==null) return;
 
 		((CSMicroarraySet)dataSet).getMarkers().correctMaps();
-
-		List<?> arraysets = SubSetOperations.getArraySetsForCurrentContext(dataId);
-		arraymap.clear();
-		cb1.removeAllItems();
-		cb2.removeAllItems();
-		for (Object arrayset : arraysets){
-			SubSet set = (SubSet)arrayset;
-			ArrayList<String> pos = set.getPositions();
-			if (pos == null || pos.isEmpty()) continue;
-			StringBuilder builder = new StringBuilder();
-			
-			for(int i=0; i<pos.size(); i++) {
-				builder.append(pos.get(i)+",");
-			}
-			
-			String positions = builder.toString();
-			arraymap.put(set.getName(), positions.substring(0, positions.length()-1));
-			cb1.addItem(set.getName());
-			cb2.addItem(set.getName());
-		}
+       
+		classSelector.setData(dataSetId, SessionHandler.get().getId());
+	 
 		arraymap.put(null, "");
 	}
+	
+	private String validInputClassData(String[] selectedClass1Sets, String[] selectedclass2Sets)
+	{    
+	  
+		List<String> microarrayPosList = new ArrayList<String>();
+		List<String> caseSetList = new ArrayList<String>();
+		/* for each group */
+		if (selectedClass1Sets != null)
+		{
+			for (int i = 0; i < selectedClass1Sets.length; i++) {			
+			    caseSetList.add(selectedClass1Sets[i].trim());
+			    ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedClass1Sets[i].trim()));	 
+			 
+			    for (int j = 0; j < arrays.size(); j++) {
+				   if (microarrayPosList.contains(arrays.get(j)))  				
+					 return "Same array (" + arrays.get(j) + ") exists in class1 array groups.";				 
+				   microarrayPosList.add(arrays.get(j));				 
+			    }
+		    }
+		}
+		microarrayPosList.clear();
+		if (selectedclass2Sets != null)
+		{ 
+			for (int i = 0; i < selectedclass2Sets.length; i++) {		 
+			   if (caseSetList.contains(selectedclass2Sets[i].trim()))
+			   {   SubSet subset = (SubSet)SubSetOperations.getArraySet(Long
+							.parseLong(selectedclass2Sets[i].trim())).get(0);
+				    return "Class1 and class2 groups have same array set " + subset.getName() + ".";
+			   }
+				 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+						.parseLong(selectedclass2Sets[i].trim()));	 			 
+			   for (int j = 0; j < arrays.size(); j++) {
+				  if (microarrayPosList.contains(arrays.get(j)))  				
+					 return "Same array (" + arrays.get(j) + ") exists in class2 array groups.";				 
+				   microarrayPosList.add(arrays.get(j));				 
+			   }
+		    }
+		}
+		
+		return null;
+		
+	}	
+	
 
 	@Override
 	public Class<?> getResultType() {
