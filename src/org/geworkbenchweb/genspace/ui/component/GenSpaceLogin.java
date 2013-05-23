@@ -96,6 +96,11 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		mainLayout.removeAllComponents();
 		mainLayout.addComponent(p);
 		mainLayout.setExpandRatio(p, 1.0f);
+		
+		MahoutRecommendationPanel mPanel = new MahoutRecommendationPanel(this);
+		mainLayout.addComponent(mPanel);
+		mPanel.displayRecommedations();
+		
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(this.push);
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));

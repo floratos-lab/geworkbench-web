@@ -99,16 +99,7 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 			objectHandler.handleLogging(event);
 
 			GenSpaceWindow.getGenSpaceBlackboard().fire(new LogCompleteEvent());
-		}
-		/*else if(event != null && event.getClass().equals(AnalysisCompleteEvent.class))
-		{
-			ObjectHandler.eventCompleted(((AnalysisCompleteEvent) event).getInvokeEvent());
-		}
-		else if(event != null && event.getClass().equals(AnalysisAbortEvent.class))
-		{
-			ObjectHandler.eventAborted(((AnalysisAbortEvent) event).getInvokeEvent());
-		}*/
-		
+		}		
 	}
 
 }

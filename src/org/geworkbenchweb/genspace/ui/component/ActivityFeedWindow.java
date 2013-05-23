@@ -187,10 +187,10 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	@Override
 	public void completeLog(LogCompleteEvent evt) {
-		System.out.println("Get fired event in AF Window");
 		this.updateQueryString();
 		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 		this.makeAFLayout();
+		login.getPusher().push();
 	}
 	
 	@Override
