@@ -53,4 +53,17 @@ class ClusterNode {
 		if(left!=null) left.select(s);
 		if(right!=null) right.select(s);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("(");
+		if(left!=null) {
+			sb.append(left.toString());
+		}
+		if(right!=null) {
+			sb.append(right.toString());
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 }

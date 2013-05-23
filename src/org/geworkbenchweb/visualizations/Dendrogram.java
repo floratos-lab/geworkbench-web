@@ -77,8 +77,16 @@ public class Dendrogram extends AbstractComponent {
 		// These attributes can be read in updateFromUIDL in the widget.
 		target.addAttribute("arrayNumber", arrayNumber);
 		target.addAttribute("markerNumber", markerNumber);
-		target.addAttribute("arrayCluster", arrayCluster);
-		target.addAttribute("markerCluster", markerCluster); 
+		if(selectedArrayClusters==null) {
+			target.addAttribute("arrayCluster", arrayCluster);
+		} else {
+			target.addAttribute("arrayCluster", selectedArrayClusters);
+		}
+		if(selectedMarkerClusters==null) {
+			target.addAttribute("markerCluster", markerCluster);
+		} else {
+			target.addAttribute("markerCluster", selectedMarkerClusters);
+		}
 		target.addAttribute("colors", colorSubset);
 		target.addAttribute("arrayLabels", arrayLabels);
 		target.addAttribute("markerLabels", markerLabels);
@@ -87,6 +95,10 @@ public class Dendrogram extends AbstractComponent {
 		target.addAttribute("cellHeight", cellHeight);
 		
 		target.addVariable(this, "firstMarker", firstMarker);
+		target.addVariable(this, "arrayIndex1", arrayIndex1);
+		target.addVariable(this, "arrayIndex2", arrayIndex2);
+		target.addVariable(this, "markerIndex1", markerIndex1);
+		target.addVariable(this, "markerIndex2", markerIndex2);
 	}
 
 	private int firstMarker = 0;
@@ -94,6 +106,9 @@ public class Dendrogram extends AbstractComponent {
 
 	private int arrayIndex1, arrayIndex2;
 	private int markerIndex1, markerIndex2;
+	
+	private String selectedArrayClusters = null;
+	private String selectedMarkerClusters = null;
 	
 	/**
 	 * Receive and handle events and other variable changes from the client.
@@ -105,9 +120,11 @@ public class Dendrogram extends AbstractComponent {
 		super.changeVariables(source, variables);
 
 		if(variables.containsKey("arrayIndex2")) {
+			selectedArrayClusters = (String) variables.get("selectedArrayClusters");
 			arrayIndex1 = (Integer) variables.get("arrayIndex1");
 			arrayIndex2 = (Integer) variables.get("arrayIndex2");
 		} else if (variables.containsKey("markerIndex2")) {
+			selectedMarkerClusters = (String) variables.get("selectedMarkerClusters");
 			markerIndex1 = (Integer) variables.get("markerIndex1");
 			markerIndex2 = (Integer) variables.get("markerIndex2");
 		} else if (variables.containsKey("firstMarker")) {
@@ -139,7 +156,14 @@ public class Dendrogram extends AbstractComponent {
 		cellWidth = 10;
 		cellHeight = 5;
 		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
-		// TODO reset the selection as well
+		
+		selectedArrayClusters = null;
+		selectedMarkerClusters = null;
+		arrayIndex1 = 0;
+		arrayIndex2 = arrayNumber - 1;
+		markerIndex1 = 0;
+		markerIndex2 = markerNumber - 1;
+		
 		requestRepaint();
 	}
 

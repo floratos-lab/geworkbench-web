@@ -92,6 +92,7 @@ public final class VDendrogram extends Composite implements Paintable {
 
 		@Override
 		void updateServerSideSelection() {
+			client.updateVariable(paintableId, "selectedArrayClusters", microarrayDendrogramSelected.toString(), false);
 			client.updateVariable(paintableId, "arrayIndex1", xIndex1, false);
 			client.updateVariable(paintableId, "arrayIndex2", xIndex2, true);
 		}
@@ -114,6 +115,7 @@ public final class VDendrogram extends Composite implements Paintable {
 
 		@Override
 		void updateServerSideSelection() {
+			client.updateVariable(paintableId, "selectedMarkerClusters", markerDendrogramSelected.toString(), false);
 			client.updateVariable(paintableId, "markerIndex1", yIndex1, false);
 			client.updateVariable(paintableId, "markerIndex2", yIndex2, true);
 		}
@@ -171,15 +173,20 @@ public final class VDendrogram extends Composite implements Paintable {
 		
 		firstMarker = uidl.getIntVariable("firstMarker");
 
+		xIndex1 = uidl.getIntVariable("arrayIndex1");
+		xIndex2 = uidl.getIntVariable("arrayIndex2");
+		yIndex1 = uidl.getIntVariable("markerIndex1");
+		yIndex2 = uidl.getIntVariable("markerIndex2");
+		
 		ClusterParser parser = new ClusterParser();
-		microarrayDendrogramRoot = parser.parse(arrayCluster, cellWidth);
+		microarrayDendrogramRoot = parser.parse(arrayCluster, cellWidth, xIndex1);
 		microarrayClusterHandler.setDendrogramRoot(microarrayDendrogramRoot);
 		if(arrayCluster.length()==0) { // no cluster
 			xIndex1 = 0;
 			xIndex2 = arrayNumber-1;
 		}
 
-		markerDendrogramRoot = parser.parse(markerCluster, cellHeight);
+		markerDendrogramRoot = parser.parse(markerCluster, cellHeight, yIndex1);
 		markerClusterHandler.setDendrogramRoot(markerDendrogramRoot);
 		if(markerCluster.length()==0) { // no cluster
 			yIndex1 = 0;

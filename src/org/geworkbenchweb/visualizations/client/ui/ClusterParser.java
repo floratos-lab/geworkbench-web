@@ -10,16 +10,15 @@ package org.geworkbenchweb.visualizations.client.ui;
  *
  */
 public class ClusterParser {
-	private int index = 0; // keep track of the position parsed
+	private transient int index = 0; // keep track of the position parsed
 
 	final static private int deltaH = 5; // the increment of the dendrogram height
 
-	ClusterNode parse(String clusterString, int deltaX) {
+	ClusterNode parse(String clusterString, int deltaX, int startingIndex) {
+		index = startingIndex;
 		int begin = 0;
 		int end = clusterString.length() - 1;
 		ClusterNode root = prepareClusterNodeTree(begin, end, clusterString.toCharArray(), deltaX);
-	
-		index = 0; // reset the pointer once the job is done
 		
 		return root;
 	}
