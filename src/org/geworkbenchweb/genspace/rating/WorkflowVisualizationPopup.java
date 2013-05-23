@@ -1,5 +1,6 @@
 package org.geworkbenchweb.genspace.rating;
 
+import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeFactory;
@@ -8,7 +9,12 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.util.BrowserLauncher;
+import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.SocialNetworkHome;
+import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
+import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -20,7 +26,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class WorkflowVisualizationPopup extends Window {
+public class WorkflowVisualizationPopup extends Window implements Button.ClickListener{
 
 	/*private JMenuItem addWorkflowRepository = new JMenuItem(
 			"Add workflow to your repository");*/
@@ -29,60 +35,171 @@ public class WorkflowVisualizationPopup extends Window {
 	// so we can speed up the process
 	private VerticalLayout vLayout;
 	
-	private HorizontalLayout wLayout;
-	
 	private Panel workflowPanel;
+	
+	private Panel wFlowToolPanel;
+
+	private Panel expertPanel;
+	
+	private Panel viewPanel;
+	
+	private StarRatingPanel wfRatePanel;
+	
+	private StarRatingPanel toolRatePanel;
 	
 	private Label addWkflowLabel = new Label("Add workflow to your repository");
 	
+	private Label gotoPageLabel = new Label();
+	
+	private Label expertLabel = new Label();
+	
+	private Label viewComment = new Label("View/add workflow comments");
+	
 	private Button addWkButton;
 	
-	private Tool tool;
+	private Button gotoPage;
+	
+	private Button contact;
+	
+	private Button view;
 	
 	private Workflow workflow;
+	
+	private Tool selectedTool;
 	
 	private User expert;
 	
 	private GenSpaceLogin login;
-
-	public WorkflowVisualizationPopup(GenSpaceLogin login, Workflow workflow) {
+	
+	private String gotoCaption;
+	
+	private String contactCaption;
+	
+	public WorkflowVisualizationPopup(GenSpaceLogin login, Workflow workflow, Tool selectedTool) {
 		this.login = login;
 		this.workflow = workflow;
+		this.selectedTool = selectedTool;
+		this.expert = this.login.getGenSpaceServerFactory().getUsageOps().getExpertUserFor(selectedTool.getId());
+		
 		this.vLayout = new VerticalLayout();
 		this.addComponent(vLayout);
 		this.createWorkflowPanel();
 	}
 	
-	private void createWorkflowPanel() {
+	private void createWorkflowPanel() {		
 		this.workflowPanel = new Panel();
-		this.vLayout.addComponent(workflowPanel);
 		
-		this.wLayout = new HorizontalLayout();
+		HorizontalLayout wLayout = new HorizontalLayout();
 		this.workflowPanel.addComponent(wLayout);
-		this.wLayout.addComponent(this.addWkflowLabel);
+		wLayout.addComponent(this.addWkflowLabel);
 		
 		Label emptyLabel = new Label();
 		emptyLabel.setWidth("20px");
 		
-		this.wLayout.addComponent(emptyLabel);
+		wLayout.addComponent(emptyLabel);
 		
 		this.addWkButton = new Button("Add");
-		this.addWkButton.addListener(new ClickListener(){
-			@Override
-			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				
-				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
-					getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
-					return ;
-				}
-				
-				addWorkFlowToRepository();
-				
-			}
-		});
-		this.wLayout.addComponent(addWkButton);
+		this.addWkButton.addListener(this);
+		wLayout.addComponent(addWkButton);
+		
+		wLayout = new HorizontalLayout();
+		this.wFlowToolPanel = new Panel();
+		this.wFlowToolPanel.addComponent(wLayout);
+		this.gotoCaption = "Goto GenSpace page of " + this.selectedTool.getName();
+		this.gotoPageLabel.setCaption(gotoCaption);
+		wLayout.addComponent(this.gotoPageLabel);
+		
+		emptyLabel = new Label();
+		emptyLabel.setWidth("20px");
+		
+		wLayout.addComponent(emptyLabel);
+		
+		this.gotoPage = new Button("Go");
+		this.gotoPage.addListener(this);
+		wLayout.addComponent(gotoPage);
+		
+		wLayout = new HorizontalLayout();
+		this.expertPanel = new Panel();
+		this.expertPanel.addComponent(wLayout);
+		this.contactCaption = "Contact expert user: " + (new UserWrapper(this.expert, this.login)).getFullName();
+		this.expertLabel.setCaption(contactCaption);
+		wLayout.addComponent(this.expertLabel);
+		
+		emptyLabel = new Label();
+		emptyLabel.setWidth("20px");
+		wLayout.addComponent(emptyLabel);
+		
+		this.contact = new Button("Contact");
+		this.contact.addListener(this);
+		wLayout.addComponent(contact);
+		
+		wLayout = new HorizontalLayout();
+		this.viewPanel = new Panel();
+		this.viewPanel.addComponent(wLayout);
+		wLayout.addComponent(this.viewComment);
+		
+		emptyLabel = new Label();
+		emptyLabel.setWidth("20px");
+		wLayout.addComponent(emptyLabel);
+		
+		this.view = new Button("View");
+		this.view.addListener(this);
+		wLayout.addComponent(this.view);
+		
+		this.toolRatePanel = new StarRatingPanel(this.login);
+		this.toolRatePanel.setTitle("Rate " + this.selectedTool.getName());
+		this.toolRatePanel.loadRating(this.selectedTool);
+		
+		this.wfRatePanel = new StarRatingPanel(this.login);
+		this.wfRatePanel.setTitle("Rate workflow until here");
+		this.wfRatePanel.loadRating(workflow);
+	
+		this.vLayout.addComponent(wFlowToolPanel);
+		this.vLayout.addComponent(expertPanel);
+		this.vLayout.addComponent(workflowPanel);
+		this.vLayout.addComponent(viewPanel);
+		this.vLayout.addComponent(toolRatePanel);
+		this.vLayout.addComponent(wfRatePanel);
 	}
+	
+	public void buttonClick(Button.ClickEvent evt) {
+		String buttonCaption = evt.getButton().getCaption();
+		String args = "";
+		boolean browser = true;
+		
+		if (buttonCaption.equals("Add")) {
+			if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+				return ;
+			}
+			
+			browser = false;
+			addWorkFlowToRepository();
+		} else if (buttonCaption.equals("Go") && selectedTool.getId() > 0) {
+			args = "tool/index/" + selectedTool.getId();
+			System.out.println("Test args: " + args);
+		} else if (buttonCaption.equals("View") && workflow.getId() > 0) {
+			args = "workflow/index/" + workflow.getId();
+		} else if (buttonCaption.equals("Contact")) {
+			if (login.getGenSpaceServerFactory().isLoggedIn()) {
+				UserSearchWindow usw = new UserSearchWindow(expert, login, login.getGenSpaceParent().getSocialNetworkHome());
+				getApplication().getMainWindow().addWindow(usw);
+				browser = false;
+			} else {
+				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+				return ;
+			}
+		}
+		
+		if (browser) {
+			try {
+				BrowserLauncher.openURL(RuntimeEnvironmentSettings.GS_WEB_ROOT + args);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	} 
 	
 	private void addWorkFlowToRepository() {
 		final Window nameWindow = new Window();
@@ -136,55 +253,10 @@ public class WorkflowVisualizationPopup extends Window {
 
 				getApplication().getMainWindow().removeWindow(nameWindow);
 				getApplication().getMainWindow().removeWindow(WorkflowVisualizationPopup.this);
-				System.out.println("Attempt to close window");
-				
 			}
 		});
 		buttonLayout.addComponent(confirm);
 		nLayout.addComponent(buttonLayout);
 		
 	}
-
-	/*private void addWorkFlowToRepository() {
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-			@Override
-			public Void doInBackground() {
-				if (GenSpaceServerFactory.isLoggedIn()) {
-					String name = JOptionPane.showInputDialog("Type a name for the workflow to be added:",
-							"");
-					if (name != null && name.trim().length() > 0) {
-						UserWorkflow uw = new UserWorkflow();
-						uw.setName(name);
-						uw.setWorkflow(workflow);
-						uw.setFolder(GenSpaceServerFactory.getUserOps().getRootFolder());
-						uw.setOwner(GenSpaceServerFactory.getUser());
-						
-						try {
-							uw.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
-							GenSpaceServerFactory.getWorkflowOps().addWorkflow(uw, uw.getFolder().getId());
-						} catch (Exception e) {
-							GenSpaceServerFactory.handleExecutionException(e);
-							return null;
-						}
-						GenSpace.getInstance().getWorkflowRepository().updateFormFieldsBG();
-							JOptionPane
-							.showMessageDialog(null,
-									"Workflow added succesfully to repository");
-						
-					} else {
-						JOptionPane
-								.showMessageDialog(null,
-										"Operation cancelled: A valid name has to be specified");
-					}
-				} else {
-					JOptionPane
-							.showMessageDialog(null,
-									"You need to be logged in to manage the repository.");
-				}
-				return null;
-			}
-		};
-		worker.execute();
-	}*/
-
 }

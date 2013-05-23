@@ -6,15 +6,21 @@ import java.util.Stack;
 
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTab{
 	
@@ -231,7 +237,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent e) {
-				System.out.println("In the chat button");
+				//System.out.println("In the chat button");
 				searchRosterFrame();
 				searchAFWindow();
 			}

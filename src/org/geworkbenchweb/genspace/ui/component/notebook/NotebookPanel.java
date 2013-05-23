@@ -17,6 +17,8 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.NotebookDataListener;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
+import org.geworkbenchweb.genspace.ui.component.FBAuthWindow;
+import org.geworkbenchweb.genspace.ui.component.FBCommentWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -74,6 +76,8 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	private Select dropdown;
 	private Select sortByDropdown = new Select("", sortByOpts);
 	private Button researchStats = new Button("Research Comparison");
+	private Button fbAuth = new Button("Login Facebook");
+	private Label fbUser = new Label();
 
 	public String searchTerm = null;
 	public String sortByMethod = null;
@@ -81,7 +85,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	
 	private ThemeResource secret = new ThemeResource("img/secret.png");
 	
-	private static Date convertToDate(XMLGregorianCalendar cal) {
+	public static Date convertToDate(XMLGregorianCalendar cal) {
 		return DatatypeConverter.parseDateTime(cal.toXMLFormat()).getTime();
 	}
 
@@ -92,8 +96,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		searchBox.setInputPrompt("Enter your search query here " +
 				"or use the dropdown below");
 		searchBox.setWidth("350px");
+		
+		fbUser.setContentMode(Label.CONTENT_XHTML);
 
-		GridLayout searchPanel = new GridLayout(3, 1);
+		GridLayout searchPanel = new GridLayout(5, 1);
 		searchPanel.setSpacing(true);
 		searchPanel.addComponent(searchBox, 0, 0);
 		searchPanel.setComponentAlignment(searchBox, Alignment.BOTTOM_LEFT);
@@ -101,6 +107,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		searchPanel.setComponentAlignment(searchButton, Alignment.BOTTOM_RIGHT);
 		searchPanel.addComponent(researchStats, 2, 0);
 		searchPanel.setComponentAlignment(researchStats, Alignment.BOTTOM_RIGHT);
+		searchPanel.addComponent(fbAuth, 3, 0);
+		searchPanel.setComponentAlignment(fbAuth, Alignment.BOTTOM_RIGHT);
+		searchPanel.addComponent(fbUser, 4, 0);
+		searchPanel.setComponentAlignment(fbUser, Alignment.BOTTOM_RIGHT);
 		
 		searchButton.addListener(new Button.ClickListener() {
 
@@ -210,6 +220,13 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			}
 			
 			
+		});
+		
+		fbAuth.addListener(new Button.ClickListener() {
+			public void buttonClick(Button.ClickEvent evt) {
+				FBAuthWindow authWindow= new FBAuthWindow(login, fbUser);
+				getApplication().getMainWindow().addWindow(authWindow);
+			}
 		});
 
 		List<Tool> toolStrings = login.getGenSpaceServerFactory().getUsageOps()
@@ -376,6 +393,16 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				}
 			});
 			
+			Button fb = new Button("Facebook");
+			fb.addListener(new Button.ClickListener() {
+				private static final long serialVersionUID = 1L;
+				
+				public void buttonClick(ClickEvent evt) {
+					FBCommentWindow commentWindow = new FBCommentWindow(login, e, fbUser);
+					getApplication().getMainWindow().addWindow(commentWindow);
+				}
+			});
+			
 			Button privNote = new Button("View Private Notes");
 			privNote.addListener(new Button.ClickListener() {
 				private static final long serialVersionUID = 1L;
@@ -447,6 +474,8 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			buttonPanel.setComponentAlignment(cancel, Alignment.MIDDLE_CENTER);
 			buttonPanel.addComponent(save);
 			buttonPanel.setComponentAlignment(save, Alignment.MIDDLE_CENTER);
+			buttonPanel.addComponent(fb);
+			buttonPanel.setComponentAlignment(fb, Alignment.MIDDLE_CENTER);
 			panel.addComponent(buttonPanel);
 			
 			table.addItem(new Object[] { panel }, i);
@@ -471,8 +500,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	public void updateFormFields() {
 		List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory()
 				.getPrivUsageFacade().getMyNotes("", "");
-		
-;
 	}
 
 	@Override

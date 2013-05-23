@@ -71,8 +71,13 @@ public class WorkflowVisualizationPanel extends Panel {
 			flowLayout.setData(w.getId());
 //			System.out.println("DEBUG workflowid: " + w.getId());
 			
+			Tool tmpTool;
 			while(wIT.hasNext()) {
-				flowLabel = new Label(wIT.next().getTool().getName());
+				tmpTool = wIT.next().getTool();
+				
+				flowLabel = new Label(tmpTool.getName());
+				flowLabel.setData(tmpTool);
+				
 				flowLayout.addComponent(flowLabel);
 				if (wIT.hasNext()) {
 					flowLayout.addComponent(new Embedded(null, this.resource));
@@ -82,10 +87,17 @@ public class WorkflowVisualizationPanel extends Panel {
 			flowLayout.addListener(new LayoutEvents.LayoutClickListener() {
 				public void layoutClick(LayoutEvents.LayoutClickEvent evt) {
 //					System.out.println("DEBUG layoutclickevt: " + ((HorizontalLayout)evt.getComponent()).getData());
+					
+					if (evt.getClickedComponent().getClass().getName() != "com.vaadin.ui.Label") {
+						return ;
+					}
+					
+					Label clickedLabel = (Label)(evt.getClickedComponent());
+					Tool clickedTool = (Tool)clickedLabel.getData();
 					int wkflwID = (Integer)(((HorizontalLayout)evt.getComponent()).getData());
-					popup = new WorkflowVisualizationPopup(login, wkflwCache.get(wkflwID).getDelegate());
-					popup.setWidth("350px");
-					popup.setHeight("100px");
+					popup = new WorkflowVisualizationPopup(login, wkflwCache.get(wkflwID).getDelegate(), clickedTool);
+					popup.setWidth("400px");
+					popup.setHeight("350px");
 					popup.setCaption("Workflow Actions");
 					
 					getApplication().getMainWindow().addWindow(popup);

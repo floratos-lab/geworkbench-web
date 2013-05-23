@@ -8,6 +8,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
+import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
@@ -69,6 +70,7 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 	private BorderLayout borderLayout;
 	public WorkflowWrapper currentWorkflow;
 	private ICEPush push;
+	private FBManager fbManager;
 
 	public ChatReceiver getChatHandler() {
 		if (this.chatHandler != null)
@@ -373,6 +375,14 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 	
 	public GenSpaceComponent getGenSpaceParent() {
 		return this.genSpaceParent;
+	}
+	
+	public void setFBManager(FBManager fbManager) {
+		this.fbManager = fbManager;
+	}
+	
+	public FBManager getFBManager() {
+		return this.fbManager;
 	}
 
 }

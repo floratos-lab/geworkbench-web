@@ -257,5 +257,9 @@ public class GenSpaceComponent extends CustomComponent {
 	public WorkflowRepository getWorkflowRepository() {
 		return this.workflowRepository;
 	}
+	
+	public SocialNetworkHome getSocialNetworkHome() {
+		return this.socialNetworkHome;
+	}
 
 }

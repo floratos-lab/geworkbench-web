@@ -41,8 +41,8 @@ public class UserSearchWindow extends Window {
 
 	public UserSearchWindow(User friend, GenSpaceLogin login, SocialNetworkHome sHome) {
 		this.login = login;
-		this.sHome = sHome;
 		this.friend = friend;
+		this.sHome = sHome;
 		
 		setModal(true);
 		setWidth("20%");
