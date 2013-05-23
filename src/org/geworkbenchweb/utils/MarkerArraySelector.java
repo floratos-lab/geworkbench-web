@@ -190,11 +190,10 @@ public class MarkerArraySelector extends GridLayout{
 	public  String[] getSelectedMarkerSet() {
 		String[] selectList = null;
 		String selectStr = markerSetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
-			
-		}
+		if (!selectStr.equals("[]") || !selectStr.contains("All Markers"))
+		    return null;
+		else
+			selectList = selectStr.substring(1, selectStr.length()-1).split(","); 
 			
 		return selectList;
 	}
@@ -202,11 +201,11 @@ public class MarkerArraySelector extends GridLayout{
 	public  String[] getSelectedArraySet() {		 
 		String[] selectList = null;
 		String selectStr = arraySetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
-		{
-			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
-			
-		}
+		if (selectStr.equals("[]") || selectStr.contains("All Arrays"))
+		   return null;
+		else		 
+		   selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
+		 
 			
 		return selectList;
 	}
@@ -214,7 +213,9 @@ public class MarkerArraySelector extends GridLayout{
 	public  String[] getSelectedArraySetNames() {		 
 		String[] selectList = null;
 		String selectStr = arraySetSelect.getValue().toString();
-		if (!selectStr.equals("[]"))
+		if (selectStr.equals("[]") || selectStr.contains("All Arrays"))
+		   return null;
+		else
 		{
 			selectList = selectStr.substring(1, selectStr.length()-1).split(",");			 
 		    for(int i=0; i<selectList.length; i++ )
