@@ -88,17 +88,18 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	private static Log log = LogFactory.getLog(CNKBResultsUI.class);
 
 	private VerticalSplitPanel tabPanel;
+	private VerticalSplitPanel throttlePanel;
 
 	private ArrayList<Double> totalInteractionConfidence = new ArrayList<Double>();
 
 	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
-	private static InvientCharts plot;
+	protected InvientCharts plot;
 
-	private static CNKBResultsUI menuBarInstance;
+	private CNKBResultsUI menuBarInstance;
 
-	private static Table dataTable;
-	private static Map<String, String> confidentTypeMap = null;
+	protected Table dataTable;
+	private Map<String, String> confidentTypeMap = null;
 
 	final private Long datasetId;
 
@@ -108,9 +109,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
-		final Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-		final Short confidentType  = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
-		
+	 
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
 		
@@ -126,7 +125,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
-		tabPanel.setSplitPosition(400, Sizeable.UNITS_PIXELS);
+		tabPanel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
 		tabPanel.setStyleName("small");
 		tabPanel.setLocked(false);
 
@@ -136,70 +135,19 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		dataTable.setColumnReorderingAllowed(true);
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);
-
-		IndexedContainer dataIn = new IndexedContainer();
-
-		List<String> selectedTypes = getInteractionTypes(resultSet);
-
-		for (int j = 0; j < hits.size(); j++) {
-			Item item = dataIn.addItem(j);
-			ArrayList<InteractionDetail> interactionDetail = hits.get(j)
-					.getSelectedInteractions(selectedTypes, confidentType);
-			if (interactionDetail != null) {
-				for (InteractionDetail interaction : interactionDetail) {
-					totalInteractionConfidence.add(interaction
-							.getConfidenceValue(interaction
-									.getConfidenceTypes().get(0)));
-					String interactionType = interaction.getInteractionType();
-					if (ConfidentDataMap.get(interactionType) == null) {
-						List<Double> confidenceList = new ArrayList<Double>();
-						ConfidentDataMap.put(interactionType, confidenceList);
-					}
-					ConfidentDataMap.get(interactionType).add(
-							interaction.getConfidenceValue(interaction
-									.getConfidenceTypes().get(0)));
-				}
-			}
-
-			dataIn.addContainerProperty("Marker", String.class, null);
-			dataIn.addContainerProperty("Gene", String.class, null);
-			dataIn.addContainerProperty("Gene Type", String.class, null);
-			dataIn.addContainerProperty("Annotation", String.class, null);
-			for (String selectedType : selectedTypes)
-				dataIn.addContainerProperty(selectedType + " #", Integer.class,
-						null);
-
-			item.getItemProperty("Marker").setValue(
-					hits.get(j).getdSGeneMarker().getLabel());
-			if (hits.get(j).getdSGeneMarker().getShortName() == hits.get(j)
-					.getdSGeneMarker().getGeneName()) {
-				item.getItemProperty("Gene").setValue("--");
-			} else {
-				item.getItemProperty("Gene").setValue(
-						hits.get(j).getdSGeneMarker().getGeneName());
-			}
-
-			item.getItemProperty("Gene Type").setValue(
-					hits.get(j).getGeneType());
-			item.getItemProperty("Annotation").setValue(
-					hits.get(j).getGoInfoStr());
-
-			for (String selectedType : selectedTypes)
-				item.getItemProperty(selectedType + " #").setValue(
-						(hits.get(j).getSelectedInteractions(selectedType, confidentType))
-								.size());
-
-		}
-
-		dataTable.setContainerDataSource(dataIn);
+		
+		dataTable.setContainerDataSource(getIndexedContainer(resultSet));
 		dataTable.setColumnWidth("Marker", 300);
 		dataTable.setColumnWidth("Annotation", 150);
-		dataTable.setStyleName(Reindeer.TABLE_STRONG);
-
-		plot = drawPlot(resultSet);
-		tabPanel.setFirstComponent(plot);
-		tabPanel.setSecondComponent(dataTable);
-
+		dataTable.setStyleName(Reindeer.TABLE_STRONG);		
+	 
+		
+		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		double maxValue = getMaxValue(resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType));
+		
+		plot = drawPlot(resultSet, 0, maxValue);
+	 
+		
 		MenuBar menuBar = new MenuBar();
 		menuBar.setStyleName("transparent");
 		menuBar.addItem("Create Network", new CreateNetworkCommand(parentId,
@@ -214,7 +162,22 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			}
 			
 		}).setStyleName("plugin");
-		addComponent(menuBar);
+		
+		addComponent(menuBar);		
+	
+		ThrottleSlider slider = new ThrottleSlider(resultSet, 0, maxValue, this);	
+		slider.setStyleName("small");
+		throttlePanel = new VerticalSplitPanel();
+		throttlePanel.setSizeFull();	 
+		throttlePanel.setSplitPosition(200, Sizeable.UNITS_PIXELS);
+		throttlePanel.setStyleName("small");
+		throttlePanel.setLocked(false);
+		throttlePanel.setFirstComponent(plot);
+		throttlePanel.setSecondComponent(slider);
+		slider.setMargin(true);
+		
+		tabPanel.setFirstComponent(throttlePanel);
+		tabPanel.setSecondComponent(dataTable);
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1);
 
@@ -224,12 +187,11 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	 * This method draws the Throttle Graph using Invient Charts Add-on.
 	 * 
 	 */
-	private InvientCharts drawPlot(CNKBResultSet resultSet) {
+	protected InvientCharts drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
 
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setMargin(new Margin());
-		chartConfig.getGeneralChartConfig().getMargin().setRight(30);
-
+		chartConfig.getGeneralChartConfig().getMargin().setRight(30);	 
 		chartConfig.getTitle().setText(resultSet.getCellularNetworkPreference().getTitle());
 
 		NumberXAxis numberXAxis = new NumberXAxis();
@@ -241,7 +203,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			numberXAxis.setTitle(new AxisTitle(axisTile));
 		else			
 		   numberXAxis.setTitle(new AxisTitle("Likelihood"));
-
+		numberXAxis.setMinPadding(0.05);
 		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
 		xAxesSet.add(numberXAxis);
 		chartConfig.setXAxes(xAxesSet);		
@@ -254,29 +216,23 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		numberYAxis.setTitle(new AxisTitle("# Interactions"));
 		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
 		yAxesSet.add(numberYAxis);
-		chartConfig.setYAxes(yAxesSet);
-
+		chartConfig.setYAxes(yAxesSet);	 
 		chartConfig.getTooltip().setEnabled(true);
 		// Series data label formatter
 		LineConfig lineCfg = new LineConfig();
 		chartConfig.addSeriesConfig(lineCfg);
        
-	    double maxX  = 1.00001d;
-	    double smallestIncrement = 0.01d;
+	  
+	    double smallestIncrement = 0.01d;	   
 		Double maxConfidenceValue = resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType);
-		if (maxConfidenceValue != null && maxConfidenceValue > 1) {
-			int a = (int) Math.log10(maxConfidenceValue);
-			double b = maxConfidenceValue / (Math.pow(10, a));
-			maxX  = Math.ceil(b);
-			maxX = maxX * (Math.pow(10, a));
-			smallestIncrement =  maxX / 100;	
-			log.debug("maxConfidenceValue is " + maxConfidenceValue);
-			log.debug("maxX is " + maxX + ", smallestIncrement is " + smallestIncrement);
+		if (maxConfidenceValue != null && maxConfidenceValue > 1) {	 
+			smallestIncrement =  maxX / 100;			 
 		}
 		else		
 		    numberXAxis.setMax(maxX);
 		
-         
+		numberXAxis.setMin(minX);
+	 
 		/* Tooltip formatter */
 		if (maxConfidenceValue != null && maxConfidenceValue <= 1 )
 		    chartConfig.getTooltip().setFormatterJsFunc(
@@ -291,9 +247,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 								+ " return '<b>' + this.series.name + '</b><br/>' +  "
 								+ "Math.round(((this.x+0.005)*100))/100 + ' to max value - '+ "
 								+ "this.y + ' interactions'" + "}");
-
-		InvientCharts chart = new InvientCharts(chartConfig);
-
+		 
+		InvientCharts chart = new InvientCharts(chartConfig);	
+		chart.setHeight("100%");
 		XYSeries seriesData = new XYSeries("Total Distribution");
 		seriesData.setSeriesPoints(getTotalDistribution(seriesData, smallestIncrement));
 		chart.addSeries(seriesData);
@@ -403,7 +359,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	/**
 	 * Called to export Table to Excel sheet or CSV
 	 */
-	public static void exportInteractionTable(String format) {
+	public  void exportInteractionTable(String format) {
 
 		if (format.equalsIgnoreCase("excel")) {
 
@@ -518,6 +474,71 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		return selectedTypes;
 	} 
 	
+	protected IndexedContainer getIndexedContainer(CNKBResultSet  resultSet)
+	{
+		Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
+		final Short confidentType  = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		IndexedContainer dataIn = new IndexedContainer();
+
+		List<String> selectedTypes = getInteractionTypes(resultSet);
+
+		totalInteractionConfidence.clear();
+		ConfidentDataMap.clear();
+		
+		for (int j = 0; j < hits.size(); j++) {
+			Item item = dataIn.addItem(j);
+			ArrayList<InteractionDetail> interactionDetail = hits.get(j)
+					.getSelectedInteractions(selectedTypes, confidentType);
+			if (interactionDetail != null) {
+				for (InteractionDetail interaction : interactionDetail) {					 
+					totalInteractionConfidence.add(interaction
+							.getConfidenceValue(interaction
+									.getConfidenceTypes().get(0)));
+					String interactionType = interaction.getInteractionType();
+					if (ConfidentDataMap.get(interactionType) == null) {
+						List<Double> confidenceList = new ArrayList<Double>();
+						ConfidentDataMap.put(interactionType, confidenceList);
+					}
+					ConfidentDataMap.get(interactionType).add(
+							interaction.getConfidenceValue(interaction
+									.getConfidenceTypes().get(0)));
+				}
+			}
+
+			dataIn.addContainerProperty("Marker", String.class, null);
+			dataIn.addContainerProperty("Gene", String.class, null);
+			dataIn.addContainerProperty("Gene Type", String.class, null);
+			dataIn.addContainerProperty("Annotation", String.class, null);
+			for (String selectedType : selectedTypes)
+				dataIn.addContainerProperty(selectedType + " #", Integer.class,
+						null);
+
+			item.getItemProperty("Marker").setValue(
+					hits.get(j).getdSGeneMarker().getLabel());
+			if (hits.get(j).getdSGeneMarker().getShortName() == hits.get(j)
+					.getdSGeneMarker().getGeneName()) {
+				item.getItemProperty("Gene").setValue("--");
+			} else {
+				item.getItemProperty("Gene").setValue(
+						hits.get(j).getdSGeneMarker().getGeneName());
+			}
+
+			item.getItemProperty("Gene Type").setValue(
+					hits.get(j).getGeneType());
+			item.getItemProperty("Annotation").setValue(
+					hits.get(j).getGoInfoStr());
+
+			for (String selectedType : selectedTypes)
+				item.getItemProperty(selectedType + " #").setValue(
+						(hits.get(j).getSelectedInteractions(selectedType, confidentType))
+								.size());
+
+		}
+		
+		return dataIn;
+
+	}
+	
 	private void loadConfidentTypeMap()
 	{
 		if (ResultSetlUtil.getUrl() == null || ResultSetlUtil.getUrl().trim().equals(""))
@@ -537,6 +558,26 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		}
 		
 		 
+	}
+	
+	private double getMaxValue(Double maxConfidenceValue)
+	{
+	    double maxX  = 1.00001d;	  	 
+		if (maxConfidenceValue != null && maxConfidenceValue > 1) {
+			int a = (int) Math.log10(maxConfidenceValue);
+			double b = maxConfidenceValue / (Math.pow(10, a));
+			maxX  = Math.ceil(b);
+			maxX = maxX * (Math.pow(10, a));		 
+			log.debug("maxConfidenceValue is " + maxConfidenceValue);			 
+		}
+		 
+		return maxX;
+	}
+	
+	protected void updatePlot(CNKBResultSet resultSet, double minX, double maxX)
+	{
+		throttlePanel.replaceComponent(plot, drawPlot(resultSet, minX, maxX));
+		plot = (InvientCharts)throttlePanel.getFirstComponent();
 	}
 
 	@Override
