@@ -287,21 +287,22 @@ public class UUserAuth extends VerticalLayout {
 				    if(success != true){ 
 				    	getApplication().getMainWindow().showNotification("Couldn't create user. Please contact admin", 
 				    			Notification.TYPE_ERROR_MESSAGE);
+				    } else {
+						MessageBox mb = new MessageBox(getWindow(), "Registered",
+								null, "Welcome, " + user.getName() + "(" + username
+										+ ")!\nYou have successfully registered.",
+								new MessageBox.ButtonConfig(
+										MessageBox.ButtonType.CUSTOM1, "Back to Log-in Page"));
+						mb.show(new MessageBox.EventListener() {
+	
+							private static final long serialVersionUID = -8489356760651132447L;
+	
+							@Override
+							public void buttonClicked(ButtonType buttonType) {
+								getApplication().close();
+							}
+						});
 				    }
-					MessageBox mb = new MessageBox(getWindow(), "Registered",
-							null, "Welcome, " + user.getName() + "(" + username
-									+ ")!\nYou have successfully registered.",
-							new MessageBox.ButtonConfig(
-									MessageBox.ButtonType.CUSTOM1, "Back to Log-in Page"));
-					mb.show(new MessageBox.EventListener() {
-
-						private static final long serialVersionUID = -8489356760651132447L;
-
-						@Override
-						public void buttonClicked(ButtonType buttonType) {
-							getApplication().close();
-						}
-					});
 					
 				} catch (TooShortPasswordException e) {
 					feedbackLabel
