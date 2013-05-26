@@ -261,7 +261,7 @@ public class AnovaAnalysis {
 		if (url == null || url.trim().equals(""))
 		{
 			 		
-				url  = GeworkbenchRoot.getAppProperties().getProperty(ANOVA_WEBSERVICE_URL);
+				url  = GeworkbenchRoot.getAppProperty(ANOVA_WEBSERVICE_URL);
 				if (url == null || url.trim().equals(""))
 					url = DEFAULT_WEB_SERVICES_URL;
 				

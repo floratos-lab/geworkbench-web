@@ -394,7 +394,11 @@ public class UploadDataUI extends VerticalLayout {
 				annotChoices.setChildrenAllowed(anno, false);
 			}else if (anno == Anno.PUBLIC){
 				int cnt = 0;
-				for (File f : new File(tempDir).listFiles()){
+				File dir = new File(tempDir);
+				if(!dir.exists() || !dir.isDirectory()) {
+					continue; // TODO document when it happens. It did happen and cause a lot of trouble during release
+				}
+				for (File f : dir.listFiles()){
 					if (f.isFile() && f.getName().endsWith(".csv")){
 						String fname = f.getName();
 						annotChoices.addItem(fname);

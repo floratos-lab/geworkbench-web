@@ -440,10 +440,10 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-			// FIXME how does this work considering the input dataset is null??
-//			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-//					null, resultSet, params, new NetworkCreation());
-//			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+			/* this is a special case of the work flow: NetworkCreation uses the interface method execute but ignore the DataSet argument. */
+			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+					0L, resultSet, params, new NetworkCreation());
+			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 		}
 	}
 

@@ -107,7 +107,7 @@ public class UUserAuth extends VerticalLayout {
 					feedbackLabel.setValue("The given account has been locked");
 				} catch (Exception e) {
 					e.printStackTrace();
-					feedbackLabel.setValue("Some other exception");
+					feedbackLabel.setValue("Some other exception: "+e.getMessage());
 				}
 			}
 		});

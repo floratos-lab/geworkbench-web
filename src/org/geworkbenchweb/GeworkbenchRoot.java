@@ -1,9 +1,13 @@
 package org.geworkbenchweb;
  
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +28,7 @@ import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 
 /**
@@ -46,21 +51,49 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	private static final String PROPERTIES_FILE 		= 	"application.properties";
     private static String APP_URL 						= 	null;
 	
-	private Window mainWindow;
-	
-	private static Properties prop; 
+	private static Properties prop = new Properties();
 	
 	@Override
 	public void init() {
 		
-		prop = new Properties();
+		Window mainWindow 	= 	new Window("geWorkbench");
+		mainWindow.setSizeFull();
+		setMainWindow(mainWindow);
 		
 		try {
 			prop.load(getClass().getResourceAsStream(
 					"/" + PROPERTIES_FILE));
 		} catch (IOException e) {
-			 
+			mainWindow.addComponent(new Label("failed to read application properties file "+PROPERTIES_FILE));
 			e.printStackTrace();
+			return;
+		}
+		
+		// make sure the back-end data directory is there
+		File dataDirectory = new File(getBackendDataDirectory());
+		boolean dataDirectoryExist = true;
+		if(!dataDirectory.exists()) {
+			dataDirectoryExist = dataDirectory.mkdir();
+		}
+		if(!dataDirectoryExist || !dataDirectory.isDirectory()) {
+			mainWindow.addComponent(new Label(
+					"Back-end data directory cannot be set up at "
+							+ getBackendDataDirectory() + "\nfull path "
+							+ dataDirectory.getAbsolutePath() + " exist?"
+							+ dataDirectory.exists() + " dir?"
+							+ dataDirectory.isDirectory()));
+			return;
+		}
+		
+		// checking the database connection - do nothing if database is OK
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default"); // persistence-unit name in the xml file
+		try {
+			EntityManager checkingEm = factory.createEntityManager();
+			checkingEm.close();
+		} catch (Exception e) {
+			mainWindow.addComponent(new Label("No database is set up to support this application: "+e.getMessage()));
+			e.printStackTrace();
+			return;
 		}
 		 
 		getContext().addTransactionListener(this);
@@ -70,18 +103,15 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
 		
-		User user 	= 	SessionHandler.get();
-		mainWindow 	= 	new Window("geWorkbench");
-		
-		mainWindow.setSizeFull();
-		setMainWindow(mainWindow);
-		
 		registerAllEventsForApplication();
 		
+		User user 	= 	SessionHandler.get();
 		if (user != null) {
-			initView();
-		}else {	
-			loginView();
+			mainWindow.setContent(new UMainLayout());
+		} else {
+			UUserAuth auth = new UUserAuth(); 
+			auth.buildLoginForm();
+			mainWindow.setContent(auth);
 		}
 	}
 	
@@ -101,16 +131,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
         return "/VAADIN/themes/" + APP_THEME_NAME + "/";
     }
 		
-	public void loginView() {
-		UUserAuth auth = new UUserAuth(); 
-		auth.buildLoginForm();
-		mainWindow.setContent(auth);
-	}
-	
-	public void initView()  {
-		mainWindow.setContent(new UMainLayout());
-	}
-
 	@Override
 	public void transactionStart(Application application, Object transactionData) {
 		if (application == GeworkbenchRoot.this) {
@@ -155,14 +175,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	public static ICEPush getPusher() {
 		return PUSHER.get();
 	}
-	
-	
-	public static Properties getAppProperties() {
-		return prop;
-	}
-	
-	
-	
+
 	/**
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
@@ -208,4 +221,15 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 
 	@Override
 	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {}
+
+	/* it is a little better than passing over a private member directly */
+	public static String getAppProperty(String serviceUrlProperty) {
+		return prop.getProperty(serviceUrlProperty);
+	}
+	
+	public static String getBackendDataDirectory() {
+		return System.getProperty("user.home")
+				+ System.getProperty("file.separator")
+				+ prop.getProperty("data.directory");
+	}
 }

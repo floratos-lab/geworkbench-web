@@ -247,8 +247,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private void getLimitCytoscapeObjectsNum() {
 		if (limit_num == 0) {
 			try {
-				limit_num = Integer.parseInt(GeworkbenchRoot.getAppProperties()
-						.getProperty(LIMIT_CYTOSCAPE_OBJECTS));
+				limit_num = Integer.parseInt(GeworkbenchRoot.getAppProperty(LIMIT_CYTOSCAPE_OBJECTS));
 			} catch (NumberFormatException e) {
 				log.warn("limit cytoscape objects value is not set properly.");
 			}

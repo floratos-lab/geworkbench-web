@@ -298,7 +298,7 @@ public class TTestAnalysisWeb {
 	 */
 	private void getWebServiceUrl() {
 		if (url == null || url.trim().equals("")) {
-			url  = GeworkbenchRoot.getAppProperties().getProperty(TTEST_WEBSERVICE_URL);
+			url  = GeworkbenchRoot.getAppProperty(TTEST_WEBSERVICE_URL);
 				if (url == null || url.trim().equals(""))
 					url = DEFAULT_WEB_SERVICES_URL;
 		}		

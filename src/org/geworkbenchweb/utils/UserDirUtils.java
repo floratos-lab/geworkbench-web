@@ -28,7 +28,6 @@ public class UserDirUtils {
 
 	private static Log log = LogFactory.getLog(UserDirUtils.class);
 			
-	private static final String DATA_DIRECTORY 	= 	"data.directory";
 	private static final String DATASETS 		= 	"data";
 	private static final String RESULTSETS		=	"results";
 	private static final String ANNOTATION		=	"annotation";
@@ -43,10 +42,9 @@ public class UserDirUtils {
 	 * @param User ID from the appuser database table 
 	 * @return  
 	 */
-	public static boolean CreateUserDirectory(long userId) {
+	public static boolean CreateUserDirectory(Long userId) {
 
-		String dataDir 		=   System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) + SLASH;
+		String dataDir 		=    GeworkbenchRoot.getBackendDataDirectory();
 		String userDirName 	= 	String.valueOf(userId);
 
 		boolean success = (new File(dataDir + SLASH + userDirName)).mkdir();
@@ -79,10 +77,7 @@ public class UserDirUtils {
 	/* this replaces the original saveDataSet */
 	public static void serializeDataSet(Long dataId, DSDataSet<? extends DSBioObject> dataset, Long userId) throws IOException {
 
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + userId + SLASH
 				+ DATASETS + SLASH + dataId + DATA_EXTENSION;
 		File file = new File(fileName);
 		file.createNewFile();
@@ -101,63 +96,13 @@ public class UserDirUtils {
 	public static boolean deleteDataSet(long dataId) {
 		
 		String dataName 		=	String.valueOf(dataId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
 				SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
 		boolean success 		=	deleteFile(fileName);
 		if(!success) return false;
 		return true;
 	}
 
-	// get either the input dataset or the result set
-	// (1) separation of dataset and result seems unnecessary and complicates the design
-	// (2) going through byte array is not necessary
-	public static Object getData(long datasetID) {
-		Long userId = SessionHandler.get().getId();
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
-				+ DATASETS + SLASH + datasetID + DATA_EXTENSION;
-		String fileName2 = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH + userId + SLASH
-				+ RESULTSETS + SLASH + datasetID + RES_EXTENSION;
-
-		ObjectInputStream ois = null, ois2 = null;
-		Object obj = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream(fileName));
-			obj = ois.readObject();
-		} catch (FileNotFoundException e) {
-			try {
-				ois2 = new ObjectInputStream(new FileInputStream(fileName2));
-				obj = ois2.readObject();
-			} catch (FileNotFoundException e2) {
-				// no-op: this may be the case when the result node is just created
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (ClassNotFoundException e1) {
-				e1.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (ois != null)
-					ois.close();
-				if (ois2 != null)
-					ois2.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return obj;
-	}
-	
 	/* this replaces the original getDataSet */
 	public static DSDataSet<? extends DSBioObject> deserializeDataSet(
 			Long dataId, final Class<? extends DSDataSet<?>> correctType)
@@ -167,10 +112,7 @@ public class UserDirUtils {
 			return null; // 0 is used to a special 'initial' case. not the ideal
 							// design.
 
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
 				+ SessionHandler.get().getId() + SLASH + DATASETS + SLASH
 				+ dataId + DATA_EXTENSION;
 		FileInputStream fin = new FileInputStream(fileName);
@@ -196,10 +138,7 @@ public class UserDirUtils {
 			return null; // 0 is used to a special 'initial' case. not the ideal
 							// design.
 
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
 				+ userId + SLASH + DATASETS + SLASH
 				+ dataId + DATA_EXTENSION;
 		FileInputStream fin = new FileInputStream(fileName);
@@ -241,8 +180,7 @@ public class UserDirUtils {
 
 		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
 		String resultName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
 				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + resultName + RES_EXTENSION;
 		boolean sucess 			=	createFile(fileName, byteObject);
 		if(!sucess) return false; 
@@ -255,10 +193,7 @@ public class UserDirUtils {
 
 		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
 				resultSetId);
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH + res.getOwner()
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + res.getOwner()
 				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
 
 		File file = new File(fileName);
@@ -278,8 +213,7 @@ public class UserDirUtils {
 	public static boolean deleteResultSet(long resultSetId) {
 		
 		String dataName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
 				SLASH + SessionHandler.get().getId() + SLASH + RESULTSETS+ SLASH + dataName + RES_EXTENSION;
 		boolean success 		=	deleteFile(fileName);
 		if(!success) return false;
@@ -296,8 +230,7 @@ public class UserDirUtils {
 
 		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
 		String dataName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	System.getProperty("user.home") + SLASH +
-				GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
 				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
 		return getDataFromFile(fileName);
 	}
@@ -306,10 +239,7 @@ public class UserDirUtils {
 	public static Object deserializeResultSet(Long resultSetId) throws FileNotFoundException, IOException, ClassNotFoundException {
 		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
 				resultSetId);
-		String fileName = System.getProperty("user.home")
-				+ SLASH
-				+ GeworkbenchRoot.getAppProperties()
-						.getProperty(DATA_DIRECTORY) + SLASH + res.getOwner()
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + res.getOwner()
 				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
 				fileName));
@@ -327,17 +257,16 @@ public class UserDirUtils {
 	public static boolean saveAnnotation(long annotId, byte[] byteObject) {
 		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
 		String annotFileName 	=	String.valueOf(annotId);
+		String dataDirectory = GeworkbenchRoot.getBackendDataDirectory();
 		if(annot.getOwner() != null) {
-			String fileName 		= 	System.getProperty("user.home") + SLASH +
-					GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+			String fileName 		= 	dataDirectory  +
 					SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
 			boolean sucess 			=	createFile(fileName, byteObject);
 			if(!sucess) return false; 
 			return true;
 		}else {
 			/* saving public annotation */
-			String fileName 		= 	System.getProperty("user.home") + SLASH +
-					GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+			String fileName 		= 	dataDirectory +
 					SLASH + annotFileName + ANOT_EXTENSION;
 			File f = new File(fileName);
 			if(f.exists()) return true; 
@@ -357,13 +286,12 @@ public class UserDirUtils {
 		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
 		String dataName 		=	String.valueOf(annotId);
 		String fileName 		=	null;
+		String dataDirectory = GeworkbenchRoot.getBackendDataDirectory();
 		if(annot.getOwner() != null) {
-			fileName 			= 	System.getProperty("user.home") + SLASH +
-										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+			fileName 			= 	dataDirectory +
 										SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
 		} else {
-			fileName 			= 	System.getProperty("user.home") + SLASH +
-										GeworkbenchRoot.getAppProperties().getProperty(DATA_DIRECTORY) +
+			fileName 			= 	dataDirectory +
 										SLASH +  dataName + ANOT_EXTENSION;
 		}
 		return getDataFromFile(fileName);
@@ -400,10 +328,11 @@ public class UserDirUtils {
 	private static boolean deleteFile(String fileName) {
 		File file = new File(fileName);
 		if(file.exists()) {
-			file.delete();
-			return true;
+			return file.delete();
 		} else {
-			return false;
+			// let's it through if the file or directory does not exist
+			log.warn("the file or directory you tried to delete ("+fileName+") does not exsit");
+			return true;
 		}
 	}
 

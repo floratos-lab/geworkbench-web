@@ -38,9 +38,10 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 	}
 
 	 
+	/* the method signature is interface defined. this class in fact ignores datasetId and userId*/
 	@Override
-	public String execute(Long resultId, DSDataSet<?> dummy,
-			HashMap<Serializable, Serializable> params) throws IOException {
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> params, Long userId) throws IOException {
 		Vector<CellularNetWorkElementInformation> hits = null;
 		CNKBResultSet resultSet = null;
 		Short confidentType = null;
@@ -96,9 +97,8 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
+	public String execute(Long resultId, DSDataSet<?> dummy,
+			HashMap<Serializable, Serializable> params) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
