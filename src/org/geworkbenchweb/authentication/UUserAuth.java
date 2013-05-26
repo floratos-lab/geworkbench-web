@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
@@ -54,6 +56,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class UUserAuth extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
+	private Log log = LogFactory.getLog(UUserAuth.class);
 	
 	private Window aboutWindow = null;
 	
@@ -262,14 +265,17 @@ public class UUserAuth extends VerticalLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				try {
+					log.debug("before registering a new user");
 					User user =  UserUtil.registerUser((String) username
 							.getValue(), (String) password.getValue(),
 							(String) verifyPassword.getValue());
+					log.debug("user object is created");
 					
 					user.setName	((String) realName.getValue());
 					user.setEmail	((String) email.getValue());
 
 					FacadeFactory.getFacade().store(user);
+					log.debug("user object is stored");
 					
 					/* Creating default workspace */
 					Workspace workspace = 	new Workspace();
