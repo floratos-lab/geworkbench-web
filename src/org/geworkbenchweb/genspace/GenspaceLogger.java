@@ -30,9 +30,6 @@ import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 
-import com.github.wolfie.blackboard.Listener;
-
-
 /**
  * Captures all events with an associated {@link EventHandler} defined.
  * 
@@ -89,9 +86,6 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 
 	@Override
 	public void SubmitAnalysis(AnalysisSubmissionEvent event) {
-		System.out.println("Analysis name: " + event.getResultSet().getName().replace(" - Pending", ""));
-		System.out.println("Analysis params: " + event.getParameters());
-		System.out.println("Analysis dataset: " + event.getDataSet().getLabel());
 
 		if (event != null
 				&& event.getClass().equals(AnalysisSubmissionEvent.class)) {
