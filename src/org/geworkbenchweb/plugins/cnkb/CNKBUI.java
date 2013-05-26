@@ -429,6 +429,14 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 
 	}
+
+	@Override
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
+			Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
  
 

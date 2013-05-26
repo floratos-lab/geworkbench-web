@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -24,6 +26,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class UserDirUtils {
 
+	private static Log log = LogFactory.getLog(UserDirUtils.class);
+			
 	private static final String DATA_DIRECTORY 	= 	"data.directory";
 	private static final String DATASETS 		= 	"data";
 	private static final String RESULTSETS		=	"results";
@@ -57,10 +61,11 @@ public class UserDirUtils {
 			boolean b = resultSetDir.mkdir();
 			boolean c = annotationDir.mkdir();
 			if(!(a && b && c)) {
+				log.warn("failed to make subdirecties");
 				return false;
 			}
 		}else {
-			/* couldn't create user diretory */
+			log.warn("failed to make user data directory");
 			return false;
 		}
 		return success;
@@ -167,6 +172,35 @@ public class UserDirUtils {
 				+ GeworkbenchRoot.getAppProperties()
 						.getProperty(DATA_DIRECTORY) + SLASH
 				+ SessionHandler.get().getId() + SLASH + DATASETS + SLASH
+				+ dataId + DATA_EXTENSION;
+		FileInputStream fin = new FileInputStream(fileName);
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		Object dataset = ois.readObject();
+		ois.close();
+
+		if (correctType.isInstance(dataset)) {
+			if (correctType == DSMicroarraySet.class)
+				AnnotationParser.setCurrentDataSet(correctType.cast(dataset));
+			return correctType.cast(dataset);
+		} else {
+			throw new Exception("incorrect type " + correctType
+					+ " to deserialize " + fileName);
+		}
+	}
+
+	public static DSDataSet<? extends DSBioObject> deserializeDataSet(
+			Long dataId, final Class<? extends DSDataSet<?>> correctType, Long userId)
+			throws Exception {
+
+		if (dataId == 0)
+			return null; // 0 is used to a special 'initial' case. not the ideal
+							// design.
+
+		String fileName = System.getProperty("user.home")
+				+ SLASH
+				+ GeworkbenchRoot.getAppProperties()
+						.getProperty(DATA_DIRECTORY) + SLASH
+				+ userId + SLASH + DATASETS + SLASH
 				+ dataId + DATA_EXTENSION;
 		FileInputStream fin = new FileInputStream(fileName);
 		ObjectInputStream ois = new ObjectInputStream(fin);

@@ -600,4 +600,12 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		UserDirUtils.serializeResultSet(resultSetId, result);
 		return "Aracne";
 	}
+
+	@Override
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
+			Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

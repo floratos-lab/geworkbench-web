@@ -440,9 +440,10 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 			GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-					null, resultSet, params, new NetworkCreation());
-			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+			// FIXME how does this work considering the input dataset is null??
+//			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+//					null, resultSet, params, new NetworkCreation());
+//			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 		}
 	}
 

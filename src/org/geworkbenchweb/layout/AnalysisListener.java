@@ -12,6 +12,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEvent
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
@@ -40,6 +41,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 	@Override
 	public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
 
+		final Long userId = SessionHandler.get().getId();
+
 		Thread analysisThread = new Thread() {
 			@Override
 			public void run() {
@@ -56,7 +59,11 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				AnalysisUI analysisUI = event.getAnalaysisUI();
 				String resultName = null;
 				try {
-					resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
+					if(dataSet!=null) { // this switch is a temporary solution
+						resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
+					} else {
+						resultName = analysisUI.execute(resultSet.getId(), event.getDatasetId(), params, userId);
+					}
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
@@ -69,6 +76,9 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				} catch (IOException e) {
 					e.printStackTrace();
 					return;
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 				if (resultName.equalsIgnoreCase("UnAuthenticatedException"))

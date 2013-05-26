@@ -775,4 +775,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		UserDirUtils.serializeResultSet(resultId, mraRes);
 		return analysisName + " - " + mraRes.getLabel();
 	}
+
+	@Override
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
+			Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

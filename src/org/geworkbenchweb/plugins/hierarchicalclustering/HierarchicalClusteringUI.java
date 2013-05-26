@@ -157,13 +157,13 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
-					final DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
-					generateHistoryString(maSet);
+//					final DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
+//					generateHistoryString(maSet);
 					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(maSet, resultSet, params, HierarchicalClusteringUI.this);
+					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSetId, resultSet, params, HierarchicalClusteringUI.this);
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
 					
 				} catch (Exception e) {	
@@ -223,6 +223,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		}
 	}
 	
+	// FIXME
 	private void generateHistoryString(DSMicroarraySet maSet) {
 		StringBuilder mark = new StringBuilder();
 		
@@ -278,6 +279,19 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		}
 		return result.getLabel(); //"Hierarchical Clustering";
 	}
+
+	@Override
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> parameters, Long userId) throws Exception {
+		HierarchicalClusteringComputation analysis = new HierarchicalClusteringComputation(
+				datasetId, params, userId);
+		CSHierClusterDataSet result = analysis.execute();
+
+		UserDirUtils.serializeResultSet(resultSet.getId(), result);
+		
+		return result.getLabel();
+	}
+
 }
 
 

@@ -19,9 +19,22 @@ public class AnalysisSubmissionEvent implements Event {
 	private HashMap<Serializable, Serializable> params;
 	
 	final private AnalysisUI analysisUi;
+
+	final private Long datasetId;
+	
+	// temporary solution: to have both versions available
+	public AnalysisSubmissionEvent(Long datasetId, ResultSet resultSet, HashMap<Serializable, Serializable> params,
+			AnalysisUI analysisUi) {
+		this.datasetId 	= 	datasetId;
+		this.dataSet 	= 	null;
+		this.resultSet	=	resultSet;
+		this.params		=	params;
+		this.analysisUi   =   analysisUi;
+	}
 	
 	public AnalysisSubmissionEvent(DSDataSet<?> dataSet, ResultSet resultSet, HashMap<Serializable, Serializable> params,
 			AnalysisUI analysisUi) {
+		this.datasetId = null;
 		this.dataSet 	= 	dataSet;
 		this.resultSet	=	resultSet;
 		this.params		=	params;
@@ -46,5 +59,9 @@ public class AnalysisSubmissionEvent implements Event {
 	
 	public AnalysisUI getAnalaysisUI() {
 		return analysisUi;
+	}
+
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

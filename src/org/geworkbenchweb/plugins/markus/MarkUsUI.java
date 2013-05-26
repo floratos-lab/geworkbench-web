@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.markus;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -631,6 +632,14 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
 			HashMap<Serializable, Serializable> parameters) {
+		return null;
+	}
+
+	@Override
+	public String execute(Long resultId, Long datasetId,
+			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
+			Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
@@ -15,7 +13,6 @@ import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -339,28 +336,6 @@ public class UMainLayout extends VerticalLayout {
 						} else {
 							toolBar.setEnabled(false);
 						}
-
-						/* FIXME this block of valid code (exactly the same behavior as when it was active) is commented out for now because:
-						 * 1. it is very slow (due to deserialization);
-						 * 2. it does't do its job of supporting annotation correctly;
-						 * 3. even if it does (2.) right, it doesn't have to be here and invoked every time the user switches between data nodes.
-						 */
-						/*
-						if (className.equals("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet")){
-							CSMicroarraySet maSet = (CSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, CSMicroarraySet.class);
-							Map<String, Object> parameters = new HashMap<String, Object>();	
-							parameters.put("datasetid", dataSetId);	
-							List<Annotation> annots = FacadeFactory.getFacade().list(
-									"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
-							if (!annots.isEmpty()){
-								APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
-								AnnotationParser.setFromSerializable(aps);
-							}else {
-								AnnotationParser.setCurrentDataSet(maSet);
-							}
-							maSet.getMarkers().correctMaps();
-						}
-						*/
 						
 						ClassLoader classLoader = this.getClass().getClassLoader();
 						Class<?> aClass = classLoader.loadClass(className);
@@ -386,43 +361,11 @@ public class UMainLayout extends VerticalLayout {
             
 			private static final long serialVersionUID = -3576690826530527342L;
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public String generateDescription(Component source, Object itemId,
 					Object propertyId) {
-				if (!(itemId instanceof Long)) {
-					System.out.println("does this happen at all? I don't think this should ever happen.");
-					return null;
-				}
-
 				Item item = tree.getItem(itemId);
-				String className = (String) item.getItemProperty("Type").getValue();
-				Class<?> clazz;
-				try {
-					clazz = Class.forName(className);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-					return null;
-				}
-
-				// show tooltip only for DSDataSet for now
-				if (DSDataSet.class.isAssignableFrom(clazz)) {
-					Object object = UserDirUtils.getData((Long) itemId);
-					try {
-						if(object instanceof DSDataSet) {
-							DSDataSet<? extends DSBioObject> df = (DSDataSet<? extends DSBioObject>) object;
-							return df.getDescription();
-						} else {
-							log.warn("the deserialized data object is "+object);
-							return null;
-						}
-					} catch (NullPointerException e) { // CSProteinStrcuture has null pointer exception not handled
-						e.printStackTrace();
-						return null;
-					}
-				} else {
-					return null;
-				}
+				return (String) item.getItemProperty("description").getValue();
 			}
 		});
 		
@@ -470,6 +413,7 @@ public class UMainLayout extends VerticalLayout {
 		dataSets.addContainerProperty("Name", String.class, null);
 		dataSets.addContainerProperty("Type", String.class, null);
 		dataSets.addContainerProperty("Icon", Resource.class, null);
+		dataSets.addContainerProperty("description", String.class, "");
 		
 		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		param.put("owner", user.getId());
@@ -550,13 +494,21 @@ public class UMainLayout extends VerticalLayout {
 		}
 		navigationTree.setChildrenAllowed(res.getId(), false);
 		navigationTree.setParent(res.getId(), res.getParent());
-		if (res.getType().equals("MarkusResults")) navigationTree.select(res.getId()); // FIXME if this is necessary, probably it is necessary for other result type too
+
+		navigationTree.select(res.getId());
+		log.debug("result node is added");
 	}
 	
 	// this may need to be public if we don't use event listener to trigger it.
 	private void addDataSet(DataSet dS) {
 		String className = dS.getType();
-		navigationTree.addItem(dS.getId());
+		Item item = navigationTree.addItem(dS.getId());
+		if(item==null) {
+			// this happens because pending node has the same ID as the ultimate node
+			item = navigationTree.getItem(dS.getId());
+		}
+		item.getItemProperty("description").setValue(dS.getDescription());
+		// TODO let item holding the entire DataSet may be the better idea than the current way to read all fields from it
 		navigationTree.setChildrenAllowed(dS.getId(), false);
 		boolean pending = dS.getName().contains("Pending");
 		if(pending) {

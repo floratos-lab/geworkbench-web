@@ -1,5 +1,6 @@
 package org.geworkbenchweb.pojos;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -16,6 +17,12 @@ public class DataSet extends AbstractPojo {
 	private Long owner;
 	private Long workspace;
 
+	/* a short description. used in places like tool tip. */
+	private String description = "";
+	/* time stamp: additional information to identify the dataset, also useful to maintain an order of datasets. */
+	@Column(name = "DATE_FIELD")
+	private java.sql.Date timestamp;
+	
 	public Long getWorkspace() {
 		return workspace;
 	}
@@ -52,4 +59,22 @@ public class DataSet extends AbstractPojo {
 		this.owner = owner;
 	}
 	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		if(description==null) 
+			this.description = "";
+		else
+			this.description = description;
+	}
+
+	public java.sql.Date getDateField() {
+		return timestamp;
+	}
+
+	public void setDateField(java.sql.Date dateField) {
+		this.timestamp = dateField;
+	}
 }

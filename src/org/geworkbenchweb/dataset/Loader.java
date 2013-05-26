@@ -34,11 +34,10 @@ public abstract class Loader {
 	// implementation. this is an inconsistency in the design
 	static Long storeData(DSDataSet<? extends DSBioObject> dataSet,
 			String fileName, DataSet dataset) {
-		// FIXME dependency on annotation should be re-designed.
-		String annotationFileName = null;
 		
 		dataset.setName(fileName);
 		dataset.setType(dataSet.getClass().getName());
+		dataset.setDescription(dataSet.getDescription());
 		FacadeFactory.getFacade().store(dataset);
 
 		boolean success = true;
@@ -54,16 +53,14 @@ public abstract class Loader {
 		
 		DataHistory dataHistory = new DataHistory();
 		dataHistory.setParent(dataset.getId());
-		StringBuilder data = new StringBuilder();
-		data.append("Data File Name : " + dataSet.getLabel() + "\n");
+		dataHistory.setData("Data File Name : " + dataSet.getLabel() + "\n");
+		//data.append("Annotation File - " + annotationFileName + "\n");
+		//data.append("Gene Ontology File - \n");
+		FacadeFactory.getFacade().store(dataHistory);
+
 		// TODO special things for CSMicroarraySet should be part of the overall design
 		// not an aftermath fix
 		if (dataSet.getClass()==CSMicroarraySet.class) {
-			// (1)
-			data.append("Annotation File - " + annotationFileName + "\n");
-			data.append("Gene Ontology File - \n");
-			
-			// (2)
 			ExperimentInfo experimentInfo = new ExperimentInfo();
 			experimentInfo.setParent(dataset.getId());
 			StringBuilder info = new StringBuilder();
@@ -74,11 +71,6 @@ public abstract class Loader {
 			experimentInfo.setInfo(info.toString());
 			FacadeFactory.getFacade().store(experimentInfo);
 		}
-		dataHistory.setData(data.toString());
-		FacadeFactory.getFacade().store(dataHistory);
-
-		//NodeAddEvent resultEvent = new NodeAddEvent(dataset);
-		//GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		return dataset.getId();
 	}
@@ -87,6 +79,7 @@ public abstract class Loader {
 
 		DataSet dataset = new DataSet();
 		dataset.setName(fileName + " - Pending");
+		dataset.setDescription("pending");
 		dataset.setType(DSDataSet.class.getName());
 		dataset.setOwner(userId);
 		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
