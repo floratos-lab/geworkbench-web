@@ -42,16 +42,17 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.vaadin.MessageBox.Icon;
 
 /**
  * Authentication and Registration are handled here.
  * TODO: Refactor the code 
  * @author Nikhil
+ * @version $Id$
  */
 public class UUserAuth extends VerticalLayout {
 
@@ -289,27 +290,35 @@ public class UUserAuth extends VerticalLayout {
 				    active.setWorkspace(workspace.getId());
 				    FacadeFactory.getFacade().store(active);
 				   
-				    boolean success = UserDirUtils.CreateUserDirectory(user.getId());
-				    if(success != true){ 
-				    	getApplication().getMainWindow().showNotification("Couldn't create user. Please contact admin", 
-				    			Notification.TYPE_ERROR_MESSAGE);
-				    } else {
-						MessageBox mb = new MessageBox(getWindow(), "Registered",
-								null, "Welcome, " + user.getName() + "(" + username
-										+ ")!\nYou have successfully registered.",
-								new MessageBox.ButtonConfig(
-										MessageBox.ButtonType.CUSTOM1, "Back to Log-in Page"));
-						mb.show(new MessageBox.EventListener() {
-	
-							private static final long serialVersionUID = -8489356760651132447L;
-	
-							@Override
-							public void buttonClicked(ButtonType buttonType) {
-								getApplication().close();
-							}
-						});
-				    }
-					
+					String dialogCaption = "Registration Successed";
+					Icon dialogIcon = Icon.INFO;
+					String message = "Welcome, " + user.getName() + "("
+							+ username
+							+ ")!\nYou have successfully registered.";
+					MessageBox.ButtonType buttonType = MessageBox.ButtonType.OK;
+
+					String errorMessage = UserDirUtils.CreateUserDirectory(user
+							.getId());
+					if (errorMessage != null
+							&& errorMessage.trim().length() > 0) {
+						dialogCaption = "Failed in Creating User Data Directory";
+						dialogIcon = Icon.WARN;
+						message = errorMessage;
+						buttonType = MessageBox.ButtonType.ABORT;
+					}
+
+					MessageBox mb = new MessageBox(getWindow(), dialogCaption,
+							dialogIcon, message, new MessageBox.ButtonConfig(
+									buttonType, "Back to Log-in"));
+					mb.show(new MessageBox.EventListener() {
+
+						private static final long serialVersionUID = -8489356760651132447L;
+
+						@Override
+						public void buttonClicked(ButtonType buttonType) {
+							getApplication().close();
+						}
+					});
 				} catch (TooShortPasswordException e) {
 					feedbackLabel
 						.setValue("Password is too short, it needs to be at least "
@@ -335,9 +344,6 @@ public class UUserAuth extends VerticalLayout {
 				} catch (PasswordRequirementException e) {
 					feedbackLabel
 					.setValue("Password does not meet the set requirements");
-				
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
 
 				password.setValue(null);

@@ -40,33 +40,40 @@ public class UserDirUtils {
 	 * Creates the user directories in the file system to store the data.
 	 * This happens when user register for geWorkbench
 	 * @param User ID from the appuser database table 
-	 * @return  
+	 * @return  error message when it fails
 	 */
-	public static boolean CreateUserDirectory(Long userId) {
+	public static String CreateUserDirectory(Long userId) {
+		final boolean allowReusing = false;
 
 		String dataDir 		=    GeworkbenchRoot.getBackendDataDirectory();
 		String userDirName 	= 	String.valueOf(userId);
 
-		boolean success = (new File(dataDir + SLASH + userDirName)).mkdir();
+		File userDir = new File(dataDir + SLASH + userDirName);
+		if(!allowReusing && userDir.exists())
+			return userDir.getAbsolutePath()+ " exists and cannot be re-created for a new user.";
+		if(!userDir.mkdir())
+			return userDir.getAbsolutePath()+ "cannot be created.";
 
-		if(success) {
-			File dataSetDir 	=	new File(dataDir + SLASH + userDirName + SLASH + DATASETS);
-			File resultSetDir	=	new File(dataDir + SLASH + userDirName + SLASH + RESULTSETS);
-			File annotationDir 	=	new File(dataDir + SLASH + userDirName + SLASH + ANNOTATION);
+		/* creating sub directories in user directory*/
+		File dataSetDir 	=	new File(dataDir + SLASH + userDirName + SLASH + DATASETS);
+		if(!allowReusing && dataSetDir.exists())
+			return dataSetDir.getAbsolutePath()+ " exists and cannot created for a new user.";
+		if(!dataSetDir.mkdir())
+			return dataSetDir.getAbsolutePath()+ "cannot be created.";
 
-			/* creating sub directories in user directory*/
-			boolean a = dataSetDir.mkdir();
-			boolean b = resultSetDir.mkdir();
-			boolean c = annotationDir.mkdir();
-			if(!(a && b && c)) {
-				log.warn("failed to make subdirecties");
-				return false;
-			}
-		}else {
-			log.warn("failed to make user data directory");
-			return false;
-		}
-		return success;
+		File resultSetDir	=	new File(dataDir + SLASH + userDirName + SLASH + RESULTSETS);
+		if(!allowReusing && resultSetDir.exists())
+			return resultSetDir.getAbsolutePath()+ " exists and cannot created for a new user.";
+		if(!resultSetDir.mkdir())
+			return resultSetDir.getAbsolutePath()+ "cannot be created.";
+		
+		File annotationDir 	=	new File(dataDir + SLASH + userDirName + SLASH + ANNOTATION);
+		if(!allowReusing && annotationDir.exists())
+			return annotationDir.getAbsolutePath()+ " exists and cannot created for a new user.";
+		if(!annotationDir.mkdir())
+			return annotationDir.getAbsolutePath()+ "cannot be created.";
+
+		return ""; // empty string for no success (no error)
 	}
 
 	public static boolean DeleteUserDirecotry(long userId) {
