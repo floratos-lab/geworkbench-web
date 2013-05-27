@@ -216,7 +216,7 @@ public class GenSpaceComponent extends CustomComponent {
 		workflowVisualization_1 = new WorkflowVisualization(genSpaceLogin_1);
 		workflowVisualization_1.setImmediate(false);
 		workflowVisualization_1.setWidth("100.0%");
-		workflowVisualization_1.setHeight("100.0%");
+		//workflowVisualization_1.setHeight("100.0%");
 		tabSheet_1.addTab(workflowVisualization_1, "Workflow Visualization", null);
 		
 		// realTimeWorkflowSuggestion_1
@@ -230,7 +230,7 @@ public class GenSpaceComponent extends CustomComponent {
 		workflowStatistics_1 = new WorkflowStatistics(genSpaceLogin_1);
 		workflowStatistics_1.setImmediate(false);
 		workflowStatistics_1.setWidth("100.0%");
-		workflowStatistics_1.setHeight("100.0%");
+		//workflowStatistics_1.setHeight("100.0%");
 		tabSheet_1.addTab(workflowStatistics_1, "Workflow Statistics", null);
 				
 		notebookPanel = new NotebookPanel(genSpaceLogin_1);
@@ -248,7 +248,8 @@ public class GenSpaceComponent extends CustomComponent {
 		socialNetworkHome = new SocialNetworkHome(genSpaceLogin_1);
 		socialNetworkHome.setImmediate(false);
 		socialNetworkHome.setWidth("100.0%");
-		socialNetworkHome.setHeight("100.0%");
+		//socialNetworkHome.setHeight("100.0%");
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(socialNetworkHome);
 		tabSheet_1.addTab(socialNetworkHome, "Communicator", null);
 		
 		return tabSheet_1;

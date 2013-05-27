@@ -1,7 +1,6 @@
 package org.geworkbenchweb.genspace.chat;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
@@ -24,6 +23,11 @@ import com.vaadin.ui.Window.CloseEvent;
 
 public class ChatReceiver implements MessageListener, ChatManagerListener, Window.CloseListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ChatManager manager;
 	
 	public XMPPConnection connection;
@@ -50,13 +54,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			connection.sendPacket(pr);
 			
 			manager = connection.getChatManager();
-			/*this.r = connection.getRoster();
-			this.r.setSubscriptionMode(Roster.SubscriptionMode.accept_all);*/
 			this.updateRoster();
 			this.createRosterFrame();
-			/*rf = new RosterFrame(login, this);
-			rf.setRoster(r);
-			rf.setVisible(true);*/
 
 			manager.addChatListener(this);
 		} else
@@ -91,10 +90,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	@Override
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
-		System.out.println("In ChatReceiver.chatCreated");
-		System.out.println("New chat property: " + c.toString());
 		if(createdLocal) {
-			System.out.println("Within createdLocal test participant: " + c.getParticipant());
+			System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
@@ -104,32 +101,19 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			rf.getApplication().getMainWindow().addWindow(cw);
 		}
 		c.addMessageListener(this);
-		
-		System.out.println("A new chat is created in ChatReceiver.chatCreated");
-		
 		this.login.getPusher().push();
-		
 	}
 
 	@Override
 	public void processMessage(Chat c, Message m) {
 		// TODO Auto-generated method stub
-		System.out.println("In ChatReceiver.processMessage");
-		System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
-		System.out.println("Get message body: " + m.getBody());
-		System.out.println("Check chat property: " + c.toString());
+		/*System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
+		System.out.println("Get message body: " + m.getBody());*/
 
 		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals("")))
 			return;
-		
-		Iterator<String> chatIT = chats.keySet().iterator();
-		while (chatIT.hasNext()) {
-			System.out.println("In processMessage: " + chatIT.next());
-		}
-		
+
 		if (chats.containsKey(c.getParticipant())) {
-			System.out.println("In processMessage get window: " + chats.get(c.getParticipant()).getCaption());
-			System.out.println("In processMessage no new window check main: " + rf.getApplication().getMainWindow());
 			chats.get(c.getParticipant()).processMessage(m);
 		}
 		else {
@@ -142,11 +126,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			rf.getApplication().getMainWindow().addWindow(cw);
 			
 			cw.processMessage(m);
-			
-			System.out.println("In processMessage get new window: " + chats.get(c.getParticipant()).getCaption());
-			System.out.println("In processMessage new window check main: " + rf.getApplication().getMainWindow());
 		}
-		System.out.println("Message is dispatched in ChatReceiver.processMessage");
+		// System.out.println("Message is dispatched in ChatReceiver.processMessage");
 		
 		this.login.getPusher().push();
 	}

@@ -25,6 +25,11 @@ import com.vaadin.ui.Window;
 
 public class FBCommentWindow extends Window{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static String username = "Username";
 	
 	private static String comments = "Comment";
@@ -131,13 +136,16 @@ public class FBCommentWindow extends Window{
 		
 		Button publish = new Button("Publish");
 		publish.addListener(new Button.ClickListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public void buttonClick(Button.ClickEvent evt) {
 				if (login.getFBManager() != null) {
 					//login.getFBManager().publishAnalysisResult(e.getTool().getName(), e.getTransaction().getDataSetName(), aepList, NotebookPanel.convertToDate(e.getCreatedAt()), noteText.getValue().toString());
 					login.getFBManager().publishAnalysisResult(searchString, noteText.getValue().toString());
 					update();
-				} else {
-					FBAuthWindow authWindow = new FBAuthWindow(login, fbUserNotebook);
 				}
 			}
 		});

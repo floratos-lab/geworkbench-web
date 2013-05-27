@@ -12,9 +12,9 @@ import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
-import org.geworkbenchweb.genspace.ui.component.SocialNetworkHome;
 import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
+import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -28,11 +28,6 @@ import com.vaadin.ui.Window;
 
 public class WorkflowVisualizationPopup extends Window implements Button.ClickListener{
 
-	/*private JMenuItem addWorkflowRepository = new JMenuItem(
-			"Add workflow to your repository");*/
-
-	// we store the tool name each time the menu is invoked
-	// so we can speed up the process
 	private VerticalLayout vLayout;
 	
 	private Panel workflowPanel;
@@ -81,6 +76,11 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.selectedTool = selectedTool;
 		this.expert = this.login.getGenSpaceServerFactory().getUsageOps().getExpertUserFor(selectedTool.getId());
 		
+		this.addWkflowLabel.setWidth("240px");
+		this.gotoPageLabel.setWidth("240px");
+		this.expertLabel.setWidth("240px");
+		this.viewComment.setWidth("240px");
+
 		this.vLayout = new VerticalLayout();
 		this.addComponent(vLayout);
 		this.createWorkflowPanel();
@@ -89,77 +89,70 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 	private void createWorkflowPanel() {		
 		this.workflowPanel = new Panel();
 		
-		HorizontalLayout wLayout = new HorizontalLayout();
+		BorderLayout wLayout = new BorderLayout();
 		this.workflowPanel.addComponent(wLayout);
-		wLayout.addComponent(this.addWkflowLabel);
-		
-		Label emptyLabel = new Label();
-		emptyLabel.setWidth("20px");
-		
-		wLayout.addComponent(emptyLabel);
-		
+		wLayout.addComponent(this.addWkflowLabel, BorderLayout.Constraint.WEST);
+
 		this.addWkButton = new Button("Add");
 		this.addWkButton.addListener(this);
-		wLayout.addComponent(addWkButton);
+		wLayout.addComponent(addWkButton, BorderLayout.Constraint.EAST);
 		
-		wLayout = new HorizontalLayout();
+		wLayout = new BorderLayout();
 		this.wFlowToolPanel = new Panel();
 		this.wFlowToolPanel.addComponent(wLayout);
 		this.gotoCaption = "Goto GenSpace page of " + this.selectedTool.getName();
 		this.gotoPageLabel.setCaption(gotoCaption);
-		wLayout.addComponent(this.gotoPageLabel);
-		
-		emptyLabel = new Label();
-		emptyLabel.setWidth("20px");
-		
-		wLayout.addComponent(emptyLabel);
-		
+		wLayout.addComponent(this.gotoPageLabel, BorderLayout.Constraint.WEST);
+
 		this.gotoPage = new Button("Go");
 		this.gotoPage.addListener(this);
-		wLayout.addComponent(gotoPage);
+		wLayout.addComponent(gotoPage, BorderLayout.Constraint.EAST);
 		
-		wLayout = new HorizontalLayout();
+		wLayout = new BorderLayout();
 		this.expertPanel = new Panel();
 		this.expertPanel.addComponent(wLayout);
 		this.contactCaption = "Contact expert user: " + (new UserWrapper(this.expert, this.login)).getFullName();
 		this.expertLabel.setCaption(contactCaption);
-		wLayout.addComponent(this.expertLabel);
-		
-		emptyLabel = new Label();
-		emptyLabel.setWidth("20px");
-		wLayout.addComponent(emptyLabel);
+		wLayout.addComponent(this.expertLabel, BorderLayout.Constraint.WEST);
 		
 		this.contact = new Button("Contact");
 		this.contact.addListener(this);
-		wLayout.addComponent(contact);
+		wLayout.addComponent(contact, BorderLayout.Constraint.EAST);
 		
-		wLayout = new HorizontalLayout();
+		wLayout = new BorderLayout();
 		this.viewPanel = new Panel();
 		this.viewPanel.addComponent(wLayout);
-		wLayout.addComponent(this.viewComment);
-		
-		emptyLabel = new Label();
-		emptyLabel.setWidth("20px");
-		wLayout.addComponent(emptyLabel);
-		
+		wLayout.addComponent(this.viewComment, BorderLayout.Constraint.WEST);
+
 		this.view = new Button("View");
 		this.view.addListener(this);
-		wLayout.addComponent(this.view);
+		wLayout.addComponent(this.view, BorderLayout.Constraint.EAST);
 		
-		this.toolRatePanel = new StarRatingPanel(this.login);
-		this.toolRatePanel.setTitle("Rate " + this.selectedTool.getName());
-		this.toolRatePanel.loadRating(this.selectedTool);
+		//Unify the width for all buttons here
+		this.addWkButton.setWidth("80px");
+		this.gotoPage.setWidth("80px");
+		this.contact.setWidth("80px");
+		this.view.setWidth("80px");
 		
-		this.wfRatePanel = new StarRatingPanel(this.login);
-		this.wfRatePanel.setTitle("Rate workflow until here");
-		this.wfRatePanel.loadRating(workflow);
-	
 		this.vLayout.addComponent(wFlowToolPanel);
 		this.vLayout.addComponent(expertPanel);
 		this.vLayout.addComponent(workflowPanel);
 		this.vLayout.addComponent(viewPanel);
-		this.vLayout.addComponent(toolRatePanel);
-		this.vLayout.addComponent(wfRatePanel);
+		
+		//If user login, they can rate workflow and tool.
+		if (login.getGenSpaceServerFactory().isLoggedIn()) {
+			this.toolRatePanel = new StarRatingPanel(this.login);
+			this.toolRatePanel.setTitle("Rate " + this.selectedTool.getName());
+			this.toolRatePanel.loadRating(this.selectedTool);
+			
+			this.wfRatePanel = new StarRatingPanel(this.login);
+			this.wfRatePanel.setTitle("Rate workflow until here");
+			this.wfRatePanel.loadRating(this.workflow);
+		
+			
+			this.vLayout.addComponent(toolRatePanel);
+			this.vLayout.addComponent(wfRatePanel);
+		}
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {
@@ -257,6 +250,5 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		});
 		buttonLayout.addComponent(confirm);
 		nLayout.addComponent(buttonLayout);
-		
 	}
 }

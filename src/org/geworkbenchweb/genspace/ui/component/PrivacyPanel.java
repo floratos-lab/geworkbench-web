@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
@@ -21,6 +20,11 @@ import com.vaadin.ui.VerticalLayout;
 
 public class PrivacyPanel extends SocialPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GenSpaceLogin login;
 	
 	private String panelTitle;
@@ -51,7 +55,7 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private ListSelect friendSelect;
 	
-	private BeanItemContainer<User> userContainer;
+	private BeanItemContainer<UserWrapper> userContainer;
 	
 	private BeanItemContainer<UserNetworkWrapper> networkContainer;
 	
@@ -63,14 +67,7 @@ public class PrivacyPanel extends SocialPanel{
 		bLayout = new BorderLayout();
 		setCompositionRoot(bLayout);
 		this.panelTitle = panelTitle;
-		/*this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriends();
-		this.networkList = this.login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 		
-		this.privacyPanel = new Panel(this.panelTitle);
-		this.privacyPanel.setWidth("800px");
-		this.createMainLayout();
-		this.privacyPanel.addComponent(this.vLayout);
-		this.bLayout.addComponent(privacyPanel, BorderLayout.Constraint.CENTER);*/
 		this.updatePanel();
 	}
 	
@@ -121,13 +118,15 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void createFriendListSelect() {
 
-		userContainer = new BeanItemContainer<User>(User.class);
-		
+		userContainer = new BeanItemContainer<UserWrapper>(UserWrapper.class);
 		Iterator<User> friendIT = this.friendList.iterator();
 		User tempUser;
+		UserWrapper tmpWrapper;
+		Object tempID;
 		while(friendIT.hasNext()) {
 			tempUser = friendIT.next();
-			userContainer.addItem(tempUser);
+			tmpWrapper = new UserWrapper(tempUser, login);
+			tempID = userContainer.addItem(tmpWrapper);
 		}
 		
 		friendSelect = new ListSelect(friends, userContainer);
@@ -186,12 +185,12 @@ public class PrivacyPanel extends SocialPanel{
 				while(nSelect.hasNext()) {
 					nSelected = nSelect.next();
 					if(networkSelect.isSelected(nSelected)) {
-						System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getId());
-						System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getName());
+						/*System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getId());
+						System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getName());*/
 						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
 					} else {
-						System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getId());
-						System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getName());
+						/*System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getId());
+						System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getName());*/
 						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), false);
 					}
 				}
@@ -201,15 +200,12 @@ public class PrivacyPanel extends SocialPanel{
 				while(fSelect.hasNext()) {
 					fSelected = fSelect.next();
 					if(friendSelect.isSelected(fSelected)) {
-						System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getId());
-						System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getUsername());
-						//System.out.println(GenSpaceServerFactory.getFriendOps().getFriends().get(0).getUsername());
-						//GenSpaceServerFactory.getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
+						/*System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getId());
+						System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getUsername());*/
 						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
 					} else {
-						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getId());
-						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getUsername());
-						//GenSpaceServerFactory.getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
+						/*System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getId());
+						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getUsername());*/
 						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
 					}
 				}

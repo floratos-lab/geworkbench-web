@@ -2,7 +2,6 @@ package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
-import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 
@@ -11,10 +10,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class UserSearchWindow extends Window {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GenSpaceLogin login;
 	
 	private SocialNetworkHome sHome;
@@ -116,7 +119,7 @@ public class UserSearchWindow extends Window {
 		
 		Label friendSituation = new Label();
 		if (isFriend) {
-			System.out.println("Is a Friend");
+			//System.out.println("Is a Friend");
 			friendString = friendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button remove = new Button("Remove friend");

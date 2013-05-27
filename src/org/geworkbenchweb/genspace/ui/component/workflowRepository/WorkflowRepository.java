@@ -18,7 +18,6 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -78,11 +77,19 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		compRepoPanel.addComponent(rootRepoPanel);
 		compRepoPanel.addComponent(delete);
 		compRepoPanel.setSizeFull();
-		//jSplitPane3.addComponent(repositoryPanel);
 		delete.addListener(new Button.ClickListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public void buttonClick(Button.ClickEvent evt) {
-				System.out.println("Delete test");
+				//System.out.println("Delete test");
 				UserWorkflow curWorkflow = repositoryPanel.getCurWorkFlow();
+				
+				if (curWorkflow == null) {
+					return ;
+				}
 				
 				login.getGenSpaceServerFactory().getWorkflowOps().deleteMyWorkflow(curWorkflow.getId());
 				login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
@@ -121,10 +128,14 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 
 	@Override
 	public void loggedOut() {
+		//Set null for current workflow, once user login again and objects still exist.
 		repositoryPanel.getContainer().removeAllItems();
+		repositoryPanel.setCurWorkFlow(null);
 		graphPanel.removeAllComponents();
+
 		workflowCommentsPanel.getModel().removeAllItems();
-		workflowDetailsPanel.getTextArea().setValue("");
+		workflowCommentsPanel.setWorkflow(null);
+		workflowDetailsPanel.setAndPrintWorkflow(null);
 		inboxTable.getModel().removeAllItems();
 		mainLayout.removeAllComponents();
 		mainLayout.addComponent(infoLabel);

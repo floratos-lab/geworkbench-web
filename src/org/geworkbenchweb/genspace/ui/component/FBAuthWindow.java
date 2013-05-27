@@ -16,6 +16,11 @@ import com.vaadin.ui.Window;
 
 public class FBAuthWindow extends Window{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GenSpaceLogin login;
 	
 	private ThemeResource gefb = new ThemeResource("img/gefb.png");
@@ -68,6 +73,11 @@ public class FBAuthWindow extends Window{
 		vLayout.addComponent(buttonLayout);
 		Button fbSubmit = new Button("Submit");
 		fbSubmit.addListener(new Button.ClickListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public void buttonClick(Button.ClickEvent evt) {
 				System.out.println("Test tokens: " + tokenField.getValue().toString());
 				String token = tokenField.getValue().toString();

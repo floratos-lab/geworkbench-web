@@ -3,10 +3,7 @@ package org.geworkbenchweb.genspace.ui.component;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.geworkbench.components.genspace.server.stubs.User;
-import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbenchweb.genspace.ObjectHandler;
 
 import com.vaadin.event.ItemClickEvent;

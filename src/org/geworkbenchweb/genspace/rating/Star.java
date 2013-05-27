@@ -11,18 +11,11 @@ public class Star extends Label {
 	 * 
 	 */
 	private static final long serialVersionUID = 1764644076700819427L;
-	/*private static ImageIcon fullStar = new ImageIcon(
-			"components/genspace/classes/org/geworkbench/components/genspace/rating/full.png");*/
-	
+
 	private static ThemeResource fullStar = new ThemeResource("img/full.png");
 	
-	/*private static ImageIcon halfStar = new ImageIcon(
-			"components/genspace/classes/org/geworkbench/components/genspace/rating/half.png");*/
-	
 	private static ThemeResource halfStar = new ThemeResource("img/half.png");
-	
-	/*private static ImageIcon emptyStar = new ImageIcon(
-			"components/genspace/classes/org/geworkbench/components/genspace/rating/empty.png");*/
+
 	private static ThemeResource emptyStar = new ThemeResource("img/empty.png");
 
 	public static final int FULL = 1;
@@ -31,14 +24,12 @@ public class Star extends Label {
 
 	private int value;
 	
-//	private StarRatingPanel parent;
-
 	public int getStarValue() {
 		return value;
 	}
 
 	public void setStar(int star) {
-		System.out.println("Check star: " + star);
+		//System.out.println("Check star: " + star);
 		switch (star) {
 		case FULL:
 			setIcon(fullStar);
@@ -55,8 +46,6 @@ public class Star extends Label {
 	}
 
 	public Star(StarRatingPanel panel, int value) {
-//		this.parent = panel;
-		//addMouseListener(panel);
 		this.value = value;
 		setStar(EMPTY);
 	}

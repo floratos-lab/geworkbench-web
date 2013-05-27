@@ -6,6 +6,11 @@ import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 
 public class UserNetworkWrapper implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private UserNetwork userNetwork;
 	
 	private int id;

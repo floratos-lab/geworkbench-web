@@ -38,9 +38,6 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowRepositoryServic
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 
-import com.vaadin.ui.Window.Notification;
-
-
 
 public class GenSpaceServerFactory {
 

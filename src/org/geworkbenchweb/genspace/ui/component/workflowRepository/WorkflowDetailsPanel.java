@@ -11,7 +11,6 @@ import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -41,7 +40,8 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.addComponent(hLayout);
 		this.addComponent(getTextArea());
 		this.setExpandRatio(getTextArea(), 1.0f);
-		sendButton.addListener(this);
+		this.sendButton.addListener(this);
+		this.textArea.setImmediate(true);
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin login)
@@ -52,8 +52,13 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 	public void setAndPrintWorkflow(UserWorkflow usrWorkflow) {
 		this.usrWorkflow = usrWorkflow;
 		//this.workflow = workflow;
-		String string = getWorkflowDetailsString(this.usrWorkflow.getWorkflow());
-		getTextArea().setValue(string);
+		
+		if (this.usrWorkflow == null) {
+			getTextArea().setValue("");
+		} else {
+			String string = getWorkflowDetailsString(this.usrWorkflow.getWorkflow());
+			getTextArea().setValue(string);
+		}
 	}
 
 	public String getWorkflowDetailsString(Workflow w) {
@@ -74,12 +79,12 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		return textArea;
 	}
 
-	public void setTextArea(TextField textArea) {
-		this.textArea = textArea;
-	}
-
 	@Override
 	public void buttonClick(ClickEvent event) {
+		if (this.usrWorkflow == null) {
+			return ;
+		}
+		
 		if (event.getSource() == sendButton) {
 			boolean b = send();
 			if (b) {

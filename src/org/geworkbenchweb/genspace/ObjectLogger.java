@@ -111,7 +111,6 @@ public class ObjectLogger {
 			Transaction done = null;
 			try
 			{
-				//done = (Transaction) (login.getGenSpaceServerFactory().getUsageOps().sendUsageLog((pending)));
 				done = (Transaction) (tmpFactory.getUsageOps().sendUsageLog(pending));
 			}
 			catch(Exception ex)
@@ -322,7 +321,6 @@ public class ObjectLogger {
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin login) {
-		//System.out.println("In ObjectLogger setGenSpaceLogin: " + login.getGenSpaceServerFactory().getUsername());
 		this.login = login;
 	}
 	

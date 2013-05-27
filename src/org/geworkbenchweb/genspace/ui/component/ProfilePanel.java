@@ -5,7 +5,6 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -178,6 +177,11 @@ public class ProfilePanel extends SocialPanel{
 		
 		Button saveButton = new Button(saveString);
 		saveButton.addListener(new ClickListener(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public void buttonClick(Button.ClickEvent event) {
 				login.getGenSpaceServerFactory().getUser().setFirstName(firstName.getValue().toString());
 				login.getGenSpaceServerFactory().getUser().setLastName(lastName.getValue().toString());
@@ -215,7 +219,6 @@ public class ProfilePanel extends SocialPanel{
 	}
 	
 	private void retrieveUserInfo() {
-		System.out.println("Test initFields()");
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 			User u = login.getGenSpaceServerFactory().getUser();
 			firstNameString = u.getFirstName();

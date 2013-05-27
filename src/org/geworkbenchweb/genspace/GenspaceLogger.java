@@ -86,6 +86,9 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 
 	@Override
 	public void SubmitAnalysis(AnalysisSubmissionEvent event) {
+		System.out.println("DEBUG: Analysis name " + event.getResultSet().getName().replace(" - Pending", ""));
+		/*System.out.println("Analysis params: " + event.getParameters());
+		System.out.println("Analysis dataset: " + event.getDataSet().getLabel());*/
 
 		if (event != null
 				&& event.getClass().equals(AnalysisSubmissionEvent.class)) {

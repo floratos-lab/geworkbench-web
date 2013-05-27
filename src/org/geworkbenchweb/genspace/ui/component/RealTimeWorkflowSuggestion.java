@@ -18,7 +18,6 @@ import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -33,24 +32,16 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 	private static final long serialVersionUID = 4806046453151557609L;
 	
 	private final static String NAME = "Name";
-	private final static String ORDER = "Order";
-//	JRadioButton log, logAnon, noLog;
-//	ButtonGroup group;
-//	JPanel radioPanel, saveReset;
-//	JButton save, reset;
-//	private static ImageIcon arrow = new ImageIcon("components/genspace/classes/org/geworkbench/components/genspace/rating/arrow_right.png");
 
-	//public static WorkflowWrapper cwf = null;
+	private final static String ORDER = "Order";
+
 	public WorkflowWrapper cwf  = null;
+
 	public ArrayList<WorkflowWrapper> usedWorkFlowToday = new ArrayList<WorkflowWrapper>();
-//	private static String currentTid = null;
 
 	private WorkflowVisualizationPanel workflowVisualizationPanel = new WorkflowVisualizationPanel();
-	private BorderLayout workflowViewerPanel = new BorderLayout();
-//	private static JPanel workflowNodePanel = new JPanel(new FlowLayout());
-//	private static VerticalLayout workflowInfoPanel = new VerticalLayout();
 
-//	private static WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
+	private BorderLayout workflowViewerPanel = new BorderLayout();
 
 	private Label viewerStatus = new Label();
 
@@ -63,6 +54,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 	private ListSelect toolListing = new ListSelect();
 	
 	private Button button = new Button("Search");
+
 	private TextField wfsPane;
 
 	private int preference; // the logging preference
@@ -85,12 +77,8 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		 * */
 
 		// setup viewer status
-//		viewerStatus.setForeground(Color.WHITE);
 		viewerStatus.setValue("No analysis has occured yet.");
 		workflowViewerPanel.addComponent(viewerStatus, BorderLayout.Constraint.NORTH);
-//		workflowNodePanel.setBackground(new Color(35, 35, 142));
-//		workflowNodePanel.setBorder(new MatteBorder(10, 10, 10, 10, new Color(
-//				35, 35, 142)));
 		workflowViewerPanel.addComponent(workflowVisualizationPanel, BorderLayout.Constraint.CENTER);
 		workflowVisualizationPanel.setHeight("60px");
 		workflowVisualizationPanel.setGenSpaceLogin(login);
@@ -100,11 +88,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		suggestionsPanel.setSizeFull();
 		suggestionsPanel.setSpacing(true);
 		BorderLayout toolListPanel = new BorderLayout();
-		/*
-		toolListPanel.setBorder(new MatteBorder(10, 10, 10, 10,
-				new Color(215,217,223)));
-		*/
-		
+
 		Label label1 = new Label("Advanced suggestions");
 		Label label2 = new Label("Get suggestions for people who use these tools:");
 		
@@ -117,8 +101,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		wfsPane.setHeight("200px");
 		
 		Label resultsLabel = new Label("Results:");
-//		toolPanel.setWidth("100%");
-//		toolPanel.setHeight("300px");
 		HorizontalLayout buttonPanel = new HorizontalLayout();
 		
 		headerPanel.addComponent(label1);
@@ -128,8 +110,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		
 		resultsPanel.addComponent(resultsLabel);
 		resultsPanel.addComponent(wfsPane);
-		
-//		button.addActionListener(this);
+
 		buttonPanel.addComponent(button);
 		
 		updateAllToolList();
@@ -143,15 +124,10 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		toolPanel.addComponent(buttonPanel);
 		toolPanel.setComponentAlignment(buttonPanel, Alignment.MIDDLE_CENTER);
 		
-//		wfsPane.setEnabled(false);
-		
 		toolListPanel.addComponent(headerPanel, BorderLayout.Constraint.NORTH);
 		toolListPanel.addComponent(toolPanel, BorderLayout.Constraint.CENTER);
 		toolListPanel.addComponent(resultsPanel, BorderLayout.Constraint.SOUTH);
-		
-//		infoArea.setWidth("100%");
-//		infoArea.setHeight("300px");		
-//		workflowInfoPanel.addComponent(panel2);
+
 		button.addListener(new Button.ClickListener(){
 			
 			private static final long serialVersionUID = 1L;
@@ -172,8 +148,13 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 						tmpOrder = (Integer)tmpItem.getItemProperty(ORDER).getValue();
 						tmpTool = results.get(tmpOrder);
 						toolList.add(tmpTool);
-						System.out.println("Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
+						//System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
 					}
+				}
+				
+				if (toolList.size() == 0) {
+					wfsPane.setValue("No tool is selected");
+					return ;
 				}
 				
 				String criteriaString = "(";
@@ -184,20 +165,18 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				}
 				criteriaString = criteriaString.substring(0, criteriaString.length()-4);
 				criteriaString += ") ";
-				System.out.println("CriteriaString: " + criteriaString);
+				System.out.println("DEBUG CriteriaString: " + criteriaString);
 				
 				List<Workflow> workFlowList;
 				if(toolList.size() > 0){
 					workFlowList = login.getGenSpaceServerFactory().getUsageOps().getMahoutSimilarWorkflowsSuggestion(toolList);
-					System.out.println("Suggested workflow list: " + workFlowList.size());
+					// System.out.println("Suggested workflow list: " + workFlowList.size());
 					
 					if (workFlowList == null || workFlowList.size() == 0) {
 						wfsPane.setValue("No Workflow found");
 					} else {
 						displayWorkflow(workFlowList);
 					}
-				} else {
-					wfsPane.setValue("No tool is selected");
 				}
 			}
 			
@@ -328,15 +307,9 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		}
 
 		StringBuilder stringBuilder = new StringBuilder(); 
-		
-		// stringBuilder.append("\n\n\n\n\n\n\n");
+
 		stringBuilder.append("Your current workflow: \n");
 		stringBuilder.append(cwf + "\n\n");
-		//stringBuilder.append("Previous workflows: \n");
-		//stringBuilder.append(finishedWF + "\n\n\n");
-		// stringBuilder.append("Your current workflow activity so far: \n" +
-		// cwfSeparate + "\n\n");
-		// stringBuilder.append(finishedWF + "\n\n\n");
 
 		stringBuilder.append("Suggestions for your next steps: "
 				+ "\n");
@@ -346,10 +319,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				+ " times by genSpace users." + "\n\n");
 		stringBuilder.append("Next steps:" + "\n");
 		stringBuilder.append(nextSteps + "\n\n");
-		
-//		stringBuilder.append("How users have gotten here: " + "\n");
-//		stringBuilder.append(statBDisplay + "\n\n");
-
 		
 		if (nextBestRated != null)
 			stringBuilder.append("Next best rated tool to use: " + nextBestRated.getName()

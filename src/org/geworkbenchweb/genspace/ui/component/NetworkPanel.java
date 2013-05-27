@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,10 +10,10 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -24,6 +23,11 @@ import com.vaadin.ui.VerticalLayout;
 
 public class NetworkPanel extends SocialPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GenSpaceLogin login;
 	
 	private String title;
@@ -106,9 +110,8 @@ public class NetworkPanel extends SocialPanel{
 		UserNetwork tmpNet;
 		while(unIT.hasNext()) {
 			tmpNet = unIT.next();
-			System.out.println("User net: " + tmpNet.getNetwork().getName());
 			this.usrNetContainer.addBean(tmpNet);
-			addNetwork(tmpNet.getNetwork().getName(), new UserWrapper(tmpNet.getNetwork().getOwner(), this.login).getFullName());
+			addNetwork(tmpNet, new UserWrapper(tmpNet.getNetwork().getOwner(), this.login).getFullName());
 		}
 		
 		Iterator<Network> nIT = this.cachedAllNetWorks.iterator();
@@ -127,13 +130,36 @@ public class NetworkPanel extends SocialPanel{
 		mainLayout.addComponent(selectionLayout);
 	}
 	
-	private void addNetwork(String netName, String usrName) {
+	private void addNetwork(final UserNetwork uNet, String usrName) {
+		String netName = uNet.getNetwork().getName();
 		if (netName == null || netName.isEmpty() || usrName == null || usrName.isEmpty()) {
 			return ;
 		}
 		Panel newPanel = new Panel(netName);
+		newPanel.setWidth("200px");
 		Label moderationInfo = new Label(this.networkLabelName + usrName);
 		newPanel.addComponent(moderationInfo);
+		newPanel.addListener(new ClickListener() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			String nupTitle = "Users in network ";
+			
+			@Override
+			public void click(com.vaadin.event.MouseEvents.ClickEvent event) {
+				// TODO Auto-generated method stub
+				if (event.isDoubleClick()) {
+					nupTitle = nupTitle + event.getComponent().getCaption();
+					NetUserPanel nup = new NetUserPanel(nupTitle, login, uNet.getNetwork());
+					nwPresentationLayout.removeAllComponents();
+					nwPresentationLayout.addComponent(nup);
+				}
+			}
+			
+		});
+		
 		this.nwPresentationLayout.addComponent(newPanel);
 		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 	}
@@ -198,7 +224,7 @@ public class NetworkPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 						
 			public void buttonClick(ClickEvent event){
-				System.out.println("In leave: " + selectedNet.getName());
+				//System.out.println("DEBUG : leave " + selectedNet.getName());
 				if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
 					System.out.println("selected network captured by the leave button: " + selectedNet.getName());
 					UserNetwork un = isCachedMyNetWorks();
@@ -208,7 +234,6 @@ public class NetworkPanel extends SocialPanel{
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
 						//elimNetwork(selectedNet.getName());
 						updatePanel();
-						//createMainLayout();
 					}
 				}
 			}

@@ -71,11 +71,11 @@ public final class ObjectHandler {
 				try {
 					if (m.getName().equals("getAnalaysisUI")) {
 						analysis = (AnalysisUI) m.invoke(event);
-						System.out.println("Get analysis UI: " + analysis.getResultType().getName());
+						//System.out.println("Get analysis UI: " + analysis.getResultType().getName());
 					}
 					else if (m.getName().equals("getDataSet")) {
 						dataSetName = ((DSDataSet)m.invoke(event)).getLabel();
-						System.out.println("Get dataset name: " + dataSetName);
+						//System.out.println("Get dataset name: " + dataSetName);
 					}
 				}
 				catch (Exception e) {
@@ -222,11 +222,7 @@ public final class ObjectHandler {
 			Random r = new Random();
 			Integer j = Integer.valueOf(r.nextInt(Integer.MAX_VALUE));
 			lastTransactionId.put(dataSetName, j.toString());
-			objectLogger.getCurTransactions().remove(dataSetName); // Will
-																	// generate
-																	// a new
-																	// transaction
-																	// this way
+			objectLogger.getCurTransactions().remove(dataSetName); // Will generate a new transaction this way;
 		}
 		lastRunTimes.put(dataSetName, currentTime);
 	}

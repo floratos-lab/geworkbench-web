@@ -1,13 +1,6 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import java.util.HashMap;
-
-import javax.swing.JLabel;
-
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
-import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
-import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
@@ -25,7 +18,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -90,7 +82,6 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 	
 	@Override
 	public void loggedIn() {
-		//String user = GenSpaceServerFactory.getUsername();
 		String user = genSpaceServerFactory.getUsername();
 		GenSpaceSecurityPanel p = new GenSpaceSecurityPanel(user, genSpaceParent, this);
 		mainLayout.removeAllComponents();
@@ -99,12 +90,11 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		
 		MahoutRecommendationPanel mPanel = new MahoutRecommendationPanel(this);
 		mainLayout.addComponent(mPanel);
-		mPanel.displayRecommedations();
+		mPanel.displayRecommendations();
 		
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(this.push);
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
-		//push = new ICEPush();
 	}
 	
 	@Override
@@ -303,8 +293,7 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 		Notification notification = new Notification("User Logged in",
 				Notification.TYPE_TRAY_NOTIFICATION);
 		mainWindow.showNotification(notification);
-		
-		//System.out.println("Chat and activity feed test in the beginning");
+
 		chatHandler = new ChatReceiver(this);
 		chatHandler.login(username, password);
 		
@@ -316,18 +305,23 @@ public class GenSpaceLogin extends AbstractGenspaceTab implements GenSpaceTab, C
 
 		this.createAFWindow();
 		
+		this.chatHandler.rf.focus();
+		this.afWindow.focus();
+		
 		genSpaceParent.fireLoggedIn();
 	}
 	
 	public void createAFWindow() {
-		if (afWindow == null) {
-			afWindow = new ActivityFeedWindow(this);
-			getApplication().getMainWindow().addWindow(afWindow);
-			afWindow.setPositionX(chatHandler.rf.getPositionX());
-			// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
-			GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
-			GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
-		}
+		if (afWindow != null)
+			afWindow = null;
+		
+		
+		afWindow = new ActivityFeedWindow(this);
+		getApplication().getMainWindow().addWindow(afWindow);
+		afWindow.setPositionX(chatHandler.rf.getPositionX());
+		// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
 	}
 	
 	public ActivityFeedWindow getAFWindow() {

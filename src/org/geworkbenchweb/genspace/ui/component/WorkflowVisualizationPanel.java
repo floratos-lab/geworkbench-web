@@ -10,22 +10,16 @@ import org.geworkbenchweb.genspace.rating.WorkflowVisualizationPopup;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
 import com.vaadin.event.LayoutEvents;
-import com.vaadin.event.MouseEvents;
-import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 public class WorkflowVisualizationPanel extends Panel {
+	
 	private static final long serialVersionUID = -3135103378675075343L;
-	
-	private Panel scrollPanel;
-	
-	private VerticalLayout layout;
 	
 	private Resource resource;
 	
@@ -38,13 +32,7 @@ public class WorkflowVisualizationPanel extends Panel {
 	private GenSpaceLogin login;
 
 	public WorkflowVisualizationPanel() {
-		//layout = (VerticalLayout) getContent();
-		layout = new VerticalLayout();
-		layout.setMargin(true);
-		layout.setSpacing(true);
 		this.setScrollable(true);
-		this.setHeight("500px");
-		this.addComponent(layout);
 				
 		this.resource = new ThemeResource(resourcePath);
 	}
@@ -57,7 +45,8 @@ public class WorkflowVisualizationPanel extends Panel {
 		//removeAllComponents();
 		
 		wkflwCache = new HashMap<Integer, WorkflowWrapper>();
-		this.layout.removeAllComponents();
+		//this.layout.removeAllComponents();
+		this.removeAllComponents();
 
 		Iterator<WorkflowTool> wIT;
 		HorizontalLayout flowLayout;
@@ -85,6 +74,11 @@ public class WorkflowVisualizationPanel extends Panel {
 			}
 						
 			flowLayout.addListener(new LayoutEvents.LayoutClickListener() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
 				public void layoutClick(LayoutEvents.LayoutClickEvent evt) {
 //					System.out.println("DEBUG layoutclickevt: " + ((HorizontalLayout)evt.getComponent()).getData());
 					
@@ -104,7 +98,7 @@ public class WorkflowVisualizationPanel extends Panel {
 				}
 			});
 			
-			this.layout.addComponent(flowLayout);
+			this.addComponent(flowLayout);
 		}
 	}
 }

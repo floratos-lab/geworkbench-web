@@ -1,12 +1,9 @@
 package org.geworkbenchweb.genspace;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 
 import com.restfb.Connection;
@@ -53,15 +50,6 @@ public class FBManager {
 	}
 	
 	public void publishAnalysisResult(String searchString, String comment) {
-		/*StringBuilder result = new StringBuilder();
-		result.append("Analysis Tool: " + analysisName + "\n");
-		result.append("Dataset Name: " + dataSetName + "\n");
-		result.append("Parameters:\n");
-		
-		for (AnalysisEventParameter param: aepList) {
-			result.append(param.getParameterKey() + ": " + param.getParameterValue() + "\n");
-		}
-		result.append("Date: " + createdAt.toString() + "\n");*/
 
 		Post searchPost = this.searchExistingPost(searchString);
 		if (searchPost == null) {
@@ -72,11 +60,9 @@ public class FBManager {
 			}
 			
 		} else {
-			System.out.println("The post exists already!");
-			System.out.println(searchPost.getMessage());
+			/*System.out.println("The post exists already!");
+			System.out.println(searchPost.getMessage());*/
 			
-			/*boolean deleted = this.fbManager.deleteObject(searchPost.getId());
-			System.out.println("Is it deleted? " + deleted);*/
 			if (!comment.isEmpty() || comment != null) {
 				this.fbManager.publish(searchPost.getId() + "/comments", String.class, Parameter.with("message", comment));
 			}

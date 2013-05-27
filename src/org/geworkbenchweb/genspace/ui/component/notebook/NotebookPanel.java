@@ -156,7 +156,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				d.setTime(currentDate);
 				d.add(Calendar.DATE, evtBefore);
 				String queryLimit = charFormatter.format(d.getTime());
-				System.out.println("DEBUG queryLimit in research notebook: " + queryLimit);
+				// System.out.println("DEBUG queryLimit in research notebook: " + queryLimit);
 				
 				return queryLimit;
 			}
@@ -183,7 +183,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				Iterator<String> mapIT = analMap.keySet().iterator();
 				while(mapIT.hasNext()) {
 					String tmpKey = mapIT.next();
-					System.out.println("Test my analysis: " + tmpKey + " " + analMap.get(tmpKey));
+					// System.out.println("Test my analysis: " + tmpKey + " " + analMap.get(tmpKey));
 					pie.addSerie(tmpKey, analMap.get(tmpKey).intValue());
 				}
 				
@@ -398,8 +398,12 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent evt) {
-					FBCommentWindow commentWindow = new FBCommentWindow(login, e, fbUser);
-					getApplication().getMainWindow().addWindow(commentWindow);
+					if (login.getFBManager() == null) {
+						getApplication().getMainWindow().showNotification("Plase login Facebook first.");
+					} else {
+						FBCommentWindow commentWindow = new FBCommentWindow(login, e, fbUser);
+						getApplication().getMainWindow().addWindow(commentWindow);
+					}
 				}
 			});
 			

@@ -3,7 +3,6 @@ package org.geworkbenchweb.genspace.rating;
 import java.text.DecimalFormat;
 
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
-import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.wrapper.ToolWrapper;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
@@ -11,19 +10,15 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.ToolRating;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRating;
-import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
-import com.vaadin.event.MouseEvents.ClickEvent;
-import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 
-public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickListener{
+public class StarRatingPanel extends Panel {
 
 	/**
 	 * 
@@ -54,15 +49,11 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		this.login = login;
 
 		// basic setup
-		//BorderLayout bLayout = new BorderLayout();
-		//contentPanel.addComponent(bLayout);
 		this.tool = tool;
 
 		// add title
 		title = new Label(titleText);
 		this.addComponent(title);
-		//contentPanel.addComponent(title, BorderLayout.Constraint.NORTH);
-		//contentPanel.add(title, BorderLayout.NORTH);
 		
 		HorizontalLayout hLayout = new HorizontalLayout();
 		this.addComponent(hLayout);
@@ -72,13 +63,16 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		for (int i = 0; i < 5; i++)
 			stars[i] = new Star(this, i + 1);
 		
-		//contentPanel.add(starPanel, BorderLayout.WEST);
-		//bLayout.addComponent(starPanel, BorderLayout.Constraint.WEST);
 		hLayout.addComponent(starPanel);
 		
 		HorizontalLayout starLayout = new HorizontalLayout();
 		starPanel.addComponent(starLayout);
 		starLayout.addListener(new LayoutClickListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void layoutClick(LayoutClickEvent event) {
 				// TODO Auto-generated method stub
@@ -87,10 +81,7 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 						return;
 					
 					int starIndex = ((Star)event.getClickedComponent()).getStarValue() - 1;
-					
-					System.out.println("Test evt: " + event.getClickedComponent().getClass().getName());
-					System.out.println("Test star value: " + starIndex);
-					
+
 					for (int i = 0; i < 5; i++) {
 						if (i <= starIndex)
 							stars[i].setStar(Star.FULL);
@@ -99,21 +90,17 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 					}
 					login.getPusher().push();
 				} else if (event.getButton() == MouseEvents.ClickEvent.BUTTON_LEFT && event.isDoubleClick()) {
-					System.out.println("Test left double click");
-	
 					
 					if (clickable) {
 						int index = ((Star)event.getClickedComponent()).getStarValue();
 						
-						System.out.println("Test evt: " + event.getClickedComponent().getClass().getName());
-						System.out.println("Test star value: " + index);
+						/*System.out.println("DEBUG evt: " + event.getClickedComponent().getClass().getName());
+						System.out.println("DEBUG star value: " + index);*/
 						if(workflow != null) {
-							System.out.println("Start to rate workflow");
 							rateWorkflow(index);
 						} else {
 							rateTool(index);
 						}
-						System.out.println("Test value: " + value);
 						setStarValue(value);
 					} else {
 						return ;
@@ -131,8 +118,6 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		// add rating info
 		ratingInfo = new Label();
 		hLayout.addComponent(ratingInfo);
-		//bLayout.addComponent(ratingInfo, BorderLayout.Constraint.EAST);
-		//contentPanel.add(ratingInfo, BorderLayout.EAST);
 	}
 
 	public void setTitle(String t) {
@@ -145,27 +130,27 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 			this.setVisible(false);
 			return;
 		} else
-			setVisible(true);
+			this.setVisible(true);
 		
-		RateWorker rw = new RateWorker(workflow.getId());
+		RateWorker rw = new RateWorker(workflow.getId(), false);
+		login.getPusher().push();
 	}
 	
 	public void loadRating(final Tool tn) {
 
 		this.tool = tn;
-		// see if we can even execute the query
-//		if (tn == null || tn.getId() < 1) {
-//			System.out.println("Setting not visible");
-//			setVisible(false);
-//			return;
-//		} else
-//			setVisible(true);
+		if (this.tool == null || tool.getId() < 2) {
+			this.setVisible(false);
+			return ;
+		} else
+			this.setVisible(true);
 
-		RateWorker rw = new RateWorker(tool.getId());
+		RateWorker rw = new RateWorker(tool.getId(), true);
+		login.getPusher().push();
 	}
 
 	public void setRatingValue(double rating, long totalRatings) {
-		System.out.println("Test totalRatings: " + totalRatings);
+		//System.out.println("Test totalRatings: " + totalRatings);
 		
 		if (totalRatings != 0) {
 			setStarValue(rating);
@@ -177,7 +162,7 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 			setStarValue(0);
 			ratingInfo.setCaption("Not yet rated.");
 		}
-		System.out.println("Test caption: " + ratingInfo.getCaption());
+		//System.out.println("Test caption: " + ratingInfo.getCaption());
 		login.getPusher().push();
 	}
 
@@ -200,11 +185,12 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 	}
 	
 	public void rateWorkflow(final int rating) {
-		System.out.println("Before workflow rating thread");
 		WFRater wfRater = new WFRater(rating);
+		this.setClickable(false);
 	}
 	public void rateTool(final int rating) {
 		ToolRater tRater = new ToolRater(rating);
+		this.setClickable(false);
 	}
 
 	public boolean isClickable() {
@@ -214,65 +200,6 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 	public void setClickable(boolean c) {
 		clickable = c;
 	}
-
-	/*@Override
-	public void mouseClicked(MouseEvent e) {
-		if (clickable)
-			if(workflow != null)
-				rateWorkflow(((Star) e.getComponent()).getValue());
-			else
-				rateTool(((Star) e.getComponent()).getValue());
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		if (!clickable)
-			return;
-
-		int starIndex = ((Star) e.getComponent()).getValue() - 1;
-		for (int i = 0; i < 5; i++) {
-			if (i <= starIndex)
-				stars[i].setStar(Star.FULL);
-			else
-				stars[i].setStar(Star.EMPTY);
-		}
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		if (!clickable)
-			return;
-		setStarValue(value);
-	}
-
-	// these aren't needed.
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}*/
-
-	@Override
-	public void layoutClick(LayoutClickEvent event) {
-		// TODO Auto-generated method stub
-		if (event.getButton() == MouseEvents.ClickEvent.BUTTON_LEFT) {
-			if (!clickable)
-				return;
-			
-			System.out.println("Test evt: " + event.getClickedComponent().toString());
-			
-			/*int starIndex = ((Star) event.getComponent()).getValue() - 1;
-			for (int i = 0; i < 5; i++) {
-				if (i <= starIndex)
-					stars[i].setStar(Star.FULL);
-				else
-					stars[i].setStar(Star.EMPTY);
-			}*/
-		}
-		
-	}
 	
 	private class RateWorker implements Runnable {
 		
@@ -280,18 +207,26 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		
 		private Thread realWorker;
 		
-		public RateWorker(int id) {
+		private boolean isTool = true;
+		
+		public RateWorker(int id, boolean isTool) {
 			this.id = id;
+			this.isTool = isTool;
 			realWorker = new Thread(this);
 			realWorker.start();
 		}
 		
 		public void run() {
+			if (this.isTool) {
+				this.loadTool();
+			} else {
+				this.loadWorkflow();
+			}
+		}
+		
+		private void loadWorkflow() {
 			WorkflowRating rating = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyWorkflowRating(this.id);
-			if (rating == null)
-				setClickable(true);
-			else
-				setClickable(true);
+			setClickable(true);
 			
 			Workflow rateWorkflow = login.getGenSpaceServerFactory().getPrivUsageFacade().getWorkflow(this.id);
 			if(rateWorkflow != null)
@@ -299,6 +234,18 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 				WorkflowWrapper rat = new WorkflowWrapper(rateWorkflow);
 				setRatingValue(rat.getOverallRating(), rat.getNumRating());
 			}
+		}
+		
+		private void loadTool() {
+			ToolRating rating = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyToolRating(this.id);
+			setClickable(true);
+			
+			Tool rateTool= login.getGenSpaceServerFactory().getPrivUsageFacade().getTool(this.id);
+			if (rateTool != null) {
+				ToolWrapper rat = new ToolWrapper(rateTool);
+				setRatingValue(rat.getOverallRating(), rat.getNumRating());
+			}
+			
 		}
 	}
 	
@@ -315,15 +262,19 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		
 		public void run() {
 			System.out.println("Start running");
-			Workflow result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveWorkflowRating(workflow.getId(), rating);
+			Workflow result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveWorkflowRating(workflow.getId(), this.rating);
+			
+			if (result == null) {
+				getApplication().getMainWindow().showNotification("Fail to set work flow rating");
+				return ;
+			}
 			
 			workflow.setSumRating(result.getSumRating());
 			workflow.setNumRating(result.getNumRating());
 			System.out.println("Test rating in run " + rating);
 			setStarValue(rating);
 			WorkflowWrapper wrap = new WorkflowWrapper(result);
-			setRatingValue(wrap.getOverallRating(),
-					wrap.getNumRating());
+			setRatingValue(wrap.getOverallRating(), wrap.getNumRating());
 
 			setTitle("Thanks!");
 			getThisPanel().requestRepaint();
@@ -341,13 +292,17 @@ public class StarRatingPanel extends Panel implements LayoutEvents.LayoutClickLi
 		}
 		
 		public void run() {
-			Tool result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveToolRating(tool.getId(), rating);
+			Tool result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveToolRating(tool.getId(), this.rating);
+			
+			if (result == null) {
+				getApplication().getMainWindow().showNotification("Fail to set tool rating");
+				return ;
+			}
 
 			RuntimeEnvironmentSettings.tools.put(result.getId(), result);
 			setStarValue(rating);
 			ToolWrapper wrap = new ToolWrapper(result);
-			setRatingValue(wrap.getOverallRating(),
-					wrap.getNumRating());
+			setRatingValue(wrap.getOverallRating(), wrap.getNumRating());
 
 			setTitle("Thanks!");
 			getThisPanel().requestRepaint();

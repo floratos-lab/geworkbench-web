@@ -92,14 +92,21 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {
+		
+		Object idxTmp = table.getValue();
+		
+		if (idxTmp == null) {
+			return ;
+		}
+		
 		String bCaption = evt.getButton().getCaption();
 
 		if (bCaption.equals("Delete")) {
-			int idx = Integer.parseInt(table.getValue().toString());
+			int idx = Integer.parseInt(idxTmp.toString());
 			IncomingWorkflow tmp = this.iwfList.get(idx);
 			this.removeFromInbox(tmp);
 		} else if (bCaption.equals("Add")) {
-			int idx = Integer.parseInt(table.getValue().toString());
+			int idx = Integer.parseInt(idxTmp.toString());
 			IncomingWorkflow tmp = this.iwfList.get(idx);
 			UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
 			this.workflowRepository.updateFormFieldsBG();

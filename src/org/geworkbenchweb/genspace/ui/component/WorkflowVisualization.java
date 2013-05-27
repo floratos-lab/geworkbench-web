@@ -9,17 +9,15 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
-import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Panel;
 
 public class WorkflowVisualization extends AbstractGenspaceTab implements
 		GenSpaceTab, ClickListener {
@@ -37,18 +35,16 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 	private Label label = new Label();
 	private HorizontalLayout selectPanel = new HorizontalLayout();
 	private WorkflowVisualizationPanel vis = new WorkflowVisualizationPanel();
-	private BorderLayout borderLayout = new BorderLayout();
-//	private GenSpaceLogin login;
+	private Panel borderLayout = new Panel();
+	private Panel selectRootPanel = new Panel();
 
 	public WorkflowVisualization(GenSpaceLogin login) {
 		super(login);
-//		this.login = getGenspaceLogin();
+		selectRootPanel.setScrollable(true);
+		borderLayout.setScrollable(true);
+		vis.setScrollable(true);
 		initComponents();
 		setCompositionRoot(borderLayout);
-	}
-	
-	public GenSpaceLogin getGenSpaceLogin() {
-		return this.login;
 	}
 
 	private void initComponents() {
@@ -67,7 +63,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		button.addListener(this);
 		label.setValue("Please select an action and a tool to search for");
 
-		selectPanel.setSpacing(true);
+		//selectPanel.setSpacing(true);
 		selectPanel.addComponent(actions);
 		selectPanel.addComponent(tools);
 		selectPanel.addComponent(button);
@@ -77,11 +73,16 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		selectPanel.setComponentAlignment(tools, Alignment.BOTTOM_CENTER);
 		selectPanel.setComponentAlignment(button, Alignment.BOTTOM_CENTER);
 		selectPanel.setComponentAlignment(label, Alignment.BOTTOM_CENTER);
+		
+		selectRootPanel.addComponent(selectPanel);
 
-		borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
-		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);
+		/*borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
+		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);*/
+		//borderLayout.addComponent(selectPanel);
+		borderLayout.addComponent(selectRootPanel);
+		borderLayout.addComponent(vis);
 		vis.setGenSpaceLogin(login);
-		vis.setSizeFull();
+		//vis.setSizeFull();
 	}
 
 	@Override

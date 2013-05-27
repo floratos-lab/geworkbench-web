@@ -6,24 +6,25 @@ import java.util.Stack;
 
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
-import org.geworkbenchweb.genspace.FBManager;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 
-import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
-public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTab{
+public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTab, FriendStatusChangeListener{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private AbsoluteLayout mainLayout;
 	
 	private VerticalLayout sbcLayout;
@@ -84,6 +85,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	
 	private SocialNetworkHome instance;
 	
+	private Label infoLabel = new Label(
+			"Please login to genSpace to access this area.");
+	
 	{
 		init();
 	}
@@ -121,7 +125,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		mainLayout = new AbsoluteLayout();
 		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
-		mainLayout.setHeight("100%");
+		//mainLayout.setHeight("100%");
 		mainLayout.setMargin(false);
 		
 		setWidth("100.0%");
@@ -163,13 +167,16 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
+				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+					return ;
+				}
+				
 				Object comboObject = search.getValue();
 				User f;
 				if (comboObject instanceof User) {
 					f = (User) comboObject;
-				} else {
+				} else if (comboObject != null){
 					String comboValue = comboObject.toString();
-					//f = GenSpaceServerFactory.getUserOps().getProfile(comboValue);
 					f = login.getGenSpaceServerFactory().getUserOps().getProfile(comboValue);
 					
 					if (f == null) {
@@ -177,14 +184,11 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 						getApplication().getMainWindow().showNotification(errorMsg);
 						return ;
 					}
+				} else {
+					return ;
 				}
-				
 				UserSearchWindow usw = new UserSearchWindow(f, login, SocialNetworkHome.this);
 				getApplication().getMainWindow().addWindow(usw);
-				System.out.println("Got user: " + f.getUsername());
-
-				String comboValue = search.getValue().toString();
-				System.out.println("Test go button: " + comboValue);
 			}
 		});
 		
@@ -201,7 +205,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			
 			private static final long serialVersionUID = 1L;
 
-			public void buttonClick(ClickEvent event) {
+			public void buttonClick(ClickEvent event) {				
 				proPanel.updatePanel();
 				setContent(proPanel);
 			}
@@ -214,6 +218,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
+				if (!login.getGenSpaceServerFactory().isLoggedIn())
+					return ;
+				
 				netPanel.updatePanel();
 				setContent(netPanel);
 			}
@@ -225,6 +232,10 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
+					if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+						return ;
+					}
+					
 					friendPanel.updatePanel();
 					setContent(friendPanel);
 				}
@@ -237,7 +248,10 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent e) {
-				//System.out.println("In the chat button");
+				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+					return ;
+				}
+				
 				searchRosterFrame();
 				searchAFWindow();
 			}
@@ -249,6 +263,10 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
+					if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+						return ;
+					}
+					
 					privacyPanel.updatePanel();
 					setContent(privacyPanel);
 				}			
@@ -260,6 +278,10 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
+				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+					return ;
+				}
+				
 				viewPanel.updatePanel();
 				setContent(viewPanel);
 			}
@@ -271,11 +293,15 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			
 			public void buttonClick(ClickEvent event) {
 				
+				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+					return ;
+				}
+				
 				if(last.isEmpty())
 					return ;
 				
 				SocialPanel sp = last.pop();
-				System.out.println(sp.getPanelTitle());
+				//System.out.println(sp.getPanelTitle());
 				
 				setRealContent(sp);
 			}
@@ -349,27 +375,28 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			getApplication().getMainWindow().addWindow(chatHandler.rf);
 		} else if (!this.chatHandler.rf.isVisible()) {
 			this.chatHandler.rf.setVisible(true);
-			this.chatHandler.rf.focus();
 			System.out.println("Roster frame from invisible to visible");
 		} else if (!getApplication().getMainWindow().getChildWindows().contains(chatHandler.rf)){      
 			System.out.println("RosterFrame visible: " + this.chatHandler.rf.isVisible());
 			getApplication().getMainWindow().addWindow(chatHandler.rf);
 		}
+		this.chatHandler.rf.focus();
 	}
 	
 	private void searchAFWindow() {
 		ActivityFeedWindow tmp = this.login.getAFWindow();
 		if (tmp == null) {
 			this.login.createAFWindow();
+			tmp = this.login.getAFWindow();
 			System.out.println("Create a new AFWindow");
 		} else if (!tmp.isVisible()) {
 			tmp.setVisible(true);
-			tmp.focus();
 			System.out.println("AFWindow from invisible to visible");
 		} else if (!getApplication().getMainWindow().getChildWindows().contains(tmp)){      
 			System.out.println("AFWindow visible: " + this.chatHandler.rf.isVisible());
 			getApplication().getMainWindow().addWindow(tmp);
 		}
+		tmp.focus();
 	}
 
 	@Override
@@ -398,15 +425,26 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	}
 	
 	private void clearSettings() {
-		this.friendList = null;
+		/*this.friendList = null;
 		this.uNetworkList = null;
 		this.proPanel = null;
 		this.friendPanel = null;
 		this.netPanel = null;
 		this.privacyPanel = null;
-		this.viewPanel = null;
+		this.viewPanel = null;*/
 		this.chatHandler.getConnection().disconnect();
-		this.chatHandler.rf.cleanSettings();
+		//this.chatHandler.rf.cleanSettings();
+		getApplication().getMainWindow().removeWindow(this.chatHandler.rf);
+		this.search.removeAllItems();
+		
+		this.contentLayout.removeAllComponents();
+		this.contentLayout.addComponent(this.proPanel);
+		
+		//Remove all chat window here
+		Iterator<String> chatIT = this.chatHandler.chats.keySet().iterator();
+		while(chatIT.hasNext()) {
+			getApplication().getMainWindow().removeWindow(this.chatHandler.chats.get(chatIT.next()));
+		}
 	}
 	
 	public void loadSearchItems() {
@@ -424,7 +462,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	}
 	
 	public void initForm() {
-		System.out.println("Is loggedin: " + login.getGenSpaceServerFactory().isLoggedIn());
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 			this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 			this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
@@ -447,5 +484,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.chatHandler.rf.refresh();
 		this.loadSearchItems();
 	}
-
+	
+	@Override
+	public void changeFriendStatus(FriendStatusChangeEvent evt) {
+		updateForm();
+	}
 }

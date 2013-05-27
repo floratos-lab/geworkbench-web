@@ -7,6 +7,11 @@ import com.vaadin.ui.Button.ClickEvent;
 
 public class NetConfirmWindow extends Window {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public NetConfirmWindow(String networkName) {
 		setModal(true);
 		

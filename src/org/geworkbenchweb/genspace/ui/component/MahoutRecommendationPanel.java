@@ -8,26 +8,30 @@ import org.geworkbench.components.genspace.server.stubs.TasteUser;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
-import org.vaadin.addon.borderlayout.BorderLayout;
 
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
 
-public class MahoutRecommendationPanel extends Panel {
+public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	
 	/**
 	 * 
 	 */
-	private final long serialVersionUID = -9025891419883690754L;
+	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
 	private HorizontalLayout mahoutSuggestionsPanel;
 	private Panel workflowsPanel;
 	private Panel peoplePanel;
-	private TextArea workflowSuggestionsArea;
-	private TextArea peopleSuggestionsArea;
-	private Panel networkFilteringPanel;
+	private Label workflowSuggestionsArea;
+	private Label peopleSuggestionsArea;
 	private GenSpaceLogin login;
+	private CheckBox filter;
 	//private JCheckBox networkFilterCheckBox;
 	
 	public MahoutRecommendationPanel(GenSpaceLogin login) {
@@ -42,26 +46,29 @@ public class MahoutRecommendationPanel extends Panel {
 		
 		workflowsPanel = new Panel();
 		peoplePanel = new Panel();
+		filter = new CheckBox("Filter to My Networks");
+		filter.setImmediate(true);
+		filter.addListener(this);
 		
 		mahoutSuggestionsPanel.addComponent(workflowsPanel);
 		mahoutSuggestionsPanel.addComponent(peoplePanel);
+		mahoutSuggestionsPanel.addComponent(filter);
 		
 		final Label wfLabel = new Label("Your Recommended Workflows");
-        /*wfLabel.setFont(new Font(wfLabel.getFont().getName(), Font.BOLD, 14));
-        wfLabel.setText("Your Recommended Workflows");
-        wfLabel.setHorizontalAlignment(JLabel.CENTER);*/
         
         final Label ppLabel = new Label("People Like You");
         
-		workflowSuggestionsArea = new TextArea();
-		peopleSuggestionsArea = new TextArea();
+		workflowSuggestionsArea = new Label();
+		peopleSuggestionsArea = new Label();
+		
+		workflowSuggestionsArea.setWidth("280px");
+		workflowSuggestionsArea.setHeight("150px");
+		peopleSuggestionsArea.setWidth("280px");
+		peopleSuggestionsArea.setHeight("150px");
 		
 		peopleSuggestionsArea.setValue("No similar user");
 		workflowSuggestionsArea.setValue("No recommendation");
-		
-		workflowSuggestionsArea.setReadOnly(true);
-		peopleSuggestionsArea.setReadOnly(true);
-		
+
 		workflowsPanel.addComponent(wfLabel);
 		workflowsPanel.addComponent(workflowSuggestionsArea);
 		workflowsPanel.setWidth("300px");
@@ -90,7 +97,7 @@ public class MahoutRecommendationPanel extends Panel {
 		displayRecommedations();
 	}*/
 	
-	public void displayRecommedations() {
+	public void displayRecommendations() {
 		User user = login.getGenSpaceServerFactory().getUser();
 		
 		TasteUser tu = null;
@@ -114,7 +121,7 @@ public class MahoutRecommendationPanel extends Panel {
 		String people = "";
 		
 		if (tu != null) {
-	
+			
 			List<Workflow> mahoutSuggestions = getRealTimeMahoutToolSuggestion(tu);
 
 			int lim = 10;
@@ -160,32 +167,38 @@ public class MahoutRecommendationPanel extends Panel {
 						break;
 				}
 			}
-			
-			if (login.getGenSpaceServerFactory().getUser() != null) {
-				if (!peopleInNetwork.isEmpty() && peopleInNetwork != null) {
-					peopleSuggestionsArea.setValue(peopleInNetwork);
-				} 
+						
+			if (!filter.booleanValue()) {
 				
-				if (!workflowsWithinNetworkString.isEmpty() && workflowsWithinNetworkString != null) {
-					workflowSuggestionsArea.setValue(workflowsWithinNetworkString);
+				if (!wfs.isEmpty() && wfs != null) {
+					workflowSuggestionsArea.setValue(wfs);
+				} else {
+					workflowSuggestionsArea.setValue("No recommendation");
 				}
-			}
 			
-			/*if (!networkFilterCheckBox.isSelected()) {
-			
-				workflowSuggestionsArea.setText("<html><body><ol>"+wfs+"</ol></body></html>");
+				if (!people.isEmpty() && people != null) {
+					peopleSuggestionsArea.setValue(people);
+				} else {
+					peopleSuggestionsArea.setValue("No similar user");
+				}
 				
-				peopleSuggestionsArea.setText("<html><body><ol>"+people+"</ol></body></html>");
-			
 			} else {  
 			
-				if (GenSpaceServerFactory.getUser() != null) {
+				if (login.getGenSpaceServerFactory().getUser() != null) {
 	
-					peopleSuggestionsArea.setText("<html><body><ol>"+peopleInNetwork+"</ol></body></html>");
-			
-					workflowSuggestionsArea.setText("<html><body><ol>"+workflowsWithinNetworkString+"</ol></body></html>");
+					if (!peopleInNetwork.isEmpty() && peopleInNetwork != null) {
+						peopleSuggestionsArea.setValue(peopleInNetwork);
+					} else {
+						peopleSuggestionsArea.setValue("No similar user");
+					}
+					
+					if (!workflowsWithinNetworkString.isEmpty() && workflowsWithinNetworkString != null) {
+						workflowSuggestionsArea.setValue(workflowsWithinNetworkString);
+					} else {
+						workflowSuggestionsArea.setValue("No recommendation");
+					}
 				}
-			}*/
+			}
 		}
 	}
 	
@@ -226,5 +239,10 @@ public class MahoutRecommendationPanel extends Panel {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void buttonClick(ClickEvent evt) {
+		displayRecommendations();
 	}
 }

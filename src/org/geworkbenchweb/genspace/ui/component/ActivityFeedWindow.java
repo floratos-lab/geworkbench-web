@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,8 +13,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.events.LogCompleteEvent;
@@ -27,7 +24,6 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -61,8 +57,6 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	private ThemeResource newIcon = new ThemeResource(newPath);
 	
 	private ThemeResource faviIcon = new ThemeResource(faviPath);
-
-	//private EventRetriever eRetriever;
 	
 	public ActivityFeedWindow(GenSpaceLogin login) {
 		this.login = login;
@@ -105,15 +99,11 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 		d.setTime(currentDate);
 		d.add(Calendar.DATE, evtBefore);
 		this.queryLimit = sf.format(d.getTime());
-		System.out.println("DEBUG queryLimit: " + queryLimit);
+		//System.out.println("DEBUG queryLimit: " + queryLimit);
 	}
 	
 	private void makeAFLayout() {
 		this.afLayout.removeAllComponents();
-		
-		/*Panel genTifyPanel = new Panel(gentiFy);
-		genTifyPanel.setScrollable(true);
-		genTifyPanel.setHeight("600px");*/
 
 		Iterator<AnalysisEvent> evtIT = evtList.iterator();
 		Label toolName;
@@ -174,10 +164,8 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 				tNameLayout.addComponent(new Embedded(null, this.newIcon));
 			}
 			
-			//toolName = new Label(evt.getToolname());
 			datasetName = new Label(evt.getTransaction().getDataSetName());
 			date = new Label(evt.getCreatedAt().toString());
-			//evtPanel.addComponent(toolName);
 			evtPanel.addComponent(datasetName);
 			evtPanel.addComponent(date);
 			this.afLayout.addComponent(evtPanel);

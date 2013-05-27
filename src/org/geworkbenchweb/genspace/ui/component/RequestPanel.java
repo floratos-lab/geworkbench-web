@@ -15,7 +15,6 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
@@ -24,6 +23,11 @@ import com.vaadin.ui.VerticalLayout;
 
 public class RequestPanel extends SocialPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GenSpaceLogin login;
 	
 	private String panelTitle;

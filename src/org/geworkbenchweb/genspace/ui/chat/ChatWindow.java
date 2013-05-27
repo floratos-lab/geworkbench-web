@@ -22,7 +22,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.vaadin.data.Item;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -34,10 +33,6 @@ import com.vaadin.ui.Window;
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
 
-/**
- * 
- * @author mikefhsu
- */
 public class ChatWindow extends Window implements Action.Handler{
 	/**
 	 * 
@@ -103,14 +98,11 @@ public class ChatWindow extends Window implements Action.Handler{
 		}
 		last = lastChatter.YOU;
 		chatText += "<br>" + m.getBody();
-		System.out.println("Test chatTest: " + chatText);
-		System.out.println("Test label: " + txtMsging.getValue());
+		
+		//System.out.println("DEBUG chatText: " + chatText);
+		
 		this.txtMsging.setValue("<html><body>" + chatText + "</body></html>");
 		this.requestRepaintAll();
-		System.out.println("Test label after: " + txtMsging.getValue());
-		
-		//txtMsging.setCaretPosition(txtMsging.getDocument().getLength());
-		//txtMsging.setCursorPosition(txtMsging.getValue().toString().length());
 	}
 
 	/**
@@ -120,16 +112,13 @@ public class ChatWindow extends Window implements Action.Handler{
 	 *            Message
 	 */
 	public void processMessage(Message m) {
-		System.out.println("In ChatWindow.processMessage");
-		System.out.println("In ChatWinow get message body: " + m.getBody());
+		//System.out.println("DEBUG ChatWinow get message body: " + m.getBody());
 		if (m.getBody() != null) {
 			// If this window has been hidden, unhide it
 			if (!this.isVisible()) {
 				this.setVisible(true);
 				this.focus();
 			}
-			
-			System.out.println("Test processMessage in ChatWindow");
 			
 			if(m.getProperty("specialType") == null) {
 				processTextMessage(m);
@@ -259,6 +248,7 @@ public class ChatWindow extends Window implements Action.Handler{
 	private void processWorkflowVisualizationMessage(Message m) {
 		Window workflowWindow = new Window();
 		WorkflowVisualizationPanel panel = new WorkflowVisualizationPanel();
+		panel.setGenSpaceLogin(this.login);
 		workflowWindow.setWidth("600");
 		workflowWindow.setHeight("100");
 		workflowWindow.setScrollable(true);
@@ -499,7 +489,7 @@ public class ChatWindow extends Window implements Action.Handler{
 
 			public void menuSelected(MenuItem selectedItem) {
 				//TODO: Implement body for sendWorkFlow
-				System.out.println("Test sendWorkFlow");
+				//System.out.println("DEBUG sendWorkFlow");
 				mnuSendWorkflowActionPerformed();
 			}
 		};
@@ -522,7 +512,7 @@ public class ChatWindow extends Window implements Action.Handler{
 		txtMsging = new Label();
 		txtMsging.setContentMode(Label.CONTENT_XHTML);
 		txtMsging.setWidth("100%");
-		txtMsging.setHeight("200px");
+		//txtMsging.setHeight("200px");
 		txtMsging.setImmediate(true);
 		
 		txtPanel = new Panel();
@@ -553,10 +543,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	
 	private MenuItem vMenuItem;
 	private MenuBar vMenuBar;
-	private Panel vScrollPanel;
-	private Item mnuEndchat;
-	private Item mnuSendWorkflow;
-	private Item mnuShareScrenn;
 	private Panel txtPanel;
 	private TextField ogm;
 	private Label txtMsging;

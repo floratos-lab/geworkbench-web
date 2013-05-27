@@ -8,7 +8,6 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowComment;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
@@ -62,6 +61,10 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 	
 	public void setWorkflow(Workflow workflow) {
 		this.curWorkflow = workflow;
+		
+		if (this.curWorkflow == null)
+			return ;
+		
 		this.wfComments = login.getGenSpaceServerFactory().getUsageOps().getWFComments(workflow);
 		getModel().removeAllItems();
 		for (int i=0; i<wfComments.size(); i++) {
@@ -85,6 +88,10 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {
+		if (curWorkflow == null) {
+			return ;
+		}
+		
 		String bCaption = evt.getButton().getCaption();
 		
 		if (bCaption.equals("New")) {			
@@ -110,6 +117,11 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			vLayout.addComponent(hLayout);
 			
 			oButton.addListener(new Button.ClickListener() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
 				public void buttonClick(Button.ClickEvent evt) {
 					newComment(tf.getValue().toString());
 					getApplication().getMainWindow().removeWindow(newWindow);
@@ -117,6 +129,11 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			});
 			
 			cButton.addListener(new Button.ClickListener() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
 				public void buttonClick(Button.ClickEvent evt) {
 					getApplication().getMainWindow().removeWindow(newWindow);
 				}
