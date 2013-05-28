@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -46,8 +45,6 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	
 	private Long dataSetId;
 	private Long userId;
-	
-	private ResultSet resultSet;
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 	
@@ -141,7 +138,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 			public void buttonClick(ClickEvent event) {
 				try {
 					
-					resultSet = 	new ResultSet();
+					ResultSet resultSet = 	new ResultSet();
 					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 					resultSet.setDateField(date);
 					String dataSetName = "Hierarchical Clustering - Pending" ;
@@ -157,8 +154,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					params.put(HierarchicalClusteringParams.CLUSTER_METRIC, parseDistanceMetric(clustMetric));
 					params.put(HierarchicalClusteringParams.CLUSTER_DIMENSION, parseDimension(clustDim));
 					
-//					final DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
-//					generateHistoryString(maSet);
+					generateHistoryString(resultSet.getId());
 					
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
@@ -223,8 +219,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		}
 	}
 	
-	// FIXME
-	private void generateHistoryString(DSMicroarraySet maSet) {
+	private void generateHistoryString(Long resultSetId) {
 		StringBuilder mark = new StringBuilder();
 		
 		mark.append("Hierarchical Clustering Parameters : \n");
@@ -233,17 +228,11 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		mark.append("Clustering Metric - " + clustMetric + "\n");
 		
 		mark.append("Markers used - \n" );
-		for(int i=0; i<maSet.getMarkers().size(); i++) {
-			mark.append( "\t" + maSet.getMarkers().get(i).getLabel() + "\n");
-		}
-		
-		mark.append("Phenotypes used - \n" );
-		for(int i=0; i<maSet.size(); i++) {
-			mark.append( "\t" + maSet.get(i).getLabel() + "\n");
-		}
+		mark.append( "\t" + params.get(HierarchicalClusteringParams.MARKER_SET) + "\n");
+		mark.append( "\t" + params.get(HierarchicalClusteringParams.MICROARRAY_SET) + "\n");
 		
 		DataHistory his = new DataHistory();
-		his.setParent(resultSet.getId());
+		his.setParent(resultSetId);
 		his.setData(mark.toString());
 		FacadeFactory.getFacade().store(his);
 	}
@@ -257,8 +246,6 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 
 		this.dataSetId = dataSetId;
 		markerArraySelector.setData(dataSetId, userId);
-
-
 	}
 
 	@Override
@@ -268,16 +255,8 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
-		HierarchicalClusteringWrapper analysis = new HierarchicalClusteringWrapper(
-				(DSMicroarraySet) dataset, params);
-		CSHierClusterDataSet result = analysis.execute();
-		try {
-			UserDirUtils.serializeResultSet(resultSet.getId(), result);
-		} catch (IOException e) {
-			return "EXCEPTION: "+e;
-		}
-		return result.getLabel(); //"Hierarchical Clustering";
+			HashMap<Serializable, Serializable> parameters) throws IOException {
+		throw new IOException("The depcrated version of execute method is used.");
 	}
 
 	@Override
@@ -287,7 +266,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 				datasetId, params, userId);
 		CSHierClusterDataSet result = analysis.execute();
 
-		UserDirUtils.serializeResultSet(resultSet.getId(), result);
+		UserDirUtils.serializeResultSet(resultId, result);
 		
 		return result.getLabel();
 	}
