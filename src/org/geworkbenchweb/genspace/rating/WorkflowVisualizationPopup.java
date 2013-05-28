@@ -170,7 +170,6 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			addWorkFlowToRepository();
 		} else if (buttonCaption.equals("Go") && selectedTool.getId() > 0) {
 			args = "tool/index/" + selectedTool.getId();
-			System.out.println("Test args: " + args);
 		} else if (buttonCaption.equals("View") && workflow.getId() > 0) {
 			args = "workflow/index/" + workflow.getId();
 		} else if (buttonCaption.equals("Contact")) {

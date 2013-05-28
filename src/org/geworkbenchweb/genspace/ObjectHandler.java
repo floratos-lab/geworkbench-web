@@ -14,11 +14,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.utils.UserDirUtils;
 
 /**
  * A handler used to log events.
@@ -64,6 +66,7 @@ public final class ObjectHandler {
 			Method methods[] = ase.getClass().getDeclaredMethods();
 			AnalysisUI analysis = null;
 			String dataSetName = "";
+			long dataSetID = 0;
 			runningAnalyses.put(ase, null);
 
 			for (Method m : methods) {
@@ -75,11 +78,27 @@ public final class ObjectHandler {
 					}
 					else if (m.getName().equals("getDataSet")) {
 						dataSetName = ((DSDataSet)m.invoke(event)).getLabel();
-						//System.out.println("Get dataset name: " + dataSetName);
+						//dataSetName = ((DSDataSet)m.invoke(event)).getDataSetName();
+					}
+					else if (m.getName().equals("getDatasetId")) {
+						dataSetID = (Long)m.invoke(event);
 					}
 				}
 				catch (Exception e) {
 					log.info("Could not call this method");
+				}
+			}
+						
+			//Hierarchical Clustering does not provide dataset name anymore. Use dataset id to get name. If fail, dataset id becomes dataset name.
+			if (dataSetName == null || dataSetName.isEmpty()) {
+				DSMicroarraySet dataSet = null;
+				try {
+					dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetID, DSMicroarraySet.class);
+					dataSetName = dataSet.getDataSetName();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					log.info("Could not get dataset name by id");
+					dataSetName = String.valueOf(dataSetID);
 				}
 			}
 
