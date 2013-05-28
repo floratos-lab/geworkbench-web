@@ -102,11 +102,8 @@ public final class ObjectHandler {
 				}
 			}
 			
-			String tmp = GeworkbenchRoot.getBackendDataDirectory() +
-					SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + String.valueOf(dataSetID) + DATA_EXTENSION;
-			
 			//Hierarchical Clustering does not provide dataset name anymore. Use dataset id to get name. If fail, dataset id becomes dataset name.
-			
+			//Deserialize is too expensive
 			if (dataSetName == null || dataSetName.isEmpty()) {
 				dataSetName = FacadeFactory.getFacade().find(DataSet.class, dataSetID).getName();
 				//DSMicroarraySet dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetID, DSMicroarraySet.class);;

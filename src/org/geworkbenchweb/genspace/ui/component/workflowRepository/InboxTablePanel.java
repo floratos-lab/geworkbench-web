@@ -118,6 +118,7 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		} else if (bCaption.equals("Refresh")) {
 			this.refreshInbox();
 		}
+		login.getPusher().push();
 	}
 	
 	private void refreshInbox() {
