@@ -190,7 +190,7 @@ public class MarkerArraySelector extends GridLayout{
 	public  String[] getSelectedMarkerSet() {
 		String[] selectList = null;
 		String selectStr = markerSetSelect.getValue().toString();
-		if (!selectStr.equals("[]") || !selectStr.contains("All Markers"))
+		if (selectStr.equals("[]") || selectStr.contains("All Markers"))
 		    return null;
 		else
 			selectList = selectStr.substring(1, selectStr.length()-1).split(","); 
