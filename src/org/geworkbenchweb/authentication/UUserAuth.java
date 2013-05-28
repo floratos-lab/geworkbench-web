@@ -41,7 +41,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -59,20 +58,30 @@ public class UUserAuth extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 	private Log log = LogFactory.getLog(UUserAuth.class);
 	
-	private Window aboutWindow = null;
+	//private Window aboutWindow = null;
 	
 	public UUserAuth() {
 		setSizeFull();
 		addStyleName("background");
+
+		close = new Button("Close", new Button.ClickListener() {
+			private static final long serialVersionUID = 8498615289854877295L;
+
+            public void buttonClick(ClickEvent event) {
+//                (aboutWindow.getParent()).removeWindow(aboutWindow);
+            	UUserAuth.this.toggleButtonText();
+            }
+        });
 	}
 
+	final private VerticalLayout loginPanel		=	new VerticalLayout();
+	
 	/*
 	 *  Here we are building login screen
 	 */
 	public void buildLoginForm() {
 		
 		final VerticalLayout layout 		= 	new VerticalLayout();
-		final VerticalLayout loginPanel		=	new VerticalLayout();
 		final Label feedbackLabel 			= 	new Label();        
 		final TextField usernameField 		= 	new TextField();
 		final PasswordField passwordField 	= 	new PasswordField();
@@ -127,30 +136,30 @@ public class UUserAuth extends VerticalLayout {
 			}
 		});
 		
-        Button aboutButton = new Button("About", new ClickListener() {
-
-			private static final long serialVersionUID = -2258433668354584723L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(aboutWindow==null) {
-					aboutWindow = buildAboutWindow();
-				}
-		        if (aboutWindow.getParent() == null) { // not already showing
-		        	Window parent = getWindow();
-		        	aboutWindow.setHeight(parent.getHeight()/2, UNITS_PIXELS);
-		        	aboutWindow.setWidth(parent.getWidth()/2, UNITS_PIXELS);
-                    parent.addWindow(aboutWindow);
-                }
-			}
-			
-		});
+//        Button aboutButton = new Button("About", new ClickListener() {
+//
+//			private static final long serialVersionUID = -2258433668354584723L;
+//
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				if(aboutWindow==null) {
+//					aboutWindow = buildAboutWindow();
+//				}
+//		        if (aboutWindow.getParent() == null) { // not already showing
+//		        	Window parent = getWindow();
+//		        	aboutWindow.setHeight(parent.getHeight()/2, UNITS_PIXELS);
+//		        	aboutWindow.setWidth(parent.getWidth()/2, UNITS_PIXELS);
+//                    parent.addWindow(aboutWindow);
+//                }
+//			}
+//			
+//		});
 		
 		HorizontalLayout group = new HorizontalLayout();
 		group.setSpacing(true);
 		group.addComponent(register);
 		group.addComponent(login);
-		group.addComponent(aboutButton);
+//		group.addComponent(aboutButton);
 		
 		loginPanel.addComponent(image);
 		loginPanel.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
@@ -175,9 +184,19 @@ public class UUserAuth extends VerticalLayout {
 		layout.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);
 	}
 	
-	private Window buildAboutWindow() {
-		final Window aboutWindow = new Window("About");
-		aboutWindow.setModal(true);
+	@Override
+	public void attach() {
+		super.attach();
+		
+		Panel panel = buildAboutWindow();
+		panel.setWidth("50%");
+		loginPanel.addComponent(panel);
+		loginPanel.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
+	}
+	
+	private Panel buildAboutWindow() {
+		final Panel aboutWindow = new Panel("About geWorkbench");
+//		aboutWindow.setModal(true);
         VerticalLayout aboutWindowLayout = (VerticalLayout) aboutWindow.getContent();
         aboutWindowLayout.setMargin(true);
         aboutWindowLayout.setSpacing(true);
@@ -200,21 +219,26 @@ public class UUserAuth extends VerticalLayout {
 			text = sb.toString();
         }
 
-        Label aboutMessage = new Label(text);
+        aboutMessage.setValue(text);
         aboutMessage.setContentMode(Label.CONTENT_XHTML);
         aboutWindow.addComponent(aboutMessage);
 
-        Button close = new Button("Close", new Button.ClickListener() {
-			private static final long serialVersionUID = 8498615289854877295L;
-
-            public void buttonClick(ClickEvent event) {
-                (aboutWindow.getParent()).removeWindow(aboutWindow);
-            }
-        });
         aboutWindowLayout.addComponent(close);
         aboutWindowLayout.setComponentAlignment(close, Alignment.TOP_RIGHT);
         
         return aboutWindow;
+	}
+	
+    final private Label aboutMessage = new Label();
+	final private Button close;
+	private void toggleButtonText() {
+		if(close.getCaption().equals("Close")) {
+			aboutMessage.setVisible(false);
+			close.setCaption("Open");
+		} else {
+			aboutMessage.setVisible(true);
+			close.setCaption("Close");
+		}
 	}
 
 	/*
