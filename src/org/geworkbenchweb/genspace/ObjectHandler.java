@@ -1,5 +1,6 @@
 package org.geworkbenchweb.genspace;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Calendar;
@@ -17,10 +18,14 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.events.AnalysisInvokedEvent;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.UserDirUtils;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * A handler used to log events.
@@ -29,6 +34,14 @@ import org.geworkbenchweb.utils.UserDirUtils;
  * @version $Id: ObjectHandler.java 9557 2012-06-12 21:23:30Z bellj $
  */
 public final class ObjectHandler {
+	
+	private static final String DATASETS 		= 	"data";
+	private static final String RESULTSETS		=	"results";
+	private static final String ANNOTATION		=	"annotation";
+	private static final String DATA_EXTENSION	=	".data";
+	private static final String RES_EXTENSION	=	".res";
+	private static final String	ANOT_EXTENSION	=	".annot";
+	private static final String	SLASH			=	"/";
 
 	private Log log = LogFactory.getLog(ObjectHandler.class);
 	private HashMap<String, Long> lastRunTimes = new HashMap<String, Long>();
@@ -88,18 +101,15 @@ public final class ObjectHandler {
 					log.info("Could not call this method");
 				}
 			}
-						
+			
+			String tmp = GeworkbenchRoot.getBackendDataDirectory() +
+					SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + String.valueOf(dataSetID) + DATA_EXTENSION;
+			
 			//Hierarchical Clustering does not provide dataset name anymore. Use dataset id to get name. If fail, dataset id becomes dataset name.
+			
 			if (dataSetName == null || dataSetName.isEmpty()) {
-				DSMicroarraySet dataSet = null;
-				try {
-					dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetID, DSMicroarraySet.class);
-					dataSetName = dataSet.getDataSetName();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					log.info("Could not get dataset name by id");
-					dataSetName = String.valueOf(dataSetID);
-				}
+				dataSetName = FacadeFactory.getFacade().find(DataSet.class, dataSetID).getName();
+				//DSMicroarraySet dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetID, DSMicroarraySet.class);;
 			}
 
 			incrementTransactionId(dataSetName);

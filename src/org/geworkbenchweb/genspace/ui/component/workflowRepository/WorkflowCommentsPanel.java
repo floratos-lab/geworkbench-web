@@ -28,7 +28,7 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 	 * 
 	 */
 	private static final long serialVersionUID = -6641895295511102113L;
-	SimpleDateFormat fmt = new SimpleDateFormat("F/M/yy h:mm a");
+	SimpleDateFormat fmt = new SimpleDateFormat("M/d/yy h:mm a");
 	private GenSpaceLogin login;
 	private Table table = new Table();
 	private Button newButton = new Button("New");
