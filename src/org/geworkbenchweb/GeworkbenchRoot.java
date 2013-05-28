@@ -232,4 +232,12 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 				+ System.getProperty("file.separator")
 				+ prop.getProperty("data.directory");
 	}
+
+	public static boolean genespaceEnabled() {
+		if(prop.getProperty("genspace").equals("on")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

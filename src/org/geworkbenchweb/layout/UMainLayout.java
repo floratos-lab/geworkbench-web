@@ -101,7 +101,9 @@ public class UMainLayout extends VerticalLayout {
 		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
 
 		/*Enable genspace logger in geWorkbench*/
-		GeworkbenchRoot.getBlackboard().addListener(genspaceLogger);
+		if(GeworkbenchRoot.genespaceEnabled()) {
+			GeworkbenchRoot.getBlackboard().addListener(genspaceLogger);
+		}
 		
 		setSizeFull();
 		setImmediate(true);
