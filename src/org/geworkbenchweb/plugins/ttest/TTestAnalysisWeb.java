@@ -217,13 +217,13 @@ public class TTestAnalysisWeb {
 	
 	private TTestOutput computeTtestRemote(TTestInput input) {
 		TTestOutput output = null;
-		RPCServiceClient serviceClient;
 
 		try {       
 			
 			getWebServiceUrl();
+			log.debug("url is "+url);
 			
-			serviceClient = new RPCServiceClient();
+			RPCServiceClient serviceClient = new RPCServiceClient();
 
 			Options options = serviceClient.getOptions();
 
@@ -243,8 +243,10 @@ public class TTestAnalysisWeb {
 
 			Class<?>[] returnType = new Class[] { TTestOutput.class };
 
+			log.debug("... before invokeBlocking "+System.currentTimeMillis());
 			Object[] response = serviceClient.invokeBlocking(opName, args,
 					returnType);
+			log.debug("... after invokeBlocking "+System.currentTimeMillis());
 			output = (TTestOutput) response[0];
 
 			return output;
