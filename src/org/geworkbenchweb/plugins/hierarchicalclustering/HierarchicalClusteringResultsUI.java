@@ -35,9 +35,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
-/* This is started from the class with the same name under the .results. package. */
 public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implements Visualizer {
-
 
 	private static final long serialVersionUID = 8018658107854483097L;
 	
@@ -266,7 +264,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		}
 	}
 	
-	// TODO important question: why is the original lock necessary?
 	/** return value, range  [-255, 255] */
 	private static int getMarkerValueColor(double value, DSGeneMarker mInfo,
 			float intensity) {
