@@ -30,9 +30,8 @@ import com.vaadin.ui.Component;
 /**
  * Central control of all Plug-ins. 
  * 
- * TODO this will be enhanced, but a simplistic version is created for now. 
- * 
  * @author zji
+ * @version $Id$
  *
  */
 public class PluginRegistry {
@@ -42,7 +41,7 @@ public class PluginRegistry {
 	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<? extends DSDataSet<?>>, List<PluginEntry>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<PluginEntry>>();
 	
-	// TODO for now, let maintain a separate list for result type. this may not necessary eventually
+	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
 	private Map<Class<?>, Class<? extends Visualizer>> resultUiMap = new HashMap<Class<?>, Class<? extends Visualizer>>();
 	private Map<Class<? extends Visualizer>, PluginEntry> visualizerPluginEntry = new HashMap<Class<? extends Visualizer>, PluginEntry>(); 
@@ -62,12 +61,10 @@ public class PluginRegistry {
 	static private ThemeResource cancelIcon 	= 	new ThemeResource("../runo/icons/16/cancel.png");
 	*/
 
-	// TODO compare whether registration of class is a better idea than doing it for instance; 
-	// TODO use configuration file (say, plugins.xml) to control the registration, so this class does not have to know each analysis plug-in
 	/** Add all the initial registry entries.*/
 	public void init() {
 		resultIconMap.put(CSHierClusterDataSet.class, hcIcon); // hierarchical clustering result
-		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result // FIXME this result type is too generic
+		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result
 		resultIconMap.put(AdjacencyMatrixDataSet.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(CSAnovaResultSet.class, anovaIcon); // anova result
