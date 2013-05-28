@@ -227,9 +227,18 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		mark.append("Clustering Dimension - " + clustDim + "\n");
 		mark.append("Clustering Metric - " + clustMetric + "\n");
 		
-		mark.append("Markers used - \n" );
-		mark.append( "\t" + params.get(HierarchicalClusteringParams.MARKER_SET) + "\n");
-		mark.append( "\t" + params.get(HierarchicalClusteringParams.MICROARRAY_SET) + "\n");
+		mark.append("Markers used - \n\t" );
+		String[] m = (String[])params.get(HierarchicalClusteringParams.MARKER_SET);
+		if(m==null) mark.append( "all" );
+		else { // FIXME it shows set ID's. not good
+			for(String setName : m) 	mark.append(setName).append(", ");
+		}
+		mark.append("\nPhenotypes used - \n\t" );
+		m = (String[])params.get(HierarchicalClusteringParams.MICROARRAY_SET);
+		if(m==null) mark.append( "all" );
+		else {
+			for(String setName : m) 	mark.append(setName).append(", ");
+		}
 		
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);

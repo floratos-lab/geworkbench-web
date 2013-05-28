@@ -59,7 +59,7 @@ public class HierarchicalClusteringComputation {
 			DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
 			for (String markerSetId : markerSet) {
 				// TODO note what is returned at this point is database id as long. nasty
-				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId));
+				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId.trim()));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
 				for(String position : positions) {
 					String markerName = position; // only the first field 
@@ -73,7 +73,7 @@ public class HierarchicalClusteringComputation {
 			DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
 			for (String microarraySetId : micraoarraySet) {
 				// TODO note what is returned at this point is database id as long. nasty
-				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId));
+				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId.trim()));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
 				for(String position : positions) {
 					String microarrayName = position; // only the first field 
