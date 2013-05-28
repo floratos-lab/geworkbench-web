@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.ttest;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class TTestAnalysisWeb {
 		}
 	}
 
-	public DSSignificanceResultSet<DSGeneMarker> execute() {
+	public DSSignificanceResultSet<DSGeneMarker> execute() throws IOException {
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView =  new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
 		
@@ -206,8 +207,9 @@ public class TTestAnalysisWeb {
 				useWelchDf, useAllCombs, numCombs, isLogNormalized);
 		
 		TTestOutput ttestOutput = computeTtestRemote(tTestInput);
-		
-		//ttestOutput = new org.geworkbench.components.ttest.TTest(tTestInput).execute();
+		if(ttestOutput==null) {
+			throw new IOException("t-test failed to get result from URL "+url);
+		}
 		
 		DSSignificanceResultSet<DSGeneMarker> sigSet = createDSSignificanceResultSet(dataSetView, ttestOutput, caseLabels, controlLabels);
 		return sigSet;
