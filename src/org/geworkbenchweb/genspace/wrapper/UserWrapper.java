@@ -56,18 +56,25 @@ public class UserWrapper {
 		delegate.setPassword(value);
 	}
 	public String getPhone() {
+		if (delegate.getPhone() == null)
+			return "";
+		
 		return delegate.getPhone();
 	}
 	public void setPhone(String value) {
 		delegate.setPhone(value);
 	}
 	public String getState() {
+		if (delegate.getState() == null)
+			return "";
 		return delegate.getState();
 	}
 	public void setState(String value) {
 		delegate.setState(value);
 	}
 	public String getUsername() {
+		if (delegate.getUsername() == null)
+			return "";
 		return delegate.getUsername();
 	}
 	public void setUsername(String value) {
@@ -80,6 +87,8 @@ public class UserWrapper {
 		delegate.setVisible(value);
 	}
 	public String getWorkTitle() {
+		if (delegate.getWorkTitle() == null)
+			return "";
 		return delegate.getWorkTitle();
 	}
 	public void setWorkTitle(String value) {
@@ -89,18 +98,24 @@ public class UserWrapper {
 		return delegate.toString();
 	}
 	public String getAddr1() {
+		if (delegate.getAddr1() == null)
+			return "";
 		return delegate.getAddr1();
 	}
 	public void setAddr1(String addr1) {
 		delegate.setAddr1(addr1);
 	}
 	public String getAddr2() {
+		if (delegate.getAddr2() == null)
+			return "";
 		return delegate.getAddr2();
 	}
 	public void setAddr2(String addr2) {
 		delegate.setAddr2(addr2);
 	}
 	public String getCity() {
+		if (delegate.getCity() == null)
+			return "";
 		return delegate.getCity();
 	}
 	public void setCity(String city) {
@@ -114,12 +129,16 @@ public class UserWrapper {
 		delegate.setDataVisibility(dataVisibility);
 	}
 	public String getEmail() {
+		if (delegate.getEmail() == null)
+			return "";
 		return delegate.getEmail();
 	}
 	public void setEmail(String email) {
 		delegate.setEmail(email);
 	}
 	public String getFirstName() {
+		if (delegate.getFirstName() == null)
+			return "";
 		return delegate.getFirstName();
 	}
 	public void setFirstName(String firstName) {
@@ -134,18 +153,24 @@ public class UserWrapper {
 	}
 
 	public String getInterests() {
+		if (delegate.getInterests() == null)
+			return "";
 		return delegate.getInterests();
 	}
 	public void setInterests(String interests) {
 		delegate.setInterests(interests);
 	}
 	public String getLabAffiliation() {
+		if (delegate.getLabAffiliation() == null)
+			return "";
 		return delegate.getLabAffiliation();
 	}
 	public void setLabAffiliation(String labAffiliation) {
 		delegate.setLabAffiliation(labAffiliation);
 	}
 	public String getLastName() {
+		if (delegate.getLastName() == null)
+			return "";
 		return delegate.getLastName();
 	}
 	public void setLastName(String lastName) {
@@ -159,6 +184,8 @@ public class UserWrapper {
 	}
 	
 	public String getZipcode() {
+		if (delegate.getZipcode() == null)
+			return "";
 		return delegate.getZipcode();
 	}
 	public void setZipcode(String zipcode) {
@@ -166,7 +193,7 @@ public class UserWrapper {
 	}
 
 	
-	public String getFullName() {
+	public String getFullName() {		
 		return this.getFirstName() + " " + this.getLastName();
 	}
 //	public boolean isFriends()

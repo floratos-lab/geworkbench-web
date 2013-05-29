@@ -110,7 +110,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		
 		wLayout = new BorderLayout();
 		this.expertPanel = new Panel();
-		this.expertPanel.addComponent(wLayout);
+		this.expertPanel.addComponent(wLayout);		
 		this.contactCaption = "Contact expert user: " + (new UserWrapper(this.expert, this.login)).getFullName();
 		this.expertLabel.setCaption(contactCaption);
 		wLayout.addComponent(this.expertLabel, BorderLayout.Constraint.WEST);

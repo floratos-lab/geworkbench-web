@@ -14,7 +14,7 @@ public class RuntimeEnvironmentSettings {
 	public static final String PROD_HOST = "genspace.cs.columbia.edu";
 	public static final String DEVEL_HOST = "tiemann.cs.columbia.edu";
 	public static final String LOCAL_HOST = "localhost";
-	//public static final String SERVER = LOCAL_HOST;
+//	public static final String SERVER = LOCAL_HOST;
 	public static final String SERVER = PROD_HOST;
 	public static final String XMPP_HOST = PROD_HOST;
 

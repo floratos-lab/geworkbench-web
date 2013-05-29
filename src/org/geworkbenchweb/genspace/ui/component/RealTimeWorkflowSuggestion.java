@@ -148,7 +148,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 						tmpOrder = (Integer)tmpItem.getItemProperty(ORDER).getValue();
 						tmpTool = results.get(tmpOrder);
 						toolList.add(tmpTool);
-						//System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
+						System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
 					}
 				}
 				
@@ -157,7 +157,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 					return ;
 				}
 				
-				String criteriaString = "(";
+				/*String criteriaString = "(";
 				List<Integer> toolsIds = new ArrayList<Integer>();
 				for (Tool t : toolList) {
 					toolsIds.add(t.getId());
@@ -165,7 +165,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				}
 				criteriaString = criteriaString.substring(0, criteriaString.length()-4);
 				criteriaString += ") ";
-				System.out.println("DEBUG CriteriaString: " + criteriaString);
+				System.out.println("DEBUG CriteriaString: " + criteriaString);*/
 				
 				List<Workflow> workFlowList;
 				if(toolList.size() > 0){
