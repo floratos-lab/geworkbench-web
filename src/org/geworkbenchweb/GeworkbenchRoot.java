@@ -110,7 +110,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			mainWindow.setContent(new UMainLayout());
 		} else {
 			UUserAuth auth = new UUserAuth(); 
-			auth.buildLoginForm();
 			mainWindow.setContent(auth);
 		}
 	}

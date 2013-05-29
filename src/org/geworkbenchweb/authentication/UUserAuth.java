@@ -68,10 +68,11 @@ public class UUserAuth extends VerticalLayout {
 			private static final long serialVersionUID = 8498615289854877295L;
 
             public void buttonClick(ClickEvent event) {
-//                (aboutWindow.getParent()).removeWindow(aboutWindow);
             	UUserAuth.this.toggleButtonText();
             }
         });
+		
+		buildLoginForm();
 	}
 
 	final private VerticalLayout loginPanel		=	new VerticalLayout();
@@ -79,7 +80,7 @@ public class UUserAuth extends VerticalLayout {
 	/*
 	 *  Here we are building login screen
 	 */
-	public void buildLoginForm() {
+	private void buildLoginForm() {
 		
 		final VerticalLayout layout 		= 	new VerticalLayout();
 		final Label feedbackLabel 			= 	new Label();        
@@ -136,30 +137,10 @@ public class UUserAuth extends VerticalLayout {
 			}
 		});
 		
-//        Button aboutButton = new Button("About", new ClickListener() {
-//
-//			private static final long serialVersionUID = -2258433668354584723L;
-//
-//			@Override
-//			public void buttonClick(ClickEvent event) {
-//				if(aboutWindow==null) {
-//					aboutWindow = buildAboutWindow();
-//				}
-//		        if (aboutWindow.getParent() == null) { // not already showing
-//		        	Window parent = getWindow();
-//		        	aboutWindow.setHeight(parent.getHeight()/2, UNITS_PIXELS);
-//		        	aboutWindow.setWidth(parent.getWidth()/2, UNITS_PIXELS);
-//                    parent.addWindow(aboutWindow);
-//                }
-//			}
-//			
-//		});
-		
 		HorizontalLayout group = new HorizontalLayout();
 		group.setSpacing(true);
 		group.addComponent(register);
 		group.addComponent(login);
-//		group.addComponent(aboutButton);
 		
 		loginPanel.addComponent(image);
 		loginPanel.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
@@ -197,7 +178,7 @@ public class UUserAuth extends VerticalLayout {
 	private Panel buildAboutWindow() {
 		final Panel aboutWindow = new Panel("About geWorkbench");
 		aboutWindow.setStyleName("xpanel");
-//		aboutWindow.setModal(true);
+
         VerticalLayout aboutWindowLayout = (VerticalLayout) aboutWindow.getContent();
         aboutWindowLayout.setMargin(true);
         aboutWindowLayout.setSpacing(true);
