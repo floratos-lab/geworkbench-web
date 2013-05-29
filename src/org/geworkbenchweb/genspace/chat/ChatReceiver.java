@@ -90,6 +90,10 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	@Override
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
+		if (chats.containsKey(c.getParticipant())) {
+			return ;
+		}
+		
 		if(createdLocal) {
 			System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
