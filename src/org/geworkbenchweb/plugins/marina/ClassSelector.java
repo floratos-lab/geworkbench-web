@@ -225,12 +225,12 @@ public class ClassSelector extends FormLayout{
         uploadField2.setFieldType(FieldType.BYTE_ARRAY);
 
 		h1.setSpacing(true);
-		h1.setCaption("Class1");
+		h1.setCaption("Case");
 		h1.addComponent(class1ArraySelect);
 		h1.addComponent(tf1);
 		h1.addComponent(uploadField1);
 		h2.setSpacing(true);
-		h2.setCaption("Class2");
+		h2.setCaption("Control");
 		h2.addComponent(class2ArraySelect);
 		h2.addComponent(tf2);
 		h2.addComponent(uploadField2);
