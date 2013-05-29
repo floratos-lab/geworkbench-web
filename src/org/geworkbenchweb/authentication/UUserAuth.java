@@ -196,6 +196,7 @@ public class UUserAuth extends VerticalLayout {
 	
 	private Panel buildAboutWindow() {
 		final Panel aboutWindow = new Panel("About geWorkbench");
+		aboutWindow.setStyleName("xpanel");
 //		aboutWindow.setModal(true);
         VerticalLayout aboutWindowLayout = (VerticalLayout) aboutWindow.getContent();
         aboutWindowLayout.setMargin(true);
