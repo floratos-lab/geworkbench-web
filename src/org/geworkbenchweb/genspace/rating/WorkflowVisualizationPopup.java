@@ -16,11 +16,13 @@ import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -52,11 +54,11 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 	
 	private Button addWkButton;
 	
-	private Button gotoPage;
+	private Link gotoPage;
 	
 	private Button contact;
 	
-	private Button view;
+	private Link view;
 	
 	private Workflow workflow;
 	
@@ -104,8 +106,9 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.gotoPageLabel.setCaption(gotoCaption);
 		wLayout.addComponent(this.gotoPageLabel, BorderLayout.Constraint.WEST);
 
-		this.gotoPage = new Button("Go");
-		this.gotoPage.addListener(this);
+		/*this.gotoPage = new Button("Go");
+		this.gotoPage.addListener(this);*/
+		this.gotoPage = new Link("Go", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + selectedTool.getId()));
 		wLayout.addComponent(gotoPage, BorderLayout.Constraint.EAST);
 		
 		wLayout = new BorderLayout();
@@ -124,8 +127,9 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.viewPanel.addComponent(wLayout);
 		wLayout.addComponent(this.viewComment, BorderLayout.Constraint.WEST);
 
-		this.view = new Button("View");
-		this.view.addListener(this);
+		/*this.view = new Button("View");
+		this.view.addListener(this);*/
+		this.view = new Link("View", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "workflow/index/" + workflow.getId()));
 		wLayout.addComponent(this.view, BorderLayout.Constraint.EAST);
 		
 		//Unify the width for all buttons here
@@ -183,14 +187,14 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			}
 		}
 		
-		if (browser) {
+		/*if (browser) {
 			try {
 				BrowserLauncher.openURL(RuntimeEnvironmentSettings.GS_WEB_ROOT + args);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 	} 
 	
 	private void addWorkFlowToRepository() {
