@@ -7,7 +7,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -86,7 +85,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		DataSet data = DataSetOperations.getDataSet(dataSetId);
 		try {
 			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
-			UserDirUtils.setAnnotationParser(dataSetId, maSet);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -334,10 +332,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))
 					{
-						String[] list = AnnotationParser.getInfo(selectedMarkers.get(i)
-								.getLabel(), AnnotationParser.DESCRIPTION);
-						if (list != null && list.length > 0)							 
-						    item.getItemProperty(colHeaders.get(k)).setValue(list[0]);
+						String list = selectedMarkers.get(i).getAnnotation();
+						if (list != null && list.length() > 0)							 
+						    item.getItemProperty(colHeaders.get(k)).setValue(list);
 						else
 							item.getItemProperty(colHeaders.get(k)).setValue("---");
                         
