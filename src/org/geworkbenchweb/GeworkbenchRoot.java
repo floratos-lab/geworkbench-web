@@ -239,4 +239,10 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			return false;
 		}
 	}
+
+	public static String getPublicAnnotationDirectory() {
+		return System.getProperty("user.home")
+				+ System.getProperty("file.separator")
+				+ prop.getProperty("public.annotation.directory");
+	}
 }

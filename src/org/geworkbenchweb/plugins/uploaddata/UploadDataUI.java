@@ -394,7 +394,7 @@ public class UploadDataUI extends VerticalLayout {
 				annotChoices.setChildrenAllowed(anno, false);
 			}else if (anno == Anno.PUBLIC){
 				int cnt = 0;
-				File dir = new File(tempDir);
+				File dir = new File(GeworkbenchRoot.getPublicAnnotationDirectory());
 				if(!dir.exists() || !dir.isDirectory()) {
 					continue; // TODO document when it happens. It did happen and cause a lot of trouble during release
 				}
@@ -481,7 +481,7 @@ public class UploadDataUI extends VerticalLayout {
 				if (parent == Anno.PUBLIC){
 					annotOwner = null;
 					annotType = AnnotationType.values()[0];
-					annotFile = new File(tempDir, annotFname);
+					annotFile = new File(GeworkbenchRoot.getPublicAnnotationDirectory(), annotFname);
 					if (!annotFile.exists()) {
 						MessageBox mb = new MessageBox(getWindow(), 
 								"Loading problem", 
