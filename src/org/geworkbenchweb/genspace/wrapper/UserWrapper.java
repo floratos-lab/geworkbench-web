@@ -56,26 +56,43 @@ public class UserWrapper {
 		delegate.setPassword(value);
 	}
 	public String getPhone() {
-		if (delegate.getPhone() == null)
-			return "";
+		String phone;
 		
-		return delegate.getPhone();
+		try {
+			phone = delegate.getPhone();
+		} catch(Exception e) {
+			phone = "";
+		}
+
+		return phone;
 	}
 	public void setPhone(String value) {
 		delegate.setPhone(value);
 	}
 	public String getState() {
-		if (delegate.getState() == null)
-			return "";
-		return delegate.getState();
+		String state;
+		
+		try {
+			state = delegate.getState();
+		} catch (Exception e) {
+			state = "";
+		}
+		
+		return state;
 	}
 	public void setState(String value) {
 		delegate.setState(value);
 	}
 	public String getUsername() {
-		if (delegate.getUsername() == null)
-			return "";
-		return delegate.getUsername();
+		String username;
+		
+		try {
+			username = delegate.getUsername();
+		} catch (Exception e) {
+			username = "";
+		}
+		
+		return username;
 	}
 	public void setUsername(String value) {
 		delegate.setUsername(value);
@@ -87,9 +104,15 @@ public class UserWrapper {
 		delegate.setVisible(value);
 	}
 	public String getWorkTitle() {
-		if (delegate.getWorkTitle() == null)
-			return "";
-		return delegate.getWorkTitle();
+		String worktitle;
+		
+		try {
+			worktitle = delegate.getWorkTitle();
+		} catch (Exception e) {
+			worktitle = "";
+		}
+		
+		return worktitle;
 	}
 	public void setWorkTitle(String value) {
 		delegate.setWorkTitle(value);
@@ -98,25 +121,43 @@ public class UserWrapper {
 		return delegate.toString();
 	}
 	public String getAddr1() {
-		if (delegate.getAddr1() == null)
-			return "";
-		return delegate.getAddr1();
+		String addr1;
+		
+		try {
+			addr1 = delegate.getAddr1();
+		} catch (Exception e) {
+			addr1 = "";
+		}
+		
+		return addr1;
 	}
 	public void setAddr1(String addr1) {
 		delegate.setAddr1(addr1);
 	}
 	public String getAddr2() {
-		if (delegate.getAddr2() == null)
-			return "";
-		return delegate.getAddr2();
+		String addr2;
+		
+		try {
+			addr2 = delegate.getAddr2();
+		} catch (Exception e) {
+			addr2 = "";
+		}
+		
+		return addr2;
 	}
 	public void setAddr2(String addr2) {
 		delegate.setAddr2(addr2);
 	}
 	public String getCity() {
-		if (delegate.getCity() == null)
-			return "";
-		return delegate.getCity();
+		String city;
+		
+		try {
+			city = delegate.getCity();
+		} catch (Exception e) {
+			city = "";
+		}
+		
+		return city;
 	}
 	public void setCity(String city) {
 		delegate.setCity(city);
@@ -129,17 +170,28 @@ public class UserWrapper {
 		delegate.setDataVisibility(dataVisibility);
 	}
 	public String getEmail() {
-		if (delegate.getEmail() == null)
-			return "";
-		return delegate.getEmail();
+		String email;
+		
+		try {
+			email = delegate.getEmail();
+		} catch (Exception e) {
+			email = "";
+		}
+		
+		return email;
 	}
 	public void setEmail(String email) {
 		delegate.setEmail(email);
 	}
 	public String getFirstName() {
-		if (delegate.getFirstName() == null)
-			return "";
-		return delegate.getFirstName();
+		String firstName;
+		try {
+			firstName = delegate.getFirstName();
+		} catch (Exception e) {
+			firstName = "";
+		}
+		
+		return firstName;
 	}
 	public void setFirstName(String firstName) {
 		delegate.setFirstName(firstName);
@@ -153,25 +205,43 @@ public class UserWrapper {
 	}
 
 	public String getInterests() {
-		if (delegate.getInterests() == null)
-			return "";
-		return delegate.getInterests();
+		String interests;
+		
+		try {
+			interests = delegate.getInterests();
+		} catch (Exception e) {
+			interests = "";
+		}
+
+		return interests;
 	}
 	public void setInterests(String interests) {
 		delegate.setInterests(interests);
 	}
 	public String getLabAffiliation() {
-		if (delegate.getLabAffiliation() == null)
-			return "";
-		return delegate.getLabAffiliation();
+		String affiliation;
+		
+		try {
+			affiliation = delegate.getLabAffiliation();
+		} catch (Exception e) {
+			affiliation = "";
+		}
+		
+		return affiliation;
 	}
 	public void setLabAffiliation(String labAffiliation) {
 		delegate.setLabAffiliation(labAffiliation);
 	}
 	public String getLastName() {
-		if (delegate.getLastName() == null)
-			return "";
-		return delegate.getLastName();
+		String lastName;
+		
+		try {
+			lastName = delegate.getLastName();
+		} catch (Exception e) {
+			lastName = "";
+		}
+		
+		return lastName;
 	}
 	public void setLastName(String lastName) {
 		delegate.setLastName(lastName);
@@ -184,9 +254,15 @@ public class UserWrapper {
 	}
 	
 	public String getZipcode() {
-		if (delegate.getZipcode() == null)
-			return "";
-		return delegate.getZipcode();
+		String zip;
+		
+		try {
+			zip = delegate.getZipcode();
+		} catch (Exception e) {
+			zip = "";
+		}
+		
+		return zip;
 	}
 	public void setZipcode(String zipcode) {
 		delegate.setZipcode(zipcode);

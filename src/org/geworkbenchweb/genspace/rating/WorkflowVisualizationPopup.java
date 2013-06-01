@@ -108,20 +108,31 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 
 		/*this.gotoPage = new Button("Go");
 		this.gotoPage.addListener(this);*/
-		this.gotoPage = new Link("Go", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + selectedTool.getId()));
+		this.gotoPage = new Link("Go", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + selectedTool.getId(), "_blank"));
 		wLayout.addComponent(gotoPage, BorderLayout.Constraint.EAST);
 		
 		wLayout = new BorderLayout();
 		this.expertPanel = new Panel();
-		this.expertPanel.addComponent(wLayout);		
-		this.contactCaption = "Contact expert user: " + (new UserWrapper(this.expert, this.login)).getFullName();
-		this.expertLabel.setCaption(contactCaption);
-		wLayout.addComponent(this.expertLabel, BorderLayout.Constraint.WEST);
+		this.expertPanel.addComponent(wLayout);
 		
 		this.contact = new Button("Contact");
-		this.contact.addListener(this);
-		wLayout.addComponent(contact, BorderLayout.Constraint.EAST);
 		
+		if (expert != null) {
+			this.contactCaption = "Contact expert user: " + (new UserWrapper(this.expert, this.login)).getFullName();
+			this.expertLabel.setCaption(contactCaption);
+			wLayout.addComponent(this.expertLabel, BorderLayout.Constraint.WEST);
+			
+			this.contact.addListener(this);
+			wLayout.addComponent(contact, BorderLayout.Constraint.EAST);
+		} else {
+			this.contactCaption = "No current expert";
+			this.expertLabel.setCaption(contactCaption);
+			wLayout.addComponent(this.expertLabel, BorderLayout.Constraint.WEST);
+			
+			this.contact.setEnabled(false);
+			wLayout.addComponent(contact, BorderLayout.Constraint.EAST);
+		}
+
 		wLayout = new BorderLayout();
 		this.viewPanel = new Panel();
 		this.viewPanel.addComponent(wLayout);
@@ -129,7 +140,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 
 		/*this.view = new Button("View");
 		this.view.addListener(this);*/
-		this.view = new Link("View", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "workflow/index/" + workflow.getId()));
+		this.view = new Link("View", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "workflow/index/" + workflow.getId(), "_blank"));
 		wLayout.addComponent(this.view, BorderLayout.Constraint.EAST);
 		
 		//Unify the width for all buttons here
@@ -187,14 +198,9 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			}
 		}
 		
-		/*if (browser) {
-			try {
-				BrowserLauncher.openURL(RuntimeEnvironmentSettings.GS_WEB_ROOT + args);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
+		if (browser) {
+			getApplication().getMainWindow().open(new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + args, "_blank"));
+		}
 	} 
 	
 	private void addWorkFlowToRepository() {
