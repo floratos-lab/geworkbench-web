@@ -20,6 +20,8 @@ public class UserSearchWindow extends Window {
 
 	private GenSpaceLogin login;
 	
+	private int myID;
+	
 	private SocialNetworkHome sHome;
 	
 	private VerticalLayout vLayout = new VerticalLayout();
@@ -44,6 +46,7 @@ public class UserSearchWindow extends Window {
 
 	public UserSearchWindow(User friend, GenSpaceLogin login, SocialNetworkHome sHome) {
 		this.login = login;
+		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.friend = friend;
 		this.sHome = sHome;
 		
@@ -139,7 +142,7 @@ public class UserSearchWindow extends Window {
 						login.getPusher().push();
 						//When user decide to remove a friend, fire the event.
 						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
-						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(friend.getUsername()));
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}

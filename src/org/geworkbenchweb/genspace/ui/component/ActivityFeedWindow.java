@@ -13,6 +13,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
+import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.events.LogCompleteEvent;
@@ -58,8 +59,11 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	private ThemeResource faviIcon = new ThemeResource(faviPath);
 	
+	private int myID;
+	
 	public ActivityFeedWindow(GenSpaceLogin login) {
 		this.login = login;
+		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		
 		this.setScrollable(true);
 		this.setWidth("300px");
@@ -175,39 +179,39 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	@Override
 	public void completeLog(LogCompleteEvent evt) {
-		this.updateQueryString();
-		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
-		this.makeAFLayout();
-		login.getPusher().push();
+		int id = evt.getID();
+		
+		if (this.myID == id) {
+			return ;
+		}
+		
+		if (this.isFriend(id)) {
+			this.updateQueryString();
+			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
+			this.makeAFLayout();
+			login.getPusher().push();
+		}
 	}
 	
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
-		this.updateQueryString();
-		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
-		this.makeAFLayout();
+		if (this.myID == evt.getMyID() || this.myID == evt.getFriendID()) {
+			this.updateQueryString();
+			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
+			this.makeAFLayout();
+		}
 	}
+	
+	private boolean isFriend(int id) {
+		List<User> friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 		
-	/*public class EventRetriever extends Thread {
-		@Override
-		public void run() {
-			while (true) {
-				try {
-					Thread.sleep(5000);
-					int evtLength = ActivityFeedWindow.this.evtList.size();
-					ActivityFeedWindow.this.evtList = ActivityFeedWindow.this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents("2012-07-01");
-					int newEvtLength = ActivityFeedWindow.this.evtList.size();
-					if (newEvtLength > evtLength) {
-						//ActivityFeedWindow.this.login.getPusher().push();
-						ActivityFeedWindow.this.makeAFLayout();
-						System.out.println("New event is retrieved");
-					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		for (User u: friendList) {
+			if (u.getId() == id) {
+				return true;
 			}
 		}
-	}*/
+		
+		return false;
+	}
 }
 

@@ -56,6 +56,8 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 
 	private GenSpaceLogin login;
 	
+	private int myID;
+	
 	private ChatReceiver cr;
 	
 	private String username;
@@ -350,6 +352,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		setHeight("400px");
 
 		this.login = login;
+		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.cr = cr;
 		this.username = this.login.getGenSpaceServerFactory().getUsername();
 		
@@ -518,8 +521,10 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		//System.out.println("Get event from " + evt.getFriendName());
 		
-		this.refresh();
-		this.initComponents();
-		this.login.getPusher().push();
+		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
+			this.refresh();
+			this.initComponents();
+			this.login.getPusher().push();
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package org.geworkbenchweb.genspace.ui.component;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,8 +67,11 @@ public class RequestPanel extends SocialPanel{
 	
 	private BorderLayout blLayout;
 	
+	private int myID;
+	
 	public RequestPanel(String panelTitle, GenSpaceLogin login) {
 		this.login = login;
+		this.myID = login.getGenSpaceServerFactory().getUser().getId();
 		
 		this.panelTitle = panelTitle;
 		this.blLayout = new BorderLayout();
@@ -174,28 +178,49 @@ public class RequestPanel extends SocialPanel{
 			
 			public void buttonClick(ClickEvent event) {
 				Iterator fSelect = friendSelect.getItemIds().iterator();
+				List<Integer> accList = new ArrayList<Integer>();
+				List<Integer> rejList = new ArrayList<Integer>();
+				
 				Object tmpID;
 				User tmpUser;
+				int tmpUserID;
 				
+				/*Avoid concurrent modification exception, select friend id into lists first*/
 				while(fSelect.hasNext()) {
 					tmpID = fSelect.next();
 					if(friendSelect.isSelected(tmpID)) {
 						tmpUser = userContainer.getItem(tmpID).getBean();
+						tmpUserID = tmpUser.getId();
 						
 						if(ar.equals(aFriend)) {
-							System.out.println("Accept from user: " + tmpUser.getUsername());
+							accList.add(tmpUser.getId());
+							/*System.out.println("Accept from user: " + tmpUser.getUsername());
 							login.getGenSpaceServerFactory().getFriendOps().addFriend(tmpUser.getId());
-							//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
-							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(tmpUser.getUsername()));
-							login.getPusher().push();
+							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, tmpUserID));
+							login.getPusher().push();*/
 						} else if (ar.equals(rFriend)) {
-							System.out.println("Reject from user: " + tmpUser.getUsername());
+							rejList.add(tmpUser.getId());
+							/*System.out.println("Reject from user: " + tmpUser.getUsername());
 							login.getGenSpaceServerFactory().getFriendOps().rejectFriend(tmpUser.getId());
-							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(tmpUser.getUsername()));
-							login.getPusher().push();
+							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, tmpUserID));
+							login.getPusher().push();*/
 						}
 					}
 				}
+				
+				//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
+				for (int friendID: accList) {
+					login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
+					GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
+				}
+				
+				for (int friendID: rejList) {
+					login.getGenSpaceServerFactory().getFriendOps().rejectFriend(friendID);
+					GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
+				}
+				
+				login.getPusher().push();
+				
 				loadFriends();
 			}
 		};
@@ -255,25 +280,44 @@ public class RequestPanel extends SocialPanel{
 			
 			public void buttonClick(ClickEvent event) {
 				Iterator nSelect = networkSelect.getItemIds().iterator();
+				List<Integer> accList = new ArrayList<Integer>();
+				List<Integer> rejList = new ArrayList<Integer>();
+				
 				Object tmpID;
 				UserNetworkReqWrapper tmpUnr;
 				
+				/*Avoid concurrent modificiation, select network into lists first*/
 				while(nSelect.hasNext()) {
 					tmpID = nSelect.next();
 					if(networkSelect.isSelected(tmpID)) {
 						tmpUnr = networkContainer.getItem(tmpID).getBean();
 						
 						if(ar.equals(accept)) {
-							System.out.println("Accept request from network: " + tmpUnr.getName());
+							accList.add(tmpUnr.getId());
+							
+							/*System.out.println("Accept request from network: " + tmpUnr.getName());
 							login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(tmpUnr.getId());
-							login.getPusher().push();
+							login.getPusher().push();*/
 						} else if(ar.equals(reject)) {
-							System.out.println("Reject request from network: " + tmpUnr.getName());
+							rejList.add(tmpUnr.getId());
+							
+							/*System.out.println("Reject request from network: " + tmpUnr.getName());
 							login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(tmpUnr.getId());
-							login.getPusher().push();
+							login.getPusher().push();*/
 						}
 					}
 				}
+				
+				for (int unID: accList) {
+					login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(unID);
+				}
+				
+				for (int unID: rejList) {
+					login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(unID);
+				}
+				
+				login.getPusher().push();
+				
 				loadNetworks();
 			}
 		};

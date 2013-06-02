@@ -4,15 +4,22 @@ import com.github.wolfie.blackboard.Event;
 import com.github.wolfie.blackboard.Listener;
 
 public class FriendStatusChangeEvent implements Event{
+
+	private int friendID;
 	
-	private String friendName;
+	private int myID;
 	
-	public FriendStatusChangeEvent(String friendName) {
-		this.friendName = friendName;
+	public FriendStatusChangeEvent(int myID, int friendID) {
+		this.myID = myID;
+		this.friendID = friendID;
 	}
 	
-	public String getFriendName() {
-		return this.friendName;
+	public int getMyID() {
+		return this.myID;
+	}
+	
+	public int getFriendID() {
+		return this.friendID;
 	}
 	
 	public interface FriendStatusChangeListener extends Listener {

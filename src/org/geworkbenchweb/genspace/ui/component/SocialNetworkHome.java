@@ -487,6 +487,12 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
-		updateForm();
+		if (login.getGenSpaceServerFactory().isLoggedIn()) {
+			int myID = login.getGenSpaceServerFactory().getUser().getId();
+			
+			if (myID == evt.getMyID() || myID == evt.getFriendID()) {
+				updateForm();
+			}
+		}
 	}
 }
