@@ -181,7 +181,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 				continue;
 			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.p_value.ordinal()) && (result2DArray[0][cx] > anovaTablePref.getThresholdValue()))
 			    continue;
-			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.f_statistic.ordinal()) && (result2DArray[2][cx] < anovaTablePref.getThresholdValue()))
+			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.f_statistic.ordinal()) && (Float.parseFloat(String.format("%.2f", result2DArray[2][cx])) < anovaTablePref.getThresholdValue()))
 			    continue;
 			
 			Object id = dataIn.addItem();
