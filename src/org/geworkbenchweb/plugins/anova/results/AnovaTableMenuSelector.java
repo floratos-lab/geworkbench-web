@@ -89,7 +89,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						final CheckBox checkbox5 = new CheckBox("Mean");
 						checkbox5.setValue(p.selectMean());
 						checkbox5.setImmediate(true);
-						final CheckBox checkbox6 = new CheckBox("Std");
+						final CheckBox checkbox6 = new CheckBox("Standard Deviation");
 						checkbox6.setValue(p.selectStd());
 						checkbox6.setImmediate(true);
 						
