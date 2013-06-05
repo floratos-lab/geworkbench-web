@@ -251,7 +251,6 @@ public class UMainLayout extends VerticalLayout {
 
 		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
-		GeworkbenchRoot.getBlackboard().addListener(new UploadDataListener(this, pusher));
 	} // end of the constructor.
 
 	private HorizontalLayout createTopNavigationPanel() {

@@ -18,7 +18,6 @@ import org.geworkbenchweb.dataset.Loader;
 import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.events.UploadStartedEvent;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
@@ -523,43 +522,48 @@ public class UploadDataUI extends VerticalLayout {
 					e.printStackTrace();
 				}
 			}
-			UMainLayout mainLayout = getMainLayout();
-			if (dataFile == null) { // return false; // fail for some reason
-					// delete cascade dataset from db
-					FacadeFactory.getFacade().delete(dataset);
-					
-					if(mainLayout!=null) {
-						mainLayout.removeItem(dataset.getId());
-					}
-					return;	
+			if (dataFile == null) { // fail for some reason
+				rollbackFailedUpload(dataset);
+				return;	
 			}
 			
-			// send upload start event
-			HashMap<String, Object> params = new HashMap<String, Object>();
-			params.put("loader", loader);
-			params.put("choice", choice);
-			params.put("owner", annotOwner);
-			params.put("type", annotType);
-//			UploadStartedEvent analysisEvent = new UploadStartedEvent(dataset, params, UploadDataUI.this);
-//			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
-			loadFromBackgroundThread(dataset, params, mainLayout); // replace the two lines above
+			processFromBackgroundThread(dataset, loader, choice, annotOwner, annotType);
 
 			// add pending dataset node
 			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
 			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
 		}
 	};
+	
+	private void rollbackFailedUpload(DataSet dataset) {
+		FacadeFactory.getFacade().delete(dataset);
+		UMainLayout mainLayout = getMainLayout();
+		if(mainLayout!=null) {
+			mainLayout.removeItem(dataset.getId());
+		}
+	}
 		
+	private void processFromBackgroundThread(final DataSet dataSet,
+			final Loader loader, final Object choice, final User annotOwner,
+			final AnnotationType annotType) {
 
-	private void loadFromBackgroundThread(final DataSet dataSet, final HashMap<String, Object> params, final UMainLayout mainLayout) {
-			// start upload in background thread
-			Thread uploadThread = new Thread() {
-				@Override
-				public void run() {
+		final UMainLayout mainLayout = getMainLayout();
+		Thread uploadThread = new Thread() {
+				
+			@Override
+			public void run() {
 					
-					startUpload(dataSet, params);
+				boolean success = load(dataSet, loader, annotOwner, annotType);
+				if(!success) {
+					rollbackFailedUpload(dataSet);
+					return;
+				}
+
+				if (annotFile != null && choice == Anno.NEW && !annotFile.delete()) {
+					log.warn("problem in deleting " + annotFile);
+				}
 					
-					synchronized(mainLayout.getApplication()) {
+				synchronized(mainLayout.getApplication()) {
 						MessageBox mb = new MessageBox(getApplication().getMainWindow(),
 								"Upload Completed", 
 								MessageBox.Icon.INFO, 
@@ -575,11 +579,12 @@ public class UploadDataUI extends VerticalLayout {
 								}
 							}
 						});
-					}
-					mainLayout.push();
 				}
-			};
-			uploadThread.start();
+				mainLayout.push();
+			}
+		};
+		// start processing in the background thread
+		uploadThread.start();
 	}
 
 	// TODO this may not be the best design to get reference to the main layout
@@ -593,22 +598,14 @@ public class UploadDataUI extends VerticalLayout {
 		}
 	}
 	
-	// this really should be called 'load' instead of upload now.
-	public boolean startUpload(DataSet dataSet, HashMap<String, Object> params){
-			
-			Loader loader 				= 	(Loader)params.get("loader");
-			Object choice 				= 	params.get("choice");
-			User annotOwner 			= 	(User)params.get("owner");
-			AnnotationType annotType 	= 	(AnnotationType)params.get("type");
+	private boolean load(DataSet dataSet, Loader loader, User annotOwner,
+			AnnotationType annotType) {
 		
 			try {
 				if (loader instanceof LoaderUsingAnnotation) {
 					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
 					expressionFileLoader.parseAnnotation(annotFile, annotType,
 							annotOwner, dataSet.getId());
-					if (annotFile != null && choice == Anno.NEW && !annotFile.delete()) {
-						log.warn("problem in deleting " + annotFile);
-					}
 				}
 				loader.load(dataFile, dataSet);
 
@@ -630,7 +627,6 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();	
 				return false;
 			}
-
 	}
 	
 	/**

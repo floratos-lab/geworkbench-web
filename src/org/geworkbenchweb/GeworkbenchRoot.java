@@ -16,8 +16,6 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
-import org.geworkbenchweb.events.UploadStartedEvent;
-import org.geworkbenchweb.events.UploadStartedEvent.UploadStartedListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -34,6 +32,7 @@ import com.vaadin.ui.Window;
 /**
  * This is the application entry point.
  * @author Nikhil Reddy
+ * @version $Id$
  */
 public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
 	
@@ -183,9 +182,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		/* This event should be fired whenever new ResultNode is added */
 		getBlackboard().register(NodeAddEventListener.class, NodeAddEvent.class);
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
-		
-		/* Register event for data upload */
-		getBlackboard().register(UploadStartedListener.class, UploadStartedEvent.class);
 		
 		/* Register two new events for genSpace. */
 		/*getBlackboard().register(LogCompleteEventListener.class, LogCompleteEvent.class);
