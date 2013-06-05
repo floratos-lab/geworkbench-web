@@ -1,9 +1,7 @@
 package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +19,7 @@ import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.UploadStartedEvent;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -34,9 +33,9 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
@@ -50,6 +49,8 @@ import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.StartedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
@@ -75,7 +76,6 @@ public class UploadDataUI extends VerticalLayout {
 	private Tree annotChoices;
 	private ComboBox annotTypes;
 
-    private CheckBox sleep					=	new CheckBox("Simulate slow upload speed");
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
 	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver();
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
@@ -147,7 +147,6 @@ public class UploadDataUI extends VerticalLayout {
             	uploadField.setVisible(false);
                 fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
                         + "\"");
-				sleep.setVisible(false);
                 pLayout.setVisible(true);
                 pIndicator.setValue(0f);
                 pIndicator.setPollingInterval(500);
@@ -194,7 +193,6 @@ public class UploadDataUI extends VerticalLayout {
 			public void uploadFinished(FinishedEvent event) {
                 // This method gets called always when the upload finished,
                 // either succeeding or failing
-				sleep.setVisible(true);
 				pLayout.setVisible(false);
                 uploadField.setVisible(true);
                 uploadField.setCaption("Select different file");
@@ -332,17 +330,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		setSpacing(true);
 		
-        sleep.setImmediate(true);
-        sleep.setDescription("Simulate slow upload speed to show progress indicator under fast network.");
-        sleep.addListener(new Button.ClickListener() {
-			private static final long serialVersionUID = 1L;
-			public void buttonClick(ClickEvent event) {
-				fileReceiver.setSlow(event.getButton().booleanValue());
-            }
-        });
-
 		addComponent(fileUploadStatus);
-		//addComponent(sleep);
 		addComponent(uploadField);
 		addComponent(pLayout);
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
@@ -528,22 +516,6 @@ public class UploadDataUI extends VerticalLayout {
 			// store pending dataset
 			DataSet dataset = loader.storePendingData(dataFile==null?"DataSet":dataFile.getName(), SessionHandler.get().getId());
 			
-			// send upload start event
-			HashMap<String, Object> params = new HashMap<String, Object>();
-			params.put("loader", loader);
-			params.put("choice", choice);
-			params.put("owner", annotOwner);
-			params.put("type", annotType);
-			UploadStartedEvent analysisEvent = new UploadStartedEvent(dataset, params, UploadDataUI.this);
-			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
-
-			// add pending dataset node
-			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
-			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
-		}};
-		
-		
-	public boolean startUpload(DataSet dataSet, HashMap<String, Object> params){
 			while(uploadField.isUploading()){
 				try{
 					Thread.sleep(1000);
@@ -551,7 +523,78 @@ public class UploadDataUI extends VerticalLayout {
 					e.printStackTrace();
 				}
 			}
-			if (dataFile == null) return false;
+			UMainLayout mainLayout = getMainLayout();
+			if (dataFile == null) { // return false; // fail for some reason
+					// delete cascade dataset from db
+					FacadeFactory.getFacade().delete(dataset);
+					
+					if(mainLayout!=null) {
+						mainLayout.removeItem(dataset.getId());
+					}
+					return;	
+			}
+			
+			// send upload start event
+			HashMap<String, Object> params = new HashMap<String, Object>();
+			params.put("loader", loader);
+			params.put("choice", choice);
+			params.put("owner", annotOwner);
+			params.put("type", annotType);
+//			UploadStartedEvent analysisEvent = new UploadStartedEvent(dataset, params, UploadDataUI.this);
+//			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+			loadFromBackgroundThread(dataset, params, mainLayout); // replace the two lines above
+
+			// add pending dataset node
+			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
+			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
+		}
+	};
+		
+
+	private void loadFromBackgroundThread(final DataSet dataSet, final HashMap<String, Object> params, final UMainLayout mainLayout) {
+			// start upload in background thread
+			Thread uploadThread = new Thread() {
+				@Override
+				public void run() {
+					
+					startUpload(dataSet, params);
+					
+					synchronized(mainLayout.getApplication()) {
+						MessageBox mb = new MessageBox(getApplication().getMainWindow(),
+								"Upload Completed", 
+								MessageBox.Icon.INFO, 
+								"Data upload is now completed. ",  
+								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						mb.show(new MessageBox.EventListener() {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void buttonClicked(ButtonType buttonType) {    	
+								if(buttonType == ButtonType.OK) {
+									NodeAddEvent resultEvent = new NodeAddEvent(dataSet);
+									GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								}
+							}
+						});
+					}
+					mainLayout.push();
+				}
+			};
+			uploadThread.start();
+	}
+
+	// TODO this may not be the best design to get reference to the main layout
+	private UMainLayout getMainLayout() {
+		Window w = getApplication().getMainWindow();
+		ComponentContainer content = w.getContent();
+		if(content instanceof UMainLayout) {
+			return (UMainLayout)content;
+		} else {
+			return null;
+		}
+	}
+	
+	// this really should be called 'load' instead of upload now.
+	public boolean startUpload(DataSet dataSet, HashMap<String, Object> params){
 			
 			Loader loader 				= 	(Loader)params.get("loader");
 			Object choice 				= 	params.get("choice");
@@ -590,36 +633,6 @@ public class UploadDataUI extends VerticalLayout {
 
 	}
 	
-    /**
-     * FileOutputStream with 'sleep' flag to toggle slow/normal writing speed
-     */
-	private class SlowFileOutputStream extends FileOutputStream{
-        private boolean sleep;
-
-        /**
-         * @param file
-         * @param sleep	If set to true, sleep for 100ms/writingBlock to simulate slow speed;
-         * 				if set to false, write with normal speed
-         * @throws FileNotFoundException
-         */
-		public SlowFileOutputStream(File file, boolean sleep) throws FileNotFoundException {
-			super(file);
-			this.sleep = sleep;
-		}
-
-		@Override
-	    public void write(byte b[], int off, int len) throws IOException {
-			super.write(b, off, len);
-            if (sleep) {
-                try {
-                    Thread.sleep(100);
-                } catch (final InterruptedException e) {
-                     e.printStackTrace();
-                }
-            }
-		}
-	}
-	
 	/**
 	 * Data File receiver writes file to the temp directory on the server
 	 * @author Nikhil
@@ -630,19 +643,18 @@ public class UploadDataUI extends VerticalLayout {
 
 		private String fileName;
         private String mtype;
-        private boolean sleep;
 
         public OutputStream receiveUpload(String filename, String mimetype) {
             fileName = filename;
             mtype = mimetype;
-            SlowFileOutputStream fos = null; // Output stream to write to
+            FileOutputStream fos = null; // Output stream to write to
             String dir = tempDir + SessionHandler.get().getUsername() + dataDir;
 			if (!new File(dir).exists())
 				new File(dir).mkdirs();
 			dataFile = new File(dir, fileName);
             try {
                 // Open the file for writing.
-                fos = new SlowFileOutputStream(dataFile, sleep);
+                fos = new FileOutputStream(dataFile);
             } catch (final java.io.FileNotFoundException e) {
                 // Error while opening the file. Not reported here.
                 e.printStackTrace();
@@ -657,9 +669,6 @@ public class UploadDataUI extends VerticalLayout {
 
         public String getMimeType() {
             return mtype;
-        }
-        public void setSlow(final boolean value) {
-            sleep = value;
         }
     }
 	

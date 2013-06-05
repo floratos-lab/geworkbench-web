@@ -94,6 +94,10 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Long dataSetId;
 	
+	public void push() {
+		pusher.push();
+	}
+	
 	public UMainLayout() {
 
 		/* Add listeners here */
@@ -284,7 +288,7 @@ public class UMainLayout extends VerticalLayout {
 		pluginView.showToolList();
 	}
 	
-	void removeItem(Long itemId) {
+	public void removeItem(Long itemId) {
 		navigationTree.removeItem(itemId);
 		pusher.push();
 	}
