@@ -3,6 +3,7 @@ package org.geworkbenchweb.genspace.ui.component.notebook;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,7 +61,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	private final static SimpleDateFormat charFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
 	private final static List<String> sortByOpts = Arrays.asList(new String[] {
-			"", "Sort by tool", "Sort by date" });
+			"", "Sort by tool", "Sort by date", "Sort by user" });
 	
 	private final static int evtBefore = -30;
 
@@ -82,9 +83,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	public String searchTerm = null;
 	public String sortByMethod = null;
 	private String endLine = System.getProperty("line.seperator");
+	private String myName = null;
 	
 	private ThemeResource secret = new ThemeResource("img/secret.png");
-	
+
 	public static Date convertToDate(XMLGregorianCalendar cal) {
 		return DatatypeConverter.parseDateTime(cal.toXMLFormat()).getTime();
 	}
@@ -120,6 +122,12 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				setSearchTerm(query);
 				List<AnalysisEvent> searchQueryList = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyNotes(searchTerm,
 								sortByMethod); // same
+				List<AnalysisEvent> friendQueryList = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+				
+				searchQueryList.addAll(friendQueryList);
+				
+				Collections.sort(searchQueryList, EventSorter.getDateSorter());
+				
 				displayTable(searchQueryList);
 			}
 		});
@@ -246,6 +254,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory()
 						.getPrivUsageFacade().getMyNotes(searchTerm,
 								sortByMethod);
+				List<AnalysisEvent> friendQueryList = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+				
+				searchEvents.addAll(friendQueryList);
+				Collections.sort(searchEvents, EventSorter.getDateSorter());
 				displayTable(searchEvents);
 			}
 
@@ -262,6 +274,11 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory()
 							.getPrivUsageFacade().getMyNotes(searchTerm,
 									sortByMethod);
+					
+					List<AnalysisEvent> friendEvents = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+					
+					searchEvents.addAll(friendEvents);
+					Collections.sort(searchEvents, EventSorter.getToolSorter());
 					displayTable(searchEvents);
 				}
 				if (sortByOpts.indexOf(value) == 2) {
@@ -269,6 +286,20 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory()
 							.getPrivUsageFacade().getMyNotes(searchTerm,
 									sortByMethod);
+					
+					List<AnalysisEvent> friendEvents = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+					
+					searchEvents.addAll(friendEvents);
+					Collections.sort(searchEvents, EventSorter.getDateSorter());
+					displayTable(searchEvents);
+				}
+				if (sortByOpts.indexOf(value) == 3) {
+					setSortBy("date");
+					List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyNotes(searchTerm, sortByMethod);
+					List<AnalysisEvent> friendEvents = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+					
+					searchEvents.addAll(friendEvents);
+					Collections.sort(searchEvents, EventSorter.getUserSorter());
 					displayTable(searchEvents);
 				}
 			}
@@ -298,11 +329,12 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		for (int i = 0; i < searchEvents.size(); i++) {
 			final AnalysisEvent e = searchEvents.get(i);
 			final String evtTime = format.format(convertToDate(e.getCreatedAt()));
+			final String eUsrname = e.getTransaction().getUser().getUsername();
 			
 			/*Label noteInfo = new Label(e.getTool().getName() + " at "
 					+ format.format(convertToDate(e.getCreatedAt())));*/
 			Label noteInfo = new Label(e.getTool().getName() + " at "
-					+ evtTime);
+					+ evtTime + " User: " + e.getTransaction().getUser().getUsername());
 			Label dataSetName = new Label("Dataset: "
 					+ e.getTransaction().getDataSetName());
 			final TextArea noteText = new TextArea();
@@ -345,8 +377,13 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				List<AnalysisEventParameter> aepList;
 				String message = "";
 				public void buttonClick(ClickEvent event){
-					aepList = login.getGenSpaceServerFactory().getPrivUsageFacade().getAnalysisParameters(e.getId());
 					
+					if (eUsrname.equals(myName)) {
+						aepList = login.getGenSpaceServerFactory().getPrivUsageFacade().getAnalysisParameters(e.getId());
+					} else {
+						aepList = e.getParameters();
+					}
+
 					for(AnalysisEventParameter aep: aepList) {
 						message = message + aep.getParameterKey() + ":" + aep.getParameterValue();
 						message = message + "\n";
@@ -469,6 +506,14 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					getApplication().getMainWindow().addWindow(privNoteWindow);
 				}
 			});
+
+			if (!eUsrname.equals(myName)) {
+				noteText.setReadOnly(true);
+				cancel.setEnabled(false);
+				save.setEnabled(false);
+				fb.setEnabled(false);
+				privNote.setEnabled(false);
+			}
 			
 			buttonPanel.addComponent(vParam);
 			buttonPanel.setComponentAlignment(vParam, Alignment.MIDDLE_CENTER);
@@ -497,6 +542,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		borderLayout.removeComponent(infoLabel);
 		borderLayout.addComponent(sortArea, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(table, BorderLayout.Constraint.CENTER);
+		myName = login.getGenSpaceServerFactory().getUser().getUsername();
 		updateFormFields();
 	}
 

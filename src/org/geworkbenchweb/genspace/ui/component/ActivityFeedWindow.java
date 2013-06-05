@@ -49,7 +49,7 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	private List<AnalysisEvent> evtList;
 	
-	private String queryLimit = "2012-07-01";
+	private String queryLimit = "";
 	
 	private String newPath = "img/new.png";
 	
