@@ -41,7 +41,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	private static final long serialVersionUID = 1L;
    
-	private DSMicroarraySet maSet;
+	//private DSMicroarraySet maSet;
 	private Long userId;
 	private int precisonNumber = 2;
 	private String searchStr;	
@@ -83,6 +83,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
 
 		DataSet data = DataSetOperations.getDataSet(dataSetId);
+		DSMicroarraySet maSet=null;
 		try {
 			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
 		} catch (Exception e) {
@@ -95,7 +96,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);		 
 	 
-		displayTable.setContainerDataSource(getIndexedContainer());
+		displayTable.setContainerDataSource(getIndexedContainer(maSet));
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
@@ -144,7 +145,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private List<String> getTabViewColHeaders() {			 
+	private List<String> getTabViewColHeaders(DSMicroarraySet maSet) {			 
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
 				.ordinal()) {
@@ -208,7 +209,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private DSItemList<DSGeneMarker> getTabViewMarkers() {		 
+	private DSItemList<DSGeneMarker> getTabViewMarkers(DSMicroarraySet maSet) {		 
 		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();
 		;
 		String[] selectedMarkerSet = null;
@@ -302,11 +303,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public IndexedContainer getIndexedContainer() {
+		return null;
+	}
+
+	public IndexedContainer getIndexedContainer(DSMicroarraySet maSet) {
 
 		loadTabViewPreferences();
 		IndexedContainer dataIn = new IndexedContainer();
-		List<String> colHeaders = getTabViewColHeaders();
-		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers();
+		List<String> colHeaders = getTabViewColHeaders(maSet);
+		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers(maSet);
 
 		int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
@@ -380,5 +385,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		this.precisonNumber = precisonNumber;
 	}
 
+	public void clearTable(){
+		if (displayTable != null)
+			displayTable.setContainerDataSource(new IndexedContainer());
+	}
  
 }

@@ -1,11 +1,13 @@
 package org.geworkbenchweb.layout;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
+import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.DataSet;
@@ -18,6 +20,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
@@ -275,12 +278,14 @@ public class UMainToolBar extends MenuBar {
 						public void buttonClicked(ButtonType buttonType) {
 							if (buttonType.toString() == "YES") {
 								uploadDataUI.cancelUpload();
+								clearTabularView();
 								SessionHandler.logout();
 								getApplication().close();
 							}
 						}
 					});
 				}else{
+					clearTabularView();
 					SessionHandler.logout();
 					getApplication().close();
 				}
@@ -289,6 +294,16 @@ public class UMainToolBar extends MenuBar {
 		
 	}
 	
+	private void clearTabularView(){
+		Iterator<Component> it = pluginView.getComponentIterator();
+		while(it.hasNext()){
+			Component c = it.next();
+			if(c instanceof TabularViewUI){
+				((TabularViewUI)c).clearTable();
+			}
+		}
+	}
+
 	private boolean uploadPending(){
 		Map<String, Object> parameters = new HashMap<String, Object>();	
 		parameters.put("owner", SessionHandler.get().getId());	
