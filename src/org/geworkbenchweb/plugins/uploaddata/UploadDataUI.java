@@ -76,13 +76,13 @@ public class UploadDataUI extends VerticalLayout {
 	private ComboBox annotTypes;
 
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
-	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver(dataDir);
+	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver("/data/");
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
     private HorizontalLayout pLayout		=	new HorizontalLayout();
     private ProgressIndicator pIndicator	=	new ProgressIndicator();
 	
 	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
-	private DataFileReceiver annotFileReceiver = 	new DataFileReceiver("");
+	private DataFileReceiver annotFileReceiver = 	new DataFileReceiver("/annotation/");
 	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
     private HorizontalLayout annotPLayout		=	new HorizontalLayout();
     private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
@@ -91,9 +91,7 @@ public class UploadDataUI extends VerticalLayout {
 	
 	private File dataFile;
 	private File annotFile;
-	private static final String tempDir = System.getProperty("user.home") + "/temp/";
-	private static final String dataDir = "/data/";
-	
+
 	public UploadDataUI() {
 
 		setImmediate(true);
@@ -490,7 +488,10 @@ public class UploadDataUI extends VerticalLayout {
 				// user's loaded annotation
 				else if (parent == Anno.PRIVATE){
 					annotType = null;
-					annotFile = new File(tempDir + annotOwner.getUsername(), annotFname);
+					String annotDir = GeworkbenchRoot.getBackendDataDirectory()
+							+ System.getProperty("file.separator")
+							+ annotOwner.getUsername() + "/annotation/";
+					annotFile = new File(annotDir, annotFname);
 				}
 			}
 			else if (choice == Anno.NO)
@@ -515,8 +516,6 @@ public class UploadDataUI extends VerticalLayout {
 								params);
 				if (!annots.isEmpty()) {
 					log.warn("Annotation file with the same name found on server. It's been overwritten.");
-					// if (annotFile.exists()) annotFile.delete();
-					// return;
 				}
 			}
 
@@ -567,10 +566,6 @@ public class UploadDataUI extends VerticalLayout {
 					return;
 				}
 
-				if (annotFile != null && choice == Anno.NEW && !annotFile.delete()) {
-					log.warn("problem in deleting " + annotFile);
-				}
-					
 				synchronized(mainLayout.getApplication()) {
 						MessageBox mb = new MessageBox(getApplication().getMainWindow(),
 								"Upload Completed", 
@@ -637,10 +632,6 @@ public class UploadDataUI extends VerticalLayout {
 			}
 	}
 	
-	/**
-	 * Data File receiver writes file to the temp directory on the server
-	 * @author Nikhil
-	 */
 	private static class DataFileReceiver implements Receiver {
 
 		private static final long serialVersionUID = 1L;
@@ -654,7 +645,10 @@ public class UploadDataUI extends VerticalLayout {
         
         public OutputStream receiveUpload(String filename, String mimetype) {
             FileOutputStream fos = null; // Output stream to write to
-            String dir = tempDir + SessionHandler.get().getUsername() + subdirectoryName;
+            // TODO new design: instead of temp, save the file under geworkbench/username/data or geworkbench/username/annotation
+			String dir = GeworkbenchRoot.getBackendDataDirectory()
+					+ System.getProperty("file.separator")
+					+ SessionHandler.get().getUsername() + subdirectoryName;
 			if (!new File(dir).exists())
 				new File(dir).mkdirs();
 			file = new File(dir, filename);
