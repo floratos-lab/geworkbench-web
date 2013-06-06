@@ -612,14 +612,6 @@ public class UploadDataUI extends VerticalLayout {
 				}
 				loader.load(dataFile, dataSet);
 
-				/*
-				 * FIXME delete is correct behavior, but the current code,
-				 * particularly CSProteinStructure, depends on the retaining of
-				 * the temporary file.
-				 */
-				// if(!dataFile.delete()) {
-				// Log.warn("problem in deleting "+dataFile);
-				// }
 				return true;
 			} catch (GeWorkbenchLoaderException e) {
 				MessageBox mb = new MessageBox(getWindow(), 
@@ -645,7 +637,7 @@ public class UploadDataUI extends VerticalLayout {
         
         public OutputStream receiveUpload(String filename, String mimetype) {
             FileOutputStream fos = null; // Output stream to write to
-            // TODO new design: instead of temp, save the file under geworkbench/username/data or geworkbench/username/annotation
+
 			String dir = GeworkbenchRoot.getBackendDataDirectory()
 					+ System.getProperty("file.separator")
 					+ SessionHandler.get().getUsername() + subdirectoryName;
