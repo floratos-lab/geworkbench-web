@@ -76,13 +76,13 @@ public class UploadDataUI extends VerticalLayout {
 	private ComboBox annotTypes;
 
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
-	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver();
+	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver(dataDir);
 	private Upload uploadField 				= 	new Upload(null, fileReceiver);
     private HorizontalLayout pLayout		=	new HorizontalLayout();
     private ProgressIndicator pIndicator	=	new ProgressIndicator();
 	
 	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
-	private AnnotFileReceiver annotFileReceiver = 	new AnnotFileReceiver();
+	private DataFileReceiver annotFileReceiver = 	new DataFileReceiver("");
 	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
     private HorizontalLayout annotPLayout		=	new HorizontalLayout();
     private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
@@ -149,6 +149,8 @@ public class UploadDataUI extends VerticalLayout {
                 pLayout.setVisible(true);
                 pIndicator.setValue(0f);
                 pIndicator.setPollingInterval(500);
+                
+                dataFile = null;
             }
         });
 
@@ -195,6 +197,8 @@ public class UploadDataUI extends VerticalLayout {
 				pLayout.setVisible(false);
                 uploadField.setVisible(true);
                 uploadField.setCaption("Select different file");
+                
+                dataFile = fileReceiver.getFile();
             }
         });
 		
@@ -264,6 +268,8 @@ public class UploadDataUI extends VerticalLayout {
 				annotPLayout.setVisible(true);
                 annotPIndicator.setValue(0f);
                 annotPIndicator.setPollingInterval(500);
+                
+                annotFile = null;
             }
         });
 
@@ -310,6 +316,8 @@ public class UploadDataUI extends VerticalLayout {
 				annotPLayout.setVisible(false);
 				annotUploadField.setVisible(true);
 				annotUploadField.setCaption("Select different file");
+				
+				annotFile = annotFileReceiver.getFile();
             }
         });
 		
@@ -633,24 +641,26 @@ public class UploadDataUI extends VerticalLayout {
 	 * Data File receiver writes file to the temp directory on the server
 	 * @author Nikhil
 	 */
-	public class DataFileReceiver implements Receiver {
+	private static class DataFileReceiver implements Receiver {
 
 		private static final long serialVersionUID = 1L;
 
-		private String fileName;
-        private String mtype;
+		private File file;
 
+        final private String subdirectoryName;
+        DataFileReceiver(String subdirectoryName) {
+        	this.subdirectoryName = subdirectoryName;
+        }
+        
         public OutputStream receiveUpload(String filename, String mimetype) {
-            fileName = filename;
-            mtype = mimetype;
             FileOutputStream fos = null; // Output stream to write to
-            String dir = tempDir + SessionHandler.get().getUsername() + dataDir;
+            String dir = tempDir + SessionHandler.get().getUsername() + subdirectoryName;
 			if (!new File(dir).exists())
 				new File(dir).mkdirs();
-			dataFile = new File(dir, fileName);
+			file = new File(dir, filename);
             try {
                 // Open the file for writing.
-                fos = new FileOutputStream(dataFile);
+                fos = new FileOutputStream(file);
             } catch (final java.io.FileNotFoundException e) {
                 // Error while opening the file. Not reported here.
                 e.printStackTrace();
@@ -659,51 +669,9 @@ public class UploadDataUI extends VerticalLayout {
             return fos;
         }
 
-        public String getFileName() {
-            return fileName;
-        }
-
-        public String getMimeType() {
-            return mtype;
+        public File getFile() {
+            return file;
         }
     }
-	
-	/**
-	 * Annotation File receiver writes file to the temp directory on the server
-	 * @author Nikhil
-	 */
-	public class AnnotFileReceiver implements Receiver {
 
-		private static final long serialVersionUID = 1L;
-
-		private String fileName;
-        private String mtype;
-
-        public OutputStream receiveUpload(String filename, String mimetype) {
-            fileName = filename;
-            mtype = mimetype;
-            FileOutputStream fos = null; // Output stream to write to
-            String dir = tempDir + SessionHandler.get().getUsername();
-			if (!new File(dir).exists())
-				new File(dir).mkdir();
-			annotFile = new File(dir, fileName);
-            try {
-                // Open the file for writing.
-                fos = new FileOutputStream(annotFile);
-            } catch (final java.io.FileNotFoundException e) {
-                // Error while opening the file. Not reported here.
-                e.printStackTrace();
-                return null;
-            }
-            return fos;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public String getMimeType() {
-            return mtype;
-        }
-    }
 }
