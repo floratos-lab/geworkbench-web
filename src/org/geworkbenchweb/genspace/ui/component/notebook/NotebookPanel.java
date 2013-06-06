@@ -12,6 +12,7 @@ import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.geworkbench.components.genspace.server.stubs.AnalysisComment;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Tool;
@@ -408,6 +409,15 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				
 			});
 			
+			Button vComment = new Button("View Comments");
+			vComment.addListener(new Button.ClickListener() {
+				public void buttonClick(ClickEvent event) {
+					List<AnalysisComment> commentList = login.getGenSpaceServerFactory().getPrivUsageFacade().getAnalysisEventComment(e.getId());
+					CommentWindow cWindow = new CommentWindow(e, commentList, login);
+					getApplication().getMainWindow().addWindow(cWindow);
+				}
+			});
+			
 			Button cancel = new Button("Cancel");
 			cancel.addListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
@@ -517,6 +527,8 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			
 			buttonPanel.addComponent(vParam);
 			buttonPanel.setComponentAlignment(vParam, Alignment.MIDDLE_CENTER);
+			buttonPanel.addComponent(vComment);
+			buttonPanel.setComponentAlignment(vComment, Alignment.MIDDLE_CENTER);
 			buttonPanel.addComponent(privNote);
 			buttonPanel.setComponentAlignment(privNote, Alignment.MIDDLE_CENTER);
 			buttonPanel.addComponent(cancel);
