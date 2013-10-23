@@ -52,7 +52,12 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 
 		MicroarraySetParser parser = new MicroarraySetParser();
-		parser.parseExistingCSMicroarraySet(file, microarraySet);
+		try {
+			parser.parseExistingCSMicroarraySet(file, microarraySet);
+		} catch (InputFileFormatException e) {
+			throw new GeWorkbenchLoaderException(
+					"File name "+file.getName()+" does not have correct file format.");
+		}
 
 		// FIXME hard-code type name has to be fixed
 		datasetId = storeData(microarraySet, file.getName(), dataset);

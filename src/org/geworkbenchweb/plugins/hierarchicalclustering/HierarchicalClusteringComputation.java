@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.addressing.EndpointReference;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -12,30 +19,34 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel; 
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.components.hierarchicalclustering.ClusteringAlgorithm;
+import org.geworkbench.bison.model.clusters.HierCluster;  
 import org.geworkbench.components.hierarchicalclustering.HierClusterFactory;
-import org.geworkbench.components.hierarchicalclustering.HierarchicalClustering;
-import org.geworkbench.util.CorrelationDistance;
-import org.geworkbench.util.Distance;
-import org.geworkbench.util.EuclideanDistance;
-import org.geworkbench.util.SpearmanRankDistance;
+ 
+import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
+import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
+import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
+import org.geworkbench.components.hierarchicalclustering.computation.HNode;
+import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
+import org.geworkbench.components.hierarchicalclustering.data.HierClusterOutput;
+
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 
 public class HierarchicalClusteringComputation {
+	
+	private static final String DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/HierClusterService";
+	//private static final String DEFAULT_WEB_SERVICES_URL = "http://localhost:8080/axis2/services/HierClusterService";
+	private static final String  HCS_WEBSERVICE_URL = "hierClusterService.webService.url";
+	 
+	private static String url = null;
 
 	private final double[][] matrix;
-//	private final List<DSGeneMarker> markers = null;
-//	private final List<DSMicroarray> arrays = null;
-	// TODO using standard collection is preferred to DSItemList
-	private final DSItemList<DSGeneMarker> markers;
-	private final DSItemList<DSMicroarray> arrays;
+ 
 	private final int metric;
 	private final int method;
 	private final int dimension;
@@ -89,54 +100,73 @@ public class HierarchicalClusteringComputation {
 		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
 		
 		matrix = geValues(datasetView);
-		arrays = datasetView.items();
-		markers = datasetView.markers();
+	 
 	}
+	
 
-	CSHierClusterDataSet execute() {
-		final Distance[] distances = { EuclideanDistance.instance,
-				CorrelationDistance.instance, SpearmanRankDistance.instance };
-		Distance distanceMetric = distances[metric];
-		ClusteringAlgorithm.Linkage linkageType = null;
-		switch (method) {
-		case 0:
-			linkageType = ClusteringAlgorithm.Linkage.SINGLE;
-			break;
-		case 1:
-			linkageType = ClusteringAlgorithm.Linkage.AVERAGE;
-			break;
-		case 2:
-			linkageType = ClusteringAlgorithm.Linkage.COMPLETE;
-			break;
-		default:
-			log.error("error in linkage type");
+	CSHierClusterDataSet execute() {		  
+		String distanceType = null;
+		String linkageType = null;
+		String dimensionType = null;
+		
+		switch(method) {
+		case 0: linkageType = Linkage.SINGLE.name(); break;
+		case 1: linkageType = Linkage.AVERAGE.name(); break;
+		case 2: linkageType = Linkage.COMPLETE.name(); break;
+		default: log.error("error in linkage type");
 		}
-		final HierarchicalClustering hierarchicalClustering = new HierarchicalClustering(
-				linkageType);
-
+		
+		switch(metric) {
+		case 0: distanceType = DistanceType.EUCLIDEAN.name(); break;
+		case 1: distanceType = DistanceType.CORRELATION.name(); break;
+		case 2: distanceType = DistanceType.SPEARMANRANK.name(); break;
+		default: log.error("error in distance type");
+		}
+		 
+		switch(dimension) {
+		case 0: dimensionType = DimensionType.MARKER.name(); break;
+		case 1: dimensionType = DimensionType.ARRAY.name(); break;
+		case 2: dimensionType = DimensionType.BOTH.name(); break;
+		default: log.error("error in dimension type");
+		}
+		
+	
 		// one for marker; one for array
 		HierCluster[] resultClusters = new HierCluster[2];
 
 		if (dimension == 2) {
-
-			HierClusterFactory cluster = new HierClusterFactory.Gene(markers);
-			resultClusters[0] = hierarchicalClustering.compute(matrix, cluster,
-					distanceMetric);
-
-			cluster = new HierClusterFactory.Microarray(arrays);
-			resultClusters[1] = hierarchicalClustering.compute(
-					getTranspose(matrix), cluster, distanceMetric);
-		} else if (dimension == 1) {
-			HierClusterFactory cluster = new HierClusterFactory.Microarray(
-					arrays);
-			resultClusters[1] = hierarchicalClustering.compute(
-					getTranspose(matrix), cluster, distanceMetric);
-		} else if (dimension == 0) {
-			HierClusterFactory cluster = new HierClusterFactory.Gene(
-					markers);
-			resultClusters[0] = hierarchicalClustering.compute(matrix, cluster,
-					distanceMetric);
-		}
+			
+			HierClusterFactory cluster = new HierClusterFactory.Gene(datasetView.markers());
+			HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, DimensionType.MARKER.name()) ;
+			HierClusterOutput hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);
+	        HNode hNode = hierClusterOutput.getHnodeObject();			
+			resultClusters[0] = convertCluster(cluster, hNode);
+					 
+			cluster = new HierClusterFactory.Microarray(datasetView.items());
+		    hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, DimensionType.ARRAY.name()) ;
+			hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);
+	        hNode = hierClusterOutput.getHnodeObject();		 
+			resultClusters[1] = convertCluster(cluster,hNode);
+					 
+		} else  
+		{		
+			HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, dimensionType) ;
+			HierClusterOutput hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);			 	       
+			HNode hNode = hierClusterOutput.getHnodeObject();	 
+			if (dimension == 1) {
+				HierClusterFactory cluster = new HierClusterFactory.Microarray(datasetView.items());			 
+				resultClusters[1] = convertCluster(cluster,hNode);
+						 
+			} else if (dimension == 0) {
+				HierClusterFactory cluster = new HierClusterFactory.Gene(datasetView.markers());
+				resultClusters[0] = convertCluster(cluster,hNode);
+				
+				
+				
+				
+			}		 
+					 
+		}  
 
 		return new CSHierClusterDataSet(resultClusters, null, false,
 				"Hierarchical Clustering", datasetView);
@@ -155,13 +185,102 @@ public class HierarchicalClusteringComputation {
 		return array;
 	}
 
-	private static double[][] getTranspose(final double[][] input) {
-		double d[][] = new double[input[0].length][input.length];
-		for (int i = 0; i < d.length; i++) {
-			for (int j = 0; j < d[0].length; j++) {
-				d[i][j] = input[j][i];
+	 
+	
+	 private HierCluster convertCluster(HierClusterFactory factory, HNode node) {
+	        if (node.isLeafNode()) {
+	            return factory.newLeaf(Integer.parseInt(node.getLeafItem()));
+	        } else {
+	        	
+	        	HierCluster left = convertCluster(factory, node.getLeft());
+	            HierCluster right = convertCluster(factory, node.getRight());
+	            HierCluster cluster = factory.newCluster();
+	            cluster.setDepth(Math.max(left.getDepth(), right.getDepth()) + 1);
+	            cluster.setHeight(node.getHeight());
+	            cluster.addNode(left, 0);
+	            cluster.addNode(right, 0);
+	            return cluster;
+	        }
+	  } 
+	 
+	
+	 private HierClusterOutput computeHierarchicalClusteringRemote(HierClusterInput input) {
+		 HierClusterOutput output = null;
+			RPCServiceClient serviceClient;
+
+			try {
+				
+				getWebServiceUrl();
+				
+				serviceClient = new RPCServiceClient();
+
+				Options options = serviceClient.getOptions();
+
+				long soTimeout =  24 * 60 * 60 * 1000; // 24 hours
+				options.setTimeOutInMilliSeconds(soTimeout);
+
+
+				EndpointReference targetEPR = new EndpointReference(url);
+						 
+				options.setTo(targetEPR);
+
+				// notice that that namespace is in the required form
+				QName opName = new QName(
+						"http://service.hierarchicalclustering.components.geworkbench.org",
+						"execute");
+				Object[] args = new Object[] { input };
+
+				Class<?>[] returnType = new Class[] { HierClusterOutput.class };
+
+				Object[] response = serviceClient.invokeBlocking(opName, args,
+						returnType);
+				output = (HierClusterOutput) response[0];
+
+				return output;
+			} catch (AxisFault e) {
+				OMElement x = e.getDetail();
+				if (x != null)
+					log.debug(x);
+
+				Throwable y = e.getCause();
+				while (y != null) {
+					y.printStackTrace();
+					y = y.getCause();
+				}
+
+				log.debug("message: " + e.getMessage());
+				log.debug("fault action: " + e.getFaultAction());
+				log.debug("reason: " + e.getReason());
+				e.printStackTrace();
 			}
+
+			return output;
 		}
-		return d;
-	}
+	 
+		
+	    private void getWebServiceUrl()
+		{
+			if (url == null || url.trim().equals(""))
+			{
+				 		
+					url  = GeworkbenchRoot.getAppProperty(HCS_WEBSERVICE_URL);
+					if (url == null || url.trim().equals(""))
+						url = DEFAULT_WEB_SERVICES_URL;
+					
+			}		
+			 
+		}
+	    
+	    //for testing purpose
+	   /* private HierClusterOutput computeHierarchicalClusteringLocal(HierClusterInput input) {
+			 HierClusterOutput output = null;
+			 HierClusterService hcs = new HierClusterService();
+			 output = hcs.execute(input);
+			 
+			 return output;
+		}*/
+		 
+	    
+	    
+	
 }
