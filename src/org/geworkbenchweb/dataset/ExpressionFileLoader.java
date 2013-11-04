@@ -34,9 +34,6 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class ExpressionFileLoader extends LoaderUsingAnnotation {
 
-	// FIXME the reason we need to retain this is that the annotation mechanism
-	// is not really fixed
-	transient private DSMicroarraySet microarraySet;
 	transient private Long datasetId;
 
 	// meant to be used by the factory, not publicly
@@ -51,7 +48,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					"File name "+file.getName()+" does not end with .exp. Please choose file with .exp extension");
 		}
 
-		//MicroarraySetParser parser = new MicroarraySetParser();
+		DSMicroarraySet microarraySet;
 		MicroarraySetConverter converter = new MicroarraySetConverter();
 		try {
 			microarraySet = converter.parseAsDSMicroarraySet(file);
@@ -66,7 +63,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		// FIXME hard-code type name has to be fixed
 		datasetId = storeData(microarraySet, file.getName(), dataset);
 
-		storeContext();
+		storeContext(microarraySet);
 
 		//this.getClass().getName());
 		microarraySet = null;
@@ -77,7 +74,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	@Override
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
 			User annotOwner, Long dsId) throws GeWorkbenchLoaderException {
-		microarraySet = new CSMicroarraySet();
+		DSMicroarraySet microarraySet = new CSMicroarraySet();
 		datasetId = dsId;
 		Long annotationId = storeAnnotation(microarraySet, annotFile,
 				annotType, annotOwner);
@@ -171,7 +168,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	/**
 	 * store Contexts, CurrentContext, arrays SubSets and SubSetContexts for microarraySet
 	 */
-	public void storeContext(){
+	private void storeContext(DSMicroarraySet microarraySet){
 		CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 		DSAnnotationContext<DSMicroarray> arrayContext = manager.getCurrentContext(microarraySet);
 		for (DSAnnotationContext<DSMicroarray> aContext : manager.getAllContexts(microarraySet)){
