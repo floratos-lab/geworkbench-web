@@ -1,6 +1,7 @@
 package org.geworkbenchweb.dataset;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
-import org.geworkbench.parsers.MicroarraySetParser;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Context;
@@ -51,12 +51,16 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					"File name "+file.getName()+" does not end with .exp. Please choose file with .exp extension");
 		}
 
-		MicroarraySetParser parser = new MicroarraySetParser();
+		//MicroarraySetParser parser = new MicroarraySetParser();
+		MicroarraySetConverter converter = new MicroarraySetConverter();
 		try {
-			parser.parseExistingCSMicroarraySet(file, microarraySet);
+			microarraySet = converter.parseAsDSMicroarraySet(file);
 		} catch (InputFileFormatException e) {
 			throw new GeWorkbenchLoaderException(
 					"File name "+file.getName()+" does not have correct file format.");
+		} catch (IOException e) {
+			throw new GeWorkbenchLoaderException(
+					"Parsing failed because of IOException.");
 		}
 
 		// FIXME hard-code type name has to be fixed
