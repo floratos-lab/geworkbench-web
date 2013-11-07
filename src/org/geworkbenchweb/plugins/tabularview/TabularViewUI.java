@@ -1,14 +1,18 @@
 package org.geworkbenchweb.plugins.tabularview;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion; 
@@ -16,15 +20,13 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.plugins.PluginEntry;
- 
 import org.geworkbenchweb.plugins.tabularview.Constants;
 import org.geworkbenchweb.plugins.Tabular;
-
-
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.vaadin.appfoundation.authentication.SessionHandler;
- 
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer; 
@@ -49,11 +51,16 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
     private PagedTableView displayTable;
     
 	final private Long datasetId;
+	
+	private final Map<String, AnnotationEntry> annotationMap;
 
 	public TabularViewUI(final Long dataSetId) {
  
 		datasetId = dataSetId;
-		if(dataSetId==null) return;
+		if(dataSetId==null) {
+			annotationMap = null;
+			return;
+		}
 		
  
 		setSizeFull();
@@ -83,6 +90,24 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
 
 		DataSet data = DataSetOperations.getDataSet(dataSetId);
+		
+		// TODO ultimate goal here is to handle annotation separately
+		// TODO the query should be designed carefully
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		annotationMap = new HashMap<String, AnnotationEntry>();
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry);
+			}
+		}
+
+		// FIXME using DSMicroarraySet is not necessary for this component
 		DSMicroarraySet maSet=null;
 		try {
 			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
@@ -319,6 +344,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		for (int i = 0; i < selectedMarkers.size(); i++)
 		{		 
 			Item item = dataIn.addItem(i);
+			String probeSetId = selectedMarkers.get(i).getLabel();
+			String geneSymbol = null;
+			String geneDescription = null;
+			AnnotationEntry entry = annotationMap.get(probeSetId);
+			if(entry!=null) { // no annotation
+				geneSymbol = entry.getGeneSymbol();
+				geneDescription = entry.getGeneDescription();
+			}
 			for (int k = 0; k < colHeaders.size(); k++) {
 				if (k < displayPrefColunmNum) {
 					dataIn.addContainerProperty(colHeaders.get(k),
@@ -332,12 +365,11 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i).getGeneName());
-
+								geneSymbol);
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))
 					{
-						String list = selectedMarkers.get(i).getAnnotation();
+						String list = geneDescription;
 						if (list != null && list.length() > 0)							 
 						    item.getItemProperty(colHeaders.get(k)).setValue(list);
 						else

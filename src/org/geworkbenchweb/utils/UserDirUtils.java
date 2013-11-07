@@ -129,7 +129,9 @@ public class UserDirUtils {
 
 		if (correctType.isInstance(dataset)) {
 			if (correctType == DSMicroarraySet.class)
-				AnnotationParser.setCurrentDataSet(correctType.cast(dataset));
+				AnnotationParser.setCurrentDataSet(correctType.cast(dataset)); // FIXME replace with new mechanism
+				// TODO annotation = getAnnotation(dataId);
+				// then replace getGeneSymbol etc to annotation.getGeneSymbol(probeSetId);
 			return correctType.cast(dataset);
 		} else {
 			throw new Exception("incorrect type " + correctType

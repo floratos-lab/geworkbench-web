@@ -7,32 +7,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.Affy3ExpressionAnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyAnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AffyGeneExonStAnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
+import org.geworkbenchweb.annotation.Affy3ExpressionAnnotationParser;
+import org.geworkbenchweb.annotation.AffyAnnotationParser;
+import org.geworkbenchweb.annotation.AffyGeneExonStAnnotationParser;
+import org.geworkbenchweb.annotation.AnnotationFields;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
-import org.mortbay.log.Log;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class ExpressionFileLoader extends LoaderUsingAnnotation {
+	private static Log log = LogFactory.getLog(ExpressionFileLoader.class);
 
 	transient private Long datasetId;
 
@@ -70,14 +69,13 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	}
 
 	// this has to be called right after parse to have access to microarraySet
-	// and datasetId
+	// and datasetId // FIXME this comment is no longer correct! it is opposite now - not necessarily a good idea though
 	@Override
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
 			User annotOwner, Long dsId) throws GeWorkbenchLoaderException {
-		DSMicroarraySet microarraySet = new CSMicroarraySet();
+
 		datasetId = dsId;
-		Long annotationId = storeAnnotation(microarraySet, annotFile,
-				annotType, annotOwner);
+		Long annotationId = storeAnnotation(annotFile, annotType, annotOwner);
 
 		if (annotationId != null){
 			DataSetAnnotation da = new DataSetAnnotation();
@@ -87,10 +85,10 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 	}
 
-	private static Long storeAnnotation(DSMicroarraySet dataSet, File annotFile,
+	/* Parse the annotation file and serialize it (and all the entries) in JPA. */
+	private static Long storeAnnotation(File annotFile,
 			AnnotationType annotType, User annotOwner) {
 		if (annotFile == null) {
-			AnnotationParser.setCurrentDataSet(dataSet);
 			return null;
 		}
 
@@ -104,9 +102,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 							parameters);
 			if (!annots.isEmpty()){
 				Long aid = annots.get(0).getId();
-				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
-				AnnotationParser.setFromSerializable(aps);
-				parserLoadAnnotation(dataSet, annotFile, annots.get(0).getType());
 				return aid;
 			}
 		}
@@ -119,52 +114,69 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 							parameters);
 			if (!annots.isEmpty()){
 				Long aid = annots.get(0).getId();
-				APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(aid));
-				AnnotationParser.setFromSerializable(aps);
-				parserLoadAnnotation(dataSet, annotFile, annots.get(0).getType());
 				return aid;
 			}
 			if (annotType == null){
-				Log.warn("Private annotation "+annotFile.getName()+" not found in database.");
+				org.mortbay.log.Log.warn("Private annotation "+annotFile.getName()+" not found in database.");
 				return null;
 			}
 		}
 
 		// otherwise create it
 		if (!annotFile.exists()){
-			Log.warn("New annotation "+annotFile.getPath()+" not found on server.");
+			org.mortbay.log.Log.warn("New annotation "+annotFile.getPath()+" not found on server.");
 			return null;
 		}
-		parserLoadAnnotation(dataSet, annotFile, annotType.toString());
+		List<AnnotationEntry> newAnnotation = parse(annotFile, annotType.toString());
 
 		Annotation annotation = new Annotation(annotFile.getName(),
-				annotType.toString());
+				annotType.toString(), newAnnotation);
 		annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
-		// FIXME storing the complete map is not the right way to store one
-		// annotation file;
-		// FIXME storing the weak reference map makes this even more
-		// problematic.
 		FacadeFactory.getFacade().store(annotation);
-		boolean success = UserDirUtils.saveAnnotation(annotation.getId(), ObjectConversion.convertToByte(AnnotationParser.getSerializable()));
-		if(!success) System.out.println("Annotation not saved"); 
 		return annotation.getId();
 	}
 	
-	private static void parserLoadAnnotation(DSMicroarraySet dataSet,
-			File annotFile, String type) {
+	private static List<AnnotationEntry> parse(File annotFile,
+			String type) {
 		AffyAnnotationParser annotParser = null;
-		if (type.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION.toString()))
+		if (type.equals(AnnotationType.AFFYMETRIX_3_EXPRESSION.toString())) {
 			annotParser = new Affy3ExpressionAnnotationParser();
-		else if (type.equals(AnnotationType.AFFY_GENE_EXON_ST.toString()))
+		} else if (type.equals(AnnotationType.AFFY_GENE_EXON_ST.toString())) {
 			annotParser = new AffyGeneExonStAnnotationParser();
+		}
+
 		try {
-			AnnotationParser
-					.loadAnnotationFile(dataSet, annotFile, annotParser);
+			Map<String, AnnotationFields> annotation = annotParser.parse(
+					annotFile, false);
+			List<AnnotationEntry> list = new ArrayList<AnnotationEntry>();
+			for(String probeSetId : annotation.keySet()) {
+				AnnotationFields fields = annotation.get(probeSetId);
+				String geneSymbol = fields.getGeneSymbol();
+				if(geneSymbol.contains("///")) {
+					// TODO simple solution for now: if there is multiple values, keep only the first one.
+					String[] s = geneSymbol.split("///");
+					geneSymbol = s[0];
+				}
+				String geneDescription = fields.getDescription();
+				if(geneDescription.contains("///")) {
+					// TODO simple solution for now: if there is multiple values, keep only the first one.
+					String[] s = geneDescription.split("///");
+					geneDescription = s[0];
+				}
+				if(geneDescription.length()>200) {
+					log.warn("gene description length="+geneDescription.length()+"\n"+geneDescription);
+					geneDescription = "too long";
+				}
+				AnnotationEntry entry = new AnnotationEntry(probeSetId, geneSymbol, geneDescription);
+				list.add(entry);
+			}
+			return list;
 		} catch (InputFileFormatException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
-
+	
 	/**
 	 * store Contexts, CurrentContext, arrays SubSets and SubSetContexts for microarraySet
 	 */
