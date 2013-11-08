@@ -68,44 +68,37 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		microarraySet = null;
 	}
 
-	// this has to be called right after parse to have access to microarraySet
-	// and datasetId // FIXME this comment is no longer correct! it is opposite now - not necessarily a good idea though
+	/** 
+	 * Find the annotation. 
+	 * If it is a new annotation file, parse it and serialize with all the entries with JPA. 
+	 * 
+	 * @param annotOwner: either the actual user, or null - meaning a public annotation is chosen.
+	 * */
 	@Override
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
 			User annotOwner, Long dsId) throws GeWorkbenchLoaderException {
 
 		datasetId = dsId;
-		Long annotationId = storeAnnotation(annotFile, annotType, annotOwner);
 
-		if (annotationId != null){
-			DataSetAnnotation da = new DataSetAnnotation();
-			da.setDatasetId(datasetId);
-			da.setAnnotationId(annotationId);
-			FacadeFactory.getFacade().store(da);
-		}
-	}
-
-	/* Parse the annotation file and serialize it (and all the entries) in JPA. */
-	private static Long storeAnnotation(File annotFile,
-			AnnotationType annotType, User annotOwner) {
 		if (annotFile == null) {
-			return null;
+			return;
 		}
+		
+		Long annotationId = null;
 
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("name", annotFile.getName());
-		// if shared default annotation exists, return it
+		// if a public annotation is chosen,
 		if (annotOwner == null) {
 			List<Annotation> annots = FacadeFactory
 					.getFacade()
 					.list("Select a from Annotation as a where a.name=:name and a.owner is NULL",
 							parameters);
 			if (!annots.isEmpty()){
-				Long aid = annots.get(0).getId();
-				return aid;
+				annotationId = annots.get(0).getId();
 			}
 		}
-		// if user's annotation exists, return it
+		// if the user's private annotation is chosen,
 		else {
 			parameters.put("owner", annotOwner.getId());
 			List<Annotation> annots = FacadeFactory
@@ -113,19 +106,18 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					.list("Select a from Annotation as a where a.name=:name and a.owner=:owner",
 							parameters);
 			if (!annots.isEmpty()){
-				Long aid = annots.get(0).getId();
-				return aid;
+				annotationId = annots.get(0).getId();
 			}
 			if (annotType == null){
-				org.mortbay.log.Log.warn("Private annotation "+annotFile.getName()+" not found in database.");
-				return null;
+				log.warn("Private annotation "+annotFile.getName()+" not found in database.");
+				return;
 			}
 		}
 
-		// otherwise create it
+		// otherwise, this is a new annotation file.
 		if (!annotFile.exists()){
-			org.mortbay.log.Log.warn("New annotation "+annotFile.getPath()+" not found on server.");
-			return null;
+			log.warn("New annotation "+annotFile.getPath()+" not found on server.");
+			return;
 		}
 		List<AnnotationEntry> newAnnotation = parse(annotFile, annotType.toString());
 
@@ -133,7 +125,14 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 				annotType.toString(), newAnnotation);
 		annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
 		FacadeFactory.getFacade().store(annotation);
-		return annotation.getId();
+		annotationId = annotation.getId();
+
+		if (annotationId != null){
+			DataSetAnnotation da = new DataSetAnnotation();
+			da.setDatasetId(datasetId);
+			da.setAnnotationId(annotationId);
+			FacadeFactory.getFacade().store(da);
+		}
 	}
 	
 	private static List<AnnotationEntry> parse(File annotFile,
