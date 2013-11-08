@@ -28,8 +28,7 @@ public class PdbFileLoader extends Loader {
 		 * return value is ignored; it is useful only for expression file to
 		 * associate with annotation
 		 */
-		// FIXME hard-code type name breaks many things. kept only temporarily 
-		storeData(dataSet, file.getName(), dataset); //this.getClass().getName());
+		storeData(dataSet, file.getName(), dataset);
 	}
 
 	@Override

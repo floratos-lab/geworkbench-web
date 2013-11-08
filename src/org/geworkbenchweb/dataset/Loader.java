@@ -3,13 +3,12 @@ package org.geworkbenchweb.dataset;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -17,7 +16,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 /** data set parser */
 // class name DataSetParser has been used (not very properly)
 public abstract class Loader {
-
+	private static Log log = LogFactory.getLog(Loader.class);
+			
 	/**
 	 * parse the file and store it (make it persistent)
 	 * 
@@ -26,51 +26,38 @@ public abstract class Loader {
 	// TODO return or indicate the type of data set thus created
 	public abstract void load(File file, DataSet dataset) throws GeWorkbenchLoaderException;
 
-	// this method was written like being shared mechanism (for now) to store
-	// data
-	// in fact, the behavior is overridden for expression file to implement
-	// annotation.
-	// TODO the return value is used only by expression file's annotation
-	// implementation. this is an inconsistency in the design
-	static Long storeData(DSDataSet<? extends DSBioObject> dataSet,
-			String fileName, DataSet dataset) {
+	/**
+	 * Store the data set.
+	 * 
+	 * This is called by the load method and is allowed to be modified by derived classes.
+	 * @param dataSet
+	 * @param fileName
+	 * @param dataset
+	 * @return dataset ID
+	 * @throws GeWorkbenchLoaderException 
+	 */
+	protected Long storeData(DSDataSet<? extends DSBioObject> bisonDataSet,
+			String fileName, DataSet dataset) throws GeWorkbenchLoaderException {
 		
 		dataset.setName(fileName);
-		dataset.setType(dataSet.getClass().getName());
-		dataset.setDescription(dataSet.getDescription());
+		dataset.setType(bisonDataSet.getClass().getName());
+		dataset.setDescription(bisonDataSet.getDescription());
 		FacadeFactory.getFacade().store(dataset);
-
-		boolean success = true;
+		
 		try {
-			UserDirUtils.serializeDataSet(dataset.getId(), dataSet, dataset.getOwner());
+			UserDirUtils.serializeDataSet(dataset.getId(), bisonDataSet, dataset.getOwner());
 		} catch (IOException e) {
-			success = false;
+			log.error("serialization of dataset failed due to IOException");
 			e.printStackTrace();
-		}
-		if(!success) {
-			System.out.println("something went wrong");
+			throw new GeWorkbenchLoaderException("serialization of dataset failed due to IOException");
 		}
 		
 		DataHistory dataHistory = new DataHistory();
 		dataHistory.setParent(dataset.getId());
-		dataHistory.setData("Data File Name : " + dataSet.getLabel() + "\n");
+		dataHistory.setData("Data File Name : " + bisonDataSet.getLabel() + "\n");
 		//data.append("Annotation File - " + annotationFileName + "\n");
 		//data.append("Gene Ontology File - \n");
 		FacadeFactory.getFacade().store(dataHistory);
-
-		// TODO special things for CSMicroarraySet should be part of the overall design
-		// not an aftermath fix
-		if (dataSet.getClass()==CSMicroarraySet.class) {
-			ExperimentInfo experimentInfo = new ExperimentInfo();
-			experimentInfo.setParent(dataset.getId());
-			StringBuilder info = new StringBuilder();
-			info.append("Number of phenotypes in the data set - "
-					+ ((DSMicroarraySet) dataSet).size() + "\n");
-			info.append("Number of markers in the data set - "
-					+ ((DSMicroarraySet) dataSet).getMarkers().size() + "\n");
-			experimentInfo.setInfo(info.toString());
-			FacadeFactory.getFacade().store(experimentInfo);
-		}
 
 		return dataset.getId();
 	}
