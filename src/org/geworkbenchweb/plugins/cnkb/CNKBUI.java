@@ -341,6 +341,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			 
 		} 	 
 
+		/* this is the new variation of InteractionsConnectionImpl */
+		CNKB cnkb = new CNKB();
+		
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference(
 				"Throttle Graph(" + context + version + ")");
 		cnkbPref.setContext(context);
@@ -353,6 +356,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 			DSGeneMarker marker = cellularNetWorkElementInformation
 					.getdSGeneMarker();
+			String geneId = new Integer(marker.getGeneId()).toString();
+			String geneSymbol = marker.getGeneName();
 
 			if (marker != null && marker.getGeneId() != 0
 					&& cellularNetWorkElementInformation.isDirty()) {
@@ -360,12 +365,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				List<InteractionDetail> interactionDetails = null;
 
 				if (interaction_flag == 0) {
-					interactionDetails = interactionsConnection
-							.getInteractionsByEntrezIdOrGeneSymbol_1(marker,
+					interactionDetails = cnkb
+							.getInteractionsByEntrezIdOrGeneSymbol_1(geneId, geneSymbol,
 									context, version, userInfo);
 				} else {
-					interactionDetails = interactionsConnection
-							.getInteractionsByEntrezIdOrGeneSymbol_2(marker,
+					interactionDetails = cnkb
+							.getInteractionsByEntrezIdOrGeneSymbol_2(geneId, geneSymbol,
 									context, version, userInfo);
 				}
 
