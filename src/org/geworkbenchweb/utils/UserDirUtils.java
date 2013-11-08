@@ -7,16 +7,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Annotation;
@@ -139,46 +135,6 @@ public class UserDirUtils {
 		}
 	}
 
-	public static DSDataSet<? extends DSBioObject> deserializeDataSet(
-			Long dataId, final Class<? extends DSDataSet<?>> correctType, Long userId)
-			throws Exception {
-
-		if (dataId == 0)
-			return null; // 0 is used to a special 'initial' case. not the ideal
-							// design.
-
-		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
-				+ userId + SLASH + DATASETS + SLASH
-				+ dataId + DATA_EXTENSION;
-		FileInputStream fin = new FileInputStream(fileName);
-		ObjectInputStream ois = new ObjectInputStream(fin);
-		Object dataset = ois.readObject();
-		ois.close();
-
-		if (correctType.isInstance(dataset)) {
-			if (correctType == DSMicroarraySet.class)
-				AnnotationParser.setCurrentDataSet(correctType.cast(dataset));
-			return correctType.cast(dataset);
-		} else {
-			throw new Exception("incorrect type " + correctType
-					+ " to deserialize " + fileName);
-		}
-	}
-
-	/* call this after deserializeDataSet to get annotation other than gene name and gene id */
-	public static void setAnnotationParser(Long dataSetId, DSMicroarraySet maSet){
-		Map<String, Object> parameters = new HashMap<String, Object>();	
-		parameters.put("datasetid", dataSetId);	
-		List<Annotation> annots = FacadeFactory.getFacade().list(
-				"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
-		if (!annots.isEmpty()){
-			APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
-			AnnotationParser.setFromSerializable(aps);
-		}else {
-			AnnotationParser.setCurrentDataSet(maSet);
-		}
-	}
-	
 	/**
 	 * @param ResultSet Id from the database table
 	 * @param Byte data of the resultset

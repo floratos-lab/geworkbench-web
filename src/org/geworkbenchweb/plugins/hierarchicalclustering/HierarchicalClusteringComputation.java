@@ -1,5 +1,7 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,28 +16,28 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel; 
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.HierCluster;  
+import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.components.hierarchicalclustering.HierClusterFactory;
- 
-import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
-import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
 import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
+import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
+import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterOutput;
-
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 
 public class HierarchicalClusteringComputation {
 	
@@ -54,10 +56,40 @@ public class HierarchicalClusteringComputation {
 	private static Log log = LogFactory
 			.getLog(HierarchicalClusteringComputation.class);
 
+	// TODO avoid using bison type when it is not necessary
+	private static final String	SLASH			=	"/";
+	private static final String DATASETS 		= 	"data";
+	private static final String DATA_EXTENSION	=	".data";
+	private static DSDataSet<? extends DSBioObject> deserializeDataSet(
+			Long dataId, final Class<? extends DSDataSet<?>> correctType, Long userId)
+			throws Exception {
+
+		if (dataId == 0)
+			return null; // 0 is used to a special 'initial' case. not the ideal
+							// design.
+
+		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
+				+ userId + SLASH + DATASETS + SLASH
+				+ dataId + DATA_EXTENSION;
+		FileInputStream fin = new FileInputStream(fileName);
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		Object dataset = ois.readObject();
+		ois.close();
+
+		if (correctType.isInstance(dataset)) {
+			if (correctType == DSMicroarraySet.class)
+				AnnotationParser.setCurrentDataSet(correctType.cast(dataset));
+			return correctType.cast(dataset);
+		} else {
+			throw new Exception("incorrect type " + correctType
+					+ " to deserialize " + fileName);
+		}
+	}
+
 	private transient DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView; // FIXME this is temporary. don't make it member variable. this can be avoided when the return type of execute is changed
 	public HierarchicalClusteringComputation(Long datasetId,
 			HashMap<Serializable, Serializable> params, Long userId) throws Exception {
-		DSMicroarraySet dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(datasetId, DSMicroarraySet.class, userId);
+		DSMicroarraySet dataSet = (DSMicroarraySet) deserializeDataSet(datasetId, DSMicroarraySet.class, userId);
 
 //		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = 
 		datasetView = 
@@ -270,17 +302,4 @@ public class HierarchicalClusteringComputation {
 			}		
 			 
 		}
-	    
-	    //for testing purpose
-	   /* private HierClusterOutput computeHierarchicalClusteringLocal(HierClusterInput input) {
-			 HierClusterOutput output = null;
-			 HierClusterService hcs = new HierClusterService();
-			 output = hcs.execute(input);
-			 
-			 return output;
-		}*/
-		 
-	    
-	    
-	
 }

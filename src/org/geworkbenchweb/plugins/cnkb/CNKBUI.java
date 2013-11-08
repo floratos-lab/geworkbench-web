@@ -7,11 +7,16 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
+
+import javax.servlet.http.HttpSession;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
@@ -25,34 +30,32 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.MarkerSelector;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
-import org.geworkbenchweb.utils.MarkerSelector;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import com.vaadin.data.Property;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.PasswordField;
 
+import com.vaadin.data.Property;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * Parameter panel for CNKB
@@ -205,7 +208,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils
 									.deserializeDataSet(dataSetId,
 											DSMicroarraySet.class);
-							UserDirUtils.setAnnotationParser(dataSetId, maSet);
+							setAnnotationParser(dataSetId, maSet);
 							submitCnkbEvent(maSet);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -222,6 +225,20 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(versionBox);
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
+	}
+
+	/* call this after deserializeDataSet to get annotation other than gene name and gene id */
+	private static void setAnnotationParser(Long dataSetId, DSMicroarraySet maSet){
+		Map<String, Object> parameters = new HashMap<String, Object>();	
+		parameters.put("datasetid", dataSetId);	
+		List<Annotation> annots = FacadeFactory.getFacade().list(
+				"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
+		if (!annots.isEmpty()){
+			APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
+			AnnotationParser.setFromSerializable(aps);
+		}else {
+			AnnotationParser.setCurrentDataSet(maSet);
+		}
 	}
 
 	/**
