@@ -14,7 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
@@ -260,7 +265,8 @@ public class SetViewCommand implements Command {
 			return;
 		}
 
-		markerTree.setContainerDataSource(markerTableView(maSet));
+		final DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+		markerTree.setContainerDataSource(markerTableView(markers, dataSetId));
 		arrayTree.setContainerDataSource(arrayTableView(maSet));
 
 		markerTree.setItemCaptionPropertyId("Labels");
@@ -560,28 +566,40 @@ public class SetViewCommand implements Command {
 	 * @param maSet
 	 * @return - Indexed container with marker labels
 	 */
-	private HierarchicalContainer markerTableView(DSMicroarraySet maSet) {
+	private HierarchicalContainer markerTableView(DSItemList<DSGeneMarker> markers, Long dataSetId) {
 
 		HierarchicalContainer tableData 		= 	new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
 		Item mainItem =  tableData.addItem("Markers");
-		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + maSet.getMarkers().size()+ "]");
+		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markers.size()+ "]");
 
-		for(int j=0; j<maSet.getMarkers().size();j++) {
+		// TODO this may be more efficient by using JPA directly
+		/* find annotation information */
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); 
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry);
+			}
+		}
+		
+		for(int j=0; j<markers.size();j++) {
 
 			Item item 					= 	tableData.addItem(j);
 			tableData.setChildrenAllowed(j, false);
 
-			for(int k=0;k<=maSet.size();k++) {
-				if(k == 0) {
-					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
-							+ " (" 
-							+ maSet.getMarkers().get(j).getGeneName()
-							+ ")");
-					tableData.setParent(j, "Markers");
-				} 
-			}
+			String label = markers.get(j).getLabel();
+			String geneSymbol = annotationMap.get(label).getGeneSymbol();
+			item.getItemProperty("Labels").setValue(
+					label + " (" + geneSymbol + ")");
+			tableData.setParent(j, "Markers");
 		}
 		return tableData;
 	}
