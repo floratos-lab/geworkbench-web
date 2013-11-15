@@ -23,7 +23,6 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
  * analysis is complete in the background.
  * @author Nikhil
- * @version $Id$
  */
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
@@ -74,11 +73,21 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
 				} catch (IOException e) {
-					e.printStackTrace();
-					return;
+					String msg = e.getMessage().replaceAll("\n", "<br>");
+					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
+							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();	
+					FacadeFactory.getFacade().delete(resultSet);
+					uMainLayout.removeItem(resultSet.getId());
+					return;	
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
+					// TODO this catch-all exception clause should not be used.
+					// when we still have it, it definitely should not continue from here
 					e.printStackTrace();
+					FacadeFactory.getFacade().delete(resultSet);
+					uMainLayout.removeItem(resultSet.getId());
+					return;
 				}
 
 				if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
