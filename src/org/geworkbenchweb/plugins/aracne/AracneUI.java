@@ -412,6 +412,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					}
 
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});
