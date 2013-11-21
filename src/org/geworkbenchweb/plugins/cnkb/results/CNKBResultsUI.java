@@ -1,5 +1,10 @@
 package org.geworkbenchweb.plugins.cnkb.results;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +38,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
 
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
@@ -62,7 +68,6 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.Reindeer;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -71,7 +76,6 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -107,8 +111,12 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
+		byte[] byteArray = getResultSet(dataSetId);
+		if(byteArray==null) {
+			return;
+		}
 		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
-				.toObject(UserDirUtils.getResultSet(dataSetId));
+				.toObject(byteArray);
 	 
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
@@ -261,6 +269,54 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		}
 
 		return chart;
+	}
+
+	/**
+	 * Retrieves byte resultset from file
+	 * @param resultset Id
+	 * @return byte[]
+	 */
+	/* This may not apply to other result set, so I moved it to this class for now. */
+	// FIXME conversion through byte[] does not make sense
+	private static byte[] getResultSet(long resultSetId) {
+		final String	SLASH			=	"/";
+		final String RESULTSETS		=	"results";
+		final String RES_EXTENSION	=	".res";
+
+		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
+		User user = FacadeFactory.getFacade().find(User.class, res.getOwner());
+		String dataName 		=	String.valueOf(resultSetId);
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
+				SLASH + user.getUsername() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
+		if(!new File(fileName).exists()) {
+			log.warn("file "+fileName+" does not exist for result ID "+resultSetId);
+			return null;
+		}
+		return getDataFromFile(fileName);
+	}
+	
+	/**
+	 * Gets byte array from the file
+	 * @param String (File Name)
+	 * @return Byte array
+	 */
+	// FIXME conversion through byte[] does not make sense
+	private static byte[] getDataFromFile(String fileName) {
+
+		byte[] data = null;
+		try {
+			FileInputStream fin = new FileInputStream(fileName);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			data = (byte[]) ois.readObject();
+			ois.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+		return data;
 	}
 
 	/**

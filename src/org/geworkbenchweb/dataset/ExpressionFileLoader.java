@@ -190,7 +190,13 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					log.warn("gene description length="+geneDescription.length()+"\n"+geneDescription);
 					geneDescription = "too long";
 				}
-				AnnotationEntry entry = new AnnotationEntry(probeSetId, geneSymbol, geneDescription);
+				String entrezId = fields.getLocusLink();
+				if(entrezId.contains("///")) {
+					// TODO simple solution for now: if there is multiple values, keep only the first one.
+					String[] s = entrezId.split("///");
+					entrezId = s[0];
+				}
+				AnnotationEntry entry = new AnnotationEntry(probeSetId, geneSymbol, geneDescription, entrezId);
 				list.add(entry);
 			}
 			return list;

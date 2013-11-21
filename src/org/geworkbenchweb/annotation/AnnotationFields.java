@@ -53,7 +53,7 @@ public class AnnotationFields implements Serializable {
 		this.geneSymbol = geneSymbol;
 	}
 
-	String getLocusLink() {
+	public String getLocusLink() {
 		return locusLink;
 	}
 

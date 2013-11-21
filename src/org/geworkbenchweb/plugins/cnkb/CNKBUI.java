@@ -1,6 +1,10 @@
 package org.geworkbenchweb.plugins.cnkb;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -12,11 +16,11 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.APSerializable;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
@@ -31,7 +35,9 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.MarkerSelector;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -41,7 +47,9 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.Application;
 import com.vaadin.data.Property;
+import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -64,7 +72,8 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * 
  */
 public class CNKBUI extends VerticalLayout implements AnalysisUI {
-
+	private static Log log = LogFactory.getLog(CNKBUI.class);
+	
 	private static final long serialVersionUID = -1221913812891134388L;
 
 	private ResultSet resultSet;
@@ -96,6 +105,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	// FIXME why the GUI implementation of this analysis is different from other
 	// analysis plug-ins
+	@Override
 	public void attach() {
 
 		super.attach();
@@ -208,7 +218,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils
 									.deserializeDataSet(dataSetId,
 											DSMicroarraySet.class);
-							setAnnotationParser(dataSetId, maSet);
+							//setAnnotationParser(dataSetId, maSet); // XXX this is old code that does not work anymore
 							submitCnkbEvent(maSet);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -225,20 +235,16 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(versionBox);
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
-	}
 
-	/* call this after deserializeDataSet to get annotation other than gene name and gene id */
-	private static void setAnnotationParser(Long dataSetId, DSMicroarraySet maSet){
-		Map<String, Object> parameters = new HashMap<String, Object>();	
-		parameters.put("datasetid", dataSetId);	
-		List<Annotation> annots = FacadeFactory.getFacade().list(
-				"Select a from Annotation a, DataSetAnnotation da where a.id=da.annotationid and da.datasetid=:datasetid", parameters);
-		if (!annots.isEmpty()){
-			APSerializable aps = (APSerializable) ObjectConversion.toObject(UserDirUtils.getAnnotation(annots.get(0).getId()));
-			AnnotationParser.setFromSerializable(aps);
-		}else {
-			AnnotationParser.setCurrentDataSet(maSet);
+		// this part must be called from front end
+		Application app = getApplication();
+		if(app==null) { // this should not happens after the code was moved to the front end
+			log.error("getApplication() returns null");
+			return;
 		}
+		ApplicationContext cntxt = app.getContext();
+		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
+		session = wcntxt.getHttpSession();
 	}
 
 	/**
@@ -292,37 +298,105 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
+			HashMap<Serializable, Serializable> parameters) throws IOException {
 		try {
 			CNKBResultSet resultSet = getInteractions(
 					(DSMicroarraySet) dataset, params);
-			UserDirUtils.saveResultSet(resultId,
+			boolean success = saveResultSet(resultId,
 					ObjectConversion.convertToByte(resultSet));
+			if(!success) throw new IOException("fail to create file for CNKB result.");
 		} catch (UnAuthenticatedException uae) {
 			creatAuthenticationDialog((DSMicroarraySet) dataset);
 			return "UnAuthenticatedException";
-		} catch (Exception ex) {
-			return ">>>RemoteException:" + ex.getMessage();
+		} catch (NullPointerException e) {
+			throw new IOException("null pointer caught in CNKBUI"); // using IOException because of the limitation of the interface AnalysisUI
 		}
 		return "CNKB";
 
 	}
 
+	/* This may not apply to other result set, so I moved it to this class for now. */
+	// FIXME conversion through byte[] does not make sense
+	private static boolean saveResultSet(long resultSetId, byte[] byteObject) {
+		final String	SLASH			=	"/";
+		final String RESULTSETS		=	"results";
+		final String RES_EXTENSION	=	".res";
+
+		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
+		User user = FacadeFactory.getFacade().find(User.class, res.getOwner());
+		String resultName 		=	String.valueOf(resultSetId);
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
+				+ user.getUsername() + SLASH + RESULTSETS;
+		boolean success = true;
+		if(!new File(dirName).exists()) {
+			success = new File(dirName).mkdirs();
+			if(!success) {
+				log.warn("failed to create directory "+dirName);
+				return false;
+			}
+		}
+		String fileName = dirName + SLASH + resultName + RES_EXTENSION;
+		if(success) {
+			success = createFile(fileName, byteObject);
+		}
+		if(!success) {
+			return false; 
+		} else {
+			log.debug("CNKB result file created at "+fileName);
+		}
+		return true;
+	}
+
+	/**
+	 * Used to create and write byte date to the file
+	 * @param File path to t be created
+	 * @param Byte data to be stored in the file
+	 * @return
+	 */
+	private static boolean createFile(String fileName, byte[] byteObject) {
+		File file 				= 	new File(fileName );
+		try {
+			file.createNewFile();
+			FileOutputStream f_out		= 	new FileOutputStream(file);
+			ObjectOutputStream obj_out 	= 	new ObjectOutputStream (f_out);
+
+			obj_out.writeObject ( byteObject );
+			obj_out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			log.debug("CNKB result file not created at "+fileName);
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.debug("CNKB result file not created at "+fileName);
+			return false;
+		}
+		return true;
+	}
+
+	private HttpSession session = null;
+
 	private CNKBResultSet getInteractions(DSMicroarraySet dataSet,
 			HashMap<Serializable, Serializable> params)
 			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException, Exception {
+			SocketTimeoutException, IOException {
 
 		Vector<CellularNetWorkElementInformation> hits = null;
 		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
 		String version = (String) params.get(CNKBParameters.VERSION);
-		HttpSession session = ((WebApplicationContext) getApplication()
-				.getContext()).getHttpSession();
+
+		if(session==null) {
+			log.error("cannot get session properly");
+			return null;
+		}
 		String userInfo = null;
-		if (session.getAttribute(CNKBParameters.CNKB_USERINFO) != null)
+		if (session.getAttribute(CNKBParameters.CNKB_USERINFO) != null) {
 			userInfo = session.getAttribute(CNKBParameters.CNKB_USERINFO)
 					.toString();
+			log.debug("getting userInfo from session: "+userInfo);
+		}
+		log.debug("userInfo "+userInfo);
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
 		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();
@@ -339,7 +413,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				}
 			}
 			 
-		} 	 
+		}
+		log.debug("hist size "+hits.size());
 
 		/* this is the new variation of InteractionsConnectionImpl */
 		CNKB cnkb = new CNKB();
@@ -352,14 +427,40 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				.getInteractionTypesByInteractomeVersion(context, version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
+		/* find annotation information */ // TODO review the efficient of this implementation
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); // TODO this may be more efficient by using JPA directly
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry);
+			}
+		}
+
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 			DSGeneMarker marker = cellularNetWorkElementInformation
 					.getdSGeneMarker();
-			String geneId = new Integer(marker.getGeneId()).toString();
-			String geneSymbol = marker.getGeneName();
+			if(marker==null) {
+				log.warn("marker is null");
+				continue;
+			}
+			String label = marker.getLabel();
+			if(label==null) {
+				log.warn("marker label is null");
+				continue;
+			}
+			
+			AnnotationEntry entry = annotationMap.get(label);
+			String geneId = entry.getEntrezId();
+			String geneSymbol = entry.getGeneSymbol();
 
-			if (marker != null && marker.getGeneId() != 0
+			if (geneId!=null
 					&& cellularNetWorkElementInformation.isDirty()) {
 
 				List<InteractionDetail> interactionDetails = null;

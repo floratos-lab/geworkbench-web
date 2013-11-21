@@ -15,7 +15,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -29,7 +28,6 @@ public class UserDirUtils {
 	private static final String ANNOTATION		=	"annotation";
 	private static final String DATA_EXTENSION	=	".data";
 	private static final String RES_EXTENSION	=	".res";
-	private static final String	ANOT_EXTENSION	=	".annot";
 	private static final String	SLASH			=	"/";
 
 	/**
@@ -135,23 +133,6 @@ public class UserDirUtils {
 		}
 	}
 
-	/**
-	 * @param ResultSet Id from the database table
-	 * @param Byte data of the resultset
-	 * @return
-	 */
-	// FIXME conversion through byte[] does not make sense
-	public static boolean saveResultSet(long resultSetId, byte[] byteObject) {
-
-		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
-		String resultName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
-				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + resultName + RES_EXTENSION;
-		boolean sucess 			=	createFile(fileName, byteObject);
-		if(!sucess) return false; 
-		return true;
-	}
-	
 	/* serializeResultSet */
 	public static void serializeResultSet(Long resultSetId, Object object)
 			throws IOException {
@@ -185,21 +166,6 @@ public class UserDirUtils {
 		return true;
 	}
 
-	/**
-	 * Retrieves byte resultset from file
-	 * @param resultset Id
-	 * @return byte[]
-	 */
-	// FIXME conversion through byte[] does not make sense
-	public static byte[] getResultSet(long resultSetId) {
-
-		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
-		String dataName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
-				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
-		return getDataFromFile(fileName);
-	}
-
 	/* deserialize the result set content */
 	public static Object deserializeResultSet(Long resultSetId) throws FileNotFoundException, IOException, ClassNotFoundException {
 		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
@@ -215,77 +181,6 @@ public class UserDirUtils {
 	}
 
 	/**
-	 * @param Annotation Id from the annotation table
-	 * @param Byte data of the annotation
-	 * @return
-	 */
-	public static boolean saveAnnotation(long annotId, byte[] byteObject) {
-		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
-		String annotFileName 	=	String.valueOf(annotId);
-		String dataDirectory = GeworkbenchRoot.getBackendDataDirectory();
-		if(annot.getOwner() != null) {
-			String fileName 		= 	dataDirectory  +
-					SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + annotFileName + ANOT_EXTENSION;
-			boolean sucess 			=	createFile(fileName, byteObject);
-			if(!sucess) return false; 
-			return true;
-		}else {
-			/* saving public annotation */
-			String fileName 		= 	dataDirectory +
-					SLASH + annotFileName + ANOT_EXTENSION;
-			File f = new File(fileName);
-			if(f.exists()) return true; 
-			boolean sucess 			=	createFile(fileName, byteObject);
-			if(!sucess) return false; 
-			return true;
-		}
-	}
-
-	/**
-	 * Retrieves byte Annotation from file
-	 * @param annotation Id
-	 * @return byte[]
-	 */
-	public static byte[] getAnnotation(long annotId) {
-
-		Annotation annot 		=	FacadeFactory.getFacade().find(Annotation.class, annotId);
-		String dataName 		=	String.valueOf(annotId);
-		String fileName 		=	null;
-		String dataDirectory = GeworkbenchRoot.getBackendDataDirectory();
-		if(annot.getOwner() != null) {
-			fileName 			= 	dataDirectory +
-										SLASH + annot.getOwner() + SLASH + ANNOTATION + SLASH + dataName + ANOT_EXTENSION;
-		} else {
-			fileName 			= 	dataDirectory +
-										SLASH +  dataName + ANOT_EXTENSION;
-		}
-		return getDataFromFile(fileName);
-	}
-
-	/**
-	 * Used to create and write byte date to the file
-	 * @param File path to t be created
-	 * @param Byte data to be stored in the file
-	 * @return
-	 */
-	private static boolean createFile(String fileName, byte[] byteObject) {
-		File file 				= 	new File(fileName );
-		try {
-			file.createNewFile();
-			FileOutputStream f_out		= 	new FileOutputStream(file);
-			ObjectOutputStream obj_out 	= 	new ObjectOutputStream (f_out);
-
-			obj_out.writeObject ( byteObject );
-			obj_out.close();
-		} catch (FileNotFoundException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		}
-		return true;
-	}
-	
-	/**
 	 * Deletes the supplied file from the filesystem
 	 * @param fileName
 	 * @return 
@@ -299,26 +194,5 @@ public class UserDirUtils {
 			log.warn("the file or directory you tried to delete ("+fileName+") does not exsit");
 			return true;
 		}
-	}
-
-	/**
-	 * Gets byte array from the file
-	 * @param String (File Name)
-	 * @return Byte array
-	 */
-	// FIXME conversion through byte[] does not make sense
-	private static byte[] getDataFromFile(String fileName) {
-
-		byte[] data;
-		try{
-			FileInputStream fin = new FileInputStream(fileName);
-			ObjectInputStream ois = new ObjectInputStream(fin);
-			data = (byte[]) ois.readObject();
-			ois.close();
-		}catch(Exception ex){
-			ex.printStackTrace();
-			return null;
-		} 
-		return data;
 	}
 }

@@ -20,15 +20,17 @@ public class AnnotationEntry extends AbstractPojo {
 	private String probeSetId;
 	private String geneSymbol;
 	private String geneDescription;
+	private String entrezId;
 	
 	public AnnotationEntry() {
 	}
 	
 	public AnnotationEntry(String probeSetId, String geneSymbol,
-			String geneDescription) {
+			String geneDescription, String entrezId) {
 		this.probeSetId = probeSetId;
 		this.geneSymbol = geneSymbol;
 		this.geneDescription = geneDescription;
+		this.entrezId = entrezId;
 	}
 
 	public String getGeneDescription() {
@@ -53,5 +55,13 @@ public class AnnotationEntry extends AbstractPojo {
 	
 	public void setProbeSetId(String probeSetId) {
 		this.probeSetId = probeSetId;
+	}
+
+	public String getEntrezId() {
+		return entrezId;
+	}
+
+	public void setEntrezId(String entrezId) {
+		this.entrezId = entrezId;
 	}
 }
