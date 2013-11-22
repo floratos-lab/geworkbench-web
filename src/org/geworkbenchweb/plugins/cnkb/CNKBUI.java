@@ -1,10 +1,6 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -40,7 +36,6 @@ import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.MarkerSelector;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -302,9 +297,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		try {
 			CNKBResultSet resultSet = getInteractions(
 					(DSMicroarraySet) dataset, params);
-			boolean success = saveResultSet(resultId,
-					ObjectConversion.convertToByte(resultSet));
-			if(!success) throw new IOException("fail to create file for CNKB result.");
+			UserDirUtils.serializeResultSet(resultId, resultSet);
 		} catch (UnAuthenticatedException uae) {
 			creatAuthenticationDialog((DSMicroarraySet) dataset);
 			return "UnAuthenticatedException";
@@ -313,65 +306,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		}
 		return "CNKB";
 
-	}
-
-	/* This may not apply to other result set, so I moved it to this class for now. */
-	// FIXME conversion through byte[] does not make sense
-	private static boolean saveResultSet(long resultSetId, byte[] byteObject) {
-		final String	SLASH			=	"/";
-		final String RESULTSETS		=	"results";
-		final String RES_EXTENSION	=	".res";
-
-		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
-		User user = FacadeFactory.getFacade().find(User.class, res.getOwner());
-		String resultName 		=	String.valueOf(resultSetId);
-		String dirName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
-				+ user.getUsername() + SLASH + RESULTSETS;
-		boolean success = true;
-		if(!new File(dirName).exists()) {
-			success = new File(dirName).mkdirs();
-			if(!success) {
-				log.warn("failed to create directory "+dirName);
-				return false;
-			}
-		}
-		String fileName = dirName + SLASH + resultName + RES_EXTENSION;
-		if(success) {
-			success = createFile(fileName, byteObject);
-		}
-		if(!success) {
-			return false; 
-		} else {
-			log.debug("CNKB result file created at "+fileName);
-		}
-		return true;
-	}
-
-	/**
-	 * Used to create and write byte date to the file
-	 * @param File path to t be created
-	 * @param Byte data to be stored in the file
-	 * @return
-	 */
-	private static boolean createFile(String fileName, byte[] byteObject) {
-		File file 				= 	new File(fileName );
-		try {
-			file.createNewFile();
-			FileOutputStream f_out		= 	new FileOutputStream(file);
-			ObjectOutputStream obj_out 	= 	new ObjectOutputStream (f_out);
-
-			obj_out.writeObject ( byteObject );
-			obj_out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			log.debug("CNKB result file not created at "+fileName);
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			log.debug("CNKB result file not created at "+fileName);
-			return false;
-		}
-		return true;
 	}
 
 	private HttpSession session = null;
@@ -560,7 +494,5 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
- 
 
 }

@@ -1,4 +1,4 @@
-package org.geworkbenchweb.plugins.cnkb.results;
+package org.geworkbenchweb.plugins.cnkb;
  
 import java.util.Vector;
 

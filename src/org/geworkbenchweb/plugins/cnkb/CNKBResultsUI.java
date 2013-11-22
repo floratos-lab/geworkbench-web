@@ -1,4 +1,4 @@
-package org.geworkbenchweb.plugins.cnkb.results;
+package org.geworkbenchweb.plugins.cnkb;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,9 +15,13 @@ import java.util.Vector;
 
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
@@ -85,7 +89,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
-public class CNKBResultsUI extends VerticalLayout implements Visualizer { // TabSheet {
+public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -111,12 +115,20 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
-		byte[] byteArray = getResultSet(dataSetId);
-		if(byteArray==null) {
+		Object object;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
 			return;
 		}
-		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
-				.toObject(byteArray);
+		final CNKBResultSet  resultSet = (CNKBResultSet)object;
 	 
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
@@ -269,54 +281,6 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		}
 
 		return chart;
-	}
-
-	/**
-	 * Retrieves byte resultset from file
-	 * @param resultset Id
-	 * @return byte[]
-	 */
-	/* This may not apply to other result set, so I moved it to this class for now. */
-	// FIXME conversion through byte[] does not make sense
-	private static byte[] getResultSet(long resultSetId) {
-		final String	SLASH			=	"/";
-		final String RESULTSETS		=	"results";
-		final String RES_EXTENSION	=	".res";
-
-		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
-		User user = FacadeFactory.getFacade().find(User.class, res.getOwner());
-		String dataName 		=	String.valueOf(resultSetId);
-		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
-				SLASH + user.getUsername() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
-		if(!new File(fileName).exists()) {
-			log.warn("file "+fileName+" does not exist for result ID "+resultSetId);
-			return null;
-		}
-		return getDataFromFile(fileName);
-	}
-	
-	/**
-	 * Gets byte array from the file
-	 * @param String (File Name)
-	 * @return Byte array
-	 */
-	// FIXME conversion through byte[] does not make sense
-	private static byte[] getDataFromFile(String fileName) {
-
-		byte[] data = null;
-		try {
-			FileInputStream fin = new FileInputStream(fileName);
-			ObjectInputStream ois = new ObjectInputStream(fin);
-			data = (byte[]) ois.readObject();
-			ois.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			return null;
-		}
-		return data;
 	}
 
 	/**
