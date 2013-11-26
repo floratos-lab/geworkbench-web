@@ -3,6 +3,7 @@ package org.geworkbenchweb.dataset;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -50,6 +53,26 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					"File name "+file.getName()+" does not end with .exp. Please choose file with .exp extension");
 		}
 
+		/* TODO Before removal of serializing bison type, this would look redundant for now. */
+		Long id = null;
+		GeWorkbenchExpFileParser parser = new GeWorkbenchExpFileParser(file);
+		try {
+			MicroarraySet cleanMicroaraySet = parser.parse();
+			MicroarrayDataset jpaDataset = convert(cleanMicroaraySet);
+			FacadeFactory.getFacade().store(jpaDataset);
+			id = jpaDataset.getId();
+		} catch (InputFileFormatException e1) {
+			e1.printStackTrace();
+			throw new GeWorkbenchLoaderException("input file format "+e1);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			throw new GeWorkbenchLoaderException("io exception "+e1);
+		}
+		
+		if(id==null) {
+			throw new GeWorkbenchLoaderException("null id for MicroarrayDataset");
+		}
+		
 		DSMicroarraySet microarraySet;
 		MicroarraySetConverter converter = new MicroarraySetConverter();
 		try {
@@ -62,12 +85,26 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					"Parsing failed because of IOException.");
 		}
 
+		dataset.setDataId(id);
 		datasetId = storeData(microarraySet, file.getName(), dataset);
 
 		storeContext(microarraySet);
 
 		//this.getClass().getName());
 		microarraySet = null;
+	}
+
+	private static MicroarrayDataset convert(MicroarraySet cleanMicroaraySet) {
+		List<String> markerLabels = Arrays.asList(cleanMicroaraySet.markerLabels);
+		List<String> arrayLabels = Arrays.asList(cleanMicroaraySet.arrayLabels);
+		List<MicroarrayRow> rows = new ArrayList<MicroarrayRow>();
+		for(int i=0; i<cleanMicroaraySet.markerNumber; i++) {
+			float[] rowValues = cleanMicroaraySet.values[i];
+			MicroarrayRow row = new MicroarrayRow(rowValues);
+			rows.add(row );
+		}
+		MicroarrayDataset jpaDataset = new MicroarrayDataset(markerLabels, arrayLabels, rows);
+		return jpaDataset;
 	}
 
 	@Override
