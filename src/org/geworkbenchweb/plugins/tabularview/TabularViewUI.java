@@ -1,38 +1,36 @@
 package org.geworkbenchweb.plugins.tabularview;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.MicroarrayRow;
+import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.ObjectConversion; 
-import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.utils.PreferenceOperations;
-import org.geworkbenchweb.plugins.PluginEntry;
-import org.geworkbenchweb.plugins.tabularview.Constants;
-import org.geworkbenchweb.plugins.Tabular;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
+import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.IndexedContainer; 
-import com.vaadin.ui.MenuBar; 
+import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer; 
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays Tabular View for Microarray Data.  
@@ -41,7 +39,9 @@ import com.vaadin.ui.themes.Reindeer;
  */
 public class TabularViewUI extends VerticalLayout implements Tabular {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -1544215388914183715L;
+
+	private static Log log = LogFactory.getLog(TabularViewUI.class);
    
 	//private DSMicroarraySet maSet;
 	private Long userId;
@@ -107,21 +107,26 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			}
 		}
 
-		// FIXME using DSMicroarraySet is not necessary for this component
-		DSMicroarraySet maSet=null;
-		try {
-			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(data.getId(), DSMicroarraySet.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}  
 		
 		final MenuBar toolBar = new TabularMenuSelector(this, "TabularViewUI");
 		addComponent(toolBar);
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);		 
 	 
-		displayTable.setContainerDataSource(getIndexedContainer(maSet));
+		Long id = data.getDataId();
+		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		List<String> arrayLabels = dataset.getArrayLabels();
+		List<String> markerLabels = dataset.getMarkerLabels();
+		List<MicroarrayRow> rows = dataset.getRows();
+		float[][] values = new float[markerLabels.size()][arrayLabels.size()];
+		for(int i=0; i<markerLabels.size(); i++) {
+			byte[] bytes = rows.get(i).getBytes();
+			float[] v = (float[])ObjectConversion.toObject(bytes);
+			for(int j=0; j<arrayLabels.size(); j++) {
+				values[i][j] = v[j];
+			}
+		}
+		displayTable.setContainerDataSource(getIndexedContainer(markerLabels, arrayLabels, values));
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
@@ -170,7 +175,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private List<String> getTabViewColHeaders(DSMicroarraySet maSet) {			 
+	private List<String> getTabViewColHeaders(List<String> arrayLabels) {			 
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
 				.ordinal()) {
@@ -195,8 +200,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 		if (selectedArraySet == null
 				|| selectedArraySet[0].equalsIgnoreCase("All Arrays")) {
-			for (int i = 0; i < maSet.size(); i++)
-				colHeaders.add(maSet.get(i).getLabel());
+			for (int i = 0; i < arrayLabels.size(); i++)
+				colHeaders.add(arrayLabels.get(i));
 		} else {
 
 			for (int i = 0; i < selectedArraySet.length; i++) {
@@ -208,7 +213,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 				for (int j = 0; j < positions.size(); j++) {
 
-					colHeaders.add(maSet.get(positions.get(j)).getLabel());
+					colHeaders.add(positions.get(j));
 				}
 
 			}
@@ -234,9 +239,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private DSItemList<DSGeneMarker> getTabViewMarkers(DSMicroarraySet maSet) {		 
-		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();
-		;
+	private List<String> getTabViewMarkers(List<String> markerLabels) {		 
+		List<String> selectedMarkers = new ArrayList<String>();
+
 		String[] selectedMarkerSet = null;
 
 		FilterInfo markerFilter = tabViewPreferences.getMarkerFilter();
@@ -257,18 +262,17 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 				for (int m = 0; m < positions.size(); m++) {
 					String temp = ((positions.get(m)).split("\\s+"))[0].trim();
-					DSGeneMarker marker = maSet.getMarkers().get(temp);
-					if (marker != null
-							&& isMatchSearch(marker, 
+					if (temp != null
+							&& isMatchSearch(temp, 
 									markerDisplayControl)) {
-						selectedMarkers.add(marker);
+						selectedMarkers.add(temp);
 					}
 				}
 
 			}
 		} else {
-			for (int i = 0; i < maSet.getMarkers().size(); i++) {
-				DSGeneMarker marker = maSet.getMarkers().get(i);
+			for (int i = 0; i < markerLabels.size(); i++) {
+				String marker = markerLabels.get(i);
 				if (isMatchSearch(marker, markerDisplayControl))
 					selectedMarkers.add(marker);
 
@@ -279,28 +283,21 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private boolean isMatchSearch(DSGeneMarker marker,  
-			int markerDisplayControl) {
+	/* 'smart' matching for .getGeneName() is removed for now */
+	/* the earlier lousy code was replaced */
+	private boolean isMatchSearch(String markerLabel, int markerDisplayControl) {
 		if (searchStr == null || searchStr.trim().length() == 0)
 			return true;
 
-		boolean isMatch = false;	 
 		if (markerDisplayControl == Constants.MarkerDisplayControl.both
-				.ordinal()) {
-			if (marker.getLabel().toUpperCase().contains(searchStr)
-					|| marker.getGeneName().toUpperCase().contains(searchStr))
-				isMatch = true;
+				.ordinal() && markerLabel.toUpperCase().contains(searchStr)) {
+			return true;
 		} else if (markerDisplayControl == Constants.MarkerDisplayControl.marker
-				.ordinal()) {
-			if (marker.getLabel().toUpperCase().contains(searchStr))
-				isMatch = true;
-
+				.ordinal() && markerLabel.toUpperCase().contains(searchStr)) {
+			return true;
 		} else {
-			if (marker.getGeneName().toUpperCase()
-					.contains(searchStr.trim().toUpperCase()))
-				isMatch = true;
+			return false;
 		}
-		return isMatch;
 	}
 	 
 	PagedTableView getDisplayTable()
@@ -331,12 +328,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return null;
 	}
 
-	public IndexedContainer getIndexedContainer(DSMicroarraySet maSet) {
+	private IndexedContainer getIndexedContainer(List<String> markerLabels, List<String> arrayLabels,
+			float[][] values) {
 
 		loadTabViewPreferences();
 		IndexedContainer dataIn = new IndexedContainer();
-		List<String> colHeaders = getTabViewColHeaders(maSet);
-		DSItemList<DSGeneMarker> selectedMarkers = getTabViewMarkers(maSet);
+		List<String> colHeaders = getTabViewColHeaders(arrayLabels);
+		List<String> selectedMarkers = getTabViewMarkers(markerLabels);
 
 		int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
@@ -344,7 +342,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		for (int i = 0; i < selectedMarkers.size(); i++)
 		{		 
 			Item item = dataIn.addItem(i);
-			String probeSetId = selectedMarkers.get(i).getLabel();
+			String probeSetId = selectedMarkers.get(i);
 			String geneSymbol = null;
 			String geneDescription = null;
 			AnnotationEntry entry = annotationMap.get(probeSetId);
@@ -361,7 +359,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.MARKER_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i).getLabel());
+								selectedMarkers.get(i));
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
@@ -381,12 +379,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 							null);
 					if (selectedMarkers.size() == 0)
 						continue;
-					item.getItemProperty(colHeaders.get(k)).setValue(
-							(float) maSet
-									.get(colHeaders.get(k))
-									.getMarkerValue(
-											selectedMarkers.get(i)
-													.getSerial()).getValue());
+					// TODO this is ugly
+					int j = k + arrayLabels.size() - colHeaders.size(); 
+					item.getItemProperty(colHeaders.get(k)).setValue(values[i][j]);
 				}
 			}
 			 
