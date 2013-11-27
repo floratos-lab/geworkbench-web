@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
@@ -32,7 +31,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 	
 	public String getTitle() { return title; }
 
-	public DataTypeMenuPage(String description, String title, Class<? extends DSDataSet<?>> dataType, Long dataId) {
+	public DataTypeMenuPage(String description, String title, Class<?> dataType, Long dataId) {
 		this.dataId = dataId;
 		this.title = title;
 		

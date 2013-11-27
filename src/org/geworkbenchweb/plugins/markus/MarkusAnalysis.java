@@ -13,12 +13,11 @@ import java.net.URLConnection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -26,7 +25,7 @@ public class MarkusAnalysis {
 
 	private static Log log = LogFactory.getLog(MarkusAnalysis.class);
 	private Long sessionId = SessionHandler.get().getId();
-	private DSProteinStructure dataSet = null;
+	final private String pdbFilename;
 	private MarkUsUI mcp = null;
 	private Long dataSetId;
 	public static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
@@ -34,32 +33,31 @@ public class MarkusAnalysis {
 			+ "content-disposition: form-data; name=\"submit\"\r\n\r\nUpload\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
 
-	public MarkusAnalysis(DSProteinStructure dataSet, MarkUsUI form, Long dataSetId) {
-		this.dataSet = dataSet;
+	public MarkusAnalysis(String pdbFilename, MarkUsUI form, Long dataSetId) {
 		this.mcp	 = form;
 		this.dataSetId = dataSetId;
+		this.pdbFilename = pdbFilename;
 	}
 	
 	void execute(){
 
-		File prtfile = dataSet.getFile();
-		String pdbname = prtfile.getName();
-		File pdbfile = new File(System.getProperty("user.home") + "/temp/",
-				sessionId + "_" + new java.util.Date().getTime() + "_" + pdbname);
-		dataSet.writeToFile(pdbfile.getAbsolutePath());
+		final String DATASETS = "data";
+		final String SLASH = "/";
+
+		String fullPath = GeworkbenchRoot.getBackendDataDirectory() + SLASH
+				+ SessionHandler.get().getUsername() + SLASH + DATASETS + SLASH
+				+ pdbFilename;
+		File pdbfile = new File(fullPath);
 
 		String tmpfile = null;
 		try {
 			tmpfile = uploadFile(pdbfile);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (pdbfile != null && pdbfile.exists())
-				pdbfile.delete();
 		}
 		log.info("uploaded file: "+tmpfile);
 
-		String str = generateMarkusInput(pdbname, tmpfile);
+		String str = generateMarkusInput(pdbFilename, tmpfile);
 		String results = MarkusAnalysis.submitJob(str);			
 
 		if(results==null) return;
@@ -85,10 +83,12 @@ public class MarkusAnalysis {
 	}
 
 	void getResultSet(String results){
-		MarkUsResultDataSet musresult = new MarkUsResultDataSet(dataSet, results);
-		musresult.setResult(results);
+		MarkUsResult musresult = new MarkUsResult(results);
+		FacadeFactory.getFacade().store(musresult);
+		Long dataId = musresult.getId();
 		
 		ResultSet resultSet = 	new ResultSet();
+		resultSet.setDataId(dataId);
 		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
 		String dataSetName 	=	results;
@@ -97,13 +97,6 @@ public class MarkusAnalysis {
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(sessionId);	
 		FacadeFactory.getFacade().store(resultSet);
-
-		try {
-			UserDirUtils.serializeResultSet(resultSet.getId(), musresult);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
 		
 		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);

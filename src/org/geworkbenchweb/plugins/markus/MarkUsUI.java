@@ -1,5 +1,9 @@
 package org.geworkbenchweb.plugins.markus;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -11,11 +15,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.pojos.DataSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Accordion;
@@ -36,7 +41,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 988711785863720384L;
 
 	private Long dataSetId;
-	private DSProteinStructure dataSet 	= 	null;
+	private String pdbFilename;
 	private ComboBox cbxChain 			= 	new ComboBox("Chain");
 	private TextField email = new TextField("Email (optional)");
 	private TextField title = new TextField("Title (optional)");
@@ -108,7 +113,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		}
 		@Override
 		public void buttonClick(ClickEvent event) {
-			MarkusAnalysis analysis = new MarkusAnalysis(dataSet, form, dataSetId);
+			MarkusAnalysis analysis = new MarkusAnalysis(pdbFilename, form, dataSetId);
 			analysis.execute();
 		}
 	}
@@ -147,17 +152,38 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	private int chainoffset = 21;
+	private HashSet<String> chains = new HashSet<String>();
 	private HashSet<String> getChains() {
-		HashSet<String> chains = new HashSet<String>();
-		CSProteinStructure dataset = (CSProteinStructure)dataSet;
-		if(dataSet==null) return chains; // this happens at the 'initial' time when dataSetId is zero
-		String str= dataset.getContent();
-
-		for (String line : str.split("\n")){
-			if (line.startsWith("ATOM  ") || line.startsWith("HETATM")){
-				chains.add(line.substring(chainoffset, chainoffset+1));
-			}
+		if(pdbFilename==null) return chains; // this happens at the 'initial' time when dataSetId is zero
+		if(chains.size()>0) { // assuming it has been parsed.
+			return chains;
 		}
+
+		// not a very smart way to do this: read through the file
+		final String DATASETS = "data";
+		final String SLASH = "/";
+
+		String fullPath = GeworkbenchRoot.getBackendDataDirectory() + SLASH
+				+ SessionHandler.get().getUsername() + SLASH + DATASETS + SLASH
+				+ pdbFilename;
+		File pdbfile = new File(fullPath);
+
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(pdbfile));
+			String line = br.readLine();
+			while(line!=null) {
+				if (line.startsWith("ATOM  ") || line.startsWith("HETATM")){
+					chains.add(line.substring(chainoffset, chainoffset+1));
+				}
+				line = br.readLine();
+			}
+			br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		if (chains.contains(" ")) {
 			chains.remove(" ");
 			chains.add("_");
@@ -368,7 +394,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 				String key = keyTf.getValue().toString();
 				if (key.length()>0) results = results+"&key="+key;
 
-				MarkusAnalysis analysis = new MarkusAnalysis(dataSet, null, dataSetId);
+				MarkusAnalysis analysis = new MarkusAnalysis(pdbFilename, null, dataSetId);
 				analysis.getResultSet(results);
 			}
 		}
@@ -607,12 +633,8 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		this.dataSetId = dataId;
 		if(dataId==0) return;
 		
-		try {
-			dataSet 	=	(DSProteinStructure) UserDirUtils.deserializeDataSet(dataSetId, DSProteinStructure.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		pdbFilename = dataset.getName();
 		cbxChain.removeAllItems();
 		for(String itemId: getChains()) {
 			cbxChain.addItem(itemId);

@@ -16,7 +16,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
@@ -37,8 +36,8 @@ import com.vaadin.ui.Component;
 public class PluginRegistry {
 	
 	private Map<PluginEntry, AnalysisUI> analysisUIMap = new HashMap<PluginEntry, AnalysisUI>();
-	private Map<Class<? extends DSDataSet<?>>, ThemeResource> iconMap = new HashMap<Class<? extends DSDataSet<?>>, ThemeResource>();
-	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>>(); 
+	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
+	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<? extends DSDataSet<?>>, List<PluginEntry>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<PluginEntry>>();
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
@@ -72,10 +71,10 @@ public class PluginRegistry {
 		resultIconMap.put(CSMasterRegulatorTableResultSet.class, marinaIcon); // marina result
 
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);
-		iconMap.put(DSProteinStructure.class, proteinIcon);
+		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);
 
 		uiMap.put(DSMicroarraySet.class, MicroarrayUI.class);
-		uiMap.put(DSProteinStructure.class, ProteinStructureUI.class);
+		uiMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, ProteinStructureUI.class);
 		
 		Digester digester = new Digester();
 		digester.addObjectCreate("plugins", ArrayList.class);
@@ -143,7 +142,7 @@ public class PluginRegistry {
 	}
 
 	// query on null returns all analysis plug-ins
-	public List<PluginEntry> getAnalysisList(Class<? extends DSDataSet<?>> dataType) {
+	public List<PluginEntry> getAnalysisList(Class<?> dataType) {
 		if(dataType!=null)
 			return analysisMap.get(dataType);
 		else
@@ -155,7 +154,7 @@ public class PluginRegistry {
 	}
 
 	public ThemeResource getIcon(Class<?> clazz) {
-		for(Class<? extends DSDataSet<?>> c : iconMap.keySet()) {
+		for(Class<?> c : iconMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return iconMap.get(c);
 			}
@@ -186,7 +185,7 @@ public class PluginRegistry {
 
 	// clazz is a data type we support
 	public Class<? extends DataTypeMenuPage> getDataUI(Class<?> clazz) {
-		for(Class<? extends DSDataSet<?>> c : uiMap.keySet()) {
+		for(Class<?> c : uiMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return uiMap.get(c);
 			}

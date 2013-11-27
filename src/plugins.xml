@@ -64,7 +64,7 @@
 			<uiClass>org.geworkbenchweb.plugins.ttest.TTestUI</uiClass>
 		</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+	<inputType className="org.geworkbenchweb.pojos.PdbFileInfo">
 		<plugin>
 			<name>MarkUs</name>
 			<description>MarkUs is a web server to assist the assessment of the biochemical function
@@ -77,7 +77,7 @@
 	</analysis>
 
 	<visualizer>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+	<inputType className="org.geworkbenchweb.pojos.PdbFileInfo">
 	<plugin>
 		<name>PDB File Viewer</name>
 		<description>A simple text viewer for PDB file.</description>
