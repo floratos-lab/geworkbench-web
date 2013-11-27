@@ -1,14 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component.notebook;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +10,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.geworkbench.components.genspace.server.stubs.AnalysisComment;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.utils.LayoutUtil;
+
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class CommentWindow extends Window{
 	
@@ -63,10 +65,8 @@ public class CommentWindow extends Window{
 		this.setHeight("300px");
 		this.setWidth("400px");
 		
-		this.addComponent(mainLayout);
-		
-		this.textPanel.setScrollable(true);
-		
+		this.setContent(mainLayout);
+				
 		this.commentTable.addContainerProperty("Comments", Component.class, null);
 		this.commentTable.setSizeFull();
 		
@@ -78,20 +78,25 @@ public class CommentWindow extends Window{
 	}
 	
 	private void makeTextPanel() {
-		this.textPanel.removeAllComponents();
+		this.textPanel.setContent(null);
 		final TextArea ta = new TextArea();
 		ta.setSizeFull();
-		this.textPanel.addComponent(ta);
+		VerticalLayout layout = LayoutUtil.addComponent(ta);
+		this.textPanel.setContent(layout);
 		
 		Button save = new Button("Save");
-		save.addListener(new Button.ClickListener() {
+		save.addClickListener(new Button.ClickListener() {
 			public void buttonClick(Button.ClickEvent event) {
-				login.getGenSpaceServerFactory().getPrivUsageFacade().saveAnalysisEventComment(e.getId(), ta.getValue().toString());
-				updateWindow();
-				login.getPusher().push();
+				UI.getCurrent().access(new Runnable(){
+					@Override
+					public void run(){
+						login.getGenSpaceServerFactory().getPrivUsageFacade().saveAnalysisEventComment(e.getId(), ta.getValue().toString());
+						updateWindow();
+					}
+				});
 			}
 		});
-		this.textPanel.addComponent(save);
+		layout.addComponent(save);
 	}
 	
 	private void makeCommentPanel() {
@@ -106,10 +111,11 @@ public class CommentWindow extends Window{
 			Label usrComment = new Label();
 			String info = tmp.getUser().getUsername() + ": " + tmp.getComment();
 			usrComment.setCaption(info);
-			commentPanel.addComponent(usrComment);
+			VerticalLayout layout = LayoutUtil.addComponent(usrComment);
+			commentPanel.setContent(layout);
 			
 			Label time = new Label(tmp.getCreatedAt().toString());
-			commentPanel.addComponent(time);
+			layout.addComponent(time);
 			
 			this.commentTable.addItem(new Object[] {commentPanel}, i);
 		}

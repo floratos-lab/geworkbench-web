@@ -24,7 +24,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.terminal.UserError;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -110,7 +110,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		hubGeneMarkerSetBox.setImmediate(true);
 
 
-		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
+		hubGeneMarkerSetBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -126,7 +126,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.addItem("Discovery");
 		modeBox.addItem("Preprocessing");
 		modeBox.select("Complete");
-		modeBox.addListener(new Property.ValueChangeListener() {
+		modeBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -142,7 +142,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		algoBox.addItem("Adaptive Partitioning");
 		algoBox.addItem("Fixed Bandwidth");
 		algoBox.select("Adaptive Partitioning");
-		algoBox.addListener(new Property.ValueChangeListener() {
+		algoBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -165,7 +165,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		widthValue.setValue("0.1");
 		widthValue.setEnabled(false);
 		widthValue.setNullSettingAllowed(false);
-		widthValue.addListener(new Property.ValueChangeListener() {
+		widthValue.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -182,7 +182,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		kernelWidth.addItem("Specify");
 		kernelWidth.select("Inferred");
 		kernelWidth.setEnabled(false);
-		kernelWidth.addListener(new Property.ValueChangeListener() {
+		kernelWidth.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -205,7 +205,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		correction.addItem("Bonferroni Correction");
 		correction.select("No Correction");
 		correction.setEnabled(true);
-		correction.addListener(new Property.ValueChangeListener() {
+		correction.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -219,7 +219,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		threshold.setCaption(" ");
 		threshold.setValue("0.01");
 		threshold.setNullSettingAllowed(false);
-		threshold.addListener(new Property.ValueChangeListener() {
+		threshold.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -235,7 +235,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		thresholdType.addItem("P-Value");
 		thresholdType.addItem("Mutual Info");
 		thresholdType.select("P-Value");
-		thresholdType.addListener(new Property.ValueChangeListener() {
+		thresholdType.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -253,7 +253,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		tolerance.setCaption(" ");
 		tolerance.setValue("0.1");
 		tolerance.setNullSettingAllowed(false);
-		tolerance.addListener(new Property.ValueChangeListener() {
+		tolerance.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -269,7 +269,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiTolerance.addItem("Apply");
 		dpiTolerance.addItem("Do Not Apply");
 		dpiTolerance.select("Apply");
-		dpiTolerance.addListener(new Property.ValueChangeListener() {
+		dpiTolerance.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -293,7 +293,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiTargetSetBox.setEnabled(false);
 
 
-		dpiTargetSetBox.addListener(new Property.ValueChangeListener() {
+		dpiTargetSetBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -308,7 +308,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiTargetList.addItem("From Sets");
 		dpiTargetList.addItem("Do Not Apply");
 		dpiTargetList.select("Do Not Apply");
-		dpiTargetList.addListener(new Property.ValueChangeListener() {
+		dpiTargetList.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -328,7 +328,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.setValue("1");
 		bootStrapNumber.setNullSettingAllowed(false);
-		bootStrapNumber.addListener(new TextChangeListener() {
+		bootStrapNumber.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void textChange(TextChangeEvent event) {
@@ -353,7 +353,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		consensusThreshold.setValue("1.e-6");
 		consensusThreshold.setEnabled(false);
 		consensusThreshold.setNullSettingAllowed(false);
-		consensusThreshold.addListener(new Property.ValueChangeListener() {
+		consensusThreshold.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -369,7 +369,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		mergeProbeSets.select("No");
 		mergeProbeSets.setNullSelectionAllowed(false);
 		mergeProbeSets.setImmediate(true);
-		mergeProbeSets.addListener(new Property.ValueChangeListener() {
+		mergeProbeSets.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {

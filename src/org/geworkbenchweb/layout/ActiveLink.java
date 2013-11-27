@@ -5,17 +5,15 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.geworkbenchweb.visualizations.client.ui.VActiveLink;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
-import com.vaadin.terminal.Resource;
-import com.vaadin.ui.ClientWidget;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
+import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.BorderStyle;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.Button.ClickEvent;
 
 @SuppressWarnings("serial")
-@ClientWidget(VActiveLink.class)
 public class ActiveLink extends Link {
 
     @SuppressWarnings("unused")
@@ -30,7 +28,7 @@ public class ActiveLink extends Link {
     }
 
     public ActiveLink(String caption, Resource resource, String targetName,
-            int width, int height, int border) {
+            int width, int height, BorderStyle border) {
         super(caption, resource, targetName, width, height, border);
     }
 

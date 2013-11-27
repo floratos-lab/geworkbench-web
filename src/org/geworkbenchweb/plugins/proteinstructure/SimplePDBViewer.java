@@ -11,6 +11,7 @@ import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.UserDirUtils;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -28,23 +29,24 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 			return;
 
 		this.setSizeFull();
-		VerticalLayout layout = (VerticalLayout) this.getContent();
+		VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         layout.setSpacing(true);
+        setContent(layout);
         
 		Object object = null;
 		try {
 			object = UserDirUtils.deserializeDataSet(dataId,
 					DSProteinStructure.class);
 		} catch (FileNotFoundException e) {
-			addComponent(new Label("Backing-up file not found - ID " + dataId));
+			layout.addComponent(new Label("Backing-up file not found - ID " + dataId));
 			return;
 		} catch (IOException e) {
-			addComponent(new Label("Result (ID " + dataId
+			layout.addComponent(new Label("Result (ID " + dataId
 					+ ") not available due to " + e));
 			return;
 		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID " + dataId
+			layout.addComponent(new Label("Result (ID " + dataId
 					+ ") not available due to " + e));
 			return;
 		} catch (Exception e) {
@@ -54,7 +56,7 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 			String type = null;
 			if (object != null)
 				type = object.getClass().getName();
-			addComponent(new Label("Result (ID " + dataId
+			layout.addComponent(new Label("Result (ID " + dataId
 					+ ") has wrong type: " + type));
 			return;
 		}
@@ -68,10 +70,10 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 		if (data instanceof CSProteinStructure) {
 			CSProteinStructure p = (CSProteinStructure) data;
 			Label content = new Label(p.getContent());
-			content.setContentMode(Label.CONTENT_PREFORMATTED);
-			addComponent(content);
+			content.setContentMode(ContentMode.PREFORMATTED);
+			layout.addComponent(content);
 		} else {
-			addComponent(new Label(
+			layout.addComponent(new Label(
 					"Error: the data type is not CSProteinStructure as expected."));
 		}
 	}

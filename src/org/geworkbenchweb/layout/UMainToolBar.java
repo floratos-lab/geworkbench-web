@@ -12,12 +12,14 @@ import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.server.Page;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -25,10 +27,14 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
+import de.steinwedel.messagebox.ButtonId;
 
 /**
  * Menu Bar class which will be common for all the Visual Plugins
@@ -53,12 +59,11 @@ public class UMainToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				if (uploadPending()) {
-					MessageBox mb = new MessageBox(getWindow(), 
+					MessageBox.showPlain(Icon.INFO,
 							"Upload in progress", 
-							MessageBox.Icon.INFO, 
 							"Data upload is in progress. ",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
+
 				}else{
 					uploadDataUI = new UploadDataUI();
 					UMainToolBar.this.pluginView.setContent(uploadDataUI, "Upload Data", "Please use this interface to upload data");
@@ -120,16 +125,14 @@ public class UMainToolBar extends MenuBar {
 					    active.setWorkspace(workspace.getId());
 					    FacadeFactory.getFacade().store(active);
 						
-					    getApplication().getMainWindow().removeWindow(newWorkspace);
+					    UI.getCurrent().removeWindow(newWorkspace);
 					    try {
-					    	MessageBox mb = new MessageBox(getWindow(), 
+					    	MessageBox.showPlain(Icon.INFO, 
 					    			"New Workspace", 
-					    			MessageBox.Icon.INFO, 
 					    			"New Workspace is created and set as Active Workspace",  
-					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					    			ButtonId.OK);
 
-					    	mb.show();
-					    	getApplication().getMainWindow().setContent(new UMainLayout());				    	
+					    	UI.getCurrent().setContent(new UMainLayout());				    	
 
 					    } catch(Exception e) {
 					    	e.printStackTrace();
@@ -145,8 +148,8 @@ public class UMainToolBar extends MenuBar {
 				workspaceForm.addComponent(name);
 				workspaceForm.addComponent(submit);
 				
-				newWorkspace.addComponent(workspaceForm);
-				getApplication().getMainWindow().addWindow(newWorkspace);
+				newWorkspace.setContent(workspaceForm);
+				UI.getCurrent().addWindow(newWorkspace);
 				
 			}
 		});
@@ -161,7 +164,6 @@ public class UMainToolBar extends MenuBar {
 				
 				final Window workspaceTable = new Window("Switch Workspace");
 				
-				((AbstractOrderedLayout) workspaceTable.getLayout()).setSpacing(true);
 				workspaceTable.setModal(true);
 				workspaceTable.setClosable(true);
 				workspaceTable.setDraggable(false);
@@ -191,45 +193,40 @@ public class UMainToolBar extends MenuBar {
 					@Override
 					public void valueChange(final ValueChangeEvent event) {
 
-						MessageBox mb = new MessageBox(getWindow(), 
+						MessageBox.showPlain(Icon.INFO, 
 								"Switch Workspace", 
-								MessageBox.Icon.INFO, 
-								"Activating selected workspace",  
-								new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"),
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+								"Activating selected workspace", 
+								new MessageBoxListener() {
 
+									@Override
+									public void buttonClicked(ButtonId buttonId) {
+			                        	
+			                        	if(buttonId == ButtonId.OK) {
+			                        		Map<String, Object> param 		= 	new HashMap<String, Object>();
+			                        		param.put("owner", SessionHandler.get().getId());
 
-						 mb.show(new MessageBox.EventListener() {
-                             
-		                        private static final long serialVersionUID = 1L;
+			                        		List<?> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
+			                        		FacadeFactory.getFacade().delete((ActiveWorkspace) activeWorkspace.get(0));
 
-		                        @Override
-		                        public void buttonClicked(ButtonType buttonType) {
-		                        	
-		                        	if(buttonType == ButtonType.OK) {
-		                        		Map<String, Object> param 		= 	new HashMap<String, Object>();
-		                        		param.put("owner", SessionHandler.get().getId());
+			                        		/* Setting active workspace */
+			                        		ActiveWorkspace active = new ActiveWorkspace();
+			                        		active.setOwner(SessionHandler.get().getId());
+			                        		active.setWorkspace((Long) event.getProperty().getValue());
+			                        		FacadeFactory.getFacade().store(active);
 
-		                        		List<?> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
-		                        		FacadeFactory.getFacade().delete((ActiveWorkspace) activeWorkspace.get(0));
-
-		                        		/* Setting active workspace */
-		                        		ActiveWorkspace active = new ActiveWorkspace();
-		                        		active.setOwner(SessionHandler.get().getId());
-		                        		active.setWorkspace((Long) event.getProperty().getValue());
-		                        		FacadeFactory.getFacade().store(active);
-
-		                        		getApplication().getMainWindow().removeWindow(workspaceTable);
-		                        		getApplication().getMainWindow().setContent(new UMainLayout()); 
-
-		                        	}
-		                        }
-						 });
+			                        		UI.getCurrent().removeWindow(workspaceTable);
+			                        		UI.getCurrent().setContent(new UMainLayout()); 
+			                        	}
+									}
+								},
+								ButtonId.CANCEL,
+								ButtonId.OK);
 					}
 
 				});		
-				workspaceTable.addComponent(workspaceSelect);
-				getApplication().getMainWindow().addWindow(workspaceTable);
+				VerticalLayout layout = LayoutUtil.addComponent(workspaceSelect);
+				workspaceTable.setContent(layout);
+				UI.getCurrent().addWindow(workspaceTable);
 			}
 		});
 		
@@ -254,7 +251,7 @@ public class UMainToolBar extends MenuBar {
 				GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
 				genSpaceWindow.setWidth("70%");
 				genSpaceWindow.setHeight("70%");
-				getApplication().getMainWindow().addWindow(genSpaceWindow);
+				UI.getCurrent().addWindow(genSpaceWindow);
 			}
 		});
 		
@@ -265,29 +262,29 @@ public class UMainToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				if (uploadPending()) {
-					MessageBox mb = new MessageBox(
-							getWindow(),
+					MessageBox.showPlain(
+							Icon.QUESTION,
 							"Logout confirmation",
-							MessageBox.Icon.QUESTION,
 							"File upload is in progress. Logging out will cancel it. Do you really want to log out?",
-							new MessageBox.ButtonConfig(MessageBox.ButtonType.YES, "Yes"),
-							new MessageBox.ButtonConfig(MessageBox.ButtonType.NO, "No"));
-					mb.show(new MessageBox.EventListener() {
-						private static final long serialVersionUID = -7400025137319016325L;
-						@Override
-						public void buttonClicked(ButtonType buttonType) {
-							if (buttonType.toString() == "YES") {
-								uploadDataUI.cancelUpload();
-								clearTabularView();
-								SessionHandler.logout();
-								getApplication().close();
-							}
-						}
-					});
+							new MessageBoxListener() {
+								@Override
+								public void buttonClicked(ButtonId buttonId) {
+									if (buttonId == ButtonId.YES) {
+										uploadDataUI.cancelUpload();
+										clearTabularView();
+										SessionHandler.logout();
+										Page.getCurrent().setLocation("/geworkbench/");
+										VaadinSession.getCurrent().close();
+									}
+								}
+							},
+							ButtonId.YES,
+							ButtonId.NO);
 				}else{
 					clearTabularView();
 					SessionHandler.logout();
-					getApplication().close();
+					Page.getCurrent().setLocation("/geworkbench/");
+					VaadinSession.getCurrent().close();
 				}
 			}
 		});
@@ -295,7 +292,7 @@ public class UMainToolBar extends MenuBar {
 	}
 	
 	private void clearTabularView(){
-		Iterator<Component> it = pluginView.getComponentIterator();
+		Iterator<Component> it = pluginView.iterator();
 		while(it.hasNext()){
 			Component c = it.next();
 			if(c instanceof TabularViewUI){

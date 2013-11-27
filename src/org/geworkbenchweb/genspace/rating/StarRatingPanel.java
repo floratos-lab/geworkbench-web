@@ -2,21 +2,25 @@ package org.geworkbenchweb.genspace.rating;
 
 import java.text.DecimalFormat;
 
-import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
-import org.geworkbenchweb.genspace.wrapper.ToolWrapper;
-import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.ToolRating;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRating;
+import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.wrapper.ToolWrapper;
+import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
-import com.vaadin.event.MouseEvents;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
+import com.vaadin.shared.MouseEventDetails.MouseButton;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 public class StarRatingPanel extends Panel {
 
@@ -53,10 +57,11 @@ public class StarRatingPanel extends Panel {
 
 		// add title
 		title = new Label(titleText);
-		this.addComponent(title);
+		VerticalLayout layout = LayoutUtil.addComponent(title);
+		this.setContent(layout);
 		
 		HorizontalLayout hLayout = new HorizontalLayout();
-		this.addComponent(hLayout);
+		layout.addComponent(hLayout);
 		
 		// add stars
 		stars = new Star[5];
@@ -66,30 +71,34 @@ public class StarRatingPanel extends Panel {
 		hLayout.addComponent(starPanel);
 		
 		HorizontalLayout starLayout = new HorizontalLayout();
-		starPanel.addComponent(starLayout);
-		starLayout.addListener(new LayoutClickListener() {
+		starPanel.setContent(starLayout);
+		starLayout.addLayoutClickListener(new LayoutClickListener() {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void layoutClick(LayoutClickEvent event) {
+			public void layoutClick(final LayoutClickEvent event) {
 				// TODO Auto-generated method stub
-				if (event.getButton() == MouseEvents.ClickEvent.BUTTON_RIGHT) {
+				if (event.getButton() == MouseButton.RIGHT) {
 					if (!clickable)
 						return;
 					
-					int starIndex = ((Star)event.getClickedComponent()).getStarValue() - 1;
+					UI.getCurrent().access(new Runnable(){
+						@Override
+						public void run(){
+							int starIndex = ((Star)event.getClickedComponent()).getStarValue() - 1;
 
-					for (int i = 0; i < 5; i++) {
-						if (i <= starIndex)
-							stars[i].setStar(Star.FULL);
-						else
-							stars[i].setStar(Star.EMPTY);
-					}
-					login.getPusher().push();
-				} else if (event.getButton() == MouseEvents.ClickEvent.BUTTON_LEFT && event.isDoubleClick()) {
+							for (int i = 0; i < 5; i++) {
+								if (i <= starIndex)
+									stars[i].setStar(Star.FULL);
+								else
+									stars[i].setStar(Star.EMPTY);
+							}
+						}
+					});
+				} else if (event.getButton() == MouseButton.LEFT && event.isDoubleClick()) {
 					
 					if (clickable) {
 						int index = ((Star)event.getClickedComponent()).getStarValue();
@@ -123,61 +132,76 @@ public class StarRatingPanel extends Panel {
 	public void setTitle(String t) {
 		this.title.setCaption(t);
 	}
-	public void loadRating(Workflow wf) {
-		this.workflow = wf;
-		// see if we can even execute the query
-		if (workflow == null || workflow.getId() < 1) {
-			this.setVisible(false);
-			return;
-		} else
-			this.setVisible(true);
-		
-		RateWorker rw = new RateWorker(workflow.getId(), false);
-		login.getPusher().push();
+	public void loadRating(final Workflow wf) {
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				StarRatingPanel.this.workflow = wf;
+				// see if we can even execute the query
+				if (workflow == null || workflow.getId() < 1) {
+					StarRatingPanel.this.setVisible(false);
+					return;
+				} else
+					StarRatingPanel.this.setVisible(true);
+				
+				RateWorker rw = new RateWorker(workflow.getId(), false);
+			}
+		});
 	}
 	
 	public void loadRating(final Tool tn) {
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				StarRatingPanel.this.tool = tn;
+				if (StarRatingPanel.this.tool == null || tool.getId() < 2) {
+					StarRatingPanel.this.setVisible(false);
+					return ;
+				} else
+					StarRatingPanel.this.setVisible(true);
 
-		this.tool = tn;
-		if (this.tool == null || tool.getId() < 2) {
-			this.setVisible(false);
-			return ;
-		} else
-			this.setVisible(true);
-
-		RateWorker rw = new RateWorker(tool.getId(), true);
-		login.getPusher().push();
+				RateWorker rw = new RateWorker(tool.getId(), true);
+			}
+		});
 	}
 
-	public void setRatingValue(double rating, long totalRatings) {
+	public void setRatingValue(final double rating, final long totalRatings) {
 		//System.out.println("Test totalRatings: " + totalRatings);
 		
-		if (totalRatings != 0) {
-			setStarValue(rating);
-			DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				if (totalRatings != 0) {
+					setStarValue(rating);
+					DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
 
-			ratingInfo.setCaption("(" + twoDigit.format(rating) + " by "
-					+ totalRatings + " users.)");
-		} else {
-			setStarValue(0);
-			ratingInfo.setCaption("Not yet rated.");
-		}
-		//System.out.println("Test caption: " + ratingInfo.getCaption());
-		login.getPusher().push();
+					ratingInfo.setCaption("(" + twoDigit.format(rating) + " by "
+							+ totalRatings + " users.)");
+				} else {
+					setStarValue(0);
+					ratingInfo.setCaption("Not yet rated.");
+				}
+				//System.out.println("Test caption: " + ratingInfo.getCaption());
+			}
+		});
 	}
 
-	public void setStarValue(double value) {
-		this.value = value;
+	public void setStarValue(final double value) {
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				StarRatingPanel.this.value = value;
 
-		for (int i = 1; i <= 5; i++) {
-			if (value >= i)
-				stars[i - 1].setStar(Star.FULL);
-			else if (value > i - 1)
-				stars[i - 1].setStar(Star.HALF);
-			else
-				stars[i - 1].setStar(Star.EMPTY);
-		}
-		login.getPusher().push();
+				for (int i = 1; i <= 5; i++) {
+					if (value >= i)
+						stars[i - 1].setStar(Star.FULL);
+					else if (value > i - 1)
+						stars[i - 1].setStar(Star.HALF);
+					else
+						stars[i - 1].setStar(Star.EMPTY);
+				}
+			}
+		});
 	}
 
 	public Panel getThisPanel() {
@@ -265,7 +289,7 @@ public class StarRatingPanel extends Panel {
 			Workflow result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveWorkflowRating(workflow.getId(), this.rating);
 			
 			if (result == null) {
-				getApplication().getMainWindow().showNotification("Fail to set work flow rating");
+				Notification.show("Fail to set work flow rating");
 				return ;
 			}
 			
@@ -277,7 +301,7 @@ public class StarRatingPanel extends Panel {
 			setRatingValue(wrap.getOverallRating(), wrap.getNumRating());
 
 			setTitle("Thanks!");
-			getThisPanel().requestRepaint();
+			getThisPanel().markAsDirty();
 		}
 	}
 	
@@ -295,7 +319,7 @@ public class StarRatingPanel extends Panel {
 			Tool result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveToolRating(tool.getId(), this.rating);
 			
 			if (result == null) {
-				getApplication().getMainWindow().showNotification("Fail to set tool rating");
+				Notification.show("Fail to set tool rating");
 				return ;
 			}
 
@@ -305,7 +329,7 @@ public class StarRatingPanel extends Panel {
 			setRatingValue(wrap.getOverallRating(), wrap.getNumRating());
 
 			setTitle("Thanks!");
-			getThisPanel().requestRepaint();
+			getThisPanel().markAsDirty();
 		}
 	}
 }

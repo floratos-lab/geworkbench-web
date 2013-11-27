@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Iterator;
- 
+
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.Util;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.easyuploads.UploadField;
 import org.vaadin.easyuploads.UploadField.FieldType;
 import org.vaadin.easyuploads.UploadField.StorageMode;
@@ -24,15 +24,15 @@ import org.vaadin.easyuploads.UploadField.StorageMode;
 import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.FormLayout; 
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.TextField;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
  
 public class ClassSelector extends FormLayout{
 
@@ -90,7 +90,7 @@ public class ClassSelector extends FormLayout{
 		tf2.setEnabled(false);
 		
 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 
@@ -148,7 +148,7 @@ public class ClassSelector extends FormLayout{
 		
  
 
-		class1ArraySelect.addListener( new Property.ValueChangeListener(){
+		class1ArraySelect.addValueChangeListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -3667564667049184754L;
 			public void valueChange(ValueChangeEvent event) {
 				String class1Arrays = getClassArrays(getClass1ArraySet());
@@ -164,7 +164,7 @@ public class ClassSelector extends FormLayout{
 				}
 			}
 		});
-		class2ArraySelect.addListener( new Property.ValueChangeListener(){
+		class2ArraySelect.addValueChangeListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -5177825730266428335L;
 			public void valueChange(ValueChangeEvent event) {
 				String class2Arrays = getClassArrays(getClass2ArraySet());
@@ -190,11 +190,10 @@ public class ClassSelector extends FormLayout{
 	            	  class1ArraySelect.unselect(iterator.next());
 	            	if (newset != null) class1ArraySelect.select(newset);
         		}else{
-					MessageBox mb = new MessageBox(getWindow(),
-							"File Format Error", MessageBox.Icon.WARN,
+					MessageBox.showPlain(Icon.WARN,
+							"File Format Error", 
 							filename + " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
         		}
             }
         };
@@ -213,11 +212,10 @@ public class ClassSelector extends FormLayout{
 	            	String newset = parseCSV(filename, bytes);
 	            	if (newset != null) class2ArraySelect.select(newset);
         		}else{
-					MessageBox mb = new MessageBox(getWindow(),
-							"File Format Error", MessageBox.Icon.WARN,
+        			MessageBox.showPlain(Icon.WARN,
+							"File Format Error",
 							filename + " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
         		}
             }
         };
@@ -391,21 +389,17 @@ public class ClassSelector extends FormLayout{
 		}
 		if(missing > 0) {
 			if (missing == 1){
-				MessageBox mb = new MessageBox(
-						getWindow(),
+				MessageBox.showPlain(
+						Icon.WARN,
 						"Array Not Found",
-						MessageBox.Icon.WARN,
 						missing + " array listed in the CSV file is not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 			}else{
-				MessageBox mb = new MessageBox(
-						getWindow(),
+				MessageBox.showPlain(
+						Icon.WARN,
 						"Array Not Found",
-						MessageBox.Icon.WARN,
 						missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 			}
 		}
 		return aNewSet;

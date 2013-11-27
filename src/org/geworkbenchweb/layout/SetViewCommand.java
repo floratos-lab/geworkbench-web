@@ -18,6 +18,7 @@ import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -32,10 +33,12 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.terminal.DownloadStream;
-import com.vaadin.terminal.FileResource;
+import com.vaadin.server.DownloadStream;
+import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
@@ -43,14 +46,17 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * @author zji
@@ -89,7 +95,8 @@ public class SetViewCommand implements Command {
 		openSetWindow.setWidth("20%");
 		openSetWindow.setHeight("40%");
 
-		VerticalLayout vlayout = (VerticalLayout) openSetWindow.getContent();
+		VerticalLayout vlayout = new VerticalLayout();
+		openSetWindow.setContent(vlayout);
         vlayout.setMargin(true);
         vlayout.setSpacing(true);
 
@@ -107,7 +114,7 @@ public class SetViewCommand implements Command {
 		vlayout.addComponent(markerGroup);
 		markerGroup.setVisible(false);
 
-		setGroup.addListener(new Property.ValueChangeListener(){
+		setGroup.addValueChangeListener(new Property.ValueChangeListener(){
 			private static final long serialVersionUID = 2481194620858021204L;
 			public void valueChange(ValueChangeEvent event) {
 				if (event.getProperty().getValue().equals("Marker Set"))
@@ -120,7 +127,7 @@ public class SetViewCommand implements Command {
 		UploadField openFile = new UploadField(StorageMode.MEMORY){
 			private static final long serialVersionUID = -212174451849906591L;
 			protected void updateDisplay(){
-				Window pWindow = openSetWindow.getParent();
+				UI pWindow = UI.getCurrent();
 				if (pWindow!= null)  pWindow.removeWindow(openSetWindow);
         		String filename = getLastFileName();
 				byte[] bytes = (byte[])getValue();
@@ -132,11 +139,10 @@ public class SetViewCommand implements Command {
 	            		CSVUtil.loadMarkerSet(filename, bytes, dataSetId, markerSetTree, (String)markerGroup.getValue());
 	            	}
         		}else{
-					MessageBox mb = new MessageBox(pWindow,
-							"File Format Error", MessageBox.Icon.WARN,
+					MessageBox.showPlain(Icon.WARN,
+							"File Format Error",
 							filename + " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
         		}
 			}
 		};
@@ -190,7 +196,7 @@ public class SetViewCommand implements Command {
 		markerSetTree.setSelectable(true);
 		markerSetTree.setMultiSelect(false);
 		markerSetTree.setContainerDataSource(markerData);
-		markerSetTree.addListener(new ItemClickEvent.ItemClickListener() {
+		markerSetTree.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -229,7 +235,7 @@ public class SetViewCommand implements Command {
 		arraySetTree.setMultiSelect(false);
 		arraySetTree.setSelectable(true);
 		arraySetTree.setContainerDataSource(arrayData);
-		arraySetTree.addListener(new ItemClickEvent.ItemClickListener() {
+		arraySetTree.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -264,23 +270,23 @@ public class SetViewCommand implements Command {
 		arrayTree.setContainerDataSource(arrayTableView(maSet));
 
 		markerTree.setItemCaptionPropertyId("Labels");
-		markerTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		markerTree.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 
 		arrayTree.setItemCaptionPropertyId("Labels");
-		arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		arrayTree.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 
 		markerSetTree.setItemCaptionPropertyId("setName");
-		markerSetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		markerSetTree.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 
 		arraySetTree.setItemCaptionPropertyId("setName");
-		arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		arraySetTree.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 
 		//marker context
 		final ComboBox mrkcontextSelector = new ComboBox();
 		mrkcontextSelector.setWidth("160px");
 		mrkcontextSelector.setImmediate(true);
 		mrkcontextSelector.setNullSelectionAllowed(false);
-		mrkcontextSelector.addListener(new Property.ValueChangeListener() {
+		mrkcontextSelector.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {
 				Object val = mrkcontextSelector.getValue();
@@ -323,7 +329,7 @@ public class SetViewCommand implements Command {
 		}
 
 		Button mrknewContextButton = new Button("New");
-		mrknewContextButton.addListener(new Button.ClickListener() {
+		mrknewContextButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5508188056515818970L;
 			public void buttonClick(ClickEvent event) {
 				final Window nameWindow = new Window();
@@ -338,27 +344,27 @@ public class SetViewCommand implements Command {
 				final TextField contextName = new TextField();
 				contextName.setInputPrompt("Please enter markerset context name");
 				contextName.setImmediate(true);
-				nameWindow.addComponent(contextName);
-				nameWindow.addComponent(new Button("Ok", new Button.ClickListener() {
+				VerticalLayout layout = LayoutUtil.addComponent(contextName);
+				nameWindow.setContent(layout);
+				layout.addComponent(new Button("Ok", new Button.ClickListener() {
 					private static final long serialVersionUID = 634733324392150366L;
 					public void buttonClick(ClickEvent event) {
 		                String name = (String)contextName.getValue();
 		                for (Context context : SubSetOperations.getMarkerContexts(dataSetId)){
 		                	if (context.getName().equals(name)){
-		                		MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-										"Warning", MessageBox.Icon.WARN, "Name already exists",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-								mb.show();
+		                		MessageBox.showPlain(Icon.WARN,
+										"Warning", "Name already exists",  
+										ButtonId.OK);
 		                		return;
 		                	}
 		                }
 		                Context context = new Context(name, "marker", dataSetId);
 		                FacadeFactory.getFacade().store(context);
-		    			mainLayout.getApplication().getMainWindow().removeWindow(nameWindow);
+		    			UI.getCurrent().removeWindow(nameWindow);
 		                mrkcontextSelector.addItem(context);
 		                mrkcontextSelector.setValue(context);
 		            }}));
-				mainLayout.getApplication().getMainWindow().addWindow(nameWindow);
+				UI.getCurrent().addWindow(nameWindow);
 			}
 		});
 		
@@ -375,7 +381,7 @@ public class SetViewCommand implements Command {
 		contextSelector.setWidth("160px");
 		contextSelector.setImmediate(true);
 		contextSelector.setNullSelectionAllowed(false);
-		contextSelector.addListener(new Property.ValueChangeListener() {
+		contextSelector.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {
 				Object val = contextSelector.getValue();
@@ -418,7 +424,7 @@ public class SetViewCommand implements Command {
 		}
 
 		Button newContextButton = new Button("New");
-		newContextButton.addListener(new Button.ClickListener() {
+		newContextButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5508188056515818970L;
 			public void buttonClick(ClickEvent event) {
 				final Window nameWindow = new Window();
@@ -433,27 +439,27 @@ public class SetViewCommand implements Command {
 				final TextField contextName = new TextField();
 				contextName.setInputPrompt("Please enter arrayset context name");
 				contextName.setImmediate(true);
-				nameWindow.addComponent(contextName);
-				nameWindow.addComponent(new Button("Ok", new Button.ClickListener() {
+				VerticalLayout layout = LayoutUtil.addComponent(contextName);
+				nameWindow.setContent(layout);
+				layout.addComponent(new Button("Ok", new Button.ClickListener() {
 					private static final long serialVersionUID = 634733324392150366L;
 					public void buttonClick(ClickEvent event) {
 		                String name = (String)contextName.getValue();
 		                for (Context context : SubSetOperations.getArrayContexts(dataSetId)){
 		                	if (context.getName().equals(name)){
-		                		MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-										"Warning", MessageBox.Icon.WARN, "Name already exists",  
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-								mb.show();
+		                		MessageBox.showPlain(Icon.WARN, 
+										"Warning", "Name already exists",  
+										ButtonId.OK);
 		                		return;
 		                	}
 		                }
 		                Context context = new Context(name, "microarray", dataSetId);
 		                FacadeFactory.getFacade().store(context);
-		    			mainLayout.getApplication().getMainWindow().removeWindow(nameWindow);
+		    			UI.getCurrent().removeWindow(nameWindow);
 		                contextSelector.addItem(context);
 		                contextSelector.setValue(context);
 		            }}));
-				mainLayout.getApplication().getMainWindow().addWindow(nameWindow);
+				UI.getCurrent().addWindow(nameWindow);
 			}
 		});
 		
@@ -524,12 +530,10 @@ public class SetViewCommand implements Command {
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			MessageBox mb = new MessageBox(mainLayout.getWindow(), 
+			MessageBox.showPlain(Icon.INFO, 
 					"Warning", 
-					MessageBox.Icon.INFO, 
 					"Please select SubSet to delete", 
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();	
+					ButtonId.OK);
 		}
 	}
 
@@ -596,7 +600,7 @@ public class SetViewCommand implements Command {
 		String savefname = saveSetDir + subSet.getName() + ".csv";
 		CSVUtil.saveSetToFile(savefname, subSet);
 
-		FileResource resource = new FileResource(new File(savefname), mainLayout.getApplication()){
+		FileResource resource = new FileResource(new File(savefname)){
 			private static final long serialVersionUID = -4237233790958289183L;
 			public DownloadStream getStream() {
 		        try {
@@ -612,15 +616,15 @@ public class SetViewCommand implements Command {
 		        }
 		    }
 		};
-		mainLayout.getApplication().getMainWindow().open(resource);
+		Page.getCurrent().open(resource, savefname, false);
 
 	}
 
 	public void openOpenSetWindow() {
 		if (openSetWindow.getParent() != null) {
-			mainLayout.getWindow().showNotification("Window is already open");
+			Notification.show("Window is already open");
         } else {
-        	mainLayout.getWindow().addWindow(openSetWindow);
+        	UI.getCurrent().addWindow(openSetWindow);
         }
 	}
 

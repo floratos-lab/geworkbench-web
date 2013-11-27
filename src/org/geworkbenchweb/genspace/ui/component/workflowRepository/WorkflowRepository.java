@@ -11,11 +11,11 @@ import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.data.Item;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -67,17 +67,18 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		tabSheet.addTab(workflowCommentsPanel, "Workflow Comments");
 		tabSheet.addTab(workflowDetailsPanel, "Workflow Details");
 
-		repositoryPanel.addListener(this);
+		repositoryPanel.addItemClickListener(this);
 		graphPanel.setSizeFull();
 		
 		rootRepoPanel.setSizeFull();
 		rootRepoPanel.setHeight("320px");
-		rootRepoPanel.addComponent(repositoryPanel);
+		rootRepoPanel.setContent(LayoutUtil.addComponent(repositoryPanel));
 		//compRepoPanel.addComponent(repositoryPanel);
-		compRepoPanel.addComponent(rootRepoPanel);
-		compRepoPanel.addComponent(delete);
+		VerticalLayout layout = LayoutUtil.addComponent(rootRepoPanel);
+		layout.addComponent(delete);
+		compRepoPanel.setContent(layout);
 		compRepoPanel.setSizeFull();
-		delete.addListener(new Button.ClickListener() {
+		delete.addClickListener(new Button.ClickListener() {
 			/**
 			 * 
 			 */
@@ -104,9 +105,9 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		jSplitPane1.addComponent(jSplitPane3);
 		jSplitPane1.addComponent(jSplitPane2);
 		
-		jSplitPane1.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);
-		jSplitPane2.setSplitPosition(70, Sizeable.UNITS_PERCENTAGE);
-		jSplitPane3.setSplitPosition(50, Sizeable.UNITS_PERCENTAGE);
+		jSplitPane1.setSplitPosition(20, Unit.PERCENTAGE);
+		jSplitPane2.setSplitPosition(70, Unit.PERCENTAGE);
+		jSplitPane3.setSplitPosition(50, Unit.PERCENTAGE);
 		
 		mainLayout.addComponent(infoLabel);
 		mainLayout.setSizeFull();
@@ -131,7 +132,7 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		//Set null for current workflow, once user login again and objects still exist.
 		repositoryPanel.getContainer().removeAllItems();
 		repositoryPanel.setCurWorkFlow(null);
-		graphPanel.removeAllComponents();
+		graphPanel.setContent(null);
 
 		workflowCommentsPanel.getModel().removeAllItems();
 		workflowCommentsPanel.setWorkflow(null);

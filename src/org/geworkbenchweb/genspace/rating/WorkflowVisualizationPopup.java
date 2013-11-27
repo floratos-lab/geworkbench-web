@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.rating;
 
-import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeFactory;
@@ -9,22 +8,24 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
-import org.geworkbench.util.BrowserLauncher;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -84,7 +85,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.viewComment.setWidth("240px");
 
 		this.vLayout = new VerticalLayout();
-		this.addComponent(vLayout);
+		this.setContent(vLayout);
 		this.createWorkflowPanel();
 	}
 	
@@ -92,7 +93,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.workflowPanel = new Panel();
 		
 		BorderLayout wLayout = new BorderLayout();
-		this.workflowPanel.addComponent(wLayout);
+		this.workflowPanel.setContent(wLayout);
 		wLayout.addComponent(this.addWkflowLabel, BorderLayout.Constraint.WEST);
 
 		this.addWkButton = new Button("Add");
@@ -101,7 +102,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		
 		wLayout = new BorderLayout();
 		this.wFlowToolPanel = new Panel();
-		this.wFlowToolPanel.addComponent(wLayout);
+		this.wFlowToolPanel.setContent(wLayout);
 		this.gotoCaption = "Goto GenSpace page of " + this.selectedTool.getName();
 		this.gotoPageLabel.setCaption(gotoCaption);
 		wLayout.addComponent(this.gotoPageLabel, BorderLayout.Constraint.WEST);
@@ -113,7 +114,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		
 		wLayout = new BorderLayout();
 		this.expertPanel = new Panel();
-		this.expertPanel.addComponent(wLayout);
+		this.expertPanel.setContent(wLayout);
 		
 		this.contact = new Button("Contact");
 		
@@ -135,7 +136,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 
 		wLayout = new BorderLayout();
 		this.viewPanel = new Panel();
-		this.viewPanel.addComponent(wLayout);
+		this.viewPanel.setContent(wLayout);
 		wLayout.addComponent(this.viewComment, BorderLayout.Constraint.WEST);
 
 		/*this.view = new Button("View");
@@ -177,7 +178,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		
 		if (buttonCaption.equals("Add")) {
 			if (!login.getGenSpaceServerFactory().isLoggedIn()) {
-				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+				Notification.show("You need to be logged in to use GenSpace's social features.");
 				return ;
 			}
 			
@@ -190,16 +191,17 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		} else if (buttonCaption.equals("Contact")) {
 			if (login.getGenSpaceServerFactory().isLoggedIn()) {
 				UserSearchWindow usw = new UserSearchWindow(expert, login, login.getGenSpaceParent().getSocialNetworkHome());
-				getApplication().getMainWindow().addWindow(usw);
+				UI.getCurrent().addWindow(usw);
 				browser = false;
 			} else {
-				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+				Notification.show("You need to be logged in to use GenSpace's social features.");
 				return ;
 			}
 		}
 		
 		if (browser) {
-			getApplication().getMainWindow().open(new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + args, "_blank"));
+			//FIXME
+			Page.getCurrent().open(new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + args, "_blank"), "", true);
 		}
 	} 
 	
@@ -209,9 +211,9 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		nameWindow.setWidth("450px");
 		nameWindow.setHeight("100px");
 		
-		this.getApplication().getMainWindow().addWindow(nameWindow);
+		UI.getCurrent().addWindow(nameWindow);
 		VerticalLayout nLayout = new VerticalLayout();
-		nameWindow.addComponent(nLayout);
+		nameWindow.setContent(nLayout);
 		
 		HorizontalLayout contLayout = new HorizontalLayout();
 		nLayout.addComponent(contLayout);
@@ -248,13 +250,13 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 						return ;
 					}
 					login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
-					getApplication().getMainWindow().showNotification("Workflow added succesfully to repository");
+					Notification.show("Workflow added succesfully to repository");
 				} else {
-					getApplication().getMainWindow().showNotification("Operation cancelled: A valid name has to be specified");
+					Notification.show("Operation cancelled: A valid name has to be specified");
 				}
 
-				getApplication().getMainWindow().removeWindow(nameWindow);
-				getApplication().getMainWindow().removeWindow(WorkflowVisualizationPopup.this);
+				UI.getCurrent().removeWindow(nameWindow);
+				UI.getCurrent().removeWindow(WorkflowVisualizationPopup.this);
 			}
 		});
 		buttonLayout.addComponent(confirm);

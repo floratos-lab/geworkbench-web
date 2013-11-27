@@ -1,9 +1,13 @@
 package org.geworkbenchweb.genspace.ui.component;
 
+import org.geworkbenchweb.utils.LayoutUtil;
+
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class NetConfirmWindow extends Window {
 	
@@ -21,17 +25,17 @@ public class NetConfirmWindow extends Window {
 		
 		setCaption("Network Confirmation");
 		
-		addComponent(new Label("Your request for " + networkName + " has been received. It will not appear in your network list until your request is approved."));
+		VerticalLayout layout = LayoutUtil.addComponent(new Label("Your request for " + networkName + " has been received. It will not appear in your network list until your request is approved."));
 		
 		Button close = new Button("OK");
-		close.addListener(new Button.ClickListener(){
+		close.addClickListener(new Button.ClickListener(){
 			
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
-				getApplication().getMainWindow().removeWindow(NetConfirmWindow.this);
+				UI.getCurrent().removeWindow(NetConfirmWindow.this);
 			}
 		});
-		addComponent(close);
+		layout.addComponent(close);
 	}
 }

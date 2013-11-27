@@ -19,14 +19,17 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.event.MouseEvents.ClickListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -65,7 +68,6 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 		this.login = login;
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		
-		this.setScrollable(true);
 		this.setWidth("300px");
 		this.setHeight("400px");
 		
@@ -117,7 +119,7 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 			final AnalysisEvent evt = evtIT.next();
 			final Panel evtPanel = new Panel(evt.getTransaction().getUser().getUsername());
 			evtPanel.setWidth("250px");
-			evtPanel.addListener(new ClickListener() {
+			evtPanel.addClickListener(new ClickListener() {
 
 				/**
 				 * 
@@ -132,15 +134,16 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 					paramWindow.setHeight("200px");
 					
 					Label toolName = new Label(evt.getToolname());
-					paramWindow.addComponent(toolName);
+					VerticalLayout paramLayout = LayoutUtil.addComponent(toolName);
+					paramWindow.setContent(paramLayout);
 					
 					Iterator<AnalysisEventParameter> paramIT = evt.getParameters().iterator();
 					while(paramIT.hasNext()) {
 						AnalysisEventParameter param = paramIT.next();
 						Label paramLabel = new Label(param.getParameterKey() + ": " + param.getParameterValue());
-						paramWindow.addComponent(paramLabel);
+						paramLayout.addComponent(paramLabel);
 					}
-					getApplication().getMainWindow().addWindow(paramWindow);
+					UI.getCurrent().addWindow(paramWindow);
 					paramWindow.setPositionX(ActivityFeedWindow.this.getPositionX() + 20);
 					paramWindow.setPositionY(ActivityFeedWindow.this.getPositionY() + 20);
 				}
@@ -149,7 +152,7 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 			
 			GridLayout tNameLayout = new GridLayout(4, 1);
 			String tName = "<b>" + evt.getToolname() + "</b>";
-			toolName = new Label(tName, Label.CONTENT_XHTML);
+			toolName = new Label(tName, ContentMode.HTML);
 			toolName.setWidth("100px");
 			tNameLayout.addComponent(toolName);
 			
@@ -158,7 +161,8 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 			tNameLayout.addComponent(emptyLabel);
 			
 			tNameLayout.addComponent(new Embedded(null, this.faviIcon));
-			evtPanel.addComponent(tNameLayout);
+			VerticalLayout evtLayout = LayoutUtil.addComponent(tNameLayout);
+			evtPanel.setContent(evtLayout);
 			
 			Date now = new Date();
 			XMLGregorianCalendar nowCal = ActivityFeedWindow.convertToXMLDate(now);
@@ -170,8 +174,8 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 			
 			datasetName = new Label(evt.getTransaction().getDataSetName());
 			date = new Label(evt.getCreatedAt().toString());
-			evtPanel.addComponent(datasetName);
-			evtPanel.addComponent(date);
+			evtLayout.addComponent(datasetName);
+			evtLayout.addComponent(date);
 			this.afLayout.addComponent(evtPanel);
 			this.afLayout.setComponentAlignment(evtPanel, Alignment.MIDDLE_CENTER);
 		}
@@ -186,10 +190,14 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 		}
 		
 		if (this.isFriend(id)) {
-			this.updateQueryString();
-			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
-			this.makeAFLayout();
-			login.getPusher().push();
+			UI.getCurrent().access(new Runnable(){
+				@Override
+				public void run(){
+					ActivityFeedWindow.this.updateQueryString();
+					ActivityFeedWindow.this.evtList = ActivityFeedWindow.this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(ActivityFeedWindow.this.queryLimit);
+					ActivityFeedWindow.this.makeAFLayout();
+				}
+			});
 		}
 	}
 	

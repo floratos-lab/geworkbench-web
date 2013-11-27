@@ -3,14 +3,13 @@ package org.geworkbenchweb.genspace.ui.component;
 import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
-import com.vaadin.Application;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 public class GenSpaceSecurityPanel extends CustomComponent {
 
@@ -53,11 +52,8 @@ public class GenSpaceSecurityPanel extends CustomComponent {
 
 	public void logoutPerformed(ClickEvent event) {
 		// TODO
-		Application application = getApplication();
-		Window mainWindow = application.getMainWindow();
-		Notification notification = new Notification("User logged out",
-				Notification.TYPE_TRAY_NOTIFICATION);
-		mainWindow.showNotification(notification);
+		Notification.show("User logged out",
+				Type.TRAY_NOTIFICATION);
 		
 		//GenSpaceServerFactory.logout();
 		login.getGenSpaceServerFactory().logout();

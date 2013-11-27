@@ -7,6 +7,7 @@ import com.jensjansson.pagedtable.PagedTableContainer;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -80,7 +81,7 @@ public class PagedTable extends Table {
         itemsPerPageSelect.setImmediate(true);
         itemsPerPageSelect.setNullSelectionAllowed(false);
         itemsPerPageSelect.setWidth("50px");
-        itemsPerPageSelect.addListener(new ValueChangeListener() {
+        itemsPerPageSelect.addValueChangeListener(new ValueChangeListener() {
             private static final long serialVersionUID = -2255853716069800092L;
 
             public void valueChange(
@@ -91,16 +92,16 @@ public class PagedTable extends Table {
         });
         itemsPerPageSelect.select("25");       
         
-        Label pageLabel = new Label("Page:&nbsp;", Label.CONTENT_XHTML);
+        Label pageLabel = new Label("Page:&nbsp;", ContentMode.HTML);
         final TextField currentPageTextField = new TextField();
         currentPageTextField.setValue(String.valueOf(getCurrentPage()));
         currentPageTextField.addValidator(new IntegerValidator(null));
-        Label separatorLabel = new Label("&nbsp;/&nbsp;", Label.CONTENT_XHTML);
+        Label separatorLabel = new Label("&nbsp;/&nbsp;", ContentMode.HTML);
         final Label totalPagesLabel = new Label(
-                String.valueOf(getTotalAmountOfPages()), Label.CONTENT_XHTML);
+                String.valueOf(getTotalAmountOfPages()), ContentMode.HTML);
         currentPageTextField.setStyleName(Reindeer.TEXTFIELD_SMALL);
         currentPageTextField.setImmediate(true);
-        currentPageTextField.addListener(new ValueChangeListener() {
+        currentPageTextField.addValueChangeListener(new ValueChangeListener() {
             private static final long serialVersionUID = -2255853716069800092L;
 
             public void valueChange(
@@ -218,7 +219,7 @@ public class PagedTable extends Table {
                 last.setEnabled(container.getStartIndex() < container
                         .getRealSize() - getPageLength());
                 currentPageTextField.setValue(String.valueOf(getCurrentPage()));
-                totalPagesLabel.setValue(getTotalAmountOfPages());
+                totalPagesLabel.setValue(Integer.toString(getTotalAmountOfPages()));
                 itemsPerPageSelect.setValue(String.valueOf(getPageLength()));
             }
         });

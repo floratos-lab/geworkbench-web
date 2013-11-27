@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -18,6 +19,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 public class WorkflowVisualization extends AbstractGenspaceTab implements
 		GenSpaceTab, ClickListener {
@@ -40,9 +42,6 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 
 	public WorkflowVisualization(GenSpaceLogin login) {
 		super(login);
-		selectRootPanel.setScrollable(true);
-		borderLayout.setScrollable(true);
-		vis.setScrollable(true);
 		initComponents();
 		setCompositionRoot(borderLayout);
 	}
@@ -60,7 +59,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 			tools.addItem(name);
 		}
 
-		button.addListener(this);
+		button.addClickListener(this);
 		label.setValue("Please select an action and a tool to search for");
 
 		//selectPanel.setSpacing(true);
@@ -74,13 +73,14 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		selectPanel.setComponentAlignment(button, Alignment.BOTTOM_CENTER);
 		selectPanel.setComponentAlignment(label, Alignment.BOTTOM_CENTER);
 		
-		selectRootPanel.addComponent(selectPanel);
+		selectRootPanel.setContent(selectPanel);
 
 		/*borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);*/
 		//borderLayout.addComponent(selectPanel);
-		borderLayout.addComponent(selectRootPanel);
-		borderLayout.addComponent(vis);
+		VerticalLayout blayout = LayoutUtil.addComponent(selectRootPanel);
+		blayout.addComponent(vis);
+		borderLayout.setContent(blayout);
 		vis.setGenSpaceLogin(login);
 		//vis.setSizeFull();
 	}

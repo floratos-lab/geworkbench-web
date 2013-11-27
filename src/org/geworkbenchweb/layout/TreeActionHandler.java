@@ -1,17 +1,20 @@
 package org.geworkbenchweb.layout;
 
-import com.vaadin.data.Item;
+import org.geworkbenchweb.utils.LayoutUtil;
+
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public abstract class TreeActionHandler implements Handler {
@@ -45,7 +48,6 @@ public abstract class TreeActionHandler implements Handler {
 		final Window nameWindow = new Window();
 		// nameWindow.setModal(true);
 		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("120px");
 		nameWindow.setResizable(false);
@@ -98,8 +100,9 @@ public abstract class TreeActionHandler implements Handler {
 			}
 		});
 
-		nameWindow.addComponent(search);
-		sender.getApplication().getMainWindow().addWindow(nameWindow);
+		VerticalLayout layout = LayoutUtil.addComponent(search);
+		nameWindow.setContent(layout);
+		UI.getCurrent().addWindow(nameWindow);
 		nameWindow.center();
 	}
 

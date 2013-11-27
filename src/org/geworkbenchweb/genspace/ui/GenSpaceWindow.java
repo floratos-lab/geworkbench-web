@@ -2,13 +2,12 @@ package org.geworkbenchweb.genspace.ui;
 
 
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
-import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
-import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
+import org.geworkbenchweb.events.LogCompleteEvent;
+import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.ui.Window;
@@ -26,16 +25,12 @@ public class GenSpaceWindow extends Window{
 	private GenSpaceComponent component;
 
 	private GenspaceLogger logger;
-	
-	private ICEPush pusher;
-	
+		
 	public GenSpaceWindow(GenspaceLogger genSpaceLogger)
 	{
 		setCaption("genSpace");
 		this.logger = genSpaceLogger;
-		this.pusher = new ICEPush();
-		this.component = new GenSpaceComponent(this.logger, this.pusher);
-		this.addComponent(this.pusher);
+		this.component = new GenSpaceComponent(this.logger);
 		this.setContent(component);		
 	}
 	
@@ -45,10 +40,6 @@ public class GenSpaceWindow extends Window{
 
 	public GenspaceLogger getLogger() {
 		return logger;
-	}
-	
-	public ICEPush getPusher() {
-		return this.pusher;
 	}
 	
 	public static Blackboard getGenSpaceBlackboard() {

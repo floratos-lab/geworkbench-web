@@ -2,15 +2,18 @@ package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbenchweb.genspace.FBManager;
 
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -38,8 +41,8 @@ public class FBAuthWindow extends Window{
 	
 	private void makeLayout() {
 		VerticalLayout vLayout = new VerticalLayout();
-		this.addComponent(vLayout);
-		Label authProc = new Label("<b>Facebook Authentication Guide</b>", Label.CONTENT_XHTML);
+		this.setContent(vLayout);
+		Label authProc = new Label("<b>Facebook Authentication Guide</b>", ContentMode.HTML);
 		Label first = new Label("1. Login your Facebook");
 		Label second = new Label("2. Retrieve your Facebook token at \n");
 		Link authLink = new Link("Facebook", new ExternalResource("https://developers.facebook.com/tools/explorer"));
@@ -72,7 +75,7 @@ public class FBAuthWindow extends Window{
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		vLayout.addComponent(buttonLayout);
 		Button fbSubmit = new Button("Submit");
-		fbSubmit.addListener(new Button.ClickListener() {
+		fbSubmit.addClickListener(new Button.ClickListener() {
 			/**
 			 * 
 			 */
@@ -82,15 +85,19 @@ public class FBAuthWindow extends Window{
 				System.out.println("Test tokens: " + tokenField.getValue().toString());
 				String token = tokenField.getValue().toString();
 				
-				FBManager fbManager = new FBManager(token, login);
+				final FBManager fbManager = new FBManager(token, login);
 				if (fbManager.connect()) {
-					login.setFBManager(fbManager);
-					getApplication().getMainWindow().showNotification("Facebook connection succeeds! Login as " + fbManager.getMe().getUsername());
-					fbUserNotebook.setValue("<b>Facebook Account: " + fbManager.getMe().getUsername() + "</b>");
-					login.getPusher().push();
-					getApplication().getMainWindow().removeWindow(FBAuthWindow.this);
+					UI.getCurrent().access(new Runnable(){
+						@Override
+						public void run(){
+							login.setFBManager(fbManager);
+							Notification.show("Facebook connection succeeds! Login as " + fbManager.getMe().getUsername());
+							fbUserNotebook.setValue("<b>Facebook Account: " + fbManager.getMe().getUsername() + "</b>");
+							UI.getCurrent().removeWindow(FBAuthWindow.this);
+						}
+					});
 				} else {
-					getApplication().getMainWindow().showNotification("Facebook connection fails. Please input valid token");
+					Notification.show("Facebook connection fails. Please input valid token");
 				}
 			}
 		});

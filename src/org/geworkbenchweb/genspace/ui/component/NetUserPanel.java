@@ -8,6 +8,7 @@ import java.util.List;
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.event.MouseEvents.ClickListener;
@@ -58,9 +59,9 @@ public class NetUserPanel extends Panel{
 			uwPanel = new Panel(uw.getUsername());
 			uwPanel.setWidth("200px");
 			Label orgPanel = new Label(uw.getLabAffiliation());
-			uwPanel.addComponent(orgPanel);
+			uwPanel.setContent(LayoutUtil.addComponent(orgPanel));
 			
-			uwPanel.addListener(new ClickListener() {
+			uwPanel.addClickListener(new ClickListener() {
 				
 				/**
 				 * 
@@ -72,13 +73,13 @@ public class NetUserPanel extends Panel{
 					// TODO Auto-generated method stub
 					if (event.isDoubleClick()) {
 						UserPanel uPan = new UserPanel(event.getComponent().getCaption() + "'s genSpace profile", uw.getDelegate());
-						NetUserPanel.this.removeAllComponents();
-						NetUserPanel.this.addComponent(uPan);
+						NetUserPanel.this.setContent(null);
+						NetUserPanel.this.setContent(LayoutUtil.addComponent(uPan));
 					}
 				}
 			});
 			
-			this.addComponent(uwPanel);
+			this.setContent(LayoutUtil.addComponent(uwPanel));
 		}
 		
 	}

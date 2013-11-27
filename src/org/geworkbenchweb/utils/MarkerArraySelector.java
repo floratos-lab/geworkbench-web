@@ -69,7 +69,7 @@ public class MarkerArraySelector extends GridLayout{
 		arraySetSelect.setImmediate(true);
 	 
 	
-		markerContextCB.addListener(new Property.ValueChangeListener() {
+		markerContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 		  
 			private static final long serialVersionUID = -1701293764682250834L;
 
@@ -98,7 +98,7 @@ public class MarkerArraySelector extends GridLayout{
 		});
 
 	 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 

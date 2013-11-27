@@ -67,7 +67,7 @@ public class CaseControlSelector extends GridLayout{
 		controlArraySetSelect.setImmediate(true);
 	 
 	 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 

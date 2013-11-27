@@ -9,11 +9,11 @@
   </context-param>
   <servlet>
     <servlet-name>Geworkbench Application</servlet-name>
-    <servlet-class>org.vaadin.artur.icepush.ICEPushServlet</servlet-class>
+    <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
     <init-param>
       <description>
   		Vaadin application class to start</description>
-      <param-name>application</param-name>
+      <param-name>UI</param-name>
       <param-value>org.geworkbenchweb.GeworkbenchRoot</param-value>
     </init-param>
     <init-param>
@@ -22,6 +22,12 @@
       <param-name>widgetset</param-name>
       <param-value>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</param-value>
     </init-param>
+    <!-- Enable server push -->
+    <init-param>
+    <param-name>pushmode</param-name>
+    <param-value>automatic</param-value>
+    </init-param>
+    <async-supported>true</async-supported>
   </servlet>
   <listener>
     <listener-class>

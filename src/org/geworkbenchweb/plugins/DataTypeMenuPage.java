@@ -9,7 +9,8 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
@@ -43,7 +44,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		// first part: analysis
 		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
-		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
+		analysisLabel.setContentMode(ContentMode.PREFORMATTED);
 		addComponent(analysisLabel);
 
 		VerticalLayout analysisGroup = new VerticalLayout();
@@ -63,7 +64,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
-		vis.setContentMode(Label.CONTENT_PREFORMATTED);
+		vis.setContentMode(ContentMode.PREFORMATTED);
 		addComponent(vis);
 		
 		VerticalLayout visualizerGroup = new VerticalLayout();
@@ -154,7 +155,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		private void addDescription(String itemDescription) {
 			Label tableText = new Label(
 					"<p align = \"justify\">"+itemDescription+"</p>");
-			tableText.setContentMode(Label.CONTENT_XHTML);
+			tableText.setContentMode(ContentMode.HTML);
 			cssLayout.addComponent(tableText);
 			addComponent(cssLayout, 0, 1, 1, 1);
 		}
@@ -214,7 +215,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
 
 		final String itemDescription = analysis.getDescription();
-		infoButton.addListener(new Button.ClickListener() {
+		infoButton.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -225,7 +226,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 				itemLayout.addDescription(itemDescription);
 			}
 		});
-		cancelButton.addListener(new Button.ClickListener() {
+		cancelButton.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 

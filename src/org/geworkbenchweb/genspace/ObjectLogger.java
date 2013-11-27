@@ -25,7 +25,9 @@ import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 
-import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.UI;
 
 
 /**
@@ -295,15 +297,19 @@ public class ObjectLogger {
 	}
 	
 	private void handleExceptions(Exception e) {
-		Notification msg = new Notification("Some error occurs: " + e.getMessage() + "Please try again.",
-				Notification.TYPE_ERROR_MESSAGE);
-		login.getApplication().getMainWindow().showNotification(msg);
+		Notification.show("Some error occurs: " + e.getMessage() + "Please try again.",
+				Type.ERROR_MESSAGE);
 	}
 	
-	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
+	public void log(final String analysisName, final String dataSetName, final String transactionId, @SuppressWarnings("rawtypes") final Map parameters, final AnalysisSubmissionEvent event) {
 		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
-		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null)
-			this.login.getPusher().push();
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				if (ObjectLogger.this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && ObjectLogger.this.login != null)
+					UI.getCurrent().push();
+			}
+		});	
 	}
 
 	void deleteFile() {

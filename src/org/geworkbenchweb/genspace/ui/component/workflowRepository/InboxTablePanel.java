@@ -13,6 +13,7 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class InboxTablePanel extends VerticalLayout implements Button.ClickListener{
@@ -50,9 +51,9 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		hLayout.addComponent(refreshButton);
 		this.addComponent(hLayout);
 		
-		addButton.addListener(this);
-		deleteButton.addListener(this);
-		refreshButton.addListener(this);
+		addButton.addClickListener(this);
+		deleteButton.addClickListener(this);
+		refreshButton.addClickListener(this);
 	}
 	
 	public void setData(List<IncomingWorkflow> list) {
@@ -91,34 +92,39 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		}
 	}
 	
-	public void buttonClick(Button.ClickEvent evt) {
+	public void buttonClick(final Button.ClickEvent evt) {
 		
-		Object idxTmp = table.getValue();
-		
-		if (idxTmp == null) {
-			return ;
-		}
-		
-		String bCaption = evt.getButton().getCaption();
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				Object idxTmp = table.getValue();
+				
+				if (idxTmp == null) {
+					return ;
+				}
+				
+				String bCaption = evt.getButton().getCaption();
 
-		if (bCaption.equals("Delete")) {
-			int idx = Integer.parseInt(idxTmp.toString());
-			IncomingWorkflow tmp = this.iwfList.get(idx);
-			this.removeFromInbox(tmp);
-		} else if (bCaption.equals("Add")) {
-			int idx = Integer.parseInt(idxTmp.toString());
-			IncomingWorkflow tmp = this.iwfList.get(idx);
-			UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
-			this.workflowRepository.updateFormFieldsBG();
-			
-			if (ret != null) {
-				workflowRepository.getRepositoryPanel().recalculateAndReload();
-				removeFromInbox(tmp);
+				if (bCaption.equals("Delete")) {
+					int idx = Integer.parseInt(idxTmp.toString());
+					IncomingWorkflow tmp = InboxTablePanel.this.iwfList.get(idx);
+					InboxTablePanel.this.removeFromInbox(tmp);
+				} else if (bCaption.equals("Add")) {
+					int idx = Integer.parseInt(idxTmp.toString());
+					IncomingWorkflow tmp = InboxTablePanel.this.iwfList.get(idx);
+					UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
+					InboxTablePanel.this.workflowRepository.updateFormFieldsBG();
+					
+					if (ret != null) {
+						workflowRepository.getRepositoryPanel().recalculateAndReload();
+						removeFromInbox(tmp);
+					}
+				} else if (bCaption.equals("Refresh")) {
+					InboxTablePanel.this.refreshInbox();
+				}
 			}
-		} else if (bCaption.equals("Refresh")) {
-			this.refreshInbox();
-		}
-		login.getPusher().push();
+		});
+		
 	}
 	
 	private void refreshInbox() {

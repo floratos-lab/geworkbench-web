@@ -13,12 +13,13 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class FilterWindow extends Window {
 
@@ -72,7 +73,7 @@ public class FilterWindow extends Window {
 		arraySetSelect.setColumns(15);
 		arraySetSelect.setImmediate(true);
 
-		markerContextCB.addListener(new Property.ValueChangeListener() {
+		markerContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -96,7 +97,7 @@ public class FilterWindow extends Window {
 			}
 		});
 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -187,7 +188,7 @@ public class FilterWindow extends Window {
 
 		submit = new Button("Submit");
 
-		submit.addListener(new Button.ClickListener() {
+		submit.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4799561372701936132L;
 
@@ -220,7 +221,7 @@ public class FilterWindow extends Window {
 					parent.getPagedTableView().setContainerDataSource(
 							parent.getIndexedContainer());
 
-					getApplication().getMainWindow().removeWindow(
+					UI.getCurrent().removeWindow(
 							getFilterWindow());
 
 				} catch (Exception e) {
@@ -236,7 +237,7 @@ public class FilterWindow extends Window {
 		gridLayout1.addComponent(arraySetSelect, 1, 1);
 		gridLayout1.addComponent(spaceLabel, 0, 2);
 		gridLayout1.addComponent(submit, 0, 3);
-		addComponent(gridLayout1);
+		setContent(gridLayout1);
 
 	}
 

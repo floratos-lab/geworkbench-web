@@ -16,37 +16,36 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisComment;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Tool;
-import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.NotebookDataListener;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
 import org.geworkbenchweb.genspace.ui.component.FBAuthWindow;
 import org.geworkbenchweb.genspace.ui.component.FBCommentWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.bibounde.vprotovis.PieChartComponent;
 import com.bibounde.vprotovis.chart.pie.PieLabelFormatter;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Validator;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Window;
 
 public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, NotebookDataListener {
@@ -115,7 +114,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		searchPanel.addComponent(fbUser, 4, 0);
 		searchPanel.setComponentAlignment(fbUser, Alignment.BOTTOM_RIGHT);
 		
-		searchButton.addListener(new Button.ClickListener() {
+		searchButton.addClickListener(new Button.ClickListener() {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -133,7 +132,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			}
 		});
 		
-		researchStats.addListener(new Button.ClickListener() {
+		researchStats.addClickListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent evt) {
 				String convertString = convertQueryString();
@@ -151,12 +150,12 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				PieChartComponent myPie = createPieChart(searchEvents);
 				PieChartComponent friendPie = createPieChart(friendsEvents);
 				
-				myPanel.addComponent(myPie);
-				friendPanel.addComponent(friendPie);
+				myPanel.setContent(LayoutUtil.addComponent(myPie));
+				friendPanel.setContent(LayoutUtil.addComponent(friendPie));
 				
 				hLayout.addComponent(myPanel);
 				hLayout.addComponent(friendPanel);
-				getApplication().getMainWindow().addWindow(comparisonWindow);
+				UI.getCurrent().addWindow(comparisonWindow);
 			}
 			
 			public String convertQueryString() {
@@ -231,10 +230,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			
 		});
 		
-		fbAuth.addListener(new Button.ClickListener() {
+		fbAuth.addClickListener(new Button.ClickListener() {
 			public void buttonClick(Button.ClickEvent evt) {
 				FBAuthWindow authWindow= new FBAuthWindow(login, fbUser);
-				getApplication().getMainWindow().addWindow(authWindow);
+				UI.getCurrent().addWindow(authWindow);
 			}
 		});
 
@@ -247,7 +246,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		}
 		dropdown = new Select("", Arrays.asList(toolNames));
 		dropdown.setImmediate(true);
-		dropdown.addListener(new Property.ValueChangeListener() {
+		dropdown.addValueChangeListener(new Property.ValueChangeListener() {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
@@ -265,7 +264,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		});
 
 		sortByDropdown.setImmediate(true);
-		sortByDropdown.addListener(new Property.ValueChangeListener() {
+		sortByDropdown.addValueChangeListener(new Property.ValueChangeListener() {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
@@ -351,7 +350,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			noteText.setImmediate(true);
 			//final String originalNote = e.getNote();
 			final String originalNote = noteValue;
-			noteText.addListener(new Property.ValueChangeListener() {
+			noteText.addValueChangeListener(new Property.ValueChangeListener() {
 				
 				/**
 				 * 
@@ -373,7 +372,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			
 			HorizontalLayout buttonPanel = new HorizontalLayout();
 			Button vParam = new Button("View Parameters");
-			vParam.addListener(new Button.ClickListener(){
+			vParam.addClickListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
 				List<AnalysisEventParameter> aepList;
 				String message = "";
@@ -390,36 +389,36 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 						message = message + "\n";
 					}
 					final Window paramWindow = new Window("Parameters for " + e.getToolname());
-					getApplication().getMainWindow().addWindow(paramWindow);
+					UI.getCurrent().addWindow(paramWindow);
 					VerticalLayout vLay = new VerticalLayout();
 					vLay.addComponent(new Label(message));
 					
 					Button ok = new Button("OK");
-					ok.addListener(new Button.ClickListener(){
+					ok.addClickListener(new Button.ClickListener(){
 						private static final long serialVersionUID = 1L;
 						
 						public void buttonClick(ClickEvent okEvent){
 							message = "";
-							getApplication().getMainWindow().removeWindow(paramWindow);
+							UI.getCurrent().removeWindow(paramWindow);
 						}
 					});
 					vLay.addComponent(ok);
-					paramWindow.addComponent(vLay);
+					paramWindow.setContent(vLay);
 				};
 				
 			});
 			
 			Button vComment = new Button("View Comments");
-			vComment.addListener(new Button.ClickListener() {
+			vComment.addClickListener(new Button.ClickListener() {
 				public void buttonClick(ClickEvent event) {
 					List<AnalysisComment> commentList = login.getGenSpaceServerFactory().getPrivUsageFacade().getAnalysisEventComment(e.getId());
 					CommentWindow cWindow = new CommentWindow(e, commentList, login);
-					getApplication().getMainWindow().addWindow(cWindow);
+					UI.getCurrent().addWindow(cWindow);
 				}
 			});
 			
 			Button cancel = new Button("Cancel");
-			cancel.addListener(new Button.ClickListener(){
+			cancel.addClickListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event){
@@ -430,7 +429,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			});
 			
 			Button save = new Button("Save");
-			save.addListener(new Button.ClickListener(){
+			save.addClickListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event){
@@ -441,21 +440,21 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			});
 			
 			Button fb = new Button("Facebook");
-			fb.addListener(new Button.ClickListener() {
+			fb.addClickListener(new Button.ClickListener() {
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent evt) {
 					if (login.getFBManager() == null) {
-						getApplication().getMainWindow().showNotification("Plase login Facebook first.");
+						Notification.show("Plase login Facebook first.");
 					} else {
 						FBCommentWindow commentWindow = new FBCommentWindow(login, e, fbUser);
-						getApplication().getMainWindow().addWindow(commentWindow);
+						UI.getCurrent().addWindow(commentWindow);
 					}
 				}
 			});
 			
 			Button privNote = new Button("View Private Notes");
-			privNote.addListener(new Button.ClickListener() {
+			privNote.addClickListener(new Button.ClickListener() {
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
@@ -463,7 +462,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					privNoteWindow.setWidth("300px");
 					privNoteWindow.setHeight("200px");
 					BorderLayout bLayout = new BorderLayout();
-					privNoteWindow.addComponent(bLayout);
+					privNoteWindow.setContent(bLayout);
 					
 					VerticalLayout vLayout = new VerticalLayout();
 					bLayout.addComponent(vLayout, BorderLayout.Constraint.CENTER);
@@ -483,7 +482,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 
 					GridLayout buttonLayout = new GridLayout(4,1);
 					Button noteSave = new Button("Save");
-					noteSave.addListener(new Button.ClickListener() {
+					noteSave.addClickListener(new Button.ClickListener() {
 						public void buttonClick(ClickEvent event) {
 							String privNote = ta.getValue().toString();
 							
@@ -513,7 +512,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					
 					vLayout.addComponent(buttonLayout);
 					
-					getApplication().getMainWindow().addWindow(privNoteWindow);
+					UI.getCurrent().addWindow(privNoteWindow);
 				}
 			});
 

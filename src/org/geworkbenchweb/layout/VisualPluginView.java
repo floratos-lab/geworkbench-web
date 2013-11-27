@@ -4,13 +4,17 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
+import org.geworkbenchweb.utils.LayoutUtil;
 
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Runo;
 
 /**
  * ViusalPluginView sets the visualplugin to the main layout.
@@ -89,8 +93,8 @@ public class VisualPluginView extends HorizontalLayout {
 		
 		VerticalLayout rightLayout = new VerticalLayout();
 		Panel right = new Panel(rightLayout);
-		rightLayout.setMargin(true, false, false, false);
-		right.setStyleName(Panel.STYLE_LIGHT);
+		rightLayout.setMargin(new MarginInfo(true, false, false, false));
+		right.setStyleName(Runo.PANEL_LIGHT);
 		right.addStyleName("feature-info");
 		right.setWidth("319px");
 
@@ -111,15 +115,15 @@ public class VisualPluginView extends HorizontalLayout {
 		left.addComponent(controls);
 		Panel panel = new Panel();
 		panel.setSizeFull();
-		panel.addComponent(content);
+		panel.setContent(LayoutUtil.addComponent(content));
 		left.addComponent(panel);
 		left.setExpandRatio(panel, 1);
 		right.setCaption("Description");
 		if (description != null && description != "") {
 			final Label l = new Label(
 					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
-							+ description + "</div></div>", Label.CONTENT_XHTML);
-			right.addComponent(l);
+							+ description + "</div></div>", ContentMode.HTML);
+			rightLayout.addComponent(l);
 		}
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);

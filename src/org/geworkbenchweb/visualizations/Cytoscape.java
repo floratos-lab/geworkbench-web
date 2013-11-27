@@ -11,15 +11,17 @@ import java.util.Map;
 import sun.misc.BASE64Decoder;
 
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.Page;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.LegacyComponent;
+import com.vaadin.ui.UI;
 
 /**
  * Server side component for the VCytoscape widget.
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VCytoscape.class)
-public class Cytoscape extends AbstractComponent {
+public class Cytoscape extends AbstractComponent implements LegacyComponent {
 
 	private static final long serialVersionUID = -6368440900242204532L;
 
@@ -34,7 +36,6 @@ public class Cytoscape extends AbstractComponent {
 	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
-		super.paintContent(target);
 		
 		target.addAttribute("layoutName", layoutName);
 
@@ -53,7 +54,6 @@ public class Cytoscape extends AbstractComponent {
 	 */
 	@Override
 	public void changeVariables(Object source, Map<String, Object> variables) {
-		super.changeVariables(source, variables);
 		
 		if(variables.containsKey("networkPNGData")) {
 
@@ -159,8 +159,9 @@ public class Cytoscape extends AbstractComponent {
         String downloadFileName = "CytoNetwork.png";
         String contentType = "image/png";
         try {
-            TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(getApplication(), downloadFileName, contentType, tempFile);
-            getWindow().open(resource, "_self");
+            TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(UI.getCurrent(), downloadFileName, contentType, tempFile);
+            //FIXME
+            Page.getCurrent().open(resource, "ExportPNG", true);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -198,8 +199,9 @@ public class Cytoscape extends AbstractComponent {
         String downloadFileName = "CytoNetwork.svg";
         String contentType = "image/svg+xml";
         try {
-            TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(getApplication(), downloadFileName, contentType, tempFile);
-            getWindow().open(resource, "_self");
+            TemporaryFileDownloadResource resource = new TemporaryFileDownloadResource(UI.getCurrent(), downloadFileName, contentType, tempFile);
+            //FIXME
+            Page.getCurrent().open(resource, "ExportSVG", true);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();

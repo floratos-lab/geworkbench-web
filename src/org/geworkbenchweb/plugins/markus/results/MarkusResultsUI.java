@@ -9,12 +9,12 @@ import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.utils.UserDirUtils;
 
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -58,8 +58,7 @@ public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 		addComponent(refreshBtn);
 		setComponentAlignment(refreshBtn, Alignment.TOP_RIGHT);
 	
-		Embedded browser = new Embedded("", new ExternalResource(MARKUS_RESULT_URL+results));
-		browser.setType(Embedded.TYPE_BROWSER);
+		BrowserFrame browser = new BrowserFrame("", new ExternalResource(MARKUS_RESULT_URL+results));
 		browser.setImmediate(true);
 		browser.setSizeFull();
 		addComponent(browser);
@@ -67,19 +66,19 @@ public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 		setHeight("100%");
 
 		setExpandRatio((Component)browser, 1.0f);			
-		refreshBtn.addListener(new RefreshListener(browser));
+		refreshBtn.addClickListener(new RefreshListener(browser));
 	}
 
 	private class RefreshListener implements Button.ClickListener{
 		private static final long serialVersionUID = 5620460689584816498L;
-		private Embedded browser = null;
+		private BrowserFrame browser = null;
 
-		public RefreshListener(Embedded b){
+		public RefreshListener(BrowserFrame b){
 			browser = b;
 		}
 		@Override
 		public void buttonClick(ClickEvent event) {
-			browser.requestRepaint();
+			browser.markAsDirty();
 		}
 	}
 

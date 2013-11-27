@@ -1,79 +1,61 @@
 package org.geworkbenchweb.plugins.cnkb.results;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.UserDirUtils;
-import org.geworkbenchweb.visualizations.Cytoscape; 
-import org.geworkbenchweb.plugins.PluginEntry;
-import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
-import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
+import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
+import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.Grid;
-import com.invient.vaadin.charts.InvientChartsConfig.DataLabel;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.Margin;
-import com.invient.vaadin.charts.InvientChartsConfig.LineConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.XAxis;
+import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Component;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.Reindeer;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * This class displays CNKB results in a Table and also a graph
@@ -94,7 +76,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
-	protected InvientCharts plot;
+	protected Chart plot;
 
 	private CNKBResultsUI menuBarInstance;
 
@@ -107,8 +89,18 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
+		if(!UserDirUtils.isResultSetAvailable(dataSetId)){
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			return;
+		}
+
 		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
 				.toObject(UserDirUtils.getResultSet(dataSetId));
+		
+		if(resultSet == null) {
+			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to IOException"));
+			return;
+		}
 	 
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
@@ -125,7 +117,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
-		tabPanel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
+		tabPanel.setSplitPosition(250, Sizeable.Unit.PIXELS);
 		tabPanel.setStyleName("small");
 		tabPanel.setLocked(false);
 
@@ -169,7 +161,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		slider.setStyleName("small");
 		throttlePanel = new VerticalSplitPanel();
 		throttlePanel.setSizeFull();	 
-		throttlePanel.setSplitPosition(200, Sizeable.UNITS_PIXELS);
+		throttlePanel.setSplitPosition(200, Unit.PIXELS);
 		throttlePanel.setStyleName("small");
 		throttlePanel.setLocked(false);
 		throttlePanel.setFirstComponent(plot);
@@ -187,42 +179,35 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	 * This method draws the Throttle Graph using Invient Charts Add-on.
 	 * 
 	 */
-	protected InvientCharts drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
+	protected Chart drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
 
-		InvientChartsConfig chartConfig = new InvientChartsConfig();
-		chartConfig.getGeneralChartConfig().setMargin(new Margin());
-		chartConfig.getGeneralChartConfig().getMargin().setRight(30);	 
+		Chart chart = new Chart();	
+		chart.setHeight("100%");
+
+		Configuration chartConfig = chart.getConfiguration();
+		chartConfig.getChart().setMarginRight(30);	 
 		chartConfig.getTitle().setText(resultSet.getCellularNetworkPreference().getTitle());
 
-		NumberXAxis numberXAxis = new NumberXAxis();
+		XAxis numberXAxis = new XAxis();
 		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 		String axisTile = null;
 		if (confidenceType != null)
 			axisTile = confidentTypeMap.get(confidenceType.toString());
 		if (axisTile != null)
-			numberXAxis.setTitle(new AxisTitle(axisTile));
+			numberXAxis.setTitle(axisTile);
 		else			
-		   numberXAxis.setTitle(new AxisTitle("Likelihood"));
+		   numberXAxis.setTitle("Likelihood");
 		numberXAxis.setMinPadding(0.05);
-		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
-		xAxesSet.add(numberXAxis);
-		chartConfig.setXAxes(xAxesSet);		
+		chartConfig.addxAxis(numberXAxis);		
 		
-		NumberYAxis numberYAxis = new NumberYAxis();
-		numberYAxis.setGrid(new Grid());
-		numberYAxis.getGrid().setLineWidth(1);
+		YAxis numberYAxis = new YAxis();
+		numberYAxis.setGridLineWidth(1);
 		numberYAxis.setMin(0d);
 		
-		numberYAxis.setTitle(new AxisTitle("# Interactions"));
-		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
-		yAxesSet.add(numberYAxis);
-		chartConfig.setYAxes(yAxesSet);	 
+		numberYAxis.setTitle("# Interactions");
+		chartConfig.addyAxis(numberYAxis);	 
 		chartConfig.getTooltip().setEnabled(true);
-		// Series data label formatter
-		LineConfig lineCfg = new LineConfig();
-		chartConfig.addSeriesConfig(lineCfg);
        
-	  
 	    double smallestIncrement = 0.01d;	   
 		Double maxConfidenceValue = resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType);
 		if (maxConfidenceValue != null && maxConfidenceValue > 1) {	 
@@ -235,29 +220,27 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	 
 		/* Tooltip formatter */
 		if (maxConfidenceValue != null && maxConfidenceValue <= 1 )
-		    chartConfig.getTooltip().setFormatterJsFunc(
+		    chartConfig.getTooltip().setFormatter(
 				"function() { "
 						+ " return '<b>' + this.series.name + '</b><br/>' +  "
 						+ "Math.round(((this.x+0.005)*100))/100 + ' '+ "
 						+ "' to 1 - ' + " + "this.y + ' interactions'" + "}");
 
 		else //this need to be fixed. Don't know how to pass maxX to function
-			 chartConfig.getTooltip().setFormatterJsFunc(
+			 chartConfig.getTooltip().setFormatter(
 						"function() { "
 								+ " return '<b>' + this.series.name + '</b><br/>' +  "
 								+ "Math.round(((this.x+0.005)*100))/100 + ' to max value - '+ "
 								+ "this.y + ' interactions'" + "}");
 		 
-		InvientCharts chart = new InvientCharts(chartConfig);	
-		chart.setHeight("100%");
-		XYSeries seriesData = new XYSeries("Total Distribution");
-		seriesData.setSeriesPoints(getTotalDistribution(seriesData, smallestIncrement));
-		chart.addSeries(seriesData);
+		DataSeries seriesData = new DataSeries("Total Distribution");
+		seriesData.setData(getTotalDistribution(smallestIncrement));
+		chartConfig.addSeries(seriesData);
 
 		for (String interactionType : ConfidentDataMap.keySet()) {
-			seriesData = new XYSeries(interactionType);			 
-			seriesData.setSeriesPoints(getDistribution(interactionType, smallestIncrement));
-			chart.addSeries(seriesData);
+			seriesData = new DataSeries(interactionType);			 
+			seriesData.setData(getDistribution(interactionType, smallestIncrement));
+			chartConfig.addSeries(seriesData);
 		}
 
 		return chart;
@@ -267,10 +250,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	 * Method is used to calculate the graph points for Protein-Protein
 	 * Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getDistribution(String interactionType, double smallestIncrement) {
+	private LinkedList<DataSeriesItem> getDistribution(String interactionType, double smallestIncrement) {
 
-		XYSeries seriesData = new XYSeries(interactionType);
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+		LinkedHashSet<DataSeriesItem> points = new LinkedHashSet<DataSeriesItem>();
 		Double x = null;
 		Double y = null;
 		int[] distribution = new int[101];
@@ -292,18 +274,18 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		x = 0.0;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
+			points.add(new DataSeriesItem(x, y));
 			x = x + smallestIncrement;
 		}
-		return points;
+		return new LinkedList<DataSeriesItem>(points);
 	}
 
 	/**
 	 * Method is used to calculate the graph points for all Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getTotalDistribution(XYSeries seriesData, double smallestIncrement) {
+	private LinkedList<DataSeriesItem> getTotalDistribution(double smallestIncrement) {
 
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+		LinkedHashSet<DataSeriesItem> points = new LinkedHashSet<DataSeriesItem>();
 
 		Double x = null;
 		Double y = null;
@@ -325,16 +307,17 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		x = 0.0d;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
+			points.add(new DataSeriesItem(x, y));
 			x = x + smallestIncrement;
 		}
-		return points;
+		return new LinkedList<DataSeriesItem>(points);
 	}
 
 	/**
 	 * Called to Export SVG of the Throttle Graph
 	 */
 	public void plotExportSVG() {
+		/*FIXME
 		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -344,7 +327,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 				System.out.println(chartSVGAvailableEvent.getSVG());
 			}
-		});
+		});*/
 	}
 
 	/**
@@ -352,7 +335,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	 */
 	public void plotPrint() {
 
-		plot.print();
+		/*FIXME
+		plot.print();*/
 
 	}
 
@@ -417,11 +401,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
 			if (hits == null || getInteractionTotalNum(resultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
 
-				MessageBox mb = new MessageBox(getWindow(), "Warning",
-						MessageBox.Icon.INFO,
+				MessageBox.showPlain(Icon.INFO, "Warning",
 						"There is no interaction to create a network. ",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 				return;
 			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
@@ -578,7 +560,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 	protected void updatePlot(CNKBResultSet resultSet, double minX, double maxX)
 	{
 		throttlePanel.replaceComponent(plot, drawPlot(resultSet, minX, maxX));
-		plot = (InvientCharts)throttlePanel.getFirstComponent();
+		plot = (Chart)throttlePanel.getFirstComponent();
 	}
 
 	@Override

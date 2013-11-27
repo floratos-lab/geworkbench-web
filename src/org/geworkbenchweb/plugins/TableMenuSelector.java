@@ -1,16 +1,16 @@
 package org.geworkbenchweb.plugins;
 
   
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.PreferenceOperations;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
- 
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.AbstractTextField; 
-import com.vaadin.ui.MenuBar; 
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Window; 
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 public abstract class TableMenuSelector extends MenuBar {
 	
@@ -66,13 +66,10 @@ public abstract class TableMenuSelector extends MenuBar {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				final Window searchWindow = new Window();			 
 				searchWindow.setClosable(true);
-				((AbstractOrderedLayout) searchWindow.getLayout())
-						.setSpacing(true);
 				searchWindow.setWidth("300px");
 				searchWindow.setHeight("120px");
 				searchWindow.setResizable(false);
@@ -86,9 +83,7 @@ public abstract class TableMenuSelector extends MenuBar {
 				search.setInputPrompt("Please enter search string");
 				search.setImmediate(true);
 
-				final Window mainWindow = getApplication().getMainWindow();
-
-				search.addListener(new TextChangeListener() {
+				search.addTextChangeListener(new TextChangeListener() {
 					private static final long serialVersionUID = 1048639156493298177L;
 
 					public void textChange(TextChangeEvent event) {
@@ -106,8 +101,8 @@ public abstract class TableMenuSelector extends MenuBar {
 					}
 				});
 
-				searchWindow.addComponent(search);
-				mainWindow.addWindow(searchWindow);
+				searchWindow.setContent(LayoutUtil.addComponent(search));
+				UI.getCurrent().addWindow(searchWindow);
 				searchWindow.center();
 			}
 		});

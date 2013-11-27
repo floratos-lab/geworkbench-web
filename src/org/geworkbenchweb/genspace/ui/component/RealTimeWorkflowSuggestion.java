@@ -13,7 +13,7 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Sizeable;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -71,7 +71,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		setCompositionRoot(splitter);
 	}
 
-	private AbstractLayout buildMainLayout() {
+	private VerticalSplitPanel buildMainLayout() {
 		/**
 		 * setup general layout of panel
 		 * */
@@ -128,7 +128,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		toolListPanel.addComponent(toolPanel, BorderLayout.Constraint.CENTER);
 		toolListPanel.addComponent(resultsPanel, BorderLayout.Constraint.SOUTH);
 
-		button.addListener(new Button.ClickListener(){
+		button.addClickListener(new Button.ClickListener(){
 			
 			private static final long serialVersionUID = 1L;
 
@@ -210,17 +210,15 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 //		toolListPanel.setExpandRatio(resultsPanel, 1.0f);
 		
 		// add both panels
-		splitter.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);
+		splitter.setSplitPosition(20, Unit.PERCENTAGE);
 		
 		Panel leftPanel = new Panel();
 		leftPanel.setHeight("500px");
-		leftPanel.setScrollable(true);
-		leftPanel.addComponent(workflowViewerPanel);
+		leftPanel.setContent(workflowViewerPanel);
 		
 		Panel rightPanel = new Panel();
 		rightPanel.setHeight("500px");
-		rightPanel.setScrollable(true);
-		rightPanel.addComponent(suggestionsPanel);
+		rightPanel.setContent(suggestionsPanel);
 		
 		splitter.addComponent(leftPanel);
 		splitter.addComponent(rightPanel);

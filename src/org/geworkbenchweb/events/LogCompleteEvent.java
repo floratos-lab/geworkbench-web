@@ -1,7 +1,5 @@
 package org.geworkbenchweb.events;
 
-import org.geworkbench.components.genspace.server.stubs.User;
-
 import com.github.wolfie.blackboard.Event;
 import com.github.wolfie.blackboard.Listener;
 

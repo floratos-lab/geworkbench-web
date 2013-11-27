@@ -6,19 +6,23 @@ import java.util.List;
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Select;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class NetworkPanel extends SocialPanel{
@@ -91,7 +95,7 @@ public class NetworkPanel extends SocialPanel{
 		this.cachedMyNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 		this.cachedAllNetWorks = login.getGenSpaceServerFactory().getNetworkOps().getAllNetworks();
 		this.createMainLayout();
-		this.networkPanel.addComponent(mainLayout);
+		this.networkPanel.setContent(mainLayout);
 		this.blLayout.addComponent(networkPanel, BorderLayout.Constraint.CENTER);
 	}
 	
@@ -138,8 +142,8 @@ public class NetworkPanel extends SocialPanel{
 		Panel newPanel = new Panel(netName);
 		newPanel.setWidth("200px");
 		Label moderationInfo = new Label(this.networkLabelName + usrName);
-		newPanel.addComponent(moderationInfo);
-		newPanel.addListener(new ClickListener() {
+		newPanel.setContent(LayoutUtil.addComponent(moderationInfo));
+		newPanel.addClickListener(new ClickListener() {
 			
 			/**
 			 * 
@@ -187,9 +191,9 @@ public class NetworkPanel extends SocialPanel{
 		
 		networkSelect = new Select(this.selectTitle, this.container);
 		networkSelect.setImmediate(true);
-		networkSelect.setItemCaptionMode(Select.ITEM_CAPTION_MODE_PROPERTY);
+		networkSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		networkSelect.setItemCaptionPropertyId("name");
-		networkSelect.addListener(new Property.ValueChangeListener(){
+		networkSelect.addValueChangeListener(new Property.ValueChangeListener(){
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event){
@@ -200,14 +204,14 @@ public class NetworkPanel extends SocialPanel{
 		
 		Button goButton = new Button(this.go);
 		goButton.setWidth("150px");
-		goButton.addListener(new Button.ClickListener(){
+		goButton.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event){
 					if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()){
 						if (isCachedMyNetWorks() == null) {						
 							NetConfirmWindow ncw = new NetConfirmWindow(selectedNet.getName());
-							getApplication().getMainWindow().addWindow(ncw);
+							UI.getCurrent().addWindow(ncw);
 							
 							//Should wait for administrator's approval?
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
@@ -220,7 +224,7 @@ public class NetworkPanel extends SocialPanel{
 		});
 		
 		Button leaveButton = new Button(this.leaveSNet);
-		leaveButton.addListener(new Button.ClickListener(){
+		leaveButton.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 						
 			public void buttonClick(ClickEvent event){
@@ -250,14 +254,14 @@ public class NetworkPanel extends SocialPanel{
 		
 		this.createNet = new TextField(this.createNetString);
 		Button createButton = new Button(this.createTitle);
-		createButton.addListener(new Button.ClickListener() {
+		createButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
 				String textValue = createNet.getValue().toString();
 				if (textValue != null && !textValue.isEmpty()) {
 					login.getGenSpaceServerFactory().getNetworkOps().createNetwork(textValue);
-					getApplication().getMainWindow().showNotification("This network has been created");
+					Notification.show("This network has been created");
 					updatePanel();
 				}
 			}

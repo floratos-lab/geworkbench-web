@@ -1,32 +1,28 @@
 package org.geworkbenchweb.plugins.anova.results; 
  
 import org.geworkbenchweb.plugins.TableMenuSelector;
-import org.geworkbenchweb.plugins.Tabular;  
-import org.geworkbenchweb.plugins.anova.results.Constants; 
- 
- 
+import org.geworkbenchweb.plugins.Tabular;
+import org.geworkbenchweb.pojos.Preference;
+import org.geworkbenchweb.utils.LayoutUtil;
+import org.geworkbenchweb.utils.PreferenceOperations;
+
+import com.vaadin.data.Property;
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.TextField; 
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer; 
-import com.vaadin.ui.CheckBox;
- 
- 
-import com.vaadin.data.Property; 
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
- 
-import com.vaadin.ui.Button; 
+import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-  
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.utils.PreferenceOperations;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
  
 public class AnovaTableMenuSelector extends TableMenuSelector {
@@ -60,8 +56,6 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						final Window displayPrefWindow = new Window();
 						displayPrefWindow.setModal(true);
 						displayPrefWindow.setClosable(true);
-						((AbstractOrderedLayout) displayPrefWindow.getLayout())
-								.setSpacing(true);
 						displayPrefWindow.setWidth("320px");
 						displayPrefWindow.setHeight("280px");
 						displayPrefWindow.setResizable(false);
@@ -139,9 +133,6 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						 
 						
 						
-						final Window mainWindow = getApplication()
-								.getMainWindow();
-
 						Button submit = new Button("Submit",
 								new Button.ClickListener() {
 
@@ -175,8 +166,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 											getTabular().getPagedTableView()
 													.setContainerDataSource(getTabular().getIndexedContainer());		 
 															 
-											mainWindow
-													.removeWindow(displayPrefWindow);
+											UI.getCurrent().removeWindow(displayPrefWindow);
 										    
 										} catch (Exception e) {
 											e.printStackTrace();
@@ -185,10 +175,10 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 								});
 						submit.setClickShortcut(KeyCode.ENTER);
 						 
-						displayPrefWindow.addComponent(gridLayout);
-						
-						displayPrefWindow.addComponent(submit);
-						mainWindow.addWindow(displayPrefWindow);
+						VerticalLayout layout = LayoutUtil.addComponent(gridLayout);
+						layout.addComponent(submit);
+						displayPrefWindow.setContent(layout);
+						UI.getCurrent().addWindow(displayPrefWindow);
 					}
 				});
 
@@ -206,8 +196,6 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		final Window filterWindow = new Window();
 		filterWindow.setModal(true);
 		filterWindow.setClosable(true);
-		((AbstractOrderedLayout) filterWindow.getLayout())
-				.setSpacing(true);
 		filterWindow.setWidth("300px");
 		filterWindow.setHeight("200px");
 		filterWindow.setResizable(false);
@@ -238,17 +226,17 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		og.select(thresholdControl);
 
 		final TextField threshold = new TextField();
-		threshold.setWidth(200);
+		threshold.setWidth(200, Unit.PIXELS);
 		threshold.setImmediate(true);
 		if (thresholdControl == Constants.ThresholdDisplayControl.show_all.ordinal())
 			threshold.setEnabled(false);
 		else
 		{
 			threshold.setEnabled(true);
-			threshold.setValue(thresholdValue);
+			threshold.setValue(Float.toString(thresholdValue));
 		}
 		
-		og.addListener(new Property.ValueChangeListener() {
+		og.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -273,8 +261,6 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		              
 			}
 		}); 
-		final Window mainWindow = getApplication()
-				.getMainWindow();
 
 		Button submit = new Button("Submit",
 				new Button.ClickListener() {
@@ -294,14 +280,11 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 								Float value = getPvalThreshold(threshold.getValue());
 								if (value == null)
 								{
-									MessageBox mb = new MessageBox(
-											getWindow(),
+									MessageBox.showPlain(
+											Icon.WARN,
 											"Warning",
-											MessageBox.Icon.WARN,
 											"Please enter a number between 0 and 1 for P-value threshold.",
-											new MessageBox.ButtonConfig(
-													ButtonType.OK, "Ok"));
-									mb.show();
+											ButtonId.OK);
 									return;
 								}
 								anovaTablePreferences.setThresholdValue(value);
@@ -311,14 +294,11 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 								Float value = getFStatThreshold(threshold.getValue());
 								if (value == null)
 								{
-									MessageBox mb = new MessageBox(
-											getWindow(),
+									MessageBox.showPlain(
+											Icon.WARN,
 											"Warning",
-											MessageBox.Icon.WARN,
 											"Please enter non-negative number for F-statistic threshold.",
-											new MessageBox.ButtonConfig(
-													ButtonType.OK, "Ok"));
-									mb.show();
+											ButtonId.OK);
 									return;
 								}
 								anovaTablePreferences.setThresholdValue(value);
@@ -341,8 +321,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 							getTabular().getPagedTableView()
 									.setContainerDataSource(getTabular().getIndexedContainer());		 
 											 
-							mainWindow
-									.removeWindow(filterWindow);
+							UI.getCurrent().removeWindow(filterWindow);
 						    
 					 
 						} catch (Exception e) {
@@ -351,10 +330,11 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 					}
 				});
 		submit.setClickShortcut(KeyCode.ENTER);
-		filterWindow.addComponent(og);
-		filterWindow.addComponent(threshold);
-		filterWindow.addComponent(submit);
-		mainWindow.addWindow(filterWindow);
+		VerticalLayout layout = LayoutUtil.addComponent(og);
+		layout.addComponent(threshold);
+		layout.addComponent(submit);
+		filterWindow.setContent(layout);
+		UI.getCurrent().addWindow(filterWindow);
 
 	} 
 	

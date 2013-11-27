@@ -7,12 +7,13 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.restfb.types.Comment;
 import com.restfb.types.Post;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
@@ -20,6 +21,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextArea;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -102,23 +104,27 @@ public class FBCommentWindow extends Window{
 	}
 	
 	private void update() {
-		this.curpost = this.login.getFBManager().searchExistingPost(this.searchString);
-		this.setData();
-		this.makeLayout();
-		this.login.getPusher().push();
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				FBCommentWindow.this.curpost = FBCommentWindow.this.login.getFBManager().searchExistingPost(FBCommentWindow.this.searchString);
+				FBCommentWindow.this.setData();
+				FBCommentWindow.this.makeLayout();
+			}
+		});
 	}
 	
 	private void makeLayout() {
-		this.removeAllComponents();
+		this.setContent(null);
 		
 		VerticalLayout vLayout = new VerticalLayout();
-		this.addComponent(vLayout);
+		this.setContent(vLayout);
 		
 		Panel inputPanel = new Panel("New Comments");
 		vLayout.addComponent(inputPanel);
 		
 		VerticalLayout yLayout = new VerticalLayout();
-		inputPanel.addComponent(yLayout);
+		inputPanel.setContent(yLayout);
 		
 		HorizontalLayout hLayout = new HorizontalLayout();
 		yLayout.addComponent(hLayout);
@@ -135,7 +141,7 @@ public class FBCommentWindow extends Window{
 		hLayout.addComponent(geFB);
 		
 		Button publish = new Button("Publish");
-		publish.addListener(new Button.ClickListener() {
+		publish.addClickListener(new Button.ClickListener() {
 			/**
 			 * 
 			 */
@@ -155,7 +161,7 @@ public class FBCommentWindow extends Window{
 				return ;
 		Panel historyPanel = new Panel("History Comments on Facebook");
 		vLayout.addComponent(historyPanel);
-		historyPanel.addComponent(this.commentTable);
+		historyPanel.setContent(LayoutUtil.addComponent(this.commentTable));
 		
 	}
 

@@ -3,25 +3,29 @@ package org.geworkbenchweb.layout;
 import java.util.ArrayList;
 import java.util.List;
 
- 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory; 
-import com.vaadin.event.Action; 
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
+import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout; 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
 
  
 
@@ -62,7 +66,6 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 		final Window nameWindow = new Window();
 		nameWindow.setModal(true);
 		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("150px");
 		nameWindow.setResizable(false);
@@ -95,48 +98,46 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							String name = markerset.getName();
 							if (name.equals(setName.getValue())){
 								final String name1 = name;
-								MessageBox mb = new MessageBox(sender.getApplication().getMainWindow(), 
+								MessageBox.showPlain(Icon.INFO, 
 										"Warning", 
-										MessageBox.Icon.INFO, 
 										"There is a Marker Subset with the name \"" +
 										name +
 										"\". Click \"Ok\" to add markers to same set." +
 										" or Click \"Cancel\" to add set with different name",   
-										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
-										new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
-								mb.show(new MessageBox.EventListener() {
-									private static final long serialVersionUID = 1L;
-
-									@Override
-									public void buttonClicked(ButtonType buttonType) {
-										if(buttonType.equals(ButtonType.CANCEL)) {
-											return;
-										} else {
-											ArrayList<String> markers	 = 	markerset.getPositions();
-											ArrayList<String> newmarkers = 	new ArrayList<String>();
-											for(int i=0; i<temp.length; i++) {
-												String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
-												String[] dataA = data.split("\\s+\\(");
-												if (!markers.contains(dataA[0])) {
-													markers.add(dataA[0]);
-													newmarkers.add(dataA[0]);
+										new MessageBoxListener() {
+		
+											@Override
+											public void buttonClicked(ButtonId buttonId) {
+												if(buttonId.equals(ButtonId.CANCEL)) {
+													return;
+												} else {
+													ArrayList<String> markers	 = 	markerset.getPositions();
+													ArrayList<String> newmarkers = 	new ArrayList<String>();
+													for(int i=0; i<temp.length; i++) {
+														String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
+														String[] dataA = data.split("\\s+\\(");
+														if (!markers.contains(dataA[0])) {
+															markers.add(dataA[0]);
+															newmarkers.add(dataA[0]);
+														}
+													}
+													if (newmarkers.size()>0) {
+														markerset.setPositions(markers);
+														FacadeFactory.getFacade().store(markerset);
+														markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
+														for(int j=0; j<newmarkers.size(); j++) {
+															markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
+															markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), "setName").setValue(newmarkers.get(j));
+															markerSetTree.setParent(newmarkers.get(j)+markerset.getId(), markerset.getId());
+															markerSetTree.setChildrenAllowed(newmarkers.get(j)+markerset.getId(), false);
+														}
+													}
 												}
 											}
-											if (newmarkers.size()>0) {
-												markerset.setPositions(markers);
-												FacadeFactory.getFacade().store(markerset);
-												markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
-												for(int j=0; j<newmarkers.size(); j++) {
-													markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
-													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), "setName").setValue(newmarkers.get(j));
-													markerSetTree.setParent(newmarkers.get(j)+markerset.getId(), markerset.getId());
-													markerSetTree.setChildrenAllowed(newmarkers.get(j)+markerset.getId(), false);
-												}
-											}
-										}
-									}
-								});
-								sender.getApplication().getMainWindow().removeWindow(nameWindow);
+										},
+										ButtonId.OK,
+										ButtonId.CANCEL);
+								UI.getCurrent().removeWindow(nameWindow);
 								return;
 							}
 						}
@@ -158,7 +159,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							markerSetTree.setParent(markers.get(j)+subSetId, subSetId);
 							markerSetTree.setChildrenAllowed(markers.get(j)+subSetId, false);
 						}
-						sender.getApplication().getMainWindow().removeWindow(nameWindow);
+						UI.getCurrent().removeWindow(nameWindow);
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -166,9 +167,10 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(setName);
-		nameWindow.addComponent(submit);
-		sender.getApplication().getMainWindow().addWindow(nameWindow);
+		VerticalLayout layout = LayoutUtil.addComponent(setName);
+		layout.addComponent(submit);
+		nameWindow.setContent(layout);
+		UI.getCurrent().addWindow(nameWindow);
 	}
 	
 	

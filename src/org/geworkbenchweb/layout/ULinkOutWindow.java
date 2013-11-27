@@ -1,7 +1,9 @@
 package org.geworkbenchweb.layout;
 
+import org.geworkbenchweb.utils.LayoutUtil;
+
 import com.vaadin.data.Property;
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
@@ -39,7 +41,7 @@ public class ULinkOutWindow extends Window {
 		lay.setImmediate(true);
 		lay.setStyleName(Reindeer.LAYOUT_WHITE);
 		
-		dataBase.addListener(new Property.ValueChangeListener() {
+		dataBase.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -73,8 +75,8 @@ public class ULinkOutWindow extends Window {
 			}
 		});
 		
-		addComponent(dataBase);
-		addComponent(lay);
-		
+		VerticalLayout layout = LayoutUtil.addComponent(dataBase);
+		layout.addComponent(lay);
+		setContent(layout);		
 	}
 }

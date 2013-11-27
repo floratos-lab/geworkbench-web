@@ -27,7 +27,7 @@ import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -50,7 +50,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		setImmediate(true);
 		setStyleName(Reindeer.SPLITPANEL_SMALL);
 		setLocked(true);
-		setSplitPosition(25, com.vaadin.terminal.Sizeable.UNITS_PIXELS); //((float) 2.3);
+		setSplitPosition(25, Unit.PIXELS); //((float) 2.3);
 
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");

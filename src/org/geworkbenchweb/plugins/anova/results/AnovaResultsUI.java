@@ -167,7 +167,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			if (header[i].equals("Marker") || header[i].equals("Gene Symbol") )
 				dataIn.addContainerProperty(header[i], String.class, "");
 			else
-				dataIn.addContainerProperty(header[i], Float.class, "");
+				dataIn.addContainerProperty(header[i], Double.class, "");
 
 		}
 

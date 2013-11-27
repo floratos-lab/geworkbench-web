@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.utils.LayoutUtil;
 
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.terminal.DownloadStream;
+import com.vaadin.server.ClassResource;
+import com.vaadin.server.DownloadStream;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -80,11 +82,7 @@ public class UUserAuth extends VerticalLayout {
 		Panel aboutPanel = new Panel("About geWorkbench");
 		aboutPanel.setStyleName("xpanel");
 
-        VerticalLayout aboutWindowLayout = (VerticalLayout) aboutPanel.getContent();
-        aboutWindowLayout.setMargin(true);
-        aboutWindowLayout.setSpacing(true);
-        
-        DownloadStream downloadStream = new ClassResource("aboutMessage.html", getApplication()).getStream();
+        DownloadStream downloadStream = new ClassResource("aboutMessage.html").getStream();
         InputStream inputstream = downloadStream.getStream();
         String text = "Sorry, 'About' text is missing."; // default text
         StringBuilder sb = new StringBuilder();
@@ -103,11 +101,12 @@ public class UUserAuth extends VerticalLayout {
         }
 
         aboutMessage.setValue(text);
-        aboutMessage.setContentMode(Label.CONTENT_XHTML);
-        aboutPanel.addComponent(aboutMessage);
+        aboutMessage.setContentMode(ContentMode.HTML);
 
+        VerticalLayout aboutWindowLayout = LayoutUtil.addComponent(aboutMessage);
         aboutWindowLayout.addComponent(closeMessageButton);
         aboutWindowLayout.setComponentAlignment(closeMessageButton, Alignment.TOP_RIGHT);
+        aboutPanel.setContent(aboutWindowLayout);
         
         aboutPanel.setWidth("50%");
 		loginForm.addComponent(aboutPanel);

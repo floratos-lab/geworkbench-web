@@ -11,6 +11,7 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -86,13 +87,13 @@ public class PrivacyPanel extends SocialPanel{
 		this.privacyPanel = new Panel(this.panelTitle);
 		this.privacyPanel.setWidth("600px");
 		this.createMainLayout();
-		this.privacyPanel.addComponent(this.vLayout);
+		this.privacyPanel.setContent(this.vLayout);
 		this.bLayout.addComponent(privacyPanel, BorderLayout.Constraint.CENTER);
 	}
 	
 	private void createMainLayout() {
 		this.vLayout = new VerticalLayout();
-		this.privacyPanel.addComponent(vLayout);
+		this.privacyPanel.setContent(vLayout);
 		
 		this.selectLabel = new Label(selectString);
 		vLayout.addComponent(selectLabel);
@@ -133,7 +134,7 @@ public class PrivacyPanel extends SocialPanel{
 		friendSelect.setRows(10);
 		friendSelect.setMultiSelect(true);
 		friendSelect.setWidth("200px");
-		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
+		friendSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		friendSelect.setItemCaptionPropertyId("username");
 	}
 	
@@ -175,7 +176,7 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void createSaveButton(){
 		this.saveButton = new Button(this.save);
-		this.saveButton.addListener(new Button.ClickListener(){
+		this.saveButton.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {

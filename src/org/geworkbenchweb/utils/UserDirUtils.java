@@ -242,6 +242,15 @@ public class UserDirUtils {
 		return getDataFromFile(fileName);
 	}
 
+	public static boolean isResultSetAvailable(long resultSetId) {
+
+		ResultSet res 			=	FacadeFactory.getFacade().find(ResultSet.class, resultSetId);
+		String dataName 		=	String.valueOf(resultSetId);
+		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
+				SLASH + res.getOwner() + SLASH + RESULTSETS + SLASH + dataName + RES_EXTENSION;
+		return new File(fileName).exists();
+	}
+
 	/* deserialize the result set content */
 	public static Object deserializeResultSet(Long resultSetId) throws FileNotFoundException, IOException, ClassNotFoundException {
 		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,

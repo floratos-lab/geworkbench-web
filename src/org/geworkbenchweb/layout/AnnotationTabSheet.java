@@ -13,6 +13,7 @@ import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -52,7 +53,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label cHeading 		=	new Label("User Comments:");
 		cHeading.setStyleName(Reindeer.LABEL_H2);
-		cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
+		cHeading.setContentMode(ContentMode.PREFORMATTED);
 		commentsLayout.addComponent(cHeading);
 		
 		Map<String, Object> params 		= 	new HashMap<String, Object>();
@@ -78,7 +79,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label commentHead 		=	new Label("Enter new comment here:");
 		commentHead.setStyleName(Reindeer.LABEL_H2);
-		commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		commentHead.setContentMode(ContentMode.PREFORMATTED);
 		final TextArea dataArea = 	new TextArea();
 		dataArea.setRows(6);
 		dataArea.setWidth("100%");
@@ -131,7 +132,7 @@ public class AnnotationTabSheet extends TabSheet {
 
 		Label historyHead 		=	new Label("Data History:");
 		historyHead.setStyleName(Reindeer.LABEL_H2);
-		historyHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		historyHead.setContentMode(ContentMode.PREFORMATTED);
 		dataHistory.addComponent(historyHead);
 		
 		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
@@ -141,7 +142,7 @@ public class AnnotationTabSheet extends TabSheet {
 		for(int i=0; i<histories.size(); i++) {
 			DataHistory dH = (DataHistory) histories.get(i);
 			Label d = new Label(dH.getData());
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			d.setContentMode(ContentMode.PREFORMATTED);
 			dataHistory.addComponent(d);
 		}
 		
@@ -151,7 +152,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label infoHead 		=	new Label("Experiment Information:");
 		infoHead.setStyleName(Reindeer.LABEL_H2);
-		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		infoHead.setContentMode(ContentMode.PREFORMATTED);
 		expInfo.addComponent(infoHead);
 		
 		Map<String, Object> iParams 		= 	new HashMap<String, Object>();
@@ -161,7 +162,7 @@ public class AnnotationTabSheet extends TabSheet {
 		for(int i=0; i<info.size(); i++) {
 			ExperimentInfo eI = (ExperimentInfo) info.get(i);
 			Label d = new Label(eI.getInfo());
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			d.setContentMode(ContentMode.PREFORMATTED);
 			expInfo.addComponent(d);
 		}
 	

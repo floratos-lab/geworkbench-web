@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.event.MouseEvents.ClickEvent;
@@ -43,7 +44,7 @@ public class FriendPanel extends SocialPanel{
 		this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 		
 		this.createMainLayout();
-		this.friendPanel.addComponent(mainLayout);
+		this.friendPanel.setContent(mainLayout);
 		blLayout.addComponent(friendPanel, BorderLayout.Constraint.CENTER);
 	}
 	
@@ -57,12 +58,12 @@ public class FriendPanel extends SocialPanel{
 			this.blLayout.removeAllComponents();
 		}
 		
-		if (this.friendPanel.getComponentIterator().hasNext()) {
-			this.friendPanel.removeAllComponents();
+		if (this.friendPanel.iterator().hasNext()) {
+			this.friendPanel.setContent(null);
 		}
 		
 		this.createMainLayout();
-		this.friendPanel.addComponent(mainLayout);
+		this.friendPanel.setContent(mainLayout);
 		this.blLayout.addComponent(friendPanel, BorderLayout.Constraint.CENTER);
 	}
 	
@@ -85,7 +86,7 @@ public class FriendPanel extends SocialPanel{
 			tempAffiliation = tempUser.getLabAffiliation();
 			tempPanel = new Panel(tempPanelTitle);
 			tempPanel.setWidth("200px");
-			tempPanel.addListener(new ClickListener(){
+			tempPanel.addClickListener(new ClickListener(){
 
 				private static final long serialVersionUID = 1L;
 				
@@ -102,7 +103,7 @@ public class FriendPanel extends SocialPanel{
 				}				
 			});
 			tempAffLabel = new Label(tempAffiliation);
-			tempPanel.addComponent(tempAffLabel);
+			tempPanel.setContent(LayoutUtil.addComponent(tempAffLabel));
 			mainLayout.addComponent(tempPanel);
 		}
 	}
