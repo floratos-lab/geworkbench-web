@@ -36,6 +36,7 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRepository;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRepositoryService;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 
 
@@ -54,7 +55,7 @@ public class GenSpaceServerFactory {
 	private String SERVER_ADDR = "http://" + RuntimeEnvironmentSettings.SERVER + ":8080";
 	
 	public Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 //	private static UserFacade userFacade;
 //	private static UsageInformation usageFacade;
 //	private static FriendFacade friendFacade;
@@ -98,7 +99,7 @@ public class GenSpaceServerFactory {
 		return bos.toByteArray();
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login)
+	public void setGenSpaceLogin(GenSpaceLogin_1 login)
 	{
 		this.login = login;
 	}
@@ -299,9 +300,16 @@ public class GenSpaceServerFactory {
 				logout();
 
 				this.username = username;
+				
+				System.out.println("Login username: " + this.username);
+				
 				this.password = UserWrapper.getEncryptedPassword(password.toCharArray());
 				
+				System.out.println("Password: " + this.password);
+				
 				user = getUserOps().getMe();
+				
+				System.out.println("Check user: " + user + " " + user.getUsername());
 				//TODO
 					return true;
 			} 
@@ -345,6 +353,7 @@ public class GenSpaceServerFactory {
 	}
 
 	public String getUsername() {
+		System.out.println("Check user in getUsername: " + this.user);
 		if(user == null)
 			return null;
 		return user.getUsername();

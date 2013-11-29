@@ -6,16 +6,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 public class UserWrapper {
 	private User delegate;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	public User getDelegate() {
 		return delegate;
 	}
-	public UserWrapper(User delegate, GenSpaceLogin login) {
+	public UserWrapper(User delegate, GenSpaceLogin_1 login) {
 		this.delegate = delegate;
 		this.login = login;
 	}

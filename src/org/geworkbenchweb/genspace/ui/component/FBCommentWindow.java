@@ -7,6 +7,7 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.restfb.types.Comment;
 import com.restfb.types.Post;
@@ -36,7 +37,7 @@ public class FBCommentWindow extends Window{
 	
 	private static String comDate = "Comment Date";
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private String title;
 	
@@ -55,9 +56,10 @@ public class FBCommentWindow extends Window{
 	private ThemeResource gefb = new ThemeResource("img/gefbtrans.png");
 	
 	private Label fbUserNotebook;
+	private ICEPush pusher = new ICEPush();
 	
-	public FBCommentWindow(GenSpaceLogin login, AnalysisEvent e, Label fbUser) {
-		this.login = login;
+	public FBCommentWindow(GenSpaceLogin_1 login2, AnalysisEvent e, Label fbUser) {
+		this.login = login2;
 		this.e = e;
 		this.title = e.getToolname() + ": " + e.getCreatedAt();
 		this.fbUserNotebook = fbUser;

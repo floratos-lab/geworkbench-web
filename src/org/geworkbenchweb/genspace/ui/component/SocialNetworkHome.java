@@ -6,11 +6,14 @@ import java.util.Stack;
 
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 
 import com.vaadin.ui.AbsoluteLayout;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -98,7 +101,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		setCompositionRoot(this.mainLayout);
 	}*/
 	
-	public SocialNetworkHome(GenSpaceLogin login)
+	public SocialNetworkHome(GenSpaceLogin_1 login)
 	{
 		super(login);
 	}
@@ -107,7 +110,8 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		instance = this;
 		this.last = new Stack<SocialPanel>();
 		makeLayout();
-		setCompositionRoot(this.mainLayout);
+		//setCompositionRoot(this.mainLayout);
+		setCompositionRoot(this.sbcLayout);
 	}
 	
 	public SocialNetworkHome getInstance() {
@@ -143,12 +147,19 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		emptyLabel.setWidth("40px");
 		bcLayout.addComponent(emptyLabel);
 		bcLayout.addComponent(contentLayout);
-		
+		sbcLayout.setSpacing(true);
 		sbcLayout.addComponent(searchLayout);
 		emptyLabel = new Label();
 		sbcLayout.addComponent(emptyLabel);
 		sbcLayout.addComponent(bcLayout);
 		
+		if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+			//return ;
+		}else{
+			//searchRosterFrame();
+		}
+		
+	
 		mainLayout.addComponent(sbcLayout);
 	}
 	
@@ -156,7 +167,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		searchLayout = new HorizontalLayout();
 		Label genSpaceLabel = new Label("<b>" + this.GenSpace + "</b>", Label.CONTENT_XHTML);
 		Label emptyLabel = new Label();
-		emptyLabel.setWidth("400px");
+		emptyLabel.setWidth("70px");
 		search = new ComboBox(this.Search);
 		search.setTextInputAllowed(true);
 		search.setNewItemsAllowed(true);
@@ -191,15 +202,17 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				getApplication().getMainWindow().addWindow(usw);
 			}
 		});
-		
+		searchLayout.setSpacing(true);
 		searchLayout.addComponent(genSpaceLabel);
 		searchLayout.addComponent(emptyLabel);
 		searchLayout.addComponent(search);
 		searchLayout.addComponent(go);
+		searchLayout.setComponentAlignment(go, Alignment.BOTTOM_CENTER);
 	}
 	
 	private void makeButtonLayout() {
 		this.buttonLayout = new VerticalLayout();
+		buttonLayout.setSpacing(true);
 		Button profile = new Button(this.title);
 		profile.addListener(new Button.ClickListener(){
 			
@@ -242,7 +255,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		});
 		friend.setWidth("100px");
 		
-		Button chat = new Button(this.chat);
+		/*Button chat = new Button(this.chat);
 		chat.setWidth("100px");
 		chat.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -255,7 +268,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				searchRosterFrame();
 				searchAFWindow();
 			}
-		});
+		});*/
 		
 		Button bSettings = new Button(this.settings);
 		bSettings.setWidth("100px");
@@ -266,7 +279,6 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 					if (!login.getGenSpaceServerFactory().isLoggedIn()) {
 						return ;
 					}
-					
 					privacyPanel.updatePanel();
 					setContent(privacyPanel);
 				}			
@@ -280,10 +292,11 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			public void buttonClick(ClickEvent event) {
 				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
 					return ;
-				}
-				
+				}		
+				System.out.println("check null: "+viewPanel.toString());
 				viewPanel.updatePanel();
 				setContent(viewPanel);
+				viewPanel.attachPusher();
 			}
 		});
 		
@@ -311,7 +324,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		buttonLayout.addComponent(profile);
 		buttonLayout.addComponent(network);
 		buttonLayout.addComponent(friend);
-		buttonLayout.addComponent(chat);
+		//buttonLayout.addComponent(chat);
 		buttonLayout.addComponent(bSettings);
 		buttonLayout.addComponent(vRequest);
 		buttonLayout.addComponent(back);
@@ -366,7 +379,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		return false;
 	}
 	
-	private void searchRosterFrame() {
+	/*private void searchRosterFrame() {
 		if (this.chatHandler.rf == null) {
 			this.chatHandler = this.login.getChatHandler();
 			this.chatHandler.updateRoster();
@@ -381,9 +394,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			getApplication().getMainWindow().addWindow(chatHandler.rf);
 		}
 		this.chatHandler.rf.focus();
-	}
+	}*/
 	
-	private void searchAFWindow() {
+	/*private void searchAFWindow() {
 		ActivityFeedWindow tmp = this.login.getAFWindow();
 		if (tmp == null) {
 			this.login.createAFWindow();
@@ -397,7 +410,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			getApplication().getMainWindow().addWindow(tmp);
 		}
 		tmp.focus();
-	}
+	}*/
 
 	@Override
 	public void tabSelected() {
@@ -422,6 +435,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		//System.out.println("Log out: " + login.getGenSpaceServerFactory().getUsername());
 		this.last.clear();
 		this.clearSettings();
+		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(login.getGenSpaceServerFactory().getUsername()));
 	}
 	
 	private void clearSettings() {
@@ -434,16 +448,17 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.viewPanel = null;*/
 		this.chatHandler.getConnection().disconnect();
 		//this.chatHandler.rf.cleanSettings();
-		getApplication().getMainWindow().removeWindow(this.chatHandler.rf);
+		//getApplication().getMainWindow().removeWindow(this.chatHandler.rf);   77
 		this.search.removeAllItems();
-		
+		this.proPanel.updatePanel();
 		this.contentLayout.removeAllComponents();
 		this.contentLayout.addComponent(this.proPanel);
 		
 		//Remove all chat window here
 		Iterator<String> chatIT = this.chatHandler.chats.keySet().iterator();
 		while(chatIT.hasNext()) {
-			getApplication().getMainWindow().removeWindow(this.chatHandler.chats.get(chatIT.next()));
+			this.chatHandler.chats.get(chatIT.next()).removeAllComponents();
+			//getApplication().getMainWindow().removeWindow(this.chatHandler.chats.get(chatIT.next()));
 		}
 	}
 	
@@ -465,10 +480,13 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 			this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 			this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
+			this.proPanel.updatePanel();
 			this.friendPanel = new FriendPanel(this.myFriends, this.login);
 			this.netPanel = new NetworkPanel(this.myNet, this.login);
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
+			System.out.println("88");
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
+			System.out.println("Check view panel in initForm: " + this.viewPanel.toString());
 			this.loadSearchItems();
 		}
 	}

@@ -29,7 +29,7 @@ public class WorkflowVisualizationPanel extends Panel {
 	
 	private WorkflowVisualizationPopup popup;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 
 	public WorkflowVisualizationPanel() {
 		this.setScrollable(true);
@@ -37,8 +37,8 @@ public class WorkflowVisualizationPanel extends Panel {
 		this.resource = new ThemeResource(resourcePath);
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
-		this.login = login;
+	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
+		this.login = login2;
 	}
 
 	public void render(List<WorkflowWrapper> workflows) {
@@ -95,6 +95,7 @@ public class WorkflowVisualizationPanel extends Panel {
 					popup.setCaption("Workflow Actions");
 					
 					getApplication().getMainWindow().addWindow(popup);
+					popup.attachAllPushers();
 				}
 			});
 			

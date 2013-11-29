@@ -15,6 +15,8 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	
@@ -26,37 +28,44 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	 * 
 	 */
 	private HorizontalLayout mahoutSuggestionsPanel;
+	private VerticalLayout mainPanel = new VerticalLayout();
 	private Panel workflowsPanel;
 	private Panel peoplePanel;
 	private Label workflowSuggestionsArea;
 	private Label peopleSuggestionsArea;
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	private CheckBox filter;
 	//private JCheckBox networkFilterCheckBox;
 	
-	public MahoutRecommendationPanel(GenSpaceLogin login) {
-		this.login = login;
+	public MahoutRecommendationPanel(GenSpaceLogin_1 genSpaceLogin_1) {
+		this.login = genSpaceLogin_1;
 		initComponents();
 	}
 		
 	private void initComponents() {
 		
 		mahoutSuggestionsPanel = new HorizontalLayout();
-		this.addComponent(mahoutSuggestionsPanel);
+		this.addComponent(mainPanel);
 		
 		workflowsPanel = new Panel();
 		peoplePanel = new Panel();
 		filter = new CheckBox("Filter to My Networks");
 		filter.setImmediate(true);
 		filter.addListener(this);
-		
+		mainPanel.addComponent(filter);
+
 		mahoutSuggestionsPanel.addComponent(workflowsPanel);
 		mahoutSuggestionsPanel.addComponent(peoplePanel);
-		mahoutSuggestionsPanel.addComponent(filter);
-		
+		//mahoutSuggestionsPanel.addComponent(filter);
+		mainPanel.addComponent(mahoutSuggestionsPanel);
+
 		final Label wfLabel = new Label("Your Recommended Workflows");
+        wfLabel.setStyleName(Reindeer.LABEL_H2);
+        wfLabel.setContentMode(Label.CONTENT_PREFORMATTED);
         
         final Label ppLabel = new Label("People Like You");
+        ppLabel.setStyleName(Reindeer.LABEL_H2);
+        ppLabel.setContentMode(Label.CONTENT_PREFORMATTED);
         
 		workflowSuggestionsArea = new Label();
 		peopleSuggestionsArea = new Label();
@@ -66,12 +75,13 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		peopleSuggestionsArea.setWidth("280px");
 		peopleSuggestionsArea.setHeight("150px");
 		
-		peopleSuggestionsArea.setValue("No similar user");
-		workflowSuggestionsArea.setValue("No recommendation");
+		peopleSuggestionsArea.setValue("");
+		workflowSuggestionsArea.setValue("");
 
 		workflowsPanel.addComponent(wfLabel);
 		workflowsPanel.addComponent(workflowSuggestionsArea);
 		workflowsPanel.setWidth("300px");
+		//workflowsPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		
 		Label emptyLabel = new Label();
 		emptyLabel.setWidth("20px");
@@ -173,13 +183,13 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				if (!wfs.isEmpty() && wfs != null) {
 					workflowSuggestionsArea.setValue(wfs);
 				} else {
-					workflowSuggestionsArea.setValue("No recommendation");
+					workflowSuggestionsArea.setValue("");
 				}
 			
 				if (!people.isEmpty() && people != null) {
 					peopleSuggestionsArea.setValue(people);
 				} else {
-					peopleSuggestionsArea.setValue("No similar user");
+					peopleSuggestionsArea.setValue("");
 				}
 				
 			} else {  
@@ -189,13 +199,13 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 					if (!peopleInNetwork.isEmpty() && peopleInNetwork != null) {
 						peopleSuggestionsArea.setValue(peopleInNetwork);
 					} else {
-						peopleSuggestionsArea.setValue("No similar user");
+						peopleSuggestionsArea.setValue("");
 					}
 					
 					if (!workflowsWithinNetworkString.isEmpty() && workflowsWithinNetworkString != null) {
 						workflowSuggestionsArea.setValue(workflowsWithinNetworkString);
 					} else {
-						workflowSuggestionsArea.setValue("No recommendation");
+						workflowSuggestionsArea.setValue("");
 					}
 				}
 			}

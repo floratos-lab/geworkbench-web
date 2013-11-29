@@ -7,6 +7,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -32,7 +34,8 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 	private Button addButton = new Button("Add");
 	private Button deleteButton = new Button("Delete");
 	private Button refreshButton = new Button("Refresh");
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
+	private ICEPush pusher = new ICEPush();
 	
 	public InboxTablePanel() {
 		getModel().addContainerProperty(NAME, String.class, null);
@@ -45,14 +48,18 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		this.addComponent(table);
 		this.setExpandRatio(table, 1.0f);
 		HorizontalLayout hLayout = new HorizontalLayout();
+		hLayout.setSpacing(true);
 		hLayout.addComponent(addButton);
 		hLayout.addComponent(deleteButton);
 		hLayout.addComponent(refreshButton);
+		this.setSpacing(true);
 		this.addComponent(hLayout);
+		
+		this.addComponent(this.pusher);
 		
 		addButton.addListener(this);
 		deleteButton.addListener(this);
-		refreshButton.addListener(this);
+		refreshButton.addListener(this); 
 	}
 	
 	public void setData(List<IncomingWorkflow> list) {
@@ -79,7 +86,7 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		this.model = model;
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
+	public void setGenSpaceLogin(GenSpaceLogin_1 login) {
 		this.login = login;
 	}
 	
@@ -92,38 +99,46 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {
-		
-		Object idxTmp = table.getValue();
-		
-		if (idxTmp == null) {
-			return ;
-		}
-		
-		String bCaption = evt.getButton().getCaption();
-
-		if (bCaption.equals("Delete")) {
-			int idx = Integer.parseInt(idxTmp.toString());
-			IncomingWorkflow tmp = this.iwfList.get(idx);
-			this.removeFromInbox(tmp);
-		} else if (bCaption.equals("Add")) {
-			int idx = Integer.parseInt(idxTmp.toString());
-			IncomingWorkflow tmp = this.iwfList.get(idx);
-			UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
-			this.workflowRepository.updateFormFieldsBG();
-			
-			if (ret != null) {
-				workflowRepository.getRepositoryPanel().recalculateAndReload();
-				removeFromInbox(tmp);
-			}
-		} else if (bCaption.equals("Refresh")) {
+		String bCaption = evt.getButton().getCaption();	
+		if (bCaption.equals("Refresh")) {		
 			this.refreshInbox();
+		}else{	
+			Object idxTmp = table.getValue();
+			if (idxTmp == null || this.iwfList.size() == 0) {
+				if(this.iwfList.size() == 0){
+					getApplication().getMainWindow().showNotification("There is no workflow received!");
+				}else{
+					getApplication().getMainWindow().showNotification("Please select a workflow!");
+				}
+				return ;
+			}
+			System.out.println(bCaption);
+			if (bCaption.equals("Delete")) {
+				int idx = Integer.parseInt(idxTmp.toString());
+				IncomingWorkflow tmp = this.iwfList.get(idx);
+				this.removeFromInbox(tmp);
+			} else if (bCaption.equals("Add")) {
+				int idx = Integer.parseInt(idxTmp.toString());
+				IncomingWorkflow tmp = this.iwfList.get(idx);
+				UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
+				this.workflowRepository.updateFormFieldsBG();
+			
+				if (ret != null) {
+					workflowRepository.getRepositoryPanel().recalculateAndReload();
+					removeFromInbox(tmp);
+				}
+				idxTmp = null;
+			}
 		}
-		login.getPusher().push();
+		this.addComponent(pusher);
+		pusher.push();
+		//login.getPusher().push();
 	}
 	
 	private void refreshInbox() {
 		List<IncomingWorkflow> iwfList = login.getGenSpaceServerFactory().getWorkflowOps().getIncomingWorkflows();
 		this.setData(iwfList);
-		this.table.refreshRowCache();
+		System.out.println("check refreshInbox: "+iwfList);
+		//this.table.refreshRowCache();
 	}
 }

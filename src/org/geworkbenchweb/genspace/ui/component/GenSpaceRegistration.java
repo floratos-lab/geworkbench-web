@@ -44,7 +44,7 @@ public class GenSpaceRegistration extends CustomComponent implements
 
 	Button save, reset, b_login;
 
-	GenSpaceLogin login;
+	GenSpaceLogin_1 login;
 	
 	private GridLayout gridLayout = new GridLayout(2, 15);
 	
@@ -52,8 +52,8 @@ public class GenSpaceRegistration extends CustomComponent implements
 	
 	private Panel regPanel = new Panel();
 
-	public GenSpaceRegistration(GenSpaceLogin login) {
-		this.login = login;
+	public GenSpaceRegistration(GenSpaceLogin_1 genSpaceLogin_1) {
+		this.login = genSpaceLogin_1;
 		initComponents();
 		setCompositionRoot(vLayout);
 		this.vLayout.addComponent(regPanel);

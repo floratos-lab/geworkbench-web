@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,14 +9,18 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.VerticalLayout;
 
 public class PrivacyPanel extends SocialPanel{
@@ -25,7 +30,7 @@ public class PrivacyPanel extends SocialPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private String panelTitle;
 	
@@ -39,7 +44,7 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private VerticalLayout vLayout;
 	
-	private HorizontalLayout memberFriendLayout;
+	private VerticalLayout memberFriendLayout;
 	
 	private Panel privacyPanel;
 	
@@ -50,10 +55,10 @@ public class PrivacyPanel extends SocialPanel{
 	private List<UserNetwork> networkList;
 	
 	private Button saveButton;
+		
+	private TwinColSelect networkSelect;
 	
-	private ListSelect networkSelect;
-	
-	private ListSelect friendSelect;
+	private TwinColSelect friendSelect;
 	
 	private BeanItemContainer<UserWrapper> userContainer;
 	
@@ -61,14 +66,21 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private BorderLayout bLayout;
 	
-	public PrivacyPanel(String panelTitle, GenSpaceLogin login) {
+	private ICEPush pusher = new ICEPush();
+	
+	private HashMap<Object, Object> idMap = new HashMap<Object, Object>();
+	
+	public PrivacyPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
 		bLayout = new BorderLayout();
 		setCompositionRoot(bLayout);
 		this.panelTitle = panelTitle;
-		
+		System.out.println("1new parivacy panel!!");
+
 		this.updatePanel();
+		System.out.println("new parivacy panel!!");
+
 	}
 	
 	public String getPanelTitle() {
@@ -90,6 +102,8 @@ public class PrivacyPanel extends SocialPanel{
 		this.bLayout.addComponent(privacyPanel, BorderLayout.Constraint.CENTER);
 	}
 	
+	
+	
 	private void createMainLayout() {
 		this.vLayout = new VerticalLayout();
 		this.privacyPanel.addComponent(vLayout);
@@ -97,7 +111,7 @@ public class PrivacyPanel extends SocialPanel{
 		this.selectLabel = new Label(selectString);
 		vLayout.addComponent(selectLabel);
 		
-		this.memberFriendLayout = new HorizontalLayout();
+		this.memberFriendLayout = new VerticalLayout();
 		vLayout.addComponent(memberFriendLayout);
 		
 		this.createNetworkListSelect();
@@ -109,38 +123,59 @@ public class PrivacyPanel extends SocialPanel{
 		memberFriendLayout.addComponent(emptyLabel);
 		memberFriendLayout.addComponent(this.friendSelect);
 		
-		this.createSaveButton();
+		this.createVisibleButton();
 		emptyLabel = new Label();
 		emptyLabel.setHeight("20px");
 		vLayout.addComponent(emptyLabel);
 		vLayout.addComponent(this.saveButton);
+		vLayout.addComponent(pusher);
 	}
 	
 	private void createFriendListSelect() {
-
+		
 		userContainer = new BeanItemContainer<UserWrapper>(UserWrapper.class);
 		Iterator<User> friendIT = this.friendList.iterator();
 		User tempUser;
 		UserWrapper tmpWrapper;
 		Object tempID;
+	
 		while(friendIT.hasNext()) {
-			tempUser = friendIT.next();
+			tempUser = friendIT.next(); // tempUser.isvisible();
+			
 			tmpWrapper = new UserWrapper(tempUser, login);
 			tempID = userContainer.addItem(tmpWrapper);
+			
 		}
 		
-		friendSelect = new ListSelect(friends, userContainer);
-		friendSelect.setRows(10);
+		friendSelect = new TwinColSelect(friends, userContainer);
+		Iterator userIT = userContainer.getItemIds().iterator();
+		Object tmpObj;
+		UserWrapper tmpUW;
+		while(userIT.hasNext()) {
+			tmpObj = userIT.next();
+			tmpUW = userContainer.getItem(tmpObj).getBean();			
+			if (!tmpUW.isVisible()) {
+				System.out.println(tmpUW);
+				friendSelect.select(tmpUW);
+			}
+		}
+		
+		friendSelect.setLeftColumnCaption("Friend who can see");
+		
+		friendSelect.setRightColumnCaption("Friend who cannot see");
+		//friendSelect = new TwinColSelect(friends, userContainer);
+		//friendSelect.setRows(userContainer.size());
 		friendSelect.setMultiSelect(true);
-		friendSelect.setWidth("200px");
+		friendSelect.setWidth("400px");
 		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
 		friendSelect.setItemCaptionPropertyId("username");
+
 	}
 	
 	private void createNetworkListSelect() {		
 		networkContainer = new BeanItemContainer<UserNetworkWrapper>(UserNetworkWrapper.class);
 		Iterator<UserNetwork> networkIT = this.networkList.iterator();
-		List<Object> visibleIDs = new ArrayList<Object>();
+		List<Object> invisibleIDs = new ArrayList<Object>();
 		UserNetwork tempNet;
 		UserNetworkWrapper tempWrap;
 		Object tempID;
@@ -149,16 +184,21 @@ public class PrivacyPanel extends SocialPanel{
 			tempWrap = new UserNetworkWrapper(tempNet);		
 			tempID = networkContainer.addItem(tempWrap);
 			
-			if(tempNet.isVisible()) {
-				visibleIDs.add(tempID);
+			if(!tempNet.isVisible()) {
+				invisibleIDs.add(tempID);
 				//System.out.println("Test net visibility in privacy panel: " + tempWrap.getName());
 			}
 		}
 		
-		networkSelect = new ListSelect(member, networkContainer);
-		networkSelect.setRows(10);
+		networkSelect = new TwinColSelect(member, networkContainer);
+		Iterator userIT = networkContainer.getItemIds().iterator();
+		for(int i=0; i<invisibleIDs.size(); i++){
+			networkSelect.select(invisibleIDs.get(i));
+		}
+		networkSelect.setLeftColumnCaption("Network that can see");
+		networkSelect.setRightColumnCaption("Network that cannot see");
 		networkSelect.setMultiSelect(true);
-		networkSelect.setWidth("200px");
+		networkSelect.setWidth("400px");
 		networkSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
 		networkSelect.setItemCaptionPropertyId("name");
 		
@@ -167,14 +207,14 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void setInitialNetworkSelectValue(List<Object> visibleIDs) {
 		for(Object id: visibleIDs) {
-			System.out.println(networkContainer.getItem(id).getBean().getId());
-			System.out.println(networkContainer.getItem(id).getBean().getName());
+			System.out.println("^^"+networkContainer.getItem(id).getBean().getId());
+			System.out.println("**"+networkContainer.getItem(id).getBean().getName());
 			networkSelect.setValue(id);
 		}
 	}
 	
-	private void createSaveButton(){
-		this.saveButton = new Button(this.save);
+	private void createVisibleButton(){
+		this.saveButton = new Button(save);
 		this.saveButton.addListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
@@ -185,30 +225,41 @@ public class PrivacyPanel extends SocialPanel{
 				while(nSelect.hasNext()) {
 					nSelected = nSelect.next();
 					if(networkSelect.isSelected(nSelected)) {
-						/*System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getId());
-						System.out.println("Select: " + networkContainer.getItem(nSelected).getBean().getName());*/
-						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
-					} else {
-						/*System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getId());
-						System.out.println("Not Select: " + networkContainer.getItem(nSelected).getBean().getName());*/
+						System.out.println("Network: false " + networkContainer.getItem(nSelected).getBean().getName());
 						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), false);
+						
+					} else {
+						System.out.println("Network: true  " + networkContainer.getItem(nSelected).getBean().getName());
+						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
+				
 					}
 				}
 				
 				Iterator fSelect = friendSelect.getItemIds().iterator();
+				
 				Object fSelected;
 				while(fSelect.hasNext()) {
 					fSelected = fSelect.next();
 					if(friendSelect.isSelected(fSelected)) {
-						/*System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getId());
-						System.out.println("Select: " + userContainer.getItem(fSelected).getBean().getUsername());*/
-						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
-					} else {
-						/*System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getId());
-						System.out.println("Not Select: " + userContainer.getItem(fSelected).getBean().getUsername());*/
+						System.out.println("friend: false " + userContainer.getItem(fSelected).getBean().getId());
 						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
+						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
+						createFriendListSelect();
+						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+
+					}else{
+						System.out.println("frined: true "+ userContainer.getItem(fSelected).getBean().getId());
+						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
+						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+
+						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
+						createFriendListSelect();
+						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+
 					}
 				}
+				pusher.push();
 			}
 			
 			private void resetVisibility() {
@@ -241,6 +292,10 @@ public class PrivacyPanel extends SocialPanel{
 			finalName = firstName + " " + lastName + " " + "(" +userName + ")";
 		}
 		return finalName;
+	}
+	
+	public void attachPusher() {
+		
 	}
 
 }

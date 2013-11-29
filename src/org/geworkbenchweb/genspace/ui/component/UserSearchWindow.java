@@ -4,6 +4,7 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
@@ -18,7 +19,7 @@ public class UserSearchWindow extends Window {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private int myID;
 	
@@ -43,9 +44,11 @@ public class UserSearchWindow extends Window {
 	private String cancelFriend = "You have canceld your friend request to xxx";
 	
 	private String addFriend = "A friend sent for xxx's approval. You will not become friends until he or she accepts your request.";
+	
+	private ICEPush pusher = new ICEPush();
 
-	public UserSearchWindow(User friend, GenSpaceLogin login, SocialNetworkHome sHome) {
-		this.login = login;
+	public UserSearchWindow(User friend, GenSpaceLogin_1 login2, SocialNetworkHome sHome) {
+		this.login = login2;
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.friend = friend;
 		this.sHome = sHome;
@@ -61,6 +64,11 @@ public class UserSearchWindow extends Window {
 		
 		this.addComponent(vLayout);		
 		this.updateWindowContents();
+		
+	}
+	
+	public void attachPusher(){
+		this.addComponent(pusher);
 	}
 	
 	private void updateWindowContents() {
@@ -68,9 +76,9 @@ public class UserSearchWindow extends Window {
 			vLayout.removeAllComponents();
 			refreshDB();
 		}
-		
+		System.out.println("update window!!!");
 		boolean isFriend = this.friend.isFriendsWith();
-
+		System.out.println("isFriend: " + isFriend);
 		Panel userNamePanel = new Panel(this.friend.getUsername());
 		Label organization = new Label();
 		String affiliation = this.friend.getLabAffiliation();
@@ -135,14 +143,17 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().removeFriend(friend.getId());
 						removeFriend = removeFriend.replace("xxx", friend.getUsername());
 						refreshDB();
+						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(removeFriend);
 												
 						sHome.getInstance().updateForm();
 						updateWindowContents();
-						login.getPusher().push();
+						//pusher.push();
 						//When user decide to remove a friend, fire the event.
 						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
+						login.getPusher().push();
+
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}
@@ -165,10 +176,12 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().removeFriend(friend.getId());
 						cancelFriend = cancelFriend.replace("xxx", friend.getUsername());
 						refreshDB();
+						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(cancelFriend);
 						
 						sHome.getInstance().updateForm();
 						updateWindowContents();
+						//pusher.push();
 						login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
@@ -191,10 +204,12 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().addFriend(friend.getId());
 						addFriend = addFriend.replace("xxx", friend.getUsername());
 						refreshDB();
+						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(addFriend);
 						
 						sHome.getInstance().updateForm();
 						updateWindowContents();
+						//pusher.push();
 						login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);

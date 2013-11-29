@@ -8,16 +8,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class WorkflowVisualization extends AbstractGenspaceTab implements
 		GenSpaceTab, ClickListener {
@@ -28,19 +32,28 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 	private static final long serialVersionUID = 1472121123400742285L;
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private NativeSelect tools = new NativeSelect();
+	//private NativeSelect tools = new NativeSelect();
 	private HashMap<String, Tool> toolsMap = new HashMap<String, Tool>();
-	private NativeSelect actions = new NativeSelect();
+	//private NativeSelect actions = new NativeSelect();
+	private ComboBox actions;
+	private ComboBox tools;
 	private Button button = new Button("Search");
 	private Label label = new Label();
-	private HorizontalLayout selectPanel = new HorizontalLayout();
+	private VerticalLayout selectPanel = new VerticalLayout();
+	private HorizontalLayout select = new HorizontalLayout();
+	private HorizontalLayout search = new HorizontalLayout();
+	private VerticalLayout left = new VerticalLayout();
+	private VerticalLayout right = new VerticalLayout();
 	private WorkflowVisualizationPanel vis = new WorkflowVisualizationPanel();
 	private Panel borderLayout = new Panel();
-	private Panel selectRootPanel = new Panel();
+	private VerticalLayout result = new VerticalLayout();
+	//private Panel selectRootPanel = new Panel();
+	private GenSpaceLogin_1 login;
 
-	public WorkflowVisualization(GenSpaceLogin login) {
+	public WorkflowVisualization(GenSpaceLogin_1 login) {
 		super(login);
-		selectRootPanel.setScrollable(true);
+		this.login = login;
+		//selectRootPanel.setScrollable(true);
 		borderLayout.setScrollable(true);
 		vis.setScrollable(true);
 		initComponents();
@@ -48,40 +61,61 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 	}
 
 	private void initComponents() {
-		actions.setCaption("-- select action --");
+		actions = new ComboBox("-- select action --");
+		//actions.setCaption("-- select action --"); 
 		actions.addItem("Most common workflow starting with");
 		actions.addItem("Most common workflow including");
 		actions.addItem("All workflows including");
+		actions.setNullSelectionAllowed(false);
+		System.out.println("Check login in workflow visualization: " + this.login);
 
-		tools.setCaption("-- select tool --");
-		for (Tool tool : login.getGenSpaceServerFactory().getUsageOps().getAllTools()) {
+		tools = new ComboBox("-- select tool --");
+		//tools.setCaption("-- select tool --");
+		for (Tool tool : this.login.getGenSpaceServerFactory().getUsageOps().getAllTools()) {
 			String name = tool.getName();
 			toolsMap.put(name, tool);
 			tools.addItem(name);
 		}
-
-		button.addListener(this);
-		label.setValue("Please select an action and a tool to search for");
+		tools.setNullSelectionAllowed(false);
+		button.addListener(this); 
+		//label.setValue("Please select an action and a tool to search for");
 
 		//selectPanel.setSpacing(true);
-		selectPanel.addComponent(actions);
-		selectPanel.addComponent(tools);
-		selectPanel.addComponent(button);
-		selectPanel.addComponent(label);
+		select.addComponent(actions);
+		select.addComponent(tools);
+		select.setSizeFull();
+		selectPanel.addComponent(select);
+		search.addComponent(button);
+		select.setComponentAlignment(actions, Alignment.BOTTOM_LEFT);
+		select.setComponentAlignment(tools, Alignment.BOTTOM_LEFT);
+		//left.setComponentAlignment(button, Alignment.MIDDLE_LEFT);
+		//right.addComponent(button);
+		search.addComponent(label);
+		search.setSizeFull();
+		//right.setComponentAlignment(button, Alignment.MIDDLE_LEFT);
+		label.setStyleName(Reindeer.LABEL_H2);
+		label.setContentMode(Label.CONTENT_PREFORMATTED);
+		selectPanel.addComponent(search);
+		search.setComponentAlignment(button, Alignment.BOTTOM_LEFT);
+		search.setComponentAlignment(label, Alignment.BOTTOM_LEFT);
 
-		selectPanel.setComponentAlignment(actions, Alignment.BOTTOM_CENTER);
-		selectPanel.setComponentAlignment(tools, Alignment.BOTTOM_CENTER);
-		selectPanel.setComponentAlignment(button, Alignment.BOTTOM_CENTER);
-		selectPanel.setComponentAlignment(label, Alignment.BOTTOM_CENTER);
 		
-		selectRootPanel.addComponent(selectPanel);
+		//selectPanel.setComponentAlignment(select, Alignment.BOTTOM_CENTER);
+		//selectPanel.setComponentAlignment(search, Alignment.BOTTOM_CENTER);
+		
+		//selectRootPanel.addComponent(selectPanel);
 
 		/*borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);*/
 		//borderLayout.addComponent(selectPanel);
-		borderLayout.addComponent(selectRootPanel);
-		borderLayout.addComponent(vis);
+		borderLayout.addComponent(selectPanel);
+		borderLayout.addComponent(result);
+		selectPanel.setSpacing(true);
+		result.setSpacing(true);
+		result.addComponent(vis);
 		vis.setGenSpaceLogin(login);
+		result.setExpandRatio(vis, 1);
+		vis.setStyleName(Reindeer.PANEL_LIGHT);
 		//vis.setSizeFull();
 	}
 

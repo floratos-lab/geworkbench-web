@@ -27,6 +27,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
@@ -34,6 +35,7 @@ import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
@@ -49,12 +51,12 @@ import com.vaadin.ui.MenuBar.MenuItem;
  * 
  * @author jsb2125
  */
-public class RosterFrame extends Window implements RosterListener, ChatStatusChangeEventListener, FriendStatusChangeListener {
+public class RosterFrame extends Panel implements RosterListener, ChatStatusChangeEventListener, FriendStatusChangeListener {
 	public Set<String> removedCache = new HashSet<String>();
 	
 	private static String[] statuses = { "Available", "Away", "Offline" };
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private int myID;
 	
@@ -86,6 +88,8 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 	
 	private HorizontalLayout iconLayout;
 	
+	private ICEPush pusher = new ICEPush();
+	
 	public void refresh()
 	{
 		if (this.cr.getConnection().isConnected()) {
@@ -93,12 +97,13 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 			this.cr.getConnection().getRoster().reload();
 			this.roster.reload();
 			this.setUpRosterTree();
+			System.out.println("refreshed!");
 		} 
 	}
 	
 	public void cleanSettings() {
 		this.removeAllComponents();
-		getApplication().getMainWindow().removeWindow(this);
+		//getApplication().getMainWindow().removeWindow(this);
 	}
 	
 	private static final long serialVersionUID = 7609367478611608296L;
@@ -338,30 +343,27 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		}
 	}
 
-	public void setAvailable()
+	/*public void setAvailable()
 	{
 		Presence pr = new Presence(Presence.Type.available);
 		pr.setStatus("On genSpace...");
 		cr.getConnection().sendPacket(pr);
 		cmbStatus.setValue("Available");
 		bringToFront();
-	}
+	}*/
 	/** Creates new form RosterFrame */
-	public RosterFrame(final GenSpaceLogin login, final ChatReceiver cr) {
-		setWidth("300px");
-		setHeight("400px");
+	public RosterFrame(final GenSpaceLogin_1 login2, final ChatReceiver cr) {
+		//setWidth("300px");
+		setHeight("340px");
 
-		this.login = login;
+		this.login = login2;
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.cr = cr;
 		this.username = this.login.getGenSpaceServerFactory().getUsername();
-		
+		System.out.println("Check username in Roster: "+this.username);
 		setCaption(this.rosterCaption);
 		initComponents();
-		addListener(new Window.CloseListener() {
-			/**
-			 * 
-			 */
+		/*addListener(new Window.CloseListener() {
 			private static final long serialVersionUID = 1L;
 			
 			public void windowClose(CloseEvent e) {
@@ -371,7 +373,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 				
 				//System.out.println("DBUG: Close RosterFrame");
 			};
-		});
+		});*/
 	}
 
 	/**
@@ -389,26 +391,30 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 			
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.onlineEmbed);
+			System.out.println("change to available!");
 		} else if (status.equalsIgnoreCase(statuses[1])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.away);
 			
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.leaveEmbed);
+			System.out.println("change to leave!");
 		} else {
 			pr = new Presence(Presence.Type.unavailable);
 			
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.offlineEmbed);
+			System.out.println("change to unavailable!");
 		}
 		
 		pr.setStatus(status);
 		cr.getConnection().sendPacket(pr);
-		
+		System.out.println("send status change event!");
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
+		System.out.println("start refresh!");
 		this.refresh();
 		
-		//System.out.println("DEBUG: " + this.username + " fire a status event");
+		System.out.println("DEBUG: " + this.username + " fire a status event");
 	};
 	
 	private VerticalLayout vMainLayout;
@@ -426,7 +432,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		BorderLayout bLayout = new BorderLayout();
 		
 		vMainLayout = new VerticalLayout();
-		
+		vMainLayout.setSpacing(true);
 		bLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		this.addComponent(bLayout);
 		
@@ -434,7 +440,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		vScrollPane1 = new Panel();
 		vScrollPane1.getContent().setSizeUndefined();
 		vScrollPane1.setScrollable(true);
-		vScrollPane1.setHeight("280px");
+		vScrollPane1.setHeight("200px");
 		vMainLayout.addComponent(vScrollPane1);
 
 		rosterTree = new Tree();
@@ -451,13 +457,15 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 					e = (RosterEntry)rEntityObject;
 					
 					Presence p = roster.getPresence(e.getUser());
-					
-					if (p.getType().equals(Presence.Type.unavailable))
+					//System.out.println("^^^"+e.getUser()+" "+username);
+					String fname = e.getUser().substring(0, e.getUser().indexOf('@'));
+					if (p.getType().equals(Presence.Type.unavailable) || fname.equals(username))
 						return ;
 
-					/*System.out.println("Test tree listener: " + e.getName());
-					System.out.println("Test manager: " + cr.getManager());*/
+					System.out.println("Test tree listener: " + e.getName());
+					System.out.println("Test manager: " + cr.getManager());
 					cr.getManager().createChat(e.getUser(), null);
+					System.out.println("create chat finished!");
 				}
 			}
 		});
@@ -491,6 +499,7 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 		
 		iconLayout = new HorizontalLayout();
 		iconLayout.addComponent(this.onlineEmbed);
+		iconLayout.addComponent(pusher);
 		statusLayout.addComponent(iconLayout);
 		vMainLayout.addComponent(statusLayout);
 
@@ -502,6 +511,10 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 
 	}
 
+	public void attachPusher(ICEPush pusher){
+		addComponent(pusher);
+	}
+	
 	private MenuItem vMenu1;
 	private MenuItem vMenu2;
 	private MenuBar vMenuBar1;
@@ -512,19 +525,20 @@ public class RosterFrame extends Window implements RosterListener, ChatStatusCha
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
-		//System.out.println("DEBUG: " + this.username + " got a status change event");
+		System.out.println("DEBUG: " + this.username + " got a status change event");
 		this.refresh();
-		this.login.getPusher().push();
+		pusher.push();
+		//this.login.getPusher().push();
 	}
 	
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		//System.out.println("Get event from " + evt.getFriendName());
-		
 		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
 			this.refresh();
 			this.initComponents();
-			this.login.getPusher().push();
+			pusher.push();
+			//this.login.getPusher().push();
 		}
 	}
 }

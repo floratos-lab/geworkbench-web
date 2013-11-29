@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
@@ -23,15 +24,15 @@ public class FBManager {
 	
 	private Connection<Post> myFeeds;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private User me;
 	
 	private String workbench = "http://wiki.c2b2.columbia.edu/workbench/index.php/Home";
 	
-	public FBManager(String token, GenSpaceLogin login) {
+	public FBManager(String token, GenSpaceLogin_1 login2) {
 		this.token = token;
-		this.login = login;
+		this.login = login2;
 	}
 	
 	public boolean connect() {

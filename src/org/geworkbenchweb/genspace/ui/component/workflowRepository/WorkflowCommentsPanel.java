@@ -11,6 +11,7 @@ import javax.xml.datatype.DatatypeFactory;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowComment;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -29,7 +30,7 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 	 */
 	private static final long serialVersionUID = -6641895295511102113L;
 	SimpleDateFormat fmt = new SimpleDateFormat("M/d/yy h:mm a");
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	private Table table = new Table();
 	private Button newButton = new Button("New");
 	private Button removeButton = new Button("Remove");
@@ -55,8 +56,12 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 		this.addComponent(table);
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
+	public void setGenSpaceLogin(GenSpaceLogin_1 login) {
 		this.login = login;
+	}
+	
+	public void clear(){
+		table.removeAllItems();
 	}
 	
 	public void setWorkflow(Workflow workflow) {

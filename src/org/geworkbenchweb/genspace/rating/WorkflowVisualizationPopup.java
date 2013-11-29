@@ -12,6 +12,7 @@ import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -66,14 +67,16 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 	
 	private User expert;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private String gotoCaption;
 	
 	private String contactCaption;
 	
-	public WorkflowVisualizationPopup(GenSpaceLogin login, Workflow workflow, Tool selectedTool) {
-		this.login = login;
+	
+	
+	public WorkflowVisualizationPopup(GenSpaceLogin_1 login2, Workflow workflow, Tool selectedTool) {
+		this.login = login2;
 		this.workflow = workflow;
 		this.selectedTool = selectedTool;
 		this.expert = this.login.getGenSpaceServerFactory().getUsageOps().getExpertUserFor(selectedTool.getId());
@@ -168,6 +171,11 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			this.vLayout.addComponent(toolRatePanel);
 			this.vLayout.addComponent(wfRatePanel);
 		}
+	}
+	
+	public void attachAllPushers() {
+		this.toolRatePanel.attachPusher();
+		this.wfRatePanel.attachPusher();
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {
