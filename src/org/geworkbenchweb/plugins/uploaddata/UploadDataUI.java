@@ -567,7 +567,7 @@ public class UploadDataUI extends VerticalLayout {
 				}
 
 				synchronized(mainLayout.getApplication()) {
-						MessageBox mb = new MessageBox(getApplication().getMainWindow(),
+						MessageBox mb = new MessageBox(mainLayout.getApplication().getMainWindow(),
 								"Upload Completed", 
 								MessageBox.Icon.INFO, 
 								"Data upload is now completed. ",  
