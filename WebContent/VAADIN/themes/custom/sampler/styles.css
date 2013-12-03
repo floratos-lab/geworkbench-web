@@ -5,16 +5,16 @@
  	margin-bottom: 0.2em;
  }
  
-.v-app-GeworkbenchRoot {
+.geworkbench {
 	background-color: #fff;
 }
 
-.v-app-GeworkbenchRoot .v-tree-node-bold {
+.geworkbench .v-tree-node-bold {
     font-weight: bold;
     color: #07407F;
 }
 
-.v-app-GeworkbenchRoot .fancy-csslayout-lay  {
+.geworkbench .fancy-csslayout-lay  {
 	border-width: 0px 0px 1px 0px;
 	border-color: silver;
 	border-style: solid;
@@ -26,7 +26,7 @@
 	border-radius: 5px;
 }
 
-.v-app-GeworkbenchRoot .v-menubar-transparent { 
+.geworkbench .v-menubar-transparent { 
 	font-weight: bold;
 	color: #000;
 	background : transparent;
@@ -38,31 +38,31 @@
 	text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
 }
 
-.v-app-GeworkbenchRoot .v-menubar-menuitem-plugin:hover { 
+.geworkbench .v-menubar-menuitem-plugin:hover { 
 	color: #008000;
 }
 
-.v-app-GeworkbenchRoot .v-horizontallayout-topbar {
+.geworkbench .v-horizontallayout-topbar {
 	/*border-bottom: 1px solid #eaeaea;*/
 	background: #5c5d60 url(top-bg.png) repeat-x;
 }
 
-.v-app-GeworkbenchRoot .v-horizontallayout-menubar {
+.geworkbench .v-horizontallayout-menubar {
 	border-bottom: 1px solid #eaeaea;
 	background: transparent url(white_carbonfiber.png);
 }
 
-.v-app-GeworkbenchRoot .v-horizontallayout-sample-view {
+.geworkbench .v-horizontallayout-sample-view {
 	background: #fff url(main-bg.png) repeat-x;
 }
 
-.v-app-GeworkbenchRoot .v-csslayout-mystyle {
+.geworkbench .v-csslayout-mystyle {
   overflow: auto;
 }
 
-.v-app-GeworkbenchRoot .topbar .logo,
-.v-app-GeworkbenchRoot .topbar .logo:focus,
-.v-app-GeworkbenchRoot .topbar .logo:active {
+.geworkbench .topbar .logo,
+.geworkbench .topbar .logo:focus,
+.geworkbench .topbar .logo:active {
 	width: 154px;
 	height: 44px;
 	margin: 0;
@@ -73,11 +73,11 @@
 	outline: none;
 }
 
-.v-app-GeworkbenchRoot .topbar .logo img {
+.geworkbench .topbar .logo img {
 	display: none;
 }
 
-.v-app-GeworkbenchRoot .v-popupview-quickjump {
+.geworkbench .v-popupview-quickjump {
 	background: transparent url(quickjump.png) no-repeat 0px 1px;
 }
 
@@ -164,23 +164,23 @@
 	text-decoration: none;
 }
 
-.v-app-GeworkbenchRoot .v-horizontallayout-topbar .v-nativebutton-link span {
+.geworkbench .v-horizontallayout-topbar .v-nativebutton-link span {
 	text-decoration: none;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-topbar .v-nativebutton-link:hover span {
+.geworkbench .v-horizontallayout-topbar .v-nativebutton-link:hover span {
 	text-decoration: underline;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next:active,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next.v-disabled,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-down.v-nativebutton-tree-switch {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next:active,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next.v-disabled,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-down.v-nativebutton-tree-switch {
 	background-position: right bottom;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton.v-disabled,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-popupview {
+.geworkbench .v-horizontallayout-segment .v-nativebutton,
+.geworkbench .v-horizontallayout-segment .v-nativebutton.v-disabled,
+.geworkbench .v-horizontallayout-segment .v-popupview {
 	width: 30px;
 	height: 24px;
 	overflow: hidden;
@@ -189,51 +189,51 @@
 	background: transparent url(segment.png) no-repeat;
 	cursor: default;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton:active,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton.v-pressed,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-popupview:active {
+.geworkbench .v-horizontallayout-segment .v-nativebutton:active,
+.geworkbench .v-horizontallayout-segment .v-nativebutton.v-pressed,
+.geworkbench .v-horizontallayout-segment .v-popupview:active {
 	background-position: left bottom;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch {
 	background-position: right top;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next:active,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next:active,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next.v-pressed,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch:active,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed {
 	background-position: right bottom;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-popupview span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton.v-pressed span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton.v-disabled span {
+.geworkbench .v-horizontallayout-segment .v-nativebutton span,
+.geworkbench .v-horizontallayout-segment .v-popupview span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton.v-pressed span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton.v-disabled span {
 	display: block;
 	height: 24px;
 	background-repeat: no-repeat;
 	background-position: 50% 40%;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed span {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-tree-switch.v-pressed span {
 	background-image: url(tree.png);
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-popupview span {
+.geworkbench .v-horizontallayout-segment .v-popupview span {
 	background-image: url(magnifier.png);
 }
-.v-app-GeworkbenchRoot .theme-select * {
+.geworkbench .theme-select * {
 	background: transparent;
 }
-.v-app-GeworkbenchRoot .theme-select .v-filterselect-input,
-.v-app-GeworkbenchRoot .theme-select .v-icon {
+.geworkbench .theme-select .v-filterselect-input,
+.geworkbench .theme-select .v-icon {
 	width: 0;
 	height: 0;
 	padding: 0;
 	overflow: hidden;
 }
-.v-app-GeworkbenchRoot .theme-select .v-icon {
+.geworkbench .theme-select .v-icon {
 	display: none;
 }
-.v-app-GeworkbenchRoot .theme-select {
+.geworkbench .theme-select {
 	width: 32px;
 	height: 24px;
 	overflow: hidden;
@@ -242,16 +242,16 @@
 	background: transparent url(segment.png) no-repeat;
 	outline: none;
 }
-.v-app-GeworkbenchRoot .theme-select:active {
+.geworkbench .theme-select:active {
 	background-position: 0 bottom;
 }
-.v-app-GeworkbenchRoot .theme-select .v-filterselect-button {
+.geworkbench .theme-select .v-filterselect-button {
 	width: 32px;
 	height: 24px;
 	cursor: default;
 	background: url(palette.png) no-repeat right 0;
 }
-.v-app-GeworkbenchRoot .theme-select:active .v-filterselect-button {
+.geworkbench .theme-select:active .v-filterselect-button {
 	background-position: right bottom;
 }
 
@@ -281,14 +281,14 @@
 	background: #3472ac url(theme-select-sel-bg.png) repeat-x;
 }
 
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-previous span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-previous.v-pressed span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-previous.v-disabled span {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-previous span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-previous.v-pressed span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-previous.v-disabled span {
 	background-image: url(prev.png);
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-nativebutton-next.v-pressed span,
-.v-app-GeworkbenchRoot .v-horizontallayout-segment .v-disabled.v-nativebutton-next span {
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next span,
+.geworkbench .v-horizontallayout-segment .v-nativebutton-next.v-pressed span,
+.geworkbench .v-horizontallayout-segment .v-disabled.v-nativebutton-next span {
 	background-image: url(next.png);
 }
 .v-popupview-popup-quickjump {
@@ -302,14 +302,14 @@
 	font-family: arial, helvetica, verdana, sans-serif;
 }
 
-.v-app-GeworkbenchRoot .v-splitpanel-hsplitter-main-split {
+.geworkbench .v-splitpanel-hsplitter-main-split {
 	width: 1px;
 	background: #aeb0b5;
 }
-.v-app-GeworkbenchRoot .v-splitpanel-hsplitter-main-split-locked {
+.geworkbench .v-splitpanel-hsplitter-main-split-locked {
 	width: 0px;
 }
-.v-app-GeworkbenchRoot .v-splitpanel-hsplitter-main-split div {
+.geworkbench .v-splitpanel-hsplitter-main-split div {
 	width: 3px;
 	background: transparent;
 	border: none;
@@ -317,33 +317,33 @@
 	padding: 0;
 } 
 
-.v-app-GeworkbenchRoot .v-splitpanel-first-container-main-split .v-link {
+.geworkbench .v-splitpanel-first-container-main-split .v-link {
 	padding: 13px 0 5px 18px;
 	font-weight: bold;
 }
 
 
-.v-app-GeworkbenchRoot .v-tree-menu {
+.geworkbench .v-tree-menu {
 	font-size: 12px;
 	line-height: 17px;
 	padding: 0 0 13px;
 }
-.v-sa .v-app-GeworkbenchRoot .v-tree-menu {
+.v-sa .geworkbench .v-tree-menu {
 	font-family: helvetica, arial, verdana, sans-serif;
 }
-.v-app-GeworkbenchRoot .v-tree-menu .v-tree-node span {
+.geworkbench .v-tree-menu .v-tree-node span {
 	display: inline;
 }
-.v-app-GeworkbenchRoot .v-tree-menu .v-tree-node-caption-new span {
+.geworkbench .v-tree-menu .v-tree-node-caption-new span {
 	padding-right: 20px;
 	background: url(new-tree-badge.png) no-repeat right 2px;
 }
-.v-app-GeworkbenchRoot .v-tree-menu .v-tree-node-selected span {
+.geworkbench .v-tree-menu .v-tree-node-selected span {
 	background-color: #7d8490;
 	padding: 1px;
 	text-shadow: none;
 }
-.v-app-GeworkbenchRoot .v-tree-menu .v-tree-node-new .v-tree-node-selected span {
+.geworkbench .v-tree-menu .v-tree-node-new .v-tree-node-selected span {
 	padding-right: 20px;
 	background-image: url(new-tree-badge-sel.png);
 }
@@ -351,12 +351,12 @@
 
 
 /* Sample grid styles */
-.v-app-GeworkbenchRoot div.v-csslayout-grid {
+.geworkbench div.v-csslayout-grid {
 	margin-bottom: 50px;
 	min-height: 0;
 }
 
-.v-app-GeworkbenchRoot .v-label-root-section {
+.geworkbench .v-label-root-section {
 	font-family: arial, helvetica, verdana, sans-serif;
 	line-height: normal;
 	padding: 30px 0 10px 0;
@@ -367,11 +367,11 @@
 	clear: left;
 }
 
-.v-sa .v-app-GeworkbenchRoot .v-label-root-section {
+.v-sa .geworkbench .v-label-root-section {
 	font-family: helvetica, arial, verdana, sans-serif;
 }
 
-.v-app-GeworkbenchRoot .v-label-root-section em {
+.geworkbench .v-label-root-section em {
 	position: absolute;
 	right: 20px;
 	margin-top: 11px;
@@ -388,7 +388,7 @@
 	-moz-border-radius: 8px;
 }
 
-.v-app-GeworkbenchRoot .v-label-root-section h2 {
+.geworkbench .v-label-root-section h2 {
 	font-family: "Helvetica Neue", helvetica, arial, verdana, sans-serif;
 	margin: 0 20px 0 0;
 	font-size: 24px;
@@ -399,7 +399,7 @@
 	text-overflow: ellipsis;
 	float: left;
 }
-.v-app-GeworkbenchRoot .v-label-root-section span {
+.geworkbench .v-label-root-section span {
 	display: block;
 	white-space: nowrap;
 	margin: 12px 10px 0 0;
@@ -595,32 +595,32 @@
 
 
 
-.v-app-GeworkbenchRoot .v-table-featuretable tr.v-table-row,
-.v-app-GeworkbenchRoot .v-table-featuretable tr.v-table-row-odd {
+.geworkbench .v-table-featuretable tr.v-table-row,
+.geworkbench .v-table-featuretable tr.v-table-row-odd {
 	height: 50px;
 	vertical-align: middle;
 }
-.v-app-GeworkbenchRoot .v-table-featuretable tr .v-table-cell-wrapper {
+.geworkbench .v-table-featuretable tr .v-table-cell-wrapper {
 	height: 48px;
 	padding-top: 1px;
 	padding-bottom: 1px;
 	line-height: 30px;
 }
-.v-app-GeworkbenchRoot .v-table-featuretable tr.v-table-row-section {
+.geworkbench .v-table-featuretable tr.v-table-row-section {
 	color: #333366;
 	font-size: 18px;
 	font-weight: bold;
 }
-.v-app-GeworkbenchRoot .v-table-featuretable tr.v-table-row-subsection {
+.geworkbench .v-table-featuretable tr.v-table-row-subsection {
 	font-size: 16px;
 	font-weight: bold;
 }
 
-.v-app-GeworkbenchRoot .v-table-featuretable .v-table-body {
+.geworkbench .v-table-featuretable .v-table-body {
 	border: none;	
 }
 
-.v-app-GeworkbenchRoot .v-panel-content-light {
+.geworkbench .v-panel-content-light {
 	border-top: none;
 }
 
@@ -630,11 +630,11 @@
 
 /* Feature controls: title, reset, view source */
 
-.v-app-GeworkbenchRoot .feature-controls {
+.geworkbench .feature-controls {
 	background: transparent url(feature-controls-border.png) repeat-x 0 41px;
 	padding-bottom: 10px;
 }
-.v-app-GeworkbenchRoot .feature-controls .title {
+.geworkbench .feature-controls .title {
 	font-family: "Helvetica Neue", helvetica, arial, sans-serif;
 	font-weight: bold;
 	font-size: 24px;
@@ -647,10 +647,10 @@
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
-.v-app-GeworkbenchRoot .feature-controls .title span {
+.geworkbench .feature-controls .title span {
 	margin-right: 12px;
 }
-.v-app-GeworkbenchRoot .feature-controls .new span {
+.geworkbench .feature-controls .new span {
 	padding-right: 30px;
 	background: transparent url(new-caption-badge.png) no-repeat right 4px;
 }
@@ -691,43 +691,43 @@
 
 
 
-.v-app-GeworkbenchRoot .v-horizontallayout-sample-view .v-horizontallayout-margin-top {
+.geworkbench .v-horizontallayout-sample-view .v-horizontallayout-margin-top {
 	padding-top: 27px;
 }
-.v-app-GeworkbenchRoot .v-horizontallayout-sample-view .v-horizontallayout-margin-bottom {
+.geworkbench .v-horizontallayout-sample-view .v-horizontallayout-margin-bottom {
 	padding-bottom: 24px;
 }
-.v-app-GeworkbenchRoot .feature-info {
+.geworkbench .feature-info {
 	background: #1e2123 url(info-bubble-bg.png) repeat-y;
 	color: #b8bbbe;
 	font-family: arial, helvetica, verdana, sans-serif;
 	font-size: 12px;
 	line-height: 19px;
 }
-.v-sa .v-app-GeworkbenchRoot .feature-info {
+.v-sa .geworkbench .feature-info {
 	font-family: helvetica, arial, verdana, sans-serif;
 }
-.v-app-GeworkbenchRoot .feature-info div.v-link a {
+.geworkbench .feature-info div.v-link a {
 	font-size: 11px;
 	line-height: 18px;
 	margin-left: 28px;
 }
-.v-app-GeworkbenchRoot .feature-info div.v-link a span,
-.v-app-GeworkbenchRoot .feature-info div.v-link a:link span {
+.geworkbench .feature-info div.v-link a span,
+.geworkbench .feature-info div.v-link a:link span {
 	color: #b7c0c7;
 	text-decoration: none;
 }
-.v-app-GeworkbenchRoot .feature-info div.v-link a:hover span {
+.geworkbench .feature-info div.v-link a:hover span {
 	color: #dcebf6;
 }
-.v-app-GeworkbenchRoot .feature-info div.v-link a span {
+.geworkbench .feature-info div.v-link a span {
 	text-decoration: none;
 	border-bottom: 1px dotted #495964;
 }
-.v-app-GeworkbenchRoot .feature-info div.v-link a:hover span {
+.geworkbench .feature-info div.v-link a:hover span {
 	border-bottom: 1px solid #dcebf6;
 }
-.v-app-GeworkbenchRoot .feature-info .v-panel-caption {
+.geworkbench .feature-info .v-panel-caption {
 	color: #fff;
 	font-family: "Helvetica Neue", helvetica, arial, verdana, sans-serif;
 	font-size: 14px;
@@ -741,32 +741,32 @@
 	padding-top: 15px;
 	border: none;
 }
-.v-app-GeworkbenchRoot .feature-info .v-panel-content {
+.geworkbench .feature-info .v-panel-content {
 	background: transparent url(info-bubble-top.png) no-repeat 0 -44px;
 	border: none;
 }
-.v-app-GeworkbenchRoot .feature-info .v-panel-content > div {
+.geworkbench .feature-info .v-panel-content > div {
 	background: transparent;
 }
-.v-app-GeworkbenchRoot .v-panel-deco-feature-info {
+.geworkbench .v-panel-deco-feature-info {
 	height: 28px;
 	background: transparent url(info-bubble-bottom.png);
 	margin: 0;
 	border: none;
 }
 
-.v-app-GeworkbenchRoot .feature-info .v-verticallayout .v-verticallayout-margin-left {
+.geworkbench .feature-info .v-verticallayout .v-verticallayout-margin-left {
 	padding-left: 28px;
 }
-.v-app-GeworkbenchRoot .feature-info .v-verticallayout .v-verticallayout-margin-right {
+.geworkbench .feature-info .v-verticallayout .v-verticallayout-margin-right {
 	padding-right: 20px;
 }
 
-.v-app-GeworkbenchRoot .feature-info .v-label {
+.geworkbench .feature-info .v-label {
 	padding: 0 20px 9px 28px;
 }
 
-.v-app-GeworkbenchRoot .feature-info .v-label-section {
+.geworkbench .feature-info .v-label-section {
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 30px;
@@ -778,25 +778,25 @@
 	height: auto;
 }
 
-.v-app-GeworkbenchRoot .feature-info .v-label-section span {
+.geworkbench .feature-info .v-label-section span {
 	display: block;
 	background: transparent url(info-bubble-separator.png) repeat-x;
 	padding: 5px 0 0 19px;
 	margin: 0 5px 0 9px;
 }
 
-.v-app-GeworkbenchRoot .feature-info .description {
+.geworkbench .feature-info .description {
 	padding: 0;
 }
-.v-app-GeworkbenchRoot .feature-info .description div.outer-deco {
+.geworkbench .feature-info .description div.outer-deco {
 	margin: 0 5px 0 9px;
 	width: 303px;
 }
-.v-app-GeworkbenchRoot .feature-info .description div.deco {
+.geworkbench .feature-info .description div.deco {
 	padding: 0 19px 13px 19px;
 	position: relative;
 }
-.v-app-GeworkbenchRoot .feature-info .description span.deco {
+.geworkbench .feature-info .description span.deco {
 	display: block;
 	position: absolute;
 	height: 12px;
@@ -805,14 +805,14 @@
 	left: -5px;
 	top: 40%;
 }
-.v-ie6 .v-app-GeworkbenchRoot .feature-info .description span.deco {
+.v-ie6 .geworkbench .feature-info .description span.deco {
 	left: -24px;
 }
 
-.v-app-GeworkbenchRoot .feature-info .sample-description {
+.geworkbench .feature-info .sample-description {
 	padding: 0;
 }
-.v-app-GeworkbenchRoot .feature-info .sample-description div.outer-deco {
+.geworkbench .feature-info .sample-description div.outer-deco {
 	margin: 0 5px 0 9px;
 	color: #e0ecff;
 	text-shadow: 0 1px 0 #283b4e;
@@ -821,11 +821,11 @@
 	border-bottom-color: #2e5b92;
 	width: 303px;
 }
-.v-ie6 .v-app-GeworkbenchRoot .feature-info .sample-description div.outer-deco {
+.v-ie6 .geworkbench .feature-info .sample-description div.outer-deco {
 	border-top: none;
 }
 
-.v-app-GeworkbenchRoot .feature-info .sample-description div.deco {
+.geworkbench .feature-info .sample-description div.deco {
 	padding: 13px 19px 13px 19px;
 	background: #31629e url(sample-desc-bg.png) repeat-x;
 	border: 1px solid #4b81b2;
@@ -834,7 +834,7 @@
 	position: relative;
 }
 
-.v-app-GeworkbenchRoot .feature-info .sample-description span.deco {
+.geworkbench .feature-info .sample-description span.deco {
 	display: block;
 	position: absolute;
 	height: 11px;
@@ -843,7 +843,7 @@
 	left: -7px;
 	top: 45%;
 }
-.v-ie6 .v-app-GeworkbenchRoot .feature-info .sample-description span.deco {
+.v-ie6 .geworkbench .feature-info .sample-description span.deco {
 	left: -26px;
 }
 
