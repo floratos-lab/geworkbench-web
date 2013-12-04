@@ -1,9 +1,5 @@
 package org.geworkbenchweb.plugins.markus;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -12,14 +8,12 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
-import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.geworkbenchweb.pojos.PdbFileInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.terminal.UserError;
@@ -41,7 +35,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 988711785863720384L;
 
 	private Long dataSetId;
-	private String pdbFilename;
+	private PdbFileInfo pdbFileInfo;
 	private ComboBox cbxChain 			= 	new ComboBox("Chain");
 	private TextField email = new TextField("Email (optional)");
 	private TextField title = new TextField("Title (optional)");
@@ -113,7 +107,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		}
 		@Override
 		public void buttonClick(ClickEvent event) {
-			MarkusAnalysis analysis = new MarkusAnalysis(pdbFilename, form, dataSetId);
+			MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), form, dataSetId);
 			analysis.execute();
 		}
 	}
@@ -125,7 +119,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		return vlayout;
 	}
 	private Panel buildOptionalPanel() {
-		cbxChain = new ComboBox("Chain", getChains());
+		cbxChain = new ComboBox("Chain");
 		cbxChain.setNullSelectionAllowed(false);
 		if(cbxChain.size()>0) {
 			cbxChain.setValue(cbxChain.getItemIds().iterator().next());
@@ -149,46 +143,6 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		Panel panel = new Panel();
 		panel.addComponent(layout);
 		return panel;
-	}
-
-	private int chainoffset = 21;
-	private HashSet<String> chains = new HashSet<String>();
-	private HashSet<String> getChains() {
-		if(pdbFilename==null) return chains; // this happens at the 'initial' time when dataSetId is zero
-		if(chains.size()>0) { // assuming it has been parsed.
-			return chains;
-		}
-
-		// not a very smart way to do this: read through the file
-		final String DATASETS = "data";
-		final String SLASH = "/";
-
-		String fullPath = GeworkbenchRoot.getBackendDataDirectory() + SLASH
-				+ SessionHandler.get().getUsername() + SLASH + DATASETS + SLASH
-				+ pdbFilename;
-		File pdbfile = new File(fullPath);
-
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(pdbfile));
-			String line = br.readLine();
-			while(line!=null) {
-				if (line.startsWith("ATOM  ") || line.startsWith("HETATM")){
-					chains.add(line.substring(chainoffset, chainoffset+1));
-				}
-				line = br.readLine();
-			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		if (chains.contains(" ")) {
-			chains.remove(" ");
-			chains.add("_");
-		}
-		return chains;
 	}
 
 	private Panel buildStructurePanel() {
@@ -394,7 +348,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 				String key = keyTf.getValue().toString();
 				if (key.length()>0) results = results+"&key="+key;
 
-				MarkusAnalysis analysis = new MarkusAnalysis(pdbFilename, null, dataSetId);
+				MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), null, dataSetId);
 				analysis.getResultSet(results);
 			}
 		}
@@ -634,9 +588,9 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		if(dataId==0) return;
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-		pdbFilename = dataset.getName();
+		pdbFileInfo = FacadeFactory.getFacade().find(PdbFileInfo.class, dataset.getDataId());
 		cbxChain.removeAllItems();
-		for(String itemId: getChains()) {
+		for(String itemId: pdbFileInfo.getChains()) {
 			cbxChain.addItem(itemId);
 		}
 		if(cbxChain.size()>0) {

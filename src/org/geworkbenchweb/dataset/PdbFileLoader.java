@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.PdbFileInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class PdbFileLoader extends Loader {
@@ -20,11 +21,15 @@ public class PdbFileLoader extends Loader {
 					"File name "+file.getName()+" does not end with .pdb. Please choose a file with .pdb extension.");
 		}
 
-		/* note: only the file name is retained */
+		PdbFileInfo pdbFileInfo = new PdbFileInfo(file);
+		FacadeFactory.getFacade().store(pdbFileInfo);
+		Long id = pdbFileInfo.getId();
+		
 		String fileName = file.getName();
 		dataset.setName(fileName);
-		dataset.setType("org.geworkbenchweb.pojos.PdbFileInfo"); // this used to be DSProteinStructure/CSProteinStructure
-		dataset.setDescription(""); // this used to be number of chains, parsed from the PDF file TODO
+		dataset.setType("org.geworkbenchweb.pojos.PdbFileInfo");
+		dataset.setDescription("# of chains: " + pdbFileInfo.getChains().size());
+		dataset.setDataId(id);
 		FacadeFactory.getFacade().store(dataset);
 
 		DataHistory dataHistory = new DataHistory();
