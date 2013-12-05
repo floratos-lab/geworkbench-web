@@ -3,7 +3,6 @@ package org.geworkbenchweb.plugins.cnkb;
 import java.util.Vector;
 import java.io.Serializable;
 
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 
 public class CNKBResultSet implements Serializable{
@@ -12,11 +11,13 @@ public class CNKBResultSet implements Serializable{
 	
 	private Vector<CellularNetWorkElementInformation> hits = null;
 	private CellularNetworkPreference cnkbPref = null;
+	final private Long datasetId;
 	
-	public CNKBResultSet(Vector<CellularNetWorkElementInformation> hits, CellularNetworkPreference cnkbPref)
+	public CNKBResultSet(Vector<CellularNetWorkElementInformation> hits, CellularNetworkPreference cnkbPref, Long datasetId)
 	{
 		this.hits = hits;
 		this.cnkbPref = cnkbPref;
+		this.datasetId = datasetId;
 	}
 	
 	public Vector<CellularNetWorkElementInformation> getCellularNetWorkElementInformations()
@@ -28,5 +29,9 @@ public class CNKBResultSet implements Serializable{
 	{
 		return cnkbPref;
 		
+	}
+
+	public Long getDatasetId() {
+		return datasetId;
 	}
 }

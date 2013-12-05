@@ -25,10 +25,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape; 
@@ -495,7 +495,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		return selectedTypes;
 	} 
 	
-	protected IndexedContainer getIndexedContainer(CNKBResultSet  resultSet)
+	IndexedContainer getIndexedContainer(CNKBResultSet  resultSet)
 	{
 		Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
 		final Short confidentType  = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
@@ -505,6 +505,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 		totalInteractionConfidence.clear();
 		ConfidentDataMap.clear();
+		
+		Long id = resultSet.getDatasetId();
+		Map<String, String> map = CSVUtil.getAnnotationMap(id);
 		
 		for (int j = 0; j < hits.size(); j++) {
 			Item item = dataIn.addItem(j);
@@ -534,15 +537,11 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				dataIn.addContainerProperty(selectedType + " #", Integer.class,
 						null);
 
-			item.getItemProperty("Marker").setValue(
-					hits.get(j).getdSGeneMarker().getLabel());
-			if (hits.get(j).getdSGeneMarker().getShortName() == hits.get(j)
-					.getdSGeneMarker().getGeneName()) {
-				item.getItemProperty("Gene").setValue("--");
-			} else {
-				item.getItemProperty("Gene").setValue(
-						hits.get(j).getdSGeneMarker().getGeneName());
-			}
+			String label = hits.get(j).getMarkerLabel();
+			String geneSymbol = map.get(label);
+			item.getItemProperty("Marker").setValue(label);
+			if(geneSymbol!=null)
+				item.getItemProperty("Gene").setValue(geneSymbol);
 
 			item.getItemProperty("Gene Type").setValue(
 					hits.get(j).getGeneType());

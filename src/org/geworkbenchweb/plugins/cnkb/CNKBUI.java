@@ -15,15 +15,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -210,11 +205,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 									interactomeBox.getValue().toString());
 							params.put(CNKBParameters.VERSION, versionBox
 									.getValue().toString());
-							DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils
-									.deserializeDataSet(dataSetId,
-											DSMicroarraySet.class);
-							//setAnnotationParser(dataSetId, maSet); // XXX this is old code that does not work anymore
-							submitCnkbEvent(maSet);
+							submitCnkbEvent(dataSetId);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -291,26 +282,16 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		return CNKBResultSet.class;
 	}
 
+	@Deprecated
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
 			HashMap<Serializable, Serializable> parameters) throws IOException {
-		try {
-			CNKBResultSet resultSet = getInteractions(
-					(DSMicroarraySet) dataset, params);
-			UserDirUtils.serializeResultSet(resultId, resultSet);
-		} catch (UnAuthenticatedException uae) {
-			creatAuthenticationDialog((DSMicroarraySet) dataset);
-			return "UnAuthenticatedException";
-		} catch (NullPointerException e) {
-			throw new IOException("null pointer caught in CNKBUI"); // using IOException because of the limitation of the interface AnalysisUI
-		}
-		return "CNKB";
-
+		return null;
 	}
 
 	private HttpSession session = null;
 
-	private CNKBResultSet getInteractions(DSMicroarraySet dataSet,
+	private CNKBResultSet getInteractions(Long dataSetId,
 			HashMap<Serializable, Serializable> params)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
@@ -333,13 +314,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		log.debug("userInfo "+userInfo);
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
-		DSItemList<DSGeneMarker> selectedMarkers = new CSItemList<DSGeneMarker>();
+		List<String> selectedMarkers = new ArrayList<String>();
 		hits = new Vector<CellularNetWorkElementInformation>();
 		for (int i = 0; i < selectedMarkerSet.length; i++) {
 			ArrayList<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 			for(int m=0; m<temp.size(); m++) {
-				String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();					 
-				DSGeneMarker marker = dataSet.getMarkers().get(temp1);
+				String marker = ((temp.get(m)).split("\\s+"))[0].trim();					 
 				if (marker != null && !selectedMarkers.contains(marker))
 				{
 					selectedMarkers.add(marker);
@@ -378,13 +358,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
-			DSGeneMarker marker = cellularNetWorkElementInformation
-					.getdSGeneMarker();
-			if(marker==null) {
-				log.warn("marker is null");
-				continue;
-			}
-			String label = marker.getLabel();
+			String label = cellularNetWorkElementInformation.getMarkerLabel();
 			if(label==null) {
 				log.warn("marker label is null");
 				continue;
@@ -415,10 +389,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			}
 		}
 
-		return new CNKBResultSet(hits, cnkbPref);
+		return new CNKBResultSet(hits, cnkbPref, dataSetId);
 	}
 
-	private void creatAuthenticationDialog(final DSMicroarraySet maSet) {
+	private void creatAuthenticationDialog(final Long dataSetId) {
 		final Window dialog = new Window("Authentication");
 
 		dialog.setModal(true);
@@ -443,7 +417,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 						.getContext()).getHttpSession();
 				session.setAttribute(CNKBParameters.CNKB_USERINFO, userName
 						+ ":" + passwd);
-				submitCnkbEvent(maSet);
+				submitCnkbEvent(dataSetId);
 				getApplication().getMainWindow().removeWindow(dialog);
 
 			}
@@ -464,7 +438,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	private void submitCnkbEvent(DSMicroarraySet maSet) {
+	private void submitCnkbEvent(Long dataSetId) {
 		resultSet = new ResultSet();
 		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
 		resultSet.setDateField(date);
@@ -482,7 +456,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-				maSet, resultSet, params, CNKBUI.this);
+				dataSetId, resultSet, params, CNKBUI.this);
 		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 
 	}
@@ -491,8 +465,17 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	public String execute(Long resultId, Long datasetId,
 			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
 			Exception {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			CNKBResultSet resultSet = getInteractions(
+					datasetId, params);
+			UserDirUtils.serializeResultSet(resultId, resultSet);
+		} catch (UnAuthenticatedException uae) {
+			creatAuthenticationDialog(datasetId);
+			return "UnAuthenticatedException";
+		} catch (NullPointerException e) {
+			throw new IOException("null pointer caught in CNKBUI"); // using IOException because of the limitation of the interface AnalysisUI
+		}
+		return "CNKB";
 	}
 
 }

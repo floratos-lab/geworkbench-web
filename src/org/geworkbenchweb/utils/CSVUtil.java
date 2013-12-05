@@ -138,7 +138,7 @@ public class CSVUtil {
 	}
 
 	/* build a probeSetId-geneSymbol map for efficiency */
-	static private Map<String, String> getAnnotationMap(Long dataSetId) {
+	static public Map<String, String> getAnnotationMap(Long dataSetId) {
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
 		DataSetAnnotation dataSetAnnotation = FacadeFactory

@@ -5,16 +5,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -57,15 +57,18 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 
 		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
 				 
+		Map<String, String> map = CSVUtil.getAnnotationMap(datasetId);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
 					.getSelectedInteractions(selectedTypes, confidentType);
 
-			DSGeneMarker marker1 = cellularNetWorkElementInformation
-					.getdSGeneMarker();
+			String markerLabel = cellularNetWorkElementInformation.getMarkerLabel();
+			String geneSymbol = map.get(markerLabel);
+			String geneName = markerLabel;
+			if(geneSymbol!=null) geneName = geneSymbol;
 			AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
-					NodeType.GENE_SYMBOL, marker1.getGeneName());
+					NodeType.GENE_SYMBOL, geneName);
 
 			for (InteractionDetail interactionDetail : arrayList) {
 
