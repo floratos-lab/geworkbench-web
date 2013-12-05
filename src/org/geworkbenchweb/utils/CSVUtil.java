@@ -5,15 +5,20 @@ import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.util.Util;
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.ui.Tree;
@@ -93,35 +98,36 @@ public class CSVUtil {
 	}
 
 	private static ArrayList<String> getPanel(String setType, String markerType, Long datasetId, ArrayList<String> selectedNames){
-		DSMicroarraySet dataSet;
-		try {
-			dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(datasetId, DSMicroarraySet.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			dataSet = null;
-		}
-
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		
 		ArrayList<String> panel = new ArrayList<String>();
-		if(dataSet==null) return panel;
+		if(microarray==null) return panel;
+		
+		List<String> arrayLabels = microarray.getArrayLabels();
+		List<String> markerLabels = microarray.getMarkerLabels();
+
 		if (setType.equals("Array")){
-			for (DSMicroarray array: dataSet) {
-				if(selectedNames.contains(array.getLabel())) 
-					panel.add(array.getLabel());
+			for (String arrayLabel : arrayLabels) {
+				if(selectedNames.contains(arrayLabel)) 
+					panel.add(arrayLabel);
 			}
 		}else if (markerType.equals("Marker ID")){
-			for (DSGeneMarker marker : dataSet.getMarkers()){
-				if (selectedNames.contains(marker.getLabel()))
-					panel.add(marker.getLabel());
+			for (String markerLabel : markerLabels){
+				if (selectedNames.contains(markerLabel))
+					panel.add(markerLabel);
 			}
 		}else if (markerType.equals("Gene Symbol")){
-			for(DSGeneMarker marker: dataSet.getMarkers()) {
-				String geneName = marker.getGeneName();
+			Map<String, String> map = getAnnotationMap(datasetId);
+			for(String markerLabel : markerLabels) {
+				String geneName = map.get(markerLabel);
 				if(selectedNames.contains(geneName))
-					panel.add(marker.getLabel());
+					panel.add(markerLabel);
 				else if (geneName.contains(" /// ")){
 					for (String gname : geneName.split(" /// ")){
 						if (selectedNames.contains(gname)){
-							panel.add(marker.getLabel());
+							panel.add(markerLabel);
 							break;
 						}
 					}
@@ -129,6 +135,27 @@ public class CSVUtil {
 			}
 		}
 		return panel;
+	}
+
+	/* build a probeSetId-geneSymbol map for efficiency */
+	static private Map<String, String> getAnnotationMap(Long dataSetId) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory
+				.getFacade()
+				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId",
+						parameter);
+		Map<String, String> annotationMap = new HashMap<String, String>();
+		if (dataSetAnnotation != null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(
+					Annotation.class, annotationId);
+			for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry.getGeneSymbol());
+			}
+		}
+		return annotationMap;
 	}
 
 	private static void showWarning(String setType, int missing, Window pWindow){
