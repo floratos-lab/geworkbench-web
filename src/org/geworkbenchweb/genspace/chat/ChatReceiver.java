@@ -7,7 +7,6 @@ import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
 import org.geworkbenchweb.genspace.ui.chat.MessageTypes;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;

@@ -5,7 +5,6 @@ import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
-import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
 import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;

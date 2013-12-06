@@ -35,7 +35,6 @@ import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRepository;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRepositoryService;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 

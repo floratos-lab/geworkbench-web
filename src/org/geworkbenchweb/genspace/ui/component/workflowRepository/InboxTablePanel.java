@@ -6,7 +6,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.vaadin.artur.icepush.ICEPush;
 

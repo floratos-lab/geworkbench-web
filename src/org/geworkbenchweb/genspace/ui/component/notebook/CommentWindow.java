@@ -18,7 +18,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisComment;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.vaadin.artur.icepush.ICEPush;
 

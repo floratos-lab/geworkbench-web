@@ -5,7 +5,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.User;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 public class UserWrapper {

@@ -1,7 +1,6 @@
 package org.geworkbenchweb.genspace.ui;
 
 import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.RealTimeWorkflowSuggestion;
 import org.geworkbenchweb.genspace.ui.component.SocialNetworkHome;

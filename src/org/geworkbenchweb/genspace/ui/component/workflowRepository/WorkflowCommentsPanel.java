@@ -10,7 +10,6 @@ import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowComment;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 import com.vaadin.data.Item;

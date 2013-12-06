@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 import com.restfb.Connection;

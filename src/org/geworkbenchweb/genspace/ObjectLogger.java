@@ -23,7 +23,6 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
 /*import org.geworkbench.events.AnalysisInvokedEvent;*/
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.vaadin.artur.icepush.ICEPush;
 

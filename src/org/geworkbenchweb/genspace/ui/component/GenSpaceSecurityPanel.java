@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.GenspaceToolBar;
 import org.vaadin.addon.borderlayout.BorderLayout;

@@ -21,7 +21,6 @@ import org.geworkbenchweb.genspace.NotebookDataListener;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
 import org.geworkbenchweb.genspace.ui.component.FBAuthWindow;
 import org.geworkbenchweb.genspace.ui.component.FBCommentWindow;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.vaadin.addon.borderlayout.BorderLayout;

@@ -8,7 +8,6 @@ import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
 import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;

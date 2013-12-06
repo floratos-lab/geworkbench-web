@@ -3,7 +3,6 @@ package org.geworkbenchweb.genspace.rating;
 import java.text.DecimalFormat;
 
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.wrapper.ToolWrapper;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;

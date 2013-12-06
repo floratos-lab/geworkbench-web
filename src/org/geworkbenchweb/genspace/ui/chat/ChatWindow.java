@@ -13,7 +13,6 @@ import java.util.HashMap;
 
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow.messageTypes;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
