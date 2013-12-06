@@ -7,28 +7,28 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.TTestResult;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent; 
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
- 
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -141,14 +141,6 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 					}
 				}
 				
-				DSMicroarraySet maSet;
-				try {
-					maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
-
 				ResultSet resultSet = new ResultSet();
 				java.sql.Date date = new java.sql.Date(System
 						.currentTimeMillis());
@@ -164,7 +156,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-						maSet, resultSet, params, TTestUI.this);
+						dataSetId, resultSet, params, TTestUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 				
 			}
@@ -346,23 +338,11 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		return DSSignificanceResultSet.class;
 	}
 
+	@Deprecated
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset,
 			HashMap<Serializable, Serializable> parameters) throws IOException {
-		TTestAnalysisWeb analyze = new TTestAnalysisWeb((DSMicroarraySet) dataset, params);
-		DSSignificanceResultSet<DSGeneMarker> sigSet = analyze.execute();
-		UserDirUtils.serializeResultSet(resultId, sigSet);
-		if (!sigSet.getSignificantMarkers().isEmpty())
-		{			 
-			List<String> significantMarkerNames = new ArrayList<String>();
-			for(int i=0; i<sigSet.getSignificantMarkers().size(); i++)
-				significantMarkerNames.add(sigSet.getSignificantMarkers().get(i).getLabel());
-			java.util.Collections.sort(significantMarkerNames);
-			SubSetOperations.storeSignificance(significantMarkerNames, dataSetId, userId);
-		
-		} 
-		 
-		return "TTest";
+		return null;
 	}
 	
 	private String validInputData(String[] selectedCaseSets, String[] selectedControlSets)
@@ -411,8 +391,30 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	public String execute(Long resultId, Long datasetId,
 			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
 			Exception {
-		// TODO Auto-generated method stub
-		return null;
+		TTestAnalysisWeb analyze = new TTestAnalysisWeb(datasetId, params);
+		TTestOutput tTestOutput = analyze.execute();
+		TTestResult resultSet = new TTestResult(tTestOutput);
+		FacadeFactory.getFacade().store(resultSet);
+		
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		List<String> markerLabels = microarray.getMarkerLabels();
+		
+		int[] significantIndex = resultSet.getSignificantIndex();
+		if (significantIndex!=null)
+		{			 
+			List<String> significantMarkerNames = new ArrayList<String>();
+			for(int i=0; i<significantIndex.length; i++) {
+				String markerLabel = markerLabels.get(significantIndex[i]);
+				significantMarkerNames.add(markerLabel);
+			}
+			java.util.Collections.sort(significantMarkerNames);
+			SubSetOperations.storeSignificance(significantMarkerNames, dataSetId, userId);
+		
+		} 
+		 
+		return "TTest";
 	}	
 	
 }

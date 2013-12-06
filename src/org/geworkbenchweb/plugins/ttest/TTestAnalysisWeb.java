@@ -6,18 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbenchweb.GeworkbenchRoot; 
-import org.geworkbenchweb.utils.SubSetOperations;
-
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
@@ -27,10 +15,16 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.geworkbench.components.ttest.SignificanceMethod;
 import org.geworkbench.components.ttest.data.TTestInput;
 import org.geworkbench.components.ttest.data.TTestOutput;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.MicroarrayRow;
+import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * This class submits TTest Analysis from web application
@@ -45,7 +39,7 @@ public class TTestAnalysisWeb {
 	
 	private static String url = null;
 	
-	private DSMicroarraySet dataSet = null;
+	final private Long dataSetId;
 	
 	private int numGenes, numExps;
 	private double alpha;
@@ -61,10 +55,10 @@ public class TTestAnalysisWeb {
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	public TTestAnalysisWeb(DSMicroarraySet dataSet,
+	public TTestAnalysisWeb(Long dataSetId,
 			HashMap<Serializable, Serializable> params) {
 		this.params = params;
-		this.dataSet = dataSet;
+		this.dataSetId = dataSetId;
 		
 		
 		if(((String) params.get(TTestParameters.LOGNORMALIZED)).equalsIgnoreCase("yes")) {
@@ -101,9 +95,7 @@ public class TTestAnalysisWeb {
 		}
 	}
 
-	public DSSignificanceResultSet<DSGeneMarker> execute() throws IOException {
-		
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView =  new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
+	public TTestOutput execute() throws IOException {
 		
 		String[] selectedCaseSets 		= 	(String[]) params.get(TTestParameters.CASEARRAY);
 		String[] selectedControlSets 	= 	(String[]) params.get(TTestParameters.CONTROLARRAY);
@@ -137,40 +129,35 @@ public class TTestAnalysisWeb {
 		
 		aC.addAll(bC);
 		
-		DSPanel<DSGeneMarker> markerPanel = new CSPanel<DSGeneMarker>();
-		for (int i=0; i<dataSet.getMarkers().size(); i++) {
-			markerPanel.add(dataSet.getMarkers().get(i));
-		} 
-		dataSetView.setMarkerPanel(markerPanel);
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+
+		List<String> arrayLabels = microarray.getArrayLabels();
+		List<String> markerLabels = microarray.getMarkerLabels();
+		List<MicroarrayRow> rows = microarray.getRows();
+		float[][] values = new float[markerLabels.size()][arrayLabels.size()];
+		for(int i=0; i<markerLabels.size(); i++) {
+			byte[] bytes = rows.get(i).getBytes();
+			float[] v = (float[])ObjectConversion.toObject(bytes);
+			for(int j=0; j<arrayLabels.size(); j++) {
+				values[i][j] = v[j];
+			}
+		}
 		
-		DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
-		for (int i=0; i<aC.size(); i++) {
-				DSMicroarray micraorray = dataSet.get(aC.get(i));
-				panel.add(micraorray);
-		} 
-		dataSetView.setItemPanel(panel);
-		
-		final int n = dataSet.size();
-		int count = 0;
-		for(int i=0; i<n; i++) {			
-			for(int j=0; j<aC.size(); j++) {
-				if(!aC.contains(dataSet.get(i-count).getLabel())) {
-					dataSet.remove(i-count);
-					count++;
-					break;
-				} 
+		List<Integer> includedArrays = new ArrayList<Integer>();
+		for (int i = 0; i < arrayLabels.size(); i++) {
+			if (aC.contains(arrayLabels.get(i))) {
+				includedArrays.add(i);
 			}
 		}
 
-		numExps 	= 	dataSet.size();
-		numGenes 	= 	dataSet.getMarkers().size();
+		numExps 	= 	includedArrays.size();
+		numGenes 	= 	markerLabels.size();
 		
 		double[][] caseArray  	= 	new double[numGenes][numberGroupA];
 		double[][] controlArray = 	new double[numGenes][numberGroupB];
-		
-		
-		
-		
+
 		String[] caseLabels 	= 	new String[caseArrayPositions.size()];
 		String[] controlLabels 	= 	new String[controlArrayPositions.size()];
 	 
@@ -180,15 +167,16 @@ public class TTestAnalysisWeb {
 			int controlIndex 	= 	0;
 
 			for(int j=0; j<numExps; j++) {
+				int arrayIndex = includedArrays.get(j);
 				for(int r=0; r<caseArrayPositions.size(); r++){
-					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
-						caseArray[i][caseIndex] = dataSet.getValue(i, j);
+					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(markerLabels.get(arrayIndex))) {
+						caseArray[i][caseIndex] = values[i][arrayIndex];
 						caseIndex++;
 					}
 				}
 				for(int r=0; r<controlArrayPositions.size(); r++){	
-					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(dataSet.get(j).getLabel())) {
-						controlArray[i][controlIndex] = dataSet.getValue(i, j);
+					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(markerLabels.get(arrayIndex))) {
+						controlArray[i][controlIndex] = values[i][arrayIndex];
 						controlIndex++;
 					}
 				}
@@ -211,8 +199,7 @@ public class TTestAnalysisWeb {
 			throw new IOException("t-test failed to get result from URL "+url);
 		}
 		
-		DSSignificanceResultSet<DSGeneMarker> sigSet = createDSSignificanceResultSet(dataSetView, ttestOutput, caseLabels, controlLabels);
-		return sigSet;
+		return ttestOutput;
 	}
 	
 	private TTestOutput computeTtestRemote(TTestInput input) {
@@ -268,33 +255,6 @@ public class TTestAnalysisWeb {
 		}
 
 		return output;
-	}
-	
-	private DSSignificanceResultSet<DSGeneMarker> createDSSignificanceResultSet(
-			DSMicroarraySetView<DSGeneMarker,DSMicroarray> dataSetView,
-			TTestOutput output, String[] caseLabels, String[] controlLabels) {
-		
-		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
-				dataSetView.getMicroarraySet(), "T-Test", caseLabels, controlLabels,
-				alpha, isLogNormalized
-		);
-	
-		if (output.getSignificanceIndex() != null)
-		{
-			for (int i = 0; i < output.getSignificanceIndex().length; i++) {
-			
-				int index = (output.getSignificanceIndex())[i];
-			    DSGeneMarker m = dataSetView.markers().get(index);
-			    sigSet.setSignificance(m, (output.getpValue())[index]);
-			    sigSet.setTValue(m, (output.gettValue())[index]);
-			
-			    sigSet.setFoldChange(m, (output.getFoldChange())[index]);
-		    }
-		    sigSet.sortMarkersBySignificance();
-		
-		}
-		
-		return sigSet;
 	}
 	
 	/**
