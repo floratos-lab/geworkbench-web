@@ -105,6 +105,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>geworkbench</finalName>
 	</build>
 
 	<repositories>
