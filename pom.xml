@@ -44,7 +44,7 @@
 						two processes would use the same debug port -->
 					<!--extraJvmArgs>-Xmx512M -Xss1024k -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
 					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-					<runTarget>geworkbenchweb</runTarget>
+					<runTarget>geworkbench</runTarget>
 					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
 					<noServer>true</noServer>
 					<port>8080</port>
@@ -89,13 +89,13 @@
 				<version>6.1.24</version>
 				<configuration>
 					<stopPort>9966</stopPort>
-					<stopKey>geworkbenchweb</stopKey>
+					<stopKey>geworkbench</stopKey>
 					<!-- Redeploy every x seconds if changes are detected, 0 for no automatic 
 						redeployment -->
 					<scanIntervalSeconds>0</scanIntervalSeconds>
 					<!-- make sure Jetty also finds the widgetset -->
 					<webAppConfig>
-						<contextPath>/geworkbenchweb</contextPath>
+						<contextPath>/geworkbench</contextPath>
 						<baseResource implementation="org.mortbay.resource.ResourceCollection">
 							<!-- Workaround for Maven/Jetty issue http://jira.codehaus.org/browse/JETTY-680 -->
 							<!-- <resources>src/main/webapp,${project.build.directory}/${project.build.finalName}</resources> -->
