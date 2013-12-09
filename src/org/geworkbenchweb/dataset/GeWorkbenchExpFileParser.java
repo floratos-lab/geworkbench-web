@@ -99,14 +99,14 @@ public class GeWorkbenchExpFileParser {
 	}
 	
 	/* This is designed on purpose to be separated from parsing of expression data. */
-	public Map<String, String[]> parseSetInformation() throws IOException, InputFileFormatException {
+	public Map<String, String[]> parseSetInformation(int arrayNumber) throws IOException, InputFileFormatException {
 		arrayInfo = new LinkedHashMap<String, String[]>();
 		
 		BufferedReader reader = new BufferedReader(new FileReader(expFile));
 		String line;
 		while ((line = reader.readLine()) != null) {
 			if (line.trim().length()>0) {
-				parseSetLine(line.trim()); // FIXME parseSetLine
+				parseSetLine(line.trim(), arrayNumber);
 			}
 		}
 		reader.close();
@@ -205,7 +205,7 @@ public class GeWorkbenchExpFileParser {
 	}
 	
 	/* Parse set information from one line. Ignore other content of the file. */
-	private void parseSetLine(String line) throws InputFileFormatException {
+	private void parseSetLine(String line, int arrayNumber) throws InputFileFormatException {
 
 		if (line.charAt(0) == '#') { // skip comment
 			return;
@@ -218,7 +218,7 @@ public class GeWorkbenchExpFileParser {
 		if (line.substring(0, 11).equalsIgnoreCase("Description")) {
 			// definition of sets and contexts of microarrays (phenotypes)
 			String[] f = line.split("\t", -1);
-			String[] setNames = new String[(arrayNumberTemp)];
+			String[] setNames = new String[arrayNumber];
 			for (int i = 0; i < Math.min(setNames.length, f.length - 2); i++) {
 				setNames[i] = f[i + 2];
 			}

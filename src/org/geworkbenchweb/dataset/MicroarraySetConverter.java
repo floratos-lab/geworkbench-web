@@ -45,7 +45,7 @@ public class MicroarraySetConverter {
 			throws InputFileFormatException, IOException {
 		GeWorkbenchExpFileParser parser = new GeWorkbenchExpFileParser(expFile);
 		MicroarraySet cleanMicroaraySet = parser.parse();
-		Map<String, String[]> setInformation = parser.parseSetInformation();
+		Map<String, String[]> setInformation = parser.parseSetInformation(cleanMicroaraySet.arrayNumber);
 		DSMicroarraySet mset = convertToDSMicroarraySet(cleanMicroaraySet,
 				setInformation);
 		return mset;
