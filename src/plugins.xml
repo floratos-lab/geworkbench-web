@@ -91,7 +91,7 @@
 		<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet">
+	<inputType className="org.geworkbenchweb.pojos.AnovaResult">
 	<plugin>
 		<name>ANOVA Result Viewer</name>
 		<description>Show ANOVA result as a table.</description>

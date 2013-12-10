@@ -8,20 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -74,8 +71,6 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	private Long userId  = null;
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
-
-	private Long resultSetId; 
 
 	public AnovaUI() {
 		this(0L);
@@ -287,19 +282,11 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setParent(dataSetId);
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
-				resultSetId = resultSet.getId(); // must be after store
 
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-				DSMicroarraySet dataSet;
-				try {
-					dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSet, resultSet, params, AnovaUI.this);
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSetId, resultSet, params, AnovaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		}
@@ -489,24 +476,29 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		return CSAnovaResultSet.class;
+		return AnovaResult.class;
 	}
 
 
+	@Deprecated
 	@Override
 	public String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) throws IOException {
-		AnovaAnalysis analysis = new AnovaAnalysis((DSMicroarraySet) dataset, (AnovaUI) params.get("form"));
-		CSAnovaResultSet<DSGeneMarker> result = analysis.execute();
-		UserDirUtils.serializeResultSet(resultSetId, result);
-		return "Anova";
+		return null;
 	}
 
 	@Override
 	public String execute(Long resultId, Long datasetId,
 			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
 			Exception {
-		// TODO Auto-generated method stub
-		return null;
+		AnovaAnalysis analysis = new AnovaAnalysis(datasetId, (AnovaUI) params.get("form"));
+		AnovaResult result = analysis.execute();
+		FacadeFactory.getFacade().store(result);
+
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		resultSet.setDataId(result.getId());
+		FacadeFactory.getFacade().store(resultSet);
+		
+		return "Anova";
 	}
 	
 }

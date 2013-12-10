@@ -1,24 +1,24 @@
 package org.geworkbenchweb.plugins.anova.results;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.Map;
 
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry; 
+import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Tabular;
- 
+import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.Preference;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.PagedTableView; 
+import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
- 
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
- 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
@@ -31,41 +31,32 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	private PagedTableView dataTable;
 	private String searchStr;	
 
-	private CSAnovaResultSet<DSGeneMarker> anovaResultSet = null; 
+	final private AnovaResult anovaResultSet; 
     private AnovaTablePreferences anovaTablePref = new AnovaTablePreferences();
 	
 	final private Long datasetId;
+	final private Long parentDatasetId;
 	private Long userId;
 
-	@SuppressWarnings("unchecked")
 	public AnovaResultsUI(Long dataSetId) {
 		datasetId = dataSetId;		
-		if(dataSetId==null) return;
+		if(dataSetId==null) {
+			anovaResultSet = null;
+			parentDatasetId = null;
+			return;
+		}
 		
 		userId = SessionHandler.get().getId();
 		
-		Object object = null;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) { 
-			// TODO pending node should be designed and implemented explicitly as so, eventually
-			// let's make a naive assumption for now that "file not found" means pending computation
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		Long id = resultSet.getDataId();
+		parentDatasetId = resultSet.getParent();
+		if(id==null) { // pending node
 			addComponent(new Label("Pending computation - ID "+ dataSetId));
-			return;
-		} catch (IOException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
-			return;
-		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			anovaResultSet = null;
 			return;
 		}
-		if(! (object instanceof CSAnovaResultSet)) {
-			String type = null;
-			if(object!=null) type = object.getClass().getName();
-			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
-			return;
-		}
-		anovaResultSet = (CSAnovaResultSet<DSGeneMarker>) object;
+		anovaResultSet = FacadeFactory.getFacade().find(AnovaResult.class, id);
 	
 		setSpacing(true);
 		setImmediate(true);
@@ -135,7 +126,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		String[] header;
 		IndexedContainer dataIn = new IndexedContainer();
 
-		int groupNum = anovaResultSet.getLabels(0).length;
+		int groupNum = anovaResultSet.getSelectedArraySetNames().length;
 		int meanStdStartAtIndex =  (anovaTablePref.selectMarker() ? 1 : 0) + (anovaTablePref.selectGeneSymbol() ? 1 : 0) +(anovaTablePref.selectFStat() ? 1 : 0) + (anovaTablePref.selectPVal() ? 1 : 0);
 		header = new String[meanStdStartAtIndex + groupNum
 				* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))];
@@ -154,12 +145,12 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			if (anovaTablePref.selectMean()) {
 				header[meanStdStartAtIndex + cx
 						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0)) + 0] = anovaResultSet
-						.getLabels(0)[cx] + "_Mean";
+						.getSelectedArraySetNames()[cx] + "_Mean";
 			}
 			if (anovaTablePref.selectStd()) {
 				header[meanStdStartAtIndex + cx
 						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0)) + (anovaTablePref.selectMean() ? 1 : 0)] = anovaResultSet
-						.getLabels(0)[cx] + "_Std";
+						.getSelectedArraySetNames()[cx] + "_Std";
 			}
 		}
 
@@ -170,14 +161,17 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 				dataIn.addContainerProperty(header[i], Float.class, "");
 
 		}
+		
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
+		Map<String, String> map = CSVUtil.getAnnotationMap(parentDatasetId);
 
 		double[][] result2DArray = anovaResultSet.getResult2DArray();
-		int significantMarkerNumbers = anovaResultSet.getSignificantMarkers()
-				.size();
+		int significantMarkerNumbers = anovaResultSet.getFeaturesIndexes().length;
+		int[] markerIndex = anovaResultSet.getFeaturesIndexes();
 		for (int cx = 0; cx < significantMarkerNumbers; cx++) {
-			DSGeneMarker m = ((DSGeneMarker) anovaResultSet.getSignificantMarkers().get(
-					cx));
-			if (!isMatchSearch(m))
+			String markerLabel = microarrays.markerLabels[markerIndex[cx]];
+			String geneSymbol = map.get(markerLabel);
+			if (!isMatchSearch(markerLabel, geneSymbol))
 				continue;
 			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.p_value.ordinal()) && (result2DArray[0][cx] > anovaTablePref.getThresholdValue()))
 			    continue;
@@ -188,10 +182,10 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			fieldIndex = 0;
 		
 			if (anovaTablePref.selectMarker()) {
-				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(m.getLabel());
+				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(markerLabel);
 			}
 			if (anovaTablePref.selectGeneSymbol()) {
-				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(m.getGeneName());
+				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(geneSymbol);
 			}	 
 			 
 			if (anovaTablePref.selectPVal()) {
@@ -225,21 +219,21 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		return dataIn;
 	}
 	 
-	private boolean isMatchSearch(DSGeneMarker marker) {
+	private boolean isMatchSearch(String markerLabel, String geneSymbol) {
 			if (searchStr == null || searchStr.trim().length() == 0)
 				return true;
 
 			boolean isMatch = false;	 
 			if (anovaTablePref.selectMarker() &&  anovaTablePref.selectGeneSymbol()) {
-				if (marker.getLabel().toUpperCase().contains(searchStr)
-						|| marker.getGeneName().toUpperCase().contains(searchStr))
+				if (markerLabel.toUpperCase().contains(searchStr)
+						|| geneSymbol.toUpperCase().contains(searchStr))
 					isMatch = true;
 			} else if (anovaTablePref.selectMarker()) {
-				if (marker.getLabel().toUpperCase().contains(searchStr))
+				if (markerLabel.toUpperCase().contains(searchStr))
 					isMatch = true;
 
 			} else if (anovaTablePref.selectGeneSymbol()){
-				if (marker.getGeneName().toUpperCase()
+				if (geneSymbol.toUpperCase()
 						.contains(searchStr.trim().toUpperCase()))
 					isMatch = true;
 			}
