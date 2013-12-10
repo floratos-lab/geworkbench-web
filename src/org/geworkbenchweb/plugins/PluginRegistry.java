@@ -15,7 +15,6 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
@@ -67,7 +66,7 @@ public class PluginRegistry {
 		resultIconMap.put(AdjacencyMatrixDataSet.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(CSAnovaResultSet.class, anovaIcon); // anova result
-		resultIconMap.put(DSSignificanceResultSet.class, anovaIcon); // t-test result
+		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
 		resultIconMap.put(CSMasterRegulatorTableResultSet.class, marinaIcon); // marina result
 
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);

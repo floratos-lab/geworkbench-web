@@ -45,7 +45,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 		Thread analysisThread = new Thread() {
 			@Override
 			public void run() {
-				final ResultSet resultSet = event.getResultSet();
+				Long resultId = event.getResultSet().getId();
 				HashMap<Serializable, Serializable> params = event.getParameters();
 
 				DSMicroarraySet dataSet = null;
@@ -58,17 +58,18 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				AnalysisUI analysisUI = event.getAnalaysisUI();
 				String resultName = null;
 				try {
-					if(dataSet!=null) { // this switch is a temporary solution
-						resultName = analysisUI.execute(resultSet.getId(), dataSet, params);
-					} else {
-						resultName = analysisUI.execute(resultSet.getId(), event.getDatasetId(), params, userId);
+					if(dataSet!=null) { // this switch is a temporary solution - deprecated version
+						resultName = analysisUI.execute(resultId, dataSet, params);
+					} else { // new version
+						resultName = analysisUI.execute(resultId, event.getDatasetId(), params, userId);
 					}
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();	
+					mb.show();
+					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
@@ -77,7 +78,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();	
+					mb.show();
+					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
@@ -85,6 +87,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					// TODO this catch-all exception clause should not be used.
 					// when we still have it, it definitely should not continue from here
 					e.printStackTrace();
+					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;
@@ -92,14 +95,16 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 				if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
 				{
+					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
 				}
 				
+				final ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 				resultSet.setName(resultName);
-
-				FacadeFactory.getFacade().store(resultSet);	
+				FacadeFactory.getFacade().store(resultSet);
+				
 				synchronized(uMainLayout.getApplication()) {
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Completed", 

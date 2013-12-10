@@ -1,16 +1,19 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.TTestResult;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.invient.vaadin.charts.Color.RGB;
 import com.invient.vaadin.charts.InvientCharts;
@@ -38,42 +41,34 @@ import com.vaadin.ui.VerticalLayout;
 
 public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6720344403076533166L;
+	private static Log log = LogFactory.getLog(TTestResultsUI.class);
 
-	private DSSignificanceResultSet<DSGeneMarker> significance;
+	private final TTestResult tTestResultSet;
 
 	final private Long datasetId;
+	final private Long parentDatasetId;
 	
-	@SuppressWarnings("unchecked")
 	public TTestResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null) return;
+		if(dataSetId==null || dataSetId==0) {
+			tTestResultSet = null;
+			parentDatasetId = null;
+			return;
+		}
 
 		setImmediate(true);
 		setSizeFull();	
 
-		Object object = null;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) { 
-			// TODO pending node should be designed and implemented explicitly as so, eventually
-			// let's make a naive assumption for now that "file not found" means pending computation
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		parentDatasetId = resultSet.getParent();
+		Long id = resultSet.getDataId();
+		if(id==null) { // pending node
 			addComponent(new Label("Pending computation - ID "+ dataSetId));
-			return;
-		} catch (IOException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
-			return;
-		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			tTestResultSet = null;
 			return;
 		}
-		if(! (object instanceof DSSignificanceResultSet)) {
-			String type = null;
-			if(object!=null) type = object.getClass().getName();
-			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
-			return;
-		}
-		significance =  (DSSignificanceResultSet<DSGeneMarker>)object;
+		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
 		addComponent(drawPlot());
 	}
@@ -131,12 +126,18 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		double maxPlotValue 		= 	Double.MIN_VALUE;
 
 		LinkedHashSet<DecimalPoint> points 	= 	new LinkedHashSet<DecimalPoint>();
-		
+
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		List<String> markerLabels = microarray.getMarkerLabels();
+
+		log.debug("t-test result ID "+tTestResultSet.getId());
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
-		for (int i = 0; i < significance.getSignificantMarkers().size(); i++) {
+		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
 			
-			DSGeneMarker mark 	= 	significance.getSignificantMarkers().get(i);
-			double sigValue 	= 	significance.getSignificance(mark);
+			String mark 	= 	markerLabels.get(i);
+			double sigValue 	= 	tTestResultSet.getpValue()[i];
 		
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
 				sigValue = 4.9E-45;
@@ -151,7 +152,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 			}
 
 
-			double xVal = significance.getFoldChange(mark);
+			double xVal = tTestResultSet.getFoldChange()[i];
 
 			if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 				double yVal = -Math.log10(sigValue);
@@ -163,7 +164,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 					maxPlotValue = plotVal;
 				}
 				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
-				a.setName(mark.getLabel());
+				a.setName(mark);
 				points.add(a);
 			} else {
 				//log.debug("Marker " + i + " was infinite or NaN.");

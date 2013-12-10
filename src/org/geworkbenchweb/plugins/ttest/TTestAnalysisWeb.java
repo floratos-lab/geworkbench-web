@@ -134,10 +134,10 @@ public class TTestAnalysisWeb {
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 
 		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
+		int markerNumber = microarray.getMarkerLabels().size();
 		List<MicroarrayRow> rows = microarray.getRows();
-		float[][] values = new float[markerLabels.size()][arrayLabels.size()];
-		for(int i=0; i<markerLabels.size(); i++) {
+		float[][] values = new float[markerNumber][arrayLabels.size()];
+		for(int i=0; i<markerNumber; i++) {
 			byte[] bytes = rows.get(i).getBytes();
 			float[] v = (float[])ObjectConversion.toObject(bytes);
 			for(int j=0; j<arrayLabels.size(); j++) {
@@ -153,7 +153,7 @@ public class TTestAnalysisWeb {
 		}
 
 		numExps 	= 	includedArrays.size();
-		numGenes 	= 	markerLabels.size();
+		numGenes 	= 	markerNumber;
 		
 		double[][] caseArray  	= 	new double[numGenes][numberGroupA];
 		double[][] controlArray = 	new double[numGenes][numberGroupB];
@@ -169,13 +169,13 @@ public class TTestAnalysisWeb {
 			for(int j=0; j<numExps; j++) {
 				int arrayIndex = includedArrays.get(j);
 				for(int r=0; r<caseArrayPositions.size(); r++){
-					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(markerLabels.get(arrayIndex))) {
+					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels.get(arrayIndex))) {
 						caseArray[i][caseIndex] = values[i][arrayIndex];
 						caseIndex++;
 					}
 				}
 				for(int r=0; r<controlArrayPositions.size(); r++){	
-					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(markerLabels.get(arrayIndex))) {
+					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels.get(arrayIndex))) {
 						controlArray[i][controlIndex] = values[i][arrayIndex];
 						controlIndex++;
 					}

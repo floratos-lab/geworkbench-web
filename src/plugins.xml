@@ -134,7 +134,7 @@
 		<uiClass>org.geworkbenchweb.plugins.tabularview.TabularViewUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet">
+	<inputType className="org.geworkbenchweb.pojos.TTestResult">
 	<plugin>
 		<name>T-test result viewer</name>
 		<description>Viewing t-test result as a Volcano plot.</description>

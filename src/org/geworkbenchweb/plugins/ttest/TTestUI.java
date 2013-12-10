@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -335,7 +334,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		return DSSignificanceResultSet.class;
+		return org.geworkbenchweb.pojos.TTestResult.class;
 	}
 
 	@Deprecated
@@ -395,6 +394,10 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		TTestOutput tTestOutput = analyze.execute();
 		TTestResult resultSet = new TTestResult(tTestOutput);
 		FacadeFactory.getFacade().store(resultSet);
+		
+		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		result.setDataId(resultSet.getId());
+		FacadeFactory.getFacade().store(result);
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = dataset.getDataId();
