@@ -15,11 +15,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
@@ -575,21 +572,8 @@ public class SetViewCommand implements Command {
 		Item mainItem =  tableData.addItem("Markers");
 		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markerLabels.size()+ "]");
 
-		// TODO this may be more efficient by using JPA directly
 		/* find annotation information */
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
-				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
-		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); 
-		if(dataSetAnnotation!=null) {
-			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
-			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry);
-			}
-		}
+		Map<String, String> map = CSVUtil.getAnnotationMap(dataSetId);
 		
 		for(int j=0; j<markerLabels.size();j++) {
 
@@ -597,9 +581,11 @@ public class SetViewCommand implements Command {
 			tableData.setChildrenAllowed(j, false);
 
 			String markerLabel = markerLabels.get(j);
-			String geneSymbol = annotationMap.get(markerLabel ).getGeneSymbol();
-			item.getItemProperty("Labels").setValue(
-					markerLabel + " (" + geneSymbol + ")");
+			String geneSymbol = map.get(markerLabel);
+			if(geneSymbol!=null) {
+				markerLabel += " (" + geneSymbol + ")";
+			}
+			item.getItemProperty("Labels").setValue( markerLabel );
 			tableData.setParent(j, "Markers");
 		}
 		return tableData;
