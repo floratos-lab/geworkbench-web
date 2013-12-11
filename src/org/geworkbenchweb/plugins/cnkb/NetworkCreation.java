@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -34,7 +33,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 
 	@Override
 	public Class<?> getResultType() {
-		return AdjacencyMatrixDataSet.class;
+		return AdjacencyMatrix.class;
 	}
 
 	 
@@ -52,7 +51,6 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		    hits = resultSet.getCellularNetWorkElementInformations();
 		    confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 		}
-		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
 
 		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
@@ -92,10 +90,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 			}
 		} // end for loop
 
-		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 1,
-				"Adjacency Matrix", "CNKB Interactions", null);
-
-		UserDirUtils.serializeResultSet(resultId, adjacencyMatrixdataSet);
+		UserDirUtils.serializeResultSet(resultId, matrix);
 		return "Cytoscape";
 	}
 

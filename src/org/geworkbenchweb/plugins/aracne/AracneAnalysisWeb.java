@@ -2,21 +2,10 @@ package org.geworkbenchweb.plugins.aracne;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List; 
-
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbenchweb.GeworkbenchRoot; 
-import org.geworkbenchweb.utils.SubSetOperations;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -27,10 +16,18 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.components.aracne.data.AracneGraphEdge;
 import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
-import org.geworkbench.components.aracne.data.AracneGraphEdge;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * 
@@ -48,20 +45,17 @@ public class AracneAnalysisWeb {
 	
 	private static String url = null;
 	
-	private DSMicroarraySet dataSet = null;
+	final private Long datasetId;
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	public AracneAnalysisWeb(DSMicroarraySet dataSet,
+	public AracneAnalysisWeb(Long datasetId,
 			HashMap<Serializable, Serializable> params) {
 		this.params = params;
-		this.dataSet = dataSet;
+		this.datasetId = datasetId;
 	}
 
-	public AdjacencyMatrixDataSet execute() {
-
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-				dataSet);
+	public AdjacencyMatrix execute() {
 
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
@@ -105,12 +99,15 @@ public class AracneAnalysisWeb {
 					.setTargetGeneList(targetGeneList.toArray(new String[0]));
 		}
 
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(datasetId);
+		Map<String, String> map = CSVUtil.getAnnotationMap(datasetId);
+
 		aracneInput.setAlgorithm((String) params
 				.get(AracneParameters.ALGORITHM));
 		aracneInput.setMode((String) params.get(AracneParameters.MODE));
-		String dataSetName = mSetView.getDataSet().getDataSetName();
-		aracneInput.setDataSetName(dataSetName);
-		aracneInput.setDataSetIdentifier(mSetView.getDataSet().getID());
+		aracneInput.setDataSetName(dataset.getName());
+		aracneInput.setDataSetIdentifier(datasetId.toString());
 
 		int bs = Integer.valueOf((String) params
 				.get(AracneParameters.BOOTS_NUM));
@@ -120,17 +117,15 @@ public class AracneAnalysisWeb {
 		aracneInput.setBootstrapNumber(bs);
 		aracneInput.setConsensusThreshold(pt);
 
-		setDSMicroarraydata(aracneInput);
+		setDSMicroarraydata(aracneInput, microarrays);
 
 		AracneOutput aracneOutput = computeAracneRemote(aracneInput);
 
 		if (aracneOutput.getGraphEdges().length > 0) {
 			boolean prune = isPrune();
 			//set dataset = null to AdjacencyMatrixDataSet object
-			AdjacencyMatrixDataSet adjDataSet = new AdjacencyMatrixDataSet(
-					convert(aracneOutput, hubGeneList, dataSet, prune), 0,
-					"Adjacency Matrix", "ARACNE Set", null);
-			return adjDataSet;
+			AdjacencyMatrix adjacencyMatrix = convert(aracneOutput, hubGeneList, map, prune);
+			return adjacencyMatrix;
 		} else {
 			// this.tellUserToRelaxThresholds();
 			return null;
@@ -138,33 +133,24 @@ public class AracneAnalysisWeb {
 
 	} 
 
-	private void setDSMicroarraydata(AracneInput aracneInput) {
+	private void setDSMicroarraydata(AracneInput aracneInput, final MicroarraySet microarrays) {
 
 		// get selected Marker Names
-		List<String> selectedMarkerNames = null;
-		DSItemList<DSGeneMarker> selectedMarkers = null;
+		List<String> selectedMarkerNames = new ArrayList<String>();
 		String[] selectedMarkerSet = null;
 		if (params.get(AracneParameters.MARKER_SET) !=  null)
 			selectedMarkerSet = (String[])params.get(AracneParameters.MARKER_SET);	 
 
-		selectedMarkerNames = new ArrayList<String>();
 		if (selectedMarkerSet == null) {
-			selectedMarkers = dataSet.getMarkers();
-			for (DSGeneMarker marker : dataSet.getMarkers())
-				selectedMarkerNames.add(marker.getLabel());
+			selectedMarkerNames = Arrays.asList( microarrays.markerLabels );
 		} else {
-			selectedMarkers = new CSItemList<DSGeneMarker>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				ArrayList<String> temp = SubSetOperations.getMarkerData(Long
 						.parseLong(selectedMarkerSet[i].trim()));
 
 				for (int m = 0; m < temp.size(); m++) {
 					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
-					DSGeneMarker marker = dataSet.getMarkers().get(temp1);
-					if (marker != null) {
-						selectedMarkers.add(marker);
-						selectedMarkerNames.add(marker.getLabel());
-					}
+					selectedMarkerNames.add(temp1);
 				}
 
 			}
@@ -177,7 +163,7 @@ public class AracneAnalysisWeb {
 		// get total SelectedArray Num
 		int totalSelectedArrayNum = 0;
 		if (selectedArraySet == null) {
-			totalSelectedArrayNum = dataSet.size();
+			totalSelectedArrayNum = microarrays.arrayNumber;
 		} else {
 			for (int i = 0; i < selectedArraySet.length; i++) {
 
@@ -188,20 +174,28 @@ public class AracneAnalysisWeb {
 			}
 		}
 
+		int[] selectedMarkerIndex = new int[selectedMarkerNames.size()];
+		int index = 0;
+		for(int i=0; i<microarrays.markerNumber; i++) {
+			if(selectedMarkerNames.contains( microarrays.markerLabels[i]) ) {
+				selectedMarkerIndex[index] = i;
+				index++;
+			}
+		}
+
 		// get array names and marker values
-		int selectedMarkersNum = selectedMarkers.size();
+		int selectedMarkersNum = selectedMarkerNames.size();
 		float[][] A = new float[totalSelectedArrayNum][selectedMarkersNum];
 		String[] selectedArrayNames = new String[totalSelectedArrayNum];
 		int arrayIndex = 0;
 
 		if (selectedArraySet == null) {
-			for (int i = 0; i < dataSet.size(); i++) {
+			for (int i = 0; i < microarrays.arrayNumber; i++) {
 				for (int j = 0; j < selectedMarkersNum; j++) {
-					A[i][j] = (float) (dataSet.get(i).getMarkerValue(
-							selectedMarkers.get(j)).getValue());
+					A[i][j] = microarrays.values[selectedMarkerIndex[j]][i];
 
 				}
-				selectedArrayNames[arrayIndex++] = dataSet.get(i).getLabel();
+				selectedArrayNames[arrayIndex++] = microarrays.arrayLabels[i];
 
 			}
 
@@ -209,19 +203,23 @@ public class AracneAnalysisWeb {
 			for (int i = 0; i < selectedArraySet.length; i++) {
 				ArrayList<String> arrayPositions = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
+				
+				int[] selectedArrayIndex = new int[arrayPositions.size()];
+				int c = 0;
+				for(int x=0; x<microarrays.arrayNumber; x++) {
+					if(arrayPositions.contains( microarrays.arrayLabels[x]) ) {
+						selectedArrayIndex[c] = x;
+						c++;
+					}
+				}
 
 				for (int j = 0; j < arrayPositions.size(); j++) {
-
+					int aIndex = selectedArrayIndex[j];
 					for (int k = 0; k < selectedMarkersNum; k++) {
-						A[arrayIndex][k] = (float) (dataSet.get(arrayPositions
-								.get(j)))
-								.getMarkerValue(selectedMarkers.get(k))
-								.getValue();
-
+						int mIndex = selectedMarkerIndex[k];
+						A[arrayIndex][k] = microarrays.values[mIndex][aIndex];
 					}
-					selectedArrayNames[arrayIndex++] = dataSet.get(
-							arrayPositions.get(j)).getLabel();
-
+					selectedArrayNames[arrayIndex++] = microarrays.arrayLabels[aIndex];
 				}
 			}
 		}
@@ -294,7 +292,7 @@ public class AracneAnalysisWeb {
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
 	 */
 	private static AdjacencyMatrix convert(AracneOutput aracneOutput,
-			List<String> hubGeneList, DSMicroarraySet mSet, boolean prune) {
+			List<String> hubGeneList, final Map<String, String> map, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
 		AracneGraphEdge[] aracneGraphEdges = aracneOutput.getGraphEdges();
 		if (aracneGraphEdges == null || aracneGraphEdges.length == 0)
@@ -302,31 +300,29 @@ public class AracneAnalysisWeb {
 
 		int nEdge = 0;
 		for (int i = 0; i < aracneGraphEdges.length; i++) {
-			DSGeneMarker marker1 = mSet.getMarkers().get(
-					aracneGraphEdges[i].getNode1());
-			DSGeneMarker marker2 = mSet.getMarkers().get(
-					aracneGraphEdges[i].getNode2());
+			String marker1 = aracneGraphEdges[i].getNode1();
+			String marker2 = aracneGraphEdges[i].getNode2();
 
-			if (hubGeneList != null && !hubGeneList.contains(marker1.getLabel())) {
-				DSGeneMarker m = marker1;
+			if (hubGeneList != null && !hubGeneList.contains(marker1)) {
+				String m = marker1;
 				marker1 = marker2;
 				marker2 = m;
 			}
 
 			AdjacencyMatrix.Node node1, node2;
 			if (!prune) {
-				node1 = new AdjacencyMatrix.Node(marker1);
-				node2 = new AdjacencyMatrix.Node(marker2);
+				node1 = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, marker1);
+				node2 = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, marker2);
 				matrix.add(node1, node2, aracneGraphEdges[i].getWeight(), null);
 			} else {
-				String geneName1 = marker1.getGeneName();
+				String geneName1 = map.get( marker1 );
 				if (geneName1.equals("---"))
-					geneName1 = marker1.getLabel();
+					geneName1 = marker1;
 				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName1);
 				 
-				String geneName2 = marker2.getGeneName();
+				String geneName2 = map.get( marker2 );
 				if (geneName2.equals("---"))
-					geneName2 = marker2.getLabel();
+					geneName2 = marker2;
 				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName2);						 
 				matrix.add(node1, node2, aracneGraphEdges[i].getWeight());
 			}

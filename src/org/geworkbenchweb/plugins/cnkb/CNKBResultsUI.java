@@ -18,7 +18,6 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
@@ -452,7 +451,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			resultSet.setDateField(date);
 			String dataSetName = "Cytoscape - Pending";
 			resultSet.setName(dataSetName);
-			resultSet.setType(AdjacencyMatrixDataSet.class.getName());
+			resultSet.setType(AdjacencyMatrix.class.getName());
 			resultSet.setParent(parentId);
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);

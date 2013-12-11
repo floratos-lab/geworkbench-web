@@ -98,7 +98,7 @@
 		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet">
+	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix">
 	<plugin>
 		<name>Cytoscape</name>
 		<description>Show network in cytoscape web, or in text view.</description>
