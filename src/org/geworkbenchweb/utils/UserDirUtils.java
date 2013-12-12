@@ -10,10 +10,6 @@ import java.io.ObjectOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -75,20 +71,6 @@ public class UserDirUtils {
 		return true;
 	}
 
-	/* this replaces the original saveDataSet */
-	public static void serializeDataSet(Long dataId, DSDataSet<? extends DSBioObject> dataset, Long userId) throws IOException {
-
-		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + userId + SLASH
-				+ DATASETS + SLASH + dataId + DATA_EXTENSION;
-		File file = new File(fileName);
-		file.createNewFile();
-		FileOutputStream f_out = new FileOutputStream(file);
-		ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
-
-		obj_out.writeObject(dataset);
-		obj_out.close();
-	}
-	
 	/**
 	 * Deletes the dataset from the file system
 	 * @param dataId
@@ -102,35 +84,6 @@ public class UserDirUtils {
 		boolean success 		=	deleteFile(fileName);
 		if(!success) return false;
 		return true;
-	}
-
-	/* this replaces the original getDataSet */
-	public static DSDataSet<? extends DSBioObject> deserializeDataSet(
-			Long dataId, final Class<? extends DSDataSet<?>> correctType)
-			throws Exception {
-
-		if (dataId == 0)
-			return null; // 0 is used to a special 'initial' case. not the ideal
-							// design.
-
-		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
-				+ SessionHandler.get().getId() + SLASH + DATASETS + SLASH
-				+ dataId + DATA_EXTENSION;
-		FileInputStream fin = new FileInputStream(fileName);
-		ObjectInputStream ois = new ObjectInputStream(fin);
-		Object dataset = ois.readObject();
-		ois.close();
-
-		if (correctType.isInstance(dataset)) {
-			if (correctType == DSMicroarraySet.class)
-				AnnotationParser.setCurrentDataSet(correctType.cast(dataset)); // FIXME replace with new mechanism
-				// TODO annotation = getAnnotation(dataId);
-				// then replace getGeneSymbol etc to annotation.getGeneSymbol(probeSetId);
-			return correctType.cast(dataset);
-		} else {
-			throw new Exception("incorrect type " + correctType
-					+ " to deserialize " + fileName);
-		}
 	}
 
 	/* serializeResultSet */

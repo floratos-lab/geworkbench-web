@@ -12,9 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -27,6 +25,7 @@ import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
@@ -86,12 +85,28 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 
 		dataset.setDataId(id);
-		datasetId = storeData(microarraySet, file.getName(), dataset);
+		dataset.setName(file.getName());
+		dataset.setType("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet");
+		dataset.setDescription(microarraySet.getDescription());
+		FacadeFactory.getFacade().store(dataset);
+		datasetId = dataset.getId();
+		
+		DataHistory dataHistory = new DataHistory();
+		dataHistory.setParent(datasetId);
+		dataHistory.setData("Data File Name : " + microarraySet.getLabel() + "\n");
+		FacadeFactory.getFacade().store(dataHistory);
+
+		ExperimentInfo experimentInfo = new ExperimentInfo();
+		experimentInfo.setParent(datasetId);
+		StringBuilder info = new StringBuilder();
+		info.append("Number of phenotypes in the data set - "
+				+ microarraySet.size() + "\n");
+		info.append("Number of markers in the data set - "
+				+ microarraySet.getMarkers().size() + "\n");
+		experimentInfo.setInfo(info.toString());
+		FacadeFactory.getFacade().store(experimentInfo);
 
 		storeContext(microarraySet);
-
-		//this.getClass().getName());
-		microarraySet = null;
 	}
 
 	private static MicroarrayDataset convert(MicroarraySet cleanMicroaraySet) {
@@ -107,28 +122,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		return jpaDataset;
 	}
 
-	@Override
-	protected Long storeData(DSDataSet<? extends DSBioObject> bisonDataSet,
-			String fileName, DataSet dataset) throws GeWorkbenchLoaderException {
-		Long id = super.storeData(bisonDataSet, fileName, dataset);
-		
-		if (bisonDataSet instanceof DSMicroarraySet) {
-			ExperimentInfo experimentInfo = new ExperimentInfo();
-			experimentInfo.setParent(dataset.getId());
-			StringBuilder info = new StringBuilder();
-			info.append("Number of phenotypes in the data set - "
-					+ ((DSMicroarraySet) bisonDataSet).size() + "\n");
-			info.append("Number of markers in the data set - "
-					+ ((DSMicroarraySet) bisonDataSet).getMarkers().size() + "\n");
-			experimentInfo.setInfo(info.toString());
-			FacadeFactory.getFacade().store(experimentInfo);
-		} else {
-			log.error("unexpected type in expression file loading "+bisonDataSet.getClass());
-		}
-
-		return id;
-	}
-	
 	/** 
 	 * Find the annotation. 
 	 * If it is a new annotation file, parse it and serialize with all the entries with JPA. 
