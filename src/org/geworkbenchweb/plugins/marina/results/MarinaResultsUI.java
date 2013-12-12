@@ -1,13 +1,11 @@
 package org.geworkbenchweb.plugins.marina.results;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.pojos.MraResult;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
@@ -24,30 +22,15 @@ public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 		
-		Object object = null;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) { 
-			// TODO pending node should be designed and implemented explicitly as so, eventually
-			// let's make a naive assumption for now that "file not found" means pending computation
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		Long id = resultSet.getDataId();
+		if(id==null) { // pending node
 			addComponent(new Label("Pending computation - ID "+ dataSetId));
 			return;
-		} catch (IOException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
-			return;
-		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
-			return;
 		}
-		if(! (object instanceof CSMasterRegulatorTableResultSet)) {
-			String type = null;
-			if(object!=null) type = object.getClass().getName();
-			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
-			return;
-		}
-		CSMasterRegulatorTableResultSet resultset = (CSMasterRegulatorTableResultSet) object;
+		MraResult result = FacadeFactory.getFacade().find(MraResult.class, id);
 
-		Object[][] rdata = resultset.getData();
+		String[][] rdata = result.getResult();
 		Table mraTable= new Table();
 
 		// Results don't have "MeanClass1" & "MeanClass2" if marina is run using 

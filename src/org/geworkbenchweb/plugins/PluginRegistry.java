@@ -13,7 +13,6 @@ import org.apache.commons.digester3.Digester;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
@@ -66,7 +65,7 @@ public class PluginRegistry {
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
 		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
-		resultIconMap.put(CSMasterRegulatorTableResultSet.class, marinaIcon); // marina result
+		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
 
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);
 		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);

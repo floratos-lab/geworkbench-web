@@ -5,18 +5,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Iterator;
- 
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+
 import org.geworkbench.util.Util;
 import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.easyuploads.UploadField;
 import org.vaadin.easyuploads.UploadField.FieldType;
 import org.vaadin.easyuploads.UploadField.StorageMode;
@@ -24,12 +26,11 @@ import org.vaadin.easyuploads.UploadField.StorageMode;
 import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.FormLayout; 
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.TextField;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -327,6 +328,13 @@ public class ClassSelector extends FormLayout{
     
     
     private String parseCSV(String filename, byte[] bytes){
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
+				dataSetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
+				MicroarrayDataset.class, id);
+		List<String> arrayLabels = microarray.getArrayLabels(); // TODO only arrayLabels needed, not the entire dataset
+
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 		if (filename.toLowerCase().endsWith(".csv")) {
 			filename = filename.substring(0, filename.length() - 4);
@@ -372,9 +380,9 @@ public class ClassSelector extends FormLayout{
 			nameSet.add(setname);
             int setsize=0;
             StringBuilder builder = new StringBuilder();
-			for(DSMicroarray array: marinaUI.dataSet) {
-				if(selectedNames.contains(array.getLabel())) {
-					builder.append(array.getLabel()+",");
+			for(String arrayLabel: arrayLabels) {
+				if(selectedNames.contains(arrayLabel)) {
+					builder.append(arrayLabel+",");
 					setsize++;
 				}
 			}

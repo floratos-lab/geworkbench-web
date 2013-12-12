@@ -46,4 +46,21 @@ public class DataSetOperations {
 				arrayLabels.toArray(new String[0]),
 				markerLabels.toArray(new String[0]), values, null);
 	}
+	
+	public static float[][] getValues(MicroarrayDataset microarray) {
+		List<String> arrayLabels = microarray.getArrayLabels();
+		List<String> markerLabels = microarray.getMarkerLabels();
+		int arrayNumber = arrayLabels.size();
+		int markerNumber = markerLabels.size();
+		List<MicroarrayRow> rows = microarray.getRows();
+		float[][] values = new float[markerNumber][arrayNumber];
+		for (int i = 0; i < markerNumber; i++) {
+			byte[] bytes = rows.get(i).getBytes();
+			float[] v = (float[]) ObjectConversion.toObject(bytes);
+			for (int j = 0; j < arrayNumber; j++) {
+				values[i][j] = v[j];
+			}
+		}
+		return values;
+	}
 }

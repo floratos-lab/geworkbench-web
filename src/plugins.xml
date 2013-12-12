@@ -112,7 +112,7 @@
 		<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet">
+	<inputType className="org.geworkbenchweb.pojos.MraResult">
 	<plugin>
 		<name>MARINa result viewer</name>
 		<description>Show result of MARINa analysis.</description>

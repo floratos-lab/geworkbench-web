@@ -13,20 +13,22 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class MarinaAnalysis {
 
 	private Log log = LogFactory.getLog(MarinaAnalysis.class);
-	private DSMicroarraySet dataSet = null;
+	private final Long dataSetId;
 	private MarinaParamBean bean = null;
 	private static final String delimiter = "\t";
 	private static final String MRAROOT = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/runs/";
@@ -45,15 +47,15 @@ public class MarinaAnalysis {
 	private static final String maxmem = "4G";
 	private static final String timeout = "48::";
 
-	public MarinaAnalysis(DSMicroarraySet dataSet, HashMap<Serializable, Serializable> params){
-		this.dataSet = dataSet;
+	public MarinaAnalysis(Long dataSetId, HashMap<Serializable, Serializable> params){
+		this.dataSetId = dataSetId;
 		this.bean = (MarinaParamBean)params.get("bean");
 	}
 	
-	public CSMasterRegulatorTableResultSet execute() throws RemoteException{
+	public String[][] execute() throws RemoteException{
 		String runid = "mra21099";
 		String mradir = MRAROOT;
-		CSMasterRegulatorTableResultSet mraResult;
+		String[][] mraResult;
 		String s = bean.getRetrievePriorResultWithId().toLowerCase();
 		if (s!=null && s.matches("^mra\\d+$")){
 			runid = s;
@@ -103,10 +105,14 @@ public class MarinaAnalysis {
 			    paired = true;
 			writeToFile(class2Fname, class2, mradir);
 
-			String expFname = dataSet.getDataSetName();
+			DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+			Long id = dataset.getDataId();
+			MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+
+			String expFname = dataset.getName();
 			if (expFname.length() == 0) expFname = "maset.exp";
 			else if (!expFname.endsWith(".exp")) expFname = expFname+".exp";
-			unique_probeids = exportExp(expFname, mradir);
+			unique_probeids = exportExp(expFname, mradir, microarray);
 
 			StringBuilder matlabjob_template = new StringBuilder();
 			String marina_script = prepareMarina(matlabjob_template, paired, unique_probeids, expFname, networkFname, runid, mradir);
@@ -136,7 +142,7 @@ public class MarinaAnalysis {
 		return mraResult;
 	}
 
-	private CSMasterRegulatorTableResultSet convertResult(String fname){
+	private String[][] convertResult(String fname){
 		ArrayList<String[]> data = new ArrayList<String[]>();
 		BufferedReader br = null;
 		try{
@@ -157,10 +163,8 @@ public class MarinaAnalysis {
 		String[][] rdata = new String[data.size()][rstcolnum];
 		for (int i = 0; i < data.size(); i++)
 		    rdata[i] = data.get(i);
-		String runid = new File(new File(fname).getParent()).getName();
-		CSMasterRegulatorTableResultSet result = new CSMasterRegulatorTableResultSet(dataSet, runid);
-		result.setData(rdata);
-		return result;
+
+		return rdata;
 	}
 
 	private String runError(String mradir){
@@ -265,7 +269,12 @@ public class MarinaAnalysis {
 		else return false;
 	}
 
-	private boolean exportExp(String expFname, String mradir){
+	private boolean exportExp(String expFname, String mradir, MicroarrayDataset microarray){
+		List<String> arrayLabels = microarray.getArrayLabels();
+		List<String> markerLabels = microarray.getMarkerLabels();
+		float[][] values = DataSetOperations.getValues(microarray);
+		Map<String, String> map = CSVUtil.getAnnotationMap(dataSetId);
+
 		boolean unique_probeids = true;
 
 		String[] class1 = bean.getClass1().split(", *");
@@ -275,13 +284,13 @@ public class MarinaAnalysis {
 		try{
 		    bw = new BufferedWriter(new FileWriter(mradir+expFname));
 		    bw.write("AffyID\tAnnotation");
-		    for (DSMicroarray array : dataSet){
-				bw.write(delimiter+array.getLabel());
+		    for (String arrayLabel : arrayLabels){
+				bw.write(delimiter+arrayLabel);
 				
 			    if ((class2.length == 1 && class2[0].length()==0)
 					&& class1.length == 1
-					&& class1[0].equals(array.getLabel())) {
-			    	bw.write("-sr2\t"+array.getLabel()+"+sr2");
+					&& class1[0].equals(arrayLabel)) {
+			    	bw.write("-sr2\t"+arrayLabel+"+sr2");
 			    }
 		    }
 		    bw.write("\n");
@@ -289,21 +298,21 @@ public class MarinaAnalysis {
 
 		    int i = 0;
 		    HashMap<String, Boolean> hm = new HashMap<String, Boolean>();
-		    for (DSGeneMarker marker : dataSet.getMarkers()){
-				String markerName = marker.getLabel();
+		    for (String markerName : markerLabels){
 				if (unique_probeids){
 				    if (hm.get(markerName) == null)
 				    	hm.put(markerName, true);
 				    else unique_probeids = false;
 				}
-				bw.write(markerName+delimiter+marker.getGeneName());
-				for (DSMicroarray array : dataSet){
+				String geneName = map.get( markerName );
+				if(geneName==null)geneName = markerName;
+				bw.write(markerName+delimiter+geneName);
+				for (int index=0; index<arrayLabels.size(); index++){
 				    bw.write(delimiter);
-				    DSMarkerValue mv = array.getMarkerValue(i);
-				    float data = (float)mv.getValue();
+				    float data = values[i][index];
 				    if ((class2.length == 1 && class2[0].length()==0)
 						&& class1.length == 1
-						&& class1[0].equals(array.getLabel())) {
+						&& class1[0].equals(arrayLabels.get(index))) {
 				    	float data1 = data - (float)Math.sqrt(2);
 				    	float data2 = data + (float)Math.sqrt(2);
 				    	bw.write(data1+delimiter+data2);
