@@ -43,7 +43,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	private static Log log = LogFactory.getLog(TabularViewUI.class);
    
-	//private DSMicroarraySet maSet;
 	private Long userId;
 	private int precisonNumber = 2;
 	private String searchStr;	
@@ -120,8 +119,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		List<MicroarrayRow> rows = dataset.getRows();
 		float[][] values = new float[markerLabels.size()][arrayLabels.size()];
 		for(int i=0; i<markerLabels.size(); i++) {
-			byte[] bytes = rows.get(i).getBytes();
-			float[] v = (float[])ObjectConversion.toObject(bytes);
+			float[] v = rows.get(i).getValueArray();
 			for(int j=0; j<arrayLabels.size(); j++) {
 				values[i][j] = v[j];
 			}

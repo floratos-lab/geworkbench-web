@@ -36,7 +36,6 @@ import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.CSVUtil;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -423,8 +422,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				if (marker1 != null) {
 					double[] v1 = new double[arrayNumber];
 					double[] v2 = new double[arrayNumber];
-					byte[] bytes1 = rows.get(marker1Index).getBytes();
-					float[] value1 = (float[]) ObjectConversion.toObject(bytes1);
+					float[] value1 = rows.get(marker1Index).getValueArray();
 					for (int i = 0; i < arrayNumber; i++) {
 						v1[i] = value1[i];
 					}
@@ -435,8 +433,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 						int marker2Index = markerLabels.indexOf(marker2);
 						if (marker2 != null) {
 							double rho = 1, pvalue = 0;
-							byte[] bytes2 = rows.get(marker2Index).getBytes();
-							float[] value2 = (float[]) ObjectConversion.toObject(bytes2);
+							float[] value2 = rows.get(marker2Index).getValueArray();
 							for (int i = 0; i < arrayNumber; i++) {
 								v2[i] = value2[i];
 							}

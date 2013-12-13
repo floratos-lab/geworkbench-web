@@ -1,10 +1,8 @@
 package org.geworkbenchweb.pojos;
 
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 @Entity
@@ -13,21 +11,16 @@ public class MicroarrayRow extends AbstractPojo {
 
 	private static final long serialVersionUID = 4584474792904545145L;
 
-	@Lob
-	private byte[] bytes;
+	/* calling this field "values" caused SQL syntax error! */
+	private float[] valueArray;
 	
 	public MicroarrayRow(){}
 
 	public MicroarrayRow(float[] values){
-		this.bytes = ObjectConversion.convertToByte(values);
+		this.valueArray = values;
 	}
 
-	public byte[] getBytes() {
-		return bytes;
+	public float[] getValueArray() {
+		return valueArray;
 	}
-
-	public void setValues(float[] values) {
-		this.bytes = ObjectConversion.convertToByte(values);
-	}
-
 }

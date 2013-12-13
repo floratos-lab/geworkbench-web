@@ -22,7 +22,6 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MicroarrayRow;
-import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -138,8 +137,7 @@ public class TTestAnalysisWeb {
 		List<MicroarrayRow> rows = microarray.getRows();
 		float[][] values = new float[markerNumber][arrayLabels.size()];
 		for(int i=0; i<markerNumber; i++) {
-			byte[] bytes = rows.get(i).getBytes();
-			float[] v = (float[])ObjectConversion.toObject(bytes);
+			float[] v = rows.get(i).getValueArray();
 			for(int j=0; j<arrayLabels.size(); j++) {
 				values[i][j] = v[j];
 			}

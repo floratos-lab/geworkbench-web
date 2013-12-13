@@ -35,8 +35,7 @@ public class DataSetOperations {
 		List<MicroarrayRow> rows = microarray.getRows();
 		float[][] values = new float[markerNumber][arrayNumber];
 		for (int i = 0; i < markerNumber; i++) {
-			byte[] bytes = rows.get(i).getBytes();
-			float[] v = (float[]) ObjectConversion.toObject(bytes);
+			float[] v = rows.get(i).getValueArray();
 			for (int j = 0; j < arrayNumber; j++) {
 				values[i][j] = v[j];
 			}
@@ -55,8 +54,7 @@ public class DataSetOperations {
 		List<MicroarrayRow> rows = microarray.getRows();
 		float[][] values = new float[markerNumber][arrayNumber];
 		for (int i = 0; i < markerNumber; i++) {
-			byte[] bytes = rows.get(i).getBytes();
-			float[] v = (float[]) ObjectConversion.toObject(bytes);
+			float[] v = rows.get(i).getValueArray();
 			for (int j = 0; j < arrayNumber; j++) {
 				values[i][j] = v[j];
 			}
