@@ -147,15 +147,6 @@ public class RemoveButtonListener implements ClickListener {
 						List<CurrentContext> cc =  FacadeFactory.getFacade().list("Select p from CurrentContext as p where p.datasetid=:datasetid", cParam);
 						if (cc.size()>0) FacadeFactory.getFacade().deleteAll(cc);
 
-						boolean success = UserDirUtils.deleteDataSet(data.getId());
-						if(!success) {
-							MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-									"Error", 
-									MessageBox.Icon.ERROR, 
-									"Unable to delete the selected data. Please contact administrator.", 
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-							mb.show();
-						}
 						FacadeFactory.getFacade().delete(data);
 						 
 					}else {

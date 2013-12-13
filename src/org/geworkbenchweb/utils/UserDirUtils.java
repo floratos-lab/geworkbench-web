@@ -22,7 +22,6 @@ public class UserDirUtils {
 	private static final String DATASETS 		= 	"data";
 	private static final String RESULTSETS		=	"results";
 	private static final String ANNOTATION		=	"annotation";
-	private static final String DATA_EXTENSION	=	".data";
 	private static final String RES_EXTENSION	=	".res";
 	private static final String	SLASH			=	"/";
 
@@ -68,21 +67,6 @@ public class UserDirUtils {
 
 	public static boolean DeleteUserDirecotry(long userId) {
 		//TODO
-		return true;
-	}
-
-	/**
-	 * Deletes the dataset from the file system
-	 * @param dataId
-	 * @return
-	 */
-	public static boolean deleteDataSet(long dataId) {
-		
-		String dataName 		=	String.valueOf(dataId);
-		String fileName 		= 	GeworkbenchRoot.getBackendDataDirectory() +
-				SLASH + SessionHandler.get().getId() + SLASH + DATASETS + SLASH + dataName + DATA_EXTENSION;
-		boolean success 		=	deleteFile(fileName);
-		if(!success) return false;
 		return true;
 	}
 
