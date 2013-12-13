@@ -5,15 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.annotation.Affy3ExpressionAnnotationParser;
@@ -51,14 +48,24 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 					"File name "+file.getName()+" does not end with .exp. Please choose file with .exp extension");
 		}
 
-		/* TODO Before removal of serializing bison type, this would look redundant for now. */
-		Long id = null;
+		MicroarraySet cleanMicroaraySet;
+		
 		GeWorkbenchExpFileParser parser = new GeWorkbenchExpFileParser(file);
 		try {
-			MicroarraySet cleanMicroaraySet = parser.parse();
+			cleanMicroaraySet = parser.parse();
 			MicroarrayDataset jpaDataset = convert(cleanMicroaraySet);
 			FacadeFactory.getFacade().store(jpaDataset);
-			id = jpaDataset.getId();
+			Long id = jpaDataset.getId();
+			
+			dataset.setDataId(id);
+			dataset.setName(file.getName());
+			dataset.setType("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet");
+			dataset.setDescription("Microarray experiment"+". # of microarrays: " + cleanMicroaraySet.arrayNumber + ",   "
+					+ "# of markers: " + cleanMicroaraySet.markerNumber);
+			FacadeFactory.getFacade().store(dataset);
+			
+			Map<String, String[]> setInformation = parser.parseSetInformation(cleanMicroaraySet.arrayNumber);
+			storeContext(setInformation, cleanMicroaraySet.arrayLabels);
 		} catch (InputFileFormatException e1) {
 			e1.printStackTrace();
 			throw new GeWorkbenchLoaderException("input file format "+e1);
@@ -66,46 +73,21 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			e1.printStackTrace();
 			throw new GeWorkbenchLoaderException("io exception "+e1);
 		}
-		
-		if(id==null) {
-			throw new GeWorkbenchLoaderException("null id for MicroarrayDataset");
-		}
-		
-		DSMicroarraySet microarraySet;
-		MicroarraySetConverter converter = new MicroarraySetConverter();
-		try {
-			microarraySet = converter.parseAsDSMicroarraySet(file);
-		} catch (InputFileFormatException e) {
-			throw new GeWorkbenchLoaderException(
-					"File name "+file.getName()+" does not have correct file format.");
-		} catch (IOException e) {
-			throw new GeWorkbenchLoaderException(
-					"Parsing failed because of IOException.");
-		}
 
-		dataset.setDataId(id);
-		dataset.setName(file.getName());
-		dataset.setType("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet");
-		dataset.setDescription(microarraySet.getDescription());
-		FacadeFactory.getFacade().store(dataset);
-		datasetId = dataset.getId();
-		
 		DataHistory dataHistory = new DataHistory();
 		dataHistory.setParent(datasetId);
-		dataHistory.setData("Data File Name : " + microarraySet.getLabel() + "\n");
+		dataHistory.setData("Data File Name : " + file.getName() + "\n");
 		FacadeFactory.getFacade().store(dataHistory);
 
 		ExperimentInfo experimentInfo = new ExperimentInfo();
 		experimentInfo.setParent(datasetId);
 		StringBuilder info = new StringBuilder();
 		info.append("Number of phenotypes in the data set - "
-				+ microarraySet.size() + "\n");
+				+ cleanMicroaraySet.arrayNumber + "\n");
 		info.append("Number of markers in the data set - "
-				+ microarraySet.getMarkers().size() + "\n");
+				+ cleanMicroaraySet.markerNumber + "\n");
 		experimentInfo.setInfo(info.toString());
 		FacadeFactory.getFacade().store(experimentInfo);
-
-		storeContext(microarraySet);
 	}
 
 	private static MicroarrayDataset convert(MicroarraySet cleanMicroaraySet) {
@@ -238,29 +220,45 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	/**
 	 * store Contexts, CurrentContext, arrays SubSets and SubSetContexts for microarraySet
 	 */
-	private void storeContext(DSMicroarraySet microarraySet){
-		CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-		boolean firstContext = true;
-		for (DSAnnotationContext<DSMicroarray> aContext : manager.getAllContexts(microarraySet)){
-			String contextName = aContext.getName();
-
+	private void storeContext(Map<String, String[]> setInformation, String[] arrayLabels){
+		Context defaultContext = new Context("Default Context", "microarray", datasetId);
+		FacadeFactory.getFacade().store(defaultContext);
+		CurrentContext current = new CurrentContext("microarray", datasetId, defaultContext.getId());
+		FacadeFactory.getFacade().store(current);
+		
+		for (String contextName : setInformation.keySet()){
+			
 			Context context = new Context(contextName, "microarray", datasetId);
 			FacadeFactory.getFacade().store(context);
-			if(firstContext) {
-				CurrentContext current = new CurrentContext("microarray", datasetId, context.getId());
-				FacadeFactory.getFacade().store(current);
-				firstContext = false;
-			}
 
-			for (int j = 0; j < aContext.getNumberOfLabels(); j++){
-				String label = aContext.getLabel(j);
-				/* Removing default Selection set from geWorkbench Swing version */
-				if(!label.equalsIgnoreCase("Selection")) { 
-					ArrayList<String> arrays = new ArrayList<String>();
-					for (DSMicroarray array : aContext.getItemsWithLabel(label)){
-						arrays.add(array.getLabel());
+			Map<String, ArrayList<String>> arraySets = new LinkedHashMap<String, ArrayList<String>>();
+			
+			String[] labels = setInformation.get(contextName);
+			for (int arrayIndex = 0; arrayIndex < labels.length; arrayIndex++) {
+				if (labels[arrayIndex] == null
+						|| labels[arrayIndex].length() == 0)
+					continue;
+
+				if (labels[arrayIndex].indexOf("|") > -1) {
+					for (String tok : labels[arrayIndex].split("\\|")) {
+						if(arraySets.get(tok)==null) {
+							arraySets.put(tok, new ArrayList<String>());
+						}
+						arraySets.get(tok).add(arrayLabels[arrayIndex]);
 					}
-					SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context);
+				} else {
+					String tok = labels[arrayIndex]; 
+					if(arraySets.get(tok)==null) {
+						arraySets.put(tok, new ArrayList<String>());
+					}
+					arraySets.get(tok).add(arrayLabels[arrayIndex]);
+				}
+			}
+			for (String setName : arraySets.keySet()){
+				/* Removing default Selection set from geWorkbench Swing version */
+				if(!setName.equalsIgnoreCase("Selection")) { 
+					ArrayList<String> arrays = arraySets.get(setName);
+					SubSetOperations.storeArraySetInContext(arrays, setName, datasetId, context);
 				}
 			}
 		}
