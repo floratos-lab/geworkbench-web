@@ -13,7 +13,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
@@ -262,31 +261,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 						arrays.add(array.getLabel());
 					}
 					SubSetOperations.storeArraySetInContext(arrays, label, datasetId, context);
-				}
-			}
-		}
-
-		DSAnnotationContext<DSGeneMarker> markerContext = manager.getCurrentContext(microarraySet.getMarkers());
-		for (DSAnnotationContext<DSGeneMarker> aContext : manager.getAllContexts(microarraySet.getMarkers())){
-			String contextName = aContext.getName();
-
-			Context context = new Context(contextName, "marker", datasetId);
-			FacadeFactory.getFacade().store(context);
-
-			if (aContext == markerContext){
-				CurrentContext current = new CurrentContext("marker", datasetId, context.getId());
-				FacadeFactory.getFacade().store(current);
-			}
-
-			for (int j = 0; j < aContext.getNumberOfLabels(); j++){
-				String label = aContext.getLabel(j);
-				/* Removing feault Selection set from geWorkbench Swing version */
-				if(!label.equalsIgnoreCase("Selection")) { 
-					ArrayList<String> markers = new ArrayList<String>();
-					for (DSGeneMarker marker : aContext.getItemsWithLabel(label)){
-						markers.add(marker.getLabel());
-					}
-					SubSetOperations.storeMarkerSetInContext(markers, label, datasetId, context);
 				}
 			}
 		}
