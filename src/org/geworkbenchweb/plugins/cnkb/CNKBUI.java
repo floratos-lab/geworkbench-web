@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
@@ -280,13 +279,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	@Override
 	public Class<?> getResultType() {
 		return CNKBResultSet.class;
-	}
-
-	@Deprecated
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) throws IOException {
-		return null;
 	}
 
 	private HttpSession session = null;

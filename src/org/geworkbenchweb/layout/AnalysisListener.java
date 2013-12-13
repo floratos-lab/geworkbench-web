@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
@@ -48,21 +47,10 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				Long resultId = event.getResultSet().getId();
 				HashMap<Serializable, Serializable> params = event.getParameters();
 
-				DSMicroarraySet dataSet = null;
-				try {
-					dataSet = (DSMicroarraySet) event.getDataSet();
-				} catch (Exception e) {
-					// FIXME catching all clause is evil; catching all and doing nothing is the evil of evils
-					e.printStackTrace();
-				}
 				AnalysisUI analysisUI = event.getAnalaysisUI();
 				String resultName = null;
 				try {
-					if(dataSet!=null) { // this switch is a temporary solution - deprecated version
-						resultName = analysisUI.execute(resultId, dataSet, params);
-					} else { // new version
-						resultName = analysisUI.execute(resultId, event.getDatasetId(), params, userId);
-					}
+					resultName = analysisUI.execute(resultId, event.getDatasetId(), params, userId);
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 

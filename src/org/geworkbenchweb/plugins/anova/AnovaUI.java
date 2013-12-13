@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -477,13 +476,6 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	@Override
 	public Class<?> getResultType() {
 		return AnovaResult.class;
-	}
-
-
-	@Deprecated
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) throws IOException {
-		return null;
 	}
 
 	@Override

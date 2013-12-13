@@ -24,7 +24,6 @@ import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -770,13 +769,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	@Override
 	public Class<?> getResultType() {
 		return org.geworkbenchweb.pojos.MraResult.class;
-	}
-
-	@Deprecated
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) throws IOException {
-		return null;
 	}
 
 	@Override

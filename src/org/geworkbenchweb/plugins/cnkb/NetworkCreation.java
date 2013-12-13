@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.utils.CSVUtil;
@@ -93,12 +92,4 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		UserDirUtils.serializeResultSet(resultId, matrix);
 		return "Cytoscape";
 	}
-
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dummy,
-			HashMap<Serializable, Serializable> params) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

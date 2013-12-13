@@ -28,11 +28,8 @@ public interface AnalysisUI extends ComponentContainer {
 	
 	// TODO this eventually (or conceptually) should be part of Analysis, not AnalysisUI
 	Class<?> getResultType();
-	// TODO this is not clean design either, just easier to improve the overall design
-	// return the result data note's name
-	String execute(Long resultId, DSDataSet<?> dataset, HashMap<Serializable, Serializable> parameters) throws IOException;
 
-	// new flavor of execute that takes ID instead of the actual dataset. for now, let's keep both
+	// TODO return String is not the best idea
 	String execute(Long resultId, Long datasetId, HashMap<Serializable, Serializable> parameters,
 			Long userId) throws IOException, Exception;
 }

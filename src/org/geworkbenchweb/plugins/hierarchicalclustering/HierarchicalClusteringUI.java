@@ -1,10 +1,8 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -260,12 +258,6 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	@Override
 	public Class<?> getResultType() {
 		return CSHierClusterDataSet.class;
-	}
-
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) throws IOException {
-		throw new IOException("The depcrated version of execute method is used.");
 	}
 
 	@Override
