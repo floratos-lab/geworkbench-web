@@ -262,6 +262,12 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 				}
 			}
 		}
+
+		/* add a default context for markers */
+		Context defaultMarkerContext = new Context("Default Context", "marker", datasetId);
+		FacadeFactory.getFacade().store(defaultMarkerContext);
+		CurrentContext currentMarkerContext = new CurrentContext("marker", datasetId, defaultMarkerContext.getId());
+		FacadeFactory.getFacade().store(currentMarkerContext);
 	}
 
 	@Override
