@@ -240,21 +240,21 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	 */
 	private void storeContext(DSMicroarraySet microarraySet){
 		CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-		DSAnnotationContext<DSMicroarray> arrayContext = manager.getCurrentContext(microarraySet);
+		boolean firstContext = true;
 		for (DSAnnotationContext<DSMicroarray> aContext : manager.getAllContexts(microarraySet)){
 			String contextName = aContext.getName();
 
 			Context context = new Context(contextName, "microarray", datasetId);
 			FacadeFactory.getFacade().store(context);
-
-			if (aContext == arrayContext){
+			if(firstContext) {
 				CurrentContext current = new CurrentContext("microarray", datasetId, context.getId());
 				FacadeFactory.getFacade().store(current);
+				firstContext = false;
 			}
 
 			for (int j = 0; j < aContext.getNumberOfLabels(); j++){
 				String label = aContext.getLabel(j);
-				/* Removing feault Selection set from geWorkbench Swing version */
+				/* Removing default Selection set from geWorkbench Swing version */
 				if(!label.equalsIgnoreCase("Selection")) { 
 					ArrayList<String> arrays = new ArrayList<String>();
 					for (DSMicroarray array : aContext.getItemsWithLabel(label)){
