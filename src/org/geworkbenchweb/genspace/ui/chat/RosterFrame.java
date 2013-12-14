@@ -36,6 +36,7 @@ import org.jivesoftware.smack.packet.Presence.Mode;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.artur.icepush.ICEPush;
 
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -381,20 +382,24 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	 * @param e
 	 */
 	private void cmbStatusActionPerformed(ValueChangeEvent e) {
-		String status = e.getProperty().getValue().toString();
-		Presence pr;
 		
+		if (e.getProperty().getValue() == null) {
+			System.out.println("Check property: " + e.getProperty());
+			return ;
+		}
+		String status = e.getProperty().getValue().toString();
+		Presence pr;		
 		if (status.equalsIgnoreCase(statuses[0])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.available);
-			
+		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.onlineEmbed);
 			System.out.println("change to available!");
 		} else if (status.equalsIgnoreCase(statuses[1])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.away);
-			
+		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.leaveEmbed);
 			System.out.println("change to leave!");
@@ -412,7 +417,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
 		System.out.println("start refresh!");
 		this.refresh();
-		
+			
 		System.out.println("DEBUG: " + this.username + " fire a status event");
 	};
 	
@@ -432,9 +437,9 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		
 		vMainLayout = new VerticalLayout();
 		vMainLayout.setSpacing(true);
+		vMainLayout.addComponent(pusher);
 		bLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		this.addComponent(bLayout);
-		
 		//Panel for RosterGroups
 		vScrollPane1 = new Panel();
 		vScrollPane1.getContent().setSizeUndefined();
@@ -498,7 +503,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		
 		iconLayout = new HorizontalLayout();
 		iconLayout.addComponent(this.onlineEmbed);
-		iconLayout.addComponent(pusher);
+		//iconLayout.addComponent(pusher);
 		statusLayout.addComponent(iconLayout);
 		vMainLayout.addComponent(statusLayout);
 

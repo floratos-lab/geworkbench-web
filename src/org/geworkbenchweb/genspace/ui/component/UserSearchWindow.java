@@ -74,6 +74,7 @@ public class UserSearchWindow extends Window {
 	private void updateWindowContents() {
 		if (vLayout.getComponentCount() > 0) {
 			vLayout.removeAllComponents();
+			vLayout.addComponent(pusher);
 			refreshDB();
 		}
 		System.out.println("update window!!!");
@@ -152,7 +153,8 @@ public class UserSearchWindow extends Window {
 						//When user decide to remove a friend, fire the event.
 						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
-						login.getPusher().push();
+						//login.getPusher().push();
+						pusher.push();
 
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
@@ -204,13 +206,12 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().addFriend(friend.getId());
 						addFriend = addFriend.replace("xxx", friend.getUsername());
 						refreshDB();
-						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(addFriend);
 						
 						sHome.getInstance().updateForm();
 						updateWindowContents();
-						//pusher.push();
-						login.getPusher().push();
+						pusher.push();
+						//login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}
