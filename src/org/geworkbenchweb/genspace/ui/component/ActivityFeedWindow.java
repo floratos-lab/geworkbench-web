@@ -19,6 +19,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.terminal.ThemeResource;
@@ -30,7 +31,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class ActivityFeedWindow extends Window implements LogCompleteEventListener, FriendStatusChangeListener{
+public class ActivityFeedWindow extends Panel implements LogCompleteEventListener, FriendStatusChangeListener{
 	
 	/**
 	 * 
@@ -45,7 +46,7 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	private VerticalLayout afLayout;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private List<AnalysisEvent> evtList;
 	
@@ -58,22 +59,23 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	private ThemeResource newIcon = new ThemeResource(newPath);
 	
 	private ThemeResource faviIcon = new ThemeResource(faviPath);
+	private ICEPush pusher = new ICEPush();
 	
 	private int myID;
 	
-	public ActivityFeedWindow(GenSpaceLogin login) {
-		this.login = login;
+	public ActivityFeedWindow(GenSpaceLogin_1 genSpaceLogin_1) {
+		this.login = genSpaceLogin_1;
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		
 		this.setScrollable(true);
-		this.setWidth("300px");
-		this.setHeight("400px");
+		//this.setWidth("300px");
+		this.setHeight("300px"); 
 		
 		this.afLayout = new VerticalLayout();
 		this.setContent(this.afLayout);
 		this.setCaption(this.afCaption);
-		this.setPositionX(10);
-		this.setPositionY(400);
+		//this.setPositionX(10);
+		//this.setPositionY(400);
 		
 		this.updateQueryString();
 
@@ -108,7 +110,7 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	
 	private void makeAFLayout() {
 		this.afLayout.removeAllComponents();
-
+		this.afLayout.addComponent(pusher);
 		Iterator<AnalysisEvent> evtIT = evtList.iterator();
 		Label toolName;
 		Label datasetName;
@@ -141,8 +143,8 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 						paramWindow.addComponent(paramLabel);
 					}
 					getApplication().getMainWindow().addWindow(paramWindow);
-					paramWindow.setPositionX(ActivityFeedWindow.this.getPositionX() + 20);
-					paramWindow.setPositionY(ActivityFeedWindow.this.getPositionY() + 20);
+					paramWindow.setPositionX(/*ActivityFeedWindow.this.getPositionX() +*/ 20);
+					paramWindow.setPositionY(/*ActivityFeedWindow.this.getPositionY() +*/ 20);
 				}
 				
 			});
@@ -180,7 +182,6 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 	@Override
 	public void completeLog(LogCompleteEvent evt) {
 		int id = evt.getID();
-		
 		if (this.myID == id) {
 			return ;
 		}
@@ -189,7 +190,9 @@ public class ActivityFeedWindow extends Window implements LogCompleteEventListen
 			this.updateQueryString();
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();
-			login.getPusher().push();
+			//this.addComponent(this.pusher);
+			this.pusher.push();
+			//login.getPusher().push();
 		}
 	}
 	

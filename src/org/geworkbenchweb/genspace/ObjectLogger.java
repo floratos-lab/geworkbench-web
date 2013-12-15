@@ -23,7 +23,8 @@ import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
 /*import org.geworkbench.events.AnalysisInvokedEvent;*/
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.ui.Window.Notification;
 
@@ -43,7 +44,8 @@ public class ObjectLogger {
 	
 	protected ObjectHandler objectHandler;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
+	private ICEPush pusher = new ICEPush();
 
 	public void addCWFListener(CWFListener listener) {
 		this.cwfListeners.add(listener);
@@ -76,6 +78,7 @@ public class ObjectLogger {
 		if (login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
 			tmpFactory = new GenSpaceServerFactory();
 		} else {
+			System.out.println("Get server factory from login: " + this.login.getGenSpaceServerFactory());
 			tmpFactory = login.getGenSpaceServerFactory();
 		}
 		
@@ -302,9 +305,13 @@ public class ObjectLogger {
 	
 	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
 		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
-		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null)
+		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null) {
+			System.out.println("Check application: " + this.login.getApplication());
 			this.login.getPusher().push();
+		}
+		
 	}
+	
 
 	void deleteFile() {
 
@@ -320,11 +327,12 @@ public class ObjectLogger {
 		}
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
-		this.login = login;
+	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
+		this.login = login2;
+		System.out.println("Set genSpaceLogin in Object logger:" + this.login);
 	}
 	
-	public GenSpaceLogin getGenSpaceLogin() {
+	public GenSpaceLogin_1 getGenSpaceLogin() {
 		return this.login;
 	}
 }

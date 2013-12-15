@@ -18,7 +18,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.server.stubs.AnalysisComment;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
+import org.vaadin.artur.icepush.ICEPush;
 
 public class CommentWindow extends Window{
 	
@@ -46,16 +47,16 @@ public class CommentWindow extends Window{
 	private Panel textPanel = new Panel();
 	
 	private Table commentTable = new Table();
+	private ICEPush pusher = new ICEPush();
+	private GenSpaceLogin_1 login;
 	
-	private GenSpaceLogin login;
-	
-	public CommentWindow(AnalysisEvent e, List commentList, GenSpaceLogin login) {
+	public CommentWindow(AnalysisEvent e, List commentList, GenSpaceLogin_1 login2) {
 		this.e = e;
 		this.username = this.e.getTransaction().getUser().getUsername();
 		this.toolname = this.e.getToolname();
 		this.evtTime = format.format(convertToDate(this.e.getCreatedAt()));;
 		this.commentList = commentList;
-		this.login = login;
+		this.login = login2;
 		
 		this.caption = username + "'s " + toolname + " at " + evtTime;
 		this.setCaption(caption);
@@ -88,7 +89,9 @@ public class CommentWindow extends Window{
 			public void buttonClick(Button.ClickEvent event) {
 				login.getGenSpaceServerFactory().getPrivUsageFacade().saveAnalysisEventComment(e.getId(), ta.getValue().toString());
 				updateWindow();
-				login.getPusher().push();
+				addComponent(pusher);
+				pusher.push();
+				//login.getPusher().push();
 			}
 		});
 		this.textPanel.addComponent(save);

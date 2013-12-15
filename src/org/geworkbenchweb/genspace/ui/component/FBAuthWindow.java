@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbenchweb.genspace.FBManager;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.ThemeResource;
@@ -21,13 +22,14 @@ public class FBAuthWindow extends Window{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private ThemeResource gefb = new ThemeResource("img/gefb.png");
 	
 	private Label fbUserNotebook;
+	private ICEPush pusher = new ICEPush();
 	
-	public FBAuthWindow(GenSpaceLogin login, Label fbUser) {
+	public FBAuthWindow(GenSpaceLogin_1 login, Label fbUser) {
 		this.login = login;
 		this.setWidth("350px");
 		this.setHeight("250px");
@@ -39,6 +41,7 @@ public class FBAuthWindow extends Window{
 	private void makeLayout() {
 		VerticalLayout vLayout = new VerticalLayout();
 		this.addComponent(vLayout);
+		this.addComponent(pusher);
 		Label authProc = new Label("<b>Facebook Authentication Guide</b>", Label.CONTENT_XHTML);
 		Label first = new Label("1. Login your Facebook");
 		Label second = new Label("2. Retrieve your Facebook token at \n");
@@ -87,7 +90,8 @@ public class FBAuthWindow extends Window{
 					login.setFBManager(fbManager);
 					getApplication().getMainWindow().showNotification("Facebook connection succeeds! Login as " + fbManager.getMe().getUsername());
 					fbUserNotebook.setValue("<b>Facebook Account: " + fbManager.getMe().getUsername() + "</b>");
-					login.getPusher().push();
+					pusher.push();
+					//login.getPusher().push();
 					getApplication().getMainWindow().removeWindow(FBAuthWindow.this);
 				} else {
 					getApplication().getMainWindow().showNotification("Facebook connection fails. Please input valid token");

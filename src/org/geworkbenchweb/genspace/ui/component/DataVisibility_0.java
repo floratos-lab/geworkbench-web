@@ -17,14 +17,14 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
-public class DataVisibility extends VerticalLayout implements ClickListener {
+public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7554634436096470168L;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 
 	static final String PROPERTY_KEY = "genSpace_logging_preferences"; // the
 																		// key
@@ -51,8 +51,8 @@ public class DataVisibility extends VerticalLayout implements ClickListener {
 
 	private ObjectHandler objectHandler;
 
-	public DataVisibility(GenSpaceLogin login) {
-		this.login = login;
+	public DataVisibility_0(GenSpaceLogin_1 login2) { 
+		this.login = login2;
 		// read the preferences from the properties file
 		try {
 			// PropertiesManager properties = PropertiesManager.getInstance();
@@ -61,7 +61,7 @@ public class DataVisibility extends VerticalLayout implements ClickListener {
 
 			// username = GenSpaceServerFactory.getUsername();
 
-			User user = login.getGenSpaceServerFactory().getUser();
+			User user = login2.getGenSpaceServerFactory().getUser();
 			int logData = user.getLogData();
 
 			// if (pref == null) {
@@ -129,6 +129,7 @@ public class DataVisibility extends VerticalLayout implements ClickListener {
 			// }
 
 			if (objectHandler != null) {
+				System.out.println("Object handler is not null");
 				objectHandler.setLogStatus(preference);
 			}
 

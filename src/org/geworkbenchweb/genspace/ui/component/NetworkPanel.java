@@ -7,6 +7,7 @@ import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
@@ -28,7 +29,7 @@ public class NetworkPanel extends SocialPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private String title;
 	
@@ -68,7 +69,9 @@ public class NetworkPanel extends SocialPanel{
 	
 	private BorderLayout blLayout;
 	
-	public NetworkPanel(String panelTitle, GenSpaceLogin login) {
+	private ICEPush pusher = new ICEPush();
+	
+	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
 		this.blLayout = new BorderLayout();
@@ -204,7 +207,7 @@ public class NetworkPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event){
-					if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()){
+					if (selectedNet != null && selectedNet.getName() != null && !selectedNet.getName().isEmpty()){
 						if (isCachedMyNetWorks() == null) {						
 							NetConfirmWindow ncw = new NetConfirmWindow(selectedNet.getName());
 							getApplication().getMainWindow().addWindow(ncw);
@@ -215,6 +218,8 @@ public class NetworkPanel extends SocialPanel{
 							updatePanel();
 							//createMainLayout();
 						}
+					}else{
+						
 					}
 			}
 		});
@@ -225,7 +230,7 @@ public class NetworkPanel extends SocialPanel{
 						
 			public void buttonClick(ClickEvent event){
 				//System.out.println("DEBUG : leave " + selectedNet.getName());
-				if (selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
+				if (selectedNet != null && selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
 					System.out.println("selected network captured by the leave button: " + selectedNet.getName());
 					UserNetwork un = isCachedMyNetWorks();
 					if(un != null) {
@@ -239,7 +244,7 @@ public class NetworkPanel extends SocialPanel{
 			}
 		});
 		leaveButton.setWidth("150px");
-		
+		this.selectionLayout.setSpacing(true);
 		this.selectionLayout.addComponent(networkSelect);
 		this.selectionLayout.addComponent(goButton);
 		this.selectionLayout.addComponent(leaveButton);
@@ -249,6 +254,7 @@ public class NetworkPanel extends SocialPanel{
 		this.selectionLayout.addComponent(emptyLabel);
 		
 		this.createNet = new TextField(this.createNetString);
+		createNet.setWidth("158px");
 		Button createButton = new Button(this.createTitle);
 		createButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -269,6 +275,10 @@ public class NetworkPanel extends SocialPanel{
 	private void addSelectionItem(Network select) {
 		networkSelect.addItem(select);
 		networkSelect.setItemCaption(select, select.getName());
+	}
+	
+	public void attachPusher() {
+		this.addComponent(this.pusher);
 	}
 	
 	private UserNetwork isCachedMyNetWorks() {

@@ -20,7 +20,7 @@ import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -46,7 +46,7 @@ public final class ObjectHandler {
 	private Log log = LogFactory.getLog(ObjectHandler.class);
 	private HashMap<String, Long> lastRunTimes = new HashMap<String, Long>();
 	private long defaultRunTime = 1000 * 60 * 10; // 10 min
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	private ObjectLogger objectLogger;
 	private HashMap<String, String> lastTransactionId = new HashMap<String, String>();
 	private int logStatus = 1; // 0 = log, 1 = log anonymously, 2 = dont
@@ -58,11 +58,11 @@ public final class ObjectHandler {
 		objectLogger.setObjectHandler(this);
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
-		this.login = login;
+	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
+		this.login = login2;
 	}
 	
-	public GenSpaceLogin getGenSpaceLogin() {
+	public GenSpaceLogin_1 getGenSpaceLogin() {
 		return this.login;
 	}
 
@@ -98,6 +98,7 @@ public final class ObjectHandler {
 					}
 				}
 				catch (Exception e) {
+					//e.printStackTrace();
 					log.info("Could not call this method");
 				}
 			}
@@ -121,7 +122,7 @@ public final class ObjectHandler {
 
 			if (logStatus == 0) {
 				log.debug("genspace - Logging");
-
+				
 				objectLogger.log(analysisName, dataSetName,
 						lastTransactionId.get(dataSetName), parameters,
 						(AnalysisSubmissionEvent) event);

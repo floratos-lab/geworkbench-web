@@ -23,7 +23,7 @@ public class GenSpaceWindow extends Window{
 		genSpaceBlackboard.register(FriendStatusChangeListener.class, FriendStatusChangeEvent.class);
 	}
 
-	private GenSpaceComponent component;
+	private /*GenSpaceComponent component*/ GenspaceLayout layout;
 
 	private GenspaceLogger logger;
 	
@@ -34,13 +34,15 @@ public class GenSpaceWindow extends Window{
 		setCaption("genSpace");
 		this.logger = genSpaceLogger;
 		this.pusher = new ICEPush();
-		this.component = new GenSpaceComponent(this.logger, this.pusher);
+		System.out.println("Check logger: " + this.logger);
+		System.out.println("GenSpaceWindow");
+		this.layout /*component*/ = new /*GenSpaceComponent*/ GenspaceLayout(this.logger, this.pusher);
 		this.addComponent(this.pusher);
-		this.setContent(component);		
+		this.setContent(/*component*/ layout);		
 	}
 	
-	public GenSpaceComponent getComponent() {
-		return component;
+	public /*GenSpaceComponent getComponent()*/ GenspaceLayout getLayout() {
+		return layout;
 	}
 
 	public GenspaceLogger getLogger() {

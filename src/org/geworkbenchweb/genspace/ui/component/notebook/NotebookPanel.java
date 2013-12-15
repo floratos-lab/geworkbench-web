@@ -21,7 +21,7 @@ import org.geworkbenchweb.genspace.NotebookDataListener;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
 import org.geworkbenchweb.genspace.ui.component.FBAuthWindow;
 import org.geworkbenchweb.genspace.ui.component.FBCommentWindow;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
@@ -76,7 +76,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	private Button searchButton = new Button("Search");
 
 	private Select dropdown;
-	private Select sortByDropdown = new Select("", sortByOpts);
+	private Select sortByDropdown = new Select("Sort:", sortByOpts);
 	private Button researchStats = new Button("Research Comparison");
 	private Button fbAuth = new Button("Login Facebook");
 	private Label fbUser = new Label();
@@ -93,7 +93,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 	}
 
 	@SuppressWarnings("serial")
-	public NotebookPanel(final GenSpaceLogin login) {
+	public NotebookPanel(final GenSpaceLogin_1 login) {
 		super(login);
 		
 		searchBox.setInputPrompt("Enter your search query here " +
@@ -245,7 +245,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			String name = toolStrings.get(i).getName();
 			toolNames[i] = name != null ? name : "";
 		}
-		dropdown = new Select("", Arrays.asList(toolNames));
+		dropdown = new Select("Tools:", Arrays.asList(toolNames));
 		dropdown.setImmediate(true);
 		dropdown.addListener(new Property.ValueChangeListener() {
 
@@ -312,9 +312,10 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		dropdowns.addComponent(sortByDropdown);
 
 		sortArea.setHeight("100px");
+		sortArea.setSpacing(true);
 		sortArea.addComponent(searchPanel);
 		sortArea.addComponent(dropdowns);
-		
+
 		// table.setPageLength(6);
 		table.addContainerProperty("My Log:", Component.class, null);
 		// table.setVisibleColumns(new Object [] {"column0"});
@@ -367,6 +368,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			});
 			
 			VerticalLayout panel = new VerticalLayout();
+			panel.setSpacing(true);
 			panel.addComponent(noteInfo);
 			panel.addComponent(dataSetName);
 			panel.addComponent(noteText);
@@ -524,7 +526,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				fb.setEnabled(false);
 				privNote.setEnabled(false);
 			}
-			
+			buttonPanel.setSpacing(true);
 			buttonPanel.addComponent(vParam);
 			buttonPanel.setComponentAlignment(vParam, Alignment.MIDDLE_CENTER);
 			buttonPanel.addComponent(vComment);
@@ -551,6 +553,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 
 	@Override
 	public void loggedIn() {
+		System.out.println("Reserach notebook logged in");
 		borderLayout.removeComponent(infoLabel);
 		borderLayout.addComponent(sortArea, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(table, BorderLayout.Constraint.CENTER);

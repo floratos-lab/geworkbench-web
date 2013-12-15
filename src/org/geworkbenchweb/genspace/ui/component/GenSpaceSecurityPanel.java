@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import org.geworkbenchweb.genspace.ui.GenSpaceComponent;
+import org.geworkbenchweb.genspace.ui.GenspaceLayout;
+import org.geworkbenchweb.genspace.ui.GenspaceToolBar;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.Application;
@@ -9,8 +10,10 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.themes.Reindeer;
 
 public class GenSpaceSecurityPanel extends CustomComponent {
 
@@ -19,33 +22,38 @@ public class GenSpaceSecurityPanel extends CustomComponent {
 	 */
 	private static final long serialVersionUID = 702655942127334031L;
 	private Button logout = new Button("logout");
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
-	private GenSpaceComponent genSpaceParent;
+	private GenspaceLayout genSpaceParent;
 	
-	public GenSpaceSecurityPanel(String uName, GenSpaceComponent genSpaceParent, GenSpaceLogin login) {
-		this.genSpaceParent = genSpaceParent;
+	public GenSpaceSecurityPanel(String uName, /*GenSpaceComponent*/ GenspaceLayout genSpaceParent2, GenSpaceLogin_1 login) {
+		this.genSpaceParent = genSpaceParent2;
 		this.login = login;
 		BorderLayout borderLayout = new BorderLayout();
 		setCompositionRoot(borderLayout);
 		
-		HorizontalLayout panel = new HorizontalLayout();
+		VerticalLayout panel = new VerticalLayout();
 //		panel.setPreferredSize(new Dimension(1024, 500));
 
 		TabSheet mainPanel = new TabSheet();
-		DataVisibility dataPanel = new DataVisibility(login);
+		mainPanel.setStyleName(Reindeer.TABSHEET_MINIMAL);//mainPanel.setSizeFull();
+		DataVisibility_1 dataPanel = new DataVisibility_1(login); 
 //		dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
-		mainPanel.addTab(dataPanel, "Data Visibility", null);
-
+		//mainPanel.addTab(dataPanel);
+		mainPanel.addTab(dataPanel, "Data Visibiliy", null); 
 		// NetworkVisibility nwPanel = new NetworkVisibility(uName);
 		// mainPanel.addTab("User Visibility", nwPanel);
 
 		GenSpaceProfile genPanel = new GenSpaceProfile(login);
 		mainPanel.addTab(genPanel, "General Profile", null);
+		
+		
 //		mainPanel.setMaximumSize(new Dimension(500,500));
 //		panel.setMaximumSize(new Dimension(500,500));
-		panel.addComponent(mainPanel);
+		panel.setSpacing(true);
 		panel.addComponent(logout);
+		panel.addComponent(mainPanel);
+		panel.setSizeFull(); 
 		logout.addListener(ClickEvent.class, this, "logoutPerformed");
 		
 		borderLayout.addComponent(panel, BorderLayout.Constraint.CENTER);

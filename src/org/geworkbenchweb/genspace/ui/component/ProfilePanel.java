@@ -18,7 +18,7 @@ public class ProfilePanel extends SocialPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private BorderLayout bLayout;
 
@@ -102,8 +102,8 @@ public class ProfilePanel extends SocialPanel{
 	
 	private String researchString;
 	
-	public ProfilePanel(String panelTitle, GenSpaceLogin login) {
-		this.login = login;
+	public ProfilePanel(String panelTitle, GenSpaceLogin_1 login2) {
+		this.login = login2;
 		
 		bLayout = new BorderLayout();
 		setCompositionRoot(bLayout);
@@ -236,6 +236,10 @@ public class ProfilePanel extends SocialPanel{
 		} else {
 			return ;
 		}
+	}
+	
+	public void attachPusher() {
+		
 	}
 
 }

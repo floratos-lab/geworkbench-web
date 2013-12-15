@@ -7,7 +7,7 @@ import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
 import org.geworkbenchweb.genspace.ui.chat.MessageTypes;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ChatManagerListener;
@@ -18,6 +18,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.vaadin.artur.icepush.ICEPush;
+
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 
@@ -36,12 +38,13 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	
 	public HashMap<String, ChatWindow> chats = new HashMap<String, ChatWindow>();
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private Roster r;
+	private ICEPush pusher = new ICEPush();
 	
-	public ChatReceiver(GenSpaceLogin login){
-		this.login = login;
+	public ChatReceiver(GenSpaceLogin_1 genSpaceLogin_1){
+		this.login = genSpaceLogin_1;
 	}
 	
 	public void login(String u, String p) {
@@ -72,8 +75,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.rf = new RosterFrame(login, this);
 		this.rf.setRoster(r);
 		this.rf.setVisible(true);
-		this.rf.setPositionX(10);
-		this.rf.setPositionY(10);
+		//this.rf.setPositionX(10);
+		//this.rf.setPositionY(10);
 	}
 	
 	public boolean tryLogin(String u, String p) {
@@ -91,32 +94,37 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
 		if (chats.containsKey(c.getParticipant())) {
-			return ;
+			System.out.println("contained participant!");
+			//return ;
 		}
 		
-		if(createdLocal) {
+		else if(createdLocal) {
 			System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
-			
+			cw.addComponent(pusher);
 			chats.put(c.getParticipant(), cw);
+			System.out.println("check chat map: "+ chats);
 			rf.getApplication().getMainWindow().addWindow(cw);
+			//this.login.getPusher().push();
+			pusher.push();
 		}
 		c.addMessageListener(this);
-		this.login.getPusher().push();
+		//pusher.push();
+		//this.login.getPusher().push();
 	}
 
 	@Override
 	public void processMessage(Chat c, Message m) {
 		// TODO Auto-generated method stub
-		/*System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
-		System.out.println("Get message body: " + m.getBody());*/
+		System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
+		System.out.println("Get message body: " + m.getBody());
 
-		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals("")))
+		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals(""))){
 			return;
-
+		}
 		if (chats.containsKey(c.getParticipant())) {
 			chats.get(c.getParticipant()).processMessage(m);
 		}
@@ -125,15 +133,14 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
-			
+			cw.addComponent(pusher);
 			chats.put(c.getParticipant(), cw);
 			rf.getApplication().getMainWindow().addWindow(cw);
-			
 			cw.processMessage(m);
 		}
+		pusher.push();
 		// System.out.println("Message is dispatched in ChatReceiver.processMessage");
-		
-		this.login.getPusher().push();
+		//this.login.getPusher().push();
 	}
 	
 	public ChatManager getManager() {

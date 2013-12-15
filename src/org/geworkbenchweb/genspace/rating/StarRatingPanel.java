@@ -3,13 +3,14 @@ package org.geworkbenchweb.genspace.rating;
 import java.text.DecimalFormat;
 
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.wrapper.ToolWrapper;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.ToolRating;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowRating;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
@@ -35,18 +36,20 @@ public class StarRatingPanel extends Panel {
 	private Tool tool;
 	private Label title;
 	private Label ratingInfo;
+	private HorizontalLayout hLayout;
+	private ICEPush pusher = new ICEPush();
 
 	private Panel starPanel = new Panel();
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 
 
-	public StarRatingPanel(GenSpaceLogin login) {
-		this("", null, login);
+	public StarRatingPanel(GenSpaceLogin_1 login2) {
+		this("", null, login2);
 	}
 
-	public StarRatingPanel(String titleText, Tool tool, final GenSpaceLogin login) {
-		this.login = login;
+	public StarRatingPanel(String titleText, Tool tool, final GenSpaceLogin_1 login2) {
+		this.login = login2;
 
 		// basic setup
 		this.tool = tool;
@@ -55,7 +58,7 @@ public class StarRatingPanel extends Panel {
 		title = new Label(titleText);
 		this.addComponent(title);
 		
-		HorizontalLayout hLayout = new HorizontalLayout();
+		hLayout = new HorizontalLayout();
 		this.addComponent(hLayout);
 		
 		// add stars
@@ -88,7 +91,7 @@ public class StarRatingPanel extends Panel {
 						else
 							stars[i].setStar(Star.EMPTY);
 					}
-					login.getPusher().push();
+					login2.getPusher().push();
 				} else if (event.getButton() == MouseEvents.ClickEvent.BUTTON_LEFT && event.isDoubleClick()) {
 					
 					if (clickable) {
@@ -98,7 +101,7 @@ public class StarRatingPanel extends Panel {
 						System.out.println("DEBUG star value: " + index);*/
 						if(workflow != null) {
 							rateWorkflow(index);
-						} else {
+						} else { 
 							rateTool(index);
 						}
 						setStarValue(value);
@@ -117,12 +120,17 @@ public class StarRatingPanel extends Panel {
 		
 		// add rating info
 		ratingInfo = new Label();
-		hLayout.addComponent(ratingInfo);
+	
+	}
+	
+	public void attachPusher() {
+		this.addComponent(this.pusher);
 	}
 
 	public void setTitle(String t) {
 		this.title.setCaption(t);
 	}
+	
 	public void loadRating(Workflow wf) {
 		this.workflow = wf;
 		// see if we can even execute the query
@@ -133,7 +141,8 @@ public class StarRatingPanel extends Panel {
 			this.setVisible(true);
 		
 		RateWorker rw = new RateWorker(workflow.getId(), false);
-		login.getPusher().push();
+		//this.login.getPusher().push();
+		this.updateUI();
 	}
 	
 	public void loadRating(final Tool tn) {
@@ -146,24 +155,34 @@ public class StarRatingPanel extends Panel {
 			this.setVisible(true);
 
 		RateWorker rw = new RateWorker(tool.getId(), true);
-		login.getPusher().push();
+		//this.login.getPusher().push();
+		this.updateUI();
 	}
 
 	public void setRatingValue(double rating, long totalRatings) {
-		//System.out.println("Test totalRatings: " + totalRatings);
-		
+		System.out.println("Test totalRatings: " + totalRatings);
+		System.out.println("Test rating: " + rating);
 		if (totalRatings != 0) {
 			setStarValue(rating);
 			DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
 
-			ratingInfo.setCaption("(" + twoDigit.format(rating) + " by "
+			ratingInfo.setCaption("(" + twoDigit.format(rating) + " by " 
 					+ totalRatings + " users.)");
 		} else {
 			setStarValue(0);
 			ratingInfo.setCaption("Not yet rated.");
 		}
-		//System.out.println("Test caption: " + ratingInfo.getCaption());
-		login.getPusher().push();
+		System.out.println("Test caption: " + ratingInfo.getCaption());
+		hLayout.addComponent(ratingInfo);
+		ratingInfo.setVisible(true);
+		this.updateUI();
+		
+		//this.login.getPusher().push();
+	}
+	
+	private void updateUI() {
+		if (this.getApplication() != null)
+			this.pusher.push();
 	}
 
 	public void setStarValue(double value) {
@@ -177,7 +196,8 @@ public class StarRatingPanel extends Panel {
 			else
 				stars[i - 1].setStar(Star.EMPTY);
 		}
-		login.getPusher().push();
+		//this.login.getPusher().push();
+		this.updateUI();
 	}
 
 	public Panel getThisPanel() {
@@ -231,6 +251,7 @@ public class StarRatingPanel extends Panel {
 			Workflow rateWorkflow = login.getGenSpaceServerFactory().getPrivUsageFacade().getWorkflow(this.id);
 			if(rateWorkflow != null)
 			{
+				System.out.println("set rating value workflow!");
 				WorkflowWrapper rat = new WorkflowWrapper(rateWorkflow);
 				setRatingValue(rat.getOverallRating(), rat.getNumRating());
 			}
@@ -242,6 +263,7 @@ public class StarRatingPanel extends Panel {
 			
 			Tool rateTool= login.getGenSpaceServerFactory().getPrivUsageFacade().getTool(this.id);
 			if (rateTool != null) {
+				System.out.println("set rating value tool!");
 				ToolWrapper rat = new ToolWrapper(rateTool);
 				setRatingValue(rat.getOverallRating(), rat.getNumRating());
 			}

@@ -26,6 +26,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.themes.Reindeer;
 
 public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements GenSpaceTab, CWFListener, Button.ClickListener {
 
@@ -59,9 +60,11 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 
 	private int preference; // the logging preference
 
-	private VerticalSplitPanel splitter = new VerticalSplitPanel();
+	private VerticalLayout splitter = new VerticalLayout();
 	
-	public RealTimeWorkflowSuggestion(GenSpaceLogin login) {
+	private Panel p = new Panel();
+	
+	public RealTimeWorkflowSuggestion(GenSpaceLogin_1 login) {
 		super(login);
 		model.addContainerProperty(NAME, String.class, null);
 		model.addContainerProperty(ORDER, Integer.class, null);
@@ -75,7 +78,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		/**
 		 * setup general layout of panel
 		 * */
-
 		// setup viewer status
 		viewerStatus.setValue("No analysis has occured yet.");
 		workflowViewerPanel.addComponent(viewerStatus, BorderLayout.Constraint.NORTH);
@@ -90,6 +92,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		BorderLayout toolListPanel = new BorderLayout();
 
 		Label label1 = new Label("Advanced suggestions");
+		label1.setStyleName(Reindeer.LABEL_H2);
 		Label label2 = new Label("Get suggestions for people who use these tools:");
 		
 		GridLayout headerPanel = new GridLayout(1,2);
@@ -124,6 +127,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		toolPanel.addComponent(buttonPanel);
 		toolPanel.setComponentAlignment(buttonPanel, Alignment.MIDDLE_CENTER);
 		
+		toolListPanel.setSpacing(true);
 		toolListPanel.addComponent(headerPanel, BorderLayout.Constraint.NORTH);
 		toolListPanel.addComponent(toolPanel, BorderLayout.Constraint.CENTER);
 		toolListPanel.addComponent(resultsPanel, BorderLayout.Constraint.SOUTH);
@@ -210,7 +214,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 //		toolListPanel.setExpandRatio(resultsPanel, 1.0f);
 		
 		// add both panels
-		splitter.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);
+		//splitter.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);  
 		
 		Panel leftPanel = new Panel();
 		leftPanel.setHeight("500px");
@@ -222,9 +226,11 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		rightPanel.setScrollable(true);
 		rightPanel.addComponent(suggestionsPanel);
 		
-		splitter.addComponent(leftPanel);
-		splitter.addComponent(rightPanel);
-
+		//splitter.addComponent(leftPanel);     
+		//splitter.addComponent(rightPanel);    
+		splitter.setSpacing(true);
+		splitter.addComponent(workflowViewerPanel);
+		splitter.addComponent(suggestionsPanel);
 		/*splitter.addComponent(workflowViewerPanel);
 
 		splitter.addComponent(suggestionsPanel);*/

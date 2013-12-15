@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow.messageTypes;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
@@ -21,6 +21,7 @@ import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
@@ -49,16 +50,18 @@ public class ChatWindow extends Window implements Action.Handler{
 	//private ScreenSharingReceiver screenReceiver;
 	private HashMap<Integer, Integer> tileHashes = new HashMap<Integer, Integer>();
 	private final static int TILE_SIZE = 32;
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
+	private ICEPush pusher = new ICEPush();
+
 
 	public static boolean sharingScreen = false;
 
 	/** Creates new form ChatWindow */
-	public ChatWindow(GenSpaceLogin login) {
+	public ChatWindow(GenSpaceLogin_1 login2) {
 		this.setWidth("400px");
 		this.setHeight("350px");
 		initComponents();
-		this.login = login;
+		this.login = login2;
 	}
 
 	/**
@@ -286,8 +289,9 @@ public class ChatWindow extends Window implements Action.Handler{
 		chatText += "<br>" + ogm.getValue();
 		txtMsging.setValue("<html><body>" + chatText + "</body></html>");
 		ogm.setValue("");
-		
-		this.login.getPusher().push();
+		this.addComponent(this.pusher);
+		this.pusher.push();
+		//this.login.getPusher().push();
 	}
 
 	/**

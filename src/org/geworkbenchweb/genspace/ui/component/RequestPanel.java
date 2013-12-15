@@ -12,6 +12,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Button;
@@ -29,13 +30,13 @@ public class RequestPanel extends SocialPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private String panelTitle;
 	
 	private Panel requestPanel;
 		
-	private HorizontalLayout hLayout;
+	private VerticalLayout hLayout;
 	
 	private VerticalLayout fLayout;
 	
@@ -68,8 +69,11 @@ public class RequestPanel extends SocialPanel{
 	private BorderLayout blLayout;
 	
 	private int myID;
+	private ICEPush pusher = new ICEPush();
 	
-	public RequestPanel(String panelTitle, GenSpaceLogin login) {
+	public RequestPanel(String panelTitle, GenSpaceLogin_1 login) {
+		System.out.println("mainlayout!!!");
+
 		this.login = login;
 		this.myID = login.getGenSpaceServerFactory().getUser().getId();
 		
@@ -113,10 +117,10 @@ public class RequestPanel extends SocialPanel{
 	}
 	
 	private void createMainLayout() {
-		this.hLayout = new HorizontalLayout();	
+		this.hLayout = new VerticalLayout();	
+		this.hLayout.setSpacing(true);
 		createFriendLayout();
 		this.hLayout.addComponent(fLayout);
-		
 		Label emptyLabel = new Label();
 		emptyLabel.setWidth("100px");
 		this.hLayout.addComponent(emptyLabel);
@@ -125,13 +129,17 @@ public class RequestPanel extends SocialPanel{
 		this.hLayout.addComponent(nLayout);
 	}
 	
+
+	public void attachPusher(){
+		this.hLayout.addComponent(pusher);
+	}
+	
 	private void createFriendLayout() {
 		fLayout = new VerticalLayout();
-		
+		fLayout.setSpacing(true);
 		this.loadFriends();
 		
 		fLayout.addComponent(friendSelect);
-		
 		HorizontalLayout buLayout = new HorizontalLayout();
 		Button aButton = new Button(aFriend);
 		aButton.addListener(this.createFriendListener(aFriend));
@@ -150,9 +158,11 @@ public class RequestPanel extends SocialPanel{
 	}
 	
 	private void loadFriends() {
-		if(friendSelect != null)
-			friendSelect.removeAllItems();
 		
+
+		if(friendSelect != null){
+			friendSelect.removeAllItems();
+		}
 		userContainer = new BeanItemContainer<User>(User.class);
 		
 		Iterator<User> fIT = this.friendReqList.iterator();
@@ -187,6 +197,7 @@ public class RequestPanel extends SocialPanel{
 				
 				/*Avoid concurrent modification exception, select friend id into lists first*/
 				while(fSelect.hasNext()) {
+					
 					tmpID = fSelect.next();
 					if(friendSelect.isSelected(tmpID)) {
 						tmpUser = userContainer.getItem(tmpID).getBean();
@@ -209,19 +220,29 @@ public class RequestPanel extends SocialPanel{
 				}
 				
 				//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
-				for (int friendID: accList) {
-					login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
-					GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
-				}
+				if(accList.size()>0){
+					for (int friendID: accList) {
+						login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
+					}
+					loadFriends();
+				}/*else{
+					getApplication().getMainWindow().showNotification("No friend request is selected!");
+				}*/
+				if(rejList.size()>0){
+					for (int friendID: rejList) {
+						login.getGenSpaceServerFactory().getFriendOps().rejectFriend(friendID);
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
+					}
+					loadFriends();
+				}/*else{
+					getApplication().getMainWindow().showNotification("No friend request is selected!");
+				}*/
+					//addComponent(pusher);
+				//attachPusher();
+				//login.getPusher().push();
 				
-				for (int friendID: rejList) {
-					login.getGenSpaceServerFactory().getFriendOps().rejectFriend(friendID);
-					GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
-				}
-				
-				login.getPusher().push();
-				
-				loadFriends();
+				//loadFriends();
 			}
 		};
 		
@@ -230,8 +251,9 @@ public class RequestPanel extends SocialPanel{
 		
 	private void createNetworkLayout() {
 		nLayout = new VerticalLayout();
+		nLayout.setSpacing(true);
 		loadNetworks();
-
+		
 		nLayout.addComponent(networkSelect);
 		
 		HorizontalLayout buLayout = new HorizontalLayout();
@@ -251,9 +273,9 @@ public class RequestPanel extends SocialPanel{
 	}
 	
 	private void loadNetworks() {
-		if(networkSelect != null)
+		if(networkSelect != null/* && networkSelect.size()!=0*/){
 			networkSelect.removeAllItems();
-		
+		}
 		networkContainer = new BeanItemContainer<UserNetworkReqWrapper>(UserNetworkReqWrapper.class);
 		
 		Iterator<UserNetwork> nIT = this.networkReqList.iterator();
@@ -307,18 +329,26 @@ public class RequestPanel extends SocialPanel{
 						}
 					}
 				}
-				
-				for (int unID: accList) {
-					login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(unID);
+				if(accList.size()>0){
+					for (int unID: accList) {
+						login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(unID);
+					}
+					loadNetworks();
+				}else{
+					getApplication().getMainWindow().showNotification("No network request is selected!");
 				}
-				
-				for (int unID: rejList) {
-					login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(unID);
+				if(rejList.size()>0){
+					for (int unID: rejList) {
+						login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(unID);
+					}
+					loadNetworks();
+
+				}else{
+					getApplication().getMainWindow().showNotification("No network request is selected!");
 				}
-				
-				login.getPusher().push();
-				
-				loadNetworks();
+				//attachPusher();
+				//login.getPusher().push();
+				//pusher.push();
 			}
 		};
 		

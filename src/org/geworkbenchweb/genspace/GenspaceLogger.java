@@ -28,7 +28,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 
 /**
  * Captures all events with an associated {@link EventHandler} defined.
@@ -41,7 +41,7 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 	private Log log = LogFactory.getLog(GenspaceLogger.class);
 	private ObjectLogger objectLogger = new ObjectLogger();
 	private ObjectHandler objectHandler = new ObjectHandler(objectLogger);
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 
 	/**
 	 * Intercept all events.
@@ -74,13 +74,15 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 		return objectLogger;
 	}
 	
-	public void setGenSpaceLogin(GenSpaceLogin login) {
-		this.login = login;
+	public void setGenSpaceLogin(GenSpaceLogin_1 genSpaceLogin) {
+		this.login = genSpaceLogin;
 		this.objectLogger.setGenSpaceLogin(this.login);
 		this.objectHandler.setGenSpaceLogin(this.login);
+		System.out.println("Login instance: " + this.login);
+		System.out.println("Check login in setGenSpaceLogin: " + this.login.getGenSpaceServerFactory().getUsername());
 	}
 	
-	public GenSpaceLogin getGenSpaceLogin() {
+	public GenSpaceLogin_1 getGenSpaceLogin() {
 		return this.login;
 	}
 
@@ -90,8 +92,15 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 				&& event.getClass().equals(AnalysisSubmissionEvent.class)) {
 			log.info("event: " + event.getClass().getSimpleName());
 			objectHandler.handleLogging(event);
-
-			GenSpaceWindow.getGenSpaceBlackboard().fire(new LogCompleteEvent(login.getGenSpaceServerFactory().getUser().getId()));
+			
+			if (login != null) {
+				System.out.println("Check login instance: " + this.login);
+				System.out.println("Check from objectlogger: " + this.objectLogger.getGenSpaceLogin());
+				System.out.println("Check from objectHandler: " + this.objectHandler.getGenSpaceLogin());
+				System.out.println("Check which null: " + this.login.getGenSpaceServerFactory());
+				System.out.println("Check user id: " + this.login.getGenSpaceServerFactory().getUser().getId());
+				GenSpaceWindow.getGenSpaceBlackboard().fire(new LogCompleteEvent(login.getGenSpaceServerFactory().getUser().getId()));
+			}
 		}		
 	}
 

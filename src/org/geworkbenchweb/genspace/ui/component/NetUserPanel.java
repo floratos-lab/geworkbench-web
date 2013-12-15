@@ -23,13 +23,13 @@ public class NetUserPanel extends Panel{
 
 	private String netTitle;
 	
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
 	private Network networkFilter;
 	
 	private List<User> netUserList;
 	
-	public NetUserPanel(String netName, GenSpaceLogin login, Network networkFilter) {
+	public NetUserPanel(String netName, GenSpaceLogin_1 login, Network networkFilter) {
 		this.netTitle = netName;
 		this.setCaption(netTitle);
 		this.login = login;

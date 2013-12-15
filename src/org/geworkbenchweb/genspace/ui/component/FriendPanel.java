@@ -29,18 +29,18 @@ public class FriendPanel extends SocialPanel{
 	
 	private BorderLayout blLayout;
 			
-	private GenSpaceLogin login;
+	private GenSpaceLogin_1 login;
 	
-	public FriendPanel(String panelTitle, GenSpaceLogin login) {
+	public FriendPanel(String panelTitle, GenSpaceLogin_1 login2) {
 		this.panelTitle = panelTitle;
-		this.login = login;
+		this.login = login2;
 		
 		this.blLayout = new BorderLayout();
 		this.setCompositionRoot(blLayout);
 		this.friendPanel = new Panel(this.panelTitle);
 		this.friendPanel.setWidth("500px");
 		//this.friendPanel.setHeight("1000px");
-		this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
+		this.friendList = login2.getGenSpaceServerFactory().getFriendOps().getFriends();
 		
 		this.createMainLayout();
 		this.friendPanel.addComponent(mainLayout);
@@ -105,6 +105,10 @@ public class FriendPanel extends SocialPanel{
 			tempPanel.addComponent(tempAffLabel);
 			mainLayout.addComponent(tempPanel);
 		}
+	}
+	
+	public void attachPusher() {
+		
 	}
 
 }
