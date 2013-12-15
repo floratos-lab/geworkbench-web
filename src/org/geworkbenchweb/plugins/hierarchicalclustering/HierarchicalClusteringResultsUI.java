@@ -1,29 +1,19 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.Cluster;
-import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbench.bison.util.Range;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.components.hierarchicalclustering.computation.HNode;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
+import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -38,10 +28,10 @@ import com.vaadin.ui.themes.Reindeer;
 public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implements Visualizer {
 
 	private static final long serialVersionUID = 8018658107854483097L;
+	private static Log log = LogFactory.getLog(HierarchicalClusteringResultsUI.class);
 	
 	final private Long datasetId;
 
-	@SuppressWarnings({ "unchecked" })
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
@@ -55,89 +45,80 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 
-		Object object = null;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) { 
-			// TODO pending node should be designed and implemented explicitly as so, eventually
-			// let's make a naive assumption for now that "file not found" means pending computation
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
-			return;
-		} catch (IOException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
-			return;
-		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class,
+				dataSetId);
+		Long id = resultSet.getDataId();
+		if (id == null) { // pending node
+			addComponent(new Label("Pending computation - ID " + dataSetId));
 			return;
 		}
-		if(! (object instanceof CSHierClusterDataSet)) {
-			String type = null;
-			if(object!=null) type = object.getClass().getName();
-			setFirstComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
-			return;
-		}
-		// TODO the above cases could happen for either corrupted/missing file or pending node. we need to differentiate and update (remove cache) in the second case
+		HierarchicalClusteringResult result = FacadeFactory.getFacade().find(
+				HierarchicalClusteringResult.class, id);
 
-		CSHierClusterDataSet dataSet 	= 	(CSHierClusterDataSet) object;
+		HNode markerCluster = result.getMarkerCluster();
+		HNode arrayCluster = result.getArrayCluster();
+		int[] selectedMarkers = result.getSelectedMarkers();
+		int[] selectedArrays = result.getSelectedArrays();
 
-		HierCluster markerCluster 		= 	dataSet.getCluster(0);
-		HierCluster arrayCluster 		= 	dataSet.getCluster(1);
-
-		reorderedMarker = new ArrayList<DSGeneMarker>();
+		List<Integer> reorderedMarker = new ArrayList<Integer>();
 		StringBuffer markerString 	= 	new StringBuffer();
 		if(markerCluster != null) {
-			convertToString(markerString, markerCluster, true);
+			convertToString(markerString, markerCluster, reorderedMarker);
 		}
 		String markerClusterString = markerString.toString();
 
-		reorderedMicroarray = new ArrayList<DSMicroarray>();
+		List<Integer> reorderedMicroarray = new ArrayList<Integer>();
 		StringBuffer arrayString 	= 	new StringBuffer();
 		if(arrayCluster != null) {
-			convertToString(arrayString, arrayCluster, false);
+			convertToString(arrayString, arrayCluster, reorderedMicroarray);
 		}
 		String arrayClusterString = arrayString.toString();
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) dataSet.getDataSetView();
-		int geneNo = microarraySet.markers().size();
-		int chipNo = microarraySet.items().size();
+		if(selectedMarkers==null || selectedArrays==null) {
+			log.error("un-implemented case of null selection");
+			return;
+		}
+		int geneNo = selectedMarkers.length;
+		int chipNo = selectedArrays.length;
 
 		String[] markerNames = new String[geneNo];
 		String[] arrayNames = new String[chipNo];
 		int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
 		int k = 0;
 
-		updateRange(microarraySet);
-		
+		Long parentDatasetId = resultSet.getParent();
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
+		float[][] values = microarrays.values;
+
+		Range[] ranges = updateRange(selectedMarkers, selectedArrays, values);
+
 		if(reorderedMarker.size()==0) {
-			reorderedMarker = microarraySet.markers();
+			for(int i=0; i<microarrays.markerNumber; i++) reorderedMarker.add(i);
 		}
 		if(reorderedMicroarray.size()==0) {
-			reorderedMicroarray = microarraySet.items();
+			for(int i=0; i<microarrays.arrayNumber; i++) reorderedMicroarray.add(i);
 		}
-		
-		int j = 0;
-		for (DSMicroarray a : reorderedMicroarray) {
-			arrayNames[j++] = a.getLabel();
-		}
-		int i = 0;
-		for (DSGeneMarker marker : reorderedMarker) {
 
-			markerNames[i++] = marker.getLabel();
-			for (DSMicroarray a : reorderedMicroarray) {
-				double value = a.getMarkerValue(marker)
-						.getValue();
-				colors[k++] = getMarkerValueColor(value, marker, 1.0f);
+		for (int j=0; j<reorderedMicroarray.size(); j++) {
+			int index = reorderedMicroarray.get(j); // index within the selected microarrays
+			arrayNames[j] = microarrays.arrayLabels[selectedArrays[index]];
+		}
+		for (int i=0; i<reorderedMarker.size(); i++) {
+			int index = reorderedMarker.get(i); // index within the selected markers
+			int markerIndex = selectedMarkers[index];
+			markerNames[i] = microarrays.markerLabels[markerIndex];
+			for (int j=0; j<selectedArrays.length; j++) {
+				int arrayIndex = selectedArrays[reorderedMicroarray.get(j)];
+				double value = values[markerIndex][arrayIndex];
+				colors[k++] = getMarkerValueColor(value, 1.0f, ranges[index]);
 			}
 		}
-		reorderedMarker = null;
-		reorderedMicroarray = null;
 		
 		final Dendrogram dendrogram = new Dendrogram(chipNo, geneNo, arrayClusterString, markerClusterString,
 				arrayNames, markerNames, colors);
 		dendrogram.setSizeUndefined();
 
 		dendrogram.setImmediate(true);
-		//dendrogram.setSizeFull(); // FIXME why not
 
 		toolBar.addItem("", new ThemeResource("../custom/icons/Zoom-In-icon.png"), 
 				new Command() {
@@ -169,9 +150,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 				dendrogram.reset();
 			}
 		});
-		
-		ResultSet data 			= 	FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
-		Long parentId = data.getParent();
+
+		Long parentId = resultSet.getParent();
 		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", 
 				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId, dendrogram));
 		
@@ -196,84 +176,93 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		setFirstComponent(toolBar);
 
 		setSecondComponent(dendrogram);
-	}
+	} /* end of constructor */
 
-	private transient List<DSGeneMarker> reorderedMarker;
-	private transient List<DSMicroarray> reorderedMicroarray;
-	
 	/**
 	 * 
 	 * Recursively convert Cluster to string.
 	 * result stored in a StringBuffer buffer, so buffer should be set to empty before starting from the root
-	 * @param hierCluster
-	 * @return
 	 */
-	private void convertToString(final StringBuffer buffer, Cluster hierCluster, boolean isMarker) {
+	private void convertToString(final StringBuffer buffer, HNode hierCluster, List<Integer> reorderedIndex) {
 
 		buffer.append("(");
 
-		if (!hierCluster.isLeaf()) {
-			Cluster[] child = hierCluster.getChildrenNodes();
-			convertToString(buffer, child[0], isMarker);
-			convertToString(buffer, child[1], isMarker);
-		} else if(isMarker) {
-			MarkerHierCluster markerCluster = (MarkerHierCluster)hierCluster;
-			reorderedMarker.add(markerCluster.getMarkerInfo());
-		} else { // if is microarray
-			MicroarrayHierCluster microarrayCluster = (MicroarrayHierCluster)hierCluster;
-			reorderedMicroarray.add(microarrayCluster.getMicroarray());
+		if (!hierCluster.isLeafNode()) {
+			convertToString(buffer, hierCluster.getRight(), reorderedIndex);
+			convertToString(buffer, hierCluster.getLeft(), reorderedIndex);
+		} else {
+			// TODO item should be numeric instead of string is that is what we want
+			int index = Integer.parseInt(hierCluster.getLeafItem());
+			reorderedIndex.add(index);
 		}
 		buffer.append(")");
 	}
 
-	/* adapted from geWorkbench desktop version */
-	/* this is necessary to handle the mutability of value range of DSGeneMarker. very dangerous and confusing. */
-	private void updateRange(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		DSMicroarraySet microarraySet = view.getMicroarraySet();
-		for (DSGeneMarker marker : microarraySet.getMarkers()) {
-			((DSRangeMarker) marker).reset(marker.getSerial());
-		}
-		if (view.items().size() == 1) {
-			DSMicroarray ma = view.items().get(0);
-			Range range = new org.geworkbench.bison.util.Range();
-			for (DSGeneMarker marker : microarraySet.getMarkers()) {
-				DSMutableMarkerValue mValue = (DSMutableMarkerValue) ma
-						.getMarkerValue(marker.getSerial());
-				double value = mValue.getValue();
-				range.min = Math.min(range.min, value);
-				range.max = Math.max(range.max, value);
-				range.norm.add(value);
+	/* 'range' a given marker is calculated over the selected microarrays */
+	private Range[] updateRange(final int[] selectedMarkers,
+			final int[] selectedArrays, final float[][] values) {
+		Range[] ranges = new Range[selectedMarkers.length];
+		
+		if (selectedArrays.length==1) {
+			/* special case of only one array selected:
+			 * calculate differently (over all markers, only once) and use it for all markers */
+			int arrayIndex = selectedArrays[0];
+			double sum = 0;
+			double sumSquare = 0;
+			for(int i=0; i<selectedMarkers.length; i++) {
+				int markerIndex = selectedMarkers[i];
+				double v = values[markerIndex][arrayIndex];
+				sum += v;
+				sumSquare += v*v;
 			}
-			for (DSGeneMarker marker : microarraySet.getMarkers()) {
-				Range markerRange = ((DSRangeMarker) marker)
-						.getRange();
-				markerRange.min = range.min;
-				markerRange.max = range.max;
-				markerRange.norm = range.norm;
+			int n = selectedMarkers.length;
+			double mean = sum/n;
+            double variance = (sumSquare - n * mean * mean) / (n - 1);
+            double sigma = Math.sqrt(variance);
+			for(int i=0; i<selectedMarkers.length; i++) {
+				ranges[i] = new Range(mean, sigma);
 			}
 		} else {
-			for (DSGeneMarker marker : microarraySet.getMarkers()) {
-				DSItemList<DSMicroarray> items = view.items();
-				for (int i=0; i<items.size(); i++) {
-					DSMicroarray ma = items.get(i);
-					DSMutableMarkerValue mValue = (DSMutableMarkerValue) ma
-							.getMarkerValue(marker.getSerial());
-					((DSRangeMarker) marker).updateRange(mValue);
+			for (int i=0; i< selectedMarkers.length; i++) {
+				int markerIndex = selectedMarkers[i];
+
+				double sum = 0;
+				double sumSquare = 0;
+
+				for (int j=0; j<selectedArrays.length; j++) {
+					int arrayIndex = selectedArrays[j];
+					double v = values[markerIndex][arrayIndex];
+					sum += v;
+					sumSquare += v*v;
 				}
+				int n = selectedArrays.length;
+				double mean = sum/n;
+                double variance = (sumSquare - n * mean * mean) / (n - 1);
+                double sigma = Math.sqrt(variance);
+				ranges[i] = new Range(mean, sigma); 
 			}
+		}
+		return ranges;
+	}
+	
+	/* the name 'Range' is a left-over from earlier code of desktop version. just two statistics: mean and standard deviation*/
+	private static class Range {
+		final double mean;
+		final double sigma;
+		
+		Range(double m, double s) {
+			mean = m;
+			sigma = s;
 		}
 	}
 	
 	/** return value, range  [-255, 255] */
-	private static int getMarkerValueColor(double value, DSGeneMarker mInfo,
-			float intensity) {
+	private static int getMarkerValueColor(double value, float intensity, Range range) {
 
 		intensity = 2 / intensity;
 
-		org.geworkbench.bison.util.Range range = ((DSRangeMarker) mInfo)
-				.getRange();
-		double mean = range.norm.getMean();
-		double foldChange = (value - mean) / (range.norm.getSigma() + 0.00001);
+		double mean = range.mean;
+		double foldChange = (value - mean) / (range.sigma + 0.00001);
 
 		int colVal = (int) ((foldChange / intensity) * 255);
 		if (colVal < -255) colVal = -255;
