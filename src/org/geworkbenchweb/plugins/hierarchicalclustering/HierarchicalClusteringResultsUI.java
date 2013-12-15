@@ -34,7 +34,10 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 
 	public HierarchicalClusteringResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null) return;
+		if(dataSetId==null) {
+			log.debug("dataSetId is null");
+			return;
+		}
 		
 		setSizeFull();
 		setImmediate(true);
@@ -74,9 +77,16 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		}
 		String arrayClusterString = arrayString.toString();
 
-		if(selectedMarkers==null || selectedArrays==null) {
-			log.error("un-implemented case of null selection");
-			return;
+		Long parentDatasetId = resultSet.getParent();
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
+		
+		if(selectedMarkers==null) {
+			selectedMarkers = new int[microarrays.markerNumber];
+			for(int i=0; i<selectedMarkers.length; i++) selectedMarkers[i] = i;
+		}
+		if(selectedArrays==null) {
+			selectedArrays = new int[microarrays.arrayNumber];
+			for(int i=0; i<selectedArrays.length; i++) selectedArrays[i] = i;
 		}
 		int geneNo = selectedMarkers.length;
 		int chipNo = selectedArrays.length;
@@ -86,10 +96,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		int[] colors = new int[chipNo*geneNo]; /* range [-255, 255] */
 		int k = 0;
 
-		Long parentDatasetId = resultSet.getParent();
-		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
 		float[][] values = microarrays.values;
-
 		Range[] ranges = updateRange(selectedMarkers, selectedArrays, values);
 
 		if(reorderedMarker.size()==0) {

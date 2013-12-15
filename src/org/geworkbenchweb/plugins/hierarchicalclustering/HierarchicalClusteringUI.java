@@ -3,7 +3,6 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -257,7 +256,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 
 	@Override
 	public Class<?> getResultType() {
-		return CSHierClusterDataSet.class; // No effect
+		return HierarchicalClusteringResult.class;
 	}
 
 	@Override

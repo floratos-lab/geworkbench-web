@@ -14,7 +14,6 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
@@ -59,7 +58,7 @@ public class PluginRegistry {
 
 	/** Add all the initial registry entries.*/
 	public void init() {
-		resultIconMap.put(CSHierClusterDataSet.class, hcIcon); // hierarchical clustering result
+		resultIconMap.put(org.geworkbenchweb.pojos.HierarchicalClusteringResult.class, hcIcon); // hierarchical clustering result
 		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result
 		resultIconMap.put(AdjacencyMatrix.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result

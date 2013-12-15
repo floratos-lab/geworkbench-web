@@ -84,7 +84,7 @@
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.model.clusters.CSHierClusterDataSet">
+	<inputType className="org.geworkbenchweb.pojos.HierarchicalClusteringResult">
 	<plugin>
 		<name>Dendrogram plus heat map</name>
 		<description>Show result from hierarchical clustering.</description>
