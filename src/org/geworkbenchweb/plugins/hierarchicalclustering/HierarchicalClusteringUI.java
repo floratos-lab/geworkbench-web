@@ -1,19 +1,16 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -259,13 +256,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 
 	@Override
 	public Class<?> getResultType() {
-		return CSHierClusterDataSet.class;
-	}
-
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) throws IOException {
-		throw new IOException("The depcrated version of execute method is used.");
+		return HierarchicalClusteringResult.class;
 	}
 
 	@Override
@@ -273,11 +264,14 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 			HashMap<Serializable, Serializable> parameters, Long userId) throws Exception {
 		HierarchicalClusteringComputation analysis = new HierarchicalClusteringComputation(
 				datasetId, params, userId);
-		CSHierClusterDataSet result = analysis.execute();
-
-		UserDirUtils.serializeResultSet(resultId, result);
+		HierarchicalClusteringResult result = analysis.execute();
+		FacadeFactory.getFacade().store(result);
 		
-		return result.getLabel();
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		resultSet.setDataId(result.getId());
+		FacadeFactory.getFacade().store(resultSet);
+		
+		return "Hierarchical Clustering Result";
 	}
 
 }

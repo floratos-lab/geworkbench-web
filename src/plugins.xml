@@ -64,7 +64,7 @@
 			<uiClass>org.geworkbenchweb.plugins.ttest.TTestUI</uiClass>
 		</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+	<inputType className="org.geworkbenchweb.pojos.PdbFileInfo">
 		<plugin>
 			<name>MarkUs</name>
 			<description>MarkUs is a web server to assist the assessment of the biochemical function
@@ -77,28 +77,28 @@
 	</analysis>
 
 	<visualizer>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure">
+	<inputType className="org.geworkbenchweb.pojos.PdbFileInfo">
 	<plugin>
 		<name>PDB File Viewer</name>
 		<description>A simple text viewer for PDB file.</description>
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.model.clusters.CSHierClusterDataSet">
+	<inputType className="org.geworkbenchweb.pojos.HierarchicalClusteringResult">
 	<plugin>
 		<name>Dendrogram plus heat map</name>
 		<description>Show result from hierarchical clustering.</description>
 		<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet">
+	<inputType className="org.geworkbenchweb.pojos.AnovaResult">
 	<plugin>
 		<name>ANOVA Result Viewer</name>
 		<description>Show ANOVA result as a table.</description>
 		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet">
+	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix">
 	<plugin>
 		<name>Cytoscape</name>
 		<description>Show network in cytoscape web, or in text view.</description>
@@ -109,10 +109,10 @@
 	<plugin>
 		<name>CNKB Result View</name>
 		<description>Show CNKB Result including throttle plot.</description>
-		<uiClass>org.geworkbenchweb.plugins.cnkb.results.CNKBResultsUI</uiClass>
+		<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet">
+	<inputType className="org.geworkbenchweb.pojos.MraResult">
 	<plugin>
 		<name>MARINa result viewer</name>
 		<description>Show result of MARINa analysis.</description>
@@ -134,7 +134,7 @@
 		<uiClass>org.geworkbenchweb.plugins.tabularview.TabularViewUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet">
+	<inputType className="org.geworkbenchweb.pojos.TTestResult">
 	<plugin>
 		<name>T-test result viewer</name>
 		<description>Viewing t-test result as a Volcano plot.</description>

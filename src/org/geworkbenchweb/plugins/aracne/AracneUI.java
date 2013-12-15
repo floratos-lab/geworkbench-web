@@ -5,9 +5,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
@@ -387,7 +385,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				try {
 
 					if (validInputData()) {
-						DSMicroarraySet maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
 
 						ResultSet resultSet = new ResultSet();
 						java.sql.Date date = new java.sql.Date(System
@@ -407,11 +404,12 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						params.put(AracneParameters.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
 						params.put(AracneParameters.ARRAY_SET,markerArraySelector.getSelectedArraySet());
 						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-								maSet, resultSet, params, AracneUI.this);
+								dataSetId, resultSet, params, AracneUI.this);
 						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 					}
 
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -589,23 +587,16 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		return AdjacencyMatrixDataSet.class;
-	}
-
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) throws IOException {
-		AracneAnalysisWeb analyze = new AracneAnalysisWeb((DSMicroarraySet) dataset, params);
-		AdjacencyMatrixDataSet result = analyze.execute();
-		UserDirUtils.serializeResultSet(resultSetId, result);
-		return "Aracne";
+		return AdjacencyMatrix.class;
 	}
 
 	@Override
 	public String execute(Long resultId, Long datasetId,
 			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
 			Exception {
-		// TODO Auto-generated method stub
-		return null;
+		AracneAnalysisWeb analyze = new AracneAnalysisWeb(datasetId, params);
+		AdjacencyMatrix result = analyze.execute();
+		UserDirUtils.serializeResultSet(resultSetId, result);
+		return "Aracne";
 	}
 }

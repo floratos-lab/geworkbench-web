@@ -1,10 +1,8 @@
 package org.geworkbenchweb.plugins.anova;
 
-import java.util.List;
 import java.util.ArrayList;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -13,24 +11,16 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
-
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-
-import org.geworkbench.components.anova.data.AnovaInput;
-import org.geworkbench.components.anova.data.AnovaOutput;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.anova.Anova;
 import org.geworkbench.components.anova.AnovaException;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbenchweb.GeworkbenchRoot; 
+import org.geworkbench.components.anova.data.AnovaInput;
+import org.geworkbench.components.anova.data.AnovaOutput;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.pojos.AnovaResult;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
  
@@ -50,59 +40,33 @@ public class AnovaAnalysis {
 	 
 	private static String url = null;
 	
-	private DSMicroarraySet dataSet = null;
+	private Long dataSetId = null;
 	private AnovaUI paramForm = null;
-	private DSItemList<DSGeneMarker> selectedMarkers = null;
+	private List<String> selectedMarkers = null;
 	private String[] selectedArraySetNames = null;
 	
-	public AnovaAnalysis(DSMicroarraySet dataSet, AnovaUI paramForm) {
-		this.dataSet = dataSet;
+	public AnovaAnalysis(Long dataSetId, AnovaUI paramForm) {
+		this.dataSetId = dataSetId;
 		this.paramForm = paramForm;
 	}
 
-	public CSAnovaResultSet<DSGeneMarker> execute() {
+	public AnovaResult execute() {
 
 		AnovaInput anovaInput = getAnovaInput();
 		AnovaOutput output = computeAnovaRemote(anovaInput);
 
-		/* Create panels and significant result sets to store results */
-		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
-				dataSet, "Anova Analysis", new String[0],
-				selectedArraySetNames, paramForm.getPValThreshold());
-
-		CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
-
 		int[] featuresIndexes = output.getFeaturesIndexes();
-		double[] significances = output.getSignificances();		
-		int[] significantPositions = new int[featuresIndexes.length];
 		List<String> significantMarkerNames = new ArrayList<String>();
 
 		for (int i = 0; i < featuresIndexes.length; i++) {
-			DSGeneMarker item = selectedMarkers.get(featuresIndexes[i]);
-			log.debug("SignificantMarker: " + item.getLabel()
-					+ ", with apFM: " + significances[i]);
-
-			sigSet.setSignificance(item, significances[i]);
-			significantMarkerNames.add(item.getLabel());
-			significantPositions[i] = item.getSerial();
+			String item = selectedMarkers.get(featuresIndexes[i]);
+			significantMarkerNames.add(item);
 		}
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-				dataSet);
-
-		anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(dataView,
-				"Anova Analysis Result Set", selectedArraySetNames,
-				paramForm.getPValThreshold(), significantMarkerNames.toArray(new String[0]), output.getResult2DArray());
-		log.debug(significantMarkerNames.size()
-				+ " Markers added to anovaResultSet.");
-		anovaResultSet.getSignificantMarkers().addAll(
-				sigSet.getSignificantMarkers());
-		log.debug(sigSet.getSignificantMarkers().size()
-				+ " Markers added to anovaResultSet.getSignificantMarkers().");
+		AnovaResult anovaResultSet = new AnovaResult(output, selectedArraySetNames);
 
 		if (significantMarkerNames.size() > 0)
 		{
-			anovaResultSet.sortMarkersBySignificance();	
 			java.util.Collections.sort(significantMarkerNames);
 			SubSetOperations.storeSignificance(significantMarkerNames, paramForm.getDataSetId(), paramForm.getUserId());
 		}		
@@ -171,20 +135,28 @@ public class AnovaAnalysis {
 
 		selectedMarkerSet = paramForm.getSelectedMarkerSet();
 
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(dataSetId);
 		if (selectedMarkerSet == null) {
-			selectedMarkers = dataSet.getMarkers();
+			selectedMarkers = Arrays.asList( microarrays.markerLabels );
 		} else {
-			selectedMarkers = new CSItemList<DSGeneMarker>();
+			selectedMarkers = new ArrayList<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				ArrayList<String> temp = paramForm.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 				for(int m=0; m<temp.size(); m++) {
-					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();					 
-					DSGeneMarker marker = dataSet.getMarkers().get(temp1);
-					if (marker != null)
-						selectedMarkers.add(marker);
+					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
+					selectedMarkers.add(temp1);
 				}
 				 
 			} 
+		}
+
+		int[] selectedMarkerIndex = new int[selectedMarkers.size()];
+		int index = 0;
+		for(int i=0; i<microarrays.markerNumber; i++) {
+			if(selectedMarkers.contains( microarrays.markerLabels[i]) ) {
+				selectedMarkerIndex[index] = i;
+				index++;
+			}
 		}
 
 		selectedArraySet = paramForm.getSelectedArraySet();
@@ -207,6 +179,15 @@ public class AnovaAnalysis {
 		for (int i = 0; i < numSelectedGroups; i++) {
 			ArrayList<String> arrayPositions = paramForm.getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
+			
+			int[] selectedArrayIndex = new int[arrayPositions.size()];
+			int arrayIndex = 0;
+			for(int x=0; x<microarrays.arrayNumber; x++) {
+				if(arrayPositions.contains( microarrays.arrayLabels[x]) ) {
+					selectedArrayIndex[arrayIndex] = x;
+					arrayIndex++;
+				}
+			}
 
 			String groupLabel = selectedArraySetNames[i];
 			/* put group label into history */
@@ -219,10 +200,11 @@ public class AnovaAnalysis {
 			for (int j = 0; j < arrayPositions.size(); j++) {
 				GroupAndChipsString += "\t\t"
 						+ arrayPositions.get(j) + "\n";
+				int aIndex = selectedArrayIndex[j];
 				/* for each marker in this array */
 				for (int k = 0; k < selectedMarkersNum; k++) {
-					A[k][globleArrayIndex] = (float) (dataSet.get(arrayPositions.get(j)))
-							.getMarkerValue(selectedMarkers.get(k)).getValue();
+					int mIndex = selectedMarkerIndex[k];
+					A[k][globleArrayIndex] = microarrays.values[mIndex][aIndex];
 
 				}
 				groupAssignments[globleArrayIndex] = i + 1;

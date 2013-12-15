@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordRequirementException;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordsDoNotMatchException;
@@ -21,6 +20,8 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -29,8 +30,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -185,18 +184,9 @@ public class RegistrationForm extends VerticalLayout {
 		Icon dialogIcon = Icon.INFO;
 		String message = "Welcome, " + user.getName() + "(" + username
 				+ ")!\nYou have successfully registered.";
-		MessageBox.ButtonType buttonType = MessageBox.ButtonType.OK;
-
-		String errorMessage = UserDirUtils.CreateUserDirectory(user.getId());
-		if (errorMessage != null && errorMessage.trim().length() > 0) {
-			dialogCaption = "Failed in Creating User Data Directory";
-			dialogIcon = Icon.WARN;
-			message = errorMessage;
-			buttonType = MessageBox.ButtonType.ABORT;
-		}
 
 		MessageBox mb = new MessageBox(getWindow(), dialogCaption, dialogIcon,
-				message, new MessageBox.ButtonConfig(buttonType,
+				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
 						"Back to Log-in"));
 		mb.show(new MessageBox.EventListener() {
 

@@ -2,6 +2,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,33 +15,22 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel; 
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.HierCluster;  
-import org.geworkbench.components.hierarchicalclustering.HierClusterFactory;
- 
-import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
-import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
 import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
+import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
+import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterOutput;
-
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 
 public class HierarchicalClusteringComputation {
 	
 	private static final String DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/HierClusterService";
-	//private static final String DEFAULT_WEB_SERVICES_URL = "http://localhost:8080/axis2/services/HierClusterService";
 	private static final String  HCS_WEBSERVICE_URL = "hierClusterService.webService.url";
 	 
 	private static String url = null;
@@ -54,57 +44,63 @@ public class HierarchicalClusteringComputation {
 	private static Log log = LogFactory
 			.getLog(HierarchicalClusteringComputation.class);
 
-	private transient DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView; // FIXME this is temporary. don't make it member variable. this can be avoided when the return type of execute is changed
+	private final int[] selectedMarkers;
+	private final int[] selectedArrays;
+	
 	public HierarchicalClusteringComputation(Long datasetId,
 			HashMap<Serializable, Serializable> params, Long userId) throws Exception {
-		DSMicroarraySet dataSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(datasetId, DSMicroarraySet.class, userId);
 
-//		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = 
-		datasetView = 
-				new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(dataSet);
-		
 		String[] markerSet = (String[])params.get(HierarchicalClusteringParams.MARKER_SET);
 		String[] micraoarraySet = (String[])params.get(HierarchicalClusteringParams.MICROARRAY_SET);
 
+		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(datasetId);
+		List<String> markerLabels = Arrays.asList( microarrays.markerLabels );
+		List<String> arrayLabels = Arrays.asList( microarrays.arrayLabels );
+		float[][] values = microarrays.values;
+		
 		if (markerSet != null) { // TODO verify null versus empty
-			DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
+			List<Integer> selected = new ArrayList<Integer>();
 			for (String markerSetId : markerSet) {
-				// TODO note what is returned at this point is database id as long. nasty
+				/* what is returned at this point is database id as long */
 				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId.trim()));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
-				for(String position : positions) {
-					String markerName = position; // only the first field 
-					DSGeneMarker marker = dataSet.getMarkers().get(markerName);
-					panel.add(marker);
+				for(String markerName : positions) {
+					selected.add(markerLabels.indexOf(markerName));
 				}
-			} 
-			datasetView.setMarkerPanel(panel);
+			}
+			selectedMarkers = new int[selected.size()];
+			for(int i=0; i<selected.size(); i++) {
+				selectedMarkers[i] = selected.get(i);
+			}
+		} else {
+			selectedMarkers = null;
 		}
+
 		if (micraoarraySet != null) { // TODO verify null versus empty
-			DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
+			List<Integer> selected = new ArrayList<Integer>();
 			for (String microarraySetId : micraoarraySet) {
-				// TODO note what is returned at this point is database id as long. nasty
 				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId.trim()));
 				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
-				for(String position : positions) {
-					String microarrayName = position; // only the first field 
-					DSMicroarray micraorray = dataSet.get(microarrayName);
-					panel.add(micraorray);
+				for(String microarrayName : positions) {
+					selected.add(arrayLabels.indexOf(microarrayName));
 				}
-			} 
-			datasetView.setItemPanel(panel);
+			}
+			selectedArrays = new int[selected.size()];
+			for(int i=0; i<selected.size(); i++) {
+				selectedArrays[i] = selected.get(i);
+			}
+		} else {
+			selectedArrays = null;
 		}
 
 		this.metric = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METRIC);
 		this.method = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD);
 		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
 		
-		matrix = geValues(datasetView);
-	 
+		matrix = geValues(values, selectedMarkers, selectedArrays);
 	}
-	
 
-	CSHierClusterDataSet execute() {		  
+	HierarchicalClusteringResult execute() {		  
 		String distanceType = null;
 		String linkageType = null;
 		String dimensionType = null;
@@ -129,80 +125,55 @@ public class HierarchicalClusteringComputation {
 		case 2: dimensionType = DimensionType.BOTH.name(); break;
 		default: log.error("error in dimension type");
 		}
-		
-	
-		// one for marker; one for array
-		HierCluster[] resultClusters = new HierCluster[2];
 
+		HNode markerCluster = null;
+		HNode arrayCluster = null;
+		
 		if (dimension == 2) {
-			
-			HierClusterFactory cluster = new HierClusterFactory.Gene(datasetView.markers());
 			HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, DimensionType.MARKER.name()) ;
 			HierClusterOutput hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);
-	        HNode hNode = hierClusterOutput.getHnodeObject();			
-			resultClusters[0] = convertCluster(cluster, hNode);
+	        markerCluster = hierClusterOutput.getHnodeObject();
 					 
-			cluster = new HierClusterFactory.Microarray(datasetView.items());
 		    hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, DimensionType.ARRAY.name()) ;
 			hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);
-	        hNode = hierClusterOutput.getHnodeObject();		 
-			resultClusters[1] = convertCluster(cluster,hNode);
-					 
-		} else  
-		{		
+	        arrayCluster = hierClusterOutput.getHnodeObject();
+		} else {
 			HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, dimensionType) ;
-			HierClusterOutput hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);			 	       
+			HierClusterOutput hierClusterOutput = computeHierarchicalClusteringRemote(hierClusterInput);
 			HNode hNode = hierClusterOutput.getHnodeObject();	 
 			if (dimension == 1) {
-				HierClusterFactory cluster = new HierClusterFactory.Microarray(datasetView.items());			 
-				resultClusters[1] = convertCluster(cluster,hNode);
-						 
+				arrayCluster = hNode;		 
 			} else if (dimension == 0) {
-				HierClusterFactory cluster = new HierClusterFactory.Gene(datasetView.markers());
-				resultClusters[0] = convertCluster(cluster,hNode);
-				
-				
-				
-				
-			}		 
-					 
+				markerCluster = hNode;
+			}
 		}  
 
-		return new CSHierClusterDataSet(resultClusters, null, false,
-				"Hierarchical Clustering", datasetView);
+		return new HierarchicalClusteringResult(markerCluster, arrayCluster,
+				selectedMarkers, selectedArrays);
 	}
 
-	// TODO these duplicate methods should be refactored in geWorkbench so it does
-	// not have to be here any more
-	private static double[][] geValues(
-			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {
-		int rows = data.markers().size();
-		int cols = data.items().size();
+	/* construct an arrray of only the part that is selected. */
+	private static double[][] geValues(float[][] data, int[] selectedMarkers, int[] selectedArrays) {
+		if(selectedMarkers==null) {
+			selectedMarkers = new int[data.length];
+			for(int i=0; i<data.length; i++) selectedMarkers[i] = i;
+		}
+		if(selectedArrays==null) {
+			selectedArrays = new int[data[0].length];
+			for(int i=0; i<data[0].length; i++) selectedArrays[i] = i;
+		}
+		int rows = selectedMarkers.length;
+		int cols = selectedArrays.length;
 		double[][] array = new double[rows][cols];
 		for (int i = 0; i < rows; i++) {
-			array[i] = data.getRow(i);
+			int markerIndex = selectedMarkers[i];
+			for (int j = 0; j < cols; j++) {
+				int arrayIndex = selectedArrays[j];
+				array[i][j] = data[markerIndex][arrayIndex];
+			}
 		}
 		return array;
 	}
-
-	 
-	
-	 private HierCluster convertCluster(HierClusterFactory factory, HNode node) {
-	        if (node.isLeafNode()) {
-	            return factory.newLeaf(Integer.parseInt(node.getLeafItem()));
-	        } else {
-	        	
-	        	HierCluster left = convertCluster(factory, node.getLeft());
-	            HierCluster right = convertCluster(factory, node.getRight());
-	            HierCluster cluster = factory.newCluster();
-	            cluster.setDepth(Math.max(left.getDepth(), right.getDepth()) + 1);
-	            cluster.setHeight(node.getHeight());
-	            cluster.addNode(left, 0);
-	            cluster.addNode(right, 0);
-	            return cluster;
-	        }
-	  } 
-	 
 	
 	 private HierClusterOutput computeHierarchicalClusteringRemote(HierClusterInput input) {
 		 HierClusterOutput output = null;
@@ -270,17 +241,4 @@ public class HierarchicalClusteringComputation {
 			}		
 			 
 		}
-	    
-	    //for testing purpose
-	   /* private HierClusterOutput computeHierarchicalClusteringLocal(HierClusterInput input) {
-			 HierClusterOutput output = null;
-			 HierClusterService hcs = new HierClusterService();
-			 output = hcs.execute(input);
-			 
-			 return output;
-		}*/
-		 
-	    
-	    
-	
 }

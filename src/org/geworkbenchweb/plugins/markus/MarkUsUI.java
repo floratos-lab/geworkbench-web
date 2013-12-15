@@ -8,14 +8,12 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.PdbFileInfo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Accordion;
@@ -36,7 +34,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 988711785863720384L;
 
 	private Long dataSetId;
-	private DSProteinStructure dataSet 	= 	null;
+	private PdbFileInfo pdbFileInfo;
 	private ComboBox cbxChain 			= 	new ComboBox("Chain");
 	private TextField email = new TextField("Email (optional)");
 	private TextField title = new TextField("Title (optional)");
@@ -108,7 +106,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		}
 		@Override
 		public void buttonClick(ClickEvent event) {
-			MarkusAnalysis analysis = new MarkusAnalysis(dataSet, form, dataSetId);
+			MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), form, dataSetId);
 			analysis.execute();
 		}
 	}
@@ -120,7 +118,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		return vlayout;
 	}
 	private Panel buildOptionalPanel() {
-		cbxChain = new ComboBox("Chain", getChains());
+		cbxChain = new ComboBox("Chain");
 		cbxChain.setNullSelectionAllowed(false);
 		if(cbxChain.size()>0) {
 			cbxChain.setValue(cbxChain.getItemIds().iterator().next());
@@ -144,25 +142,6 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		Panel panel = new Panel();
 		panel.addComponent(layout);
 		return panel;
-	}
-
-	private int chainoffset = 21;
-	private HashSet<String> getChains() {
-		HashSet<String> chains = new HashSet<String>();
-		CSProteinStructure dataset = (CSProteinStructure)dataSet;
-		if(dataSet==null) return chains; // this happens at the 'initial' time when dataSetId is zero
-		String str= dataset.getContent();
-
-		for (String line : str.split("\n")){
-			if (line.startsWith("ATOM  ") || line.startsWith("HETATM")){
-				chains.add(line.substring(chainoffset, chainoffset+1));
-			}
-		}
-		if (chains.contains(" ")) {
-			chains.remove(" ");
-			chains.add("_");
-		}
-		return chains;
 	}
 
 	private Panel buildStructurePanel() {
@@ -368,7 +347,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 				String key = keyTf.getValue().toString();
 				if (key.length()>0) results = results+"&key="+key;
 
-				MarkusAnalysis analysis = new MarkusAnalysis(dataSet, null, dataSetId);
+				MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), null, dataSetId);
 				analysis.getResultSet(results);
 			}
 		}
@@ -607,14 +586,10 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		this.dataSetId = dataId;
 		if(dataId==0) return;
 		
-		try {
-			dataSet 	=	(DSProteinStructure) UserDirUtils.deserializeDataSet(dataSetId, DSProteinStructure.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		pdbFileInfo = FacadeFactory.getFacade().find(PdbFileInfo.class, dataset.getDataId());
 		cbxChain.removeAllItems();
-		for(String itemId: getChains()) {
+		for(String itemId: pdbFileInfo.getChains()) {
 			cbxChain.addItem(itemId);
 		}
 		if(cbxChain.size()>0) {
@@ -629,12 +604,6 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	
 	// TODO this analysis does thing with a different work-flow (not fire AnalysisSubmissionEvent as other analysis plug-ins do)
 	// we need reconcile the design if the difference is really necessary
-	@Override
-	public String execute(Long resultId, DSDataSet<?> dataset,
-			HashMap<Serializable, Serializable> parameters) {
-		return null;
-	}
-
 	@Override
 	public String execute(Long resultId, Long datasetId,
 			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,

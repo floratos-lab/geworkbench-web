@@ -16,6 +16,7 @@ public class DataSet extends AbstractPojo {
 	private String type;
 	private Long owner;
 	private Long workspace;
+	private Long dataId; /* ID for the JPA representation of the actual data, for now microarray expression data MicroarrayDataset. */
 
 	/* a short description. used in places like tool tip. */
 	private String description = "";
@@ -76,5 +77,13 @@ public class DataSet extends AbstractPojo {
 
 	public void setDateField(java.sql.Date dateField) {
 		this.timestamp = dateField;
+	}
+
+	public Long getDataId() {
+		return dataId;
+	}
+
+	public void setDataId(Long dataId) {
+		this.dataId = dataId;
 	}
 }

@@ -1,6 +1,10 @@
 package org.geworkbenchweb.pojos;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
@@ -9,18 +13,21 @@ import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 @Table(name="annotation")
 public class Annotation extends AbstractPojo {
 
-	private static final long serialVersionUID = 4705480457340637172L;
-
-	//private byte[] annotation;
+	private static final long serialVersionUID = 71847911925116119L;
+	
 	private String name;
 	private String type;
 	private Long owner;
 	
+	@OneToMany(cascade = CascadeType.PERSIST)
+	private List<AnnotationEntry> annotationEntries;
+	
 	public Annotation(){}
 
-	public Annotation(String name, String type){
+	public Annotation(String name, String type, List<AnnotationEntry> entries){
 		this.name = name;
 		this.type = type;
+		annotationEntries = entries;
 	}
 	
 	public String getName(){
@@ -40,6 +47,14 @@ public class Annotation extends AbstractPojo {
 	}
 	public void setOwner(Long owner) {
 		this.owner = owner;
+	}
+
+	public List<AnnotationEntry> getAnnotationEntries() {
+		return annotationEntries;
+	}
+
+	public void setAnnotationEntries(List<AnnotationEntry> annotationEntries) {
+		this.annotationEntries = annotationEntries;
 	}
 
 }

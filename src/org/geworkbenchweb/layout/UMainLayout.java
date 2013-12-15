@@ -429,7 +429,8 @@ public class UMainLayout extends VerticalLayout {
 		for(int i=0; i<data.size(); i++) {
 
 			String id 		=	((DataSet) data.get(i)).getName();
-			Long dataId		=	((DataSet) data.get(i)).getId();	
+			Long dataId		=	((DataSet) data.get(i)).getId();
+			String description = ((DataSet) data.get(i)).getDescription();
 
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
@@ -442,6 +443,7 @@ public class UMainLayout extends VerticalLayout {
 				e.printStackTrace();
 				//subItem.getItemProperty("Icon").setValue(icon);
 			}
+			subItem.getItemProperty("description").setValue(description);
 
 			Map<String, Object> params 	= 	new HashMap<String, Object>();
 			params.put("owner", user.getId());

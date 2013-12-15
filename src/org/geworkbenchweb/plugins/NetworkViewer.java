@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
@@ -34,14 +33,16 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private static final int DEFAULT_LIMIT_CYTOSCAPE_OBJECTS = 5000;
 	private static int limit_num = 0;
 	
- 
-	private AdjacencyMatrixDataSet adjMatrixDataSet = null;
+ 	final private AdjacencyMatrix adjMatrix;
 
 	final private Long datasetId;
 	
 	public NetworkViewer(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null) return;
+		if(dataSetId==null) {
+			adjMatrix = null;
+			return;
+		}
 
 		Object object = null;
 		try {
@@ -50,29 +51,33 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 			// TODO pending node should be designed and implemented explicitly as so, eventually
 			// let's make a naive assumption for now that "file not found" means pending computation
 			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			adjMatrix = null;
 			return;
 		} catch (IOException e) {
 			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			adjMatrix = null;
 			return;
 		} catch (ClassNotFoundException e) {
 			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			adjMatrix = null;
 			return;
 		}
-		if(! (object instanceof AdjacencyMatrixDataSet)) {
+		if(! (object instanceof AdjacencyMatrix)) {
 			String type = null;
 			if(object!=null) type = object.getClass().getName();
 			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			adjMatrix = null;
 			return;
 		}
-		adjMatrixDataSet = (AdjacencyMatrixDataSet) object;
+		adjMatrix = (AdjacencyMatrix) object;
 
 		setImmediate(true);
 		setSizeFull();		 
 		getLimitCytoscapeObjectsNum();
 
 		// the following code used to be attach - which is not really necessary and is not consistent with other plug-ins
-		int edgeNumber = adjMatrixDataSet.getMatrix().getConnectionNo();
-		int nodeNumber = adjMatrixDataSet.getMatrix().getNodeNumber();
+		int edgeNumber = adjMatrix.getConnectionNo();
+		int nodeNumber = adjMatrix.getNodeNumber();
 		if ((edgeNumber + nodeNumber) > limit_num) {
 			String theMessage = "This network has "
 					+ nodeNumber
@@ -103,7 +108,18 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		}
 	}
 	
-	
+	static private String getExportName(AdjacencyMatrix.Node node) {
+		if (node.type == NodeType.MARKER) {
+			return node.marker.getLabel();
+		} else if (node.type == NodeType.GENE_SYMBOL) {
+			return node.stringId;
+		} else if (node.type == NodeType.STRING) {
+			return node.stringId;
+		} else {
+			return "unknown";
+		}
+	}
+
 	private void viewAsText()
 	{
 		TextArea area = new TextArea();
@@ -112,7 +128,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		area.setWordwrap(false);
 		 
 		area.setImmediate(true);
-		AdjacencyMatrix  adjMatrix = adjMatrixDataSet.getMatrix();
 		int edgeNumber = adjMatrix.getConnectionNo();
 		int nodeNumber = adjMatrix.getNodeNumber();
 		StringBuffer sb = new StringBuffer("This network has "
@@ -122,11 +137,11 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
        
 		for (AdjacencyMatrix.Node node1 : adjMatrix.getNodes()) {
 			
-			sb.append(adjMatrixDataSet.getExportName(node1) + "\t");
+			sb.append(getExportName(node1) + "\t");
 
 			for (AdjacencyMatrix.Edge edge : adjMatrix
 					.getEdges(node1)) {
-				sb.append(adjMatrixDataSet.getExportName(edge.node2)
+				sb.append(getExportName(edge.node2)
 						+ "\t" + edge.info.value + "\t");
 			}
 			sb.append("\n");
@@ -148,7 +163,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		ArrayList<String> nodes = new ArrayList<String>();
 		ArrayList<String> edges = new ArrayList<String>();
 
-		AdjacencyMatrix  adjMatrix = adjMatrixDataSet.getMatrix();
 		for (int i = 0; i < adjMatrix.getEdges()
 				.size(); i++) {
 			String id1;

@@ -16,6 +16,7 @@ public class ResultSet extends AbstractPojo {
 	private Long parent;
 	private String type;
 	private Long owner;
+	private Long dataId; /* ID for the JPA representation of the actual data, for now microarray expression data MicroarrayDataset. */
 	@Column(name = "DATE_FIELD")
 	private java.sql.Date date;
 	
@@ -58,6 +59,14 @@ public class ResultSet extends AbstractPojo {
 
 	public void setDateField(java.sql.Date dateField) {
 		this.date = dateField;
+	}
+
+	public Long getDataId() {
+		return dataId;
+	}
+
+	public void setDataId(Long dataId) {
+		this.dataId = dataId;
 	}
 	
 }

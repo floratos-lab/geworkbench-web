@@ -1,5 +1,10 @@
-package org.geworkbenchweb.plugins.cnkb.results;
+package org.geworkbenchweb.plugins.cnkb;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,16 +15,19 @@ import java.util.Vector;
 
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape; 
@@ -33,6 +41,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.authentication.data.User;
 
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
@@ -62,7 +71,6 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.Reindeer;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -71,7 +79,6 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -81,7 +88,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Nikhil Reddy
  */
 @SuppressWarnings("unused")
-public class CNKBResultsUI extends VerticalLayout implements Visualizer { // TabSheet {
+public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -107,8 +114,20 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
-		final CNKBResultSet  resultSet = (CNKBResultSet) ObjectConversion
-				.toObject(UserDirUtils.getResultSet(dataSetId));
+		Object object;
+		try {
+			object = UserDirUtils.deserializeResultSet(dataSetId);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		final CNKBResultSet  resultSet = (CNKBResultSet)object;
 	 
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
@@ -432,7 +451,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 			resultSet.setDateField(date);
 			String dataSetName = "Cytoscape - Pending";
 			resultSet.setName(dataSetName);
-			resultSet.setType(AdjacencyMatrixDataSet.class.getName());
+			resultSet.setType(AdjacencyMatrix.class.getName());
 			resultSet.setParent(parentId);
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);
@@ -475,7 +494,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 		return selectedTypes;
 	} 
 	
-	protected IndexedContainer getIndexedContainer(CNKBResultSet  resultSet)
+	IndexedContainer getIndexedContainer(CNKBResultSet  resultSet)
 	{
 		Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
 		final Short confidentType  = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
@@ -485,6 +504,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 
 		totalInteractionConfidence.clear();
 		ConfidentDataMap.clear();
+		
+		Long id = resultSet.getDatasetId();
+		Map<String, String> map = CSVUtil.getAnnotationMap(id);
 		
 		for (int j = 0; j < hits.size(); j++) {
 			Item item = dataIn.addItem(j);
@@ -514,15 +536,11 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer { // Tab
 				dataIn.addContainerProperty(selectedType + " #", Integer.class,
 						null);
 
-			item.getItemProperty("Marker").setValue(
-					hits.get(j).getdSGeneMarker().getLabel());
-			if (hits.get(j).getdSGeneMarker().getShortName() == hits.get(j)
-					.getdSGeneMarker().getGeneName()) {
-				item.getItemProperty("Gene").setValue("--");
-			} else {
-				item.getItemProperty("Gene").setValue(
-						hits.get(j).getdSGeneMarker().getGeneName());
-			}
+			String label = hits.get(j).getMarkerLabel();
+			String geneSymbol = map.get(label);
+			item.getItemProperty("Marker").setValue(label);
+			if(geneSymbol!=null)
+				item.getItemProperty("Gene").setValue(geneSymbol);
 
 			item.getItemProperty("Gene Type").setValue(
 					hits.get(j).getGeneType());

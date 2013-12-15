@@ -10,15 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.digester3.Digester;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorTableResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
@@ -37,8 +32,8 @@ import com.vaadin.ui.Component;
 public class PluginRegistry {
 	
 	private Map<PluginEntry, AnalysisUI> analysisUIMap = new HashMap<PluginEntry, AnalysisUI>();
-	private Map<Class<? extends DSDataSet<?>>, ThemeResource> iconMap = new HashMap<Class<? extends DSDataSet<?>>, ThemeResource>();
-	private Map<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<? extends DSDataSet<?>>, Class<? extends DataTypeMenuPage>>(); 
+	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
+	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<? extends DSDataSet<?>>, List<PluginEntry>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<PluginEntry>>();
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
@@ -63,19 +58,19 @@ public class PluginRegistry {
 
 	/** Add all the initial registry entries.*/
 	public void init() {
-		resultIconMap.put(CSHierClusterDataSet.class, hcIcon); // hierarchical clustering result
+		resultIconMap.put(org.geworkbenchweb.pojos.HierarchicalClusteringResult.class, hcIcon); // hierarchical clustering result
 		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result
-		resultIconMap.put(AdjacencyMatrixDataSet.class, networkIcon); // aracne result or 'cytoscape' result
+		resultIconMap.put(AdjacencyMatrix.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
-		resultIconMap.put(CSAnovaResultSet.class, anovaIcon); // anova result
-		resultIconMap.put(DSSignificanceResultSet.class, anovaIcon); // t-test result
-		resultIconMap.put(CSMasterRegulatorTableResultSet.class, marinaIcon); // marina result
+		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
+		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
+		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
 
 		iconMap.put(DSMicroarraySet.class, microarrayIcon);
-		iconMap.put(DSProteinStructure.class, proteinIcon);
+		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);
 
 		uiMap.put(DSMicroarraySet.class, MicroarrayUI.class);
-		uiMap.put(DSProteinStructure.class, ProteinStructureUI.class);
+		uiMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, ProteinStructureUI.class);
 		
 		Digester digester = new Digester();
 		digester.addObjectCreate("plugins", ArrayList.class);
@@ -143,7 +138,7 @@ public class PluginRegistry {
 	}
 
 	// query on null returns all analysis plug-ins
-	public List<PluginEntry> getAnalysisList(Class<? extends DSDataSet<?>> dataType) {
+	public List<PluginEntry> getAnalysisList(Class<?> dataType) {
 		if(dataType!=null)
 			return analysisMap.get(dataType);
 		else
@@ -155,7 +150,7 @@ public class PluginRegistry {
 	}
 
 	public ThemeResource getIcon(Class<?> clazz) {
-		for(Class<? extends DSDataSet<?>> c : iconMap.keySet()) {
+		for(Class<?> c : iconMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return iconMap.get(c);
 			}
@@ -186,7 +181,7 @@ public class PluginRegistry {
 
 	// clazz is a data type we support
 	public Class<? extends DataTypeMenuPage> getDataUI(Class<?> clazz) {
-		for(Class<? extends DSDataSet<?>> c : uiMap.keySet()) {
+		for(Class<?> c : uiMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
 				return uiMap.get(c);
 			}

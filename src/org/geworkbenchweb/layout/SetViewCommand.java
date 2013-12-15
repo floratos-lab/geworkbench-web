@@ -13,13 +13,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -54,12 +56,12 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
  * @author zji
- * @version $Id$
  *
  */
 // this is not a nice design, just an escape from chaos
 public class SetViewCommand implements Command {
-
+	private static Log log = LogFactory.getLog(SetViewCommand.class);
+	
 	private static final long serialVersionUID = -5836083095765179395L;
 
 	private Tree markerTree;
@@ -252,16 +254,18 @@ public class SetViewCommand implements Command {
 		arrayTree.setSelectable(true);
 		arrayTree.setDescription("Phenotypes");
 
-		DSMicroarraySet maSet;
-		try {
-			maSet = (DSMicroarraySet) UserDirUtils.deserializeDataSet(dataSetId, DSMicroarraySet.class);
-		} catch (Exception e) {
-			e.printStackTrace();
+		// TODO this probably can be done more efficiently
+		DataSet generic = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		Long id = generic.getDataId();
+		if(id==null) {
+			log.error("null ID for MicroarrayDataset");
 			return;
 		}
-
-		markerTree.setContainerDataSource(markerTableView(maSet));
-		arrayTree.setContainerDataSource(arrayTableView(maSet));
+		MicroarrayDataset d = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		List<String> markerLabels = d.getMarkerLabels();
+		List<String> arrayLabels = d.getArrayLabels();
+		markerTree.setContainerDataSource(markerTableView(markerLabels, dataSetId));
+		arrayTree.setContainerDataSource(arrayTableView(arrayLabels));
 
 		markerTree.setItemCaptionPropertyId("Labels");
 		markerTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -538,18 +542,18 @@ public class SetViewCommand implements Command {
 	 * @param maSet
 	 * @return - Indexed container with array labels
 	 */
-	private HierarchicalContainer arrayTableView(DSMicroarraySet maSet) {
+	private HierarchicalContainer arrayTableView(List<String> arrayLabels) {
 
 		HierarchicalContainer tableData 		= 	new HierarchicalContainer();
 
 		tableData.addContainerProperty("Labels", String.class, null);
 		Item mainItem 					= 	tableData.addItem("Phenotypes");
-		mainItem.getItemProperty("Labels").setValue("Phenotypes" + " ["+ maSet.size() + "]");
+		mainItem.getItemProperty("Labels").setValue("Phenotypes" + " ["+ arrayLabels.size() + "]");
 
-		for(int k=0;k<maSet.size();k++) {
+		for(int k=0;k<arrayLabels.size();k++) {
 			Item item 					= 	tableData.addItem(k);
 			tableData.setChildrenAllowed(k, false);
-			item.getItemProperty("Labels").setValue(maSet.get(k).getLabel());
+			item.getItemProperty("Labels").setValue(arrayLabels.get(k));
 			tableData.setParent(k, "Phenotypes");
 		}
 		return tableData;
@@ -560,28 +564,29 @@ public class SetViewCommand implements Command {
 	 * @param maSet
 	 * @return - Indexed container with marker labels
 	 */
-	private HierarchicalContainer markerTableView(DSMicroarraySet maSet) {
+	private HierarchicalContainer markerTableView(List<String> markerLabels, Long dataSetId) {
 
 		HierarchicalContainer tableData 		= 	new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
 		Item mainItem =  tableData.addItem("Markers");
-		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + maSet.getMarkers().size()+ "]");
+		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markerLabels.size()+ "]");
 
-		for(int j=0; j<maSet.getMarkers().size();j++) {
+		/* find annotation information */
+		Map<String, String> map = CSVUtil.getAnnotationMap(dataSetId);
+		
+		for(int j=0; j<markerLabels.size();j++) {
 
 			Item item 					= 	tableData.addItem(j);
 			tableData.setChildrenAllowed(j, false);
 
-			for(int k=0;k<=maSet.size();k++) {
-				if(k == 0) {
-					item.getItemProperty("Labels").setValue(maSet.getMarkers().get(j).getLabel() 
-							+ " (" 
-							+ maSet.getMarkers().get(j).getGeneName()
-							+ ")");
-					tableData.setParent(j, "Markers");
-				} 
+			String markerLabel = markerLabels.get(j);
+			String geneSymbol = map.get(markerLabel);
+			if(geneSymbol!=null) {
+				markerLabel += " (" + geneSymbol + ")";
 			}
+			item.getItemProperty("Labels").setValue( markerLabel );
+			tableData.setParent(j, "Markers");
 		}
 		return tableData;
 	}

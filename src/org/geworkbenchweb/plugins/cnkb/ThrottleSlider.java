@@ -1,8 +1,7 @@
-package org.geworkbenchweb.plugins.cnkb.results;
+package org.geworkbenchweb.plugins.cnkb;
  
 import java.util.Vector;
 
-import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 
 import com.vaadin.ui.Label;

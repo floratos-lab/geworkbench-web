@@ -2,10 +2,10 @@ package org.geworkbenchweb.dataset;
 
 import java.io.File;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.parsers.PDBFileFormat;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.PdbFileInfo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class PdbFileLoader extends Loader {
 
@@ -21,15 +21,21 @@ public class PdbFileLoader extends Loader {
 					"File name "+file.getName()+" does not end with .pdb. Please choose a file with .pdb extension.");
 		}
 
-		DSDataSet<? extends DSBioObject> dataSet = new PDBFileFormat()
-				.getDataFile(file);
+		PdbFileInfo pdbFileInfo = new PdbFileInfo(file);
+		FacadeFactory.getFacade().store(pdbFileInfo);
+		Long id = pdbFileInfo.getId();
+		
+		String fileName = file.getName();
+		dataset.setName(fileName);
+		dataset.setType("org.geworkbenchweb.pojos.PdbFileInfo");
+		dataset.setDescription("# of chains: " + pdbFileInfo.getChains().size());
+		dataset.setDataId(id);
+		FacadeFactory.getFacade().store(dataset);
 
-		/*
-		 * return value is ignored; it is useful only for expression file to
-		 * associate with annotation
-		 */
-		// FIXME hard-code type name breaks many things. kept only temporarily 
-		storeData(dataSet, file.getName(), dataset); //this.getClass().getName());
+		DataHistory dataHistory = new DataHistory();
+		dataHistory.setParent(dataset.getId());
+		dataHistory.setData("Data File Name : " + fileName + "\n");
+		FacadeFactory.getFacade().store(dataHistory);
 	}
 
 	@Override
