@@ -394,14 +394,14 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		List<String> markerLabels = microarray.getMarkerLabels();
+		String[] markerLabels = microarray.getMarkerLabels();
 		
 		int[] significantIndex = resultSet.getSignificantIndex();
 		if (significantIndex!=null)
 		{			 
 			List<String> significantMarkerNames = new ArrayList<String>();
 			for(int i=0; i<significantIndex.length; i++) {
-				String markerLabel = markerLabels.get(significantIndex[i]);
+				String markerLabel = markerLabels[ significantIndex[i] ];
 				significantMarkerNames.add(markerLabel);
 			}
 			java.util.Collections.sort(significantMarkerNames);

@@ -17,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
@@ -262,9 +261,8 @@ public class SetViewCommand implements Command {
 			log.error("null ID for MicroarrayDataset");
 			return;
 		}
-		MicroarrayDataset d = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		List<String> markerLabels = d.getMarkerLabels();
-		List<String> arrayLabels = d.getArrayLabels();
+		String[] markerLabels = DataSetOperations.getStringLabels("markerLabels", id);
+		String[] arrayLabels = DataSetOperations.getStringLabels("arrayLabels", id);
 		markerTree.setContainerDataSource(markerTableView(markerLabels, dataSetId));
 		arrayTree.setContainerDataSource(arrayTableView(arrayLabels));
 
@@ -543,18 +541,18 @@ public class SetViewCommand implements Command {
 	 * @param maSet
 	 * @return - Indexed container with array labels
 	 */
-	private HierarchicalContainer arrayTableView(List<String> arrayLabels) {
+	private HierarchicalContainer arrayTableView(String[] arrayLabels) {
 
 		HierarchicalContainer tableData 		= 	new HierarchicalContainer();
 
 		tableData.addContainerProperty("Labels", String.class, null);
 		Item mainItem 					= 	tableData.addItem("Phenotypes");
-		mainItem.getItemProperty("Labels").setValue("Phenotypes" + " ["+ arrayLabels.size() + "]");
+		mainItem.getItemProperty("Labels").setValue("Phenotypes" + " ["+ arrayLabels.length + "]");
 
-		for(int k=0;k<arrayLabels.size();k++) {
+		for(int k=0;k<arrayLabels.length;k++) {
 			Item item 					= 	tableData.addItem(k);
 			tableData.setChildrenAllowed(k, false);
-			item.getItemProperty("Labels").setValue(arrayLabels.get(k));
+			item.getItemProperty("Labels").setValue(arrayLabels[k]);
 			tableData.setParent(k, "Phenotypes");
 		}
 		return tableData;
@@ -565,23 +563,23 @@ public class SetViewCommand implements Command {
 	 * @param maSet
 	 * @return - Indexed container with marker labels
 	 */
-	private HierarchicalContainer markerTableView(List<String> markerLabels, Long dataSetId) {
+	private HierarchicalContainer markerTableView(String[] markerLabels, Long dataSetId) {
 
 		HierarchicalContainer tableData 		= 	new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
 		Item mainItem =  tableData.addItem("Markers");
-		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markerLabels.size()+ "]");
+		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markerLabels.length+ "]");
 
 		/* find annotation information */
 		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
 		
-		for(int j=0; j<markerLabels.size();j++) {
+		for(int j=0; j<markerLabels.length;j++) {
 
 			Item item 					= 	tableData.addItem(j);
 			tableData.setChildrenAllowed(j, false);
 
-			String markerLabel = markerLabels.get(j);
+			String markerLabel = markerLabels[j];
 			String geneSymbol = map.get(markerLabel);
 			if(geneSymbol!=null) {
 				markerLabel += " (" + geneSymbol + ")";

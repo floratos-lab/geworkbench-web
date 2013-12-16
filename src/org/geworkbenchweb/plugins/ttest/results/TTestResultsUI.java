@@ -2,7 +2,6 @@ package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -130,13 +129,13 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		List<String> markerLabels = microarray.getMarkerLabels();
+		String[] markerLabels = microarray.getMarkerLabels();
 
 		log.debug("t-test result ID "+tTestResultSet.getId());
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
 		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
 			
-			String mark 	= 	markerLabels.get(i);
+			String mark 	= 	markerLabels[i];
 			double sigValue 	= 	tTestResultSet.getpValue()[i];
 		
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {

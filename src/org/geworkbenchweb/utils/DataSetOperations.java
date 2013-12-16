@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
@@ -21,7 +22,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
  */
 
 public class DataSetOperations {
-
+	private static Log log = LogFactory.getLog(DataSetOperations.class);
+	
 	/* build a probeSetId-geneSymbol map for efficiency */
 	static public Map<String, String> getAnnotationMap(Long dataSetId) {
 		Map<String, Object> parameter = new HashMap<String, Object>();
@@ -43,6 +45,19 @@ public class DataSetOperations {
 		return annotationMap;
 	}
 	
+	/* get marker labels or microarray labels of a MicroarrayDataset */
+	static public String[] getStringLabels(String fieldName, Long id) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("id", id);
+		List<?> list = FacadeFactory.getFacade().getFieldValues(
+				MicroarrayDataset.class, fieldName, "p.id=:id", parameter);
+		if (list.size() != 1) {
+			log.error("incorrect count of query results returned");
+			return null;
+		}
+		return (String[]) list.get(0);
+	}
+	
 	public static MicroarraySet getMicroarraySet(Long dataSetId) {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -50,37 +65,8 @@ public class DataSetOperations {
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, id);
 
-		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
-		int arrayNumber = arrayLabels.size();
-		int markerNumber = markerLabels.size();
-		List<MicroarrayRow> rows = microarray.getRows();
-		float[][] values = new float[markerNumber][arrayNumber];
-		for (int i = 0; i < markerNumber; i++) {
-			float[] v = rows.get(i).getValueArray();
-			for (int j = 0; j < arrayNumber; j++) {
-				values[i][j] = v[j];
-			}
-		}
-
-		return new MicroarraySet(arrayNumber, markerNumber,
-				arrayLabels.toArray(new String[0]),
-				markerLabels.toArray(new String[0]), values, null);
-	}
-	
-	public static float[][] getValues(MicroarrayDataset microarray) {
-		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
-		int arrayNumber = arrayLabels.size();
-		int markerNumber = markerLabels.size();
-		List<MicroarrayRow> rows = microarray.getRows();
-		float[][] values = new float[markerNumber][arrayNumber];
-		for (int i = 0; i < markerNumber; i++) {
-			float[] v = rows.get(i).getValueArray();
-			for (int j = 0; j < arrayNumber; j++) {
-				values[i][j] = v[j];
-			}
-		}
-		return values;
+		return new MicroarraySet(microarray.getArrayNumber(), microarray.getMarkerNumber(),
+				microarray.getArrayLabels(),
+				microarray.getMarkerLabels(), microarray.getExpressionValues(), null);
 	}
 }

@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -402,10 +402,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, id);
-		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
-		int arrayNumber = arrayLabels.size();
-		List<MicroarrayRow> rows = microarray.getRows();
+		List<String> markerLabels = Arrays.asList( microarray.getMarkerLabels() );
+		int arrayNumber = microarray.getArrayNumber();
+		float[][] rows = microarray.getExpressionValues();
 
 		if (matrix==null) return null;
 		boolean goodNetwork = false;
@@ -422,7 +421,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				if (marker1 != null) {
 					double[] v1 = new double[arrayNumber];
 					double[] v2 = new double[arrayNumber];
-					float[] value1 = rows.get(marker1Index).getValueArray();
+					float[] value1 = rows[marker1Index];
 					for (int i = 0; i < arrayNumber; i++) {
 						v1[i] = value1[i];
 					}
@@ -433,7 +432,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 						int marker2Index = markerLabels.indexOf(marker2);
 						if (marker2 != null) {
 							double rho = 1, pvalue = 0;
-							float[] value2 = rows.get(marker2Index).getValueArray();
+							float[] value2 = rows[marker2Index];
 							for (int i = 0; i < arrayNumber; i++) {
 								v2[i] = value2[i];
 							}

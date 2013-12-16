@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -269,9 +268,9 @@ public class MarinaAnalysis {
 	}
 
 	private boolean exportExp(String expFname, String mradir, MicroarrayDataset microarray){
-		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
-		float[][] values = DataSetOperations.getValues(microarray);
+		String[] arrayLabels = microarray.getArrayLabels();
+		String[] markerLabels = microarray.getMarkerLabels();
+		float[][] values = microarray.getExpressionValues();
 		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
 
 		boolean unique_probeids = true;
@@ -306,12 +305,12 @@ public class MarinaAnalysis {
 				String geneName = map.get( markerName );
 				if(geneName==null)geneName = markerName;
 				bw.write(markerName+delimiter+geneName);
-				for (int index=0; index<arrayLabels.size(); index++){
+				for (int index=0; index<arrayLabels.length; index++){
 				    bw.write(delimiter);
 				    float data = values[i][index];
 				    if ((class2.length == 1 && class2[0].length()==0)
 						&& class1.length == 1
-						&& class1[0].equals(arrayLabels.get(index))) {
+						&& class1[0].equals(arrayLabels.length)) {
 				    	float data1 = data - (float)Math.sqrt(2);
 				    	float data2 = data + (float)Math.sqrt(2);
 				    	bw.write(data1+delimiter+data2);

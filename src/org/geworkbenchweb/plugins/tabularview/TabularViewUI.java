@@ -12,7 +12,6 @@ import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -106,16 +105,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		DataSet data = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
 		Long id = data.getDataId();
 		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		List<String> arrayLabels = dataset.getArrayLabels();
-		List<String> markerLabels = dataset.getMarkerLabels();
-		List<MicroarrayRow> rows = dataset.getRows();
-		float[][] values = new float[markerLabels.size()][arrayLabels.size()];
-		for(int i=0; i<markerLabels.size(); i++) {
-			float[] v = rows.get(i).getValueArray();
-			for(int j=0; j<arrayLabels.size(); j++) {
-				values[i][j] = v[j];
-			}
-		}
+		String[] arrayLabels = dataset.getArrayLabels();
+		String[] markerLabels = dataset.getMarkerLabels();
+		float[][] values = dataset.getExpressionValues();
 		displayTable.setContainerDataSource(getIndexedContainer(markerLabels, arrayLabels, values));
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
@@ -165,7 +157,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private List<String> getTabViewColHeaders(List<String> arrayLabels) {			 
+	private List<String> getTabViewColHeaders(String[] arrayLabels) {			 
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
 				.ordinal()) {
@@ -190,8 +182,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 		if (selectedArraySet == null
 				|| selectedArraySet[0].equalsIgnoreCase("All Arrays")) {
-			for (int i = 0; i < arrayLabels.size(); i++)
-				colHeaders.add(arrayLabels.get(i));
+			for (int i = 0; i < arrayLabels.length; i++)
+				colHeaders.add(arrayLabels[i]);
 		} else {
 
 			for (int i = 0; i < selectedArraySet.length; i++) {
@@ -229,7 +221,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private List<String> getTabViewMarkers(List<String> markerLabels) {		 
+	private List<String> getTabViewMarkers(String[] markerLabels) {		 
 		List<String> selectedMarkers = new ArrayList<String>();
 
 		String[] selectedMarkerSet = null;
@@ -261,8 +253,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 			}
 		} else {
-			for (int i = 0; i < markerLabels.size(); i++) {
-				String marker = markerLabels.get(i);
+			for (int i = 0; i < markerLabels.length; i++) {
+				String marker = markerLabels[i];
 				if (isMatchSearch(marker, markerDisplayControl))
 					selectedMarkers.add(marker);
 
@@ -318,7 +310,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return null;
 	}
 
-	private IndexedContainer getIndexedContainer(List<String> markerLabels, List<String> arrayLabels,
+	private IndexedContainer getIndexedContainer(String[] markerLabels, String[] arrayLabels,
 			float[][] values) {
 
 		loadTabViewPreferences();
@@ -370,7 +362,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					if (selectedMarkers.size() == 0)
 						continue;
 					// TODO this is ugly
-					int j = k + arrayLabels.size() - colHeaders.size(); 
+					int j = k + arrayLabels.length - colHeaders.size(); 
 					item.getItemProperty(colHeaders.get(k)).setValue(values[i][j]);
 				}
 			}

@@ -3,7 +3,6 @@ package org.geworkbenchweb.dataset;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -53,7 +51,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		GeWorkbenchExpFileParser parser = new GeWorkbenchExpFileParser(file);
 		try {
 			cleanMicroaraySet = parser.parse();
-			MicroarrayDataset jpaDataset = convert(cleanMicroaraySet);
+			MicroarrayDataset jpaDataset = new MicroarrayDataset(cleanMicroaraySet);
 			FacadeFactory.getFacade().store(jpaDataset);
 			Long id = jpaDataset.getId();
 			
@@ -88,19 +86,6 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 				+ cleanMicroaraySet.markerNumber + "\n");
 		experimentInfo.setInfo(info.toString());
 		FacadeFactory.getFacade().store(experimentInfo);
-	}
-
-	private static MicroarrayDataset convert(MicroarraySet cleanMicroaraySet) {
-		List<String> markerLabels = Arrays.asList(cleanMicroaraySet.markerLabels);
-		List<String> arrayLabels = Arrays.asList(cleanMicroaraySet.arrayLabels);
-		List<MicroarrayRow> rows = new ArrayList<MicroarrayRow>();
-		for(int i=0; i<cleanMicroaraySet.markerNumber; i++) {
-			float[] rowValues = cleanMicroaraySet.values[i];
-			MicroarrayRow row = new MicroarrayRow(rowValues);
-			rows.add(row );
-		}
-		MicroarrayDataset jpaDataset = new MicroarrayDataset(markerLabels, arrayLabels, rows);
-		return jpaDataset;
 	}
 
 	/** 

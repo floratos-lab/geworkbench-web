@@ -333,7 +333,7 @@ public class ClassSelector extends FormLayout{
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, id);
-		List<String> arrayLabels = microarray.getArrayLabels(); // TODO only arrayLabels needed, not the entire dataset
+		String[] arrayLabels = microarray.getArrayLabels(); // TODO only arrayLabels needed, not the entire dataset
 
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 		if (filename.toLowerCase().endsWith(".csv")) {

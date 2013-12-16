@@ -21,7 +21,6 @@ import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -132,20 +131,13 @@ public class TTestAnalysisWeb {
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 
-		List<String> arrayLabels = microarray.getArrayLabels();
-		int markerNumber = microarray.getMarkerLabels().size();
-		List<MicroarrayRow> rows = microarray.getRows();
-		float[][] values = new float[markerNumber][arrayLabels.size()];
-		for(int i=0; i<markerNumber; i++) {
-			float[] v = rows.get(i).getValueArray();
-			for(int j=0; j<arrayLabels.size(); j++) {
-				values[i][j] = v[j];
-			}
-		}
+		String arrayLabels[] = microarray.getArrayLabels();
+		int markerNumber = microarray.getMarkerNumber();
+		float[][] values = microarray.getExpressionValues();
 		
 		List<Integer> includedArrays = new ArrayList<Integer>();
-		for (int i = 0; i < arrayLabels.size(); i++) {
-			if (aC.contains(arrayLabels.get(i))) {
+		for (int i = 0; i < arrayLabels.length; i++) {
+			if (aC.contains(arrayLabels[i])) {
 				includedArrays.add(i);
 			}
 		}
@@ -167,13 +159,13 @@ public class TTestAnalysisWeb {
 			for(int j=0; j<numExps; j++) {
 				int arrayIndex = includedArrays.get(j);
 				for(int r=0; r<caseArrayPositions.size(); r++){
-					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels.get(arrayIndex))) {
+					if(caseArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels[arrayIndex])) {
 						caseArray[i][caseIndex] = values[i][arrayIndex];
 						caseIndex++;
 					}
 				}
 				for(int r=0; r<controlArrayPositions.size(); r++){	
-					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels.get(arrayIndex))) {
+					if(controlArrayPositions.get(r).trim().equalsIgnoreCase(arrayLabels[arrayIndex])) {
 						controlArray[i][controlIndex] = values[i][arrayIndex];
 						controlIndex++;
 					}

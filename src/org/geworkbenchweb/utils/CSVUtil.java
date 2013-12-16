@@ -101,8 +101,8 @@ public class CSVUtil {
 		ArrayList<String> panel = new ArrayList<String>();
 		if(microarray==null) return panel;
 		
-		List<String> arrayLabels = microarray.getArrayLabels();
-		List<String> markerLabels = microarray.getMarkerLabels();
+		String[] arrayLabels = microarray.getArrayLabels();
+		String[] markerLabels = microarray.getMarkerLabels();
 
 		if (setType.equals("Array")){
 			for (String arrayLabel : arrayLabels) {
