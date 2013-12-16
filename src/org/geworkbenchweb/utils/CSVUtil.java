@@ -5,17 +5,13 @@ import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.geworkbench.util.Util;
-import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -119,7 +115,7 @@ public class CSVUtil {
 					panel.add(markerLabel);
 			}
 		}else if (markerType.equals("Gene Symbol")){
-			Map<String, String> map = getAnnotationMap(datasetId);
+			Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 			for(String markerLabel : markerLabels) {
 				String geneName = map.get(markerLabel);
 				if(selectedNames.contains(geneName))
@@ -135,27 +131,6 @@ public class CSVUtil {
 			}
 		}
 		return panel;
-	}
-
-	/* build a probeSetId-geneSymbol map for efficiency */
-	static public Map<String, String> getAnnotationMap(Long dataSetId) {
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		DataSetAnnotation dataSetAnnotation = FacadeFactory
-				.getFacade()
-				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId",
-						parameter);
-		Map<String, String> annotationMap = new HashMap<String, String>();
-		if (dataSetAnnotation != null) {
-			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(
-					Annotation.class, annotationId);
-			for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry.getGeneSymbol());
-			}
-		}
-		return annotationMap;
 	}
 
 	private static void showWarning(String setType, int missing, Window pWindow){

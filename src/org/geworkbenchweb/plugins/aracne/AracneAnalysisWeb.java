@@ -24,7 +24,6 @@ import org.geworkbench.components.aracne.data.AracneOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -101,7 +100,7 @@ public class AracneAnalysisWeb {
 
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(datasetId);
-		Map<String, String> map = CSVUtil.getAnnotationMap(datasetId);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 
 		aracneInput.setAlgorithm((String) params
 				.get(AracneParameters.ALGORITHM));

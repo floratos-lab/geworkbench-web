@@ -12,7 +12,7 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -54,7 +54,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 
 		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
 				 
-		Map<String, String> map = CSVUtil.getAnnotationMap(datasetId);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation

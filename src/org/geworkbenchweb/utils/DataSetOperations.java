@@ -1,26 +1,48 @@
 package org.geworkbenchweb.utils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
- * Purpose of this class is to have all the operations on the DataSet table
+ * A collection of utility methods that simplify JPA code.
+ * When these methods are called, the performance implication must be considered carefully.
  * 
  * @author Nikhil
  */
 
 public class DataSetOperations {
 
-	public static DataSet getDataSet(Long dataSetId) {
-		DataSet data = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-		return data;
+	/* build a probeSetId-geneSymbol map for efficiency */
+	static public Map<String, String> getAnnotationMap(Long dataSetId) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory
+				.getFacade()
+				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId",
+						parameter);
+		Map<String, String> annotationMap = new HashMap<String, String>();
+		if (dataSetAnnotation != null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(
+					Annotation.class, annotationId);
+			for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry.getGeneSymbol());
+			}
+		}
+		return annotationMap;
 	}
-
+	
 	public static MicroarraySet getMicroarraySet(Long dataSetId) {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);

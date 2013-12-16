@@ -35,7 +35,7 @@ import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -119,7 +119,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 		setDataSetId(dataSetId);	 
 
-		map = CSVUtil.getAnnotationMap(dataSetId);
+		map = DataSetOperations.getAnnotationMap(dataSetId);
 
 		form.getLayout().addComponent(classSelector.getArrayContextCB());
 		form.getLayout().addComponent(classSelector.getH1());

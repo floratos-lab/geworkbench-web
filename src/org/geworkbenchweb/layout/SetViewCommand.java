@@ -21,6 +21,7 @@ import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -573,7 +574,7 @@ public class SetViewCommand implements Command {
 		mainItem.getItemProperty("Labels").setValue("Markers" + " [" + markerLabels.size()+ "]");
 
 		/* find annotation information */
-		Map<String, String> map = CSVUtil.getAnnotationMap(dataSetId);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
 		
 		for(int j=0; j<markerLabels.size();j++) {
 

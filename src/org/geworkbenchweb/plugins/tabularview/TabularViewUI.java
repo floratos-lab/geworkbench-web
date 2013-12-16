@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.Annotation;
@@ -17,7 +15,6 @@ import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MicroarrayRow;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -41,8 +38,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	private static final long serialVersionUID = -1544215388914183715L;
 
-	private static Log log = LogFactory.getLog(TabularViewUI.class);
-   
 	private Long userId;
 	private int precisonNumber = 2;
 	private String searchStr;	
@@ -88,10 +83,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setImmediate(true);
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
 
-		DataSet data = DataSetOperations.getDataSet(dataSetId);
-		
-		// TODO ultimate goal here is to handle annotation separately
-		// TODO the query should be designed carefully
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
 		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
@@ -112,6 +103,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);		 
 	 
+		DataSet data = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
 		Long id = data.getDataId();
 		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 		List<String> arrayLabels = dataset.getArrayLabels();

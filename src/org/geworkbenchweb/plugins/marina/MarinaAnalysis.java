@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
-import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -273,7 +272,7 @@ public class MarinaAnalysis {
 		List<String> arrayLabels = microarray.getArrayLabels();
 		List<String> markerLabels = microarray.getMarkerLabels();
 		float[][] values = DataSetOperations.getValues(microarray);
-		Map<String, String> map = CSVUtil.getAnnotationMap(dataSetId);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
 
 		boolean unique_probeids = true;
 

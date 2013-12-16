@@ -28,6 +28,7 @@ import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.CSVUtil;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape; 
@@ -506,7 +507,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		ConfidentDataMap.clear();
 		
 		Long id = resultSet.getDatasetId();
-		Map<String, String> map = CSVUtil.getAnnotationMap(id);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(id);
 		
 		for (int j = 0; j < hits.size(); j++) {
 			Item item = dataIn.addItem(j);

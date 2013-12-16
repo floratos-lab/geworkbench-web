@@ -9,7 +9,6 @@ import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.CSVUtil;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
@@ -163,7 +162,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		}
 		
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
-		Map<String, String> map = CSVUtil.getAnnotationMap(parentDatasetId);
+		Map<String, String> map = DataSetOperations.getAnnotationMap(parentDatasetId);
 
 		double[][] result2DArray = anovaResultSet.getResult2DArray();
 		int significantMarkerNumbers = anovaResultSet.getFeaturesIndexes().length;
