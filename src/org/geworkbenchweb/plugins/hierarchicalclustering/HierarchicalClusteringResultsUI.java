@@ -67,6 +67,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		StringBuffer markerString 	= 	new StringBuffer();
 		if(markerCluster != null) {
 			convertToString(markerString, markerCluster, reorderedMarker);
+		} else {
+			for(int i=0; i<selectedMarkers.length; i++) reorderedMarker.add(i);
 		}
 		String markerClusterString = markerString.toString();
 
@@ -74,6 +76,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		StringBuffer arrayString 	= 	new StringBuffer();
 		if(arrayCluster != null) {
 			convertToString(arrayString, arrayCluster, reorderedMicroarray);
+		} else {
+			for(int i=0; i<selectedArrays.length; i++) reorderedMicroarray.add(i);
 		}
 		String arrayClusterString = arrayString.toString();
 
