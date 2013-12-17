@@ -1,0 +1,597 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>geworkbench</groupId>
+  <artifactId>geworkbench</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>geworkbench web application</name>
+  
+   <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<vaadin.version>6.8.1</vaadin.version>
+		<gwt.version>2.3.0</gwt.version>
+		<gwt.plugin.version>2.2.0</gwt.plugin.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                 <version>2.2</version>
+                 <configuration>
+                 <url>${tomcatUrl}</url>
+                 <server>${serverName}</server>
+                 </configuration>
+             </plugin>
+
+			<!-- Compiles your custom GWT components with the GWT compiler -->
+			<!-- A hosted mode browser for client-side widget debugging can be run 
+				with the goal gwt:run after uncommenting the correct line below. A remote 
+				debugger can then be connected to port 8998. Note that e.g. a Jetty server 
+				should be running with the server side parts - use the goal jetty:run . -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<version>${gwt.plugin.version}</version>
+				<configuration>
+					<!-- if you don't specify any modules, the plugin will find them -->
+					<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
+						</modules> -->
+					<webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
+					<!-- On Mac running Snow Leopard, add "-d32" -->
+					<!-- This causes error messages (but build works) in phase "package": 
+						two processes would use the same debug port -->
+					<!--extraJvmArgs>-Xmx512M -Xss1024k -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
+					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+					<runTarget>geworkbench</runTarget>
+					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+					<noServer>true</noServer>
+					<port>8080</port>
+					<compileReport>false</compileReport>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>resources</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<!-- <dependencies> <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-dev</artifactId> 
+					<version>${gwt.version}</version> </dependency> <dependency> <groupId>com.google.gwt</groupId> 
+					<artifactId>gwt-user</artifactId> <version>${gwt.version}</version> </dependency> 
+					</dependencies> -->
+			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>1.0.2</version>
+				<executions>
+					<execution>
+						<configuration>
+							<!-- if you don't specify any modules, the plugin will find them -->
+							<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
+								</modules> -->
+						</configuration>
+						<goals>
+							<goal>update-widgetset</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- A simple Jetty test server at http://localhost:8080/geworkbenchweb 
+				can be launched with the Maven goal jetty:run and stopped with jetty:stop -->
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.24</version>
+				<configuration>
+					<stopPort>9966</stopPort>
+					<stopKey>geworkbench</stopKey>
+					<!-- Redeploy every x seconds if changes are detected, 0 for no automatic 
+						redeployment -->
+					<scanIntervalSeconds>0</scanIntervalSeconds>
+					<!-- make sure Jetty also finds the widgetset -->
+					<webAppConfig>
+						<contextPath>/geworkbench</contextPath>
+						<baseResource implementation="org.mortbay.resource.ResourceCollection">
+							<!-- Workaround for Maven/Jetty issue http://jira.codehaus.org/browse/JETTY-680 -->
+							<!-- <resources>src/main/webapp,${project.build.directory}/${project.build.finalName}</resources> -->
+							<resourcesAsCSV>src/main/webapp,${project.build.directory}/${project.build.finalName}</resourcesAsCSV>
+						</baseResource>
+					</webAppConfig>
+				</configuration>
+			</plugin>
+		</plugins>
+		<finalName>geworkbench</finalName>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>vaadin-snapshots</id>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>vaadin-central</id>
+			<url>http://oss.sonatype.org/content/repositories/central</url>
+		</repository>
+
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+		<repository>
+			<id>in-project</id>
+			<url>file://${project.basedir}/repo/lib</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>codehaus-snapshots</id>
+			<url>http://nexus.codehaus.org/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>vaadin-snapshots</id>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ws.commons.axiom</groupId>
+			<artifactId>axiom-api</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-activation_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-javamail_1.4_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>jaxen</groupId>
+					<artifactId>jaxen</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-stax-api_1.0_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.james</groupId>
+					<artifactId>apache-mime4j-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ws.commons.axiom</groupId>
+			<artifactId>axiom-impl</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>wstx-asl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-activation_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-javamail_1.4_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-stax-api_1.0_spec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-adb</artifactId>
+			<version>1.6.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-activation_1.1_spec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-kernel</artifactId>
+			<version>1.6.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jta_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-fileupload</groupId>
+					<artifactId>commons-fileupload</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.woden</groupId>
+					<artifactId>woden-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.woden</groupId>
+					<artifactId>woden-impl-dom</artifactId>
+				</exclusion>
+			</exclusions>
+
+
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-transport-http</artifactId>
+			<version>1.6.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>axis2-transport-local</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.collections</groupId>
+			<artifactId>collections-generic</artifactId>
+			<version>4.01</version>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>icepush</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>jfree</groupId>
+			<artifactId>jcommon</artifactId>
+			<version>1.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jrobin</groupId>
+			<artifactId>jrobin</artifactId>
+			<version>1.5.9</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.activation</groupId>
+					<artifactId>activation</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.neethi</groupId>
+			<artifactId>neethi</artifactId>
+			<version>3.0.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>woodstox-core-asl</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.restfb</groupId>
+			<artifactId>restfb</artifactId>
+			<version>1.6.12</version>
+		</dependency>
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ws.commons.schema</groupId>
+			<artifactId>XmlSchema</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+
+		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwt.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-dev</artifactId>
+			<version>${gwt.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+			<classifier>sources</classifier>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- for local in project rerepository -->
+
+		<dependency>
+			<groupId>anova</groupId>
+			<artifactId>anova</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>appfoundation</groupId>
+			<artifactId>appfoundation</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>aracne-java</groupId>
+			<artifactId>aracne-java</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>blackboard</groupId>
+			<artifactId>blackboard</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>borderlayout</groupId>
+			<artifactId>borderlayout</artifactId>
+			<version>0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-digester3</groupId>
+			<artifactId>commons-digester3</artifactId>
+			<version>3.2-with-deps</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>easyuploads</groupId>
+			<artifactId>easyuploads</artifactId>
+			<version>0.5.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eclipselink</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eclipselink-jpa-modelgen</groupId>
+			<artifactId>eclipselink-jpa-modelgen</artifactId>
+			<version>2.3.2.v20111125-r10461</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>FancyLayouts</groupId>
+			<artifactId>FancyLayouts</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>genspace-common</groupId>
+			<artifactId>genspace-common</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>geworkbench-core</groupId>
+			<artifactId>geworkbench-core</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hierarchicalclustering</groupId>
+			<artifactId>hierarchicalclustering</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>httpcore</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>icepush</groupId>
+			<artifactId>icepush</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>icepush-gwt</groupId>
+			<artifactId>icepush-gwt</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>interactions</groupId>
+			<artifactId>interactions</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>invientcharts</groupId>
+			<artifactId>invientcharts</artifactId>
+			<version>0.8.6</version>
+		</dependency>
+		<dependency>
+			<groupId>persistence</groupId>
+			<artifactId>javax.persistence</artifactId>
+			<version>2.0.3.v201010191057</version>
+		</dependency>
+		<dependency>
+			<groupId>jimi</groupId>
+			<artifactId>jimi</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>MessageBox</groupId>
+			<artifactId>MessageBox</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>MultiButton</groupId>
+			<artifactId>MultiButton</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql-connector-java</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.18-bin</version>
+		</dependency>
+		<dependency>
+			<groupId>ostermillerutils</groupId>
+			<artifactId>ostermillerutils</artifactId>
+			<version>1_04_03_for_kaffe</version>
+		</dependency>
+		<dependency>
+			<groupId>PagedTable</groupId>
+			<artifactId>PagedTable</artifactId>
+			<version>0.6.3</version>
+		</dependency>
+		<dependency>
+			<groupId>poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.8-20120326</version>
+		</dependency>
+		<dependency>
+			<groupId>sessionguard</groupId>
+			<artifactId>sessionguard</artifactId>
+			<version>0.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>smack</groupId>
+			<artifactId>smack</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>smackx</groupId>
+			<artifactId>smackx</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>TableExport</groupId>
+			<artifactId>TableExport</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ttest</groupId>
+			<artifactId>ttest</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>vprotovis</groupId>
+			<artifactId>vprotovis</artifactId>
+			<version>0.6</version>
+		</dependency>		
+	</dependencies>	 
+
+</project>
