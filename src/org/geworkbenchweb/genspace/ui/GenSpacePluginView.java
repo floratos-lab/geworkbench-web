@@ -3,6 +3,7 @@ package org.geworkbenchweb.genspace.ui;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.component.ActivityFeedWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
@@ -147,9 +148,9 @@ public class GenSpacePluginView extends HorizontalLayout {
 		}
 		//right.addComponent(af);
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){
-						
 			this.setAf(genSpaceLogin);
 			this.setChat(genSpaceLogin);
+			//genspaceLogger.setGenSpaceLogin(genSpaceLogin);
 			/*chatHandler  = genSpaceLogin.getChatHandler();
 			chatHandler.updateRoster();
 			chatHandler.createRosterFrame();
@@ -161,6 +162,7 @@ public class GenSpacePluginView extends HorizontalLayout {
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
 	}
+	
 	
 	public void setChat(GenSpaceLogin_1 genspaceLogin){
 		chatHandler  = genspaceLogin.getChatHandler();

@@ -307,9 +307,9 @@ public class ObjectLogger {
 		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
 		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null) {
 			System.out.println("Check application: " + this.login.getApplication());
-			this.login.getPusher().push();
+			this.login.getGenSpaceParent().getPusher().push();
+			//this.login.getPusher().push(); 
 		}
-		
 	}
 	
 
