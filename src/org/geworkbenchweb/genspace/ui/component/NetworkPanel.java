@@ -196,6 +196,9 @@ public class NetworkPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event){
+				if(event.getProperty().getValue()==null){
+					return;
+				}
 				selectedNet = (Network)event.getProperty().getValue();
 				System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
 			}

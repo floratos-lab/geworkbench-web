@@ -352,7 +352,7 @@ public class GenSpaceServerFactory {
 	}
 
 	public String getUsername() {
-		System.out.println("Check user in getUsername: " + this.user);
+		//System.out.println("Check user in getUsername: " + this.user);
 		if(user == null)
 			return null;
 		return user.getUsername();

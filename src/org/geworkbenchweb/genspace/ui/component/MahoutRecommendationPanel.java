@@ -139,7 +139,7 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 			{
 				WorkflowWrapper w = new WorkflowWrapper(wa);
 				w.loadToolsFromCache();
-				wfs = wfs + "<li>" + w.toString() + "</li>";
+				wfs = wfs + "" + w.toString() + "\n";
 				lim--;
 				if (lim <= 0)
 					break;
@@ -150,9 +150,9 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		
 			for (TasteUser user1 : peopleLikeYou) {
 			if (user1.getUser() == null)
-				people += "<li> Anonymous " + user1.getId() + "</li>";
+				people += "Anonymous " + user1.getId() + "\n";
 			else
-				people += "<li>" + user1.getUser().getUsername() + "</li>";
+				people += "" + user1.getUser().getUsername() + "\n";
 			}
 		
 			if (login.getGenSpaceServerFactory().getUser() != null) {
@@ -160,9 +160,9 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 			
 				for (TasteUser user1 : peopleLikeYouInNetwork) {
 					if (user1.getUser() == null)
-						peopleInNetwork += "<li> Anonymous " + user1.getId() + "</li>";
+						peopleInNetwork += "Anonymous " + user1.getId() + "\n";
 					else
-						peopleInNetwork += "<li>" + user1.getUser().getUsername() + "</li>";
+						peopleInNetwork += "" + user1.getUser().getUsername() + "\n";
 				}
 			
 				lim = 10;
@@ -171,7 +171,7 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				{
 					WorkflowWrapper w = new WorkflowWrapper(wa);
 					w.loadToolsFromCache();
-					workflowsWithinNetworkString += "<li>" + w.toString() + "</li>";
+					workflowsWithinNetworkString += "" + w.toString() + "\n";
 					lim--;
 					if (lim <= 0)
 						break;

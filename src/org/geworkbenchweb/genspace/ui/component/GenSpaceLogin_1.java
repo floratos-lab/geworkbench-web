@@ -84,7 +84,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	
 	public GenSpaceServerFactory getGenSpaceServerFactory()
 	{
-		System.out.println("Check genSpaceServerFactory before return: " + this.genSpaceServerFactory.getUsername());
+		//System.out.println("Check genSpaceServerFactory before return: " + this.genSpaceServerFactory.getUsername());
 		return this.genSpaceServerFactory;
 	}
 	

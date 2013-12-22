@@ -127,6 +127,7 @@ public class RequestPanel extends SocialPanel{
 		
 		createNetworkLayout();
 		this.hLayout.addComponent(nLayout);
+		this.hLayout.addComponent(pusher);
 	}
 	
 
@@ -316,7 +317,6 @@ public class RequestPanel extends SocialPanel{
 						
 						if(ar.equals(accept)) {
 							accList.add(tmpUnr.getId());
-							
 							/*System.out.println("Accept request from network: " + tmpUnr.getName());
 							login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(tmpUnr.getId());
 							login.getPusher().push();*/
@@ -327,6 +327,7 @@ public class RequestPanel extends SocialPanel{
 							login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(tmpUnr.getId());
 							login.getPusher().push();*/
 						}
+						
 					}
 				}
 				if(accList.size()>0){
@@ -335,7 +336,7 @@ public class RequestPanel extends SocialPanel{
 					}
 					loadNetworks();
 				}else{
-					getApplication().getMainWindow().showNotification("No network request is selected!");
+					//getApplication().getMainWindow().showNotification("No network request is selected!");
 				}
 				if(rejList.size()>0){
 					for (int unID: rejList) {
@@ -344,7 +345,7 @@ public class RequestPanel extends SocialPanel{
 					loadNetworks();
 
 				}else{
-					getApplication().getMainWindow().showNotification("No network request is selected!");
+					//getApplication().getMainWindow().showNotification("No network request is selected!");
 				}
 				//attachPusher();
 				//login.getPusher().push();

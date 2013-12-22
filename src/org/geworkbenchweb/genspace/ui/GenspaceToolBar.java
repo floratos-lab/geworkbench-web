@@ -213,13 +213,20 @@ public class GenspaceToolBar extends MenuBar {
 		notebookPanel.loggedIn();
 		workflowRepository.loggedIn();
 		socialNetworkHome.loggedIn();
-		GenspaceToolBar.this.pluginView.setAf(genSpaceLogin);
-		GenspaceToolBar.this.pluginView.setChat(genSpaceLogin);
+		
+		
+		/*GenspaceToolBar.this.pluginView.setAf(genSpaceLogin);
+		GenspaceToolBar.this.pluginView.setChat(genSpaceLogin);*/
+		
 		System.out.println("Check genSpaceLogin before set in logger: " + genSpaceLogin);
 		genspaceLogger.setGenSpaceLogin(genSpaceLogin);
 		ObjectLogger objectLogger = genspaceLogger.getObjectLogger();
 		objectLogger.addCWFListener(realTimeWorkflowSuggestion);
 		objectLogger.addNotebookDataListener(notebookPanel);
+		
+		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Login", "Please use this interface to login.", genSpaceLogin);
+		System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
+		System.out.println();
 //		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
 //		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);
 	}

@@ -147,15 +147,16 @@ public class GenSpacePluginView extends HorizontalLayout {
 		}
 		//right.addComponent(af);
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){
+						
 			this.setAf(genSpaceLogin);
-			
-			chatHandler  = genSpaceLogin.getChatHandler();
+			this.setChat(genSpaceLogin);
+			/*chatHandler  = genSpaceLogin.getChatHandler();
 			chatHandler.updateRoster();
 			chatHandler.createRosterFrame();
 			chatHandler.rf.addStyleName("feature-info");
 			right.addComponent(chatHandler.rf);
 			GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-			GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+			GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);*/
 		}
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
@@ -163,14 +164,24 @@ public class GenSpacePluginView extends HorizontalLayout {
 	
 	public void setChat(GenSpaceLogin_1 genspaceLogin){
 		chatHandler  = genspaceLogin.getChatHandler();
+		
+		if (chatHandler.rf != null || right.getComponentIndex(chatHandler.rf) != -1){
+			clearChat();
+			System.out.println("clear chat!!");
+		}
 		chatHandler.updateRoster();
 		chatHandler.createRosterFrame();
 		chatHandler.rf.addStyleName("feature-info");
 		right.addComponent(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+		System.out.println("XXXXXX" +chatHandler.rf);
 	}
 	public void setAf(GenSpaceLogin_1 genspaceLogin){
+		if (af != null || right.getComponentIndex(af) != -1){
+			clearAf();
+			System.out.println("clear af!!");
+		}
 		af = new ActivityFeedWindow(genspaceLogin);
 		af.addStyleName("feature-info");
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(af);
@@ -179,9 +190,13 @@ public class GenSpacePluginView extends HorizontalLayout {
 	}
 	public void clearChat(){
 		right.removeComponent(chatHandler.rf);
+		GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+		GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
 	}
 	public void clearAf(){
 		right.removeComponent(af);
+		GenSpaceWindow.getGenSpaceBlackboard().removeListener(af);
+		GenSpaceWindow.getGenSpaceBlackboard().removeListener(af);
 	}
 	/*public void showToolList() {
 		ToolsUI toolList = new ToolsUI();

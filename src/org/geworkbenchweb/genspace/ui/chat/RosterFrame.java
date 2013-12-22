@@ -94,9 +94,11 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	{
 		if (this.cr.getConnection().isConnected()) {
 			this.rosterTree.removeAllItems();
+			
 			this.cr.getConnection().getRoster().reload();
 			this.roster.reload();
 			this.setUpRosterTree();
+			//this.addComponent(pusher);
 			System.out.println("refreshed!");
 		} 
 	}
@@ -410,7 +412,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			iconLayout.addComponent(this.offlineEmbed);
 			System.out.println("change to unavailable!");
 		}
-		
+		//iconLayout.addComponent(pusher);
 		pr.setStatus(status);
 		cr.getConnection().sendPacket(pr);
 		System.out.println("send status change event!");
@@ -437,9 +439,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		
 		vMainLayout = new VerticalLayout();
 		vMainLayout.setSpacing(true);
-		vMainLayout.addComponent(pusher);
+		
 		bLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		this.addComponent(bLayout);
+		vMainLayout.addComponent(pusher);
 		//Panel for RosterGroups
 		vScrollPane1 = new Panel();
 		vScrollPane1.getContent().setSizeUndefined();
@@ -502,6 +505,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		statusLayout.addComponent(emptyLabel);
 		
 		iconLayout = new HorizontalLayout();
+	
 		iconLayout.addComponent(this.onlineEmbed);
 		//iconLayout.addComponent(pusher);
 		statusLayout.addComponent(iconLayout);
@@ -530,7 +534,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
 		System.out.println("DEBUG: " + this.username + " got a status change event");
+		System.out.println("DEBUG: Check roster frame: " + this);
 		this.refresh();
+		//this.addComponent(pusher);
+		System.out.println("check pusher application: "+pusher.getApplication());
 		pusher.push();
 		//this.login.getPusher().push();
 	}
@@ -540,7 +547,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		//System.out.println("Get event from " + evt.getFriendName());
 		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
 			this.refresh();
-			this.initComponents();
+			//this.initComponents();
 			pusher.push();
 			//this.login.getPusher().push();
 		}

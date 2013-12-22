@@ -61,6 +61,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			this.createRosterFrame();
 
 			manager.addChatListener(this);
+			//System.out.println("OOOOOOO"+this.rf);
 		} else
 			System.out.println("Connection fails");
 
