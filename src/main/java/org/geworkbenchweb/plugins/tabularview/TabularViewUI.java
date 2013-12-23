@@ -47,7 +47,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	
 	private final Map<String, AnnotationEntry> annotationMap;
 
-	final private IndexedContainer dataIn;
+	private IndexedContainer dataIn;
 
 	public TabularViewUI(final Long dataSetId) {
  
@@ -386,6 +386,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	public void setSearchStr(String search) {
 		this.searchStr = search;
 		
+		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		Long id = data.getDataId();
+		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		String[] arrayLabels = dataset.getArrayLabels();
+		String[] markerLabels = dataset.getMarkerLabels();
+		float[][] values = dataset.getExpressionValues();
+		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
 	}
 
 	@Override
