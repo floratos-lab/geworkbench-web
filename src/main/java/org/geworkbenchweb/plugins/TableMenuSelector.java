@@ -1,8 +1,10 @@
 package org.geworkbenchweb.plugins;
 
   
+import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
 
+import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
  
@@ -55,9 +57,13 @@ public abstract class TableMenuSelector extends MenuBar {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void menuSelected(MenuItem selectedItem) {				 
-				parent.getPagedTableView().csvExport("tabularViewTable.csv");				 
-				 
+			public void menuSelected(MenuItem selectedItem) {
+				PagedTableView table = parent.getPagedTableView();
+				CsvExport csvExport = new CsvExport(table);
+				csvExport.excludeCollapsedColumns();
+				csvExport.setExportFileName("tabularViewTable.csv");
+				csvExport.setDisplayTotals(false);
+				csvExport.export();
 			}
 		});
 		exportItem.setStyleName("plugin");
