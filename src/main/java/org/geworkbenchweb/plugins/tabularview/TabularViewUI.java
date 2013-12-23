@@ -47,11 +47,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	
 	private final Map<String, AnnotationEntry> annotationMap;
 
+	final private IndexedContainer dataIn;
+
 	public TabularViewUI(final Long dataSetId) {
  
 		datasetId = dataSetId;
 		if(dataSetId==null) {
 			annotationMap = null;
+			dataIn = null;
 			return;
 		}
 		
@@ -108,7 +111,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		String[] arrayLabels = dataset.getArrayLabels();
 		String[] markerLabels = dataset.getMarkerLabels();
 		float[][] values = dataset.getExpressionValues();
-		displayTable.setContainerDataSource(getIndexedContainer(markerLabels, arrayLabels, values));
+		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
+		displayTable.setContainerDataSource(dataIn);
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
@@ -116,7 +120,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	 
  
-	void loadTabViewPreferences() {
+	private void loadTabViewPreferences() {
 
 		List<Preference> preferences = PreferenceOperations.getAllPreferences(
 				datasetId, userId, "TabularViewUI%");
@@ -307,7 +311,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public IndexedContainer getIndexedContainer() {
-		return null;
+		return dataIn;
 	}
 
 	private IndexedContainer getIndexedContainer(String[] markerLabels, String[] arrayLabels,
