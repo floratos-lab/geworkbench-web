@@ -14,6 +14,7 @@ import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -234,10 +235,12 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		if (markerFilter != null)
 			selectedMarkerSet = markerFilter.getSelectedSet();
 
+		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
+		
 		int markerDisplayControl = tabViewPreferences.getMarkerDisplayControl();
 		if (selectedMarkerSet != null && selectedMarkerSet.length > 0
 				&& (!selectedMarkerSet[0].equalsIgnoreCase("All Markers"))) {
-
+			
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				List<?> subSet = SubSetOperations.getMarkerSet(Long
 						.parseLong(selectedMarkerSet[i].trim()));
@@ -249,8 +252,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				for (int m = 0; m < positions.size(); m++) {
 					String temp = ((positions.get(m)).split("\\s+"))[0].trim();
 					if (temp != null
-							&& isMatchSearch(temp, 
-									markerDisplayControl)) {
+							&& isMatchSearch(temp, markerDisplayControl, map)) {
 						selectedMarkers.add(temp);
 					}
 				}
@@ -259,9 +261,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		} else {
 			for (int i = 0; i < markerLabels.length; i++) {
 				String marker = markerLabels[i];
-				if (isMatchSearch(marker, markerDisplayControl))
+				if (isMatchSearch(marker, markerDisplayControl, map))
 					selectedMarkers.add(marker);
-
 			}
 		}
 
@@ -269,21 +270,27 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	/* 'smart' matching for .getGeneName() is removed for now */
-	/* the earlier lousy code was replaced */
-	private boolean isMatchSearch(String markerLabel, int markerDisplayControl) {
+	private boolean isMatchSearch(String markerLabel, int markerDisplayControl,
+			Map<String, String> map) {
 		if (searchStr == null || searchStr.trim().length() == 0)
 			return true;
 
 		if (markerDisplayControl == Constants.MarkerDisplayControl.both
-				.ordinal() && markerLabel.toUpperCase().contains(searchStr)) {
-			return true;
+				.ordinal()) {
+			if (markerLabel.toUpperCase().contains(searchStr)) {
+				return true;
+			} else {
+				String geneSymbol = map.get(markerLabel);
+				if (geneSymbol != null
+						&& geneSymbol.toUpperCase().contains(searchStr)) {
+					return true;
+				}
+			}
 		} else if (markerDisplayControl == Constants.MarkerDisplayControl.marker
 				.ordinal() && markerLabel.toUpperCase().contains(searchStr)) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 	 
 	PagedTableView getDisplayTable()
