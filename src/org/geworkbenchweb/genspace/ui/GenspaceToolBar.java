@@ -226,7 +226,6 @@ public class GenspaceToolBar extends MenuBar {
 		
 		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Login", "Please use this interface to login.", genSpaceLogin);
 		System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
-		System.out.println();
 //		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
 //		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);
 	}

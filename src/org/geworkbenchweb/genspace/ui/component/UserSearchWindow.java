@@ -77,7 +77,7 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(pusher);
 			refreshDB();
 		}
-		System.out.println("update window!!!");
+		//System.out.println("update window!!!");
 		boolean isFriend = this.friend.isFriendsWith();
 		System.out.println("isFriend: " + isFriend);
 		Panel userNamePanel = new Panel(this.friend.getUsername());
@@ -144,7 +144,6 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().removeFriend(friend.getId());
 						removeFriend = removeFriend.replace("xxx", friend.getUsername());
 						refreshDB();
-						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(removeFriend);
 												
 						sHome.getInstance().updateForm();
@@ -178,13 +177,13 @@ public class UserSearchWindow extends Window {
 						login.getGenSpaceServerFactory().getFriendOps().removeFriend(friend.getId());
 						cancelFriend = cancelFriend.replace("xxx", friend.getUsername());
 						refreshDB();
-						System.out.println("refreshDB!!!");
 						getApplication().getMainWindow().showNotification(cancelFriend);
 						
 						sHome.getInstance().updateForm();
+						System.out.println(sHome.getInstance().pendingFriendRequestTo(friend));
 						updateWindowContents();
-						//pusher.push();
-						login.getPusher().push();
+						pusher.push();
+						//login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}
@@ -209,6 +208,7 @@ public class UserSearchWindow extends Window {
 						getApplication().getMainWindow().showNotification(addFriend);
 						
 						sHome.getInstance().updateForm();
+						System.out.println("^^"+sHome.getInstance().pendingFriendRequestTo(friend)+' '+friend.isFriendsWith());
 						updateWindowContents();
 						pusher.push();
 						//login.getPusher().push();

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.artur.icepush.ICEPush;
@@ -71,6 +72,8 @@ public class NetworkPanel extends SocialPanel{
 	
 	private ICEPush pusher = new ICEPush();
 	
+	private RosterFrame rf;
+	
 	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
@@ -78,6 +81,10 @@ public class NetworkPanel extends SocialPanel{
 		this.setCompositionRoot(blLayout);
 		this.title = panelTitle;
 		this.updatePanel();
+	}
+	
+	public void setRf(RosterFrame rf){
+		this.rf = rf;
 	}
 	
 	public String getPanelTitle() {
@@ -100,7 +107,7 @@ public class NetworkPanel extends SocialPanel{
 	
 	private void createMainLayout() {		
 		mainLayout = new HorizontalLayout();
-				
+		mainLayout.addComponent(pusher);		
 		nwPresentationLayout = new VerticalLayout();
 				
 		if(this.usrNetContainer.size() > 0)
@@ -219,11 +226,13 @@ public class NetworkPanel extends SocialPanel{
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
 							//addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
 							updatePanel();
+							rf.refresh();
 							//createMainLayout();
 						}
 					}else{
 						
 					}
+					pusher.push();
 			}
 		});
 		
@@ -242,8 +251,11 @@ public class NetworkPanel extends SocialPanel{
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
 						//elimNetwork(selectedNet.getName());
 						updatePanel();
+						//System.out.println(rf.getCaption());
+						rf.refresh();
 					}
 				}
+				pusher.push();
 			}
 		});
 		leaveButton.setWidth("150px");

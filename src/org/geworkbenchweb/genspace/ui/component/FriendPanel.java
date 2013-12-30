@@ -11,6 +11,8 @@ import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 
 public class FriendPanel extends SocialPanel{
 	
@@ -38,7 +40,8 @@ public class FriendPanel extends SocialPanel{
 		this.blLayout = new BorderLayout();
 		this.setCompositionRoot(blLayout);
 		this.friendPanel = new Panel(this.panelTitle);
-		this.friendPanel.setWidth("500px");
+		this.friendPanel.setWidth("430px");
+		//this.friendPanel.addStyleName(Runo.PANEL_LIGHT);
 		//this.friendPanel.setHeight("1000px");
 		this.friendList = login2.getGenSpaceServerFactory().getFriendOps().getFriends();
 		
@@ -84,6 +87,7 @@ public class FriendPanel extends SocialPanel{
 			}
 			tempAffiliation = tempUser.getLabAffiliation();
 			tempPanel = new Panel(tempPanelTitle);
+			tempPanel.addStyleName(Runo.PANEL_LIGHT);
 			tempPanel.setWidth("200px");
 			tempPanel.addListener(new ClickListener(){
 
@@ -96,6 +100,7 @@ public class FriendPanel extends SocialPanel{
 						userPanelTitle = event.getComponent().getCaption() + "'s genSpace profile";
 						
 						UserPanel userPanel = new UserPanel(userPanelTitle, forListener);
+						userPanel.addStyleName(Runo.PANEL_LIGHT);
 						mainLayout.removeAllComponents();
 						mainLayout.addComponent(userPanel);
 					}

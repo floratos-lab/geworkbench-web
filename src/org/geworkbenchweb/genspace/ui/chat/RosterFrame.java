@@ -96,6 +96,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			this.rosterTree.removeAllItems();
 			
 			this.cr.getConnection().getRoster().reload();
+			//this.roster = this.cr.getConnection().getRoster();
 			this.roster.reload();
 			this.setUpRosterTree();
 			//this.addComponent(pusher);

@@ -72,7 +72,7 @@ public class RequestPanel extends SocialPanel{
 	private ICEPush pusher = new ICEPush();
 	
 	public RequestPanel(String panelTitle, GenSpaceLogin_1 login) {
-		System.out.println("mainlayout!!!");
+		//System.out.println("mainlayout!!!");
 
 		this.login = login;
 		this.myID = login.getGenSpaceServerFactory().getUser().getId();
@@ -206,8 +206,8 @@ public class RequestPanel extends SocialPanel{
 						
 						if(ar.equals(aFriend)) {
 							accList.add(tmpUser.getId());
-							/*System.out.println("Accept from user: " + tmpUser.getUsername());
-							login.getGenSpaceServerFactory().getFriendOps().addFriend(tmpUser.getId());
+							//System.out.println("Accept user: " + tmpUser.getUsername());
+							/*login.getGenSpaceServerFactory().getFriendOps().addFriend(tmpUser.getId());
 							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, tmpUserID));
 							login.getPusher().push();*/
 						} else if (ar.equals(rFriend)) {
@@ -223,6 +223,7 @@ public class RequestPanel extends SocialPanel{
 				//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
 				if(accList.size()>0){
 					for (int friendID: accList) {
+						//System.out.println("Accept user: " + friendID);
 						login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
 					}
@@ -244,6 +245,7 @@ public class RequestPanel extends SocialPanel{
 				//login.getPusher().push();
 				
 				//loadFriends();
+				pusher.push();
 			}
 		};
 		
@@ -349,7 +351,8 @@ public class RequestPanel extends SocialPanel{
 				}
 				//attachPusher();
 				//login.getPusher().push();
-				//pusher.push();
+				pusher.push();
+				
 			}
 		};
 		

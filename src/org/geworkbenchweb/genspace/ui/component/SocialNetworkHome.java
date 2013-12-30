@@ -16,6 +16,8 @@ import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -351,10 +353,13 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			contentLayout.addComponent(pp);
 		} else if(sp.getPanelTitle().equals(myNet)) {
 			NetworkPanel np = (NetworkPanel)sp;
+			np.setRf(this.chatHandler.rf);
+			//System.out.println(this.chatHandler.rf.getCaption());
 			contentLayout.removeAllComponents();
 			contentLayout.addComponent(np);
 		} else if(sp.getPanelTitle().equals(myFriends)) {
 			FriendPanel fp = (FriendPanel)sp;
+			fp.addStyleName(Runo.PANEL_LIGHT);
 			contentLayout.removeAllComponents();
 			contentLayout.addComponent(fp);
 		} else if(sp.getPanelTitle().equals(settings)) {
@@ -484,7 +489,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			this.friendPanel = new FriendPanel(this.myFriends, this.login);
 			this.netPanel = new NetworkPanel(this.myNet, this.login);
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
-			System.out.println("88");
+			//System.out.println("88");
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
 			System.out.println("Check view panel in initForm: " + this.viewPanel.toString());
 			this.loadSearchItems();

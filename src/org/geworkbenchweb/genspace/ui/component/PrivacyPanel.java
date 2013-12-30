@@ -148,12 +148,12 @@ public class PrivacyPanel extends SocialPanel{
 			tmpWrapper = new UserWrapper(tempUser, login);
 			tempID = userContainer.addItem(tmpWrapper);
 			
-			System.out.println("Check friend visible: " + tempUser.isVisible());
-			System.out.println("Check friend mutual: ");
+			//System.out.println("Check friend visible: " + tempUser.isVisible());
+			//System.out.println("Check friend mutual: ");
 			
 			if (!tempUser.isVisible()) {
 				invisibleIDs.add(tempID);
-				System.out.println("^^ friend who cannot see: "+tempUser);
+				//System.out.println("^^ friend who cannot see: "+tempUser);
 			}
 			
 		}
@@ -161,7 +161,7 @@ public class PrivacyPanel extends SocialPanel{
 		friendSelect = new TwinColSelect(friends, userContainer);
 		HashSet<UserWrapper> invSet = new HashSet<UserWrapper>();
 		for(int i=0; i<invisibleIDs.size(); i++){
-			System.out.println("***"+invisibleIDs.get(i));
+			//System.out.println("***"+invisibleIDs.get(i));
 			invSet.add(invisibleIDs.get(i).getBean());
 		}
 		friendSelect.setValue(invSet);
@@ -191,14 +191,14 @@ public class PrivacyPanel extends SocialPanel{
 			
 			if(!tempNet.isVisible()) {
 				invisibleIDs.add(tempID);
-				System.out.println("^^ network who cannot see: " + tempWrap.getName());
+				//System.out.println("^^ network who cannot see: " + tempWrap.getName());
 			}
 		}
 		
 		networkSelect = new TwinColSelect(member, networkContainer);
 		HashSet<UserNetworkWrapper> invSet = new HashSet<UserNetworkWrapper>();
 		for(int i=0; i<invisibleIDs.size(); i++){
-			System.out.println("^^^"+invisibleIDs.get(i));
+			//System.out.println("^^^"+invisibleIDs.get(i));
 			invSet.add(invisibleIDs.get(i).getBean());
 			//networkSelect.select(invisibleIDs.get(i));
 		}
@@ -215,8 +215,8 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void setInitialNetworkSelectValue(List<Object> visibleIDs) {
 		for(Object id: visibleIDs) {
-			System.out.println("^^"+networkContainer.getItem(id).getBean().getId());
-			System.out.println("**"+networkContainer.getItem(id).getBean().getName());
+			//System.out.println("^^"+networkContainer.getItem(id).getBean().getId());
+			//System.out.println("**"+networkContainer.getItem(id).getBean().getName());
 			networkSelect.setValue(id);
 		}
 	}
