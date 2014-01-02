@@ -217,6 +217,8 @@ public class FilterWindow extends Window {
 								FilterInfo.class.getName(),
 								Constants.ARRAY_FILTER_CONTROL, datasetId,
 								parent.getUserId());
+					
+					parent.setSearchStr(null);
 					parent.getPagedTableView().setContainerDataSource(
 							parent.getIndexedContainer());
 
