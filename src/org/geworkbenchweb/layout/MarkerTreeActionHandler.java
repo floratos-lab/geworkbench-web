@@ -91,7 +91,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							return;
 						}
 						Context context = (Context)contextObj;
-						String mark 	= 	sender.toString();
+						String mark 	= 	sender.getValue().toString();
 						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 						List<SubSet> markersets = SubSetOperations.getSubSetsForContext(context);
 						for (final SubSet markerset : markersets){

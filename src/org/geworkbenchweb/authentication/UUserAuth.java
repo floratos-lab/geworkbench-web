@@ -80,7 +80,7 @@ public class UUserAuth extends VerticalLayout {
 		
 		/* this needs to be done from attach() instead of constructor because it needs getApplication() */
 		Panel aboutPanel = new Panel("About geWorkbench");
-		aboutPanel.setStyleName("xpanel");
+		aboutPanel.setStyleName("content-xpanel");
 
         DownloadStream downloadStream = new ClassResource("aboutMessage.html").getStream();
         InputStream inputstream = downloadStream.getStream();

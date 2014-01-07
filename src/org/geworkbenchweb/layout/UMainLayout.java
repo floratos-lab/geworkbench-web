@@ -24,6 +24,7 @@ import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -140,7 +141,7 @@ public class UMainLayout extends VerticalLayout {
 		openSetButton.setVisible(false);
 		saveSetButton.setVisible(false);
 		
-		annotButton.addListener(new Button.ClickListener() {
+		annotButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -167,10 +168,10 @@ public class UMainLayout extends VerticalLayout {
 		workspaceViewMenuItem.setEnabled(false);
 		
 		/* Deletes the data set and its dependencies from DB */
-		removeButton.addListener(new RemoveButtonListener(this));
+		removeButton.addClickListener(new RemoveButtonListener(this));
 
 		/* Deletes selected subset from the datatree. */
-		removeSetButton.addListener(new Button.ClickListener() {
+		removeSetButton.addClickListener(new Button.ClickListener() {
 		
 			private static final long serialVersionUID = 1L;
 
@@ -181,7 +182,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		openSetButton.addListener(new Button.ClickListener() {
+		openSetButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -189,7 +190,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		saveSetButton.addListener(new Button.ClickListener() {
+		saveSetButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -220,7 +221,7 @@ public class UMainLayout extends VerticalLayout {
 		
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
-		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		navigationTree.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
 		 
 	
@@ -299,7 +300,7 @@ public class UMainLayout extends VerticalLayout {
 		tree.setContainerDataSource(getDataContainer());
 		tree.setSelectable(true);
 		tree.setMultiSelect(false);
-		tree.addListener(new Tree.ValueChangeListener() {
+		tree.addValueChangeListener(new Tree.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -382,7 +383,7 @@ public class UMainLayout extends VerticalLayout {
 		b.setStyleName("tree-switch");
 		b.addStyleName("down");
 		b.setDescription("Toggle sample tree visibility");
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {

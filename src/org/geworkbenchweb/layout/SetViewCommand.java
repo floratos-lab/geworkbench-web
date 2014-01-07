@@ -171,6 +171,7 @@ public class SetViewCommand implements Command {
 		markerTree.setSelectable(true);
 		markerTree.setMultiSelect(true);
 		markerTree.setDescription("Markers");
+		markerTree.setWidth("100%");
 
 		HierarchicalContainer markerData 	= 	new HierarchicalContainer();
 		List<?> sets 						= 	SubSetOperations.getMarkerSets(dataSetId);
@@ -257,6 +258,7 @@ public class SetViewCommand implements Command {
 		arrayTree.setMultiSelect(true);
 		arrayTree.setSelectable(true);
 		arrayTree.setDescription("Phenotypes");
+		arrayTree.setWidth("100%");
 
 		DSMicroarraySet maSet;
 		try {

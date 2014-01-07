@@ -53,7 +53,6 @@ public class GeworkbenchRoot extends UI {
 	public void init(VaadinRequest request) {
 		
 		VerticalLayout mainWindow = new VerticalLayout();
-		mainWindow.setMargin(true);
 		mainWindow.setSizeFull();
 		setContent(mainWindow);
 		
