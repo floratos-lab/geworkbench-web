@@ -181,20 +181,19 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 		FilterInfo arrayFilter = tabViewPreferences.getArrayFilter();
 
-		String[] selectedArraySet = null;
+		Long[] selectedArraySet = null;
 		if (arrayFilter != null)
 			selectedArraySet = arrayFilter.getSelectedSet();
 
 		if (selectedArraySet == null
-				|| selectedArraySet[0].equalsIgnoreCase("All Arrays")) {
+				|| selectedArraySet[0]==0) {
 			for (int i = 0; i < arrayLabels.length; i++)
 				colHeaders.add(arrayLabels[i]);
 		} else {
 
 			for (int i = 0; i < selectedArraySet.length; i++) {
 
-				List<?> subSet = SubSetOperations.getArraySet(Long
-						.parseLong(selectedArraySet[i].trim()));
+				List<?> subSet = SubSetOperations.getArraySet(selectedArraySet[i]);
 				ArrayList<String> positions = (((SubSet) subSet.get(0))
 						.getPositions());
 
@@ -229,7 +228,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	private List<String> getTabViewMarkers(String[] markerLabels) {		 
 		List<String> selectedMarkers = new ArrayList<String>();
 
-		String[] selectedMarkerSet = null;
+		Long[] selectedMarkerSet = null;
 
 		FilterInfo markerFilter = tabViewPreferences.getMarkerFilter();
 		if (markerFilter != null)
@@ -239,11 +238,10 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		
 		int markerDisplayControl = tabViewPreferences.getMarkerDisplayControl();
 		if (selectedMarkerSet != null && selectedMarkerSet.length > 0
-				&& (!selectedMarkerSet[0].equalsIgnoreCase("All Markers"))) {
+				&& (selectedMarkerSet[0]!=0)) {
 			
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				List<?> subSet = SubSetOperations.getMarkerSet(Long
-						.parseLong(selectedMarkerSet[i].trim()));
+				List<?> subSet = SubSetOperations.getMarkerSet(selectedMarkerSet[i]);
 				if (subSet == null || subSet.size() == 0)
 					continue;
 				ArrayList<String> positions = (((SubSet) subSet.get(0))
