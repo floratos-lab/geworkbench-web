@@ -29,7 +29,7 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-public class ExpressionFileLoader extends LoaderUsingAnnotation {
+public class ExpressionFileLoader implements LoaderUsingAnnotation {
 	private static Log log = LogFactory.getLog(ExpressionFileLoader.class);
 
 	transient private Long datasetId;

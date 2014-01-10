@@ -7,7 +7,7 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.PdbFileInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-public class PdbFileLoader extends Loader {
+public class PdbFileLoader implements Loader {
 
 	// meant to be used by the factory, not publicly
 	PdbFileLoader() {
