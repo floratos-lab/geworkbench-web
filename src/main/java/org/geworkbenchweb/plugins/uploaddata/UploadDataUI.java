@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
@@ -21,6 +22,7 @@ import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -520,7 +522,7 @@ public class UploadDataUI extends VerticalLayout {
 			}
 
 			// store pending dataset
-			DataSet dataset = loader.storePendingData(dataFile==null?"DataSet":dataFile.getName(), SessionHandler.get().getId());
+			DataSet dataset = storePendingData(dataFile==null?"DataSet":dataFile.getName(), SessionHandler.get().getId());
 			
 			while(uploadField.isUploading()){
 				try{
@@ -541,6 +543,19 @@ public class UploadDataUI extends VerticalLayout {
 			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
 		}
 	};
+
+	static private DataSet storePendingData(String fileName, Long userId){
+
+		DataSet dataset = new DataSet();
+		dataset.setName(fileName + " - Pending");
+		dataset.setDescription("pending");
+		dataset.setType(DSDataSet.class.getName());
+		dataset.setOwner(userId);
+		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
+		FacadeFactory.getFacade().store(dataset);
+		
+		return dataset;
+	}
 	
 	private void rollbackFailedUpload(DataSet dataset) {
 		FacadeFactory.getFacade().delete(dataset);
