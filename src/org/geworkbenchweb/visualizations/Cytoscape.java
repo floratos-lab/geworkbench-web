@@ -11,17 +11,19 @@ import java.util.Map;
 import sun.misc.BASE64Decoder;
 
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
+import com.vaadin.annotations.JavaScript;
 import com.vaadin.server.Page;
 import com.vaadin.server.PaintException;
 import com.vaadin.server.PaintTarget;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.AbstractJavaScriptComponent;
 import com.vaadin.ui.LegacyComponent;
 import com.vaadin.ui.UI;
 
 /**
  * Server side component for the VCytoscape widget.
  */
-public class Cytoscape extends AbstractComponent implements LegacyComponent {
+@JavaScript({"public/js/src/json2.js", "public/js/src/AC_OETags.js", "public/js/src/cytoscapeweb.js"})
+public class Cytoscape extends AbstractJavaScriptComponent implements LegacyComponent {
 
 	private static final long serialVersionUID = -6368440900242204532L;
 
