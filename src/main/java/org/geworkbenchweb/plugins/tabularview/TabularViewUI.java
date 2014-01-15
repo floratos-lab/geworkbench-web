@@ -50,14 +50,12 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	
 	private final Map<String, AnnotationEntry> annotationMap;
 
-	private IndexedContainer dataIn;
-
+	 
 	public TabularViewUI(final Long dataSetId) {
  
 		datasetId = dataSetId;
 		if(dataSetId==null) {
-			annotationMap = null;
-			dataIn = null;
+			annotationMap = null;	 
 			return;
 		}
 		
@@ -106,16 +104,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		final MenuBar toolBar = new TabularMenuSelector(this, "TabularViewUI");
 		addComponent(toolBar);
 		addComponent(displayTable);
-		setExpandRatio(displayTable, 1);		 
-	 
-		DataSet data = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-		Long id = data.getDataId();
-		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		String[] arrayLabels = dataset.getArrayLabels();
-		String[] markerLabels = dataset.getMarkerLabels();
-		float[][] values = dataset.getExpressionValues();
-		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
-		displayTable.setContainerDataSource(dataIn);
+		setExpandRatio(displayTable, 1);	 
+	
+		displayTable.setContainerDataSource(getIndexedContainer());
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
@@ -322,6 +313,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public IndexedContainer getIndexedContainer() {
+		IndexedContainer dataIn = null;
+		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		Long id = data.getDataId();
+		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+		String[] arrayLabels = dataset.getArrayLabels();
+		String[] markerLabels = dataset.getMarkerLabels();
+		float[][] values = dataset.getExpressionValues();
+		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
 		return dataIn;
 	}
 
@@ -395,15 +394,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public void setSearchStr(String search) {
-		this.searchStr = search;
-		
-		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
-		Long id = data.getDataId();
-		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		String[] arrayLabels = dataset.getArrayLabels();
-		String[] markerLabels = dataset.getMarkerLabels();
-		float[][] values = dataset.getExpressionValues();
-		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
+		this.searchStr = search;		 
 	}
 
 	@Override
