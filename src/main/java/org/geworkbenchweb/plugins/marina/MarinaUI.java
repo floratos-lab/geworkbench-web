@@ -110,8 +110,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		this(0L);
 	}
 	
-	public MarinaUI(final Long dataSetId){
-		this.dataSetId = dataSetId;
+	public MarinaUI(Long dataId){
+		this.dataSetId = dataId;
 		
 		arraymap = new HashMap<String, String>();
 		classSelector = new ClassSelector(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this);

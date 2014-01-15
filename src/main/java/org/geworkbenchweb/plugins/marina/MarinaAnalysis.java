@@ -42,7 +42,7 @@ public class MarinaAnalysis {
 	private static final Random random = new Random();
 	private static final int rstcolnum = 16;
 	private static final long POLL_INTERVAL = 20000; //20 seconds
-	private static final String maxmem = "4G";
+	private static final String maxmem = "6G";
 	private static final String timeout = "48::";
 
 	public MarinaAnalysis(Long dataSetId, HashMap<Serializable, Serializable> params){
@@ -387,11 +387,11 @@ public class MarinaAnalysis {
 
 	private String prepareMarina(StringBuilder matlabjob_template, boolean paired, boolean unique_probeids, String expFname, String networkFname, String runid, String mradir){
 	    matlabjob_template.append("#!/bin/bash\n#$ -l mem="+maxmem+",time="+timeout+" -cwd -j y -o ").append(mradir).append(logfile).append(" -N ").append(runid)
-	    .append("\nexport MATLAB_PREFDIR=").append(MRAHOME).append(".matlab/R2010b")
-	    .append("\n\nexport HOME=").append(MRAHOME).append("\nexport level=\"$SGE_TASK_ID\"\nexport MATLABROOT=/nfs/apps/matlab/current\ncd ").append(mradir)
+	    .append("\nexport MATLAB_PREFDIR=").append(MRAHOME).append(".matlab/R2012a")
+	    .append("\n\nexport HOME=").append(MRAHOME).append("\nexport level=\"$SGE_TASK_ID\"\nexport MATLABROOT=/nfs/apps/matlab/2012a\ncd ").append(mradir)
 	    .append("\nmkdir mcr\nexport LD_LIBRARY_PATH=$MATLABROOT/sys/os/glnxa64/:$MATLABROOT/bin/glnxa64/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/native_threads/:")
 	    .append("$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/server/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/:$MATLABROOT/runtime/glnxa64/:$LD_LIBRARY_PATH")
-	    .append("\nexport MCR_CACHE_ROOT=mcr/$level\n\n/nfs/apps/matlab/current/bin/matlab -nodisplay -nodesktop -nosplash < ").append(marinaScriptName)
+	    .append("\nexport MCR_CACHE_ROOT=$PWD/mcr/$level\n\n/nfs/apps/matlab/2012a/bin/matlab -nodisplay -nodesktop -nosplash < ").append(marinaScriptName)
 	    .append("\nrm -rf grid_submit.sh gsea *.mat network_shadow_mras.txt original_mra*.txt shadow_recovery_gsea2.txt synerg*_pair*txt shadow_runs tmp mcr\n");
 
 	    StringBuilder marina_config = new StringBuilder("clc\nclear\n");
@@ -410,7 +410,7 @@ public class MarinaAnalysis {
 		.append("unique_probeids = ").append(unique_probeids?1:0).append(";  % If probe ids are unique else unique_probeids=0\n")
 		.append("pv_shadow_threshold = ").append(bean.getShadowPValue()).append(";\n")
 		.append("pv_synergy_threshold= ").append(bean.getSynergyPValue()).append(";\n")
-		.append("template = [src_dir 'submit-template_titan.txt'];\n")
+		.append("template = [src_dir 'submit-template_2012a.txt'];\n")
 		.append("%%\ndisp('Importing dataset')\n")
 		.append("[data textdata] = importfile(filename_exp);\n")
 		.append("samples_bcell = textdata(1,3:end);\n")
@@ -420,7 +420,7 @@ public class MarinaAnalysis {
 		.append("ix_class1 = b;\n")
 		.append("[a,b,c] = intersect(samples_bcell,sensitive_samples);\n")
 		.append("ix_class2 = b;\n")
-		.append("marina(src_dir,template,final_file,filename_exp,filename_network_5col,paired,min_targets,min_samples,nperm,pvalue_gsea,unique_probeids,pv_shadow_threshold,pv_synergy_threshold,ix_class1,ix_class2,tail,verbose)\n");
+		.append("marina_2012a(src_dir,template,final_file,filename_exp,filename_network_5col,paired,min_targets,min_samples,nperm,pvalue_gsea,unique_probeids,pv_shadow_threshold,pv_synergy_threshold,ix_class1,ix_class2,tail,verbose)\n");
 	    return marina_config.toString();
 	}
 
