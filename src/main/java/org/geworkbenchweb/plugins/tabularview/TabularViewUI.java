@@ -2,8 +2,10 @@ package org.geworkbenchweb.plugins.tabularview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Tabular;
@@ -225,8 +227,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private List<String> getTabViewMarkers(String[] markerLabels) {		 
-		List<String> selectedMarkers = new ArrayList<String>();
+	private List<Integer> getTabViewMarkers(String[] markerLabels) {		 
+		List<Integer> selectedMarkers = new ArrayList<Integer>();
 
 		Long[] selectedMarkerSet = null;
 
@@ -240,6 +242,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		if (selectedMarkerSet != null && selectedMarkerSet.length > 0
 				&& (selectedMarkerSet[0]!=0)) {
 			
+			Set<String> included = new HashSet<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				List<?> subSet = SubSetOperations.getMarkerSet(selectedMarkerSet[i]);
 				if (subSet == null || subSet.size() == 0)
@@ -249,18 +252,21 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 				for (int m = 0; m < positions.size(); m++) {
 					String temp = ((positions.get(m)).split("\\s+"))[0].trim();
-					if (temp != null
-							&& isMatchSearch(temp, markerDisplayControl, map)) {
-						selectedMarkers.add(temp);
+					if (temp != null) {
+						included.add(temp);
 					}
 				}
-
+			}
+			for (int i = 0; i < markerLabels.length; i++) {
+				String marker = markerLabels[i];
+				if (included.contains(marker) && isMatchSearch(marker, markerDisplayControl, map))
+					selectedMarkers.add(i);
 			}
 		} else {
 			for (int i = 0; i < markerLabels.length; i++) {
 				String marker = markerLabels[i];
 				if (isMatchSearch(marker, markerDisplayControl, map))
-					selectedMarkers.add(marker);
+					selectedMarkers.add(i);
 			}
 		}
 
@@ -325,15 +331,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		loadTabViewPreferences();
 		IndexedContainer dataIn = new IndexedContainer();
 		List<String> colHeaders = getTabViewColHeaders(arrayLabels);
-		List<String> selectedMarkers = getTabViewMarkers(markerLabels);
+		List<Integer> selectedMarkers = getTabViewMarkers(markerLabels);
 
 		int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
  
-		for (int i = 0; i < selectedMarkers.size(); i++)
+		for (Integer i : selectedMarkers)
 		{		 
 			Item item = dataIn.addItem(i);
-			String probeSetId = selectedMarkers.get(i);
+			String probeSetId = markerLabels[i];
 			String geneSymbol = null;
 			String geneDescription = null;
 			AnnotationEntry entry = annotationMap.get(probeSetId);
@@ -350,7 +356,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.MARKER_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
-								selectedMarkers.get(i));
+								probeSetId);
 					else if (colHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
 						item.getItemProperty(colHeaders.get(k)).setValue(
