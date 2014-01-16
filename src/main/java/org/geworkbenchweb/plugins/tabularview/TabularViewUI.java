@@ -272,17 +272,17 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 		if (markerDisplayControl == Constants.MarkerDisplayControl.both
 				.ordinal()) {
-			if (markerLabel.toUpperCase().contains(searchStr)) {
+			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 				return true;
 			} else {
 				String geneSymbol = map.get(markerLabel);
 				if (geneSymbol != null
-						&& geneSymbol.toUpperCase().contains(searchStr)) {
+						&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase())) {
 					return true;
 				}
 			}
 		} else if (markerDisplayControl == Constants.MarkerDisplayControl.marker
-				.ordinal() && markerLabel.toUpperCase().contains(searchStr)) {
+				.ordinal() && markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 			return true;
 		}
 		return false;
@@ -396,6 +396,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	public void setSearchStr(String search) {
 		this.searchStr = search;		 
 	}
+	
+	@Override
+	public String getSearchStr() {
+		 
+		return this.searchStr;
+	}
+
 
 	@Override
 	public Long getUserId() {		 

@@ -224,11 +224,11 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 
 			boolean isMatch = false;	 
 			if (anovaTablePref.selectMarker() &&  anovaTablePref.selectGeneSymbol()) {
-				if (markerLabel.toUpperCase().contains(searchStr)
-						|| geneSymbol.toUpperCase().contains(searchStr))
+				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())
+						|| geneSymbol.toUpperCase().contains(searchStr.toUpperCase()))
 					isMatch = true;
 			} else if (anovaTablePref.selectMarker()) {
-				if (markerLabel.toUpperCase().contains(searchStr))
+				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase()))
 					isMatch = true;
 
 			} else if (anovaTablePref.selectGeneSymbol()){
@@ -264,6 +264,13 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	{
 		this.searchStr = search;
 	}
+	
+	@Override
+	public String getSearchStr() {
+		 
+		return this.searchStr;
+	}
+
 
 	@Override
 	public Long getUserId() {

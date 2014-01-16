@@ -88,9 +88,13 @@ public abstract class TableMenuSelector extends MenuBar {
 				searchWindow.setImmediate(true);
 
 				final TextField search = new TextField();
-				search.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.EAGER);
+				search.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.LAZY);
 				search.setInputPrompt("Please enter search string");
 				search.setImmediate(true);
+				if (parent.getSearchStr() != null && !parent.getSearchStr().isEmpty())
+				{
+					search.setValue(parent.getSearchStr());
+				}
 
 				final Window mainWindow = getApplication().getMainWindow();
 
@@ -101,7 +105,7 @@ public abstract class TableMenuSelector extends MenuBar {
 						if (event.getText() != null
 								&& event.getText().length() > 0) {
 							getThisInstance().getItems().get(4).setEnabled(true);
-							parent.setSearchStr(event.getText().trim().toUpperCase());
+							parent.setSearchStr(event.getText().trim());
 						} else {
 							getThisInstance().getItems().get(4).setEnabled(false);
 							parent.setSearchStr(null);

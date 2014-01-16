@@ -11,4 +11,5 @@ public interface Tabular extends Visualizer{
     Long getUserId();    
     void setSearchStr(String search);
     void setPrecisonNumber(int precisonNumber);
+    String getSearchStr();
 }
