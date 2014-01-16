@@ -18,10 +18,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.Reindeer;
 
-
-/*
- * This PagedTable fix pagelength issue  for PagedTable class in PagedTable-0.6.3.java
- */
+ 
 public class PagedTableView extends Table {
     private static final long serialVersionUID = 6881455780158545828L;
 
