@@ -104,7 +104,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private static final String analysisName = "MARINa";
 
 	private Long dataSetId = null;
-	private String datasetLabel;
 	
 	public MarinaUI() {
 		this(0L);
@@ -773,13 +772,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			Exception {
 		MarinaAnalysis analyze = new MarinaAnalysis(datasetId, parameters);
 
-		String[][] mraRes = analyze.execute();
-		MraResult result = new MraResult(mraRes);
+		MraResult result = analyze.execute();
 		FacadeFactory.getFacade().store(result);
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 		resultSet.setDataId(result.getId());
 		FacadeFactory.getFacade().store(resultSet);
 
-		return analysisName + " - " + datasetLabel;
+		return analysisName + " - " + result.getLabel();
 	}
 }

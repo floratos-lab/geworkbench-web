@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -50,7 +51,7 @@ public class MarinaAnalysis {
 		this.bean = (MarinaParamBean)params.get("bean");
 	}
 	
-	public String[][] execute() throws RemoteException{
+	public MraResult execute() throws RemoteException{
 		String runid = "mra21099";
 		String mradir = MRAROOT;
 		String[][] mraResult;
@@ -137,7 +138,7 @@ public class MarinaAnalysis {
 			mraResult = convertResult(resultfile.getPath());
 		}
 
-		return mraResult;
+		return new MraResult(runid, mraResult);
 	}
 
 	private String[][] convertResult(String fname){
