@@ -135,8 +135,9 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
 		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
 			
-			String mark 	= 	markerLabels[i];
-			double sigValue 	= 	tTestResultSet.getpValue()[i];
+			int index = tTestResultSet.getSignificantIndex()[i];
+			String mark 	= 	markerLabels[index];
+			double sigValue 	= 	tTestResultSet.getpValue()[index];
 		
 			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
 				sigValue = 4.9E-45;
@@ -151,7 +152,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 			}
 
 
-			double xVal = tTestResultSet.getFoldChange()[i];
+			double xVal = tTestResultSet.getFoldChange()[index];
 
 			if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 				double yVal = -Math.log10(sigValue);
