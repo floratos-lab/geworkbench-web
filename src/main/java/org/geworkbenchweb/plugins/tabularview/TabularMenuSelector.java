@@ -20,6 +20,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
  
 import com.vaadin.ui.Button; 
 
+import com.jensjansson.pagedtable.PagedTableContainer;
+
   
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -271,8 +273,9 @@ public class TabularMenuSelector extends TableMenuSelector {
 																null, getTabular().getUserId());
 											
 											getTabular().setPrecisonNumber( new Integer(value.toString().trim()));											
+											PagedTableContainer pagedTableContainer	= 	(PagedTableContainer)getTabular().getPagedTableView().getContainerDataSource();							
 											getTabular().getPagedTableView()
-											.setContainerDataSource(getTabular().getPagedTableView().getContainerDataSource());
+											.setContainerDataSource(pagedTableContainer.getContainer());
 											((TabularViewUI)getTabular()).getTabViewPreferences().setNumberPrecisionControl( new Integer(value.toString().trim()));
 											mainWindow
 													.removeWindow(displayPrefWindow);
