@@ -150,9 +150,10 @@ public abstract class TableMenuSelector extends MenuBar {
 				PreferenceOperations.deleteAllPreferences(parent.getDatasetId(), parent.getUserId(),
 						tabularName + "%");
 				 
-				parent.getPagedTableView().setContainerDataSource(parent.getIndexedContainer());			 
-				clearItem.setEnabled(false);
 				parent.setSearchStr(null);
+				clearItem.setEnabled(false);				 
+				parent.getPagedTableView().setContainerDataSource(parent.getIndexedContainer());			 
+				
 			}
 		});
 
