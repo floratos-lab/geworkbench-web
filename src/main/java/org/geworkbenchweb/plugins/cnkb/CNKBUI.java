@@ -360,7 +360,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			String geneId = entry.getEntrezId();
 			String geneSymbol = entry.getGeneSymbol();
 
-			if (geneId!=null
+			if (geneId!=null && !geneId.trim().equals("---")
 					&& cellularNetWorkElementInformation.isDirty()) {
 
 				List<InteractionDetail> interactionDetails = null;
