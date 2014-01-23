@@ -154,8 +154,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		}
 
 	}
-
-	private List<String> getTabViewColHeaders(String[] arrayLabels) {			 
+	
+	private List<String> getDisplayPrefColHeaders() {			 
 		List<String> colHeaders = new ArrayList<String>();
 		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
 				.ordinal()) {
@@ -171,7 +171,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		if (tabViewPreferences.getAnnotationDisplayControl() == Constants.AnnotationDisplayControl.on
 				.ordinal())
 			colHeaders.add(Constants.ANNOTATION_HEADER);
+	 
+		return colHeaders;
+	}
+	
 
+	private List<Integer> getArrayColHeaders(String[] arrayLabels) {			 
+		List<Integer> colHeaders = new ArrayList<Integer>();
+		
 		FilterInfo arrayFilter = tabViewPreferences.getArrayFilter();
 
 		Long[] selectedArraySet = null;
@@ -181,7 +188,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		if (selectedArraySet == null
 				|| selectedArraySet[0]==0) {
 			for (int i = 0; i < arrayLabels.length; i++)
-				colHeaders.add(arrayLabels[i]);
+				colHeaders.add(i);
 		} else {
 
 			for (int i = 0; i < selectedArraySet.length; i++) {
@@ -189,10 +196,11 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				List<?> subSet = SubSetOperations.getArraySet(selectedArraySet[i]);
 				ArrayList<String> positions = (((SubSet) subSet.get(0))
 						.getPositions());
-
-				for (int j = 0; j < positions.size(); j++) {
-
-					colHeaders.add(positions.get(j));
+ 
+				for (int j = 0; j < arrayLabels.length; j++) {
+					String array = arrayLabels[j];
+					if (positions.contains(array))
+						colHeaders.add(j);
 				}
 
 			}
@@ -201,23 +209,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return colHeaders;
 	}
 
-	private int getDisplayPrefColunmNum(
-			TabularViewPreferences tabViewPreferences) {
-		int count = 0;
-		if (tabViewPreferences.getMarkerDisplayControl() == Constants.MarkerDisplayControl.both
-				.ordinal()) {
-			count = 2;
-		} else
-			count = 1;
-
-		if (tabViewPreferences.getAnnotationDisplayControl() == Constants.AnnotationDisplayControl.on
-				.ordinal())
-			count = count + 1;
-
-		return count;
-
-	}
-
+ 
 	private List<Integer> getTabViewMarkers(String[] markerLabels) {		 
 		List<Integer> selectedMarkers = new ArrayList<Integer>();
 
@@ -329,10 +321,10 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 		loadTabViewPreferences();
 		IndexedContainer dataIn = new IndexedContainer();
-		List<String> colHeaders = getTabViewColHeaders(arrayLabels);
+		List<String> displayPrefColHeaders = getDisplayPrefColHeaders();
+		List<Integer> arrayColHeaders = getArrayColHeaders(arrayLabels);
 		List<Integer> selectedMarkers = getTabViewMarkers(markerLabels);
-
-		int displayPrefColunmNum = getDisplayPrefColunmNum(tabViewPreferences);
+	 
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
  
 		for (Integer i : selectedMarkers)
@@ -345,41 +337,43 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			if(entry!=null) { // no annotation
 				geneSymbol = entry.getGeneSymbol();
 				geneDescription = entry.getGeneDescription();
-			}
-			for (int k = 0; k < colHeaders.size(); k++) {
-				if (k < displayPrefColunmNum) {
-					dataIn.addContainerProperty(colHeaders.get(k),
+			}			
+		 
+			for (int k = 0; k < displayPrefColHeaders.size(); k++) {
+				 
+					dataIn.addContainerProperty(displayPrefColHeaders.get(k),
 							String.class, null);
 					if (selectedMarkers.size() == 0)
 						continue;
-					if (colHeaders.get(k).equalsIgnoreCase(
+					if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.MARKER_HEADER))
-						item.getItemProperty(colHeaders.get(k)).setValue(
+						item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
 								probeSetId);
-					else if (colHeaders.get(k).equalsIgnoreCase(
+					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
-						item.getItemProperty(colHeaders.get(k)).setValue(
+						item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
 								geneSymbol);
-					else if (colHeaders.get(k).equalsIgnoreCase(
+					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))
 					{
 						String list = geneDescription;
 						if (list != null && list.length() > 0)							 
-						    item.getItemProperty(colHeaders.get(k)).setValue(list);
+						    item.getItemProperty(displayPrefColHeaders.get(k)).setValue(list);
 						else
-							item.getItemProperty(colHeaders.get(k)).setValue("---");
+							item.getItemProperty(displayPrefColHeaders.get(k)).setValue("---");
                         
 					}
-				} else {
-					dataIn.addContainerProperty(colHeaders.get(k), Float.class,
+			} 
+			
+			for (int k = 0; k < arrayColHeaders.size(); k++) {
+			        String arrayName = arrayLabels[arrayColHeaders.get(k)];
+					dataIn.addContainerProperty(arrayName, Float.class,
 							null);
 					if (selectedMarkers.size() == 0)
-						continue;
-					// TODO this is ugly
-					int j = k + arrayLabels.length - colHeaders.size(); 
-					item.getItemProperty(colHeaders.get(k)).setValue(values[i][j]);
-				}
-			}
+						continue;					 
+					item.getItemProperty(arrayName).setValue(values[i][arrayColHeaders.get(k)]);
+				 
+			 }
 			 
 		}
 
