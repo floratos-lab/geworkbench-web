@@ -277,6 +277,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				.ordinal() && markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 			return true;
 		}
+		else if ( markerDisplayControl == Constants.MarkerDisplayControl.gene_symbol.ordinal() )  
+		{			
+			String geneSymbol = map.get(markerLabel);
+			if (geneSymbol != null
+					&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase()))  
+				return true;
+		}
 		return false;
 	}
 	 
