@@ -1,8 +1,6 @@
 package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,12 +41,6 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FinishedEvent;
-import com.vaadin.ui.Upload.Receiver;
-import com.vaadin.ui.Upload.StartedEvent;
-import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -78,21 +70,16 @@ public class UploadDataUI extends VerticalLayout {
 	private ComboBox annotTypes;
 
 	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
-	private DataFileReceiver fileReceiver 	= 	new DataFileReceiver("/data/");
-	private Upload uploadField 				= 	new Upload(null, fileReceiver);
+	private FileUpload uploadField;
     private HorizontalLayout pLayout		=	new HorizontalLayout();
     private ProgressIndicator pIndicator	=	new ProgressIndicator();
 	
 	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
-	private DataFileReceiver annotFileReceiver = 	new DataFileReceiver("/annotation/");
-	private Upload annotUploadField 			= 	new Upload(null, annotFileReceiver);
+	private FileUpload annotUploadField;
     private HorizontalLayout annotPLayout		=	new HorizontalLayout();
     private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
 
 	private Button uploadButton = new Button("Add to workspace");
-	
-	private File dataFile;
-	private File annotFile;
 
 	public UploadDataUI() {
 
@@ -134,74 +121,9 @@ public class UploadDataUI extends VerticalLayout {
 		dataArea.setColumns(40);
 
 		addComponent(fileCombo);
-		uploadField.setImmediate(true);
-		uploadField.setButtonCaption("Select data file");
-        uploadField.addListener(new Upload.StartedListener() {
-			private static final long serialVersionUID = 1L;
 
-			public void uploadStarted(StartedEvent event) {
-                // This method gets called immediatedly after upload is started
-				enableUMainLayout(false);
-				
-            	uploadField.setVisible(false);
-                fileUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
-                        + "\"");
-                pLayout.setVisible(true);
-                pIndicator.setValue(0f);
-                pIndicator.setPollingInterval(500);
-                
-                dataFile = null;
-            }
-        });
-
-        uploadField.addListener(new Upload.ProgressListener(){	
-        	private static final long serialVersionUID = 1L;
-            public void updateProgress(final long readBytes,
-                    final long contentLength) {
-                pIndicator.setValue(new Float(readBytes / (float) contentLength));
-            }
-		});
-
-        uploadField.addListener(new Upload.SucceededListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadSucceeded(SucceededEvent event) {
-                // This method gets called when the upload finished successfully
-                fileUploadStatus.setValue(" The data file \"" + event.getFilename()
-                        + "\" is selected");
-            }
-        });
-
-        uploadField.addListener(new Upload.FailedListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadFailed(FailedEvent event) {
-                // This method gets called when the upload failed
-                float v = 100 * (Float)(pIndicator.getValue());
-                fileUploadStatus.setValue("Upload interrupted at " + Math.round(v) + "%");
-
-                if (dataFile != null){ 
-                	if(!dataFile.delete())
-                		log.warn("problem in deleting " + dataFile);
-                	dataFile = null;
-				}
-            }
-        });
-
-        uploadField.addListener(new Upload.FinishedListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadFinished(FinishedEvent event) {
-                // This method gets called always when the upload finished,
-                // either succeeding or failing
-				pLayout.setVisible(false);
-                uploadField.setVisible(true);
-                uploadField.setCaption("Select different file");
-                
-                dataFile = fileReceiver.getFile();
-            }
-        });
-		
+        uploadField = new FileUpload(this, fileUploadStatus, pLayout, pIndicator, "data");
+        
         Button cancelUpload = new Button("Cancel");
         cancelUpload.setStyleName("small");
         cancelUpload.addListener(new Button.ClickListener() {
@@ -253,74 +175,10 @@ public class UploadDataUI extends VerticalLayout {
 		annotTypes.setValue(AnnotationType.values()[0]);
 		annotTypes.setVisible(false);
 
-		annotUploadField.setImmediate(true);
+		annotUploadField = new FileUpload(this, annotUploadStatus, annotPLayout, annotPIndicator, "annotation");
 		annotUploadField.setVisible(false);
 		annotUploadStatus.setVisible(false);
-		annotUploadField.setButtonCaption("Select Annotation file");
-		annotUploadField.addListener(new Upload.StartedListener() {
-			private static final long serialVersionUID = 1L;
 
-			public void uploadStarted(StartedEvent event) {
-                // This method gets called immediatedly after upload is started
-				annotUploadField.setVisible(false);
-				annotUploadStatus.setValue("Upload in progress: \"" + event.getFilename()
-                        + "\"");
-				annotPLayout.setVisible(true);
-                annotPIndicator.setValue(0f);
-                annotPIndicator.setPollingInterval(500);
-                
-                annotFile = null;
-            }
-        });
-
-        annotUploadField.addListener(new Upload.ProgressListener(){	
-        	private static final long serialVersionUID = 1L;
-            public void updateProgress(final long readBytes,
-                    final long contentLength) {
-                annotPIndicator.setValue(new Float(readBytes / (float) contentLength));
-            }
-		});
-
-		annotUploadField.addListener(new Upload.SucceededListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadSucceeded(SucceededEvent event) {
-                // This method gets called when the upload finished successfully
-				annotUploadStatus.setValue(" The Annotation file \"" + event.getFilename()
-                        + "\" is selected");
-            }
-        });
-
-		annotUploadField.addListener(new Upload.FailedListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadFailed(FailedEvent event) {
-                // This method gets called when the upload failed
-				float v = 100 * (Float)(annotPIndicator.getValue());
-                annotUploadStatus.setValue("Upload interrupted at " + Math.round(v) + "%");
-
-                if (annotFile != null){ 
-                	if(!annotFile.delete())
-                		log.warn("problem in deleting " + annotFile);
-                	annotFile = null;
-				}
-            }
-        });
-
-		annotUploadField.addListener(new Upload.FinishedListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void uploadFinished(FinishedEvent event) {
-                // This method gets called always when the upload finished,
-                // either succeeding or failing
-				annotPLayout.setVisible(false);
-				annotUploadField.setVisible(true);
-				annotUploadField.setCaption("Select different file");
-				
-				annotFile = annotFileReceiver.getFile();
-            }
-        });
-		
 		Button annotCancelUpload = new Button("Cancel");
 		annotCancelUpload.setStyleName("small");
         annotCancelUpload.addListener(new Button.ClickListener() {
@@ -369,7 +227,7 @@ public class UploadDataUI extends VerticalLayout {
 	 * @param enabled
 	 * @return
 	 */
-	private void enableUMainLayout(boolean enabled){
+	void enableUMainLayout(boolean enabled){
 		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
 		while(it.hasNext()){
 			Component c = it.next();
@@ -427,6 +285,7 @@ public class UploadDataUI extends VerticalLayout {
 		annotUploadStatus.setVisible(visible);
 	}
 
+	/* this name is totally misleading - this is AFTER uploading is done, during background 'adding to the workspace' process */
 	private class UploadButtonListener implements Button.ClickListener {
 
 		private static final long serialVersionUID = -2592257781106708221L;
@@ -440,6 +299,7 @@ public class UploadDataUI extends VerticalLayout {
 			User annotOwner 			= 	SessionHandler.get();
 			AnnotationType annotType 	= 	(AnnotationType)annotTypes.getValue();
 			
+			File dataFile = uploadField.getDataFile();
 			if (dataFile == null) {
 				MessageBox mb = new MessageBox(getWindow(), 
 						"Loading problem", 
@@ -449,6 +309,7 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();
 				return;
 			}
+			
 			if (choice == Anno.DELETE){
 				MessageBox mb = new MessageBox(getWindow(), 
 						"To be implemented", 
@@ -458,6 +319,9 @@ public class UploadDataUI extends VerticalLayout {
 				mb.show();
 				return;
 			}
+			
+			File annotFile = null;
+
 			if (choice == null){
 				if (loader instanceof LoaderUsingAnnotation){
 					MessageBox mb = new MessageBox(getWindow(), 
@@ -468,8 +332,7 @@ public class UploadDataUI extends VerticalLayout {
 					mb.show();
 					return;
 				}
-			}
-			else if (!(choice instanceof Anno)){
+			} else if (!(choice instanceof Anno)){
 				String annotFname = (String)choice;
 				Object parent = annotChoices.getParent(choice);
 				// shared default annotation
@@ -495,11 +358,11 @@ public class UploadDataUI extends VerticalLayout {
 							+ annotOwner.getUsername() + "/annotation/";
 					annotFile = new File(annotDir, annotFname);
 				}
-			}
-			else if (choice == Anno.NO)
+			} else if (choice == Anno.NO) {
 				annotFile = null;
-			// just loaded
-			else if (choice == Anno.NEW){
+				// just loaded
+			} else if (choice == Anno.NEW){
+				annotFile = annotUploadField.getDataFile();
 				if (annotFile == null) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Loading problem", 
@@ -521,22 +384,9 @@ public class UploadDataUI extends VerticalLayout {
 				}
 			}
 
-			// store pending dataset
-			DataSet dataset = storePendingData(dataFile==null?"DataSet":dataFile.getName(), SessionHandler.get().getId());
-			
-			while(uploadField.isUploading()){
-				try{
-					Thread.sleep(1000);
-				}catch(InterruptedException e){
-					e.printStackTrace();
-				}
-			}
-			if (dataFile == null) { // fail for some reason
-				rollbackFailedUpload(dataset);
-				return;	
-			}
-			
-			processFromBackgroundThread(dataset, loader, choice, annotOwner, annotType);
+			// store pending dataset. null has been checked earlier
+			DataSet dataset = storePendingData(dataFile.getName(), SessionHandler.get().getId());
+			processFromBackgroundThread(dataFile, dataset, loader, choice, annotOwner, annotType, annotFile);
 
 			// add pending dataset node
 			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
@@ -565,9 +415,9 @@ public class UploadDataUI extends VerticalLayout {
 		}
 	}
 		
-	private void processFromBackgroundThread(final DataSet dataSet,
+	private void processFromBackgroundThread(final File dataFile2, final DataSet dataSet,
 			final Loader loader, final Object choice, final User annotOwner,
-			final AnnotationType annotType) {
+			final AnnotationType annotType, final File annotFile) {
 
 		final UMainLayout mainLayout = getMainLayout();
 		Thread uploadThread = new Thread() {
@@ -575,8 +425,21 @@ public class UploadDataUI extends VerticalLayout {
 			@Override
 			public void run() {
 					
-				boolean success = load(dataSet, loader, annotOwner, annotType);
-				if(!success) {
+				try {
+					if (loader instanceof LoaderUsingAnnotation) {
+						LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
+						expressionFileLoader.parseAnnotation(annotFile, annotType,
+								annotOwner, dataSet.getId());
+					}
+					loader.load(dataFile2, dataSet);
+				} catch (GeWorkbenchLoaderException e) {
+					MessageBox mb = new MessageBox(getWindow(), 
+							"Loading problem", 
+							MessageBox.Icon.ERROR, 
+							e.getMessage(),  
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+					
 					rollbackFailedUpload(dataSet);
 					return;
 				}
@@ -615,64 +478,9 @@ public class UploadDataUI extends VerticalLayout {
 			return null;
 		}
 	}
-	
-	private boolean load(DataSet dataSet, Loader loader, User annotOwner,
-			AnnotationType annotType) {
-		
-			try {
-				if (loader instanceof LoaderUsingAnnotation) {
-					LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
-					expressionFileLoader.parseAnnotation(annotFile, annotType,
-							annotOwner, dataSet.getId());
-				}
-				loader.load(dataFile, dataSet);
 
-				return true;
-			} catch (GeWorkbenchLoaderException e) {
-				MessageBox mb = new MessageBox(getWindow(), 
-						"Loading problem", 
-						MessageBox.Icon.ERROR, 
-						e.getMessage(),  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();	
-				return false;
-			}
+	public void setFileUploadStatus(String string) {
+		fileUploadStatus.setValue(string);
 	}
-	
-	private static class DataFileReceiver implements Receiver {
-
-		private static final long serialVersionUID = 1L;
-
-		private File file;
-
-        final private String subdirectoryName;
-        DataFileReceiver(String subdirectoryName) {
-        	this.subdirectoryName = subdirectoryName;
-        }
-        
-        public OutputStream receiveUpload(String filename, String mimetype) {
-            FileOutputStream fos = null; // Output stream to write to
-
-			String dir = GeworkbenchRoot.getBackendDataDirectory()
-					+ System.getProperty("file.separator")
-					+ SessionHandler.get().getUsername() + subdirectoryName;
-			if (!new File(dir).exists())
-				new File(dir).mkdirs();
-			file = new File(dir, filename);
-            try {
-                // Open the file for writing.
-                fos = new FileOutputStream(file);
-            } catch (final java.io.FileNotFoundException e) {
-                // Error while opening the file. Not reported here.
-                e.printStackTrace();
-                return null;
-            }
-            return fos;
-        }
-
-        public File getFile() {
-            return file;
-        }
-    }
 
 }
