@@ -1,6 +1,6 @@
 package org.geworkbenchweb.genspace.rating;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Label;
 
 

@@ -6,16 +6,17 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.component.ActivityFeedWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
-import org.vaadin.artur.icepush.ICEPush;
-//import org.geworkbenchweb.plugins.tools.ToolsUI;
+import org.geworkbenchweb.utils.LayoutUtil;
 
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+//import org.geworkbenchweb.plugins.tools.ToolsUI;
+import com.vaadin.ui.themes.Runo;
 
 /**
  * ViusalPluginView sets the visualplugin to the main layout.
@@ -31,18 +32,12 @@ public class GenSpacePluginView extends HorizontalLayout {
 	 * value - layout of the plugin 
 	 * */
 	private MultiKeyMap pluginCache = new MultiKeyMap();
-	//private Panel af = new Panel();
-	private VerticalLayout afLayout;
-	private String afCaption = "Activity Feeder";
 	private VerticalLayout right;
 	private HorizontalLayout pluginLayout;
 	private VerticalLayout left;  
 	private ActivityFeedWindow af;
 	private ChatReceiver chatHandler;
 	Panel right1;
-
-	
-	private ICEPush pusher = new ICEPush();
 
 	
 	public GenSpacePluginView() {
@@ -88,8 +83,7 @@ public class GenSpacePluginView extends HorizontalLayout {
 	 * 
 	 * Eventually this may not be necessary if we only handle one type, namely DataTypeUI
 	 * */
-	@SuppressWarnings("deprecation")
-	public void setContent(ComponentContainer content, String titleText, String description, GenSpaceLogin_1 genSpaceLogin) {
+	public void setContent(Component content, String titleText, String description, GenSpaceLogin_1 genSpaceLogin) {
 		removeAllComponents();
 		setSizeFull();
 		pluginLayout = new HorizontalLayout();
@@ -109,9 +103,9 @@ public class GenSpacePluginView extends HorizontalLayout {
 		right = new VerticalLayout();
 		right.setWidth("319px");
 		//Panel p = new Panel();
-		rightLayout.setMargin(true, false, false, false);
+		rightLayout.setMargin(new MarginInfo(true, false, false, false));
 		right1 = new Panel();
-		right1.setStyleName(Panel.STYLE_LIGHT);
+		right1.setStyleName(Runo.PANEL_LIGHT);
 		right1.addStyleName("feature-info");
 		right.addComponent(right1);
 		
@@ -119,7 +113,7 @@ public class GenSpacePluginView extends HorizontalLayout {
 		controls.setWidth("100%");
 		controls.setStyleName("feature-controls");
 
-		Label title = new Label("<span>" + titleText + "</span>", Label.CONTENT_XHTML);
+		Label title = new Label("<span>" + titleText + "</span>", ContentMode.HTML);
 		title.setStyleName("title");
 		controls.addComponent(title);
 		controls.setExpandRatio(title, 1);
@@ -142,8 +136,8 @@ public class GenSpacePluginView extends HorizontalLayout {
 		if (description != null && description != "") {
 			final Label l = new Label(
 					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
-							+ description + "</div></div>", Label.CONTENT_XHTML);
-			right1.addComponent(l);
+							+ description + "</div></div>", ContentMode.HTML);
+			right1.setContent(LayoutUtil.addComponent(l));
 		}
 		//right.addComponent(af);
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){

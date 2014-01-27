@@ -25,7 +25,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.terminal.UserError;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -113,7 +113,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		pValEstCbx.setItemCaption(PValueEstimation.permutation.ordinal(), "Permutation");
 		pValEstCbx.select(PValueEstimation.fdistribution.ordinal());
 
-		pValEstCbx.addListener(new Property.ValueChangeListener() {
+		pValEstCbx.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -191,7 +191,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				 
 		og.select(FalseDiscoveryRateControl.alpha.ordinal());
 		
-		og.addListener(new Property.ValueChangeListener() {
+		og.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -201,7 +201,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 					  if (og.getValue().equals(FalseDiscoveryRateControl.number.ordinal()) ) 
 					  {
 						  gridLayout2.setVisible(true);
-						  falseSignificantGenesLimit.setValue(10);
+						  falseSignificantGenesLimit.setValue("10");
 						  falseSignificantGenesLimit.removeAllValidators();
 						  falseSignificantGenesLimit.addValidator(new IntegerValidator("Not an integer"));
 						  
@@ -210,7 +210,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		              {
 				 
 					     gridLayout2.setVisible(true);
-					     falseSignificantGenesLimit.setValue(0.05);
+					     falseSignificantGenesLimit.setValue("0.05");
 					     falseSignificantGenesLimit.removeAllValidators();
 						  falseSignificantGenesLimit.addValidator(new DoubleValidator("Not a double"));
 		              }
@@ -221,6 +221,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		
 		
 		falseSignificantGenesLimit = new TextField();
+		falseSignificantGenesLimit.setValue("0");
 		falseSignificantGenesLimit.setImmediate(true);
 		Label permutationsOnly = new Label("  (permutations only)");
 		permutationsOnly.setStyleName(Reindeer.LABEL_SMALL);

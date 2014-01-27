@@ -12,6 +12,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -19,6 +20,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTab, FriendStatusChangeListener{
@@ -130,7 +133,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
 		//mainLayout.setHeight("100%");
-		mainLayout.setMargin(false);
+		//mainLayout.setMargin(false);
 		
 		setWidth("100.0%");
 		setHeight("100.0%");
@@ -165,7 +168,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	
 	private void makeSearchLayout() {
 		searchLayout = new HorizontalLayout();
-		Label genSpaceLabel = new Label("<b>" + this.GenSpace + "</b>", Label.CONTENT_XHTML);
+		Label genSpaceLabel = new Label("<b>" + this.GenSpace + "</b>", ContentMode.HTML);
 		Label emptyLabel = new Label();
 		emptyLabel.setWidth("70px");
 		search = new ComboBox(this.Search);
@@ -174,7 +177,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		search.setInputPrompt("Please select or input username for search");
 
 		Button go = new Button(this.Go);
-		go.addListener(new Button.ClickListener(){
+		go.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
@@ -192,14 +195,14 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 					
 					if (f == null) {
 						String errorMsg = findNoUserMsg.replace("xxx", comboValue);
-						getApplication().getMainWindow().showNotification(errorMsg);
+						Notification.show(errorMsg);
 						return ;
 					}
 				} else {
 					return ;
 				}
 				UserSearchWindow usw = new UserSearchWindow(f, login, SocialNetworkHome.this);
-				getApplication().getMainWindow().addWindow(usw);
+				UI.getCurrent().addWindow(usw);
 			}
 		});
 		searchLayout.setSpacing(true);
@@ -214,7 +217,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.buttonLayout = new VerticalLayout();
 		buttonLayout.setSpacing(true);
 		Button profile = new Button(this.title);
-		profile.addListener(new Button.ClickListener(){
+		profile.addClickListener(new Button.ClickListener(){
 			
 			private static final long serialVersionUID = 1L;
 
@@ -226,7 +229,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		profile.setWidth("100px");
 		
 		Button network = new Button(this.myNet);
-		network.addListener(new Button.ClickListener(){
+		network.addClickListener(new Button.ClickListener(){
 
 			private static final long serialVersionUID = 1L;
 
@@ -241,7 +244,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		network.setWidth("100px");
 		
 		Button friend = new Button(this.myFriends);
-		friend.addListener(new Button.ClickListener(){
+		friend.addClickListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
@@ -272,7 +275,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		
 		Button bSettings = new Button(this.settings);
 		bSettings.setWidth("100px");
-		bSettings.addListener(new Button.ClickListener(){
+		bSettings.addClickListener(new Button.ClickListener(){
 				private static final long serialVersionUID = 1L;
 				
 				public void buttonClick(ClickEvent event) {
@@ -286,7 +289,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		
 		Button vRequest = new Button(this.vRequests);
 		vRequest.setWidth("100px");
-		vRequest.addListener(new Button.ClickListener(){
+		vRequest.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
@@ -301,7 +304,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		});
 		
 		Button back = new Button(this.back);
-		back.addListener(new Button.ClickListener(){
+		back.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
@@ -457,7 +460,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		//Remove all chat window here
 		Iterator<String> chatIT = this.chatHandler.chats.keySet().iterator();
 		while(chatIT.hasNext()) {
-			this.chatHandler.chats.get(chatIT.next()).removeAllComponents();
+			this.chatHandler.chats.get(chatIT.next()).setContent(null);
 			//getApplication().getMainWindow().removeWindow(this.chatHandler.chats.get(chatIT.next()));
 		}
 	}

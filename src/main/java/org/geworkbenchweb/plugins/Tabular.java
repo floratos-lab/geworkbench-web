@@ -1,7 +1,8 @@
 package org.geworkbenchweb.plugins;
 
-import com.vaadin.data.util.IndexedContainer;
 import org.geworkbenchweb.utils.PagedTableView;
+
+import com.vaadin.data.util.IndexedContainer;
 
 /* class Analysis needs to be renamed to cover both analysis plugin and visualizer plugin */
 public interface Tabular extends Visualizer{

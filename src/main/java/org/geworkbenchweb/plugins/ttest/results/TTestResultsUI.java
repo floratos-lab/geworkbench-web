@@ -14,22 +14,19 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.Color.RGB;
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.SeriesType;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
-import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.ChartType;
+import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.Marker;
+import com.vaadin.addon.charts.model.MarkerStates;
+import com.vaadin.addon.charts.model.PlotOptionsScatter;
+import com.vaadin.addon.charts.model.State;
+import com.vaadin.addon.charts.model.XAxis;
+import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.ZoomType;
+import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -75,56 +72,55 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 	/**
 	 * This method draws the Volcano plot using Invient Charts Add-on.
 	 */
-	private InvientCharts drawPlot() {
+	private Chart drawPlot() {
 
-		InvientChartsConfig chartConfig = new InvientChartsConfig();
-		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
-		chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
+		Chart chart = new Chart();
+		chart.setWidth("100%");
+		chart.setHeight("100%");
+		
+		Configuration chartConfig = chart.getConfiguration();
+		chartConfig.getChart().setType(ChartType.SCATTER);
+		chartConfig.getChart().setZoomType(ZoomType.XY);
 
 		chartConfig.getTitle().setText(
 				"T-Test");
 
-		chartConfig.getTooltip().setFormatterJsFunc(
+		chartConfig.getTooltip().setFormatter(
 				"function() {"
 						+ " return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; "
 						+ "}");
 
-		NumberXAxis xAxis = new NumberXAxis();
-		xAxis.setTitle(new AxisTitle("Fold Change Log2(ratio)"));
+		XAxis xAxis = new XAxis();
+		xAxis.setTitle("Fold Change Log2(ratio)");
 		xAxis.setStartOnTick(true);
 		xAxis.setEndOnTick(true);
 		xAxis.setShowLastLabel(true);
-		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
-		xAxesSet.add(xAxis);
-		chartConfig.setXAxes(xAxesSet);
+		chartConfig.addxAxis(xAxis);
 
-		NumberYAxis yAxis = new NumberYAxis();
-		yAxis.setTitle(new AxisTitle("Significance(-Log10)"));
-		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
-		yAxesSet.add(yAxis);
-		chartConfig.setYAxes(yAxesSet);
+		YAxis yAxis = new YAxis();
+		yAxis.setTitle("Significance(-Log10)");
+		chartConfig.addyAxis(yAxis);
 
-		ScatterConfig scatterCfg = new ScatterConfig();
+		Marker marker = new Marker(true);
+		marker.setRadius(5);
 
-		SymbolMarker marker = new SymbolMarker(5);
-		scatterCfg.setMarker(marker);
-		marker.setHoverState(new MarkerState());
-		marker.getHoverState().setEnabled(true);
-		marker.getHoverState().setLineColor(new RGB(100, 100, 100));
-		chartConfig.addSeriesConfig(scatterCfg);
+		State hover = new State();
+		hover.setEnabled(true);
+		/*FIXME
+		hover.setLineColor(new RGB(100, 100, 100));*/
+		
+		PlotOptionsScatter plotOptions = new PlotOptionsScatter();
+		plotOptions.setMarker(marker);
+		plotOptions.setStates(new MarkerStates(hover));
 
-		InvientCharts chart = new InvientCharts(chartConfig);
-		chart.setWidth("100%");
-		chart.setHeight("100%");
-
-		ScatterConfig sCfg = new ScatterConfig();
-		XYSeries series = new XYSeries("Significant Markers", sCfg);
+		DataSeries series = new DataSeries("Significant Markers");
+		series.setPlotOptions(plotOptions);
 		
 		double validMinSigValue 	= 	Double.MAX_VALUE;
 		double minPlotValue 		= 	Double.MAX_VALUE;
 		double maxPlotValue 		= 	Double.MIN_VALUE;
 
-		LinkedHashSet<DecimalPoint> points 	= 	new LinkedHashSet<DecimalPoint>();
+		LinkedHashSet<DataSeriesItem> points 	= 	new LinkedHashSet<DataSeriesItem>();
 
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
 		Long id = dataset.getDataId();
@@ -163,7 +159,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 				if (plotVal > maxPlotValue) {
 					maxPlotValue = plotVal;
 				}
-				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
+				DataSeriesItem a = new DataSeriesItem(xVal, yVal);
 				a.setName(mark);
 				points.add(a);
 			} else {
@@ -176,21 +172,23 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
                 new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue, Color.RED)};
 		GMTColorPalette colormap = new GMTColorPalette(range);
 
-		LinkedHashSet<DecimalPoint> newPoints = new LinkedHashSet<DecimalPoint>();
+		LinkedHashSet<DataSeriesItem > newPoints = new LinkedHashSet<DataSeriesItem >();
 		for(int i=0; i<points.size(); i++) {
 			
-			DecimalPoint a =  (DecimalPoint) (points.toArray())[i] ;
-			Color aC = colormap.getColor(Math.abs(a.getX()) * Math.abs(a.getY()));
+			DataSeriesItem  a =  (DataSeriesItem ) (points.toArray())[i] ;
+			Color aC = colormap.getColor(Math.abs(a.getX().doubleValue()) * Math.abs(a.getY().doubleValue()));
 			
-			SymbolMarker pMarker = new SymbolMarker(5);
-			pMarker.setFillColor(new RGB(aC.getRed(), aC.getGreen(), aC.getBlue()));
+			Marker pMarker = new Marker(true);
+			pMarker.setRadius(5);
+			pMarker.setFillColor(new SolidColor(aC.getRed(), aC.getGreen(), aC.getBlue()));
 
-			PointConfig aCfg = new PointConfig(pMarker);
-			a.setConfig(aCfg);
+			a.setMarker(pMarker);
 			newPoints.add(a);
 		}
-		series.setSeriesPoints(newPoints);
-		chart.addSeries(series);
+		for(DataSeriesItem point : newPoints){
+			series.add(point);
+		}
+		chartConfig.setSeries(series);
 		return chart;
 	}
 

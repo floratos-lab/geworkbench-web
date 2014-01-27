@@ -8,9 +8,8 @@
   
    <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.8.1</vaadin.version>
-		<gwt.version>2.3.0</gwt.version>
-		<gwt.plugin.version>2.2.0</gwt.plugin.version>
+		<vaadin.version>7.1.10</vaadin.version>
+		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 
 	<build>
@@ -18,7 +17,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -35,48 +33,48 @@
                  </configuration>
              </plugin>
 
-			<!-- Compiles your custom GWT components with the GWT compiler -->
-			<!-- A hosted mode browser for client-side widget debugging can be run 
-				with the goal gwt:run after uncommenting the correct line below. A remote 
-				debugger can then be connected to port 8998. Note that e.g. a Jetty server 
-				should be running with the server side parts - use the goal jetty:run . -->
+			<!-- As we are doing "inplace" GWT compilation, ensure the widgetset -->
+			<!-- directory is cleaned properly -->
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>gwt-maven-plugin</artifactId>
-				<version>${gwt.plugin.version}</version>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.4.1</version>
 				<configuration>
-					<!-- if you don't specify any modules, the plugin will find them -->
-					<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
-						</modules> -->
-					<webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
-					<!-- On Mac running Snow Leopard, add "-d32" -->
-					<!-- This causes error messages (but build works) in phase "package": 
-						two processes would use the same debug port -->
-					<!--extraJvmArgs>-Xmx512M -Xss1024k -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
-					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
-					<runTarget>geworkbench</runTarget>
-					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-					<noServer>true</noServer>
-					<port>8080</port>
-					<compileReport>false</compileReport>
+					<filesets>
+						<fileset>
+							<directory>src/main/webapp/VAADIN/widgetsets</directory>
+						</fileset>
+					</filesets>
 				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>resources</goal>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-				</executions>
-				<!-- <dependencies> <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-dev</artifactId> 
-					<version>${gwt.version}</version> </dependency> <dependency> <groupId>com.google.gwt</groupId> 
-					<artifactId>gwt-user</artifactId> <version>${gwt.version}</version> </dependency> 
-					</dependencies> -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>1.0.2</version>
+				<version>${vaadin.plugin.version}</version>
+				<configuration>
+					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+					<!-- <runTarget>mobilemail</runTarget> -->
+					<!-- We are doing "inplace" but into subdir VAADIN/widgetsets. This 
+						way compatible with Vaadin eclipse plugin. -->
+					<webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets
+					</webappDirectory>
+					<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets
+					</hostedWebapp>
+					<noServer>true</noServer>
+					<!-- Remove draftCompile when project is ready -->
+					<draftCompile>false</draftCompile>
+					<compileReport>true</compileReport>
+					<style>OBF</style>
+					<strict>true</strict>
+					<runTarget>http://localhost:8080/</runTarget>
+				</configuration>
 				<executions>
 					<execution>
 						<configuration>
@@ -85,40 +83,66 @@
 								</modules> -->
 						</configuration>
 						<goals>
+							<goal>clean</goal>
+							<goal>resources</goal>
+							<goal>update-theme</goal>
 							<goal>update-widgetset</goal>
+							<goal>compile-theme</goal>
+							<goal>compile</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- A simple Jetty test server at http://localhost:8080/geworkbenchweb 
-				can be launched with the Maven goal jetty:run and stopped with jetty:stop -->
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
-				<version>6.1.24</version>
-				<configuration>
-					<stopPort>9966</stopPort>
-					<stopKey>geworkbench</stopKey>
-					<!-- Redeploy every x seconds if changes are detected, 0 for no automatic 
-						redeployment -->
-					<scanIntervalSeconds>0</scanIntervalSeconds>
-					<!-- make sure Jetty also finds the widgetset -->
-					<webAppConfig>
-						<contextPath>/geworkbench</contextPath>
-						<baseResource implementation="org.mortbay.resource.ResourceCollection">
-							<!-- Workaround for Maven/Jetty issue http://jira.codehaus.org/browse/JETTY-680 -->
-							<!-- <resources>src/main/webapp,${project.build.directory}/${project.build.finalName}</resources> -->
-							<resourcesAsCSV>src/main/webapp,${project.build.directory}/${project.build.finalName}</resourcesAsCSV>
-						</baseResource>
-					</webAppConfig>
-				</configuration>
+				<artifactId>jetty-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.vaadin</groupId>
+										<artifactId>
+											vaadin-maven-plugin
+										</artifactId>
+										<versionRange>
+											[7.1.9,)
+										</versionRange>
+										<goals>
+											<goal>resources</goal>
+											<goal>update-widgetset</goal>
+											<goal>compile</goal>
+											<goal>update-theme</goal>
+											<goal>compile-theme</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<finalName>geworkbench</finalName>
 	</build>
 
 	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
 		<repository>
 			<id>vaadin-snapshots</id>
 			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
@@ -128,15 +152,6 @@
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		</repository>
-		<repository>
-			<id>vaadin-central</id>
-			<url>http://oss.sonatype.org/content/repositories/central</url>
-		</repository>
-
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 		<repository>
 			<id>in-project</id>
@@ -146,32 +161,64 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>codehaus-snapshots</id>
-			<url>http://nexus.codehaus.org/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-		<pluginRepository>
 			<id>vaadin-snapshots</id>
 			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin</artifactId>
+			<artifactId>vaadin-server</artifactId>
 			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiled</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<!--
+		  Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory).
+		  
+		  For widgetset compilation, vaadin-client-compiler is automatically added on the
+		  compilation classpath by vaadin-maven-plugin so normally there is no need for an
+		  explicit dependency.
+		-->
+		<!--
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiler</artifactId>
+			<version>${vaadin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client</artifactId>
+			<version>${vaadin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-themes</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
@@ -289,11 +336,6 @@
 			<version>4.01</version>
 		</dependency>
 		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>icepush</artifactId>
-			<version>0.2.1</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.3</version>
@@ -382,38 +424,17 @@
 			<version>1.4.7</version>
 		</dependency>
 
-		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<version>${gwt.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-dev</artifactId>
-			<version>${gwt.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-			<classifier>sources</classifier>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin.addon</groupId>
+			<artifactId>vaadin-charts</artifactId>
+			<version>1.1.4</version>
 		</dependency>
 
 		<!-- for local in project rerepository -->
@@ -425,9 +446,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>appfoundation</groupId>
+			<groupId>org.vaadin.addons</groupId>
 			<artifactId>appfoundation</artifactId>
-			<version>1.0</version>
+			<version>2.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -437,17 +458,17 @@
 		</dependency>
 
 		<dependency>
-			<groupId>blackboard</groupId>
+			<groupId>org.vaadin.addons</groupId>
 			<artifactId>blackboard</artifactId>
 			<version>2.2.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>borderlayout</groupId>
+			<groupId>org.vaadin.addons</groupId>
 			<artifactId>borderlayout</artifactId>
-			<version>0.3</version>
+			<version>0.5</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>commons-digester3</groupId>
 			<artifactId>commons-digester3</artifactId>
@@ -456,9 +477,9 @@
 
 
 		<dependency>
-			<groupId>easyuploads</groupId>
+			<groupId>org.vaadin.addon</groupId>
 			<artifactId>easyuploads</artifactId>
-			<version>0.5.1</version>
+			<version>7.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -475,9 +496,9 @@
 
 
 		<dependency>
-			<groupId>FancyLayouts</groupId>
-			<artifactId>FancyLayouts</artifactId>
-			<version>0.2.1</version>
+			<groupId>org.vaadin.alump.fancylayouts</groupId>
+			<artifactId>fancylayouts-addon</artifactId>
+			<version>1.0.0.beta2</version>
 		</dependency>
 
 		<dependency>
@@ -503,25 +524,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>icepush</groupId>
-			<artifactId>icepush</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>icepush-gwt</groupId>
-			<artifactId>icepush-gwt</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>interactions</groupId>
 			<artifactId>interactions</artifactId>
 			<version>2.5</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>invientcharts</groupId>
 			<artifactId>invientcharts</artifactId>
 			<version>0.8.6</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>persistence</groupId>
 			<artifactId>javax.persistence</artifactId>
@@ -533,14 +544,14 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>MessageBox</groupId>
-			<artifactId>MessageBox</artifactId>
-			<version>1.0</version>
+			<groupId>de.steinwedel.vaadin.addon</groupId>
+			<artifactId>messagebox</artifactId>
+			<version>2.0.6</version>
 		</dependency>
 		<dependency>
-			<groupId>MultiButton</groupId>
-			<artifactId>MultiButton</artifactId>
-			<version>2.0.1</version>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>multibutton</artifactId>
+			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql-connector-java</groupId>
@@ -553,20 +564,20 @@
 			<version>1_04_03_for_kaffe</version>
 		</dependency>
 		<dependency>
-			<groupId>PagedTable</groupId>
-			<artifactId>PagedTable</artifactId>
-			<version>0.6.3</version>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>pagedtable</artifactId>
+			<version>0.6.5</version>
 		</dependency>
 		<dependency>
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.8-20120326</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>sessionguard</groupId>
 			<artifactId>sessionguard</artifactId>
 			<version>0.0.5</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>smack</groupId>
 			<artifactId>smack</artifactId>
@@ -578,9 +589,9 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>TableExport</groupId>
-			<artifactId>TableExport</artifactId>
-			<version>1.3.0</version>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>tableexport</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>ttest</groupId>

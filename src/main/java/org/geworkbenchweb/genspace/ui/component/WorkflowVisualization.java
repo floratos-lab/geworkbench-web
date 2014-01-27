@@ -8,9 +8,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
-import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -18,7 +19,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -53,9 +53,6 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 	public WorkflowVisualization(GenSpaceLogin_1 login) {
 		super(login);
 		this.login = login;
-		//selectRootPanel.setScrollable(true);
-		borderLayout.setScrollable(true);
-		vis.setScrollable(true);
 		initComponents();
 		setCompositionRoot(borderLayout);
 	}
@@ -77,7 +74,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 			tools.addItem(name);
 		}
 		tools.setNullSelectionAllowed(false);
-		button.addListener(this); 
+		button.addClickListener(this); 
 		//label.setValue("Please select an action and a tool to search for");
 
 		//selectPanel.setSpacing(true);
@@ -94,7 +91,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		search.setSizeFull();
 		//right.setComponentAlignment(button, Alignment.MIDDLE_LEFT);
 		label.setStyleName(Reindeer.LABEL_H2);
-		label.setContentMode(Label.CONTENT_PREFORMATTED);
+		label.setContentMode(ContentMode.PREFORMATTED);
 		selectPanel.addComponent(search);
 		search.setComponentAlignment(button, Alignment.BOTTOM_LEFT);
 		search.setComponentAlignment(label, Alignment.BOTTOM_LEFT);
@@ -108,8 +105,9 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		/*borderLayout.addComponent(selectPanel, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(vis, BorderLayout.Constraint.CENTER);*/
 		//borderLayout.addComponent(selectPanel);
-		borderLayout.addComponent(selectPanel);
-		borderLayout.addComponent(result);
+		VerticalLayout blayout = LayoutUtil.addComponent(selectPanel);
+		blayout.addComponent(result);
+		borderLayout.setContent(blayout);
 		selectPanel.setSpacing(true);
 		result.setSpacing(true);
 		result.addComponent(vis);

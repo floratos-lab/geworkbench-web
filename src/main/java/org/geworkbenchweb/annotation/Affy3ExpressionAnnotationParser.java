@@ -3,7 +3,7 @@
  */
 package org.geworkbenchweb.annotation;
 
-import org.geworkbench.util.AnnotationInformationManager.AnnotationType; 
+import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
  
 public class Affy3ExpressionAnnotationParser extends AffyAnnotationParser{
 

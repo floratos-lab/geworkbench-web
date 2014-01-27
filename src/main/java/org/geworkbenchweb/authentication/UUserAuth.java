@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.utils.LayoutUtil;
 
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.terminal.DownloadStream;
+import com.vaadin.server.ClassResource;
+import com.vaadin.server.DownloadStream;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -78,38 +80,35 @@ public class UUserAuth extends VerticalLayout {
 		
 		/* this needs to be done from attach() instead of constructor because it needs getApplication() */
 		Panel aboutPanel = new Panel("About geWorkbench");
-		aboutPanel.setStyleName("xpanel");
+		aboutPanel.setStyleName("content-xpanel");
 
-        VerticalLayout aboutWindowLayout = (VerticalLayout) aboutPanel.getContent();
-        aboutWindowLayout.setMargin(true);
-        aboutWindowLayout.setSpacing(true);
-        
-        DownloadStream downloadStream = new ClassResource("aboutMessage.html", getApplication()).getStream();
-        InputStream inputstream = downloadStream.getStream();
-        String text = "Sorry, 'About' text is missing."; // default text
-        StringBuilder sb = new StringBuilder();
-        if(inputstream!=null) {
-	        BufferedReader br = new BufferedReader(new InputStreamReader (inputstream) );
+		DownloadStream downloadStream = new ClassResource("aboutMessage.html").getStream();
+		InputStream inputstream = downloadStream.getStream();
+		String text = "Sorry, 'About' text is missing."; // default text
+		StringBuilder sb = new StringBuilder();
+		if (inputstream != null) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(inputstream));
 			try {
 				String line = br.readLine();
-		        while(line!=null) {
-		        	sb.append(line);
-		        	line = br.readLine();
-		        }
+				while (line != null) {
+					sb.append(line);
+					line = br.readLine();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			text = sb.toString();
-        }
+		}
 
-        aboutMessage.setValue(text);
-        aboutMessage.setContentMode(Label.CONTENT_XHTML);
-        aboutPanel.addComponent(aboutMessage);
+		aboutMessage.setValue(text);
+		aboutMessage.setContentMode(ContentMode.HTML);
 
-        aboutWindowLayout.addComponent(closeMessageButton);
-        aboutWindowLayout.setComponentAlignment(closeMessageButton, Alignment.TOP_RIGHT);
-        
-        aboutPanel.setWidth("50%");
+		VerticalLayout aboutWindowLayout = LayoutUtil.addComponent(aboutMessage);
+		aboutWindowLayout.addComponent(closeMessageButton);
+		aboutWindowLayout.setComponentAlignment(closeMessageButton, Alignment.TOP_RIGHT);
+		aboutPanel.setContent(aboutWindowLayout);
+
+		aboutPanel.setWidth("50%");
 		loginForm.addComponent(aboutPanel);
 		loginForm.setComponentAlignment(aboutPanel, Alignment.MIDDLE_CENTER);
 		

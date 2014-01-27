@@ -11,8 +11,8 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * Purpose of this class is to have all the operations on the subset table

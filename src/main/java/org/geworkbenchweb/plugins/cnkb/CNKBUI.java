@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
@@ -36,10 +34,8 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
@@ -47,12 +43,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * Parameter panel for CNKB
@@ -135,7 +133,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		versionBox.setImmediate(true);
 		versionBox.setNullSelectionAllowed(false);
 		versionBox.setEnabled(false);
-		interactomeBox.addListener(new Property.ValueChangeListener() {
+		interactomeBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -190,12 +188,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							if (versionBox.getValue() == null)
 								warningMesaage = "Please select version.";
 							if (warningMesaage != null) {
-								MessageBox mb = new MessageBox(getWindow(),
-										"Warning", MessageBox.Icon.WARN,
+								MessageBox.showPlain(Icon.WARN,
+										"Warning",
 										warningMesaage,
-										new MessageBox.ButtonConfig(
-												ButtonType.OK, "Ok"));
-								mb.show();
+										ButtonId.OK);
 								return;
 							}
 							params.put(CNKBParameters.MARKER_SET_ID,
@@ -221,15 +217,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
 
-		// this part must be called from front end
-		Application app = getApplication();
-		if(app==null) { // this should not happens after the code was moved to the front end
-			log.error("getApplication() returns null");
-			return;
-		}
-		ApplicationContext cntxt = app.getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
-		session = wcntxt.getHttpSession();
 	}
 
 	/**
@@ -281,8 +268,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		return CNKBResultSet.class;
 	}
 
-	private HttpSession session = null;
-
 	private CNKBResultSet getInteractions(Long dataSetId,
 			HashMap<Serializable, Serializable> params)
 			throws UnAuthenticatedException, ConnectException,
@@ -293,14 +278,15 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
 		String version = (String) params.get(CNKBParameters.VERSION);
 
-		if(session==null) {
+		if(VaadinSession.getCurrent()==null) {
 			log.error("cannot get session properly");
 			return null;
 		}
+		Object userInfoObj = VaadinSession.getCurrent().getAttribute(
+				CNKBParameters.CNKB_USERINFO);
 		String userInfo = null;
-		if (session.getAttribute(CNKBParameters.CNKB_USERINFO) != null) {
-			userInfo = session.getAttribute(CNKBParameters.CNKB_USERINFO)
-					.toString();
+		 if (userInfoObj != null){
+			userInfo = userInfoObj.toString();
 			log.debug("getting userInfo from session: "+userInfo);
 		}
 		log.debug("userInfo "+userInfo);
@@ -405,12 +391,15 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			public void buttonClick(ClickEvent event) {
 				String userName = usertf.getValue().toString().trim();
 				String passwd = passwordtf.getValue().toString().trim();
-				HttpSession session = ((WebApplicationContext) getApplication()
-						.getContext()).getHttpSession();
-				session.setAttribute(CNKBParameters.CNKB_USERINFO, userName
-						+ ":" + passwd);
+				try{
+					VaadinSession.getCurrent().getLockInstance().lock();
+					VaadinSession.getCurrent().setAttribute(
+							CNKBParameters.CNKB_USERINFO, userName + ":" + passwd);
+				}finally{
+					VaadinSession.getCurrent().getLockInstance().unlock();
+				}
 				submitCnkbEvent(dataSetId);
-				getApplication().getMainWindow().removeWindow(dialog);
+				UI.getCurrent().removeWindow(dialog);
 
 			}
 		});
@@ -425,8 +414,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		form.addComponent(passwordtf);
 		form.addComponent(submit);
 
-		dialog.addComponent(form);
-		getApplication().getMainWindow().addWindow(dialog);
+		dialog.setContent(form);
+		UI.getCurrent().addWindow(dialog);
 
 	}
 

@@ -2,18 +2,18 @@ package org.geworkbenchweb.plugins.cnkb;
  
 import java.util.Vector;
 
-import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Slider; 
-import com.vaadin.ui.Slider.ValueOutOfBoundsException;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.shared.ui.slider.SliderOrientation;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Slider;
+import com.vaadin.ui.Slider.ValueOutOfBoundsException;
+import com.vaadin.ui.TextField;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 public class ThrottleSlider extends  HorizontalLayout{
 	
@@ -28,10 +28,10 @@ public class ThrottleSlider extends  HorizontalLayout{
 		    
 		   Label thresholdLabel = new Label("Threshold:");		 
 		   final TextField tf = new  TextField();		  
-		   tf.setValue(minValue);
+		   tf.setValue(Double.toString(minValue));
 		   final Slider horslider = new Slider();
-	        horslider.setOrientation(Slider.ORIENTATION_HORIZONTAL);	      
-	        horslider.addListener(new Property.ValueChangeListener() {
+	        horslider.setOrientation(SliderOrientation.HORIZONTAL);	      
+	        horslider.addValueChangeListener(new Property.ValueChangeListener() {
 				private static final long serialVersionUID = 5645102449945182878L;
 
 				public void valueChange(ValueChangeEvent event) {
@@ -55,9 +55,9 @@ public class ThrottleSlider extends  HorizontalLayout{
 	        horslider.setMax(maxValue);	        
 	        if (maxValue < 10)
 	            horslider.setResolution(2); 	        
-	        horslider.setWidth(450);
+	        horslider.setWidth(450, Unit.PIXELS);
 	        
-	        tf.addListener(new Property.ValueChangeListener() {
+	        tf.addValueChangeListener(new Property.ValueChangeListener() {
 	           
 				private static final long serialVersionUID = 5679169940945634626L;
 
@@ -67,13 +67,11 @@ public class ThrottleSlider extends  HorizontalLayout{
 	                if (!isValidThreshold(value))
 	                {
 	                	 
-	                	MessageBox mb = new MessageBox(getWindow(), 
-	           				 
+	                	MessageBox.showPlain(
+	                			Icon.INFO,
 	    						"Warning", 
-	    						MessageBox.Icon.INFO, 
 	    						"Please enter a number between " + minValue + " and " + Math.floor(maxValue) + ".",
-	    						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-	    				    mb.show();
+	    						ButtonId.OK);
 	    				    return;
 	                }
 	                

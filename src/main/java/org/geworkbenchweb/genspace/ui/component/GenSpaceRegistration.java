@@ -14,12 +14,12 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 public class GenSpaceRegistration extends CustomComponent implements
 		TextChangeListener, ClickListener {
@@ -57,10 +57,9 @@ public class GenSpaceRegistration extends CustomComponent implements
 		initComponents();
 		setCompositionRoot(vLayout);
 		this.vLayout.addComponent(regPanel);
-		this.regPanel.addComponent(gridLayout);
+		this.regPanel.setContent(gridLayout);
 		this.regPanel.setWidth("400px");
 		this.regPanel.setHeight("600px");
-		this.regPanel.setScrollable(true);
 		//setCompositionRoot(gridLayout);
 		gridLayout.setWidth("100%");
 	}
@@ -75,7 +74,7 @@ public class GenSpaceRegistration extends CustomComponent implements
 
 		Label jp = new Label("Select your password *");
 		password = new PasswordField();
-		password.addListener(this);
+		password.addTextChangeListener(this);
 
 		gridLayout.addComponent(jp);
 		gridLayout.addComponent(password);
@@ -136,11 +135,11 @@ public class GenSpaceRegistration extends CustomComponent implements
 		gridLayout.addComponent(zipcode);
 
 		save = new Button("Save");
-		save.addListener(this);
+		save.addClickListener(this);
 		reset = new Button("Reset");
-		reset.addListener(this);
+		reset.addClickListener(this);
 		b_login = new Button("Login");
-		b_login.addListener(this);
+		b_login.addClickListener(this);
 
 		gridLayout.addComponent(save);
 		gridLayout.addComponent(reset);
@@ -162,12 +161,11 @@ public class GenSpaceRegistration extends CustomComponent implements
 			StringBuffer errMsg = new StringBuffer();
 			if (isValid(errMsg)) {
 
-				Window mainWindow = getApplication().getMainWindow();
 				if (login.getGenSpaceServerFactory().userRegister(getNewUser())) {
 					String msg = "User Registered";
 
-					mainWindow.showNotification(msg,
-							Notification.TYPE_TRAY_NOTIFICATION);
+					Notification.show(msg,
+							Type.TRAY_NOTIFICATION);
 
 					callLogin();
 				} 
@@ -175,9 +173,8 @@ public class GenSpaceRegistration extends CustomComponent implements
 					if (errMsg.toString().equals("")) {
 						errMsg.append("Error: This username is already in use");
 					}
-					Notification note = new Notification("Registration Failed",
-							errMsg.toString(), Notification.TYPE_ERROR_MESSAGE);
-					mainWindow.showNotification(note);
+					Notification.show("Registration Failed",
+							errMsg.toString(), Type.ERROR_MESSAGE);
 				}
 
 			} else {

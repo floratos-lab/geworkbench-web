@@ -14,20 +14,22 @@ import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.vaadin.addon.borderlayout.BorderLayout;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -50,7 +52,6 @@ public class ChatWindow extends Window implements Action.Handler{
 
 	private lastChatter last = lastChatter.NONE;
 	private GenSpaceLogin_1 login;
-	private ICEPush pusher = new ICEPush();
 
 
 	public static boolean sharingScreen = false;
@@ -253,44 +254,45 @@ public class ChatWindow extends Window implements Action.Handler{
 		panel.setGenSpaceLogin(this.login);
 		workflowWindow.setWidth("600");
 		workflowWindow.setHeight("100");
-		workflowWindow.setScrollable(true);
 		
-		workflowWindow.addComponent(panel);
+		workflowWindow.setContent(LayoutUtil.addComponent(panel));
 		ArrayList<WorkflowWrapper> fakeList = new ArrayList<WorkflowWrapper>();
 		fakeList.add(new WorkflowWrapper((Workflow) m.getProperty("workflow")));
 		workflowWindow.setCaption("Workflow from " + m.getFrom().replace("/Smack", ""));
 		panel.render(fakeList);
 		
-		getApplication().getMainWindow().addWindow(workflowWindow);
+		UI.getCurrent().addWindow(workflowWindow);
 	}
 	
 	private void handleEnter() {
-		try {
-			Message m = new Message();
-			m.setBody(ogm.getValue().toString());
-			System.out.println("ChatWindow ogm.getValue: " + ogm.getValue().toString());
-						
-			m.setProperty("specialType", messageTypes.CHAT);
-			chat.sendMessage(m);
-		} catch (XMPPException e) {
-			login.getGenSpaceServerFactory().logger.warn("Error", e);
-		}
-		
-		if (!last.equals(lastChatter.ME)) {
-			chatText += "<br><font color=\"green\">You	"
-					+ Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-					+ ":"
-					+ Calendar.getInstance().get(Calendar.MINUTE)
-					+ "</font>";
-		}
-		
-		last = lastChatter.ME;		
-		chatText += "<br>" + ogm.getValue();
-		txtMsging.setValue("<html><body>" + chatText + "</body></html>");
-		ogm.setValue("");
-		this.addComponent(this.pusher);
-		this.pusher.push();
-		//this.login.getPusher().push();
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				try {
+					Message m = new Message();
+					m.setBody(ogm.getValue().toString());
+					System.out.println("ChatWindow ogm.getValue: " + ogm.getValue().toString());
+								
+					m.setProperty("specialType", messageTypes.CHAT);
+					chat.sendMessage(m);
+				} catch (XMPPException e) {
+					login.getGenSpaceServerFactory().logger.warn("Error", e);
+				}
+				
+				if (!last.equals(lastChatter.ME)) {
+					chatText += "<br><font color=\"green\">You	"
+							+ Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+							+ ":"
+							+ Calendar.getInstance().get(Calendar.MINUTE)
+							+ "</font>";
+				}
+				
+				last = lastChatter.ME;		
+				chatText += "<br>" + ogm.getValue();
+				txtMsging.setValue("<html><body>" + chatText + "</body></html>");
+				ogm.setValue("");
+			}
+		});
 	}
 
 	/**
@@ -300,7 +302,7 @@ public class ChatWindow extends Window implements Action.Handler{
 	 */
 	private void mnuEndChatActionPerformed() {
 		//this.setVisible(false);
-		this.getParent().removeWindow(this);
+		UI.getCurrent().removeWindow(this);
 	}
 
 	/**
@@ -356,7 +358,7 @@ public class ChatWindow extends Window implements Action.Handler{
 		blLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		
 		this.setCaption("Chat with XXX");
-		this.addComponent(blLayout);
+		this.setContent(blLayout);
 		
 		vMenuBar = new MenuBar();
 		vMenuBar.setWidth("100%");
@@ -393,7 +395,7 @@ public class ChatWindow extends Window implements Action.Handler{
 		vMainLayout.addComponent(vMenuBar);
 		
 		txtMsging = new Label();
-		txtMsging.setContentMode(Label.CONTENT_XHTML);
+		txtMsging.setContentMode(ContentMode.HTML);
 		txtMsging.setWidth("100%");
 		//txtMsging.setHeight("200px");
 		txtMsging.setImmediate(true);
@@ -401,8 +403,8 @@ public class ChatWindow extends Window implements Action.Handler{
 		txtPanel = new Panel();
 		txtPanel.setWidth("100%");
 		txtPanel.setHeight("200px");
-		txtPanel.setScrollable(true);
-		txtPanel.addComponent(txtMsging);
+		//txtPanel.setScrollable(true);
+		txtPanel.setContent(LayoutUtil.addComponent(txtMsging));
 		vMainLayout.addComponent(txtPanel);
 		
 		Label emptyLabel = new Label();
@@ -445,7 +447,7 @@ public class ChatWindow extends Window implements Action.Handler{
 	public void handleAction(Action action, Object sender, Object target) {
 		// TODO Auto-generated method stub
 		if (action == wEsc) {
-			this.getParent().removeWindow(this);
+			UI.getCurrent().removeWindow(this);
 		}
 		
 		if (action == enterAction) {

@@ -8,11 +8,8 @@ import org.geworkbenchweb.genspace.ui.component.WorkflowStatistics_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualization;
 import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
 import org.geworkbenchweb.genspace.ui.component.workflowRepository.WorkflowRepository;
-import org.vaadin.artur.icepush.ICEPush;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 public class GenspaceLayout extends VerticalLayout {
@@ -23,7 +20,6 @@ public class GenspaceLayout extends VerticalLayout {
 	/**
 	 * 
 	 */
-	final private ICEPush pusher;
 	final private GenspaceLogger genspaceLogger;
 	final private GenSpacePluginView pluginView = new GenSpacePluginView();
 	final private GenspaceToolBar genspaceToolBar 	= 	new GenspaceToolBar(pluginView);
@@ -35,20 +31,12 @@ public class GenspaceLayout extends VerticalLayout {
 	private WorkflowRepository workflowRepository;
 	private SocialNetworkHome socialNetworkHome;
 	private GenspaceLayout genspaceLayout;
-	
-	public ICEPush getPusher()
-	{
-		return this.pusher;
-	}
-	
-	public GenspaceLayout(GenspaceLogger genspaceLogger, ICEPush pusher){	
+		
+	public GenspaceLayout(GenspaceLogger genspaceLogger){	
 		
 		this.genspaceLogger = genspaceLogger;
-		this.pusher = pusher;
-		this.addComponent(this.pusher);
 		//this.addComponent(new Panel("Test 123"));
 		
-		this.genspaceToolBar.setPusher(this.pusher);
 		this.genspaceToolBar.setGenSpaceLogger(this.genspaceLogger);
 		HorizontalLayout p = new HorizontalLayout();
 		p.setHeight("24px");

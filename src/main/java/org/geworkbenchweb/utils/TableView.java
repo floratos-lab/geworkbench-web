@@ -2,7 +2,7 @@ package org.geworkbenchweb.utils;
 
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.ui.Table; 
+import com.vaadin.ui.Table;
 
 public class TableView extends Table{
 	

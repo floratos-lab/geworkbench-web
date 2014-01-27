@@ -13,7 +13,6 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -25,7 +24,6 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements GenSpaceTab, CWFListener, Button.ClickListener {
@@ -132,7 +130,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		toolListPanel.addComponent(toolPanel, BorderLayout.Constraint.CENTER);
 		toolListPanel.addComponent(resultsPanel, BorderLayout.Constraint.SOUTH);
 
-		button.addListener(new Button.ClickListener(){
+		button.addClickListener(new Button.ClickListener(){
 			
 			private static final long serialVersionUID = 1L;
 
@@ -218,13 +216,11 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		
 		Panel leftPanel = new Panel();
 		leftPanel.setHeight("500px");
-		leftPanel.setScrollable(true);
-		leftPanel.addComponent(workflowViewerPanel);
+		leftPanel.setContent(workflowViewerPanel);
 		
 		Panel rightPanel = new Panel();
 		rightPanel.setHeight("500px");
-		rightPanel.setScrollable(true);
-		rightPanel.addComponent(suggestionsPanel);
+		rightPanel.setContent(suggestionsPanel);
 		
 		//splitter.addComponent(leftPanel);     
 		//splitter.addComponent(rightPanel);    

@@ -8,9 +8,11 @@ import org.geworkbench.components.genspace.server.stubs.TasteUser;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -18,7 +20,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-public class MahoutRecommendationPanel extends Panel implements ClickListener{
+public class MahoutRecommendationPanel extends Panel implements ValueChangeListener{
 	
 	/**
 	 * 
@@ -45,13 +47,13 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	private void initComponents() {
 		
 		mahoutSuggestionsPanel = new HorizontalLayout();
-		this.addComponent(mainPanel);
+		this.setContent(mainPanel);
 		
 		workflowsPanel = new Panel();
 		peoplePanel = new Panel();
 		filter = new CheckBox("Filter to My Networks");
 		filter.setImmediate(true);
-		filter.addListener(this);
+		filter.addValueChangeListener(this);
 		mainPanel.addComponent(filter);
 
 		mahoutSuggestionsPanel.addComponent(workflowsPanel);
@@ -61,11 +63,11 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 
 		final Label wfLabel = new Label("Your Recommended Workflows");
         wfLabel.setStyleName(Reindeer.LABEL_H2);
-        wfLabel.setContentMode(Label.CONTENT_PREFORMATTED);
+        wfLabel.setContentMode(ContentMode.PREFORMATTED);
         
         final Label ppLabel = new Label("People Like You");
         ppLabel.setStyleName(Reindeer.LABEL_H2);
-        ppLabel.setContentMode(Label.CONTENT_PREFORMATTED);
+        ppLabel.setContentMode(ContentMode.PREFORMATTED);
         
 		workflowSuggestionsArea = new Label();
 		peopleSuggestionsArea = new Label();
@@ -78,8 +80,9 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		peopleSuggestionsArea.setValue("");
 		workflowSuggestionsArea.setValue("");
 
-		workflowsPanel.addComponent(wfLabel);
-		workflowsPanel.addComponent(workflowSuggestionsArea);
+		VerticalLayout wlayout = LayoutUtil.addComponent(wfLabel);
+		wlayout.addComponent(workflowSuggestionsArea);
+		workflowsPanel.setContent(wlayout);
 		workflowsPanel.setWidth("300px");
 		//workflowsPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		
@@ -87,13 +90,11 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		emptyLabel.setWidth("20px");
 		mahoutSuggestionsPanel.addComponent(emptyLabel);
 		
-		peoplePanel.addComponent(ppLabel);
-		peoplePanel.addComponent(peopleSuggestionsArea);
+		VerticalLayout playout = LayoutUtil.addComponent(ppLabel);
+		playout.addComponent(peopleSuggestionsArea);
+		peoplePanel.setContent(playout);
 		peoplePanel.setWidth("300px");
 		
-		this.setScrollable(true);
-		workflowsPanel.setScrollable(true);
-		peoplePanel.setScrollable(true);
 	}
 	
 	/*public void handleLogin() {
@@ -178,7 +179,7 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				}
 			}
 						
-			if (!filter.booleanValue()) {
+			if (!filter.getValue()) {
 				
 				if (!wfs.isEmpty() && wfs != null) {
 					workflowSuggestionsArea.setValue(wfs);
@@ -252,7 +253,7 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	}
 	
 	@Override
-	public void buttonClick(ClickEvent evt) {
+	public void valueChange(ValueChangeEvent evt) {
 		displayRecommendations();
 	}
 }

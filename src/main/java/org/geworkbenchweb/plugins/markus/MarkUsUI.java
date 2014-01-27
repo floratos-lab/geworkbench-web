@@ -13,9 +13,10 @@ import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultData
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.PdbFileInfo;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.terminal.UserError;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -132,7 +133,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		layout.addComponent(email);
 		layout.addComponent(title);
 		layout.addComponent(cbkey);
-		cbxChain.setWidth(50, 0);
+		cbxChain.setWidth(50, Unit.PIXELS);
 		
 		layout.setComponentAlignment(cbxChain, Alignment.MIDDLE_LEFT);
 		layout.setComponentAlignment(email, Alignment.MIDDLE_CENTER);
@@ -140,7 +141,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		layout.setComponentAlignment(cbkey, Alignment.MIDDLE_CENTER);
 		
 		Panel panel = new Panel();
-		panel.addComponent(layout);
+		panel.setContent(layout);
 		return panel;
 	}
 
@@ -155,7 +156,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		grid.addComponent(sh);
 		grid.addComponent(skan);
 		grid.addComponent(dali);
-		sh.setWidth(120, 0);
+		sh.setWidth(120, Unit.PIXELS);
 		
 		sh = new Label("Cavity Analysis");
 		sh.setDescription("SCREEN is used to identify protein cavities that are capable of binding chemical compounds. SCREEN will provide an\nassessment of the druggability of each surface cavity based on its properties.\nVASP is a volumetric analysis tool for the comparison of binding sites in aligned protein structures.");
@@ -183,7 +184,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		grid.addComponent(delphi, 1, 4, 2, 4);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.setContent(grid);
 		return panel;
 	}
 
@@ -199,7 +200,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		grid.addComponent(sh);
 		grid.addComponent(psiblast);
 		grid.addComponent(ips);
-		sh.setWidth(140,0);
+		sh.setWidth(140, Unit.PIXELS);
 		
 		sh = new Label("Amino Acid Conservation Profile");
 		sh.setDescription("Highly conserved amino acids can indicate functionally relevant regions. To identify these amino acids sequences identified\nby BLAST sharing less than 80% identity are aligned using Muscle. For the resulting multiple sequence alignment ConSurf is\nused to estimate the conservation scores. If seeds and full Pfam alignments are available, these are used additionally for\nthe conservation analysis.\nTwo ConSurf analyses can be defined by the User specifying the number of PSI-BLAST iterations, the E-value threshold,\nand the sequence identity cutoff.");
@@ -213,7 +214,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		grid.addComponent(consurf4);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.setContent(grid);
 		VerticalLayout vlayout = new VerticalLayout ();
 		vlayout.addComponent(panel);
 		return vlayout;
@@ -224,39 +225,39 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		GridLayout grid = new GridLayout(3, 4);
 		grid.setSpacing(true);
 		grid.setSizeFull();
-		gridsize.setValue(145);
+		gridsize.setValue("145");
 		grid.addComponent(gridsize);
 		
-		boxfill.setValue(85);
+		boxfill.setValue("85");
 		grid.addComponent(boxfill);
 		
-		steps.setValue(3);
+		steps.setValue("3");
 		grid.addComponent(steps);
 		
-		sc.setValue(0.145);
+		sc.setValue("0.145");
 		grid.addComponent(sc);
 
-		radius.setValue(1.4);
+		radius.setValue("1.4");
 		grid.addComponent(radius);
 
 		ibc.setNullSelectionAllowed(false);
 		ibc.setValue("Debye-Huckel Total");
 		grid.addComponent(ibc);
 
-		nli.setValue(1000);
+		nli.setValue("1000");
 		grid.addComponent(nli);
 
-		li.setValue(1000);
+		li.setValue("1000");
 		grid.addComponent(li, 1, 2, 2, 2);
 
-		idc.setValue(2);
+		idc.setValue("2");
 		grid.addComponent(idc);
 
-		edc.setValue(80);
+		edc.setValue("80");
 		grid.addComponent(edc);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.setContent(grid);
 		return panel;
 	}
 
@@ -267,19 +268,19 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		csftitle3.setValue("analysis 3");
 		grid.addComponent(csftitle3, 0, 0, 1, 0);
 		
-		eval3.setValue(0);
-		iter3.setValue(0);
+		eval3.setValue("0");
+		iter3.setValue("0");
 		grid.addComponent(eval3);
 		grid.addComponent(iter3);
 		
-		filter3.setValue(0);
+		filter3.setValue("0");
 		msa3.setNullSelectionAllowed(false);
 		msa3.setValue("Muscle");
 		grid.addComponent(filter3);
 		grid.addComponent(msa3);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.setContent(grid);
 		return panel;
 	}
 
@@ -290,19 +291,19 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		csftitle4.setValue("analysis 4");
 		grid.addComponent(csftitle4, 0, 0, 1, 0);
 		
-		eval4.setValue(0);
-		iter4.setValue(0);
+		eval4.setValue("0");
+		iter4.setValue("0");
 		grid.addComponent(eval4);
 		grid.addComponent(iter4);
 		
-		filter4.setValue(0);
+		filter4.setValue("0");
 		msa4.setNullSelectionAllowed(false);
 		msa4.setValue("Muscle");
 		grid.addComponent(filter4);
 		grid.addComponent(msa4);
 
 		Panel panel = new Panel();
-		panel.addComponent(grid);
+		panel.setContent(grid);
 		return panel;
 	}
 
@@ -317,12 +318,12 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 		form.addField("Private Key", keyTf);
 		
 		Button priorBtn = new Button("Retrieve Prior Result");
-		priorBtn.addListener(new PriorListener(form, priorTf, keyTf));
+		priorBtn.addClickListener(new PriorListener(form, priorTf, keyTf));
 		form.getFooter().addComponent(priorBtn);
 		form.setValidationVisible(true);
 
 		Panel panel = new Panel();
-		panel.addComponent(form);
+		panel.setContent(LayoutUtil.addComponent(form));
 		return panel;
 	}
 	
@@ -356,39 +357,39 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 
 	// markus parameters 1st part - totally 9
 	public boolean getskanValue() {
-		return skan.booleanValue();
+		return skan.getValue();
 	}
 
 	public boolean getdaliValue() {
-		return dali.booleanValue();
+		return dali.getValue();
 	}
 
 	public boolean getscreenValue() {
-		return screen.booleanValue();
+		return screen.getValue();
 	}
 
 	public boolean getdelphiValue() {
-		return delphi.booleanValue();
+		return delphi.getValue();
 	}
 
 	public boolean getpsiblastValue() {
-		return psiblast.booleanValue();
+		return psiblast.getValue();
 	}
 
 	public boolean getipsValue() {
-		return ips.booleanValue();
+		return ips.getValue();
 	}
 
 	public boolean getconsurfValue() {
-		return consurf.booleanValue();
+		return consurf.getValue();
 	}
 
 	public boolean getconsurf3Value() {
-		return consurf3.booleanValue();
+		return consurf3.getValue();
 	}
 
 	public boolean getconsurf4Value() {
-		return consurf4.booleanValue();
+		return consurf4.getValue();
 	}
 
 	public String getChain() {
@@ -396,7 +397,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	public boolean getkeyValue() {
-		return cbkey.booleanValue();
+		return cbkey.getValue();
 	}
 
 	public String getEmail(boolean isGrid) {
@@ -413,23 +414,23 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 
 	// delphi part - totally 10
 	public int getgridsizeValue() {
-		return ((Integer) gridsize.getValue()).intValue();
+		return Integer.parseInt(gridsize.getValue());
 	}
 
 	public int getboxfillValue() {
-		return ((Integer) boxfill.getValue()).intValue();
+		return Integer.parseInt(boxfill.getValue());
 	}
 
 	public int getstepsValue() {
-		return ((Integer) steps.getValue()).intValue();
+		return Integer.parseInt(steps.getValue());
 	}
 
 	public double getscValue() {
-		return ((Double) sc.getValue()).doubleValue();
+		return Double.parseDouble(sc.getValue());
 	}
 
 	public double getradiusValue() {
-		return ((Double) radius.getValue()).doubleValue();
+		return Double.parseDouble(radius.getValue());
 	}
 
 	public int getibcValue() {
@@ -445,19 +446,19 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	public int getnliValue() {
-		return ((Integer) nli.getValue()).intValue();
+		return Integer.parseInt(nli.getValue());
 	}
 
 	public int getliValue() {
-		return ((Integer) li.getValue()).intValue();
+		return Integer.parseInt(li.getValue());
 	}
 
 	public int getidcValue() {
-		return ((Integer) idc.getValue()).intValue();
+		return Integer.parseInt(idc.getValue());
 	}
 
 	public int getedcValue() {
-		return ((Integer) edc.getValue()).intValue();
+		return Integer.parseInt(edc.getValue());
 	}
 
 	// analysis 3 & 4

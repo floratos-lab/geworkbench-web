@@ -14,12 +14,13 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class FilterWindow extends Window {
 
@@ -74,7 +75,7 @@ public class FilterWindow extends Window {
 		setSelection(arraySetSelect, selectedArraySet, "All Arrays");
 		
 		Button submit = new Button("Submit");
-		submit.addListener(new Button.ClickListener() {
+		submit.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4799561372701936132L;
 
@@ -102,7 +103,7 @@ public class FilterWindow extends Window {
 		setResizable(false);
 		setCaption("Filter Setting");
 		setImmediate(true);
-		addComponent(gridLayout1);
+		setContent(gridLayout1);
 	}
 
 	static private ListSelect createSetSelect(String caption) {
@@ -138,7 +139,7 @@ public class FilterWindow extends Window {
 		contextCB.setImmediate(true);
 		contextCB.setNullSelectionAllowed(false);
 
-		contextCB.addListener(new Property.ValueChangeListener() {
+		contextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -205,7 +206,7 @@ public class FilterWindow extends Window {
 			parent.getPagedTableView().setContainerDataSource(
 					parent.getIndexedContainer());
 
-			getApplication().getMainWindow().removeWindow(this);
+			UI.getCurrent().removeWindow(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

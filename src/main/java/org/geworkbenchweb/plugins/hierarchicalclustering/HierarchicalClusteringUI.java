@@ -73,7 +73,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		clusterMethod.setNullSelectionAllowed(false);
 		clusterMethod.select(clusterMethod.getItemIds().iterator().next());
 		clusterMethod.setWidth("50%");
-		clusterMethod.addListener(new Property.ValueChangeListener() {
+		clusterMethod.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				try {
@@ -92,7 +92,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		clusterDim.select(clusterDim.getItemIds().iterator().next());
 		clusterDim.setWidth("50%");
 		clusterDim.setNullSelectionAllowed(false);
-		clusterDim.addListener(new Property.ValueChangeListener() {
+		clusterDim.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -114,7 +114,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		clusterMetric.select(clusterMetric.getItemIds().iterator().next());
 		clusterMetric.setWidth("50%");
 		clusterMetric.setNullSelectionAllowed(false);
-		clusterMetric.addListener(new Property.ValueChangeListener() {
+		clusterMetric.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 

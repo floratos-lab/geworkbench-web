@@ -10,12 +10,13 @@ import org.geworkbenchweb.genspace.rating.WorkflowVisualizationPopup;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 
 import com.vaadin.event.LayoutEvents;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
 
 public class WorkflowVisualizationPanel extends Panel {
 	
@@ -32,8 +33,6 @@ public class WorkflowVisualizationPanel extends Panel {
 	private GenSpaceLogin_1 login;
 
 	public WorkflowVisualizationPanel() {
-		this.setScrollable(true);
-				
 		this.resource = new ThemeResource(resourcePath);
 	}
 	
@@ -46,7 +45,7 @@ public class WorkflowVisualizationPanel extends Panel {
 		
 		wkflwCache = new HashMap<Integer, WorkflowWrapper>();
 		//this.layout.removeAllComponents();
-		this.removeAllComponents();
+		this.setContent(null);
 
 		Iterator<WorkflowTool> wIT;
 		HorizontalLayout flowLayout;
@@ -73,7 +72,7 @@ public class WorkflowVisualizationPanel extends Panel {
 				}
 			}
 						
-			flowLayout.addListener(new LayoutEvents.LayoutClickListener() {
+			flowLayout.addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
 				/**
 				 * 
 				 */
@@ -94,12 +93,11 @@ public class WorkflowVisualizationPanel extends Panel {
 					popup.setHeight("350px");
 					popup.setCaption("Workflow Actions");
 					
-					getApplication().getMainWindow().addWindow(popup);
-					popup.attachAllPushers();
+					UI.getCurrent().addWindow(popup);
 				}
 			});
 			
-			this.addComponent(flowLayout);
+			this.setContent(flowLayout);
 		}
 	}
 }

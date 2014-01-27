@@ -1,13 +1,12 @@
 package org.geworkbenchweb.utils;
 
 import java.util.HashMap;
-import java.util.List; 
+import java.util.List;
 import java.util.Map;
 
- 
 import org.geworkbenchweb.pojos.Preference;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * Purpose of this class is to have all the operations on the DataSet table

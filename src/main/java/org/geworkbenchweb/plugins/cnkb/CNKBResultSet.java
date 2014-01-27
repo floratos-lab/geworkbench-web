@@ -1,7 +1,7 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.util.Vector;
 import java.io.Serializable;
+import java.util.Vector;
 
 import org.geworkbench.util.network.CellularNetworkPreference;
 

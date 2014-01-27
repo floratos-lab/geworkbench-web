@@ -19,7 +19,7 @@ import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
 import org.xml.sax.SAXException;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
 
 /**

@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 
 public interface GenSpaceTab {
 	public void tabSelected();

@@ -1,7 +1,9 @@
 package org.geworkbenchweb.layout;
 
-import com.vaadin.data.Item;
+import org.geworkbenchweb.utils.LayoutUtil;
+
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.event.Action;
@@ -12,6 +14,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public abstract class TreeActionHandler implements Handler {
@@ -45,7 +49,6 @@ public abstract class TreeActionHandler implements Handler {
 		final Window nameWindow = new Window();
 		// nameWindow.setModal(true);
 		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("120px");
 		nameWindow.setResizable(false);
@@ -59,7 +62,7 @@ public abstract class TreeActionHandler implements Handler {
 		search.setInputPrompt("Please enter filter string");
 		search.setImmediate(true);
 
-		search.addListener(new TextChangeListener() {
+		search.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1048639156493298177L;
 
 			Filter filter = null;
@@ -98,8 +101,8 @@ public abstract class TreeActionHandler implements Handler {
 			}
 		});
 
-		nameWindow.addComponent(search);
-		sender.getApplication().getMainWindow().addWindow(nameWindow);
+		nameWindow.setContent(LayoutUtil.addComponent(search));
+		UI.getCurrent().addWindow(nameWindow);
 		nameWindow.center();
 	}
 

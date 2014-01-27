@@ -1,15 +1,13 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import org.geworkbenchweb.visualizations.client.ui.Visualization;
-
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.Paintable;
+import com.vaadin.client.UIDL;
 
 /**
  * Client side widget which communicates with the server. Messages from the

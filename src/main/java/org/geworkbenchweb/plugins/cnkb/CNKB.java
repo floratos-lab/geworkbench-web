@@ -1,15 +1,14 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionParticipant;
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;

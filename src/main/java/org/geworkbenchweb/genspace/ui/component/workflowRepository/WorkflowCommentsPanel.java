@@ -17,8 +17,10 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -49,8 +51,8 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 		table.setColumnHeaders(new String [] {"User", "Date", "Comment"});
 		table.setSelectable(true);
 		table.setSizeFull();
-		newButton.addListener(this);
-		removeButton.addListener(this);
+		newButton.addClickListener(this);
+		removeButton.addClickListener(this);
 		this.addComponent(hLayout);
 		this.addComponent(table);
 	}
@@ -102,10 +104,10 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			final Window newWindow = new Window("Input");
 			newWindow.setWidth("200px");
 			newWindow.setHeight("150px");
-			getApplication().getMainWindow().addWindow(newWindow);
+			UI.getCurrent().addWindow(newWindow);
 			
 			VerticalLayout vLayout = new VerticalLayout();
-			newWindow.addComponent(vLayout);
+			newWindow.setContent(vLayout);
 			
 			Label inputLabel = new Label("Input comment text");
 			vLayout.addComponent(inputLabel);
@@ -120,7 +122,7 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			hLayout.addComponent(oButton);
 			vLayout.addComponent(hLayout);
 			
-			oButton.addListener(new Button.ClickListener() {
+			oButton.addClickListener(new Button.ClickListener() {
 				/**
 				 * 
 				 */
@@ -128,23 +130,23 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 
 				public void buttonClick(Button.ClickEvent evt) {
 					newComment(tf.getValue().toString());
-					getApplication().getMainWindow().removeWindow(newWindow);
+					UI.getCurrent().removeWindow(newWindow);
 				}
 			});
 			
-			cButton.addListener(new Button.ClickListener() {
+			cButton.addClickListener(new Button.ClickListener() {
 				/**
 				 * 
 				 */
 				private static final long serialVersionUID = 1L;
 
 				public void buttonClick(Button.ClickEvent evt) {
-					getApplication().getMainWindow().removeWindow(newWindow);
+					UI.getCurrent().removeWindow(newWindow);
 				}
 			});
 		} else if (bCaption.equals("Remove")) {
 			if (table.getValue() == null) {
-				getApplication().getMainWindow().showNotification("Please select a comment before deletion");
+				Notification.show("Please select a comment before deletion");
 				return ;
 			}
 			

@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.LegacyComponent;
 
 /**
  * Server side component for the dendrogram widget.
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VDendrogram.class)
-public class Dendrogram extends AbstractComponent {
+public class Dendrogram extends AbstractComponent implements LegacyComponent {
 
 	private static final long serialVersionUID = -6825142416797042091L;
 	
@@ -51,7 +51,6 @@ public class Dendrogram extends AbstractComponent {
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
-		super.paintContent(target);
 		
 		if(requestExportImage) {
 			target.addVariable(this, "exportImage", true);
@@ -117,7 +116,6 @@ public class Dendrogram extends AbstractComponent {
 	 */
 	@Override
 	public void changeVariables(Object source, Map<String, Object> variables) {
-		super.changeVariables(source, variables);
 
 		if(variables.containsKey("arrayIndex2")) {
 			selectedArrayClusters = (String) variables.get("selectedArrayClusters");

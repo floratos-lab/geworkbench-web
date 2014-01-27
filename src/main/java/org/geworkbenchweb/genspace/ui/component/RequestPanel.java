@@ -12,14 +12,15 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
@@ -69,7 +70,6 @@ public class RequestPanel extends SocialPanel{
 	private BorderLayout blLayout;
 	
 	private int myID;
-	private ICEPush pusher = new ICEPush();
 	
 	public RequestPanel(String panelTitle, GenSpaceLogin_1 login) {
 		System.out.println("mainlayout!!!");
@@ -95,7 +95,7 @@ public class RequestPanel extends SocialPanel{
 		this.requestPanel = new Panel(this.panelTitle);
 		this.requestPanel.setWidth("800px");
 		this.createMainLayout();
-		this.requestPanel.addComponent(hLayout);
+		this.requestPanel.setContent(hLayout);
 		blLayout.addComponent(requestPanel, BorderLayout.Constraint.CENTER);
 		
 	}
@@ -131,7 +131,6 @@ public class RequestPanel extends SocialPanel{
 	
 
 	public void attachPusher(){
-		this.hLayout.addComponent(pusher);
 	}
 	
 	private void createFriendLayout() {
@@ -142,10 +141,10 @@ public class RequestPanel extends SocialPanel{
 		fLayout.addComponent(friendSelect);
 		HorizontalLayout buLayout = new HorizontalLayout();
 		Button aButton = new Button(aFriend);
-		aButton.addListener(this.createFriendListener(aFriend));
+		aButton.addClickListener(this.createFriendListener(aFriend));
 		
 		Button rButton = new Button(rFriend);
-		rButton.addListener(this.createFriendListener(rFriend));
+		rButton.addClickListener(this.createFriendListener(rFriend));
 		
 		buLayout.addComponent(aButton);
 		
@@ -176,7 +175,7 @@ public class RequestPanel extends SocialPanel{
 		friendSelect.setRows(10);
 		friendSelect.setMultiSelect(true);
 		friendSelect.setWidth("300px");
-		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
+		friendSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		friendSelect.setItemCaptionPropertyId("username");
 		
 	}
@@ -258,9 +257,9 @@ public class RequestPanel extends SocialPanel{
 		
 		HorizontalLayout buLayout = new HorizontalLayout();
 		Button aButton = new Button(accept);
-		aButton.addListener(this.createNetworkListener(accept));
+		aButton.addClickListener(this.createNetworkListener(accept));
 		Button rButton = new Button(reject);
-		rButton.addListener(this.createNetworkListener(reject));
+		rButton.addClickListener(this.createNetworkListener(reject));
 		
 		buLayout.addComponent(aButton);
 		
@@ -291,7 +290,7 @@ public class RequestPanel extends SocialPanel{
 		networkSelect.setRows(10);
 		networkSelect.setMultiSelect(true);
 		networkSelect.setWidth("300px");
-		networkSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
+		networkSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		networkSelect.setItemCaptionPropertyId("name");
 	}
 	
@@ -335,7 +334,7 @@ public class RequestPanel extends SocialPanel{
 					}
 					loadNetworks();
 				}else{
-					getApplication().getMainWindow().showNotification("No network request is selected!");
+					Notification.show("No network request is selected!");
 				}
 				if(rejList.size()>0){
 					for (int unID: rejList) {
@@ -344,7 +343,7 @@ public class RequestPanel extends SocialPanel{
 					loadNetworks();
 
 				}else{
-					getApplication().getMainWindow().showNotification("No network request is selected!");
+					Notification.show("No network request is selected!");
 				}
 				//attachPusher();
 				//login.getPusher().push();

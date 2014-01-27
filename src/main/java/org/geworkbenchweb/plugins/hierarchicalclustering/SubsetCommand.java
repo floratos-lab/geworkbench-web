@@ -5,17 +5,19 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.util.ArrayList;
 
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.visualizations.Dendrogram;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
@@ -46,13 +48,11 @@ public class SubsetCommand implements Command {
 		this.dendrogram = dendrogram;
 	}
 	
-	@SuppressWarnings("deprecation") // for getLayout()
 	@Override
 	public void menuSelected(MenuItem selectedItem) {
 		final Window nameWindow = new Window();
 		nameWindow.setModal(true);
 		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("150px");
 		nameWindow.setResizable(false);
@@ -64,7 +64,6 @@ public class SubsetCommand implements Command {
 		setName.setImmediate(true);
 
 		if(parent==null) return; // parent should never be null
-		final Window mainWindow = parent.getApplication().getMainWindow();
 		
 		Button submit = new Button("Submit", new Button.ClickListener() {
 
@@ -85,7 +84,7 @@ public class SubsetCommand implements Command {
 							String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
 							SubSetOperations.storeArraySetInCurrentContext(items, subSetName, parentId);
 						}
-						mainWindow.removeWindow(nameWindow);
+						UI.getCurrent().removeWindow(nameWindow);
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -93,9 +92,10 @@ public class SubsetCommand implements Command {
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(setName);
-		nameWindow.addComponent(submit);
-		mainWindow.addWindow(nameWindow);
+		VerticalLayout layout = LayoutUtil.addComponent(setName);
+		layout.addComponent(submit);
+		nameWindow.setContent(layout);
+		UI.getCurrent().addWindow(nameWindow);
 	}
 
 }

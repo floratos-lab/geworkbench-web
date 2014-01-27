@@ -13,6 +13,7 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -30,9 +31,10 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 			return;
 
 		this.setSizeFull();
-		VerticalLayout layout = (VerticalLayout) this.getContent();
+		VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         layout.setSpacing(true);
+        setContent(layout);
         
 		final String DATASETS = "data";
 		final String SLASH = "/";
@@ -63,8 +65,8 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 
 		super.setCaption("PDB file name: " + filename);
 		Label content = new Label(sb.toString());
-		content.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(content);
+		content.setContentMode(ContentMode.PREFORMATTED);
+		layout.addComponent(content);
 	}
 
 	@Override

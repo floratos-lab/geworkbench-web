@@ -10,15 +10,17 @@ import java.util.Map;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ExperimentInfo;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -53,7 +55,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label cHeading 		=	new Label("User Comments:");
 		cHeading.setStyleName(Reindeer.LABEL_H2);
-		cHeading.setContentMode(Label.CONTENT_PREFORMATTED);
+		cHeading.setContentMode(ContentMode.PREFORMATTED);
 		commentsLayout.addComponent(cHeading);
 		
 		Map<String, Object> params 		= 	new HashMap<String, Object>();
@@ -79,7 +81,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label commentHead 		=	new Label("Enter new comment here:");
 		commentHead.setStyleName(Reindeer.LABEL_H2);
-		commentHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		commentHead.setContentMode(ContentMode.PREFORMATTED);
 		final TextArea dataArea = 	new TextArea();
 		dataArea.setRows(6);
 		dataArea.setWidth("100%");
@@ -116,11 +118,11 @@ public class AnnotationTabSheet extends TabSheet {
 		dLayout.setSecondComponent(commentArea);
 		
 		HorizontalSplitPanel infoSplit 	=  	new HorizontalSplitPanel();
-		infoSplit.setSplitPosition(50);
+		/*infoSplit.setSplitPosition(50);
 		infoSplit.setSizeFull();
 		infoSplit.setImmediate(true);
 		infoSplit.setStyleName(Reindeer.SPLITPANEL_SMALL);
-		infoSplit.setLocked(true);
+		infoSplit.setLocked(true);*/
 				
 		VerticalLayout dataHistory 	= 	new VerticalLayout();
 		VerticalLayout expInfo		=	new VerticalLayout();
@@ -132,7 +134,7 @@ public class AnnotationTabSheet extends TabSheet {
 
 		Label historyHead 		=	new Label("Data History:");
 		historyHead.setStyleName(Reindeer.LABEL_H2);
-		historyHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		historyHead.setContentMode(ContentMode.PREFORMATTED);
 		dataHistory.addComponent(historyHead);
 		
 		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
@@ -142,7 +144,7 @@ public class AnnotationTabSheet extends TabSheet {
 		for(int i=0; i<histories.size(); i++) {
 			DataHistory dH = (DataHistory) histories.get(i);
 			Label d = new Label(dH.getData());
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			d.setContentMode(ContentMode.PREFORMATTED);
 			dataHistory.addComponent(d);
 		}
 		
@@ -152,7 +154,7 @@ public class AnnotationTabSheet extends TabSheet {
 		
 		Label infoHead 		=	new Label("Experiment Information:");
 		infoHead.setStyleName(Reindeer.LABEL_H2);
-		infoHead.setContentMode(Label.CONTENT_PREFORMATTED);
+		infoHead.setContentMode(ContentMode.PREFORMATTED);
 		expInfo.addComponent(infoHead);
 		
 		Map<String, Object> iParams 		= 	new HashMap<String, Object>();
@@ -162,7 +164,7 @@ public class AnnotationTabSheet extends TabSheet {
 		for(int i=0; i<info.size(); i++) {
 			ExperimentInfo eI = (ExperimentInfo) info.get(i);
 			Label d = new Label(eI.getInfo());
-			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			d.setContentMode(ContentMode.PREFORMATTED);
 			expInfo.addComponent(d);
 		}
 	
@@ -173,7 +175,10 @@ public class AnnotationTabSheet extends TabSheet {
 		this.setSizeFull();
 		this.setImmediate(true);
 	
-		this.addTab(infoSplit, "Data Information");
+		Panel p = new Panel();
+		p.setContent(infoSplit);
+		this.addTab(p, "Data Information");
+		//this.addTab(infoSplit, "Data Information");
 		this.addTab(dLayout, "User Comments");			
 	}
 }

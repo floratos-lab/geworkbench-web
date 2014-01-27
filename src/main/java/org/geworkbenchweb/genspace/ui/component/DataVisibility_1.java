@@ -7,6 +7,8 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.genspace.ObjectHandler;
 
 import com.vaadin.event.ItemClickEvent;
+import com.vaadin.server.Page;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -14,11 +16,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.TextArea;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 
@@ -82,9 +82,9 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 						+ "your preference. You can later change it at any time.";
 				String title = "Please set your genSpace logging preferences.";
 				Notification notification = new Notification(title, message,
-						Notification.TYPE_HUMANIZED_MESSAGE);
+						Type.HUMANIZED_MESSAGE);
 				notification.setDelayMsec(-1);
-				getApplication().getMainWindow().showNotification(notification);
+				notification.show(Page.getCurrent());
 
 				// // set the default to "log anonymously"
 				// pref = "1";
@@ -165,7 +165,7 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 					"<p align = \"justify\">Your selection of data visibility will affect its appearance within recommendations of others. It will also affect your ability to see recommendations - if you make your data"
 							+ "completely private, then you will not see any recommendations based on other users' data. </p>");
 			info.setEnabled(false);
-			info.setContentMode(Label.CONTENT_XHTML);
+			info.setContentMode(ContentMode.HTML);
 			//info.setWordwrap(true);
 			// info.setOpaque(false);
 			// info.setDisabledTextColor(Color.black);
@@ -179,7 +179,7 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 		mainLayout.addComponent(save);
 
 		// validate();
-		save.addListener(this);
+		save.addClickListener(this);
 		addComponent(mainLayout);
 	}
 
@@ -189,11 +189,10 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 
 	@Override
 	public void buttonClick(ClickEvent e) {
-		Window mainWindow = getApplication().getMainWindow();
 		if (e.getSource() == save) {
 			if (logOptionsSelect.getValue() == null) {
-				mainWindow.showNotification("Please Select Log Preferences",
-						Notification.TYPE_ERROR_MESSAGE);
+				Notification.show("Please Select Log Preferences",
+						Type.ERROR_MESSAGE);
 			}
 			else {
 				preference = logOptions.indexOf(logOptionsSelect.getValue());
@@ -210,13 +209,13 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 
 				if (login.getGenSpaceServerFactory().userUpdate()) {
 					String msg = "Data Visibility Saved";
-					mainWindow.showNotification(msg,
-							Notification.TYPE_TRAY_NOTIFICATION);
+					Notification.show(msg,
+							Type.TRAY_NOTIFICATION);
 				}
 				else {
 					String msg = "Data Visibility update failed";
-					mainWindow.showNotification(msg,
-							Notification.TYPE_ERROR_MESSAGE);
+					Notification.show(msg,
+							Type.ERROR_MESSAGE);
 				}
 			}
 		}

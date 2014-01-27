@@ -5,18 +5,12 @@ import org.geworkbenchweb.genspace.ObjectLogger;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.RealTimeWorkflowSuggestion;
 import org.geworkbenchweb.genspace.ui.component.SocialNetworkHome;
-import org.geworkbenchweb.genspace.ui.component.WorkflowStatistics_0;
 import org.geworkbenchweb.genspace.ui.component.WorkflowStatistics_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualization;
 import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
 import org.geworkbenchweb.genspace.ui.component.workflowRepository.WorkflowRepository;
-import org.vaadin.artur.icepush.ICEPush;
 
-import com.vaadin.Application;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window.Notification;
 
 public class GenspaceToolBar extends MenuBar {
 	/**
@@ -33,7 +27,6 @@ public class GenspaceToolBar extends MenuBar {
 	private SocialNetworkHome socialNetworkHome;
 	private GenSpaceLogin_1 genSpaceLogin;
 	private GenspaceLayout genspaceLayout;
-	private ICEPush pusher;
 	private GenspaceLogger genspaceLogger;
 
 
@@ -244,9 +237,5 @@ public class GenspaceToolBar extends MenuBar {
 	public SocialNetworkHome getSocialNetworkHome() {
 		return this.socialNetworkHome;
 	}*/
-	
-	public void setPusher(ICEPush pusher) {
-		this.pusher = pusher;  
-	}
 	
 }

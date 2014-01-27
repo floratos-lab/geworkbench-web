@@ -5,7 +5,7 @@ package org.geworkbenchweb.layout;
 
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
@@ -31,7 +31,7 @@ public class DataAnnotationPanel extends FancyCssLayout {
 		
 		setSlideEnabled(true);
 		
-		setMargin(true);
+		//setMargin(true);
 		setHeight("250px");
 		setWidth("100%");
 		setImmediate(true);

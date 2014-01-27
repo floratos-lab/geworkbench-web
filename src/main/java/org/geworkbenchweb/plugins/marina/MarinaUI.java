@@ -36,6 +36,7 @@ import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -43,6 +44,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
@@ -58,14 +60,16 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver, AnalysisUI {
 
@@ -77,7 +81,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	protected Form form = new Form();
 	private Upload upload = null;
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
-	protected Button submitButton = new Button("Submit", form, "commit");
+	protected Button submitButton = new Button("Submit");
 	private ClassSelector classSelector = null;	 
 	protected MarinaParamBean bean = null;
 	private BeanItem<MarinaParamBean> item = null;
@@ -127,8 +131,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		//TODO: allow network to be loaded from adjacency matrix data node
 		upload = new Upload("Upload Network File", this);
 		upload.setButtonCaption("Upload");
-		upload.addListener((Upload.SucceededListener)this);
-        upload.addListener((Upload.FailedListener)this);
+		upload.addSucceededListener((Upload.SucceededListener)this);
+        upload.addFailedListener((Upload.FailedListener)this);
 		form.getLayout().addComponent(upload);
 
 		bean = new MarinaParamBean();
@@ -167,10 +171,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getField("retrievePriorResultWithId").setEnabled(false);
 
 		priorBox.setImmediate(true);
-		priorBox.addListener(new Button.ClickListener() {
+		priorBox.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -5548846734511323624L;
-			public void buttonClick(ClickEvent event) {
-				if (priorBox.booleanValue()){
+			public void valueChange(ValueChangeEvent event) {
+				if (priorBox.getValue()){
 					for (String item : order)
 						form.getField(item).setEnabled(false);
 					upload.setEnabled(false);
@@ -197,7 +201,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getLayout().addComponent(priorBox);
 
 		submitButton.setEnabled(false);
-		submitButton.addListener(new Button.ClickListener(){
+		submitButton.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1085633263164082701L;
 
 			@Override
@@ -205,13 +209,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			    String warnMsg = validInputClassData(classSelector.getClass1ArraySet(), classSelector.getClass2ArraySet());
 				if( warnMsg != null ) 
 				{ 
-					MessageBox mb = new MessageBox(getWindow(), 
-				 
+					MessageBox.showPlain(
+						Icon.INFO,
 						"Warning", 
-						MessageBox.Icon.INFO, 
 						warnMsg,
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				    mb.show();
+						ButtonId.OK);
 				    return;
 				}
 					
@@ -285,10 +287,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getField("network").setEnabled(false);
 		submitButton.setEnabled(false);
 		if (msg != null){
-			MessageBox mb = new MessageBox(getWindow(), 
-					"Network Problem", MessageBox.Icon.ERROR, msg, 
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.showPlain(Icon.ERROR,
+					"Network Problem", msg, 
+					ButtonId.OK);
 		}
 	}
 
@@ -558,7 +559,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 		Button continueButton = new Button("Continue");
 		Button cancelButton = new Button("Cancel");
-		formatBox.addListener(new Property.ValueChangeListener(){
+		formatBox.addValueChangeListener(new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -7717934520937460169L;
 			public void valueChange(ValueChangeEvent event) {
 				if (formatBox.getValue().toString().equals(
@@ -591,12 +592,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		else
 			formatBox.setValue(AdjacencyMatrixDataSet.ADJ_FORMART);
 
-		continueButton.addListener(new ClickListener(){
+		continueButton.addClickListener(new ClickListener(){
 			private static final long serialVersionUID = -5207079864397027215L;
 			public void buttonClick(ClickEvent event) {
 				selectedFormat = formatBox.getValue().toString();
 				selectedRepresentedBy = presentBox.getValue().toString();
-				getApplication().getMainWindow().removeWindow(loadDialog);
+				UI.getCurrent().removeWindow(loadDialog);
 
 				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !bean.getNetwork().toLowerCase().endsWith(".sif"))
 						|| (bean.getNetwork().toLowerCase().endsWith(".sif") && !selectedFormat
@@ -611,13 +612,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}
 				
 				if (allpos && bean.getGseaTailNumber()==2){
-					MessageBox mb = new MessageBox(
-							getWindow(),
+					MessageBox.showPlain(
+							Icon.WARN,
 							"Warning",
-							MessageBox.Icon.WARN,
 							"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
 					bean.setGseaTailNumber(1);
 					item.getItemProperty("gseaTailNumber").setValue(1);
 				}
@@ -638,10 +637,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 			}
 		});
-		cancelButton.addListener(new ClickListener(){
+		cancelButton.addClickListener(new ClickListener(){
 			private static final long serialVersionUID = 1940630593562212467L;
 			public void buttonClick(ClickEvent event) {
-				getApplication().getMainWindow().removeWindow(loadDialog);
+				UI.getCurrent().removeWindow(loadDialog);
 				networkNotLoaded(null);
 			}
 		});
@@ -656,11 +655,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		loadform.getLayout().addComponent(presentBox);
 		loadform.getFooter().addComponent(bar);
 
-		loadDialog.addComponent(loadform);
+		loadDialog.setContent(LayoutUtil.addComponent(loadform));
 		loadDialog.setWidth("340px");
 		loadDialog.setModal(true);
 		loadDialog.setVisible(true);
-		getApplication().getMainWindow().addWindow(loadDialog);
+		UI.getCurrent().addWindow(loadDialog);
 	}
 	
 	public class PositiveIntValidator extends IntegerValidator {

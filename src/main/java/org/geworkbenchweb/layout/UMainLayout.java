@@ -16,16 +16,16 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
-import org.vaadin.artur.icepush.ICEPush;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -33,12 +33,13 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
@@ -61,7 +62,7 @@ public class UMainLayout extends VerticalLayout {
 	static private ThemeResource openSetIcon	=	new ThemeResource("../custom/icons/open_set.png");
 	static private ThemeResource saveSetIcon	=	new ThemeResource("../custom/icons/save_set.png");
 
-	final private SplitPanel mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
+	final private HorizontalSplitPanel mainSplit = new HorizontalSplitPanel();
 
 	final private VisualPluginView pluginView = new VisualPluginView();
 
@@ -69,8 +70,6 @@ public class UMainLayout extends VerticalLayout {
 			
 	final private CssLayout leftMainLayout = new CssLayout();
 
-	final private ICEPush pusher = GeworkbenchRoot.getPusher();
-	
 	final private MenuBar toolBar = new MenuBar();
  
 	final private DataAnnotationPanel annotationPanel = new DataAnnotationPanel();;
@@ -95,10 +94,6 @@ public class UMainLayout extends VerticalLayout {
 	
 	private Long dataSetId;
 	
-	public void push() {
-		pusher.push();
-	}
-	
 	public UMainLayout() {
 
 		/* Add listeners here */
@@ -113,8 +108,6 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		setImmediate(true);
 		
-		addComponent(pusher);
-
 		HorizontalLayout topBar 		= 	new HorizontalLayout();
 		
 		addComponent(topBar);
@@ -149,7 +142,7 @@ public class UMainLayout extends VerticalLayout {
 		openSetButton.setVisible(false);
 		saveSetButton.setVisible(false);
 		
-		annotButton.addListener(new Button.ClickListener() {
+		annotButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -176,10 +169,10 @@ public class UMainLayout extends VerticalLayout {
 		workspaceViewMenuItem.setEnabled(false);
 		
 		/* Deletes the data set and its dependencies from DB */
-		removeButton.addListener(new RemoveButtonListener(this));
+		removeButton.addClickListener(new RemoveButtonListener(this));
 
 		/* Deletes selected subset from the datatree. */
-		removeSetButton.addListener(new Button.ClickListener() {
+		removeSetButton.addClickListener(new Button.ClickListener() {
 		
 			private static final long serialVersionUID = 1L;
 
@@ -190,7 +183,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		openSetButton.addListener(new Button.ClickListener() {
+		openSetButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -198,7 +191,7 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		saveSetButton.addListener(new Button.ClickListener() {
+		saveSetButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -229,13 +222,13 @@ public class UMainLayout extends VerticalLayout {
 		
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
-		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		navigationTree.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
 		 
 	
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
-		mainSplit.setSplitPosition(275, SplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(275, Unit.PIXELS);
 		mainSplit.setSecondComponent(pluginView);
 
 		HorizontalLayout quicknav = new HorizontalLayout();
@@ -250,7 +243,7 @@ public class UMainLayout extends VerticalLayout {
 		
 		pluginView.showToolList();
 
-		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
+		AnalysisListener analysisListener = new AnalysisListener(this);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 	} // end of the constructor.
 
@@ -288,9 +281,13 @@ public class UMainLayout extends VerticalLayout {
 		pluginView.showToolList();
 	}
 	
-	public void removeItem(Long itemId) {
-		navigationTree.removeItem(itemId);
-		pusher.push();
+	public void removeItem(final Long itemId) {
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				navigationTree.removeItem(itemId);
+			}
+		});
 	}
 	
 	/**
@@ -304,7 +301,7 @@ public class UMainLayout extends VerticalLayout {
 		tree.setContainerDataSource(getDataContainer());
 		tree.setSelectable(true);
 		tree.setMultiSelect(false);
-		tree.addListener(new Tree.ValueChangeListener() {
+		tree.addValueChangeListener(new Tree.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -387,7 +384,7 @@ public class UMainLayout extends VerticalLayout {
 		b.setStyleName("tree-switch");
 		b.addStyleName("down");
 		b.setDescription("Toggle sample tree visibility");
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
@@ -398,13 +395,13 @@ public class UMainLayout extends VerticalLayout {
 					mainSplit.setLocked(true);
 				} else {
 					b.addStyleName("down");
-					mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
+					mainSplit.setSplitPosition(250, Unit.PIXELS);
 					mainSplit.setLocked(false);
 					navigationTree.setVisible(true);
 				}
 			}
 		});
-		mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(250, Unit.PIXELS);
 		return b;
 	}
 

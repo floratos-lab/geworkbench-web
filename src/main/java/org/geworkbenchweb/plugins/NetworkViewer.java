@@ -19,8 +19,10 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
 
 /* this used to be AracneResultsUI, but is in fact used by both ARACNe result and CNKB result. */
 public class NetworkViewer extends VerticalLayout implements Visualizer {
@@ -86,23 +88,21 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 					+ edgeNumber
 					+ " edges, which may be too large to display in Cytoscape. \nAn alternate, text view is available instead.";
 
-			MessageBox mb = new MessageBox(getWindow(), "Warning", null,
-					theMessage, new MessageBox.ButtonConfig(
-							MessageBox.ButtonType.CUSTOM1, "View as text"),
-					new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
-							"View in Cytoscape"));
-			mb.show(new MessageBox.EventListener() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void buttonClicked(ButtonType buttonType) {
-					if (buttonType == ButtonType.CUSTOM1)  
-						viewAsText();					    
-					else 
-						viewAsCytoscape();
-				}
-			});
+			MessageBox mb = MessageBox.showPlain(Icon.WARN, "Warning",
+					theMessage,
+					new MessageBoxListener() {
+						@Override
+						public void buttonClicked(ButtonId buttonId) {
+							if (buttonId == ButtonId.CUSTOM_1)  
+								viewAsText();					    
+							else 
+								viewAsCytoscape();
+						}
+					},
+					ButtonId.CUSTOM_1,
+					ButtonId.CUSTOM_2);
+			mb.getButton(ButtonId.CUSTOM_1).setCaption("View as text");
+			mb.getButton(ButtonId.CUSTOM_2).setCaption("View in Cytoscape");
 		} else
 		{
 			viewAsCytoscape();

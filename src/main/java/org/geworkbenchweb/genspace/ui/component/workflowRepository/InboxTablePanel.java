@@ -7,13 +7,14 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class InboxTablePanel extends VerticalLayout implements Button.ClickListener{
@@ -34,7 +35,6 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 	private Button deleteButton = new Button("Delete");
 	private Button refreshButton = new Button("Refresh");
 	private GenSpaceLogin_1 login;
-	private ICEPush pusher = new ICEPush();
 	
 	public InboxTablePanel() {
 		getModel().addContainerProperty(NAME, String.class, null);
@@ -54,11 +54,9 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		this.setSpacing(true);
 		this.addComponent(hLayout);
 		
-		this.addComponent(this.pusher);
-		
-		addButton.addListener(this);
-		deleteButton.addListener(this);
-		refreshButton.addListener(this); 
+		addButton.addClickListener(this);
+		deleteButton.addClickListener(this);
+		refreshButton.addClickListener(this); 
 	}
 	
 	public void setData(List<IncomingWorkflow> list) {
@@ -97,41 +95,43 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 		}
 	}
 	
-	public void buttonClick(Button.ClickEvent evt) {
-		String bCaption = evt.getButton().getCaption();	
-		if (bCaption.equals("Refresh")) {		
-			this.refreshInbox();
-		}else{	
-			Object idxTmp = table.getValue();
-			if (idxTmp == null || this.iwfList.size() == 0) {
-				if(this.iwfList.size() == 0){
-					getApplication().getMainWindow().showNotification("There is no workflow received!");
-				}else{
-					getApplication().getMainWindow().showNotification("Please select a workflow!");
+	public void buttonClick(final Button.ClickEvent evt) {
+		UI.getCurrent().access(new Runnable(){
+			@Override
+			public void run(){
+				String bCaption = evt.getButton().getCaption();	
+				if (bCaption.equals("Refresh")) {		
+					InboxTablePanel.this.refreshInbox();
+				}else{	
+					Object idxTmp = table.getValue();
+					if (idxTmp == null || InboxTablePanel.this.iwfList.size() == 0) {
+						if(InboxTablePanel.this.iwfList.size() == 0){
+							Notification.show("There is no workflow received!");
+						}else{
+							Notification.show("Please select a workflow!");
+						}
+						return ;
+					}
+					System.out.println(bCaption);
+					if (bCaption.equals("Delete")) {
+						int idx = Integer.parseInt(idxTmp.toString());
+						IncomingWorkflow tmp = InboxTablePanel.this.iwfList.get(idx);
+						InboxTablePanel.this.removeFromInbox(tmp);
+					} else if (bCaption.equals("Add")) {
+						int idx = Integer.parseInt(idxTmp.toString());
+						IncomingWorkflow tmp = InboxTablePanel.this.iwfList.get(idx);
+						UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
+						InboxTablePanel.this.workflowRepository.updateFormFieldsBG();
+					
+						if (ret != null) {
+							workflowRepository.getRepositoryPanel().recalculateAndReload();
+							removeFromInbox(tmp);
+						}
+						idxTmp = null;
+					}
 				}
-				return ;
 			}
-			System.out.println(bCaption);
-			if (bCaption.equals("Delete")) {
-				int idx = Integer.parseInt(idxTmp.toString());
-				IncomingWorkflow tmp = this.iwfList.get(idx);
-				this.removeFromInbox(tmp);
-			} else if (bCaption.equals("Add")) {
-				int idx = Integer.parseInt(idxTmp.toString());
-				IncomingWorkflow tmp = this.iwfList.get(idx);
-				UserWorkflow ret = login.getGenSpaceServerFactory().getWorkflowOps().addToRepository(tmp.getId());
-				this.workflowRepository.updateFormFieldsBG();
-			
-				if (ret != null) {
-					workflowRepository.getRepositoryPanel().recalculateAndReload();
-					removeFromInbox(tmp);
-				}
-				idxTmp = null;
-			}
-		}
-		this.addComponent(pusher);
-		pusher.push();
-		//login.getPusher().push();
+		});
 	}
 	
 	private void refreshInbox() {

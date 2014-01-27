@@ -8,8 +8,6 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -20,44 +18,43 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.github.wolfie.blackboard.Blackboard;
-import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext.TransactionListener;
-import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
+import com.vaadin.annotations.PreserveOnRefresh;
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * This is the application entry point.
  * @author Nikhil Reddy
  * @version $Id$
  */
-public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
+@Theme("geworkbench")
+@PreserveOnRefresh
+public class GeworkbenchRoot extends UI {
 	
 	private static final long serialVersionUID = 6853924772669700361L;
 	
-	private static ThreadLocal<PluginRegistry> pluginRegistry		= 	new ThreadLocal<PluginRegistry>();
-	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
-	private static ThreadLocal<ICEPush> PUSHER 						= 	new ThreadLocal<ICEPush>();
-	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
-	
 	private final Blackboard blackboardInstance 		= 	new Blackboard();
-	private final ICEPush pusherInstance 				=	new ICEPush();
 	
 	private static final String APP_THEME_NAME 			= 	"geworkbench";
 	private static final String PROPERTIES_FILE 		= 	"application.properties";
     private static String APP_URL 						= 	null;
 	
 	private static Properties prop = new Properties();
+	private static final String ATTR_REGISTRY			=	"attributePluginRegistry";
+	private static final String ATTR_BLACKBOARD			=	"attributeBlackboard";
 	
 	@Override
-	public void init() {
+	public void init(VaadinRequest request) {
 		
-		Window mainWindow 	= 	new Window("geWorkbench");
+		VerticalLayout mainWindow = new VerticalLayout();
 		mainWindow.setSizeFull();
-		setMainWindow(mainWindow);
+		setContent(mainWindow);
 		
 		try {
 			prop.load(getClass().getResourceAsStream(
@@ -95,21 +92,18 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			return;
 		}
 		 
-		getContext().addTransactionListener(this);
-		BLACKBOARD.set(blackboardInstance);
-		PUSHER.set(pusherInstance);
-		
-		setTheme(APP_THEME_NAME);
+		initBlackboard();
+
 		SessionHandler.initialize(this);
 		
 		registerAllEventsForApplication();
 		
 		User user 	= 	SessionHandler.get();
 		if (user != null) {
-			mainWindow.setContent(new UMainLayout());
+			mainWindow.addComponent(new UMainLayout());
 		} else {
 			UUserAuth auth = new UUserAuth(); 
-			mainWindow.setContent(auth);
+			mainWindow.addComponent(auth);
 		}
 	}
 	
@@ -129,33 +123,23 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
         return "/VAADIN/themes/" + APP_THEME_NAME + "/";
     }
 		
-	@Override
-	public void transactionStart(Application application, Object transactionData) {
-		if (application == GeworkbenchRoot.this) {
-			BLACKBOARD.set(blackboardInstance);
-			PUSHER.set(pusherInstance);
-			currentApplication.set(this);
-		}
-	}
+    private void initBlackboard(){
+    	if(GeworkbenchRoot.getBlackboard() == null){
+    		 try{
+    			 VaadinSession.getCurrent().getLockInstance().lock();
+    			 VaadinSession.getCurrent().setAttribute(ATTR_BLACKBOARD, blackboardInstance);
+    		 }finally{
+    			 VaadinSession.getCurrent().getLockInstance().unlock();
+    		 }
+    	}
+    }
 
-	@Override
-	public void transactionEnd(Application application, Object transactionData) {
-		if (application == GeworkbenchRoot.this) {
-			// to avoid keeping an Application hanging, and mitigate the 
-			// possibility of user session crosstalk
-			BLACKBOARD.set(null);
-			PUSHER.set(null);
-			currentApplication.set(null);
-            currentApplication.remove();
-		}
-	}
-	
-	/**
+    /**
 	 * Method supplies Application Instance 
 	 * @return Current Application Instance
 	 */
 	public static GeworkbenchRoot getInstance() {
-        return currentApplication.get();
+        return (GeworkbenchRoot)UI.getCurrent();
     }
 	
 	/**
@@ -163,17 +147,10 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	 * @return Blackboard Instance for the application
 	 */
 	public static Blackboard getBlackboard() {
-		return BLACKBOARD.get();
+		Object value = VaadinSession.getCurrent().getAttribute(ATTR_BLACKBOARD);
+		return value == null ? null : (Blackboard)value;
 	}
 	
-	/**
-	 * Method supplies Pusher instance to the entire Application
-	 * @return Pusher Instance for the application
-	 */
-	public static ICEPush getPusher() {
-		return PUSHER.get();
-	}
-
 	/**
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
@@ -190,16 +167,22 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 
 	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
-		PluginRegistry pr = pluginRegistry.get();
-		if(pr==null) {
-			pr = new PluginRegistry();
+		Object value = VaadinSession.getCurrent().getAttribute(ATTR_REGISTRY);
+		if(value != null) return (PluginRegistry)value;
+		else {
+			PluginRegistry pr = new PluginRegistry();
 			pr.init();
-			pluginRegistry.set(pr);
+			try{
+				VaadinSession.getCurrent().getLockInstance().lock();
+				VaadinSession.getCurrent().setAttribute(ATTR_REGISTRY, pr);
+			}finally{
+				VaadinSession.getCurrent().getLockInstance().unlock();
+			}
+			return pr;
 		}
-		return pr;
 	}
 
-	@Override
+/*	@Override
 	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
 		if (request != null) {
 			String requestURL= request.getRequestURL().toString();
@@ -216,7 +199,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 
 	@Override
 	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {}
-
+*/
 	/* it is a little better than passing over a private member directly */
 	public static String getAppProperty(String serviceUrlProperty) {
 		return prop.getProperty(serviceUrlProperty);

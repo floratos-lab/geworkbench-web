@@ -6,27 +6,22 @@ import java.util.List;
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
-import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.data.Item;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceTab, ItemClickListener {
@@ -81,19 +76,19 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		gridLayout.addComponent(graphPanel, 1, 0);
 		gridLayout.addComponent(tabSheet, 1, 1);
 
-		repositoryPanel.addListener(this);
+		repositoryPanel.addItemClickListener(this);
 		graphPanel.setSizeFull();
 		graphPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		rootRepoPanel.setSizeFull();
 		rootRepoPanel.setHeight("320px");
-		rootRepoPanel.addComponent(repositoryPanel);
+		rootRepoPanel.setContent(LayoutUtil.addComponent(repositoryPanel));
 		//compRepoPanel.addComponent(repositoryPanel);
 		compRepoPanel.setSpacing(true);
 		compRepoPanel.addComponent(rootRepoPanel);
 		compRepoPanel.addComponent(delete);
 		compRepoPanel.setSizeFull();
 		compRepoPanel.setStyleName(Reindeer.PANEL_LIGHT);
-		delete.addListener(new Button.ClickListener() {
+		delete.addClickListener(new Button.ClickListener() {
 			/**
 			 * 
 			 */
@@ -113,7 +108,7 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 				repositoryPanel.recalculateAndReload();
 				workflowDetailsPanel.clear();
 				workflowCommentsPanel.clear();
-				graphPanel.removeAllComponents();
+				graphPanel.setContent(null);
 				repositoryPanel.setCurWorkFlow(null);
 			}
 		});
@@ -129,7 +124,7 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		//jSplitPane2.setSplitPosition(70, Sizeable.UNITS_PERCENTAGE);
 		//jSplitPane3.setSplitPosition(50, Sizeable.UNITS_PERCENTAGE);
 		
-		mainLayout.addComponent(infoLabel);
+		mainLayout.setContent(LayoutUtil.addComponent(infoLabel));
 		mainLayout.setSizeFull();
 		return mainLayout;
 	}
@@ -142,8 +137,8 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 	
 	@Override
 	public void loggedIn() {
-		mainLayout.removeAllComponents();
-		mainLayout.addComponent(gridLayout);
+		mainLayout.setContent(null);
+		mainLayout.setContent(gridLayout);
 		updateFormFieldsBG();
 	}
 
@@ -152,14 +147,14 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		//Set null for current workflow, once user login again and objects still exist.
 		repositoryPanel.getContainer().removeAllItems();
 		repositoryPanel.setCurWorkFlow(null);
-		graphPanel.removeAllComponents();
+		graphPanel.setContent(null);
 
 		workflowCommentsPanel.getModel().removeAllItems();
 		workflowCommentsPanel.setWorkflow(null);
 		workflowDetailsPanel.removeAllComponents();
 		inboxTable.getModel().removeAllItems();
-		mainLayout.removeAllComponents();
-		mainLayout.addComponent(infoLabel);
+		mainLayout.setContent(null);
+		mainLayout.setContent(LayoutUtil.addComponent(infoLabel));
 	}
 
 	public void updateFormFieldsBG() {

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowTool;

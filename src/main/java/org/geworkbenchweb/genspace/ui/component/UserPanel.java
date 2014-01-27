@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.utils.LayoutUtil;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -28,14 +29,13 @@ public class UserPanel extends Panel{
 		this.userPanelTitle = userPanelTitle;
 		this.forListener = forListener;
 		
-		this.setScrollable(true);
 		this.setWidth("800px");
 		this.makeLayout();
 	}
 	
 	public void makeLayout() {
 		VerticalLayout vLayout = new VerticalLayout();
-		this.addComponent(vLayout);
+		this.setContent(vLayout);
 		
 		List<String> paramList = new ArrayList<String>();
 		Panel uPanel;
@@ -100,7 +100,7 @@ public class UserPanel extends Panel{
 		Iterator<String> pIT = panelContent.iterator();
 		while(pIT.hasNext()){
 			Label label = new Label(pIT.next());
-			panel.addComponent(label);
+			panel.setContent(LayoutUtil.addComponent(label));
 		}
 		return panel;
 	}

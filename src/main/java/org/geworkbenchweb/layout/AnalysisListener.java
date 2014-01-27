@@ -13,10 +13,13 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.artur.icepush.ICEPush;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import com.vaadin.ui.UI;
+
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
 
 /**
  * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
@@ -26,14 +29,12 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 	private final UMainLayout uMainLayout;
-	private final ICEPush pusher;
 
 	/**
 	 * @param uMainLayout
 	 */
-	AnalysisListener(UMainLayout uMainLayout, ICEPush pusher) {
+	AnalysisListener(UMainLayout uMainLayout) {
 		this.uMainLayout = uMainLayout;
-		this.pusher = pusher;
 	}
 
 	@Override
@@ -44,6 +45,14 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 		Thread analysisThread = new Thread() {
 			@Override
 			public void run() {
+				UI.getCurrent().access(new Runnable(){
+					@Override
+					public void run(){
+						runInAccess();
+					}
+				});
+			}
+			public void runInAccess(){
 				Long resultId = event.getResultSet().getId();
 				HashMap<Serializable, Serializable> params = event.getParameters();
 
@@ -53,20 +62,14 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					resultName = analysisUI.execute(resultId, event.getDatasetId(), params, userId);
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.showPlain(Icon.ERROR, "Analysis Problem", msg, ButtonId.OK);
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
 				} catch (IOException e) {
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.showPlain(Icon.ERROR, "Analysis Problem", msg, ButtonId.OK);
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
@@ -93,25 +96,18 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				resultSet.setName(resultName);
 				FacadeFactory.getFacade().store(resultSet);
 				
-				synchronized(uMainLayout.getApplication()) {
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Completed", 
-							MessageBox.Icon.INFO, 
-							"Analysis you submitted is now completed. " +
-									"Click on the node to see the results",  
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show(new MessageBox.EventListener() {
-						private static final long serialVersionUID = 1L;
-						@Override
-						public void buttonClicked(ButtonType buttonType) {    	
-							if(buttonType == ButtonType.OK) {
-								NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-								GeworkbenchRoot.getBlackboard().fire(resultEvent);
+				MessageBox.showPlain(Icon.INFO, "Analysis Completed",
+						"Analysis you submitted is now completed. "
+								+ "Click on the node to see the results",
+						new MessageBoxListener() {
+							@Override
+							public void buttonClicked(ButtonId buttonId) {
+								if (buttonId == ButtonId.OK) {
+									NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
+									GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								}
 							}
-						}
-					});	
-				}
-				pusher.push();
+						}, ButtonId.OK);
 			}
 		};
 		analysisThread.start();

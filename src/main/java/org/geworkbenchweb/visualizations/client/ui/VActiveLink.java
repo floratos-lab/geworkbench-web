@@ -5,9 +5,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.MouseListener;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.ui.VLink;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.UIDL;
+import com.vaadin.client.ui.VLink;
 
 @SuppressWarnings("deprecation")
 public class VActiveLink extends VLink {
@@ -72,7 +72,7 @@ public class VActiveLink extends VLink {
         }
     }
 
-    @Override
+    //@Override
     public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
         // Ensure correct implementation,
         // but don't let container manage caption etc.
@@ -84,8 +84,6 @@ public class VActiveLink extends VLink {
         this.client = client;
         id = uidl.getId();
         listening = uidl.hasVariable("activated");
-
-        super.updateFromUIDL(uidl, client);
     }
 
 }

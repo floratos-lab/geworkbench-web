@@ -31,7 +31,7 @@
 	color: #000;
 	background : transparent;
 	text-decoration: none;
-	display: block;
+	display: inline-block;
 	margin: 0;
 	-webkit-border-radius: 1.6em;
 	-moz-border-radius: 1.6em;

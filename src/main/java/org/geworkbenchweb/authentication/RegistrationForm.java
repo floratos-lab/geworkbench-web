@@ -17,7 +17,7 @@ import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -29,12 +29,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-import de.steinwedel.vaadin.MessageBox.Icon;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
 
 /**
  * @author zji
@@ -132,7 +134,7 @@ public class RegistrationForm extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				getApplication().close();
+				 UI.getCurrent().close();
 			}
 		});
 		registerButton.setClickShortcut(KeyCode.ENTER);
@@ -142,7 +144,7 @@ public class RegistrationForm extends VerticalLayout {
 		group.addComponent(backLogin);
 		group.addComponent(registerButton);
 		layout.addComponent(group);
-		registrationPanel.addComponent(layout);
+		registrationPanel.setContent(layout);
 
 		this.setSizeFull();
 		this.addComponent(image);
@@ -184,18 +186,15 @@ public class RegistrationForm extends VerticalLayout {
 		Icon dialogIcon = Icon.INFO;
 		String message = "Welcome, " + user.getName() + "(" + username
 				+ ")!\nYou have successfully registered.";
+		ButtonId buttonType = ButtonId.OK;
 
-		MessageBox mb = new MessageBox(getWindow(), dialogCaption, dialogIcon,
-				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-						"Back to Log-in"));
-		mb.show(new MessageBox.EventListener() {
-
-			private static final long serialVersionUID = -8489356760651132447L;
-
-			@Override
-			public void buttonClicked(ButtonType buttonType) {
-				getApplication().close();
-			}
-		});
+		MessageBox mb = MessageBox.showPlain(dialogIcon, dialogCaption, message,
+				new MessageBoxListener() {
+					@Override
+					public void buttonClicked(ButtonId buttonType) {
+						UI.getCurrent().close();
+					}
+				}, buttonType);
+		mb.getButton(buttonType).setCaption("Back to Log-in");
 	}
 }

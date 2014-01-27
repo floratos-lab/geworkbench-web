@@ -75,7 +75,7 @@ public class ClassSelector extends FormLayout{
 		tf2.setEnabled(false);
 		
 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 
@@ -133,7 +133,7 @@ public class ClassSelector extends FormLayout{
 		
  
 
-		class1ArraySelect.addListener( new Property.ValueChangeListener(){
+		class1ArraySelect.addValueChangeListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -3667564667049184754L;
 			public void valueChange(ValueChangeEvent event) {
 				String class1Arrays = getClassArrays(getClass1ArraySet());
@@ -149,7 +149,7 @@ public class ClassSelector extends FormLayout{
 				}
 			}
 		});
-		class2ArraySelect.addListener( new Property.ValueChangeListener(){
+		class2ArraySelect.addValueChangeListener( new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -5177825730266428335L;
 			public void valueChange(ValueChangeEvent event) {
 				String class2Arrays = getClassArrays(getClass2ArraySet());

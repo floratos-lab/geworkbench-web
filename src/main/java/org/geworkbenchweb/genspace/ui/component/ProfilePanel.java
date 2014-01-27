@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.utils.LayoutUtil;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.ui.Button;
@@ -124,11 +125,11 @@ public class ProfilePanel extends SocialPanel{
 		
 	public void createProfileForm() {
 		if(this.profilePanel != null)
-			this.profilePanel.removeAllComponents();
+			this.profilePanel.setContent(null);
 		
 		if(!login.getGenSpaceServerFactory().isLoggedIn()) {
 			Label unloggedLabel = new Label(this.unLogged);
-			this.profilePanel.addComponent(unloggedLabel);
+			this.profilePanel.setContent(LayoutUtil.addComponent(unloggedLabel));
 			this.bLayout.addComponent(profilePanel, BorderLayout.Constraint.CENTER);
 			return ;
 		}
@@ -176,7 +177,7 @@ public class ProfilePanel extends SocialPanel{
 			jobTitleField.setValue(jobString);
 		
 		Button saveButton = new Button(saveString);
-		saveButton.addListener(new ClickListener(){
+		saveButton.addClickListener(new ClickListener(){
 			/**
 			 * 
 			 */
@@ -213,7 +214,7 @@ public class ProfilePanel extends SocialPanel{
 		profileForm.getLayout().addComponent(postCodeField);
 		profileForm.getLayout().addComponent(researchArea);
 		profileForm.getLayout().addComponent(saveButton);
-		profilePanel.addComponent(profileForm);
+		profilePanel.setContent(LayoutUtil.addComponent(profileForm));
 		
 		bLayout.addComponent(profilePanel, BorderLayout.Constraint.CENTER);
 	}

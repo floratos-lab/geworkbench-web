@@ -29,23 +29,25 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.ui.AbstractSelect.Filtering;
+import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
+import de.steinwedel.messagebox.MessageBoxListener;
 
 @SuppressWarnings("deprecation")
 public class UploadDataUI extends VerticalLayout {
@@ -92,7 +94,7 @@ public class UploadDataUI extends VerticalLayout {
 			fileCombo.addItem(loader);
 		}
 
-		fileCombo.addListener(new Property.ValueChangeListener() {
+		fileCombo.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 8744518843208040408L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -113,7 +115,7 @@ public class UploadDataUI extends VerticalLayout {
 			}
 		});
 
-		fileCombo.setFilteringMode(Filtering.FILTERINGMODE_OFF);
+		fileCombo.setFilteringMode(FilteringMode.OFF);
 		fileCombo.setImmediate(true);
 		fileCombo.setRequired(true);
 		fileCombo.setNullSelectionAllowed(false);
@@ -126,7 +128,7 @@ public class UploadDataUI extends VerticalLayout {
         
         Button cancelUpload = new Button("Cancel");
         cancelUpload.setStyleName("small");
-        cancelUpload.addListener(new Button.ClickListener() {
+        cancelUpload.addClickListener(new Button.ClickListener() {
         	private static final long serialVersionUID = 1L;
             public void buttonClick(ClickEvent event) {
                 uploadField.interruptUpload();
@@ -140,10 +142,10 @@ public class UploadDataUI extends VerticalLayout {
 
 		annotChoices = new Tree("Choose annotation");
 		annotChoices.setNullSelectionAllowed(false);
-		annotChoices.setWidth(220, 0);
+		annotChoices.setWidth(220, Unit.PIXELS);
 		annotChoices.setVisible(false);
 		annotChoices.setImmediate(true);
-		annotChoices.addListener(new ItemClickListener(){
+		annotChoices.addItemClickListener(new ItemClickListener(){
 			private static final long serialVersionUID = 8744518843208040408L;
 
 			public void itemClick(ItemClickEvent event) {
@@ -171,7 +173,7 @@ public class UploadDataUI extends VerticalLayout {
 		atypes.add(AnnotationType.values()[1]);
 		annotTypes = new ComboBox("Choose annotation file type", atypes);
 		annotTypes.setNullSelectionAllowed(false);
-		annotTypes.setWidth(200, 0);
+		annotTypes.setWidth(200, Unit.PIXELS);
 		annotTypes.setValue(AnnotationType.values()[0]);
 		annotTypes.setVisible(false);
 
@@ -181,7 +183,7 @@ public class UploadDataUI extends VerticalLayout {
 
 		Button annotCancelUpload = new Button("Cancel");
 		annotCancelUpload.setStyleName("small");
-        annotCancelUpload.addListener(new Button.ClickListener() {
+        annotCancelUpload.addClickListener(new Button.ClickListener() {
         	private static final long serialVersionUID = 1L;
             public void buttonClick(ClickEvent event) {
                 annotUploadField.interruptUpload();
@@ -198,7 +200,7 @@ public class UploadDataUI extends VerticalLayout {
 		addComponent(fileUploadStatus);
 		addComponent(uploadField);
 		addComponent(pLayout);
-		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
+		addComponent(new Label("<hr/>", ContentMode.HTML));
 		HorizontalLayout annoLayout = new HorizontalLayout();
 		annoLayout.addComponent(annotChoices);
 		VerticalLayout uploadLayout = new VerticalLayout();
@@ -210,7 +212,7 @@ public class UploadDataUI extends VerticalLayout {
 		annoLayout.addComponent(uploadLayout);
 		addComponent(annoLayout);
 		uploadButton.setEnabled(false);
-		uploadButton.addListener(new UploadButtonListener());
+		uploadButton.addClickListener(new UploadButtonListener());
 		HorizontalLayout btnLayout = new HorizontalLayout();
 		btnLayout.setSpacing(true);
 		btnLayout.addComponent(uploadButton);
@@ -228,15 +230,18 @@ public class UploadDataUI extends VerticalLayout {
 	 * @return
 	 */
 	void enableUMainLayout(boolean enabled){
-		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
-		while(it.hasNext()){
-			Component c = it.next();
-			if(c instanceof SplitPanel){
-				SplitPanel sp = (SplitPanel)c;
-				sp.getFirstComponent().setEnabled(enabled);
-			}else c.setEnabled(enabled);
-		}
-		uploadButton.setEnabled(!enabled);
+		Component maincomp = UI.getCurrent().getContent();
+		if(maincomp instanceof UMainLayout){
+			Iterator<Component> it = ((UMainLayout) maincomp).iterator();
+			while(it.hasNext()){
+				Component c = it.next();
+				if(c instanceof HorizontalSplitPanel){
+					HorizontalSplitPanel sp = (HorizontalSplitPanel)c;
+					sp.getFirstComponent().setEnabled(enabled);
+				}else c.setEnabled(enabled);
+			}
+			uploadButton.setEnabled(!enabled);
+		}	
 	}
 	
 	private void getAnnotChoices(){
@@ -301,22 +306,18 @@ public class UploadDataUI extends VerticalLayout {
 			
 			File dataFile = uploadField.getDataFile();
 			if (dataFile == null) {
-				MessageBox mb = new MessageBox(getWindow(), 
+				MessageBox.showPlain(Icon.ERROR, 
 						"Loading problem", 
-						MessageBox.Icon.ERROR, 
 						"Data file not loaded. No valid data file is chosen.",  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 				return;
 			}
 			
 			if (choice == Anno.DELETE){
-				MessageBox mb = new MessageBox(getWindow(), 
+				MessageBox.showPlain(Icon.ERROR,
 						"To be implemented", 
-						MessageBox.Icon.ERROR, 
 						"Operation not supported yet",  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 				return;
 			}
 			
@@ -324,12 +325,10 @@ public class UploadDataUI extends VerticalLayout {
 
 			if (choice == null){
 				if (loader instanceof LoaderUsingAnnotation){
-					MessageBox mb = new MessageBox(getWindow(), 
+					MessageBox.showPlain(Icon.ERROR,
 							"Loading problem", 
-							MessageBox.Icon.ERROR, 
 							"Annotation file not selected",  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+							ButtonId.OK);
 					return;
 				}
 			} else if (!(choice instanceof Anno)){
@@ -341,12 +340,10 @@ public class UploadDataUI extends VerticalLayout {
 					annotType = AnnotationType.values()[0];
 					annotFile = new File(GeworkbenchRoot.getPublicAnnotationDirectory(), annotFname);
 					if (!annotFile.exists()) {
-						MessageBox mb = new MessageBox(getWindow(), 
+						MessageBox.showPlain(Icon.ERROR,
 								"Loading problem", 
-								MessageBox.Icon.ERROR, 
 								"Annotation file not found on server",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();
+								ButtonId.OK);
 						return;
 					}
 				}
@@ -364,12 +361,10 @@ public class UploadDataUI extends VerticalLayout {
 			} else if (choice == Anno.NEW){
 				annotFile = annotUploadField.getDataFile();
 				if (annotFile == null) {
-					MessageBox mb = new MessageBox(getWindow(), 
+					MessageBox.showPlain(Icon.ERROR,
 							"Loading problem", 
-							MessageBox.Icon.ERROR, 
 							"Annotation file not loaded",  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();	
+							ButtonId.OK);	
 					return;
 				}
 				Map<String, Object> params = new HashMap<String, Object>();
@@ -419,7 +414,6 @@ public class UploadDataUI extends VerticalLayout {
 			final Loader loader, final Object choice, final User annotOwner,
 			final AnnotationType annotType, final File annotFile) {
 
-		final UMainLayout mainLayout = getMainLayout();
 		Thread uploadThread = new Thread() {
 				
 			@Override
@@ -433,35 +427,29 @@ public class UploadDataUI extends VerticalLayout {
 					}
 					loader.load(dataFile2, dataSet);
 				} catch (GeWorkbenchLoaderException e) {
-					MessageBox mb = new MessageBox(getWindow(), 
+					MessageBox.showPlain( 
+							Icon.ERROR,
 							"Loading problem", 
-							MessageBox.Icon.ERROR, 
 							e.getMessage(),  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					
+							ButtonId.OK);
+
 					rollbackFailedUpload(dataSet);
 					return;
 				}
 
-				synchronized(mainLayout.getApplication()) {
-						MessageBox mb = new MessageBox(mainLayout.getApplication().getMainWindow(),
+				MessageBox.showPlain(Icon.INFO, 
 								"Upload Completed", 
-								MessageBox.Icon.INFO, 
 								"Data upload is now completed. ",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show(new MessageBox.EventListener() {
-							private static final long serialVersionUID = 1L;
-							@Override
-							public void buttonClicked(ButtonType buttonType) {    	
-								if(buttonType == ButtonType.OK) {
-									NodeAddEvent resultEvent = new NodeAddEvent(dataSet);
-									GeworkbenchRoot.getBlackboard().fire(resultEvent);
-								}
-							}
-						});
-				}
-				mainLayout.push();
+								new MessageBoxListener() {
+									@Override
+									public void buttonClicked(ButtonId buttonId) {
+										if(buttonId == ButtonId.OK) {
+											NodeAddEvent resultEvent = new NodeAddEvent(dataSet);
+											GeworkbenchRoot.getBlackboard().fire(resultEvent);
+										}
+									}
+								},
+								ButtonId.OK);
 			}
 		};
 		// start processing in the background thread
@@ -470,8 +458,7 @@ public class UploadDataUI extends VerticalLayout {
 
 	// TODO this may not be the best design to get reference to the main layout
 	private UMainLayout getMainLayout() {
-		Window w = getApplication().getMainWindow();
-		ComponentContainer content = w.getContent();
+		Component content = UI.getCurrent().getContent();
 		if(content instanceof UMainLayout) {
 			return (UMainLayout)content;
 		} else {

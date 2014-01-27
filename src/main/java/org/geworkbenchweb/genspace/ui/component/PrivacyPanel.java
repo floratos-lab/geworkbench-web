@@ -1,7 +1,6 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,18 +8,15 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TwinColSelect;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class PrivacyPanel extends SocialPanel{
@@ -65,11 +61,7 @@ public class PrivacyPanel extends SocialPanel{
 	private BeanItemContainer<UserNetworkWrapper> networkContainer;
 	
 	private BorderLayout bLayout;
-	
-	private ICEPush pusher = new ICEPush();
-	
-	private HashMap<Object, Object> idMap = new HashMap<Object, Object>();
-	
+		
 	public PrivacyPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
@@ -98,7 +90,7 @@ public class PrivacyPanel extends SocialPanel{
 		this.privacyPanel = new Panel(this.panelTitle);
 		this.privacyPanel.setWidth("600px");
 		this.createMainLayout();
-		this.privacyPanel.addComponent(this.vLayout);
+		this.privacyPanel.setContent(this.vLayout);
 		this.bLayout.addComponent(privacyPanel, BorderLayout.Constraint.CENTER);
 	}
 	
@@ -106,7 +98,7 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void createMainLayout() {
 		this.vLayout = new VerticalLayout();
-		this.privacyPanel.addComponent(vLayout);
+		this.privacyPanel.setContent(vLayout);
 		
 		this.selectLabel = new Label(selectString);
 		vLayout.addComponent(selectLabel);
@@ -128,7 +120,6 @@ public class PrivacyPanel extends SocialPanel{
 		emptyLabel.setHeight("20px");
 		vLayout.addComponent(emptyLabel);
 		vLayout.addComponent(this.saveButton);
-		vLayout.addComponent(pusher);
 	}
 	
 	private void createFriendListSelect() {
@@ -167,7 +158,7 @@ public class PrivacyPanel extends SocialPanel{
 		//friendSelect.setRows(userContainer.size());
 		friendSelect.setMultiSelect(true);
 		friendSelect.setWidth("400px");
-		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
+		friendSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		friendSelect.setItemCaptionPropertyId("username");
 
 	}
@@ -199,7 +190,7 @@ public class PrivacyPanel extends SocialPanel{
 		networkSelect.setRightColumnCaption("Network that cannot see");
 		networkSelect.setMultiSelect(true);
 		networkSelect.setWidth("400px");
-		networkSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
+		networkSelect.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		networkSelect.setItemCaptionPropertyId("name");
 		
 		//setInitialNetworkSelectValue(visibleIDs);
@@ -215,51 +206,55 @@ public class PrivacyPanel extends SocialPanel{
 	
 	private void createVisibleButton(){
 		this.saveButton = new Button(save);
-		this.saveButton.addListener(new Button.ClickListener(){
+		this.saveButton.addClickListener(new Button.ClickListener(){
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
-				//resetVisibility();
-				Iterator nSelect = networkSelect.getItemIds().iterator();
-				Object nSelected;
-				while(nSelect.hasNext()) {
-					nSelected = nSelect.next();
-					if(networkSelect.isSelected(nSelected)) {
-						System.out.println("Network: false " + networkContainer.getItem(nSelected).getBean().getName());
-						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), false);
+				UI.getCurrent().access(new Runnable() {
+					@Override
+					public void run() {
+						//resetVisibility();
+						Iterator nSelect = networkSelect.getItemIds().iterator();
+						Object nSelected;
+						while(nSelect.hasNext()) {
+							nSelected = nSelect.next();
+							if(networkSelect.isSelected(nSelected)) {
+								System.out.println("Network: false " + networkContainer.getItem(nSelected).getBean().getName());
+								login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), false);
+								
+							} else {
+								System.out.println("Network: true  " + networkContainer.getItem(nSelected).getBean().getName());
+								login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
 						
-					} else {
-						System.out.println("Network: true  " + networkContainer.getItem(nSelected).getBean().getName());
-						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
-				
+							}
+						}
+						
+						Iterator fSelect = friendSelect.getItemIds().iterator();
+						
+						Object fSelected;
+						while(fSelect.hasNext()) {
+							fSelected = fSelect.next();
+							if(friendSelect.isSelected(fSelected)) {
+								System.out.println("friend: false " + userContainer.getItem(fSelected).getBean().getId());
+								login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
+								System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+								friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
+								createFriendListSelect();
+								System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+		
+							}else{
+								System.out.println("frined: true "+ userContainer.getItem(fSelected).getBean().getId());
+								login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
+								System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+		
+								friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
+								createFriendListSelect();
+								System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
+		
+							}
+						}
 					}
-				}
-				
-				Iterator fSelect = friendSelect.getItemIds().iterator();
-				
-				Object fSelected;
-				while(fSelect.hasNext()) {
-					fSelected = fSelect.next();
-					if(friendSelect.isSelected(fSelected)) {
-						System.out.println("friend: false " + userContainer.getItem(fSelected).getBean().getId());
-						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
-						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
-						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
-						createFriendListSelect();
-						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
-
-					}else{
-						System.out.println("frined: true "+ userContainer.getItem(fSelected).getBean().getId());
-						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
-						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
-
-						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
-						createFriendListSelect();
-						System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
-
-					}
-				}
-				pusher.push();
+				});
 			}
 			
 			private void resetVisibility() {

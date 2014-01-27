@@ -18,10 +18,10 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.Ostermiller.util.ExcelCSVParser;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 public class CSVUtil {
 
@@ -42,7 +42,7 @@ public class CSVUtil {
 		ArrayList<String> panel = getPanel(setType, markerType, datasetId, selectedNames);
 
 		int missing = selectedNames.size() - panel.size();
-		showWarning(setType, missing, tree.getApplication().getMainWindow());
+		showWarning(setType, missing);
 
 		storeSubSet(setType, panel, filename, datasetId, tree);
 	}
@@ -133,24 +133,20 @@ public class CSVUtil {
 		return panel;
 	}
 
-	private static void showWarning(String setType, int missing, Window pWindow){
+	private static void showWarning(String setType, int missing){
 		if(missing > 0) {
 			if (missing == 1){
-				MessageBox mb = new MessageBox(
-						pWindow,
+				MessageBox.showPlain(
+						Icon.WARN,
 						setType+" Not Found",
-						MessageBox.Icon.WARN,
 						missing + " "+setType.toLowerCase()+" listed in the CSV file is not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 			}else{
-				MessageBox mb = new MessageBox(
-						pWindow,
+				MessageBox.showPlain(
+						Icon.WARN,
 						setType+" Not Found",
-						MessageBox.Icon.WARN,
 						missing + " "+setType.toLowerCase()+"s listed in the CSV file are not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+						ButtonId.OK);
 			}
 		}
 	}

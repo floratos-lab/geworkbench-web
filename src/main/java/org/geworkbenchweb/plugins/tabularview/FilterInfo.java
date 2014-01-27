@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.tabularview;
 
 import java.io.Serializable;
+
 import org.geworkbenchweb.pojos.Context;
 
 public class FilterInfo implements Serializable

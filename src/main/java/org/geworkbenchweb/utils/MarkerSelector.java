@@ -1,17 +1,16 @@
 package org.geworkbenchweb.utils;
 
 import java.util.List;
- 
+
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.VerticalLayout; 
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.VerticalLayout;
  
 public class MarkerSelector extends VerticalLayout{
 
@@ -53,7 +52,7 @@ public class MarkerSelector extends VerticalLayout{
 		
 	 
 	
-		markerContextCB.addListener(new Property.ValueChangeListener() {
+		markerContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 		  
 			private static final long serialVersionUID = -1701293764682250834L;
 

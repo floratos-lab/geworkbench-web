@@ -1,20 +1,19 @@
 package org.geworkbenchweb.plugins.ttest;
 
 import java.util.List;
- 
+
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
+import org.geworkbenchweb.utils.PreferenceOperations;
+import org.geworkbenchweb.utils.SubSetOperations;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout; 
-import com.vaadin.ui.ListSelect; 
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.ListSelect;
  
 public class CaseControlSelector extends GridLayout{
 
@@ -67,7 +66,7 @@ public class CaseControlSelector extends GridLayout{
 		controlArraySetSelect.setImmediate(true);
 	 
 	 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 

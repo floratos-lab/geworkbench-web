@@ -1,8 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component.notebook;
 
-import java.util.Comparator;
-
-import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 
 public class EventSorter {
 	

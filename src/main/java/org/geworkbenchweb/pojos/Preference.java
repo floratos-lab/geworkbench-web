@@ -1,9 +1,9 @@
 package org.geworkbenchweb.pojos;
 
  
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Column;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 

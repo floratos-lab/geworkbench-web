@@ -1,14 +1,13 @@
 package org.geworkbenchweb.utils;
 
 import java.util.List;
- 
+
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -69,7 +68,7 @@ public class MarkerArraySelector extends GridLayout{
 		arraySetSelect.setImmediate(true);
 	 
 	
-		markerContextCB.addListener(new Property.ValueChangeListener() {
+		markerContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 		  
 			private static final long serialVersionUID = -1701293764682250834L;
 
@@ -98,7 +97,7 @@ public class MarkerArraySelector extends GridLayout{
 		});
 
 	 
-		arrayContextCB.addListener(new Property.ValueChangeListener() {
+		arrayContextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
 			 

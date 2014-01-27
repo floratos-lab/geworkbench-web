@@ -14,8 +14,8 @@ import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -45,7 +45,7 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.addComponent(sendButton);
 		this.addComponent(getTextArea());
 		this.setExpandRatio(getTextArea(), 1.0f);
-		this.sendButton.addListener(this);
+		this.sendButton.addClickListener(this);
 		this.textArea.setImmediate(true);
 		this.textArea.setSizeFull();
 		this.textArea.setHeight("270px");
@@ -101,9 +101,9 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 			boolean b = send();
 			if (b) {
 				receiver.setValue("");
-				getApplication().getMainWindow().showNotification("Your workflow has been sent successfully");
+				Notification.show("Your workflow has been sent successfully");
 			} else {
-				getApplication().getMainWindow().showNotification("Invalid receiver. Please input again");
+				Notification.show("Invalid receiver. Please input again");
 			}
 		}
 	}
