@@ -44,7 +44,13 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		if(GeneOntologyTree.getInstanceUntilAvailable()==null) {
 			geneType = "pending";
 			goInfoStr = "pending";
-		} else {
+		} else if (goIds == null) {
+			geneType = "---";
+			goInfoStr = "---";
+		
+		}
+		else
+		{
 			setGoInfoStr();
 			geneType = checkMarkerFunctions();
 		}
@@ -340,7 +346,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	}
 
 	String getGoInfoStr() {
-		if(!goInfoStr.equals("pending") || GeneOntologyTree.getInstance()==null)
+		if(!goInfoStr.equals("pending") || GeneOntologyTree.getInstanceUntilAvailable()==null)
 			return goInfoStr;
 		
 		setGoInfoStr();
