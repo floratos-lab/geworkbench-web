@@ -51,7 +51,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
-			System.out.println("Connection succeeds");
+			//System.out.println("Connection succeeds");
 			Presence pr = new Presence(Presence.Type.available);
 			pr.setStatus("On genspace...");
 			connection.sendPacket(pr);
@@ -62,9 +62,9 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 
 			manager.addChatListener(this);
 			//System.out.println("OOOOOOO"+this.rf);
-		} else
-			System.out.println("Connection fails");
-
+		} else{
+			//System.out.println("Connection fails");
+		}
 	}
 	
 	public void updateRoster() {
@@ -95,19 +95,19 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
 		if (chats.containsKey(c.getParticipant())) {
-			System.out.println("contained participant!");
+			//System.out.println("contained participant!");
 			//return ;
 		}
 		
 		else if(createdLocal) {
-			System.out.println("DEBUG participant: " + c.getParticipant());
+			//System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
 			cw.addComponent(pusher);
 			chats.put(c.getParticipant(), cw);
-			System.out.println("check chat map: "+ chats);
+			//System.out.println("check chat map: "+ chats);
 			rf.getApplication().getMainWindow().addWindow(cw);
 			//this.login.getPusher().push();
 			pusher.push();
@@ -120,8 +120,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	@Override
 	public void processMessage(Chat c, Message m) {
 		// TODO Auto-generated method stub
-		System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
-		System.out.println("Get message body: " + m.getBody());
+		//System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
+		//System.out.println("Get message body: " + m.getBody());
 
 		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals(""))){
 			return;

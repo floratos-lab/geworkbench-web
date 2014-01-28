@@ -295,7 +295,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
 					return ;
 				}		
-				System.out.println("check null: "+viewPanel.toString());
+				//System.out.println("check null: "+viewPanel.toString());
 				viewPanel.updatePanel();
 				setContent(viewPanel);
 				viewPanel.attachPusher();
@@ -354,6 +354,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		} else if(sp.getPanelTitle().equals(myNet)) {
 			NetworkPanel np = (NetworkPanel)sp;
 			np.setRf(this.chatHandler.rf);
+			np.setCr(this.chatHandler);
 			//System.out.println(this.chatHandler.rf.getCaption());
 			contentLayout.removeAllComponents();
 			contentLayout.addComponent(np);
@@ -491,7 +492,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
 			//System.out.println("88");
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
-			System.out.println("Check view panel in initForm: " + this.viewPanel.toString());
+			//System.out.println("Check view panel in initForm: " + this.viewPanel.toString());
 			this.loadSearchItems();
 		}
 	}

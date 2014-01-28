@@ -79,7 +79,7 @@ public class UserSearchWindow extends Window {
 		}
 		//System.out.println("update window!!!");
 		boolean isFriend = this.friend.isFriendsWith();
-		System.out.println("isFriend: " + isFriend);
+		//System.out.println("isFriend: " + isFriend);
 		Panel userNamePanel = new Panel(this.friend.getUsername());
 		Label organization = new Label();
 		String affiliation = this.friend.getLabAffiliation();
@@ -164,7 +164,7 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(friendSituation);
 			vLayout.addComponent(remove);
 		} else if (sHome.getInstance().pendingFriendRequestTo(friend)) {
-			System.out.println("A pending friend");
+			//System.out.println("A pending friend");
 			friendString = requestFriendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button cancel = new Button("Cancel friend request");
@@ -180,7 +180,7 @@ public class UserSearchWindow extends Window {
 						getApplication().getMainWindow().showNotification(cancelFriend);
 						
 						sHome.getInstance().updateForm();
-						System.out.println(sHome.getInstance().pendingFriendRequestTo(friend));
+						//System.out.println(sHome.getInstance().pendingFriendRequestTo(friend));
 						updateWindowContents();
 						pusher.push();
 						//login.getPusher().push();
@@ -192,7 +192,7 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(friendSituation);
 			vLayout.addComponent(cancel);
 		} else {
-			System.out.println("Not a friend");
+			//System.out.println("Not a friend");
 			friendString = noFriendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button add = new Button("Add as a friend");
@@ -208,7 +208,7 @@ public class UserSearchWindow extends Window {
 						getApplication().getMainWindow().showNotification(addFriend);
 						
 						sHome.getInstance().updateForm();
-						System.out.println("^^"+sHome.getInstance().pendingFriendRequestTo(friend)+' '+friend.isFriendsWith());
+						//System.out.println("^^"+sHome.getInstance().pendingFriendRequestTo(friend)+' '+friend.isFriendsWith());
 						updateWindowContents();
 						pusher.push();
 						//login.getPusher().push();

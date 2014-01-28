@@ -73,7 +73,7 @@ public final class ObjectHandler {
 		
 		AnalysisSubmissionEvent ase = (AnalysisSubmissionEvent) event;
 		
-		System.out.println("DEBUG handleLogging: " + logStatus);
+		//System.out.println("DEBUG handleLogging: " + logStatus);
 		
 		if (logStatus != 2) {
 			Method methods[] = ase.getClass().getDeclaredMethods();

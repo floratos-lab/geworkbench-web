@@ -121,7 +121,7 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				tu = login.getGenSpaceServerFactory().getPublicFacade().getTasteUserByHostname(hostname);
 			} catch (UnknownHostException e) {
 				//e.printStackTrace();
-				System.out.println("Unknown host");
+				//System.out.println("Unknown host");
 			}
 		}
 	

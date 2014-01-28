@@ -67,7 +67,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		actions.addItem("Most common workflow including");
 		actions.addItem("All workflows including");
 		actions.setNullSelectionAllowed(false);
-		System.out.println("Check login in workflow visualization: " + this.login);
+		//System.out.println("Check login in workflow visualization: " + this.login);
 
 		tools = new ComboBox("-- select tool --");
 		//tools.setCaption("-- select tool --");

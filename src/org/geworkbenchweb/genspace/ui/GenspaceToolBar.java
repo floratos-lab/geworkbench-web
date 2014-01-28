@@ -202,10 +202,10 @@ public class GenspaceToolBar extends MenuBar {
 	
 	public void fireLoggedIn()
 	{
-		System.out.println("In firedLogged");
+		//System.out.println("In firedLogged");
 		//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
 		//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-		System.out.println("Check genspace login in GenSpaceToolBar: " + genSpaceLogin);
+		//System.out.println("Check genspace login in GenSpaceToolBar: " + genSpaceLogin);
 		genSpaceLogin.loggedIn();
 		realTimeWorkflowSuggestion.loggedIn();
 		workflowStatistics.loggedIn();
@@ -218,14 +218,14 @@ public class GenspaceToolBar extends MenuBar {
 		/*GenspaceToolBar.this.pluginView.setAf(genSpaceLogin);
 		GenspaceToolBar.this.pluginView.setChat(genSpaceLogin);*/
 		
-		System.out.println("Check genSpaceLogin before set in logger: " + genSpaceLogin);
+		//System.out.println("Check genSpaceLogin before set in logger: " + genSpaceLogin);
 		genspaceLogger.setGenSpaceLogin(genSpaceLogin);
 		ObjectLogger objectLogger = genspaceLogger.getObjectLogger();
 		objectLogger.addCWFListener(realTimeWorkflowSuggestion);
 		objectLogger.addNotebookDataListener(notebookPanel);
 		
 		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Login", "Please use this interface to login.", genSpaceLogin);
-		System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
+		//System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
 //		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
 //		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);
 	}

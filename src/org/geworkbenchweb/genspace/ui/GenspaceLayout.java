@@ -42,11 +42,11 @@ public class GenspaceLayout extends VerticalLayout {
 			this.pusher = new ICEPush();
 			this.addComponent(this.pusher);
 			
-			System.out.println("Layout pusher is null");
+			//System.out.println("Layout pusher is null");
 		} else if (this.pusher.getApplication() == null) {
 			this.addComponent(this.pusher);
 			
-			System.out.println("Layout pusher is not attached");
+			//System.out.println("Layout pusher is not attached");
 		}
 		
 		return this.pusher;
@@ -79,7 +79,7 @@ public class GenspaceLayout extends VerticalLayout {
 		pluginView.setContent(genspaceLogin, "Login", "Please use this interface to login.", genspaceLogin);
 		this.addComponent(pluginView);
 		//System.out.println(pluginView.toString());
-		System.out.println("Check login in GenSpaceLayoutout: " + this.genspaceLogin);
+		//System.out.println("Check login in GenSpaceLayoutout: " + this.genspaceLogin);
 		workflowVisualization = new WorkflowVisualization(genspaceLogin);
 		realTimeWorkflowSuggestion = new RealTimeWorkflowSuggestion(genspaceLogin);
 		workflowStatistics = new WorkflowStatistics_1(genspaceLogin);

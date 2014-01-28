@@ -169,7 +169,7 @@ public class GenSpacePluginView extends HorizontalLayout {
 		
 		if (chatHandler.rf != null || right.getComponentIndex(chatHandler.rf) != -1){
 			clearChat();
-			System.out.println("clear chat!!");
+			//System.out.println("clear chat!!");
 		}
 		chatHandler.updateRoster();
 		chatHandler.createRosterFrame();
@@ -177,12 +177,12 @@ public class GenSpacePluginView extends HorizontalLayout {
 		right.addComponent(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-		System.out.println("XXXXXX" +chatHandler.rf);
+		//System.out.println("XXXXXX" +chatHandler.rf);
 	}
 	public void setAf(GenSpaceLogin_1 genspaceLogin){
 		if (af != null || right.getComponentIndex(af) != -1){
 			clearAf();
-			System.out.println("clear af!!");
+			//System.out.println("clear af!!");
 		}
 		af = new ActivityFeedWindow(genspaceLogin);
 		af.addStyleName("feature-info");

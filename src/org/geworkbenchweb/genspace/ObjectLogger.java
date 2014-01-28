@@ -64,7 +64,7 @@ public class ObjectLogger {
 	}
 	
 	private Transaction prepareTransaction(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {		
-		System.out.println("DEBUG prepareTransaction: " + analysisName + " " + dataSetName);
+		//System.out.println("DEBUG prepareTransaction: " + analysisName + " " + dataSetName);
 		String hostname = "";
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
@@ -78,7 +78,7 @@ public class ObjectLogger {
 		if (login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
 			tmpFactory = new GenSpaceServerFactory();
 		} else {
-			System.out.println("Get server factory from login: " + this.login.getGenSpaceServerFactory());
+			//System.out.println("Get server factory from login: " + this.login.getGenSpaceServerFactory());
 			tmpFactory = login.getGenSpaceServerFactory();
 		}
 		
@@ -278,7 +278,7 @@ public class ObjectLogger {
 	
 	private boolean completeLoggin(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {
 		Transaction ret = null;
-		System.out.println("DEBUG dataset name in completeLogging: " + dataSetName);
+		//System.out.println("DEBUG dataset name in completeLogging: " + dataSetName);
 		try {
 			ret = this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
 		} catch (Exception e) {
@@ -306,7 +306,7 @@ public class ObjectLogger {
 	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
 		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
 		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null) {
-			System.out.println("Check application: " + this.login.getApplication());
+			//System.out.println("Check application: " + this.login.getApplication());
 			this.login.getGenSpaceParent().getPusher().push();
 			//this.login.getPusher().push(); 
 		}
@@ -329,7 +329,7 @@ public class ObjectLogger {
 	
 	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
 		this.login = login2;
-		System.out.println("Set genSpaceLogin in Object logger:" + this.login);
+		//System.out.println("Set genSpaceLogin in Object logger:" + this.login);
 	}
 	
 	public GenSpaceLogin_1 getGenSpaceLogin() {

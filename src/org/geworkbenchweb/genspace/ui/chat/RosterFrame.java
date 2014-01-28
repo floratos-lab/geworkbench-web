@@ -100,7 +100,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			this.roster.reload();
 			this.setUpRosterTree();
 			//this.addComponent(pusher);
-			System.out.println("refreshed!");
+			//System.out.println("refreshed!");
 		} 
 	}
 	
@@ -321,6 +321,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			while(elList.hasNext()) {
 				tmpEntry = elList.next();
 				entryID = hBeans.addItem();
+				//System.out.println("check roster frame: "+tmpEntry.getUser());
 				hBeans.getContainerProperty(entryID, "name").setValue(tmpEntry.getUser().replace("@genspace", ""));
 				hBeans.getContainerProperty(entryID, "group").setValue(false);
 				hBeans.getContainerProperty(entryID, "rGroup").setValue(null);
@@ -363,7 +364,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.cr = cr;
 		this.username = this.login.getGenSpaceServerFactory().getUsername();
-		System.out.println("Check username in Roster: "+this.username);
+		//System.out.println("Check username in Roster: "+this.username);
 		setCaption(this.rosterCaption);
 		initComponents();
 		/*addListener(new Window.CloseListener() {
@@ -387,7 +388,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	private void cmbStatusActionPerformed(ValueChangeEvent e) {
 		
 		if (e.getProperty().getValue() == null) {
-			System.out.println("Check property: " + e.getProperty());
+			//System.out.println("Check property: " + e.getProperty());
 			return ;
 		}
 		String status = e.getProperty().getValue().toString();
@@ -398,30 +399,30 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.onlineEmbed);
-			System.out.println("change to available!");
+			//System.out.println("change to available!");
 		} else if (status.equalsIgnoreCase(statuses[1])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.away);
 		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.leaveEmbed);
-			System.out.println("change to leave!");
+			//System.out.println("change to leave!");
 		} else {
 			pr = new Presence(Presence.Type.unavailable);
 			
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.offlineEmbed);
-			System.out.println("change to unavailable!");
+			//System.out.println("change to unavailable!");
 		}
 		//iconLayout.addComponent(pusher);
 		pr.setStatus(status);
 		cr.getConnection().sendPacket(pr);
-		System.out.println("send status change event!");
+		//System.out.println("send status change event!");
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
-		System.out.println("start refresh!");
+		//System.out.println("start refresh!");
 		this.refresh();
 			
-		System.out.println("DEBUG: " + this.username + " fire a status event");
+		//System.out.println("DEBUG: " + this.username + " fire a status event");
 	};
 	
 	private VerticalLayout vMainLayout;
@@ -470,10 +471,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 					if (p.getType().equals(Presence.Type.unavailable) || fname.equals(username))
 						return ;
 
-					System.out.println("Test tree listener: " + e.getName());
-					System.out.println("Test manager: " + cr.getManager());
+					//System.out.println("Test tree listener: " + e.getName());
+					//System.out.println("Test manager: " + cr.getManager());
 					cr.getManager().createChat(e.getUser(), null);
-					System.out.println("create chat finished!");
+					//System.out.println("create chat finished!");
 				}
 			}
 		});
@@ -534,11 +535,11 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
-		System.out.println("DEBUG: " + this.username + " got a status change event");
-		System.out.println("DEBUG: Check roster frame: " + this);
+		//System.out.println("DEBUG: " + this.username + " got a status change event");
+		//System.out.println("DEBUG: Check roster frame: " + this);
 		this.refresh();
 		//this.addComponent(pusher);
-		System.out.println("check pusher application: "+pusher.getApplication());
+		//System.out.println("check pusher application: "+pusher.getApplication());
 		pusher.push();
 		//this.login.getPusher().push();
 	}

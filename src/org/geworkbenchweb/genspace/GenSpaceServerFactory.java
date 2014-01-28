@@ -300,15 +300,15 @@ public class GenSpaceServerFactory {
 
 				this.username = username;
 				
-				System.out.println("Login username: " + this.username);
+				//System.out.println("Login username: " + this.username);
 				
 				this.password = UserWrapper.getEncryptedPassword(password.toCharArray());
 				
-				System.out.println("Password: " + this.password);
+				//System.out.println("Password: " + this.password);
 				
 				user = getUserOps().getMe();
 				
-				System.out.println("Check user: " + user + " " + user.getUsername());
+				//System.out.println("Check user: " + user + " " + user.getUsername());
 				//TODO
 					return true;
 			} 

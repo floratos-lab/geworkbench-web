@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -74,6 +75,8 @@ public class NetworkPanel extends SocialPanel{
 	
 	private RosterFrame rf;
 	
+	private ChatReceiver cr;
+	
 	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
@@ -85,6 +88,10 @@ public class NetworkPanel extends SocialPanel{
 	
 	public void setRf(RosterFrame rf){
 		this.rf = rf;
+	}
+	
+	public void setCr(ChatReceiver cr){
+		this.cr = cr;
 	}
 	
 	public String getPanelTitle() {
@@ -207,7 +214,7 @@ public class NetworkPanel extends SocialPanel{
 					return;
 				}
 				selectedNet = (Network)event.getProperty().getValue();
-				System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
+				//System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
 			}
 		});
 		
@@ -243,17 +250,23 @@ public class NetworkPanel extends SocialPanel{
 			public void buttonClick(ClickEvent event){
 				//System.out.println("DEBUG : leave " + selectedNet.getName());
 				if (selectedNet != null && selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
-					System.out.println("selected network captured by the leave button: " + selectedNet.getName());
+					//System.out.println("selected network captured by the leave button: " + selectedNet.getName());
 					UserNetwork un = isCachedMyNetWorks();
 					if(un != null) {
-						System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
+						//System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
 						
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
 						//elimNetwork(selectedNet.getName());
 						updatePanel();
+					
 						//System.out.println(rf.getCaption());
 						rf.refresh();
+						
+						//cr.updateRoster();
+						//cr.createRosterFrame();
 					}
+				}else{
+					
 				}
 				pusher.push();
 			}

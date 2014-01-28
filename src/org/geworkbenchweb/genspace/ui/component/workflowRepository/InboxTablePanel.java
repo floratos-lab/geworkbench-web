@@ -111,7 +111,7 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 				}
 				return ;
 			}
-			System.out.println(bCaption);
+			//System.out.println(bCaption);
 			if (bCaption.equals("Delete")) {
 				int idx = Integer.parseInt(idxTmp.toString());
 				IncomingWorkflow tmp = this.iwfList.get(idx);
@@ -137,7 +137,7 @@ public class InboxTablePanel extends VerticalLayout implements Button.ClickListe
 	private void refreshInbox() {
 		List<IncomingWorkflow> iwfList = login.getGenSpaceServerFactory().getWorkflowOps().getIncomingWorkflows();
 		this.setData(iwfList);
-		System.out.println("check refreshInbox: "+iwfList);
+		//System.out.println("check refreshInbox: "+iwfList);
 		//this.table.refreshRowCache();
 	}
 }
