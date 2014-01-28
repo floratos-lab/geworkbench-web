@@ -72,7 +72,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private static final long serialVersionUID = 845011602285963638L;
 	private Log log = LogFactory.getLog(MarinaUI.class);
 
-	private final Map<String, String> map;
+	private Map<String, String> map;
 
 	protected Form form = new Form();
 	private Upload upload = null;
@@ -713,6 +713,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		if(dataSetId==null || dataSetId==0) return;
 
 		classSelector.setData(dataSetId, SessionHandler.get().getId());
+
+		map = DataSetOperations.getAnnotationMap(dataSetId);
 	 
 		arraymap.put(null, "");
 	}
