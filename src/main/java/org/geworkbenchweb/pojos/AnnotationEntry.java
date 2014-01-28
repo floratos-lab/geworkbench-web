@@ -21,16 +21,22 @@ public class AnnotationEntry extends AbstractPojo {
 	private String geneSymbol;
 	private String geneDescription;
 	private String entrezId;
+	private int[] biologicalProcess;
+	private int[] cellularComponent;
+    private int[] molecularFunction;	
 	
 	public AnnotationEntry() {
 	}
 	
 	public AnnotationEntry(String probeSetId, String geneSymbol,
-			String geneDescription, String entrezId) {
+			String geneDescription, String entrezId, int[] biologicalProcess, int[] cellularComponent, int[] molecularFunction) {
 		this.probeSetId = probeSetId;
 		this.geneSymbol = geneSymbol;
 		this.geneDescription = geneDescription;
 		this.entrezId = entrezId;
+		this.biologicalProcess = biologicalProcess;
+		this.cellularComponent = cellularComponent;
+		this.molecularFunction = molecularFunction;
 	}
 
 	public String getGeneDescription() {
@@ -63,5 +69,29 @@ public class AnnotationEntry extends AbstractPojo {
 
 	public void setEntrezId(String entrezId) {
 		this.entrezId = entrezId;
+	}
+	
+	public int[] getBiologicalProcess() {
+		return biologicalProcess;
+	}
+
+	public void setBiologicalProcess(int[] biologicalProcess) {
+		this.biologicalProcess = biologicalProcess;
+	}
+	
+	public int[] getCellularComponent() {
+		return cellularComponent;
+	}
+
+	public void setCellularComponent(int[] cellularComponent) {
+		this.cellularComponent = cellularComponent;
+	}
+	
+	public int[] getMolecularFunction() {
+		return molecularFunction;
+	}
+
+	public void setMolecularFunction(int[] molecularFunction) {
+		this.molecularFunction = molecularFunction;
 	}
 }

@@ -11,6 +11,7 @@ import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
@@ -111,6 +112,8 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			UUserAuth auth = new UUserAuth(); 
 			mainWindow.setContent(auth);
 		}
+		
+		GeneOntologyTree.getInstance();
 	}
 	
 	/**

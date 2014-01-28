@@ -32,7 +32,9 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class ExpressionFileLoader implements LoaderUsingAnnotation {
 	private static Log log = LogFactory.getLog(ExpressionFileLoader.class);
 
-	transient private Long datasetId;
+	public static final String MAIN_DELIMITER = "\\s*///\\s*";
+	
+	transient private Long datasetId;	
 
 	// meant to be used by the factory, not publicly
 	ExpressionFileLoader() {
@@ -192,7 +194,11 @@ public class ExpressionFileLoader implements LoaderUsingAnnotation {
 					String[] s = entrezId.split("///");
 					entrezId = s[0];
 				}
-				AnnotationEntry entry = new AnnotationEntry(probeSetId, geneSymbol, geneDescription, entrezId);
+				
+				int[] biologicalProcess = getGoTerms(fields.getBiologicalProcess());
+			    int[] cellularComponent = getGoTerms(fields.getCellularComponent());
+			    int[] molecularFunction = getGoTerms(fields.getMolecularFunction());
+				AnnotationEntry entry = new AnnotationEntry(probeSetId, geneSymbol, geneDescription, entrezId, biologicalProcess, cellularComponent, molecularFunction);
 				list.add(entry);
 			}
 			return list;
@@ -254,6 +260,24 @@ public class ExpressionFileLoader implements LoaderUsingAnnotation {
 		CurrentContext currentMarkerContext = new CurrentContext("marker", datasetId, defaultMarkerContext.getId());
 		FacadeFactory.getFacade().store(currentMarkerContext);
 	}
+	
+	
+	private static int[] getGoTerms(String goTermInfo)
+	{
+        if (goTermInfo ==  null || goTermInfo.trim().equals("---"))
+        	return null;
+		String[] goTerms =  goTermInfo.split(MAIN_DELIMITER);
+        int[] goTermIds = new int[goTerms.length];
+        for (int i=0; i<goTerms.length; i++) {
+        	goTermIds[i] = new Integer(goTerms[i].split("/")[0].trim()).intValue();
+			
+        }
+        return goTermIds;
+        
+	}
+	
+	
+	
 
 	@Override
 	public String toString() {

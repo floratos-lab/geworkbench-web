@@ -304,6 +304,21 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			log.debug("getting userInfo from session: "+userInfo);
 		}
 		log.debug("userInfo "+userInfo);
+		/* find annotation information */ // TODO review the efficient of this implementation
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); // TODO this may be more efficient by using JPA directly
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String probeSetId = entry.getProbeSetId();
+				annotationMap.put(probeSetId, entry);
+			}
+		}
+		
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
 		List<String> selectedMarkers = new ArrayList<String>();
@@ -315,7 +330,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				if (marker != null && !selectedMarkers.contains(marker))
 				{
 					selectedMarkers.add(marker);
-					hits.addElement(new CellularNetWorkElementInformation(marker));
+					hits.addElement(new CellularNetWorkElementInformation(marker, annotationMap.get(marker).getMolecularFunction()));
 				}
 			}
 			 
@@ -333,20 +348,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				.getInteractionTypesByInteractomeVersion(context, version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
-		/* find annotation information */ // TODO review the efficient of this implementation
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
-				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
-		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); // TODO this may be more efficient by using JPA directly
-		if(dataSetAnnotation!=null) {
-			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
-			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry);
-			}
-		}
+		
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
@@ -361,8 +363,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			String geneSymbol = entry.getGeneSymbol();
 
 			if (geneId!=null && !geneId.trim().equals("---")
-					&& cellularNetWorkElementInformation.isDirty()) {
-
+					&& cellularNetWorkElementInformation.isDirty()) {				
 				List<InteractionDetail> interactionDetails = null;
 
 				if (interaction_flag == 0) {
@@ -378,7 +379,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				cellularNetWorkElementInformation.setDirty(false);
 				cellularNetWorkElementInformation.setInteractionDetails(
 						interactionDetails, cnkbPref);
+			 
 			}
+			 
 		}
 
 		return new CNKBResultSet(hits, cnkbPref, dataSetId);

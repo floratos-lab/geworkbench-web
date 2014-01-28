@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class AnnotationFields implements Serializable {
 	private static final long serialVersionUID = -3571880185587329070L;
 
-	String getMolecularFunction() {
+	public String getMolecularFunction() {
 		return molecularFunction;
 	}
 
@@ -13,7 +13,7 @@ public class AnnotationFields implements Serializable {
 		this.molecularFunction = molecularFunction;
 	}
 
-	String getCellularComponent() {
+	public String getCellularComponent() {
 		return cellularComponent;
 	}
 
@@ -21,7 +21,7 @@ public class AnnotationFields implements Serializable {
 		this.cellularComponent = cellularComponent;
 	}
 
-	String getBiologicalProcess() {
+	public String getBiologicalProcess() {
 		return biologicalProcess;
 	}
 
