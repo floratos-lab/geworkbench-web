@@ -33,48 +33,52 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	private InteractionDetail[] interactionDetails;
 	private double threshold;
 	private boolean isDirty;
+	private int[] goIds;
 	
 	final private static int binNumber = 101; 
  
-	public CellularNetWorkElementInformation(String markerLabel) {
+	public CellularNetWorkElementInformation(String markerLabel, int[] goIds) {
 		this.markerLabel = markerLabel;	 
-		isDirty = true;
-		if(GeneOntologyTree.getInstance()==null) {
+		isDirty = true;		 
+		this.goIds = goIds;
+		if(GeneOntologyTree.getInstanceUntilAvailable()==null) {
 			geneType = "pending";
 			goInfoStr = "pending";
 		} else {
 			setGoInfoStr();
-			geneType = checkMarkerFunctions(markerLabel);
+			geneType = checkMarkerFunctions();
 		}
-
-		reset();		 
-
+		reset();
 	}
 
-	private void setGoInfoStr() {
-		Set<GOTerm> set = getAllGOTerms(markerLabel);
+    void setGoInfoStr()	 
+	{ 
+    	if (goIds == null)
+    	{
+    		goInfoStr = "---"; 
+    		return;
+    	}	
+     
+		Set<GOTerm> set = getAllGOTerms();
 
-		goInfoStr = ""; 
-		if (set != null && set.size() > 0) {
-			for (GOTerm goTerm : set) {
-				goInfoStr += goTerm.getName() + "; ";
-			}
-		}
+		if (set != null)
+		{
+			goInfoStr = "";		    
+			for (GOTerm goTerm : set) 
+		    goInfoStr += goTerm.getName() + "; ";
+			 
+		} 
 	}
 
-	private static Set<GOTerm> getAllGOTerms(String markerLabel) {
+	private Set<GOTerm> getAllGOTerms() {
 		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
-		String[] goTerms = AnnotationParser.getInfo(markerLabel,
-				AnnotationParser.GOTERM);
-		if (goTerms != null) {
+	 
+		if (tree != null) {
 			Set<GOTerm> set = new HashSet<GOTerm>();
-			for (String goTerm : goTerms) {
-				String goIdStr = goTerm.split("/")[0].trim();
-				if (!goIdStr.equalsIgnoreCase("---")) {
-					int goId = new Integer(goIdStr);
-					if (tree.getTerm(goId) != null)
-						set.add(tree.getTerm(goId));
-				}
+			for (int goId : goIds) {				 
+			    if (tree.getTerm(goId) != null)
+				   set.add(tree.getTerm(goId));
+				 
 			}
 			return set;
 		}
@@ -335,21 +339,31 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		return markerLabel;
 	}
 
-	public String getGoInfoStr() {
+	String getGoInfoStr() {
 		if(!goInfoStr.equals("pending") || GeneOntologyTree.getInstance()==null)
 			return goInfoStr;
 		
 		setGoInfoStr();
-
 		return goInfoStr;
 	}
 
-	public String getGeneType() {
-		if(!geneType.equals("pending") || GeneOntologyTree.getInstance()==null)
+	void setGeneType() {		 
+		 
+		if (goIds == null)
+			geneType = "---";
+		
+		if(!geneType.equals("pending") || GeneOntologyTree.getInstanceUntilAvailable()==null)
+			return;		
+		geneType = checkMarkerFunctions();
+		 
+	}
+	
+	String getGeneType() {	
+		if(!geneType.equals("pending") || GeneOntologyTree.getInstanceUntilAvailable()==null)
 			return geneType;
 		
-		geneType = checkMarkerFunctions(markerLabel);
-
+		 setGeneType();
+		
 		return geneType;
 	}
 
@@ -370,7 +384,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	}
 
 	/* this method is moved here from GeneOntologyUtil */
-	private static String checkMarkerFunctions(String markerLabel) {
+	private String checkMarkerFunctions() {
 		final String KINASE = "K";
 		final String TF = "TF";
 		final String PHOSPATASE = "P";
@@ -379,33 +393,20 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		final int PHOSPATASE_GOTERM_ID = 4721;
 		
 		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
-		String[] goTerms = AnnotationParser.getInfo(markerLabel,
-				AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
-
-		if (goTerms != null) {
-			for (String goTerm : goTerms) {
-				String goIdStr = goTerm.split("/")[0].trim();
-
-				try {
-					if (!goIdStr.equalsIgnoreCase("---")) {
-						Integer goId = new Integer(goIdStr);
-						if (goId != null) {
-							for(GOTerm goterm: tree.getAncestors(goId)) {
-								int gotermId = goterm.getId();
-								if (gotermId==KINASE_GOTERM_ID) {
-									return KINASE;
-								} else if (gotermId==TF_GOTERM_ID) {
-									return TF;
-								} else if (gotermId==PHOSPATASE_GOTERM_ID) {
-									return PHOSPATASE;
-								}
-							}
-						}
+		 
+		if (goIds != null) {
+			for (int goId : goIds) {					 
+				for(GOTerm goterm: tree.getAncestors(goId)) {
+					int gotermId = goterm.getId();
+					if (gotermId==KINASE_GOTERM_ID) {
+						return KINASE;
+				    } else if (gotermId==TF_GOTERM_ID) {
+						return TF;
+					} else if (gotermId==PHOSPATASE_GOTERM_ID) {
+					    return PHOSPATASE;
 					}
-				} catch (NumberFormatException ne) {
-					ne.printStackTrace();
-				}
-
+				}				 
+				 
 			}
 		}
 

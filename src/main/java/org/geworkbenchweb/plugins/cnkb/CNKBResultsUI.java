@@ -23,8 +23,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
-import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.network.CellularNetworkPreference;
+import org.geworkbench.util.ResultSetlUtil; 
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.CSVUtil;
@@ -80,6 +79,7 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
+import org.geworkbenchweb.plugins.cnkb.CellularNetWorkElementInformation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
