@@ -330,7 +330,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				if (marker != null && !selectedMarkers.contains(marker))
 				{
 					selectedMarkers.add(marker);
-					hits.addElement(new CellularNetWorkElementInformation(marker, annotationMap.get(marker).getBiologicalProcess()));
+					
+					hits.addElement(new CellularNetWorkElementInformation(marker, annotationMap.get(marker).getMolecularFunction(),  annotationMap.get(marker).getBiologicalProcess()));
 				}
 			}
 			 
