@@ -62,6 +62,7 @@ import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
+import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TabSheet;
@@ -159,8 +160,23 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		dataTable.setContainerDataSource(getIndexedContainer(resultSet));
 		dataTable.setColumnWidth("Marker", 300);
 		dataTable.setColumnWidth("Annotation", 150);
-		dataTable.setStyleName(Reindeer.TABLE_STRONG);		
-	 
+		dataTable.setStyleName(Reindeer.TABLE_STRONG);
+		
+		dataTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {                          
+			 
+			private static final long serialVersionUID = 1L;
+
+			public String generateDescription(Component source, Object itemId, Object propertyId) {
+			    if(propertyId == null) 
+			        return null;
+			     else 
+			     {
+			    	 Item item = ((Table)source).getItem(itemId);
+			    	 return item.getItemProperty(propertyId).getValue().toString();
+			     }
+			}                                                          
+			 
+		});
 		
 		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 		double maxValue = getMaxValue(resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType));
