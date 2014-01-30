@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -30,12 +32,14 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -71,8 +75,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	private static final long serialVersionUID = 845011602285963638L;
 	private Log log = LogFactory.getLog(MarinaUI.class);
-
-	private Map<String, String> map;
 
 	protected Form form = new Form();
 	private Upload upload = null;
@@ -117,8 +119,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	 
 
 		setDataSetId(dataSetId);	 
-
-		map = DataSetOperations.getAnnotationMap(dataSetId);
 
 		form.getLayout().addComponent(classSelector.getArrayContextCB());
 		form.getLayout().addComponent(classSelector.getH1());
@@ -307,7 +307,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				|| selectedRepresentedBy.equals(GENE_NAME)
 				|| selectedRepresentedBy.equals(ENTREZ_ID)) {
 			if(map.keySet().contains(token)) found = true;
-			else if(map.values().contains(token)) found = true;
 		}
 
 		AdjacencyMatrix.Node node = null;
@@ -325,12 +324,50 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			if (selectedRepresentedBy.equals(PROBESET_ID))
 				node = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, token);
 			else {
-				String geneName = map.get(token);
+				String markerName = map.get(token);
 				// TODO the earlier code intends to handle multiple gene names for a given token
-				node = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, geneName);
+				node = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, markerName);
 			}
 		}
 		return node;
+	}
+
+	/* Maps geneSymbol/entezID to marker in original dataset if available */
+	private Map<String, String> getAnnotationMap(String type) {
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, dataset.getDataId());
+		String[] markerLabels = microarray.getMarkerLabels();
+
+		Map<String, String> geneToMarker = new HashMap<String, String>();
+		if(!type.equals(GENE_NAME) && !type.equals(ENTREZ_ID)) {
+			for(String marker : markerLabels)
+				geneToMarker.put(marker, null);
+			return geneToMarker;
+		}
+		
+		Set<String> datasetMarkers = new HashSet<String>(Arrays.asList(markerLabels));
+
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		if (dataSetAnnotation != null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+
+			for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				String marker = entry.getProbeSetId();
+				if(!datasetMarkers.contains(marker)) continue;
+				
+				String gene = null;
+				if(type.equals(GENE_NAME))      gene = entry.getGeneSymbol();
+				else if(type.equals(ENTREZ_ID)) gene = entry.getEntrezId();
+
+				if(!geneToMarker.containsKey(gene))
+					geneToMarker.put(gene, marker);
+			}
+		}
+		return geneToMarker;
 	}
 
 	public AdjacencyMatrix parseAdjacencyMatrix(byte[] bytes,
@@ -339,6 +376,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			throws InputFileFormatException {
 
 		AdjacencyMatrix matrix = new AdjacencyMatrix(bean.getNetwork(), interactionTypeSifMap);
+
+		Map<String, String> map = getAnnotationMap(selectedRepresentedBy);
 		 
 		try {
 
@@ -488,10 +527,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	private String getMarkerInNode(AdjacencyMatrix.Node node){
 		if (node == null) return null;
-		if (node.type == NodeType.MARKER) 
-			return node.getMarker().getLabel();
-		else 
-			return node.getStringId();
+		return node.getStringId();
 	}
 
 	/**
@@ -713,8 +749,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		if(dataSetId==null || dataSetId==0) return;
 
 		classSelector.setData(dataSetId, SessionHandler.get().getId());
-
-		map = DataSetOperations.getAnnotationMap(dataSetId);
 	 
 		arraymap.put(null, "");
 	}
