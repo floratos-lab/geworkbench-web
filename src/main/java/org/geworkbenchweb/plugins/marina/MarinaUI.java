@@ -646,18 +646,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
 				}
 				
-				if (allpos && bean.getGseaTailNumber()==2){
-					MessageBox mb = new MessageBox(
-							getWindow(),
-							"Warning",
-							MessageBox.Icon.WARN,
-							"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					bean.setGseaTailNumber(1);
-					item.getItemProperty("gseaTailNumber").setValue(1);
-				}
-
 				if (!selectedFormat.equals(marina5colformat)){
 					try {
 						AdjacencyMatrix matrix = parseAdjacencyMatrix(bean.getNetworkBytes(),
@@ -672,6 +660,17 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					networkLoaded(bean.getNetworkBytes());
 				}
 
+				if (allpos && bean.getGseaTailNumber()==2){
+					MessageBox mb = new MessageBox(
+							getWindow(),
+							"Warning",
+							MessageBox.Icon.WARN,
+							"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+					bean.setGseaTailNumber(1);
+					item.getItemProperty("gseaTailNumber").setValue(1);
+				}
 			}
 		});
 		cancelButton.addListener(new ClickListener(){
