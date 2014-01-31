@@ -34,11 +34,24 @@ public class UserDirUtils {
 
 		ResultSet res = FacadeFactory.getFacade().find(ResultSet.class,
 				resultSetId);
-		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + res.getOwner()
-				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
+				+ res.getOwner() + SLASH + RESULTSETS;
+		File dir = new File(dirName);
+		boolean dirCreated = true;
+		if(!dir.exists()) {
+			dirCreated = dir.mkdirs();
+		}
+		if(!dirCreated || !dir.isDirectory()) {
+			throw new IOException("directory "+dirName+" was not created");
+		}
+		String fileName = dirName + SLASH + resultSetId + RES_EXTENSION;
 
 		File file = new File(fileName);
-		file.createNewFile();
+		log.debug("creating result set file "+fileName);
+		boolean succeed = file.createNewFile();
+		if(!succeed) {
+			throw new IOException("file "+fileName+" already exists. Quit serializing result set.");
+		}
 		FileOutputStream f_out = new FileOutputStream(file);
 		ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
 
@@ -72,6 +85,7 @@ public class UserDirUtils {
 				resultSetId);
 		String fileName = GeworkbenchRoot.getBackendDataDirectory() + SLASH + res.getOwner()
 				+ SLASH + RESULTSETS + SLASH + resultSetId + RES_EXTENSION;
+		log.debug("deserializing file "+fileName);
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
 				fileName));
 		Object object = ois.readObject();

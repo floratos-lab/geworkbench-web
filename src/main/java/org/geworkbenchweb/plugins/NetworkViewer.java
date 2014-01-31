@@ -91,6 +91,9 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 							MessageBox.ButtonType.CUSTOM1, "View as text"),
 					new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
 							"View in Cytoscape"));
+			if(mb.getParent()==null) {
+				log.error("message box hsa null parent");
+			}
 			mb.show(new MessageBox.EventListener() {
 
 				private static final long serialVersionUID = 1L;

@@ -120,13 +120,19 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		try {
 			object = UserDirUtils.deserializeResultSet(dataSetId);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			/* expected before the data file is ready */
+			log.warn("file not found. dataset ID "+dataSetId);
+			//e.printStackTrace();
 			return;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return;
+		}
+		if(!(object instanceof CNKBResultSet)) {
+			log.error("wrong type of CNKB result "+object.getClass().getName());
 			return;
 		}
 		final CNKBResultSet  resultSet = (CNKBResultSet)object;

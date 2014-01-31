@@ -62,6 +62,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					uMainLayout.removeItem(resultSet.getId());
 					return;	
 				} catch (IOException e) {
+					e.printStackTrace();
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
