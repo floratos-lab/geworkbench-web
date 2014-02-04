@@ -164,11 +164,11 @@ public class ClassSelector extends FormLayout{
 		});
 
 		h1.setSpacing(true);
-		h1.setCaption("Case");
+		h1.setCaption("Control");
 		h1.addComponent(class1ArraySelect);
 		h1.addComponent(tf1);
 		h2.setSpacing(true);
-		h2.setCaption("Control");
+		h2.setCaption("Case");
 		h2.addComponent(class2ArraySelect);
 		h2.addComponent(tf2);
 		
