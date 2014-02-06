@@ -317,7 +317,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	}
 
 	String getGoInfoStr() {
-		if (GeneOntologyTree.getInstanceUntilAvailable()==null)
+		if (GeneOntologyTree.getInstance()==null)
 			 return  "pending";
 		else if( biologicalProcessGoIds == null || biologicalProcessGoIds.length ==0 )
 			 return "---";	
@@ -334,7 +334,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
  
 	
 	String getGeneType() {		 
-		if (GeneOntologyTree.getInstanceUntilAvailable()==null)
+		if (GeneOntologyTree.getInstance()==null)
 			 return  "pending";
 		else if( molecularFunctionGoIds == null || molecularFunctionGoIds.length ==0 )
 			 return "---";		 
