@@ -478,9 +478,4 @@ public class UploadDataUI extends VerticalLayout {
 			return null;
 		}
 	}
-
-	public void setFileUploadStatus(String string) {
-		fileUploadStatus.setValue(string);
-	}
-
 }
