@@ -194,42 +194,50 @@ public class UploadDataUI extends VerticalLayout {
 	/* FIXME why does this need to be reset every time?? */
 	private void getAnnotChoices(){
 		annotChoices.removeAllItems();
-		for (Anno anno : Anno.values()){
-			annotChoices.addItem(anno);
-			if (anno == Anno.NO || anno == Anno.NEW || anno == Anno.DELETE){
-				annotChoices.setChildrenAllowed(anno, false);
-			}else if (anno == Anno.PUBLIC){
-				int cnt = 0;
-				File dir = new File(GeworkbenchRoot.getPublicAnnotationDirectory());
-				if(!dir.exists() || !dir.isDirectory()) {
-					continue; // TODO document when it happens. It did happen and cause a lot of trouble during release
+
+		annotChoices.addItem(Anno.NO);
+		annotChoices.setChildrenAllowed(Anno.NO, false);
+
+		annotChoices.addItem(Anno.NEW);
+		annotChoices.setChildrenAllowed(Anno.NEW, false);
+		
+		annotChoices.addItem(Anno.PUBLIC);
+		File dir = new File(GeworkbenchRoot.getPublicAnnotationDirectory());
+		if (!dir.exists() || !dir.isDirectory()) {
+			log.error("public annotation file directory missing or corrupted");
+		} else {
+			int cnt = 0;
+			for (File f : dir.listFiles()) {
+				if (f.isFile() && f.getName().endsWith(".csv")) {
+					String fname = f.getName();
+					annotChoices.addItem(fname);
+					annotChoices.setParent(fname, Anno.PUBLIC);
+					annotChoices.setChildrenAllowed(fname, false);
+					cnt++;
 				}
-				for (File f : dir.listFiles()){
-					if (f.isFile() && f.getName().endsWith(".csv")){
-						String fname = f.getName();
-						annotChoices.addItem(fname);
-						annotChoices.setParent(fname, anno);
-						annotChoices.setChildrenAllowed(fname, false);
-						cnt++;
-					}
-				}
-				if (cnt == 0) annotChoices.setChildrenAllowed(anno, false);
-			}else if (anno == Anno.PRIVATE){
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("owner", SessionHandler.get().getId());
-				List<Annotation> annots = FacadeFactory
-						.getFacade()
-						.list("Select a from Annotation as a where a.owner=:owner order by a.name",
-								params);
-				for (Annotation a : annots){
-					String aname = a.getName();
-					annotChoices.addItem(aname);
-					annotChoices.setParent(aname, anno);
-					annotChoices.setChildrenAllowed(aname, false);
-				}
-				if (annots.isEmpty()) annotChoices.setChildrenAllowed(anno, false);
 			}
+			if (cnt == 0)
+				annotChoices.setChildrenAllowed(Anno.PUBLIC, false);
 		}
+		
+		annotChoices.addItem(Anno.PRIVATE);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("owner", SessionHandler.get().getId());
+		List<Annotation> annots = FacadeFactory
+				.getFacade()
+				.list("Select a from Annotation as a where a.owner=:owner order by a.name",
+						params);
+		for (Annotation a : annots) {
+			String aname = a.getName();
+			annotChoices.addItem(aname);
+			annotChoices.setParent(aname, Anno.PRIVATE);
+			annotChoices.setChildrenAllowed(aname, false);
+		}
+		if (annots.isEmpty())
+			annotChoices.setChildrenAllowed(Anno.PRIVATE, false);
+		
+		annotChoices.addItem(Anno.DELETE);
+		annotChoices.setChildrenAllowed(Anno.DELETE, false);
 	}
 
 	/* this name is totally misleading - this is AFTER uploading is done, during background 'adding to the workspace' process */
