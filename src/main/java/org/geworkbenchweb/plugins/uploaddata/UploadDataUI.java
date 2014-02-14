@@ -43,22 +43,23 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 @SuppressWarnings("deprecation")
-public class UploadDataUI extends VerticalLayout {
+public class UploadDataUI extends VerticalLayout implements Button.ClickListener {
 
 	private static final long serialVersionUID = 8042523201401300804L;
 
 	private static Log log = LogFactory.getLog(UploadDataUI.class);
 			
-	final private ComboBox fileCombo;
 	final private FileUploadLayout dataUploadLayout = new FileUploadLayout(this, "data");
 	final private AnnotationUploadLayout annoLayout = new AnnotationUploadLayout(this);
-	final private Button uploadButton = new Button("Add to workspace");
+	final private Button addButton = new Button("Add to workspace");
+	
+	private Loader selectedLoader = null;
 
 	public UploadDataUI() {
 
 		setImmediate(true);
 		
-		fileCombo 			= 	new ComboBox("Please select type of file");
+		final ComboBox fileCombo 			= 	new ComboBox("Please select type of file");
 
 		for (Loader loader : new LoaderFactory().getParserList()) {
 			fileCombo.addItem(loader);
@@ -69,10 +70,10 @@ public class UploadDataUI extends VerticalLayout {
 
 			public void valueChange(ValueChangeEvent event) {
 				Object type = fileCombo.getValue();
-				if (type != null) {
-					Loader loader = (Loader) type;
-					uploadButton.setEnabled(false);
-					if (loader instanceof LoaderUsingAnnotation) {
+				if (type instanceof Loader) {
+					selectedLoader = (Loader) type;
+					addButton.setEnabled(false);
+					if (selectedLoader instanceof LoaderUsingAnnotation) {
 						annoLayout.setVisible(true);
 					} else {
 						annoLayout.setVisible(false);
@@ -93,11 +94,11 @@ public class UploadDataUI extends VerticalLayout {
 
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
 		addComponent(annoLayout);
-		uploadButton.setEnabled(false);
-		uploadButton.addListener(new UploadButtonListener());
+		addButton.setEnabled(false);
+		addButton.addListener(this);
 		HorizontalLayout btnLayout = new HorizontalLayout();
 		btnLayout.setSpacing(true);
-		btnLayout.addComponent(uploadButton);
+		btnLayout.addComponent(addButton);
 		addComponent(btnLayout);
 	}
 	
@@ -120,117 +121,107 @@ public class UploadDataUI extends VerticalLayout {
 				sp.getFirstComponent().setEnabled(enabled);
 			}else c.setEnabled(enabled);
 		}
-		uploadButton.setEnabled(!enabled);
+		addButton.setEnabled(!enabled);
 	}
-	
-	/* this name is totally misleading - this is AFTER uploading is done, during background 'adding to the workspace' process */
-	private class UploadButtonListener implements Button.ClickListener {
 
-		private static final long serialVersionUID = -2592257781106708221L;
+	/* 'add to workspace button' clicked */
+	@Override
+	public void buttonClick(ClickEvent event) {
+		enableUMainLayout(true);
 
-		@Override
-		public void buttonClick(ClickEvent event) {
-			enableUMainLayout(true);
-			
-			Loader loader 				= 	(Loader) fileCombo.getValue();
-			Object choice 				= 	annoLayout.getAnnotationChoice();
-			User annotOwner 			= 	SessionHandler.get();
-			AnnotationType annotType 	= 	annoLayout.getAnnotationType();
-			
-			File dataFile = dataUploadLayout.getDataFile();
-			if (dataFile == null) {
-				MessageBox mb = new MessageBox(getWindow(), 
-						"Loading problem", 
-						MessageBox.Icon.ERROR, 
-						"Data file not loaded. No valid data file is chosen.",  
+		Object choice = annoLayout.getAnnotationChoice();
+		User annotOwner = SessionHandler.get();
+		AnnotationType annotType = annoLayout.getAnnotationType();
+
+		File dataFile = dataUploadLayout.getDataFile();
+		if (dataFile == null) {
+			MessageBox mb = new MessageBox(getWindow(), "Loading problem",
+					MessageBox.Icon.ERROR,
+					"Data file not loaded. No valid data file is chosen.",
+					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+			return;
+		}
+
+		if (choice == Anno.DELETE) {
+			MessageBox mb = new MessageBox(getWindow(), "To be implemented",
+					MessageBox.Icon.ERROR, "Operation not supported yet",
+					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+			return;
+		}
+
+		File annotFile = null;
+
+		if (choice == null) {
+			if (selectedLoader instanceof LoaderUsingAnnotation) {
+				MessageBox mb = new MessageBox(getWindow(), "Loading problem",
+						MessageBox.Icon.ERROR, "Annotation file not selected",
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();
 				return;
 			}
-			
-			if (choice == Anno.DELETE){
-				MessageBox mb = new MessageBox(getWindow(), 
-						"To be implemented", 
-						MessageBox.Icon.ERROR, 
-						"Operation not supported yet",  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-				return;
-			}
-			
-			File annotFile = null;
-
-			if (choice == null){
-				if (loader instanceof LoaderUsingAnnotation){
-					MessageBox mb = new MessageBox(getWindow(), 
-							"Loading problem", 
-							MessageBox.Icon.ERROR, 
-							"Annotation file not selected",  
+		} else if (!(choice instanceof Anno)) {
+			String annotFname = (String) choice;
+			Anno parent = annoLayout.getAnnotationChoiceGroup();
+			// shared default annotation
+			if (parent == Anno.PUBLIC) {
+				annotOwner = null;
+				annotType = AnnotationType.values()[0];
+				annotFile = new File(
+						GeworkbenchRoot.getPublicAnnotationDirectory(),
+						annotFname);
+				if (!annotFile.exists()) {
+					MessageBox mb = new MessageBox(getWindow(),
+							"Loading problem", MessageBox.Icon.ERROR,
+							"Annotation file not found on server",
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 					mb.show();
 					return;
 				}
-			} else if (!(choice instanceof Anno)){
-				String annotFname = (String)choice;
-				Anno parent = annoLayout.getAnnotationChoiceGroup();
-				// shared default annotation
-				if (parent == Anno.PUBLIC){
-					annotOwner = null;
-					annotType = AnnotationType.values()[0];
-					annotFile = new File(GeworkbenchRoot.getPublicAnnotationDirectory(), annotFname);
-					if (!annotFile.exists()) {
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Loading problem", 
-								MessageBox.Icon.ERROR, 
-								"Annotation file not found on server",  
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();
-						return;
-					}
-				}
-				// user's loaded annotation
-				else if (parent == Anno.PRIVATE){
-					annotType = null;
-					String annotDir = GeworkbenchRoot.getBackendDataDirectory()
-							+ System.getProperty("file.separator")
-							+ annotOwner.getUsername() + "/annotation/";
-					annotFile = new File(annotDir, annotFname);
-				}
-			} else if (choice == Anno.NO) {
-				annotFile = null;
-				// just loaded
-			} else if (choice == Anno.NEW){
-				annotFile = annoLayout.getAnnotationFile();
-				if (annotFile == null) {
-					MessageBox mb = new MessageBox(getWindow(), 
-							"Loading problem", 
-							MessageBox.Icon.ERROR, 
-							"Annotation file not loaded",  
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();	
-					return;
-				}
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("owner", annotOwner.getId());
-				params.put("name", annotFile.getName());
-				List<Annotation> annots = FacadeFactory
-						.getFacade()
-						.list("Select a from Annotation as a where a.owner=:owner and a.name=:name",
-								params);
-				if (!annots.isEmpty()) {
-					log.warn("Annotation file with the same name found on server. It's been overwritten.");
-				}
 			}
-
-			// store pending dataset. null has been checked earlier
-			DataSet dataset = storePendingData(dataFile.getName(), SessionHandler.get().getId());
-			processFromBackgroundThread(dataFile, dataset, loader, choice, annotOwner, annotType, annotFile);
-
-			// add pending dataset node
-			NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
-			GeworkbenchRoot.getBlackboard().fire(datasetEvent);			
+			// user's loaded annotation
+			else if (parent == Anno.PRIVATE) {
+				annotType = null;
+				String annotDir = GeworkbenchRoot.getBackendDataDirectory()
+						+ System.getProperty("file.separator")
+						+ annotOwner.getUsername() + "/annotation/";
+				annotFile = new File(annotDir, annotFname);
+			}
+		} else if (choice == Anno.NO) {
+			annotFile = null;
+			// just loaded
+		} else if (choice == Anno.NEW) {
+			annotFile = annoLayout.getAnnotationFile();
+			if (annotFile == null) {
+				MessageBox mb = new MessageBox(getWindow(), "Loading problem",
+						MessageBox.Icon.ERROR, "Annotation file not loaded",
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+				return;
+			}
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("owner", annotOwner.getId());
+			params.put("name", annotFile.getName());
+			List<Annotation> annots = FacadeFactory
+					.getFacade()
+					.list("Select a from Annotation as a where a.owner=:owner and a.name=:name",
+							params);
+			if (!annots.isEmpty()) {
+				log.warn("Annotation file with the same name found on server. It's been overwritten.");
+			}
 		}
-	};
+
+		// store pending dataset. null has been checked earlier
+		DataSet dataset = storePendingData(dataFile.getName(), SessionHandler
+				.get().getId());
+		processFromBackgroundThread(dataFile, dataset, annotOwner, annotType,
+				annotFile);
+
+		// add pending dataset node
+		NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
+		GeworkbenchRoot.getBlackboard().fire(datasetEvent);
+	}
 
 	static private DataSet storePendingData(String fileName, Long userId){
 
@@ -253,8 +244,8 @@ public class UploadDataUI extends VerticalLayout {
 		}
 	}
 		
-	private void processFromBackgroundThread(final File dataFile2, final DataSet dataSet,
-			final Loader loader, final Object choice, final User annotOwner,
+	private void processFromBackgroundThread(final File dataFile2,
+			final DataSet dataSet, final User annotOwner,
 			final AnnotationType annotType, final File annotFile) {
 
 		final UMainLayout mainLayout = getMainLayout();
@@ -264,12 +255,12 @@ public class UploadDataUI extends VerticalLayout {
 			public void run() {
 					
 				try {
-					if (loader instanceof LoaderUsingAnnotation) {
-						LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) loader;
+					if (selectedLoader instanceof LoaderUsingAnnotation) {
+						LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) selectedLoader;
 						expressionFileLoader.parseAnnotation(annotFile, annotType,
 								annotOwner, dataSet.getId());
 					}
-					loader.load(dataFile2, dataSet);
+					selectedLoader.load(dataFile2, dataSet);
 				} catch (GeWorkbenchLoaderException e) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Loading problem", 
