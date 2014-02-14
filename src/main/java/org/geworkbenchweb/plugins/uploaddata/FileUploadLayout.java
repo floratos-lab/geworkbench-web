@@ -45,7 +45,7 @@ public class FileUploadLayout extends VerticalLayout {
 		cancelButton.setStyleName("small");
 		
 		/* three top level components */
-		final Label statusLabel = new Label("Please select a "+category+" file to upload");
+		final Label statusLabel = new Label("Please select a file to upload");
 		final HorizontalLayout progressLayout = new HorizontalLayout();
 		upload = new Upload();
 		
