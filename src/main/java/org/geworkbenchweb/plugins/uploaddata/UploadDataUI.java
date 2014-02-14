@@ -37,9 +37,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.SplitPanel;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -50,11 +48,10 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 @SuppressWarnings("deprecation")
 public class UploadDataUI extends VerticalLayout {
 
+	private static final long serialVersionUID = 8042523201401300804L;
+
 	private static Log log = LogFactory.getLog(UploadDataUI.class);
 			
-	private static final long serialVersionUID = 1L;
-
-	private static final String initialText = "Enter description here.";
 	public static enum Anno {
 		NO("No annotation"), NEW("Load new annotation"), PUBLIC("Public annotation files"),
 		PRIVATE("Private annotations files"), DELETE("Delete private annotation files");
@@ -63,30 +60,20 @@ public class UploadDataUI extends VerticalLayout {
 		public String toString() { return value; }
 	};
 
-	private ComboBox fileCombo;
-	private TextArea dataArea;
+	final private ComboBox fileCombo;
 	
-	private Tree annotChoices;
-	private ComboBox annotTypes;
+	final private Tree annotChoices;
+	final private ComboBox annotTypes;
 
-	private Label fileUploadStatus 			= 	new Label("Please select a data file to upload");
-	private FileUpload uploadField;
-    private HorizontalLayout pLayout		=	new HorizontalLayout();
-    private ProgressIndicator pIndicator	=	new ProgressIndicator();
+	final private FileUploadLayout dataUploadLayout, annotUploadLayout;
 	
-	private Label annotUploadStatus 			= 	new Label("Please select an annotation file to upload");
-	private FileUpload annotUploadField;
-    private HorizontalLayout annotPLayout		=	new HorizontalLayout();
-    private ProgressIndicator annotPIndicator	=	new ProgressIndicator();
-
-	private Button uploadButton = new Button("Add to workspace");
+	final private Button uploadButton = new Button("Add to workspace");
 
 	public UploadDataUI() {
 
 		setImmediate(true);
 		
 		fileCombo 			= 	new ComboBox("Please select type of file");
-		dataArea 			= 	new TextArea(null, initialText);
 
 		for (Loader loader : new LoaderFactory().getParserList()) {
 			fileCombo.addItem(loader);
@@ -107,7 +94,7 @@ public class UploadDataUI extends VerticalLayout {
 					} else {
 						annotChoices.setValue(null);
 						annotChoices.setVisible(false);
-						showAnnotUpload(false);
+						annotUploadLayout.setVisible(false);
 					}
 				}
 			}
@@ -117,27 +104,11 @@ public class UploadDataUI extends VerticalLayout {
 		fileCombo.setImmediate(true);
 		fileCombo.setRequired(true);
 		fileCombo.setNullSelectionAllowed(false);
-		dataArea.setRows(6);
-		dataArea.setColumns(40);
 
 		addComponent(fileCombo);
 
-        uploadField = new FileUpload(this, fileUploadStatus, pLayout, pIndicator, "data");
-        
-        Button cancelUpload = new Button("Cancel");
-        cancelUpload.setStyleName("small");
-        cancelUpload.addListener(new Button.ClickListener() {
-        	private static final long serialVersionUID = 1L;
-            public void buttonClick(ClickEvent event) {
-                uploadField.interruptUpload();
-            }
-        });
+		dataUploadLayout = new FileUploadLayout(this, "data");
 		
-        pLayout.setSpacing(true);
-        pLayout.setVisible(false);
-        pLayout.addComponent(pIndicator);
-        pLayout.addComponent(cancelUpload);
-
 		annotChoices = new Tree("Choose annotation");
 		annotChoices.setNullSelectionAllowed(false);
 		annotChoices.setWidth(220, 0);
@@ -158,9 +129,9 @@ public class UploadDataUI extends VerticalLayout {
 							annotChoices.setValue(choice);
 						}
 						if (choice == Anno.NEW)
-							showAnnotUpload(true);
+							annotUploadLayout.setVisible(true);
 						else
-							showAnnotUpload(false);
+							annotUploadLayout.setVisible(false);
 					}
 				}
 			}			
@@ -175,39 +146,20 @@ public class UploadDataUI extends VerticalLayout {
 		annotTypes.setValue(AnnotationType.values()[0]);
 		annotTypes.setVisible(false);
 
-		annotUploadField = new FileUpload(this, annotUploadStatus, annotPLayout, annotPIndicator, "annotation");
-		annotUploadField.setVisible(false);
-		annotUploadStatus.setVisible(false);
-
-		Button annotCancelUpload = new Button("Cancel");
-		annotCancelUpload.setStyleName("small");
-        annotCancelUpload.addListener(new Button.ClickListener() {
-        	private static final long serialVersionUID = 1L;
-            public void buttonClick(ClickEvent event) {
-                annotUploadField.interruptUpload();
-            }
-        });
-		
-        annotPLayout.setSpacing(true);
-        annotPLayout.setVisible(false);
-        annotPLayout.addComponent(annotPIndicator);
-        annotPLayout.addComponent(annotCancelUpload);
+		annotUploadLayout = new FileUploadLayout(this, "annotation");
+		annotUploadLayout.setVisible(false);
 
 		setSpacing(true);
-		
-		addComponent(fileUploadStatus);
-		addComponent(uploadField);
-		addComponent(pLayout);
+		addComponent(dataUploadLayout);
+
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
 		HorizontalLayout annoLayout = new HorizontalLayout();
 		annoLayout.addComponent(annotChoices);
-		VerticalLayout uploadLayout = new VerticalLayout();
-		uploadLayout.setSpacing(true);
-		uploadLayout.addComponent(annotTypes);
-		uploadLayout.addComponent(annotUploadStatus);
-		uploadLayout.addComponent(annotUploadField);
-		uploadLayout.addComponent(annotPLayout);
-		annoLayout.addComponent(uploadLayout);
+		VerticalLayout rightSideLayout = new VerticalLayout();
+		rightSideLayout.setSpacing(true);
+		rightSideLayout.addComponent(annotTypes);
+		rightSideLayout.addComponent(annotUploadLayout);
+		annoLayout.addComponent(rightSideLayout);
 		addComponent(annoLayout);
 		uploadButton.setEnabled(false);
 		uploadButton.addListener(new UploadButtonListener());
@@ -218,8 +170,8 @@ public class UploadDataUI extends VerticalLayout {
 	}
 	
 	public void cancelUpload(){
-		uploadField.interruptUpload();
-		annotUploadField.interruptUpload();
+		dataUploadLayout.interruptUpload();
+		annotUploadLayout.interruptUpload();
 	}
 
 	/**
@@ -239,6 +191,7 @@ public class UploadDataUI extends VerticalLayout {
 		uploadButton.setEnabled(!enabled);
 	}
 	
+	/* FIXME why does this need to be reset every time?? */
 	private void getAnnotChoices(){
 		annotChoices.removeAllItems();
 		for (Anno anno : Anno.values()){
@@ -279,12 +232,6 @@ public class UploadDataUI extends VerticalLayout {
 		}
 	}
 
-	private void showAnnotUpload(boolean visible) {
-		annotTypes.setVisible(visible);
-		annotUploadField.setVisible(visible);
-		annotUploadStatus.setVisible(visible);
-	}
-
 	/* this name is totally misleading - this is AFTER uploading is done, during background 'adding to the workspace' process */
 	private class UploadButtonListener implements Button.ClickListener {
 
@@ -299,7 +246,7 @@ public class UploadDataUI extends VerticalLayout {
 			User annotOwner 			= 	SessionHandler.get();
 			AnnotationType annotType 	= 	(AnnotationType)annotTypes.getValue();
 			
-			File dataFile = uploadField.getDataFile();
+			File dataFile = dataUploadLayout.getDataFile();
 			if (dataFile == null) {
 				MessageBox mb = new MessageBox(getWindow(), 
 						"Loading problem", 
@@ -362,7 +309,7 @@ public class UploadDataUI extends VerticalLayout {
 				annotFile = null;
 				// just loaded
 			} else if (choice == Anno.NEW){
-				annotFile = annotUploadField.getDataFile();
+				annotFile = annotUploadLayout.getDataFile();
 				if (annotFile == null) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Loading problem", 
