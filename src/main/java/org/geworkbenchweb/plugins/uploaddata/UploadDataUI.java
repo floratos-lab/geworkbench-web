@@ -1,7 +1,6 @@
 package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.plugins.uploaddata.AnnotationUploadLayout.Anno;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.utils.WorkspaceUtils;
@@ -27,8 +27,6 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -38,7 +36,6 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.SplitPanel;
-import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -52,21 +49,9 @@ public class UploadDataUI extends VerticalLayout {
 
 	private static Log log = LogFactory.getLog(UploadDataUI.class);
 			
-	public static enum Anno {
-		NO("No annotation"), NEW("Load new annotation"), PUBLIC("Public annotation files"),
-		PRIVATE("Private annotations files"), DELETE("Delete private annotation files");
-		private String value;
-		Anno(String v) { value = v; }
-		public String toString() { return value; }
-	};
-
 	final private ComboBox fileCombo;
-	
-	final private Tree annotChoices;
-	final private ComboBox annotTypes;
-
-	final private FileUploadLayout dataUploadLayout, annotUploadLayout;
-	
+	final private FileUploadLayout dataUploadLayout = new FileUploadLayout(this, "data");
+	final private AnnotationUploadLayout annoLayout = new AnnotationUploadLayout(this);
 	final private Button uploadButton = new Button("Add to workspace");
 
 	public UploadDataUI() {
@@ -88,13 +73,9 @@ public class UploadDataUI extends VerticalLayout {
 					Loader loader = (Loader) type;
 					uploadButton.setEnabled(false);
 					if (loader instanceof LoaderUsingAnnotation) {
-						getAnnotChoices();
-						annotChoices.setValue(Anno.NO);
-						annotChoices.setVisible(true);
+						annoLayout.setVisible(true);
 					} else {
-						annotChoices.setValue(null);
-						annotChoices.setVisible(false);
-						annotUploadLayout.setVisible(false);
+						annoLayout.setVisible(false);
 					}
 				}
 			}
@@ -107,59 +88,10 @@ public class UploadDataUI extends VerticalLayout {
 
 		addComponent(fileCombo);
 
-		dataUploadLayout = new FileUploadLayout(this, "data");
-		
-		annotChoices = new Tree("Choose annotation");
-		annotChoices.setNullSelectionAllowed(false);
-		annotChoices.setWidth(220, 0);
-		annotChoices.setVisible(false);
-		annotChoices.setImmediate(true);
-		annotChoices.addListener(new ItemClickListener(){
-			private static final long serialVersionUID = 8744518843208040408L;
-
-			public void itemClick(ItemClickEvent event) {
-				if (event.getSource() == annotChoices){
-					Object choice = event.getItemId();
-					if (choice != null){
-						if (choice == Anno.PUBLIC || choice == Anno.PRIVATE) {
-							annotChoices.setSelectable(false);
-							annotChoices.setValue(null);
-						} else {
-							annotChoices.setSelectable(true);
-							annotChoices.setValue(choice);
-						}
-						if (choice == Anno.NEW)
-							annotUploadLayout.setVisible(true);
-						else
-							annotUploadLayout.setVisible(false);
-					}
-				}
-			}			
-		});
-
-		ArrayList<AnnotationType> atypes = new ArrayList<AnnotationType>();
-		atypes.add(AnnotationType.values()[0]);
-		atypes.add(AnnotationType.values()[1]);
-		annotTypes = new ComboBox("Choose annotation file type", atypes);
-		annotTypes.setNullSelectionAllowed(false);
-		annotTypes.setWidth(200, 0);
-		annotTypes.setValue(AnnotationType.values()[0]);
-		annotTypes.setVisible(false);
-
-		annotUploadLayout = new FileUploadLayout(this, "annotation");
-		annotUploadLayout.setVisible(false);
-
 		setSpacing(true);
 		addComponent(dataUploadLayout);
 
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
-		HorizontalLayout annoLayout = new HorizontalLayout();
-		annoLayout.addComponent(annotChoices);
-		VerticalLayout rightSideLayout = new VerticalLayout();
-		rightSideLayout.setSpacing(true);
-		rightSideLayout.addComponent(annotTypes);
-		rightSideLayout.addComponent(annotUploadLayout);
-		annoLayout.addComponent(rightSideLayout);
 		addComponent(annoLayout);
 		uploadButton.setEnabled(false);
 		uploadButton.addListener(new UploadButtonListener());
@@ -171,7 +103,7 @@ public class UploadDataUI extends VerticalLayout {
 	
 	public void cancelUpload(){
 		dataUploadLayout.interruptUpload();
-		annotUploadLayout.interruptUpload();
+		annoLayout.cancelUpload();
 	}
 
 	/**
@@ -191,55 +123,6 @@ public class UploadDataUI extends VerticalLayout {
 		uploadButton.setEnabled(!enabled);
 	}
 	
-	/* FIXME why does this need to be reset every time?? */
-	private void getAnnotChoices(){
-		annotChoices.removeAllItems();
-
-		annotChoices.addItem(Anno.NO);
-		annotChoices.setChildrenAllowed(Anno.NO, false);
-
-		annotChoices.addItem(Anno.NEW);
-		annotChoices.setChildrenAllowed(Anno.NEW, false);
-		
-		annotChoices.addItem(Anno.PUBLIC);
-		File dir = new File(GeworkbenchRoot.getPublicAnnotationDirectory());
-		if (!dir.exists() || !dir.isDirectory()) {
-			log.error("public annotation file directory missing or corrupted");
-		} else {
-			int cnt = 0;
-			for (File f : dir.listFiles()) {
-				if (f.isFile() && f.getName().endsWith(".csv")) {
-					String fname = f.getName();
-					annotChoices.addItem(fname);
-					annotChoices.setParent(fname, Anno.PUBLIC);
-					annotChoices.setChildrenAllowed(fname, false);
-					cnt++;
-				}
-			}
-			if (cnt == 0)
-				annotChoices.setChildrenAllowed(Anno.PUBLIC, false);
-		}
-		
-		annotChoices.addItem(Anno.PRIVATE);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("owner", SessionHandler.get().getId());
-		List<Annotation> annots = FacadeFactory
-				.getFacade()
-				.list("Select a from Annotation as a where a.owner=:owner order by a.name",
-						params);
-		for (Annotation a : annots) {
-			String aname = a.getName();
-			annotChoices.addItem(aname);
-			annotChoices.setParent(aname, Anno.PRIVATE);
-			annotChoices.setChildrenAllowed(aname, false);
-		}
-		if (annots.isEmpty())
-			annotChoices.setChildrenAllowed(Anno.PRIVATE, false);
-		
-		annotChoices.addItem(Anno.DELETE);
-		annotChoices.setChildrenAllowed(Anno.DELETE, false);
-	}
-
 	/* this name is totally misleading - this is AFTER uploading is done, during background 'adding to the workspace' process */
 	private class UploadButtonListener implements Button.ClickListener {
 
@@ -250,9 +133,9 @@ public class UploadDataUI extends VerticalLayout {
 			enableUMainLayout(true);
 			
 			Loader loader 				= 	(Loader) fileCombo.getValue();
-			Object choice 				= 	annotChoices.getValue();
+			Object choice 				= 	annoLayout.getAnnotationChoice();
 			User annotOwner 			= 	SessionHandler.get();
-			AnnotationType annotType 	= 	(AnnotationType)annotTypes.getValue();
+			AnnotationType annotType 	= 	annoLayout.getAnnotationType();
 			
 			File dataFile = dataUploadLayout.getDataFile();
 			if (dataFile == null) {
@@ -289,7 +172,7 @@ public class UploadDataUI extends VerticalLayout {
 				}
 			} else if (!(choice instanceof Anno)){
 				String annotFname = (String)choice;
-				Object parent = annotChoices.getParent(choice);
+				Anno parent = annoLayout.getAnnotationChoiceGroup();
 				// shared default annotation
 				if (parent == Anno.PUBLIC){
 					annotOwner = null;
@@ -317,7 +200,7 @@ public class UploadDataUI extends VerticalLayout {
 				annotFile = null;
 				// just loaded
 			} else if (choice == Anno.NEW){
-				annotFile = annotUploadLayout.getDataFile();
+				annotFile = annoLayout.getAnnotationFile();
 				if (annotFile == null) {
 					MessageBox mb = new MessageBox(getWindow(), 
 							"Loading problem", 
