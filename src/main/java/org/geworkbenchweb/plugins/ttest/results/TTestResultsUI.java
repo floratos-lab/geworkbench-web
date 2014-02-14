@@ -69,7 +69,10 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		addComponent(drawPlot());
+		InvientCharts chart = drawPlot();
+		addComponent(new ChartMenuBar(chart));
+		addComponent(chart);
+		setExpandRatio(chart, 1);
 	}
 
 	/**
