@@ -34,15 +34,14 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-@SuppressWarnings("deprecation")
 public class UploadDataUI extends VerticalLayout implements Button.ClickListener {
 
 	private static final long serialVersionUID = 8042523201401300804L;
@@ -116,8 +115,8 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
 		while(it.hasNext()){
 			Component c = it.next();
-			if(c instanceof SplitPanel){
-				SplitPanel sp = (SplitPanel)c;
+			if(c instanceof HorizontalSplitPanel){
+				HorizontalSplitPanel sp = (HorizontalSplitPanel)c;
 				sp.getFirstComponent().setEnabled(enabled);
 			}else c.setEnabled(enabled);
 		}

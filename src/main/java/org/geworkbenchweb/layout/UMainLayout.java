@@ -16,8 +16,8 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
@@ -33,11 +33,11 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.SplitPanel;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
@@ -45,10 +45,9 @@ import com.vaadin.ui.themes.Reindeer;
 
 /**
  * UMainLayout sets up the basic layout and style of the application.
+ * 
  * @author Nikhil Reddy
- * @version $Id$
  */
-@SuppressWarnings("deprecation")
 public class UMainLayout extends VerticalLayout {
 	
 	private static Log log = LogFactory.getLog(UMainLayout.class);
@@ -61,7 +60,7 @@ public class UMainLayout extends VerticalLayout {
 	static private ThemeResource openSetIcon	=	new ThemeResource("../custom/icons/open_set.png");
 	static private ThemeResource saveSetIcon	=	new ThemeResource("../custom/icons/save_set.png");
 
-	final private SplitPanel mainSplit = new SplitPanel(SplitPanel.ORIENTATION_HORIZONTAL);
+	final private HorizontalSplitPanel mainSplit = new HorizontalSplitPanel();
 
 	final private VisualPluginView pluginView = new VisualPluginView();
 
@@ -235,7 +234,7 @@ public class UMainLayout extends VerticalLayout {
 	
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
-		mainSplit.setSplitPosition(275, SplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(275, HorizontalSplitPanel.UNITS_PIXELS);
 		mainSplit.setSecondComponent(pluginView);
 
 		HorizontalLayout quicknav = new HorizontalLayout();
@@ -398,13 +397,13 @@ public class UMainLayout extends VerticalLayout {
 					mainSplit.setLocked(true);
 				} else {
 					b.addStyleName("down");
-					mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
+					mainSplit.setSplitPosition(250, HorizontalSplitPanel.UNITS_PIXELS);
 					mainSplit.setLocked(false);
 					navigationTree.setVisible(true);
 				}
 			}
 		});
-		mainSplit.setSplitPosition(250, SplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(250, HorizontalSplitPanel.UNITS_PIXELS);
 		return b;
 	}
 
