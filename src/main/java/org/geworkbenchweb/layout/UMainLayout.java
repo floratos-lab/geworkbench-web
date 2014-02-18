@@ -88,13 +88,14 @@ public class UMainLayout extends VerticalLayout {
 
 	final private MenuItem setViewMeuItem;
 	final private MenuItem workspaceViewMenuItem;
-	final private SetViewCommand setViewCommand;
 	
 	final private Tree navigationTree = createNavigationTree();;
 	
 	private Long dataSetId;
 
 	final private HorizontalLayout navigationPanel;
+
+	private SetViewLayout setViewLayout;
 	
 	public void push() {
 		pusher.push();
@@ -162,8 +163,28 @@ public class UMainLayout extends VerticalLayout {
 		toolBar.setEnabled(false);
 		toolBar.setImmediate(true);
 		toolBar.setStyleName("transparent");
-		setViewCommand = new SetViewCommand(this);
-		setViewMeuItem = toolBar.addItem("Set View", setViewCommand);
+		setViewMeuItem = toolBar.addItem("Set View", new MenuBar.Command() {
+
+			private static final long serialVersionUID = -3200891031850457832L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				selectedItem.setEnabled(false);
+				
+				removeButton.setVisible(false);
+				annotButton.setVisible(false);
+				
+				removeSetButton.setVisible(true);
+				openSetButton.setVisible(true);
+				saveSetButton.setVisible(true);
+
+				workspaceViewMenuItem.setEnabled(true);
+				
+				setViewLayout = new SetViewLayout(microarraySetId);
+				mainSplit.setFirstComponent(setViewLayout);
+			}
+			
+		});
 		setViewMeuItem.setEnabled(false);
 		workspaceViewMenuItem = toolBar.addItem("Workspace View", new Command() {
 
@@ -180,32 +201,17 @@ public class UMainLayout extends VerticalLayout {
 		removeButton.addListener(new RemoveButtonListener(this));
 
 		/* Deletes selected subset from the datatree. */
-		removeSetButton.addListener(new Button.ClickListener() {
-		
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {	
-				setViewCommand.removeSelectedSubset();
-
-			}
-		});
+		removeSetButton.addListener(new RemoveSetListener(this));
 
 		openSetButton.addListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				setViewCommand.openOpenSetWindow();
+	        	getWindow().addWindow(new OpenSetWindow(dataSetId, setViewLayout));
 			}
 		});
 
-		saveSetButton.addListener(new Button.ClickListener() {
-			private static final long serialVersionUID = -5166425513891423653L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-				setViewCommand.saveSelectedSet();
-			}
-		});
+		saveSetButton.addListener(new SaveSetListener(this));
 
 		navigationPanel = createTopNavigationPanel();
 		addComponent(navigationPanel);
@@ -524,32 +530,35 @@ public class UMainLayout extends VerticalLayout {
 	}
 	
 	// this may need to be public if we don't use event listener to trigger it.
-	private void addDataSet(DataSet dS) {
+	private void addDataSet(final DataSet dS) {
+		Long id = dS.getId();
+		String name = dS.getName();
 		String className = dS.getType();
-		Item item = navigationTree.addItem(dS.getId());
+		
+		Item item = navigationTree.addItem(id);
 		if(item==null) {
 			// this happens because pending node has the same ID as the ultimate node
-			item = navigationTree.getItem(dS.getId());
+			item = navigationTree.getItem(id);
 		}
 		item.getItemProperty("description").setValue(dS.getDescription());
 		// TODO let item holding the entire DataSet may be the better idea than the current way to read all fields from it
-		navigationTree.setChildrenAllowed(dS.getId(), false);
-		boolean pending = dS.getName().contains("Pending");
+		navigationTree.setChildrenAllowed(id, false);
+		boolean pending = name.contains("Pending");
 		if(pending) {
-			navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(pendingIcon);
+			navigationTree.getContainerProperty(id, "Icon").setValue(pendingIcon);
 		} else {
 			try {
 				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
-				navigationTree.getContainerProperty(dS.getId(), "Icon").setValue(icon);
+				navigationTree.getContainerProperty(id, "Icon").setValue(icon);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
 
-		navigationTree.getContainerProperty(dS.getId(), "Name").setValue(dS.getName());
-		navigationTree.getContainerProperty(dS.getId(), "Type").setValue(className);
+		navigationTree.getContainerProperty(id, "Name").setValue(name);
+		navigationTree.getContainerProperty(id, "Type").setValue(className);
 		if(!pending) {
-			navigationTree.select(dS.getId());
+			navigationTree.select(id);
 		}
 	}
 	
@@ -569,39 +578,19 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 
-	void switchToSetView() {
-		removeButton.setVisible(false);
-		annotButton.setVisible(false);
-		navigationTree.setVisible(false);
-		
-		removeSetButton.setVisible(true);
-		openSetButton.setVisible(true);
-		saveSetButton.setVisible(true);
-
-		workspaceViewMenuItem.setEnabled(true);
-		
-		// TODO this is a naughty way to get the previous set view away. definitely should be changed.
-		leftMainLayout.removeAllComponents();
-		leftMainLayout.addComponent(navigationTree);
-	}
-	
 	private void switchToWorkspaceView() {
 		removeButton.setVisible(true);
 		annotButton.setVisible(true);
 		removeSetButton.setVisible(false);
 		openSetButton.setVisible(false);
 		saveSetButton.setVisible(false);
-		navigationTree.setVisible(true);
-		setViewCommand.hideSetView();
+
 		workspaceViewMenuItem.setEnabled(false);
 		setViewMeuItem.setEnabled(true);
 		pluginView.setEnabled(true);
 		mainToolBar.setEnabled(true);
-	}
-
-	// TODO not a good idea. temporary solution for set view
-	CssLayout getLeftMainLayout() {
-		return leftMainLayout;
+		
+		mainSplit.setFirstComponent(navigationTree);
 	}
 
 	Long getCurrentDatasetId() {
@@ -612,5 +601,9 @@ public class UMainLayout extends VerticalLayout {
 	private Long microarraySetId = null;
 	Long getMicroarraySetId() {
 		return microarraySetId;
+	}
+
+	public SetViewLayout getSetViewLayout() {
+		return setViewLayout;
 	}
 }
