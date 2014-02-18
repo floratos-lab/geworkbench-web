@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.layout.UMainLayout;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -80,7 +81,8 @@ public class FileUploadLayout extends VerticalLayout {
 				// This method gets called immediately after upload is started.
 				// A tricky design: disable part of the GUI and revive them when
 				// the "Add to workspace" part is done.
-				uploadDataUI.enableUMainLayout(false);
+				UMainLayout mainLayout = uploadDataUI.getMainLayout();
+				mainLayout.lockGuiForUpload();
 
 				upload.setVisible(false);
 				statusLabel.setValue("Upload in progress: \""

@@ -93,6 +93,8 @@ public class UMainLayout extends VerticalLayout {
 	final private Tree navigationTree = createNavigationTree();;
 	
 	private Long dataSetId;
+
+	final private HorizontalLayout navigationPanel;
 	
 	public void push() {
 		pusher.push();
@@ -205,7 +207,8 @@ public class UMainLayout extends VerticalLayout {
 			}
 		});
 
-		addComponent(createTopNavigationPanel());
+		navigationPanel = createTopNavigationPanel();
+		addComponent(navigationPanel);
 
 		Button logo = new NativeButton();
 		logo.setDescription("geWorkbench Home");
@@ -253,6 +256,20 @@ public class UMainLayout extends VerticalLayout {
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 	} // end of the constructor.
 
+	/* This locks GUI except for the plugin view panel.
+	 * The code that calls this, which is meant to be data upload UI, is responsible to enable it later. */
+	public void lockGuiForUpload() {
+		navigationPanel.setEnabled(false);
+		leftMainLayout.setEnabled(false);
+		annotationPanel.setEnabled(false);
+	}
+
+	public void unlockGuiForUpload() {
+		navigationPanel.setEnabled(true);
+		leftMainLayout.setEnabled(true);
+		annotationPanel.setEnabled(true);
+	}
+	
 	private HorizontalLayout createTopNavigationPanel() {
 		HorizontalLayout p = new HorizontalLayout();
 		p.setHeight("24px");

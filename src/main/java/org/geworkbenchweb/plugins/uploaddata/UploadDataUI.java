@@ -2,7 +2,6 @@ package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +30,8 @@ import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -71,7 +68,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 				Object type = fileCombo.getValue();
 				if (type instanceof Loader) {
 					selectedLoader = (Loader) type;
-					addButton.setEnabled(false);
+					addButton.setEnabled(true);
 					if (selectedLoader instanceof LoaderUsingAnnotation) {
 						annoLayout.setVisible(true);
 					} else {
@@ -93,6 +90,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 
 		addComponent(new Label("<hr/>", Label.CONTENT_XHTML));
 		addComponent(annoLayout);
+		addButton.setImmediate(true);
 		addButton.setEnabled(false);
 		addButton.addListener(this);
 		HorizontalLayout btnLayout = new HorizontalLayout();
@@ -106,27 +104,11 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		annoLayout.cancelUpload();
 	}
 
-	/**
-	 * enable or disable components in UMainLayout except pluginView
-	 * @param enabled
-	 * @return
-	 */
-	void enableUMainLayout(boolean enabled){
-		Iterator<Component> it = getApplication().getMainWindow().getContent().getComponentIterator();
-		while(it.hasNext()){
-			Component c = it.next();
-			if(c instanceof HorizontalSplitPanel){
-				HorizontalSplitPanel sp = (HorizontalSplitPanel)c;
-				sp.getFirstComponent().setEnabled(enabled);
-			}else c.setEnabled(enabled);
-		}
-		addButton.setEnabled(!enabled);
-	}
-
 	/* 'add to workspace button' clicked */
 	@Override
 	public void buttonClick(ClickEvent event) {
-		enableUMainLayout(true);
+		getMainLayout().unlockGuiForUpload();
+		addButton.setEnabled(false);
 
 		Object choice = annoLayout.getAnnotationChoice();
 		User annotOwner = SessionHandler.get();
@@ -288,6 +270,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 								}
 							}
 						});
+						addButton.setEnabled(true);
 				}
 				mainLayout.push();
 			}
@@ -297,7 +280,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 	}
 
 	// TODO this may not be the best design to get reference to the main layout
-	private UMainLayout getMainLayout() {
+	public UMainLayout getMainLayout() {
 		Window w = getApplication().getMainWindow();
 		ComponentContainer content = w.getContent();
 		if(content instanceof UMainLayout) {
