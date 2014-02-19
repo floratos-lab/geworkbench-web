@@ -157,6 +157,7 @@ public class ChartMenuBar extends MenuBar {
 			Double sigValue    = tTestResultSet.getpValue()[index];
 			table.addItem(new Object[]{markerLabel, geneSymbol, sigValue, foldchange}, new Integer(i));
 		}
+		table.sort(new String[]{"p-Value"}, new boolean[]{true});
 
 		tTestResultsUI.addComponent(table);
 		
