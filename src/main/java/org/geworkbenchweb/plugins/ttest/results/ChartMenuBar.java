@@ -29,6 +29,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class ChartMenuBar extends MenuBar {
 
 	private static final long serialVersionUID = -6900180476335740806L;
+	private static final String excelDoubleFormat = "0.00000000000000";
 	private MenuItem exportItem;
 	private MenuItem resetZoomItem;
 	private InvientCharts chart;
@@ -77,7 +78,7 @@ public class ChartMenuBar extends MenuBar {
 		});
 		exportPlotItem.setStyleName("plugin");
 		
-		MenuItem exportDataItem = exportItem.addItem("Data to Excel", new Command() {
+		MenuItem exportDataItem = exportItem.addItem("Data as Excel", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -88,7 +89,7 @@ public class ChartMenuBar extends MenuBar {
 		});
 		exportDataItem.setStyleName("plugin");
 		
-		MenuItem exportDataCSVItem = exportItem.addItem("Data to CSV", new Command() {
+		MenuItem exportDataCSVItem = exportItem.addItem("Data as CSV", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -136,7 +137,7 @@ public class ChartMenuBar extends MenuBar {
 		Table table = new Table();
 		table.addContainerProperty("Probe Set Name", String.class,  null);
 		table.addContainerProperty("Gene Name", String.class,  null);
-		table.addContainerProperty("p-Value(-log10)", Double.class,  null);
+		table.addContainerProperty("p-Value", Double.class,  null);
 		table.addContainerProperty("Fold Change (log2)", Double.class,  null);
 
 		Long dataSetId = tTestResultsUI.parentDatasetId;
@@ -154,7 +155,6 @@ public class ChartMenuBar extends MenuBar {
 			String geneSymbol  = map.get(markerLabel);
 			Double foldchange  = tTestResultSet.getFoldChange()[index];
 			Double sigValue    = tTestResultSet.getpValue()[index];
-			sigValue = -Math.log10(sigValue);
 			table.addItem(new Object[]{markerLabel, geneSymbol, sigValue, foldchange}, new Integer(i));
 		}
 
@@ -162,12 +162,15 @@ public class ChartMenuBar extends MenuBar {
 		
 		if(format.equals("Excel")){
 			ExcelExport excelExport = new ExcelExport(table);
-			excelExport.convertTable();
 			excelExport.setExportFileName(chartTitle+".xls");
+			excelExport.setDoubleDataFormat(excelDoubleFormat);
+			excelExport.setDisplayTotals(false);
 			excelExport.export();
 		}else{
 			CsvExport csvExport = new CsvExport(table);
 			csvExport.setExportFileName(chartTitle+".csv");
+			csvExport.setDoubleDataFormat(excelDoubleFormat);
+			csvExport.setDisplayTotals(false);
 			csvExport.export();
 		}
 		tTestResultsUI.removeComponent(table);
