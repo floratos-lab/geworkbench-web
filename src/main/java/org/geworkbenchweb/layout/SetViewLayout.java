@@ -13,11 +13,10 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.AbstractSelect;
@@ -56,29 +55,9 @@ public class SetViewLayout extends CssLayout {
 		markerTree.setMultiSelect(true);
 		markerTree.setDescription("Markers");
 
-		HierarchicalContainer markerData = new HierarchicalContainer();
-		List<?> sets = SubSetOperations.getMarkerSets(dataSetId);
-		Item mainItem = markerData.addItem("MarkerSets");
-
-		markerData.addContainerProperty("setName", String.class, null);
-		mainItem.getItemProperty("setName").setValue("Marker Sets");
-		for (int i = 0; i < sets.size(); i++) {
-			List<String> markers = ((SubSet) sets.get(i)).getPositions();
-			Long subSetId = ((SubSet) sets.get(i)).getId();
-			markerData.addItem(subSetId);
-			markerData.getContainerProperty(subSetId, "setName").setValue(
-					((SubSet) sets.get(i)).getName() + " [" + markers.size()
-							+ "]");
-			markerData.setParent(subSetId, "MarkerSets");
-			markerData.setChildrenAllowed(subSetId, true);
-			for (int j = 0; j < markers.size(); j++) {
-				markerData.addItem(markers.get(j) + subSetId);
-				markerData.getContainerProperty(markers.get(j) + subSetId,
-						"setName").setValue(markers.get(j));
-				markerData.setParent(markers.get(j) + subSetId, subSetId);
-				markerData.setChildrenAllowed(markers.get(j) + subSetId, false);
-			}
-		}
+		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
+		HierarchicalContainer markerData = createSetContainer(sets,
+				"MarkerSets", "Marker Sets");
 		markerSetTree.setImmediate(true);
 		markerSetTree.setSelectable(true);
 		markerSetTree.setMultiSelect(false);
@@ -99,29 +78,9 @@ public class SetViewLayout extends CssLayout {
 			}
 		});
 
-		HierarchicalContainer arrayData = new HierarchicalContainer();
-		List<?> aSets = SubSetOperations.getArraySets(dataSetId);
-		arrayData.addContainerProperty("setName", String.class, null);
-		Item mainItem1 = arrayData.addItem("arraySets");
-		mainItem1.getItemProperty("setName").setValue("Phenotype Sets");
-
-		for (int i = 0; i < aSets.size(); i++) {
-			List<String> arrays = ((SubSet) aSets.get(i)).getPositions();
-			Long subSetId = ((SubSet) aSets.get(i)).getId();
-			arrayData.addItem(subSetId);
-			arrayData.getContainerProperty(subSetId, "setName").setValue(
-					((SubSet) aSets.get(i)).getName() + " [" + arrays.size()
-							+ "]");
-			arrayData.setParent(subSetId, "arraySets");
-			arrayData.setChildrenAllowed(subSetId, true);
-			for (int j = 0; j < arrays.size(); j++) {
-				arrayData.addItem(arrays.get(j) + subSetId);
-				arrayData.getContainerProperty(arrays.get(j) + subSetId,
-						"setName").setValue(arrays.get(j));
-				arrayData.setParent(arrays.get(j) + subSetId, subSetId);
-				arrayData.setChildrenAllowed(arrays.get(j) + subSetId, false);
-			}
-		}
+		List<AbstractPojo> aSets = SubSetOperations.getArraySets(dataSetId);
+		HierarchicalContainer arrayData = createSetContainer(aSets,
+				"arraySets", "Phenotype Sets");
 		arraySetTree.setImmediate(true);
 		arraySetTree.setMultiSelect(false);
 		arraySetTree.setSelectable(true);
@@ -142,15 +101,11 @@ public class SetViewLayout extends CssLayout {
 			}
 		});
 
-		// arrayTree.addActionHandler(arrayTreeActionHandler);
-		// arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId,
-		// arraySetTree, contextSelector));
 		arrayTree.setImmediate(true);
 		arrayTree.setMultiSelect(true);
 		arrayTree.setSelectable(true);
 		arrayTree.setDescription("Phenotypes");
 
-		// TODO this probably can be done more efficiently
 		DataSet generic = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
 		Long id = generic.getDataId();
@@ -162,9 +117,10 @@ public class SetViewLayout extends CssLayout {
 				"markerLabels", id);
 		String[] arrayLabels = DataSetOperations.getStringLabels("arrayLabels",
 				id);
-		markerTree.setContainerDataSource(markerTableView(markerLabels,
-				dataSetId));
-		arrayTree.setContainerDataSource(arrayTableView(arrayLabels));
+		markerTree.setContainerDataSource(createLabelContainer(markerLabels,
+				true, dataSetId));
+		arrayTree.setContainerDataSource(createLabelContainer(arrayLabels,
+				false, null));
 
 		markerTree.setItemCaptionPropertyId("Labels");
 		markerTree
@@ -252,67 +208,77 @@ public class SetViewLayout extends CssLayout {
 		this.addComponent(contextpane);
 		this.addComponent(arrayTree);
 		this.addComponent(arraySetTree);
-	} /* end of constructor. this definitely needs to be refactored. */ 
+	} /* end of constructor. TODO this definitely needs more refactoring. */ 
 
 	Long getSelectedSetId() {
 		return selectedSubSetId;
 	}
 	
-	/**
-	 * Method is used to populate Phenotype Panel
-	 * 
-	 * @param maSet
-	 * @return - Indexed container with array labels
-	 */
-	private HierarchicalContainer arrayTableView(String[] arrayLabels) {
+	private static HierarchicalContainer createSetContainer(
+			final List<AbstractPojo> sets, final String topItem,
+			final String setName) {
+		HierarchicalContainer dataContainer = new HierarchicalContainer();
+		dataContainer.addContainerProperty("setName", String.class, null);
 
-		HierarchicalContainer tableData = new HierarchicalContainer();
+		Item mainItem = dataContainer.addItem(topItem);
+		mainItem.getItemProperty("setName").setValue(setName);
 
-		tableData.addContainerProperty("Labels", String.class, null);
-		Item mainItem = tableData.addItem("Phenotypes");
-		mainItem.getItemProperty("Labels").setValue(
-				"Phenotypes" + " [" + arrayLabels.length + "]");
-
-		for (int k = 0; k < arrayLabels.length; k++) {
-			Item item = tableData.addItem(k);
-			tableData.setChildrenAllowed(k, false);
-			item.getItemProperty("Labels").setValue(arrayLabels[k]);
-			tableData.setParent(k, "Phenotypes");
+		for (int i = 0; i < sets.size(); i++) {
+			List<String> markers = ((SubSet) sets.get(i)).getPositions();
+			Long subSetId = ((SubSet) sets.get(i)).getId();
+			dataContainer.addItem(subSetId);
+			dataContainer.getContainerProperty(subSetId, "setName").setValue(
+					((SubSet) sets.get(i)).getName() + " [" + markers.size()
+							+ "]");
+			dataContainer.setParent(subSetId, topItem);
+			dataContainer.setChildrenAllowed(subSetId, true);
+			for (int j = 0; j < markers.size(); j++) {
+				dataContainer.addItem(markers.get(j) + subSetId);
+				dataContainer.getContainerProperty(markers.get(j) + subSetId,
+						"setName").setValue(markers.get(j));
+				dataContainer.setParent(markers.get(j) + subSetId, subSetId);
+				dataContainer.setChildrenAllowed(markers.get(j) + subSetId,
+						false);
+			}
 		}
-		return tableData;
+		return dataContainer;
 	}
 
-	/**
-	 * Method is used to populate Marker Panel
-	 * 
-	 * @param maSet
-	 * @return - Indexed container with marker labels
-	 */
-	private HierarchicalContainer markerTableView(String[] markerLabels,
-			Long dataSetId) {
+	/* When isMarker is false, dataSetId is ignored. */
+	private static HierarchicalContainer createLabelContainer(final String[] labels,
+			final boolean isMarker, final Long dataSetId) {
 
 		HierarchicalContainer tableData = new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
-		Item mainItem = tableData.addItem("Markers");
+		String topItemLabel = "Phenotypes";
+		if(isMarker)topItemLabel = "Markers";
+		
+		Item mainItem = tableData.addItem(topItemLabel);
 		mainItem.getItemProperty("Labels").setValue(
-				"Markers" + " [" + markerLabels.length + "]");
+				topItemLabel + " [" + labels.length + "]");
 
 		/* find annotation information */
-		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
+		Map<String, String> map = null;
+		if(isMarker) {
+			map = DataSetOperations.getAnnotationMap(dataSetId);
+		}
 
-		for (int j = 0; j < markerLabels.length; j++) {
+		for (int j = 0; j < labels.length; j++) {
 
 			Item item = tableData.addItem(j);
 			tableData.setChildrenAllowed(j, false);
 
-			String markerLabel = markerLabels[j];
-			String geneSymbol = map.get(markerLabel);
-			if (geneSymbol != null) {
-				markerLabel += " (" + geneSymbol + ")";
+			String label = labels[j];
+			
+			if(map!=null) {
+				String geneSymbol = map.get(label);
+				if (geneSymbol != null) {
+					label += " (" + geneSymbol + ")";
+				}
 			}
-			item.getItemProperty("Labels").setValue(markerLabel);
-			tableData.setParent(j, "Markers");
+			item.getItemProperty("Labels").setValue(label);
+			tableData.setParent(j, topItemLabel);
 		}
 		return tableData;
 	}
