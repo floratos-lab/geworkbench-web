@@ -26,14 +26,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
  * @author zji
@@ -250,57 +244,8 @@ public class SetViewLayout extends CssLayout {
 		}
 
 		Button mrknewContextButton = new Button("New");
-		mrknewContextButton.addListener(new Button.ClickListener() {
-			private static final long serialVersionUID = -5508188056515818970L;
-
-			public void buttonClick(ClickEvent event) {
-				final Window mainWindow = SetViewLayout.this.getApplication()
-						.getMainWindow();
-
-				final Window nameWindow = new Window();
-				nameWindow.setModal(true);
-				nameWindow.setClosable(true);
-				nameWindow.setWidth("300px");
-				nameWindow.setHeight("150px");
-				nameWindow.setResizable(false);
-				nameWindow.setCaption("Add New MarkerSet Context");
-				nameWindow.setImmediate(true);
-
-				final TextField contextName = new TextField();
-				contextName
-						.setInputPrompt("Please enter markerset context name");
-				contextName.setImmediate(true);
-				nameWindow.addComponent(contextName);
-				nameWindow.addComponent(new Button("Ok",
-						new Button.ClickListener() {
-							private static final long serialVersionUID = 634733324392150366L;
-
-							public void buttonClick(ClickEvent event) {
-								String name = (String) contextName.getValue();
-								for (Context context : SubSetOperations
-										.getMarkerContexts(dataSetId)) {
-									if (context.getName().equals(name)) {
-										MessageBox mb = new MessageBox(
-												mainWindow, "Warning",
-												MessageBox.Icon.WARN,
-												"Name already exists",
-												new MessageBox.ButtonConfig(
-														ButtonType.OK, "Ok"));
-										mb.show();
-										return;
-									}
-								}
-								Context context = new Context(name, "marker",
-										dataSetId);
-								FacadeFactory.getFacade().store(context);
-								mainWindow.removeWindow(nameWindow);
-								mrkcontextSelector.addItem(context);
-								mrkcontextSelector.setValue(context);
-							}
-						}));
-				mainWindow.addWindow(nameWindow);
-			}
-		});
+		mrknewContextButton.addListener(new NewContextListener(this, dataSetId,
+				mrkcontextSelector, "marker"));
 
 		Label mrklabel = new Label("Context for Marker Sets");
 		mrkcontextpane.addComponent(mrklabel);
@@ -368,57 +313,8 @@ public class SetViewLayout extends CssLayout {
 		}
 
 		Button newContextButton = new Button("New");
-		newContextButton.addListener(new Button.ClickListener() {
-			private static final long serialVersionUID = -5508188056515818970L;
-
-			public void buttonClick(ClickEvent event) {
-				final Window mainWindow = SetViewLayout.this.getApplication()
-						.getMainWindow();
-
-				final Window nameWindow = new Window();
-				nameWindow.setModal(true);
-				nameWindow.setClosable(true);
-				nameWindow.setWidth("300px");
-				nameWindow.setHeight("150px");
-				nameWindow.setResizable(false);
-				nameWindow.setCaption("Add New ArraySet Context");
-				nameWindow.setImmediate(true);
-
-				final TextField contextName = new TextField();
-				contextName
-						.setInputPrompt("Please enter arrayset context name");
-				contextName.setImmediate(true);
-				nameWindow.addComponent(contextName);
-				nameWindow.addComponent(new Button("Ok",
-						new Button.ClickListener() {
-							private static final long serialVersionUID = 634733324392150366L;
-
-							public void buttonClick(ClickEvent event) {
-								String name = (String) contextName.getValue();
-								for (Context context : SubSetOperations
-										.getArrayContexts(dataSetId)) {
-									if (context.getName().equals(name)) {
-										MessageBox mb = new MessageBox(
-												mainWindow, "Warning",
-												MessageBox.Icon.WARN,
-												"Name already exists",
-												new MessageBox.ButtonConfig(
-														ButtonType.OK, "Ok"));
-										mb.show();
-										return;
-									}
-								}
-								Context context = new Context(name,
-										"microarray", dataSetId);
-								FacadeFactory.getFacade().store(context);
-								mainWindow.removeWindow(nameWindow);
-								contextSelector.addItem(context);
-								contextSelector.setValue(context);
-							}
-						}));
-				mainWindow.addWindow(nameWindow);
-			}
-		});
+		newContextButton.addListener(new NewContextListener(this, dataSetId,
+				contextSelector, "microarray"));
 
 		// contextpane.setSpacing(true);
 		Label label = new Label("Context for Phenotype Sets");
