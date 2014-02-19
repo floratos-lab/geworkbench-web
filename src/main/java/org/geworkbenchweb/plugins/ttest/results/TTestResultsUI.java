@@ -43,10 +43,10 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 	private static final long serialVersionUID = -6720344403076533166L;
 	private static Log log = LogFactory.getLog(TTestResultsUI.class);
 
-	private final TTestResult tTestResultSet;
+	protected final TTestResult tTestResultSet;
 
 	final private Long datasetId;
-	final private Long parentDatasetId;
+	final protected Long parentDatasetId;
 	
 	public TTestResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
@@ -70,7 +70,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
 		InvientCharts chart = drawPlot();
-		addComponent(new ChartMenuBar(chart));
+		addComponent(new ChartMenuBar(chart, this));
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
