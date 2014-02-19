@@ -186,49 +186,9 @@ public class SetViewLayout extends CssLayout {
 		mrkcontextSelector.setWidth("160px");
 		mrkcontextSelector.setImmediate(true);
 		mrkcontextSelector.setNullSelectionAllowed(false);
-		mrkcontextSelector.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 5667499645414167736L;
-
-			public void valueChange(ValueChangeEvent event) {
-				Object val = mrkcontextSelector.getValue();
-				if (val != null) {
-					Context context = (Context) val;
-					SubSetOperations
-							.setCurrentMarkerContext(dataSetId, context);
-
-					HierarchicalContainer markerData = new HierarchicalContainer();
-					List<SubSet> markersets = SubSetOperations
-							.getSubSetsForContext(context);
-					markerData.addContainerProperty("setName", String.class,
-							null);
-					Item mainItem1 = markerData.addItem("MarkerSets");
-					mainItem1.getItemProperty("setName")
-							.setValue("Marker Sets");
-					markerSetTree.setContainerDataSource(markerData);
-
-					for (SubSet markerset : markersets) {
-						List<String> markers = markerset.getPositions();
-						Long id = markerset.getId();
-						markerData.addItem(id);
-						markerData.getContainerProperty(id, "setName")
-								.setValue(
-										markerset.getName() + " ["
-												+ markers.size() + "]");
-						markerData.setParent(id, "MarkerSets");
-						markerData.setChildrenAllowed(id, true);
-						for (int j = 0; j < markers.size(); j++) {
-							markerData.addItem(markers.get(j) + id);
-							markerData.getContainerProperty(
-									markers.get(j) + id, "setName").setValue(
-									markers.get(j));
-							markerData.setParent(markers.get(j) + id, id);
-							markerData.setChildrenAllowed(markers.get(j) + id,
-									false);
-						}
-					}
-				}
-			}
-		});
+		mrkcontextSelector.addListener(new ChangeContextListener(
+				mrkcontextSelector, dataSetId, markerSetTree,
+				ChangeContextListener.ContextType.MARKER));
 
 		markerTree.addActionHandler(new MarkerTreeActionHandler(dataSetId,
 				markerSetTree, mrkcontextSelector));
@@ -259,47 +219,9 @@ public class SetViewLayout extends CssLayout {
 		contextSelector.setWidth("160px");
 		contextSelector.setImmediate(true);
 		contextSelector.setNullSelectionAllowed(false);
-		contextSelector.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 5667499645414167736L;
-
-			public void valueChange(ValueChangeEvent event) {
-				Object val = contextSelector.getValue();
-				if (val != null) {
-					Context context = (Context) val;
-					SubSetOperations.setCurrentArrayContext(dataSetId, context);
-
-					HierarchicalContainer arrayData = new HierarchicalContainer();
-					List<SubSet> arraysets = SubSetOperations
-							.getSubSetsForContext(context);
-					arrayData.addContainerProperty("setName", String.class,
-							null);
-					Item mainItem1 = arrayData.addItem("arraySets");
-					mainItem1.getItemProperty("setName").setValue(
-							"Phenotype Sets");
-					arraySetTree.setContainerDataSource(arrayData);
-
-					for (SubSet arrayset : arraysets) {
-						List<String> arrays = arrayset.getPositions();
-						Long id = arrayset.getId();
-						arrayData.addItem(id);
-						arrayData.getContainerProperty(id, "setName")
-								.setValue(
-										arrayset.getName() + " ["
-												+ arrays.size() + "]");
-						arrayData.setParent(id, "arraySets");
-						arrayData.setChildrenAllowed(id, true);
-						for (int j = 0; j < arrays.size(); j++) {
-							arrayData.addItem(arrays.get(j) + id);
-							arrayData.getContainerProperty(arrays.get(j) + id,
-									"setName").setValue(arrays.get(j));
-							arrayData.setParent(arrays.get(j) + id, id);
-							arrayData.setChildrenAllowed(arrays.get(j) + id,
-									false);
-						}
-					}
-				}
-			}
-		});
+		contextSelector.addListener(new ChangeContextListener(contextSelector,
+				dataSetId, arraySetTree,
+				ChangeContextListener.ContextType.MICROARRAY));
 
 		arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId,
 				arraySetTree, contextSelector));
