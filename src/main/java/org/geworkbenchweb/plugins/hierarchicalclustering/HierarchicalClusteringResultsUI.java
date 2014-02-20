@@ -78,7 +78,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		if(arrayCluster != null) {
 			convertToString(arrayString, arrayCluster, reorderedMicroarray);
 		} else {
-			for(int i=0; i<selectedArrays.length; i++) reorderedMicroarray.add(i);
+			if(selectedArrays!=null)
+				for(int i=0; i<selectedArrays.length; i++) reorderedMicroarray.add(i);
 		}
 		String arrayClusterString = arrayString.toString();
 
