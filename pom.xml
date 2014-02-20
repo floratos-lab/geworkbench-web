@@ -454,13 +454,6 @@
 			<version>3.2-with-deps</version>
 		</dependency>
 
-
-		<dependency>
-			<groupId>easyuploads</groupId>
-			<artifactId>easyuploads</artifactId>
-			<version>0.5.1</version>
-		</dependency>
-
 		<dependency>
 			<groupId>eclipselink</groupId>
 			<artifactId>eclipselink</artifactId>
