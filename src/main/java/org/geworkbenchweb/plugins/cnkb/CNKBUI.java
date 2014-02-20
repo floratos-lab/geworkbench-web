@@ -74,6 +74,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 
 	User user = SessionHandler.get();
+	Application app = null;
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
@@ -118,7 +119,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		final ListSelect interactomeBox;
 		final ListSelect versionBox;
 		final Label interactomeDes = new Label();
-
+		 
 		interactomeBox = new ListSelect("Select Interactome:");
 		interactomeBox.setRows(4);
 		interactomeBox.setColumns(25);
@@ -222,7 +223,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		markerSelector.setData(dataSetId, user.getId());
 
 		// this part must be called from front end
-		Application app = getApplication();
+		app = getApplication();
 		if(app==null) { // this should not happens after the code was moved to the front end
 			log.error("getApplication() returns null");
 			return;
@@ -409,12 +410,11 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			public void buttonClick(ClickEvent event) {
 				String userName = usertf.getValue().toString().trim();
 				String passwd = passwordtf.getValue().toString().trim();
-				HttpSession session = ((WebApplicationContext) getApplication()
-						.getContext()).getHttpSession();
+			 
 				session.setAttribute(CNKBParameters.CNKB_USERINFO, userName
 						+ ":" + passwd);
 				submitCnkbEvent(dataSetId);
-				getApplication().getMainWindow().removeWindow(dialog);
+				app.getMainWindow().removeWindow(dialog);
 
 			}
 		});
@@ -430,7 +430,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		form.addComponent(submit);
 
 		dialog.addComponent(form);
-		getApplication().getMainWindow().addWindow(dialog);
+		app.getMainWindow().addWindow(dialog);
 
 	}
 
