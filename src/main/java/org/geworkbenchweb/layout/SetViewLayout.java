@@ -38,73 +38,25 @@ public class SetViewLayout extends CssLayout {
 
 	private static Log log = LogFactory.getLog(SetViewLayout.class);
 
-	final private Tree markerTree = new Tree();
-	final private Tree arrayTree = new Tree();
-	final private Tree markerSetTree = new Tree();
-	final private Tree arraySetTree = new Tree();
-
-	final private VerticalLayout contextpane = new VerticalLayout();;
-	final private VerticalLayout mrkcontextpane = new VerticalLayout();
+	final private Tree markerSetTree;
+	final private Tree arraySetTree;
 
 	private Long selectedSubSetId;
 
 	SetViewLayout(final Long dataSetId) {
 
-		markerTree.setImmediate(true);
-		markerTree.setSelectable(true);
-		markerTree.setMultiSelect(true);
-		markerTree.setDescription("Markers");
-
 		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
 		HierarchicalContainer markerData = createSetContainer(sets,
 				"MarkerSets", "Marker Sets");
-		markerSetTree.setImmediate(true);
-		markerSetTree.setSelectable(true);
-		markerSetTree.setMultiSelect(false);
-		markerSetTree.setContainerDataSource(markerData);
-		markerSetTree.addListener(new ItemClickEvent.ItemClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				try {
-					arraySetTree.select(null);
-					if (!(event.getItemId() instanceof Long))
-						selectedSubSetId = null;
-					selectedSubSetId = (Long) event.getItemId();
-				} catch (Exception e) {
-				}
-			}
-		});
+		markerSetTree = createSetTree(markerData);
 
 		List<AbstractPojo> aSets = SubSetOperations.getArraySets(dataSetId);
 		HierarchicalContainer arrayData = createSetContainer(aSets,
 				"arraySets", "Phenotype Sets");
-		arraySetTree.setImmediate(true);
-		arraySetTree.setMultiSelect(false);
-		arraySetTree.setSelectable(true);
-		arraySetTree.setContainerDataSource(arrayData);
-		arraySetTree.addListener(new ItemClickEvent.ItemClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				try {
-					markerSetTree.select(null);
-					if (!(event.getItemId() instanceof Long))
-						selectedSubSetId = null;
-					selectedSubSetId = (Long) event.getItemId();
-				} catch (Exception e) {
-				}
-			}
-		});
-
-		arrayTree.setImmediate(true);
-		arrayTree.setMultiSelect(true);
-		arrayTree.setSelectable(true);
-		arrayTree.setDescription("Phenotypes");
+		arraySetTree = createSetTree(arrayData);
+		
+		markerSetTree.addListener(new SetTreeClickListener(arraySetTree));
+		arraySetTree.addListener(new SetTreeClickListener(markerSetTree));
 
 		DataSet generic = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -117,101 +69,131 @@ public class SetViewLayout extends CssLayout {
 				"markerLabels", id);
 		String[] arrayLabels = DataSetOperations.getStringLabels("arrayLabels",
 				id);
-		markerTree.setContainerDataSource(createLabelContainer(markerLabels,
-				true, dataSetId));
-		arrayTree.setContainerDataSource(createLabelContainer(arrayLabels,
-				false, null));
-
-		markerTree.setItemCaptionPropertyId("Labels");
-		markerTree
-				.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-		arrayTree.setItemCaptionPropertyId("Labels");
-		arrayTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-		markerSetTree.setItemCaptionPropertyId("setName");
-		markerSetTree
-				.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-		arraySetTree.setItemCaptionPropertyId("setName");
-		arraySetTree
-				.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
 		// marker context
-		final ComboBox mrkcontextSelector = new ComboBox();
-		mrkcontextSelector.setWidth("160px");
-		mrkcontextSelector.setImmediate(true);
-		mrkcontextSelector.setNullSelectionAllowed(false);
-		mrkcontextSelector.addListener(new ChangeContextListener(
-				mrkcontextSelector, dataSetId, markerSetTree,
-				ChangeContextListener.ContextType.MARKER));
-
-		markerTree.addActionHandler(new MarkerTreeActionHandler(dataSetId,
-				markerSetTree, mrkcontextSelector));
-
 		List<Context> mrkcontexts = SubSetOperations
 				.getMarkerContexts(dataSetId);
 		Context mrkcurrent = SubSetOperations
 				.getCurrentMarkerContext(dataSetId);
-		for (Context c : mrkcontexts) {
-			mrkcontextSelector.addItem(c);
-			if (mrkcurrent != null && c.getId() == mrkcurrent.getId())
-				mrkcontextSelector.setValue(c);
-		}
+		final ComboBox mrkcontextSelector = createSelector(mrkcontexts,
+				mrkcurrent);
+		mrkcontextSelector.addListener(new ChangeContextListener(
+				mrkcontextSelector, dataSetId, markerSetTree,
+				ChangeContextListener.ContextType.MARKER));
+
+		Tree markerTree = createItemTree("Markers",
+				createLabelContainer(markerLabels, true, dataSetId),
+				new MarkerTreeActionHandler(dataSetId, markerSetTree,
+						mrkcontextSelector));
 
 		Button mrknewContextButton = new Button("New");
 		mrknewContextButton.addListener(new NewContextListener(this, dataSetId,
 				mrkcontextSelector, "marker"));
 
-		Label mrklabel = new Label("Context for Marker Sets");
-		mrkcontextpane.addComponent(mrklabel);
-		HorizontalLayout mrkhlayout = new HorizontalLayout();
-		mrkhlayout.addComponent(mrkcontextSelector);
-		mrkhlayout.addComponent(mrknewContextButton);
-		mrkcontextpane.addComponent(mrkhlayout);
-
 		// array context
-		final ComboBox contextSelector = new ComboBox();
-		contextSelector.setWidth("160px");
-		contextSelector.setImmediate(true);
-		contextSelector.setNullSelectionAllowed(false);
+		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);
+		Context current = SubSetOperations.getCurrentArrayContext(dataSetId);
+		final ComboBox contextSelector = createSelector(contexts, current);
 		contextSelector.addListener(new ChangeContextListener(contextSelector,
 				dataSetId, arraySetTree,
 				ChangeContextListener.ContextType.MICROARRAY));
 
-		arrayTree.addActionHandler(new ArrayTreeActionHandler(dataSetId,
-				arraySetTree, contextSelector));
-
-		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);
-		Context current = SubSetOperations.getCurrentArrayContext(dataSetId);
-		for (Context c : contexts) {
-			contextSelector.addItem(c);
-			if (current != null && c.getId() == current.getId())
-				contextSelector.setValue(c);
-		}
+		Tree arrayTree = createItemTree("Phenotypes",
+				createLabelContainer(arrayLabels, false, null),
+				new ArrayTreeActionHandler(dataSetId, arraySetTree,
+						contextSelector));
 
 		Button newContextButton = new Button("New");
 		newContextButton.addListener(new NewContextListener(this, dataSetId,
 				contextSelector, "microarray"));
 
-		// contextpane.setSpacing(true);
-		Label label = new Label("Context for Phenotype Sets");
-		contextpane.addComponent(label);
-		HorizontalLayout hlayout = new HorizontalLayout();
-		hlayout.addComponent(contextSelector);
-		hlayout.addComponent(newContextButton);
-		contextpane.addComponent(hlayout);
-
-		this.addComponent(mrkcontextpane);
+		this.addComponent(createContextLayout("Context for Marker Sets", mrkcontextSelector, mrknewContextButton));
 		this.addComponent(markerTree);
 		this.addComponent(markerSetTree);
-		this.addComponent(contextpane);
+		this.addComponent(createContextLayout("Context for Phenotype Sets", contextSelector, newContextButton));
 		this.addComponent(arrayTree);
 		this.addComponent(arraySetTree);
 	} /* end of constructor. TODO this definitely needs more refactoring. */ 
 
 	Long getSelectedSetId() {
 		return selectedSubSetId;
+	}
+	
+	private class SetTreeClickListener implements
+			ItemClickEvent.ItemClickListener {
+
+		private static final long serialVersionUID = 8199388775619848909L;
+
+		private final Tree otherSetTree;
+
+		SetTreeClickListener(final Tree otherSetTree) {
+			this.otherSetTree = otherSetTree;
+		}
+
+		@Override
+		public void itemClick(ItemClickEvent event) {
+			otherSetTree.select(null);
+			if (!(event.getItemId() instanceof Long))
+				selectedSubSetId = null;
+			selectedSubSetId = (Long) event.getItemId();
+		}
+	}
+	
+	private static ComboBox createSelector(final List<Context> contexts,
+			Context current) {
+		ComboBox selector = new ComboBox();
+		selector.setWidth("160px");
+		selector.setImmediate(true);
+		selector.setNullSelectionAllowed(false);
+
+		for (Context c : contexts) {
+			selector.addItem(c);
+			if (current != null && c.getId() == current.getId())
+				selector.setValue(c);
+		}
+		return selector;
+	}
+	
+	private static Tree createSetTree(final HierarchicalContainer dataContainer) {
+		Tree tree = new Tree();
+		tree.setImmediate(true);
+		tree.setSelectable(true);
+		tree.setMultiSelect(false);
+
+		tree.setContainerDataSource(dataContainer);
+		tree.setItemCaptionPropertyId("setName");
+		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+		return tree;
+	}
+	
+	private static Tree createItemTree(final String description,
+			final HierarchicalContainer dataContainer,
+			final TreeActionHandler handler) {
+		Tree tree = new Tree();
+		tree.setImmediate(true);
+		tree.setSelectable(true);
+		tree.setMultiSelect(true);
+		tree.setDescription(description);
+
+		tree.setContainerDataSource(dataContainer);
+		tree.setItemCaptionPropertyId("Labels");
+		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+		tree.addActionHandler(handler);
+
+		return tree;
+	}
+	
+	private static VerticalLayout createContextLayout(final String label,
+			final ComboBox contextSelector, Button newContextButton) {
+		VerticalLayout contextpane = new VerticalLayout();
+		contextpane.addComponent(new Label(label));
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.addComponent(contextSelector);
+		layout.addComponent(newContextButton);
+		contextpane.addComponent(layout);
+		return contextpane;
 	}
 	
 	private static HierarchicalContainer createSetContainer(
