@@ -63,8 +63,8 @@ public final class VDendrogram extends Composite implements Paintable {
 	private int[] colors; // the actual color data in the form of a one-dimensional array
 	
     /* constants */
-    final static private int MAX_WIDTH = 3000;
-    final static private int MAX_HEIGHT = 2000;
+    final static private int MAX_WIDTH = 15000;
+    final static private int MAX_HEIGHT = 10000;
     final static private CssColor SELECTED_COLOR = CssColor.make(225, 255, 225);
     final static private CssColor UNSELECTED_COLOR = CssColor.make(255, 255, 255);
 	final static private int deltaH = 5; // the increment of the dendrogram height

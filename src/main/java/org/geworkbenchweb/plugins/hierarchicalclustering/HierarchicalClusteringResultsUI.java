@@ -68,7 +68,8 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		if(markerCluster != null) {
 			convertToString(markerString, markerCluster, reorderedMarker);
 		} else {
-			for(int i=0; i<selectedMarkers.length; i++) reorderedMarker.add(i);
+			if(selectedMarkers!=null)
+				for(int i=0; i<selectedMarkers.length; i++) reorderedMarker.add(i);
 		}
 		String markerClusterString = markerString.toString();
 

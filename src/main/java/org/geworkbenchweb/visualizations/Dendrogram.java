@@ -47,7 +47,7 @@ public class Dendrogram extends AbstractComponent {
 		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 	}
 
-    final private int MAX_HEIGHT = 2000;
+    final private int MAX_HEIGHT = 10000;
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -138,16 +138,18 @@ public class Dendrogram extends AbstractComponent {
 	}
 
 	public void zoomIn() {
-		cellWidth *= 2;
-		cellHeight *= 2;
+		if(cellHeight>=50 || cellWidth>=100) return;
+		
+		cellWidth += 10;
+		cellHeight += 5;
 		requestRepaint();
 	}
 
 	public void zoomOut() {
-		if(cellHeight<=1 || cellWidth<=1) return;
+		if(cellHeight<=5 || cellWidth<=10) return;
 		
-		cellWidth /= 2;
-		cellHeight /= 2;
+		cellWidth -= 10;
+		cellHeight -= 5;
 		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 		requestRepaint();
 	}
