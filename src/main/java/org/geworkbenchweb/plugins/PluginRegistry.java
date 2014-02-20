@@ -45,6 +45,7 @@ public class PluginRegistry {
 	static private ThemeResource proteinIcon 		=	new ThemeResource("../custom/icons/dna16x16.gif");
 	// the following are for result node
 	static private ThemeResource hcIcon	 		=	new ThemeResource("../custom/icons/dendrogram16x16.gif");
+	static private ThemeResource cnkbIcon	=	new ThemeResource("../custom/icons/cnkb16x16.gif");
 	static private ThemeResource networkIcon	=	new ThemeResource("../custom/icons/network16x16.gif");
 	static private ThemeResource markusIcon		=	new ThemeResource("../custom/icons/icon_world.gif");
 	static private ThemeResource anovaIcon		=	new ThemeResource("../custom/icons/significance16x16.gif");
@@ -59,7 +60,7 @@ public class PluginRegistry {
 	/** Add all the initial registry entries.*/
 	public void init() {
 		resultIconMap.put(org.geworkbenchweb.pojos.HierarchicalClusteringResult.class, hcIcon); // hierarchical clustering result
-		resultIconMap.put(CNKBResultSet.class, networkIcon); // cnkb result
+		resultIconMap.put(CNKBResultSet.class, cnkbIcon); // cnkb result
 		resultIconMap.put(AdjacencyMatrix.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
