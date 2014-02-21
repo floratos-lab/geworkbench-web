@@ -1,7 +1,10 @@
 package org.geworkbenchweb.plugins;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +15,9 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.geworkbenchweb.visualizations.Cytoscape;
 
+import com.vaadin.Application;
+import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.Resource;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -250,12 +256,46 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
        	layoutNames.addItem("Tree", layoutCommand);
        	layoutNames.addItem("CompoundSpringEmbedder", layoutCommand);
 
+       	Command exportCommand = new Command() {
+
+			private static final long serialVersionUID = -5284315483966959132L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				downloadNetwork();
+			}
+       	};
+       	toolBar.addItem("Export", exportCommand); /* ignore return value */
+
        	layoutNames.setStyleName("plugin");
 		
 		this.setSpacing(true);
 		this.addComponent(toolBar);
 		this.addComponent(cy);
 		this.setExpandRatio(cy, 1);
+	}
+	
+	private void downloadNetwork() {
+		final Application app = getApplication();
+		final File file = new File("network_" + System.currentTimeMillis()
+				+ ".adj");
+		try {
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
+			for (AdjacencyMatrix.Node node1 : adjMatrix.getNodes()) {
+				pw.write(getExportName(node1) + "\t");
+
+				for (AdjacencyMatrix.Edge edge : adjMatrix.getEdges(node1)) {
+					pw.write(getExportName(edge.node2) + "\t" + edge.info.value
+							+ "\t");
+				}
+				pw.write("\n");
+			}
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Resource resource = new FileResource(file, app);
+		app.getMainWindow().open(resource);
 	}
 	
 	private void getLimitCytoscapeObjectsNum() {
