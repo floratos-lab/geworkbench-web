@@ -75,8 +75,12 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		setImmediate(true);
 		setSizeFull();		 
 		getLimitCytoscapeObjectsNum();
-
-		// the following code used to be attach - which is not really necessary and is not consistent with other plug-ins
+	}
+	
+	@Override
+	public void attach() {
+		this.removeAllComponents();
+		
 		int edgeNumber = adjMatrix.getConnectionNo();
 		int nodeNumber = adjMatrix.getNodeNumber();
 		if ((edgeNumber + nodeNumber) > limit_num) {
@@ -91,23 +95,19 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 							MessageBox.ButtonType.CUSTOM1, "View as text"),
 					new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
 							"View in Cytoscape"));
-			if(mb.getParent()==null) {
-				log.error("message box hsa null parent");
-			}
 			mb.show(new MessageBox.EventListener() {
 
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void buttonClicked(ButtonType buttonType) {
-					if (buttonType == ButtonType.CUSTOM1)  
-						viewAsText();					    
-					else 
+					if (buttonType == ButtonType.CUSTOM1)
+						viewAsText();
+					else
 						viewAsCytoscape();
 				}
 			});
-		} else
-		{
+		} else {
 			viewAsCytoscape();
 		}
 	}
