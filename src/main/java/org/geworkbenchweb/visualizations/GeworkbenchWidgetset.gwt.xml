@@ -20,7 +20,7 @@
 
 	<inherits name="com.google.gwt.json.JSON" /> 
     
-    
+    <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
    	
    	<!-- Invient charts JavaScript Libraries -->
    	<script src="js/jquery-1.4.4.min.js" />
