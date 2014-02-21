@@ -115,12 +115,8 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	static private String getExportName(AdjacencyMatrix.Node node) {
 		if (node.type == NodeType.MARKER) {
 			return node.marker.getLabel();
-		} else if (node.type == NodeType.GENE_SYMBOL) {
-			return node.stringId;
-		} else if (node.type == NodeType.STRING) {
-			return node.stringId;
 		} else {
-			return "unknown";
+			return node.stringId;
 		}
 	}
 
