@@ -244,7 +244,15 @@ public class UMainToolBar extends MenuBar {
 			}
 		});*/
 		
-		this.addItem("Account", null);
+		this.addItem("Account", new Command() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				AccountUI accountUI = new AccountUI();
+				UMainToolBar.this.pluginView.setContent(accountUI, "Account", "Update Account");
+			}
+		});
 		
 		/* Add an entry to genSpace */
 		this.addItem("genSpace", new Command() {
