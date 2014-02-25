@@ -133,9 +133,12 @@ public class SetViewLayout extends CssLayout {
 		@Override
 		public void itemClick(ItemClickEvent event) {
 			otherSetTree.select(null);
-			if (!(event.getItemId() instanceof Long))
+			Object id = event.getItemId();
+			if(id instanceof Long) {
+				selectedSubSetId = (Long) id;
+			} else {
 				selectedSubSetId = null;
-			selectedSubSetId = (Long) event.getItemId();
+			}
 		}
 	}
 	
