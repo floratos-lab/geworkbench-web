@@ -8,7 +8,8 @@ public class LoaderFactory {
 	private List<Loader> parserLiet = new ArrayList<Loader>();
 
 	public LoaderFactory() {
-		parserLiet.add(new ExpressionFileLoader()); 
+		parserLiet.add(new ExpressionFileLoader());
+		parserLiet.add(new TabDelimitedFormatLoader()); 
 		parserLiet.add(new PdbFileLoader()); 
 	}
 
