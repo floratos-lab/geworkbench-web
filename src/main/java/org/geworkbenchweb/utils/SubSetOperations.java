@@ -21,27 +21,6 @@ import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 public class SubSetOperations {
 
-
-	public static boolean storeData(ArrayList<String> arrayList, String setType,
-			String name, long l) {
-
-		SubSet subset  	= 	new SubSet();
-
-		subset.setName(name);
-		subset.setType(setType);
-		subset.setOwner(SessionHandler.get().getId());
-		subset.setParent(l);
-		subset.setPositions(arrayList);
-
-		try {
-			FacadeFactory.getFacade().store(subset);
-		} catch (Exception e) {
-			return false;	
-		}
-
-		return true;
-	}
-
 	public static List<AbstractPojo> getMarkerSet(Long setId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();

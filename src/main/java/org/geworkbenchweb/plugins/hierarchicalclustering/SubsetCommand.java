@@ -78,12 +78,10 @@ public class SubsetCommand implements Command {
 						// TODO use List instead of ArrayList when possible
 						if(setType == SetType.MARKER) {
 							ArrayList<String> items = (ArrayList<String>) dendrogram.getSelectedMarkerLabels();
-							String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
-							SubSetOperations.storeData(items, "marker", subSetName , parentId);
+							SubSetOperations.storeMarkerSetInCurrentContext(items, (String) setName.getValue(), parentId);
 						} else { // MICRORRAY
 							ArrayList<String> items = (ArrayList<String>)dendrogram.getSelectedArrayLabels();
-							String subSetName = (String) setName.getValue() + " ["+items.size()+ "]";
-							SubSetOperations.storeArraySetInCurrentContext(items, subSetName, parentId);
+							SubSetOperations.storeArraySetInCurrentContext(items, (String) setName.getValue(), parentId);
 						}
 						mainWindow.removeWindow(nameWindow);
 					}
