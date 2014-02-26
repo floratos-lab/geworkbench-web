@@ -6,6 +6,7 @@ package org.geworkbenchweb.layout;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
@@ -42,6 +43,7 @@ public class RenameHandler implements Handler {
 			log.warn("unexpected sender: " + sender);
 			return null;
 		}
+		if(target==null) return null;
 		if (!(target instanceof Long)) {
 			log.warn("unexpected target type: " + target);
 			return null;
@@ -64,6 +66,19 @@ public class RenameHandler implements Handler {
 	}
 
 	private void rename(final Long itemId) {
+		final DataSet data = FacadeFactory.getFacade().find(DataSet.class,
+				itemId);
+		final ResultSet result;
+		if (data == null) {
+			result = FacadeFactory.getFacade().find(ResultSet.class, itemId);
+			if (result == null) {
+				log.warn("itemId not supported for renaming: "+itemId);
+				return;
+			}
+		} else {
+			result = null;
+		}
+
 		final Window dialog = new Window();
 		dialog.setModal(true);
 		dialog.setClosable(true);
@@ -88,15 +103,13 @@ public class RenameHandler implements Handler {
 				if (newName.getValue() == null)
 					return;
 
-				DataSet data = FacadeFactory.getFacade().find(DataSet.class,
-						itemId);
-				if (data == null) {
-					log.warn("cannot rename the type: "
-							+ item.getItemProperty("Type"));
-					return;
+				if (data != null) {
+					data.setName(newName.toString());
+					FacadeFactory.getFacade().store(data);
+				} else {
+					result.setName(newName.toString());
+					FacadeFactory.getFacade().store(result);
 				}
-				data.setName(newName.toString());
-				FacadeFactory.getFacade().store(data);
 
 				item.getItemProperty("Name").setValue(newName);
 
