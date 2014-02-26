@@ -1,32 +1,20 @@
 package org.geworkbenchweb.layout;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.persistence.data.AbstractPojo;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -38,7 +26,6 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
-import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
@@ -89,10 +76,8 @@ public class UMainLayout extends VerticalLayout {
 	final private MenuItem setViewMeuItem;
 	final private MenuItem workspaceViewMenuItem;
 	
-	final private Tree navigationTree = createNavigationTree();;
+	final private NavigationTree navigationTree;
 	
-	private Long dataSetId;
-
 	final private HorizontalLayout navigationPanel;
 
 	private SetViewLayout setViewLayout;
@@ -180,6 +165,7 @@ public class UMainLayout extends VerticalLayout {
 
 				workspaceViewMenuItem.setEnabled(true);
 				
+				Long microarraySetId = navigationTree.getMicroarraySetId();
 				setViewLayout = new SetViewLayout(microarraySetId);
 				mainSplit.setFirstComponent(setViewLayout);
 			}
@@ -207,7 +193,8 @@ public class UMainLayout extends VerticalLayout {
 			private static final long serialVersionUID = -5166425513891423653L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-	        	getWindow().addWindow(new OpenSetWindow(dataSetId, setViewLayout));
+	        	Long dataSetId = navigationTree.geDataSetId();
+				getWindow().addWindow(new OpenSetWindow(dataSetId , setViewLayout));
 			}
 		});
 
@@ -233,14 +220,16 @@ public class UMainLayout extends VerticalLayout {
 		leftMainLayout.setSizeFull();
 		leftMainLayout.addStyleName("mystyle");
 
+		Long userId = user.getId();
+		navigationTree = new NavigationTree(annotButton, removeButton, annotationPanel, toolBar, setViewMeuItem, pluginView, userId, pendingIcon);
+
 		navigationTree.setImmediate(true);
 		
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
-		 
-	
+
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
 		mainSplit.setSplitPosition(275, HorizontalSplitPanel.UNITS_PIXELS);
@@ -314,92 +303,7 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.removeItem(itemId);
 		pusher.push();
 	}
-	
-	/**
-	 * Creates the data tree for the project panel
-	 * @return Tree
-	 */
-	private Tree createNavigationTree() {
-		final Tree tree = new Tree();
-		tree.setImmediate(true);
-		tree.setStyleName("menu");
-		tree.setContainerDataSource(getDataContainer());
-		tree.setSelectable(true);
-		tree.setMultiSelect(false);
-		tree.addListener(new Tree.ValueChangeListener() {
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-
-				Object itemId = event.getProperty().getValue();
-				try {				
-					if( itemId instanceof Long ) {
-
-						annotButton.setEnabled(true);
-						removeButton.setEnabled(true);
-						Item selectedItem = tree.getItem(itemId);
-						String className = (String) selectedItem.getItemProperty("Type").getValue();
-						Object parentId = tree.getParent(itemId);
-						String parentItemClassName = null;
-						Item parentItem = tree.getItem(parentId);
-						if(parentItem!=null) {
-							parentItemClassName = (String) parentItem.getItemProperty("Type").getValue();
-						}
-
-						/* this is the only place that dataset ID may change */
-						dataSetId = (Long) itemId;    
-						annotationPanel.setDatasetId(dataSetId);
-						
-						final String specialClassName = "org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet"; 
-						if (specialClassName.equals(className)) {
-							microarraySetId = dataSetId;
-							toolBar.setEnabled(true);
-							setViewMeuItem.setEnabled(true);
-						} else if (specialClassName.equals(parentItemClassName)) {
-							microarraySetId = (Long)parentId;
-							toolBar.setEnabled(true);
-							setViewMeuItem.setEnabled(true);
-						} else {
-							toolBar.setEnabled(false);
-						}
-						
-						ClassLoader classLoader = this.getClass().getClassLoader();
-						Class<?> aClass = classLoader.loadClass(className);
-						Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot.getPluginRegistry().getDataUI(aClass);
-						Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(aClass);
-						if(uiComponentClass!=null) { // "not result" - menu page. For now, we only expect CSMcrioarraySet and CSProteinStructure
-							DataTypeMenuPage dataUI = uiComponentClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
-							dataUI.setVisualPluginView(pluginView);
-							pluginView.setContent(dataUI, dataUI.getTitle(), dataUI.getDescription());
-						} else if(resultUiClass!=null) { // "is result" - visualizer
-							pluginView.setContentUsingCache(resultUiClass, dataSetId);
-						} 
-					}
-				} catch (Exception e) { // FIXME what kind of exception is expected here? why?
-					e.printStackTrace();
-					pluginView.showToolList();
-					annotationPanel.hide();
-				}
-			}
-		});
-		
-		tree.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
-            
-			private static final long serialVersionUID = -3576690826530527342L;
-
-			@Override
-			public String generateDescription(Component source, Object itemId,
-					Object propertyId) {
-				Item item = tree.getItem(itemId);
-				return (String) item.getItemProperty("description").getValue();
-			}
-		});
-		
-		return tree;
-	}
-	
 	/**
 	 * Creates the tree switch for the mainsplit 
 	 * @return
@@ -428,78 +332,6 @@ public class UMainLayout extends VerticalLayout {
 		});
 		mainSplit.setSplitPosition(250, HorizontalSplitPanel.UNITS_PIXELS);
 		return b;
-	}
-
-
-	/**
-	 * Supplies the container for the dataset and result tree to display. 
-	 * @return dataset and resultset container 
-	 */
-	private HierarchicalContainer getDataContainer() {
-
-		HierarchicalContainer dataSets 		= 	new HierarchicalContainer();
-		dataSets.addContainerProperty("Name", String.class, null);
-		dataSets.addContainerProperty("Type", String.class, null);
-		dataSets.addContainerProperty("Icon", Resource.class, null);
-		dataSets.addContainerProperty("description", String.class, "");
-		
-		Map<String, Object> param 		= 	new HashMap<String, Object>();
-		param.put("owner", user.getId());
-		param.put("workspace", WorkspaceUtils.getActiveWorkSpace());
-
-		List<AbstractPojo> data =  FacadeFactory.getFacade().list("Select p from DataSet as p where p.owner=:owner and p.workspace =:workspace", param);
-
-		for(int i=0; i<data.size(); i++) {
-
-			String id 		=	((DataSet) data.get(i)).getName();
-			Long dataId		=	((DataSet) data.get(i)).getId();
-			String description = ((DataSet) data.get(i)).getDescription();
-
-			Item subItem = dataSets.addItem(dataId);
-			subItem.getItemProperty("Name").setValue(id);
-			String className = ((DataSet) data.get(i)).getType();
-			subItem.getItemProperty("Type").setValue(className);
-			try {
-				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getIcon(Class.forName(className));
-				subItem.getItemProperty("Icon").setValue(icon);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				//subItem.getItemProperty("Icon").setValue(icon);
-			}
-			subItem.getItemProperty("description").setValue(description);
-
-			Map<String, Object> params 	= 	new HashMap<String, Object>();
-			params.put("owner", user.getId());
-			params.put("parent", dataId);
-			List<AbstractPojo> results = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date", params);
-
-			if(results.size() == 0) {
-				dataSets.setChildrenAllowed(dataId, false);
-			}
-
-			for(int j=0; j<results.size(); j++) {
-				String subId 		=	((ResultSet) results.get(j)).getName();
-				Long subSetId		=	((ResultSet) results.get(j)).getId();	
-				String type			=	((ResultSet) results.get(j)).getType();
-
-				Item res = dataSets.addItem(subSetId);
-				res.getItemProperty("Name").setValue(subId);
-				res.getItemProperty("Type").setValue(type);
-				if(subId.contains("Pending")) {
-					res.getItemProperty("Icon").setValue(pendingIcon);
-				} else {
-					try {
-						ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(Class.forName(type));
-						res.getItemProperty("Icon").setValue(icon);
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-				}
-				dataSets.setChildrenAllowed(subSetId, false);
-				dataSets.setParent(subSetId, dataId);
-			}
-		}
-		return dataSets;
 	}
 
 	// this may need to be public if we don't use event listener to trigger it.
@@ -594,13 +426,7 @@ public class UMainLayout extends VerticalLayout {
 	}
 
 	Long getCurrentDatasetId() {
-		return dataSetId;
-	}
-
-	/* this is only for the functionality of set view */
-	private Long microarraySetId = null;
-	Long getMicroarraySetId() {
-		return microarraySetId;
+		return navigationTree.geDataSetId();
 	}
 
 	public SetViewLayout getSetViewLayout() {
