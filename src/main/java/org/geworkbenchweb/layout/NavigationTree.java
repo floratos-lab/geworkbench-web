@@ -166,6 +166,7 @@ public class NavigationTree extends Tree {
 			}
 		});
 
+		new RenameHandler(this); /* returned value can be ignored */
 	}
 
 	/**
