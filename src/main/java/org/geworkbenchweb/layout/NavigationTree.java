@@ -3,10 +3,13 @@
  */
 package org.geworkbenchweb.layout;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
 import org.geworkbenchweb.pojos.DataSet;
@@ -34,6 +37,8 @@ import com.vaadin.ui.Tree;
  */
 public class NavigationTree extends Tree {
 
+	private static Log log = LogFactory.getLog(NavigationTree.class);
+
 	private static final long serialVersionUID = -1721033415879095081L;
 
 	private Long dataSetId;
@@ -44,7 +49,7 @@ public class NavigationTree extends Tree {
 	Long geDataSetId() {
 		return dataSetId;
 	}
-	
+
 	Long getMicroarraySetId() {
 		return microarraySetId;
 	}
@@ -68,67 +73,81 @@ public class NavigationTree extends Tree {
 					com.vaadin.data.Property.ValueChangeEvent event) {
 
 				Object itemId = event.getProperty().getValue();
+				if (!(itemId instanceof Long)) {
+					log.error("wrong type for dataSetId " + itemId);
+					return;
+				}
+
+				annotButton.setEnabled(true);
+				removeButton.setEnabled(true);
+				Item selectedItem = NavigationTree.this.getItem(itemId);
+				String className = (String) selectedItem
+						.getItemProperty("Type").getValue();
+				Object parentId = NavigationTree.this.getParent(itemId);
+				String parentItemClassName = null;
+				Item parentItem = NavigationTree.this.getItem(parentId);
+				if (parentItem != null) {
+					parentItemClassName = (String) parentItem.getItemProperty(
+							"Type").getValue();
+				}
+
+				/* this is the only place that dataset ID may change */
+				dataSetId = (Long) itemId;
+				annotationPanel.setDatasetId(dataSetId);
+
+				final String specialClassName = "org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet";
+				if (specialClassName.equals(className)) {
+					microarraySetId = dataSetId;
+					toolBar.setEnabled(true);
+					setViewMeuItem.setEnabled(true);
+				} else if (specialClassName.equals(parentItemClassName)) {
+					microarraySetId = (Long) parentId;
+					toolBar.setEnabled(true);
+					setViewMeuItem.setEnabled(true);
+				} else {
+					// leave microarraySetId unchanged intentionally
+					toolBar.setEnabled(false);
+				}
+
+				ClassLoader classLoader = this.getClass().getClassLoader();
+				boolean success = false;
 				try {
-					if (itemId instanceof Long) {
-
-						annotButton.setEnabled(true);
-						removeButton.setEnabled(true);
-						Item selectedItem = NavigationTree.this.getItem(itemId);
-						String className = (String) selectedItem
-								.getItemProperty("Type").getValue();
-						Object parentId = NavigationTree.this.getParent(itemId);
-						String parentItemClassName = null;
-						Item parentItem = NavigationTree.this.getItem(parentId);
-						if (parentItem != null) {
-							parentItemClassName = (String) parentItem
-									.getItemProperty("Type").getValue();
-						}
-
-						/* this is the only place that dataset ID may change */
-						dataSetId = (Long) itemId;
-						annotationPanel.setDatasetId(dataSetId);
-
-						final String specialClassName = "org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet";
-						if (specialClassName.equals(className)) {
-							microarraySetId = dataSetId;
-							toolBar.setEnabled(true);
-							setViewMeuItem.setEnabled(true);
-						} else if (specialClassName.equals(parentItemClassName)) {
-							microarraySetId = (Long) parentId;
-							toolBar.setEnabled(true);
-							setViewMeuItem.setEnabled(true);
-						} else {
-							// leave microarraySetId unchanged intentionally
-							toolBar.setEnabled(false);
-						}
-
-						ClassLoader classLoader = this.getClass()
-								.getClassLoader();
-						Class<?> aClass = classLoader.loadClass(className);
-						Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot
-								.getPluginRegistry().getDataUI(aClass);
-						Class<? extends Component> resultUiClass = GeworkbenchRoot
-								.getPluginRegistry().getResultUI(aClass);
-						if (uiComponentClass != null) { // "not result" - menu
-														// page. For now, we
-														// only expect
-														// CSMcrioarraySet and
-														// CSProteinStructure
-							DataTypeMenuPage dataUI = uiComponentClass
-									.getDeclaredConstructor(Long.class)
-									.newInstance(dataSetId);
-							dataUI.setVisualPluginView(pluginView);
-							pluginView.setContent(dataUI, dataUI.getTitle(),
-									dataUI.getDescription());
-						} else if (resultUiClass != null) { // "is result" -
-															// visualizer
-							pluginView.setContentUsingCache(resultUiClass,
-									dataSetId);
-						}
+					Class<?> aClass = classLoader.loadClass(className);
+					Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot
+							.getPluginRegistry().getDataUI(aClass);
+					Class<? extends Component> resultUiClass = GeworkbenchRoot
+							.getPluginRegistry().getResultUI(aClass);
+					if (uiComponentClass != null) {
+						/*
+						 * "not result" - menu page. For now, we only expect
+						 * CSMcrioarraySet and CSProteinStructure
+						 */
+						DataTypeMenuPage dataUI = uiComponentClass
+								.getDeclaredConstructor(Long.class)
+								.newInstance(dataSetId);
+						dataUI.setVisualPluginView(pluginView);
+						pluginView.setContent(dataUI, dataUI.getTitle(),
+								dataUI.getDescription());
+					} else if (resultUiClass != null) {
+						/*
+						 * "is result" - visualizer
+						 */
+						pluginView.setContentUsingCache(resultUiClass,
+								dataSetId);
 					}
-				} catch (Exception e) { // FIXME what kind of exception is
-										// expected here? why?
+					success = true;
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+				if (!success) {
 					pluginView.showToolList();
 					annotationPanel.hide();
 				}
