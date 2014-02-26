@@ -21,6 +21,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.BaseTheme;
 
 /**
  * @author zji
@@ -79,6 +80,16 @@ public class LoginForm extends VerticalLayout {
 		group.addComponent(switchToRegisterButton);
 		group.addComponent(login);
 
+		Button forgotPasswd = new Button("Forgot password?");
+		forgotPasswd.setStyleName(BaseTheme.BUTTON_LINK);
+		forgotPasswd.setDescription("Reset Password for geWorkbench Account");
+		forgotPasswd.addListener(new ForgotListener(forgotPasswd));
+		
+		Button forgotUsername = new Button("Forgot username?");
+		forgotUsername.setStyleName(BaseTheme.BUTTON_LINK);
+		forgotUsername.setDescription("Find Username for geWorkbench Account");
+		forgotUsername.addListener(new ForgotListener(forgotUsername));
+		
 		this.addComponent(image);
 		this.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
 		this.addComponent(usernameField);
@@ -87,6 +98,10 @@ public class LoginForm extends VerticalLayout {
 		this.setComponentAlignment(passwordField, Alignment.MIDDLE_CENTER);
 		this.addComponent(group);
 		this.setComponentAlignment(group, Alignment.MIDDLE_CENTER);
+		this.addComponent(forgotPasswd);
+		this.setComponentAlignment(forgotPasswd, Alignment.MIDDLE_CENTER);
+		this.addComponent(forgotUsername);
+		this.setComponentAlignment(forgotUsername, Alignment.MIDDLE_CENTER);
 		this.addComponent(feedbackLabel);
 		this.setComponentAlignment(feedbackLabel, Alignment.MIDDLE_CENTER);
 		feedbackLabel.setWidth("50%");
