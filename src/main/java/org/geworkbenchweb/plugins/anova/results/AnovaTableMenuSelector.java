@@ -39,13 +39,10 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 	public AnovaTableMenuSelector(Tabular tabular, String name)
 	{
 		super(tabular, name);
-		createDisplayPreferenceItems(getDisplayPreferences());
-		
-		
 	}
 	
 	@Override
-	public void createDisplayPreferenceItems(MenuItem displayPreferences)
+	protected void createDisplayPreferenceItems()
 	{
 	 
 	 
@@ -73,7 +70,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						gridLayout.setImmediate(true);
 					 
 						 
-						AnovaTablePreferences p = ((AnovaResultsUI)getTabular()).getAnovaTablePreferences();
+						AnovaTablePreferences p = ((AnovaResultsUI)parent).getAnovaTablePreferences();
 						final CheckBox checkbox1 = new CheckBox("Marker ID");
 						checkbox1.setValue(p.selectMarker());
 						checkbox1.setImmediate(true);
@@ -150,8 +147,9 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 									@Override
 									public void buttonClick(ClickEvent event) {
 										try {
+											// TODO reference to parent less times
 											
-											AnovaTablePreferences anovaTablePreferences = ((AnovaResultsUI)getTabular()).getAnovaTablePreferences();
+											AnovaTablePreferences anovaTablePreferences = ((AnovaResultsUI)parent).getAnovaTablePreferences();
 											anovaTablePreferences.selectMarker(checkbox1.booleanValue());
 											anovaTablePreferences.selectGeneSymbol(checkbox2.booleanValue());
 											anovaTablePreferences.selectPVal(checkbox3.booleanValue());
@@ -159,9 +157,9 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 											anovaTablePreferences.selectMean(checkbox5.booleanValue());
 											anovaTablePreferences.selectStd(checkbox6.booleanValue());
 											Preference p = PreferenceOperations
-													.getData(getTabular().getDatasetId(),
+													.getData(parent.getDatasetId(),
 															Constants.DISPLAY_CONTROL,
-															getTabular().getUserId());
+															parent.getUserId());
 											if (p != null)
 												PreferenceOperations.setValue(
 														anovaTablePreferences, p);
@@ -170,15 +168,15 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 														anovaTablePreferences,
 														AnovaTablePreferences.class.getName(),
 														Constants.DISPLAY_CONTROL,
-														getTabular().getDatasetId(), getTabular().getUserId());
+														parent.getDatasetId(), parent.getUserId());
 
-											getTabular().getPagedTableView()
-													.setContainerDataSource(getTabular().getIndexedContainer());		 
+											parent.getPagedTableView()
+													.setContainerDataSource(parent.getIndexedContainer());		 
 															 
 											mainWindow
 													.removeWindow(displayPrefWindow);
 										    
-										} catch (Exception e) {
+										} catch (Exception e) { // FIXME what is expected here?
 											e.printStackTrace();
 										}
 									}
@@ -233,8 +231,8 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 				Constants.ThresholdDisplayControl.f_statistic.ordinal(),
 				"F-Statistic Threshold");
 
-		int thresholdControl = ((AnovaResultsUI)getTabular()).getAnovaTablePreferences().getThresholdControl();
-		float thresholdValue= ((AnovaResultsUI)getTabular()).getAnovaTablePreferences().getThresholdValue();
+		int thresholdControl = ((AnovaResultsUI)parent).getAnovaTablePreferences().getThresholdControl();
+		float thresholdValue= ((AnovaResultsUI)parent).getAnovaTablePreferences().getThresholdValue();
 		og.select(thresholdControl);
 
 		final TextField threshold = new TextField();
@@ -285,7 +283,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 					public void buttonClick(ClickEvent event) {
 						try {							
 							int thresholdControl = new Integer(og.getValue().toString());							 
-							AnovaTablePreferences anovaTablePreferences = ((AnovaResultsUI)getTabular()).getAnovaTablePreferences();
+							AnovaTablePreferences anovaTablePreferences = ((AnovaResultsUI)parent).getAnovaTablePreferences();
 							anovaTablePreferences.setThresholdControl(thresholdControl);
 							if (thresholdControl == Constants.ThresholdDisplayControl.show_all.ordinal())
 								anovaTablePreferences.setThresholdValue(0);
@@ -325,9 +323,9 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 							}
 								 
 							Preference p = PreferenceOperations
-									.getData(getTabular().getDatasetId(),
+									.getData(parent.getDatasetId(),
 											Constants.DISPLAY_CONTROL,
-											getTabular().getUserId());
+											parent.getUserId());
 							if (p != null)
 								PreferenceOperations.setValue(
 										anovaTablePreferences, p);
@@ -336,10 +334,10 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 										anovaTablePreferences,
 										AnovaTablePreferences.class.getName(),
 										Constants.DISPLAY_CONTROL,
-										getTabular().getDatasetId(), getTabular().getUserId());
+										parent.getDatasetId(), parent.getUserId());
 
-							getTabular().getPagedTableView()
-									.setContainerDataSource(getTabular().getIndexedContainer());		 
+							parent.getPagedTableView()
+									.setContainerDataSource(parent.getIndexedContainer());		 
 											 
 							mainWindow
 									.removeWindow(filterWindow);

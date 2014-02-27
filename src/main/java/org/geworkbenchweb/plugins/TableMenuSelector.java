@@ -17,7 +17,7 @@ public abstract class TableMenuSelector extends MenuBar {
 
 	private static final long serialVersionUID = -8195610134056190752L;
 
-	private MenuItem displayPreferences;
+	protected MenuItem displayPreferences;
 	private MenuItem filterItem;
 	private MenuItem exportItem;
 	private MenuItem searchItem;
@@ -26,9 +26,9 @@ public abstract class TableMenuSelector extends MenuBar {
 	private String tabularName;
 	private Window searchWindow;
 	private TextField search;
-	Tabular parent;
+	protected final Tabular parent;
 
-	public TableMenuSelector(Tabular tabular, String name) {
+	public TableMenuSelector(final Tabular tabular, String name) {
 
 		setImmediate(true);
 		setStyleName("transparent");
@@ -89,11 +89,11 @@ public abstract class TableMenuSelector extends MenuBar {
 						public void textChange(TextChangeEvent event) {
 							if (event.getText() != null
 									&& event.getText().length() > 0) {
-								getThisInstance().getItems().get(4)
+								TableMenuSelector.this.getItems().get(4)
 										.setEnabled(true);
 								parent.setSearchStr(event.getText().trim());
 							} else {
-								getThisInstance().getItems().get(4)
+								TableMenuSelector.this.getItems().get(4)
 										.setEnabled(false);
 								parent.setSearchStr(null);
 							}
@@ -172,23 +172,11 @@ public abstract class TableMenuSelector extends MenuBar {
 
 		resetItem.setStyleName("plugin");
 
-	}
+		createDisplayPreferenceItems();
+	} /* end of constructor TODO need refactoring */
 
-	private TableMenuSelector getThisInstance() {
-		return this;
-	}
+	abstract protected void createDisplayPreferenceItems();
 
-	public Tabular getTabular() {
-		return parent;
-	}
-
-	public MenuItem getDisplayPreferences() {
-		return this.displayPreferences;
-	}
-
-	abstract public void createDisplayPreferenceItems(
-			MenuItem displayPreferences);
-
-	abstract public void createFilterWindow();
+	abstract protected void createFilterWindow();
 
 }

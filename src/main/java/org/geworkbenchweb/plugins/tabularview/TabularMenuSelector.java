@@ -35,13 +35,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 	public TabularMenuSelector(Tabular tabular, String name)
 	{
 		super(tabular, name);
-		createDisplayPreferenceItems(getDisplayPreferences());
-		
-		
 	}
 	
 	@Override
-	public void createDisplayPreferenceItems(MenuItem displayPreferences)
+	protected void createDisplayPreferenceItems()
 	{
 	 
 		MenuBar.MenuItem geneOrMarkerItem = displayPreferences.addItem(
@@ -82,7 +79,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 								Constants.MarkerDisplayControl.both.ordinal(),
 								"Both");
 
-						og.select(((TabularViewUI)getTabular()).getTabViewPreferences().getMarkerDisplayControl());
+						og.select(((TabularViewUI)parent).getTabViewPreferences().getMarkerDisplayControl());
 
 						final Window mainWindow = getApplication()
 								.getMainWindow();
@@ -100,7 +97,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 											Preference p = PreferenceOperations
 													.getData(
 															Constants.MARKER_DISPLAY_CONTROL,
-															getTabular().getUserId());
+															parent.getUserId());
 											if (p != null)
 												PreferenceOperations.setValue(
 														value, p);
@@ -109,10 +106,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 														value,
 														Integer.class.getName(),
 														Constants.MARKER_DISPLAY_CONTROL,
-														null, getTabular().getUserId());
+														null, parent.getUserId());
 
-											getTabular().getPagedTableView()
-													.setContainerDataSource(getTabular().getIndexedContainer());				 
+											parent.getPagedTableView()
+													.setContainerDataSource(parent.getIndexedContainer());				 
 													 
 											mainWindow
 													.removeWindow(displayPrefWindow);
@@ -164,7 +161,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 								Constants.AnnotationDisplayControl.off
 										.ordinal(), "Off");
 
-						og.select(((TabularViewUI)getTabular()).getTabViewPreferences()
+						og.select(((TabularViewUI)parent).getTabViewPreferences()
 								.getAnnotationDisplayControl());
 
 						final Window mainWindow = getApplication()
@@ -183,7 +180,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 											Preference p = PreferenceOperations
 													.getData(
 															Constants.ANNOTATION_DISPLAY_CONTROL,
-															getTabular().getUserId());
+															parent.getUserId());
 											if (p != null)
 												PreferenceOperations.setValue(
 														value, p);
@@ -192,10 +189,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 														value,
 														Integer.class.getName(),
 														Constants.ANNOTATION_DISPLAY_CONTROL,
-														null, getTabular().getUserId());
+														null, parent.getUserId());
 
-											getTabular().getPagedTableView()
-													.setContainerDataSource(getTabular().getIndexedContainer());		 
+											parent.getPagedTableView()
+													.setContainerDataSource(parent.getIndexedContainer());		 
 															 
 											mainWindow
 													.removeWindow(displayPrefWindow);
@@ -236,7 +233,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 						final TextField precision;
 						precision = new TextField();
 						precision.setCaption("Precision");
-						precision.setValue(((TabularViewUI)getTabular()).getTabViewPreferences()
+						precision.setValue(((TabularViewUI)parent).getTabViewPreferences()
 								.getNumberPrecisionControl());
 
 						final Window mainWindow = getApplication()
@@ -255,7 +252,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 											Preference p = PreferenceOperations
 													.getData(
 															Constants.NUMBER_PRECISION_CONTROL,
-															getTabular().getUserId());
+															parent.getUserId());
 											if (p != null)
 												PreferenceOperations.setValue(
 														new Integer(value
@@ -270,13 +267,13 @@ public class TabularMenuSelector extends TableMenuSelector {
 																Integer.class
 																		.getName(),
 																Constants.NUMBER_PRECISION_CONTROL,
-																null, getTabular().getUserId());
+																null, parent.getUserId());
 											
-											getTabular().setPrecisonNumber( new Integer(value.toString().trim()));											
-											PagedTableContainer pagedTableContainer	= 	(PagedTableContainer)getTabular().getPagedTableView().getContainerDataSource();							
-											getTabular().getPagedTableView()
+											parent.setPrecisonNumber( new Integer(value.toString().trim()));											
+											PagedTableContainer pagedTableContainer	= 	(PagedTableContainer)parent.getPagedTableView().getContainerDataSource();							
+											parent.getPagedTableView()
 											.setContainerDataSource(pagedTableContainer.getContainer());
-											((TabularViewUI)getTabular()).getTabViewPreferences().setNumberPrecisionControl( new Integer(value.toString().trim()));
+											((TabularViewUI)parent).getTabViewPreferences().setNumberPrecisionControl( new Integer(value.toString().trim()));
 											mainWindow
 													.removeWindow(displayPrefWindow);
 										 
@@ -309,7 +306,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 	@Override
 	public void createFilterWindow() {
 		
-		final FilterWindow filterWindow = new FilterWindow(getTabular());			 
+		final FilterWindow filterWindow = new FilterWindow(parent);			 
 		getApplication().getMainWindow().addWindow(filterWindow);
 
 	} 
