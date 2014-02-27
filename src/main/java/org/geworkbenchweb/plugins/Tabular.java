@@ -1,15 +1,13 @@
 package org.geworkbenchweb.plugins;
 
-import com.vaadin.data.util.IndexedContainer;
-import org.geworkbenchweb.utils.PagedTableView;
-
 /* Shared interface between the two tabular viewers. */
 public interface Tabular extends Visualizer{
+
+	void resetDataSource();
+	void export();
 	
-    IndexedContainer getIndexedContainer();
-    PagedTableView getPagedTableView();
+	// TODO all the methods should be reviewed, very likely needs to be refactored
     Long getUserId();    
     void setSearchStr(String search);
-    void setPrecisonNumber(int precisonNumber);
     String getSearchStr();
 }

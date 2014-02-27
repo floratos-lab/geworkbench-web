@@ -170,8 +170,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 														Constants.DISPLAY_CONTROL,
 														parent.getDatasetId(), parent.getUserId());
 
-											parent.getPagedTableView()
-													.setContainerDataSource(parent.getIndexedContainer());		 
+											parent.resetDataSource();		 
 															 
 											mainWindow
 													.removeWindow(displayPrefWindow);
@@ -336,8 +335,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 										Constants.DISPLAY_CONTROL,
 										parent.getDatasetId(), parent.getUserId());
 
-							parent.getPagedTableView()
-									.setContainerDataSource(parent.getIndexedContainer());		 
+							parent.resetDataSource();		 
 											 
 							mainWindow
 									.removeWindow(filterWindow);

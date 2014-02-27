@@ -24,6 +24,7 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
@@ -310,8 +311,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return datasetId;
 	}
 
-	@Override
-	public IndexedContainer getIndexedContainer() {
+	private IndexedContainer getIndexedContainer() {
 		IndexedContainer dataIn = null;
 		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = data.getDataId();
@@ -387,12 +387,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return dataIn;
 	}
  
-
-	@Override
-	public PagedTableView getPagedTableView() {		 
-		return this.displayTable;
-	}
-
 	@Override
 	public void setSearchStr(String search) {
 		this.searchStr = search;		 
@@ -410,7 +404,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return this.userId;
 	}
 
-	@Override
 	public void setPrecisonNumber(int precisonNumber) {		 
 		this.precisonNumber = precisonNumber;
 	}
@@ -420,4 +413,18 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			displayTable.setContainerDataSource(new IndexedContainer());
 	}
  
+	@Override
+	public void resetDataSource() {
+		displayTable.setContainerDataSource(getIndexedContainer());
+	}
+
+	@Override
+	public void export() {
+		PagedTableView table = displayTable;
+		CsvExport csvExport = new CsvExport(table);
+		csvExport.excludeCollapsedColumns();
+		csvExport.setExportFileName("tabularViewTable.csv");
+		csvExport.setDisplayTotals(false);
+		csvExport.export();
+	}
 }

@@ -202,8 +202,7 @@ public class FilterWindow extends Window {
 						Constants.ARRAY_FILTER_CONTROL, datasetId, userId);
 
 			parent.setSearchStr(null);
-			parent.getPagedTableView().setContainerDataSource(
-					parent.getIndexedContainer());
+			parent.resetDataSource();
 
 			getApplication().getMainWindow().removeWindow(this);
 		} catch (Exception e) {

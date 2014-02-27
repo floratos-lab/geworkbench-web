@@ -2,29 +2,20 @@ package org.geworkbenchweb.plugins.tabularview;
 
 import org.geworkbenchweb.plugins.TableMenuSelector;
 import org.geworkbenchweb.plugins.Tabular;
- 
+import org.geworkbenchweb.pojos.Preference;
+import org.geworkbenchweb.utils.PreferenceOperations;
+
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
- 
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
- 
+
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-
- 
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
- 
-import com.vaadin.ui.Button; 
-
-import com.jensjansson.pagedtable.PagedTableContainer;
-
-  
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.utils.PreferenceOperations;
 
  
 public class TabularMenuSelector extends TableMenuSelector {
@@ -108,8 +99,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 														Constants.MARKER_DISPLAY_CONTROL,
 														null, parent.getUserId());
 
-											parent.getPagedTableView()
-													.setContainerDataSource(parent.getIndexedContainer());				 
+											parent.resetDataSource();				 
 													 
 											mainWindow
 													.removeWindow(displayPrefWindow);
@@ -191,8 +181,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 														Constants.ANNOTATION_DISPLAY_CONTROL,
 														null, parent.getUserId());
 
-											parent.getPagedTableView()
-													.setContainerDataSource(parent.getIndexedContainer());		 
+											parent.resetDataSource();		 
 															 
 											mainWindow
 													.removeWindow(displayPrefWindow);
@@ -268,11 +257,9 @@ public class TabularMenuSelector extends TableMenuSelector {
 																		.getName(),
 																Constants.NUMBER_PRECISION_CONTROL,
 																null, parent.getUserId());
-											
-											parent.setPrecisonNumber( new Integer(value.toString().trim()));											
-											PagedTableContainer pagedTableContainer	= 	(PagedTableContainer)parent.getPagedTableView().getContainerDataSource();							
-											parent.getPagedTableView()
-											.setContainerDataSource(pagedTableContainer.getContainer());
+
+											((TabularViewUI)parent).setPrecisonNumber( new Integer(value.toString().trim()));											
+											parent.resetDataSource();
 											((TabularViewUI)parent).getTabViewPreferences().setNumberPrecisionControl( new Integer(value.toString().trim()));
 											mainWindow
 													.removeWindow(displayPrefWindow);

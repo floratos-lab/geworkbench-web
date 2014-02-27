@@ -1,12 +1,9 @@
 package org.geworkbenchweb.plugins;
 
-import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
 
-import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.MenuBar;
@@ -57,12 +54,7 @@ public abstract class TableMenuSelector extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				PagedTableView table = parent.getPagedTableView();
-				CsvExport csvExport = new CsvExport(table);
-				csvExport.excludeCollapsedColumns();
-				csvExport.setExportFileName("tabularViewTable.csv");
-				csvExport.setDisplayTotals(false);
-				csvExport.export();
+				parent.export();
 			}
 		});
 		exportItem.setStyleName("plugin");
@@ -97,8 +89,7 @@ public abstract class TableMenuSelector extends MenuBar {
 										.setEnabled(false);
 								parent.setSearchStr(null);
 							}
-							parent.getPagedTableView().setContainerDataSource(
-									parent.getIndexedContainer());
+							parent.resetDataSource();
 
 						}
 					});
@@ -140,8 +131,7 @@ public abstract class TableMenuSelector extends MenuBar {
 				parent.setSearchStr(null);
 				if (search != null)
 				   search.setValue("");
-				parent.getPagedTableView().setContainerDataSource(
-						parent.getIndexedContainer());
+				parent.resetDataSource();
 				selectedItem.setEnabled(false);
 			}
 		});
@@ -164,8 +154,7 @@ public abstract class TableMenuSelector extends MenuBar {
 				if (search != null)
 				   search.setValue("");
 				clearItem.setEnabled(false);
-				parent.getPagedTableView().setContainerDataSource(
-						parent.getIndexedContainer());
+				parent.resetDataSource();
 
 			}
 		});

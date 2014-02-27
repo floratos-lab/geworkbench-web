@@ -16,6 +16,7 @@ import org.geworkbenchweb.utils.PreferenceOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Label;
@@ -116,10 +117,8 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 					 
 
 	}
-	
 
-	 @Override
-	 public IndexedContainer getIndexedContainer() {
+	 private IndexedContainer getIndexedContainer() {
 
 		loadAnovaTablePreferences();		 
 		String[] header;
@@ -254,11 +253,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	public Long getDatasetId() {
 		return datasetId;
 	}
-	
-	@Override 
-	public PagedTableView getPagedTableView()
-	{return dataTable;}
-	
+
 	@Override	 
 	public void setSearchStr(String search)
 	{
@@ -279,8 +274,17 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	}
 
 	@Override
-	public void setPrecisonNumber(int precisonNumber) {
-		// TODO Auto-generated method stub
-		
+	public void resetDataSource() {
+		dataTable.setContainerDataSource(getIndexedContainer());
+	}
+
+	@Override
+	public void export() {
+		PagedTableView table = dataTable;
+		CsvExport csvExport = new CsvExport(table);
+		csvExport.excludeCollapsedColumns();
+		csvExport.setExportFileName("tabularViewTable.csv");
+		csvExport.setDisplayTotals(false);
+		csvExport.export();
 	}
 }
