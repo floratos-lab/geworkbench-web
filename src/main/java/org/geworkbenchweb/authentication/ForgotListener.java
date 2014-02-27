@@ -39,7 +39,7 @@ public class ForgotListener implements ClickListener{
 	private static final String fromEmail = GeworkbenchRoot.getAppProperty("from.email");
 	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
 
-	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+");
+	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
 	
 	public ForgotListener(Button btn){
 		forgotBtn = btn;
@@ -88,6 +88,10 @@ public class ForgotListener implements ClickListener{
 					message.setValue("Invalid email.");
 				}else{
 					user = findUser(option, value);
+					if(user != null && !emailPattern.matcher(user.getEmail()).matches()){
+						message.setValue("Invalid email.");
+						user = null;
+					}
 				}
 				if(user != null){
 					sendMail(forgotBtn.getCaption(), user);
