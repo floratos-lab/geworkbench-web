@@ -1,5 +1,7 @@
 package org.geworkbenchweb.plugins;
 
+import java.util.Map;
+
 import org.geworkbenchweb.utils.PreferenceOperations;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -14,41 +16,38 @@ public abstract class TableMenuSelector extends MenuBar {
 
 	private static final long serialVersionUID = -8195610134056190752L;
 
-	protected MenuItem displayPreferences;
-	private MenuItem filterItem;
-	private MenuItem exportItem;
-	private MenuItem searchItem;
-	private MenuItem clearItem;
-	private MenuItem resetItem;
-	private String tabularName;
-	private Window searchWindow;
 	private TextField search;
 	protected final Tabular parent;
 
-	public TableMenuSelector(final Tabular tabular, String name) {
+	public TableMenuSelector(final Tabular tabular, final String tabularName) {
 
 		setImmediate(true);
 		setStyleName("transparent");
 
 		parent = tabular;
-		tabularName = name;
 
-		displayPreferences = this.addItem("Display Preferences", null);
+		MenuItem displayPreferences = this.addItem("Display Preferences", null);
+		Map<String, Command> subItems = createDisplayPreferenceItems();
+		for(String caption: subItems.keySet()) {
+			MenuItem item = displayPreferences.addItem(caption, subItems.get(caption));
+			item.setStyleName("plugin");
+		}
 		displayPreferences.setStyleName("plugin");
 
-		filterItem = this.addItem("Filter", new Command() {
+		MenuItem filterItem = this.addItem("Filter", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				createFilterWindow();
+				Window filterWindow = createFilterWindow();
+				getApplication().getMainWindow().addWindow(filterWindow);
 			}
 		});
 
 		filterItem.setStyleName("plugin");
 
-		exportItem = this.addItem("Export", new Command() {
+		MenuItem exportItem = this.addItem("Export", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -59,11 +58,10 @@ public abstract class TableMenuSelector extends MenuBar {
 		});
 		exportItem.setStyleName("plugin");
 
-		searchItem = this.addItem("Search", new Command() {
+		MenuItem searchItem = this.addItem("Search", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				if (search == null) {
@@ -96,33 +94,26 @@ public abstract class TableMenuSelector extends MenuBar {
 
 				}
 
-				if (searchWindow == null) {
-					searchWindow = new Window();
-					searchWindow.setClosable(true);
-					((AbstractOrderedLayout) searchWindow.getLayout())
+				Window searchWindow = new Window();
+				searchWindow.setClosable(true);
+				((AbstractOrderedLayout) searchWindow.getContent())
 							.setSpacing(true);
-					searchWindow.setWidth("300px");
-					searchWindow.setHeight("120px");
-					searchWindow.setResizable(false);
+				searchWindow.setWidth("300px");
+				searchWindow.setHeight("120px");
+				searchWindow.setResizable(false);
+				searchWindow.setCaption("Search");
+				searchWindow.setImmediate(true); 
 
-					searchWindow.setCaption("Search");
-
-					searchWindow.setImmediate(true); 
-				
-				}
+				searchWindow.addComponent(search);
 
 				final Window mainWindow = getApplication().getMainWindow();
-				searchWindow.getContent().removeComponent(search);
-				searchWindow.addComponent(search);
-				mainWindow.removeWindow(searchWindow);
 				mainWindow.addWindow(searchWindow);
 				searchWindow.center();
-
 			}
 		});
 		searchItem.setStyleName("plugin");
 
-		clearItem = this.addItem("Clear Search", new Command() {
+		final MenuItem clearItem = this.addItem("Clear Search", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -140,7 +131,7 @@ public abstract class TableMenuSelector extends MenuBar {
 		clearItem.setEnabled(false);
 		parent.setSearchStr(null);
 
-		resetItem = this.addItem("Reset", new Command() {
+		MenuItem resetItem = this.addItem("Reset", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -161,11 +152,10 @@ public abstract class TableMenuSelector extends MenuBar {
 
 		resetItem.setStyleName("plugin");
 
-		createDisplayPreferenceItems();
 	} /* end of constructor TODO need refactoring */
 
-	abstract protected void createDisplayPreferenceItems();
+	abstract protected Map<String, Command> createDisplayPreferenceItems();
 
-	abstract protected void createFilterWindow();
+	abstract protected Window createFilterWindow();
 
 }

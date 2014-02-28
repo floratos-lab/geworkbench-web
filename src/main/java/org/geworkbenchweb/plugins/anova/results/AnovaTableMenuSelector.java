@@ -1,32 +1,27 @@
 package org.geworkbenchweb.plugins.anova.results; 
  
+import java.util.HashMap;
+import java.util.Map;
+
 import org.geworkbenchweb.plugins.TableMenuSelector;
-import org.geworkbenchweb.plugins.Tabular;  
-import org.geworkbenchweb.plugins.anova.results.Constants; 
- 
- 
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.TextField; 
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer; 
-import com.vaadin.ui.CheckBox;
- 
- 
-import com.vaadin.data.Property; 
+import org.geworkbenchweb.plugins.Tabular;
+import org.geworkbenchweb.pojos.Preference;
+import org.geworkbenchweb.utils.PreferenceOperations;
+
+import com.vaadin.data.Property;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
- 
-import com.vaadin.ui.Button; 
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-  
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.utils.PreferenceOperations;
 
  
 public class AnovaTableMenuSelector extends TableMenuSelector {
@@ -42,22 +37,20 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 	}
 	
 	@Override
-	protected void createDisplayPreferenceItems()
+	protected Map<String, Command> createDisplayPreferenceItems()
 	{
+		Map<String, Command> map = new HashMap<String, Command>();
 	 
-	 
-		MenuBar.MenuItem selectColumnsItem = displayPreferences.addItem(
-				"Select Columns", new Command() {
+		map.put("Select Columns", new Command() {
 
 					private static final long serialVersionUID = 1L;
 
-					@SuppressWarnings("deprecation")
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						final Window displayPrefWindow = new Window();
 						displayPrefWindow.setModal(true);
 						displayPrefWindow.setClosable(true);
-						((AbstractOrderedLayout) displayPrefWindow.getLayout())
+						((AbstractOrderedLayout) displayPrefWindow.getContent())
 								.setSpacing(true);
 						displayPrefWindow.setWidth("320px");
 						displayPrefWindow.setHeight("280px");
@@ -188,22 +181,17 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						mainWindow.addWindow(displayPrefWindow);
 					}
 				});
-
-		        selectColumnsItem.setStyleName("plugin");
-
-		 
-
-	 
+		return map;
 	}
 	
 	 
 	@Override
-	public void createFilterWindow() {
+	protected Window createFilterWindow() {
 		
 		final Window filterWindow = new Window();
 		filterWindow.setModal(true);
 		filterWindow.setClosable(true);
-		((AbstractOrderedLayout) filterWindow.getLayout())
+		((AbstractOrderedLayout) filterWindow.getContent())
 				.setSpacing(true);
 		filterWindow.setWidth("300px");
 		filterWindow.setHeight("200px");
@@ -235,7 +223,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		og.select(thresholdControl);
 
 		final TextField threshold = new TextField();
-		threshold.setWidth(200);
+		threshold.setWidth(200, UNITS_PIXELS);
 		threshold.setImmediate(true);
 		if (thresholdControl == Constants.ThresholdDisplayControl.show_all.ordinal())
 			threshold.setEnabled(false);
@@ -350,8 +338,8 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		filterWindow.addComponent(og);
 		filterWindow.addComponent(threshold);
 		filterWindow.addComponent(submit);
-		mainWindow.addWindow(filterWindow);
-
+		
+		return filterWindow;
 	} 
 	
 	private Float getPvalThreshold(Object value)

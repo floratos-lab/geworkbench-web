@@ -1,5 +1,8 @@
 package org.geworkbenchweb.plugins.tabularview;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.geworkbenchweb.plugins.TableMenuSelector;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.Preference;
@@ -9,7 +12,6 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
@@ -29,11 +31,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 	}
 	
 	@Override
-	protected void createDisplayPreferenceItems()
+	protected Map<String, Command> createDisplayPreferenceItems()
 	{
-	 
-		MenuBar.MenuItem geneOrMarkerItem = displayPreferences.addItem(
-				"Gene Symbol/Marker ID", new Command() {
+		Map<String, Command> map = new HashMap<String, Command>();
+		map.put("Gene Symbol/Marker ID", new Command() {
 
 					private static final long serialVersionUID = 1L;
 
@@ -116,10 +117,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 					}
 				});
 
-		geneOrMarkerItem.setStyleName("plugin");
-
-		MenuBar.MenuItem annotationsItem = displayPreferences.addItem(
-				"Annotations", new Command() {
+		map.put("Annotations", new Command() {
 
 					private static final long serialVersionUID = 1L;
 
@@ -198,10 +196,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 					}
 				});
 
-		annotationsItem.setStyleName("plugin");
-
-		MenuBar.MenuItem precisionItem = displayPreferences.addItem(
-				"Precision", new Command() {
+		map.put("Precision", new Command() {
 
 					private static final long serialVersionUID = 1L;
 
@@ -285,18 +280,11 @@ public class TabularMenuSelector extends TableMenuSelector {
 						mainWindow.addWindow(displayPrefWindow);
 					}
 				});
-		precisionItem.setStyleName("plugin");
-
-	 
+		return map;
 	}
 	
 	@Override
-	public void createFilterWindow() {
-		
-		final FilterWindow filterWindow = new FilterWindow(parent);			 
-		getApplication().getMainWindow().addWindow(filterWindow);
-
+	protected Window createFilterWindow() {
+		return new FilterWindow(parent);			 
 	} 
-	
-
 }
