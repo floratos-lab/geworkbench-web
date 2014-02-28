@@ -11,7 +11,7 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
- 
+
 public abstract class TableMenuSelector extends MenuBar {
 
 	private static final long serialVersionUID = -8195610134056190752L;
@@ -25,11 +25,13 @@ public abstract class TableMenuSelector extends MenuBar {
 		setStyleName("transparent");
 
 		parent = tabular;
+		tabular.setSearchStr(null);
 
 		MenuItem displayPreferences = this.addItem("Display Preferences", null);
 		Map<String, Command> subItems = createDisplayPreferenceItems();
-		for(String caption: subItems.keySet()) {
-			MenuItem item = displayPreferences.addItem(caption, subItems.get(caption));
+		for (String caption : subItems.keySet()) {
+			MenuItem item = displayPreferences.addItem(caption,
+					subItems.get(caption));
 			item.setStyleName("plugin");
 		}
 		displayPreferences.setStyleName("plugin");
@@ -44,7 +46,6 @@ public abstract class TableMenuSelector extends MenuBar {
 				getApplication().getMainWindow().addWindow(filterWindow);
 			}
 		});
-
 		filterItem.setStyleName("plugin");
 
 		MenuItem exportItem = this.addItem("Export", new Command() {
@@ -53,64 +54,12 @@ public abstract class TableMenuSelector extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				parent.export();
+				tabular.export();
 			}
 		});
 		exportItem.setStyleName("plugin");
 
-		MenuItem searchItem = this.addItem("Search", new Command() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				if (search == null) {
-					search = new TextField();
-					search.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.LAZY);
-					search.setInputPrompt("Please enter search string");
-					search.setImmediate(true);
-					if (parent.getSearchStr() != null
-							&& !parent.getSearchStr().isEmpty()) {
-						search.setValue(parent.getSearchStr());
-					}
-					search.addListener(new TextChangeListener() {
-						private static final long serialVersionUID = 1048639156493298177L;
-
-						public void textChange(TextChangeEvent event) {
-							if (event.getText() != null
-									&& event.getText().length() > 0) {
-								TableMenuSelector.this.getItems().get(4)
-										.setEnabled(true);
-								parent.setSearchStr(event.getText().trim());
-							} else {
-								TableMenuSelector.this.getItems().get(4)
-										.setEnabled(false);
-								parent.setSearchStr(null);
-							}
-							parent.resetDataSource();
-
-						}
-					});
-
-				}
-
-				Window searchWindow = new Window();
-				searchWindow.setClosable(true);
-				((AbstractOrderedLayout) searchWindow.getContent())
-							.setSpacing(true);
-				searchWindow.setWidth("300px");
-				searchWindow.setHeight("120px");
-				searchWindow.setResizable(false);
-				searchWindow.setCaption("Search");
-				searchWindow.setImmediate(true); 
-
-				searchWindow.addComponent(search);
-
-				final Window mainWindow = getApplication().getMainWindow();
-				mainWindow.addWindow(searchWindow);
-				searchWindow.center();
-			}
-		});
+		MenuItem searchItem = this.addItem("Search", null);
 		searchItem.setStyleName("plugin");
 
 		final MenuItem clearItem = this.addItem("Clear Search", new Command() {
@@ -119,17 +68,25 @@ public abstract class TableMenuSelector extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				parent.setSearchStr(null);
+				tabular.setSearchStr(null);
 				if (search != null)
-				   search.setValue("");
-				parent.resetDataSource();
+					search.setValue("");
+				tabular.resetDataSource();
 				selectedItem.setEnabled(false);
 			}
 		});
-
 		clearItem.setStyleName("plugin");
 		clearItem.setEnabled(false);
-		parent.setSearchStr(null);
+
+		searchItem.setCommand(new Command() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				showSearchWindow(tabular, clearItem);
+			}
+		});
 
 		MenuItem resetItem = this.addItem("Reset", new Command() {
 
@@ -138,24 +95,70 @@ public abstract class TableMenuSelector extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				PreferenceOperations.deleteAllPreferences(
-						parent.getDatasetId(), parent.getUserId(), tabularName
-								+ "%");
+						tabular.getDatasetId(), tabular.getUserId(),
+						tabularName + "%");
 
-				parent.setSearchStr(null);
+				tabular.setSearchStr(null);
 				if (search != null)
-				   search.setValue("");
+					search.setValue("");
 				clearItem.setEnabled(false);
-				parent.resetDataSource();
+				tabular.resetDataSource();
 
 			}
 		});
-
 		resetItem.setStyleName("plugin");
+	} /* end of constructor */
 
-	} /* end of constructor TODO need refactoring */
+	private static TextField createSearchTextField(final Tabular parent,
+			final MenuItem clearItem) {
+		TextField textField = new TextField();
+
+		textField
+				.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.LAZY);
+		textField.setInputPrompt("Please enter search string");
+		textField.setImmediate(true);
+
+		String searchString = parent.getSearchStr();
+		if (searchString != null && !searchString.isEmpty()) {
+			textField.setValue(searchString);
+		}
+		textField.addListener(new TextChangeListener() {
+			private static final long serialVersionUID = 1048639156493298177L;
+
+			public void textChange(TextChangeEvent event) {
+				if (event.getText() != null && event.getText().length() > 0) {
+					clearItem.setEnabled(true);
+					parent.setSearchStr(event.getText().trim());
+				} else {
+					clearItem.setEnabled(false);
+					parent.setSearchStr(null);
+				}
+				parent.resetDataSource();
+			}
+		});
+		return textField;
+	}
+
+	private void showSearchWindow(final Tabular parent, final MenuItem clearItem) {
+		if (search == null) {
+			search = createSearchTextField(parent, clearItem);
+		}
+
+		Window searchWindow = new Window();
+		searchWindow.setClosable(true);
+		((AbstractOrderedLayout) searchWindow.getContent()).setSpacing(true);
+		searchWindow.setWidth("300px");
+		searchWindow.setHeight("120px");
+		searchWindow.setResizable(false);
+		searchWindow.setCaption("Search");
+		searchWindow.setImmediate(true);
+
+		searchWindow.addComponent(search);
+		getApplication().getMainWindow().addWindow(searchWindow);
+		searchWindow.center();
+	}
 
 	abstract protected Map<String, Command> createDisplayPreferenceItems();
 
 	abstract protected Window createFilterWindow();
-
 }
