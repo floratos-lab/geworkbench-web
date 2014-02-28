@@ -250,6 +250,7 @@ public class NavigationTree extends Tree {
 				dataSets.setParent(subSetId, dataId);
 			}
 		}
+		dataSets.addItem(new Object()); /* add a dummy item as a workaround for issue #30 in github */
 		return dataSets;
 	}
 }

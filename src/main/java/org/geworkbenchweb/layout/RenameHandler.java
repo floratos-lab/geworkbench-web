@@ -45,7 +45,7 @@ public class RenameHandler implements Handler {
 		}
 		if(target==null) return null;
 		if (!(target instanceof Long)) {
-			log.warn("unexpected target type: " + target);
+			log.debug("unexpected target type: " + target);
 			return null;
 		}
 		return actions;

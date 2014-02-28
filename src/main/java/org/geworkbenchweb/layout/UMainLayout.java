@@ -392,6 +392,7 @@ public class UMainLayout extends VerticalLayout {
 		if(!pending) {
 			navigationTree.select(id);
 		}
+		navigationTree.addItem(new Object()); /* workaround for issue #30 */
 	}
 	
 	/**
