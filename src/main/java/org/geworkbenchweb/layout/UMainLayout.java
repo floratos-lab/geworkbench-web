@@ -28,7 +28,6 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * UMainLayout sets up the basic layout and style of the application.
@@ -228,7 +227,6 @@ public class UMainLayout extends VerticalLayout {
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
 		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-		navigationTree.setStyleName(Reindeer.TREE_CONNECTORS);
 
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
@@ -392,7 +390,6 @@ public class UMainLayout extends VerticalLayout {
 		if(!pending) {
 			navigationTree.select(id);
 		}
-		navigationTree.addItem(new Object()); /* workaround for issue #30 */
 	}
 	
 	/**
