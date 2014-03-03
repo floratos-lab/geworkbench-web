@@ -200,7 +200,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		correction.setCaption(" ");
 		correction.setNullSelectionAllowed(false);
 		correction.addItem("No Correction");
-		correction.addItem("Bonferroni Correction");
+		correction.addItem("Correct by # of Markers");
 		correction.select("No Correction");
 		correction.setEnabled(true);
 		correction.addListener(new Property.ValueChangeListener() {
