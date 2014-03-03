@@ -280,11 +280,12 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public void export() {
-		PagedTableView table = dataTable;
-		CsvExport csvExport = new CsvExport(table);
+		CsvExport csvExport = new CsvExport(dataTable);
 		csvExport.excludeCollapsedColumns();
 		csvExport.setExportFileName("tabularViewTable.csv");
 		csvExport.setDisplayTotals(false);
+		csvExport.setDoubleDataFormat("General");
+		csvExport.setExcelFormatOfProperty("P-Value", "0.00E+00");
 		csvExport.export();
 	}
 }
