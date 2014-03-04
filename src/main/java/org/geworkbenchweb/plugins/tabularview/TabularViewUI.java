@@ -1,6 +1,11 @@
 package org.geworkbenchweb.plugins.tabularview;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,10 +29,12 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.addon.tableexport.CsvExport;
+import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.Resource;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
@@ -420,11 +427,32 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public void export() {
-		PagedTableView table = displayTable;
-		CsvExport csvExport = new CsvExport(table);
-		csvExport.excludeCollapsedColumns();
-		csvExport.setExportFileName("tabularViewTable.csv");
-		csvExport.setDisplayTotals(false);
-		csvExport.export();
+		final Application app = getApplication();
+		final File file = new File("expression_data_" + datasetId + ".txt");
+		try {
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
+			Collection<?> properties = displayTable.getContainerDataSource()
+					.getContainerPropertyIds();
+			Object[] p = properties.toArray();
+			pw.print(p[0]);
+			for (int i = 1; i < p.length; i++) {
+				pw.print("\t" + p[i]);
+			}
+			pw.print("\n");
+			Collection<?> items = displayTable.getItemIds();
+			for (Object itemId : items) {
+				Item item = displayTable.getItem(itemId);
+				pw.print(item.getItemProperty(p[0]).getValue());
+				for (int i = 1; i < p.length; i++) {
+					pw.print("\t" + item.getItemProperty(p[i]).getValue());
+				}
+				pw.print("\n");
+			}
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Resource resource = new FileResource(file, app);
+		app.getMainWindow().open(resource, "exported");
 	}
 }
