@@ -73,6 +73,11 @@ public class NavigationTree extends Tree {
 					com.vaadin.data.Property.ValueChangeEvent event) {
 
 				Object itemId = event.getProperty().getValue();
+				if(itemId==null && dataSetId!=null) {
+					/* being selected before unselecting, force it selected. mantis issue 3702 */
+					NavigationTree.this.select(dataSetId);
+					return;
+				}
 				if (!(itemId instanceof Long)) {
 					log.error("wrong type for dataSetId " + itemId);
 					return;
