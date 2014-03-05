@@ -50,7 +50,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				AnalysisUI analysisUI = event.getAnalaysisUI();
 				String resultName = null;
 				try {
-					resultName = analysisUI.execute(resultId, event.getDatasetId(), params, userId);
+					resultName = analysisUI.execute(resultId, params, userId);
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 

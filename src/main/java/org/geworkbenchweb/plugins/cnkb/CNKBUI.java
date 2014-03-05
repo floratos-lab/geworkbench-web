@@ -452,21 +452,21 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-				dataSetId, resultSet, params, CNKBUI.this);
+				resultSet, params, CNKBUI.this);
 		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws IOException, Exception {
 		try {
 			CNKBResultSet resultSet = getInteractions(
-					datasetId, params);
+					dataSetId, params);
 			UserDirUtils.serializeResultSet(resultId, resultSet);
 		} catch (UnAuthenticatedException uae) {
-			creatAuthenticationDialog(datasetId);
+			creatAuthenticationDialog(dataSetId);
 			return "UnAuthenticatedException";
 		} catch (NullPointerException e) {
 			throw new IOException("null pointer caught in CNKBUI"); // using IOException because of the limitation of the interface AnalysisUI

@@ -285,7 +285,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSetId, resultSet, params, AnovaUI.this);
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(resultSet, params, AnovaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		}
@@ -479,10 +479,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
-		AnovaAnalysis analysis = new AnovaAnalysis(datasetId, (AnovaUI) params.get("form"));
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws IOException, Exception {
+		AnovaAnalysis analysis = new AnovaAnalysis(dataSetId, (AnovaUI) params.get("form"));
 		AnovaResult result = analysis.execute();
 		FacadeFactory.getFacade().store(result);
 

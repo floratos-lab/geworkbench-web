@@ -154,7 +154,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-						dataSetId, resultSet, params, TTestUI.this);
+						resultSet, params, TTestUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 				
 			}
@@ -379,10 +379,10 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
-		TTestAnalysisWeb analyze = new TTestAnalysisWeb(datasetId, params);
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws IOException, Exception {
+		TTestAnalysisWeb analyze = new TTestAnalysisWeb(dataSetId, params);
 		TTestOutput tTestOutput = analyze.execute();
 		TTestResult resultSet = new TTestResult(tTestOutput);
 		FacadeFactory.getFacade().store(resultSet);
@@ -391,7 +391,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		result.setDataId(resultSet.getId());
 		FacadeFactory.getFacade().store(result);
 		
-		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 		String[] markerLabels = microarray.getMarkerLabels();

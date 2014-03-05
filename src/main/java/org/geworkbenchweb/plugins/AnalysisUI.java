@@ -21,13 +21,12 @@ public interface AnalysisUI extends ComponentContainer {
 	 * 
 	 * @param dataId
 	 */
-	// TODO using an arbitrary, machine-generated ID to identify the dataset may not be the best approach 
 	void setDataSetId(Long dataId);
 	
 	// TODO this eventually (or conceptually) should be part of Analysis, not AnalysisUI
 	Class<?> getResultType();
 
 	// TODO return String is not the best idea
-	String execute(Long resultId, Long datasetId, HashMap<Serializable, Serializable> parameters,
+	String execute(Long resultId, HashMap<Serializable, Serializable> parameters,
 			Long userId) throws IOException, Exception;
 }

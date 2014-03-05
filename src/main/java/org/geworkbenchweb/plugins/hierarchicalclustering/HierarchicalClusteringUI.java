@@ -156,7 +156,9 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
 					GeworkbenchRoot.getBlackboard().fire(resultEvent);
 
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSetId, resultSet, params, HierarchicalClusteringUI.this);
+							AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+									resultSet, params,
+									HierarchicalClusteringUI.this);
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
 					
 				} catch (Exception e) {	
@@ -260,10 +262,11 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws Exception {
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws Exception {
 		HierarchicalClusteringComputation analysis = new HierarchicalClusteringComputation(
-				datasetId, params, userId);
+				dataSetId, params, userId);
 		HierarchicalClusteringResult result = analysis.execute();
 		FacadeFactory.getFacade().store(result);
 		

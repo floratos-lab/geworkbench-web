@@ -484,7 +484,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			/* this is a special case of the work flow: NetworkCreation uses the interface method execute but ignore the DataSet argument. */
 			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-					0L, resultSet, params, new NetworkCreation());
+					resultSet, params, new NetworkCreation(parentId));
 			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 		}
 	}

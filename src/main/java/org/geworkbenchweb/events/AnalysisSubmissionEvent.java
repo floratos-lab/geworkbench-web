@@ -17,14 +17,11 @@ public class AnalysisSubmissionEvent implements Event {
 	
 	final private AnalysisUI analysisUi;
 
-	final private Long datasetId;
-	
-	public AnalysisSubmissionEvent(Long datasetId, ResultSet resultSet, HashMap<Serializable, Serializable> params,
-			AnalysisUI analysisUi) {
-		this.datasetId 	= 	datasetId;
-		this.resultSet	=	resultSet;
-		this.params		=	params;
-		this.analysisUi   =   analysisUi;
+	public AnalysisSubmissionEvent(ResultSet resultSet,
+			HashMap<Serializable, Serializable> params, AnalysisUI analysisUi) {
+		this.resultSet = resultSet;
+		this.params = params;
+		this.analysisUi = analysisUi;
 	}
 	
 	public ResultSet getResultSet() {
@@ -41,9 +38,5 @@ public class AnalysisSubmissionEvent implements Event {
 	
 	public AnalysisUI getAnalaysisUI() {
 		return analysisUi;
-	}
-
-	public Long getDatasetId() {
-		return datasetId;
 	}
 }

@@ -404,7 +404,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						params.put(AracneParameters.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
 						params.put(AracneParameters.ARRAY_SET,markerArraySelector.getSelectedArraySet());
 						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-								dataSetId, resultSet, params, AracneUI.this);
+								resultSet, params, AracneUI.this);
 						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 					}
 
@@ -591,10 +591,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
-		AracneAnalysisWeb analyze = new AracneAnalysisWeb(datasetId, params);
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws IOException, Exception {
+		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
 		AdjacencyMatrix result = analyze.execute();
 		UserDirUtils.serializeResultSet(resultSetId, result);
 		return "Aracne";

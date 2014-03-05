@@ -178,7 +178,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
 				params.put("bean", bean);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(dataSetId, resultSet, params, MarinaUI.this);
+				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+						resultSet, params, MarinaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 			}
 		});
@@ -361,10 +362,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	}
 
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> parameters, Long userId) throws IOException,
-			Exception {
-		MarinaAnalysis analyze = new MarinaAnalysis(datasetId, parameters);
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> parameters, Long userId)
+			throws IOException, Exception {
+		MarinaAnalysis analyze = new MarinaAnalysis(dataSetId, parameters);
 
 		MraResult result = analyze.execute();
 		FacadeFactory.getFacade().store(result);

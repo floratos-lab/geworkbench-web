@@ -87,6 +87,8 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	public void attach() {
 		this.removeAllComponents();
 		
+		if(adjMatrix==null) return;
+		
 		int edgeNumber = adjMatrix.getConnectionNo();
 		int nodeNumber = adjMatrix.getNodeNumber();
 		if ((edgeNumber + nodeNumber) > limit_num) {

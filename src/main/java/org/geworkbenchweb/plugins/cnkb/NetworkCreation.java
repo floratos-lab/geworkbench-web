@@ -24,6 +24,11 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
+	private final Long datasetId;
+
+	public NetworkCreation(Long parentId) {
+		datasetId = parentId;
+	}
 
 	@Override
 	public void setDataSetId(Long dataId) {
@@ -38,8 +43,9 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 	 
 	/* the method signature is interface defined. this class in fact ignores datasetId and userId*/
 	@Override
-	public String execute(Long resultId, Long datasetId,
-			HashMap<Serializable, Serializable> params, Long userId) throws IOException {
+	public String execute(Long resultId,
+			HashMap<Serializable, Serializable> params, Long userId)
+			throws IOException {
 		Vector<CellularNetWorkElementInformation> hits = null;
 		CNKBResultSet resultSet = null;
 		Short confidentType = null;
