@@ -1,10 +1,7 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,35 +10,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
-import org.geworkbench.util.ResultSetlUtil; 
+import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.CSVUtil;
-import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.ObjectConversion;
-import org.geworkbenchweb.utils.UserDirUtils;
-import org.geworkbenchweb.visualizations.Cytoscape; 
-import org.geworkbenchweb.plugins.PluginEntry;
-import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
-import org.geworkbenchweb.plugins.cnkb.NetworkCreation;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.plugins.cnkb.CNKBParameters;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.invient.vaadin.charts.InvientCharts;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
@@ -50,7 +34,6 @@ import com.invient.vaadin.charts.InvientCharts.XYSeries;
 import com.invient.vaadin.charts.InvientChartsConfig;
 import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
 import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.Grid;
-import com.invient.vaadin.charts.InvientChartsConfig.DataLabel;
 import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.Margin;
 import com.invient.vaadin.charts.InvientChartsConfig.LineConfig;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
@@ -64,32 +47,23 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
-import org.geworkbenchweb.plugins.cnkb.CellularNetWorkElementInformation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * This class displays CNKB results in a Table and also a graph
  * 
  * @author Nikhil Reddy
  */
-@SuppressWarnings("unused")
 public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 1L;
@@ -104,8 +78,6 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
 	protected InvientCharts plot;
-
-	private CNKBResultsUI menuBarInstance;
 
 	protected Table dataTable;
 	private Map<String, String> confidentTypeMap = null;
@@ -122,6 +94,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		} catch (FileNotFoundException e) {
 			/* expected before the data file is ready */
 			log.warn("file not found. dataset ID "+dataSetId);
+			addComponent(new Label("Pending query - ID "+ dataSetId + ": checked time "+new java.util.Date()));
 			//e.printStackTrace();
 			return;
 		} catch (ClassNotFoundException e) {
