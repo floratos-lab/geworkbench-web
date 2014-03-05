@@ -22,7 +22,7 @@ public class DataSet extends AbstractPojo {
 	private String description = "";
 	/* time stamp: additional information to identify the dataset, also useful to maintain an order of datasets. */
 	@Column(name = "DATE_FIELD")
-	private java.sql.Date timestamp;
+	private java.sql.Timestamp timestamp;
 	
 	public Long getWorkspace() {
 		return workspace;
@@ -71,11 +71,11 @@ public class DataSet extends AbstractPojo {
 			this.description = description;
 	}
 
-	public java.sql.Date getDateField() {
+	public java.sql.Timestamp getDateField() {
 		return timestamp;
 	}
 
-	public void setDateField(java.sql.Date dateField) {
+	public void setDateField(java.sql.Timestamp dateField) {
 		this.timestamp = dateField;
 	}
 

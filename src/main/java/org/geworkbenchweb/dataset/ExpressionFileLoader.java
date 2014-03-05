@@ -49,6 +49,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			dataset.setType("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet");
 			dataset.setDescription("Microarray experiment"+". # of microarrays: " + cleanMicroaraySet.arrayNumber + ",   "
 					+ "# of markers: " + cleanMicroaraySet.markerNumber);
+			dataset.setDateField(new java.sql.Timestamp(System.currentTimeMillis()));
 			FacadeFactory.getFacade().store(dataset);
 
 			datasetId = dataset.getId();

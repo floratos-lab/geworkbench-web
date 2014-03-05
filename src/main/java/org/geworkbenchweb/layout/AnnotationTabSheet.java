@@ -3,15 +3,18 @@
  */
 package org.geworkbenchweb.layout;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
@@ -26,7 +29,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 /**
  * @author zji
- * @version $Id$
  *
  */
 /* ATTENTION: please be aware of our over-use of the word 'annotation'!
@@ -138,12 +140,25 @@ public class AnnotationTabSheet extends TabSheet {
 		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
 		eParams.put("parent", dataSetId);
 
+		/* TODO that is not much useful information implemented in DataHistory */
 		List<AbstractPojo> histories =  FacadeFactory.getFacade().list("Select p from DataHistory as p where p.parent =:parent", eParams);
 		for(int i=0; i<histories.size(); i++) {
 			DataHistory dH = (DataHistory) histories.get(i);
 			Label d = new Label(dH.getData());
 			d.setContentMode(Label.CONTENT_PREFORMATTED);
 			dataHistory.addComponent(d);
+		}
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
+				dataSetId);
+		if (dataset != null) {
+			dataHistory.addComponent(new Label("Dataset Name: "
+					+ dataset.getName(), Label.CONTENT_PREFORMATTED));
+			Timestamp dateField = dataset.getDateField();
+			if (dateField != null) {
+				dataHistory.addComponent(new Label("Time Stamp: "
+						+ DateFormat.getDateTimeInstance().format(dateField),
+						Label.CONTENT_PREFORMATTED));
+			}
 		}
 		
 		expInfo.setSizeUndefined();
