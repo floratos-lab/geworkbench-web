@@ -211,6 +211,9 @@ public class DataTypeMenuPage extends VerticalLayout {
 					}
 				});
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
+		if(dataId==null) {
+			toolButton.addStyleName("nolink");
+		}
 
 		final String itemDescription = analysis.getDescription();
 		infoButton.addListener(new Button.ClickListener() {

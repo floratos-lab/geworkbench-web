@@ -1,3 +1,6 @@
 @import url(sampler/styles.css);
 @import url(sampler/genSpace.css);
 
+.nolink .v-button-caption {
+	text-decoration: none;
+}
