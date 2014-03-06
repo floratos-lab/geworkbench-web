@@ -153,10 +153,10 @@ public class AnnotationTabSheet extends TabSheet {
 		if (dataset != null) {
 			dataHistory.addComponent(new Label("Dataset Name: "
 					+ dataset.getName(), Label.CONTENT_PREFORMATTED));
-			Timestamp dateField = dataset.getDateField();
-			if (dateField != null) {
+			Timestamp timestamp = dataset.getTimestamp();
+			if (timestamp != null) {
 				dataHistory.addComponent(new Label("Time Stamp: "
-						+ DateFormat.getDateTimeInstance().format(dateField),
+						+ DateFormat.getDateTimeInstance().format(timestamp),
 						Label.CONTENT_PREFORMATTED));
 			}
 		}

@@ -1,13 +1,10 @@
 package org.geworkbenchweb.pojos;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 @Entity
-@Table(name="dataset")
 public class DataSet extends AbstractPojo {
 
 	private static final long serialVersionUID = -2720207271844335675L;
@@ -21,7 +18,6 @@ public class DataSet extends AbstractPojo {
 	/* a short description. used in places like tool tip. */
 	private String description = "";
 	/* time stamp: additional information to identify the dataset, also useful to maintain an order of datasets. */
-	@Column(name = "DATE_FIELD")
 	private java.sql.Timestamp timestamp;
 	
 	public Long getWorkspace() {
@@ -71,12 +67,12 @@ public class DataSet extends AbstractPojo {
 			this.description = description;
 	}
 
-	public java.sql.Timestamp getDateField() {
+	public java.sql.Timestamp getTimestamp() {
 		return timestamp;
 	}
 
-	public void setDateField(java.sql.Timestamp dateField) {
-		this.timestamp = dateField;
+	public void setTimestamp(java.sql.Timestamp timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public Long getDataId() {
