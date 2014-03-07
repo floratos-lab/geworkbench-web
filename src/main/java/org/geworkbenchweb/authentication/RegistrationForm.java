@@ -187,7 +187,7 @@ public class RegistrationForm extends VerticalLayout {
 
 		MessageBox mb = new MessageBox(getWindow(), dialogCaption, dialogIcon,
 				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-						"Back to Log-in"));
+						"Back to Log-in", "150px"));
 		mb.show(new MessageBox.EventListener() {
 
 			private static final long serialVersionUID = -8489356760651132447L;
