@@ -130,7 +130,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 						((AbstractOrderedLayout) displayPrefWindow.getLayout())
 								.setSpacing(true);
 						displayPrefWindow.setWidth("300px");
-						displayPrefWindow.setHeight("200px");
+						displayPrefWindow.setHeight("150px");
 						displayPrefWindow.setResizable(false);
 						displayPrefWindow.setCaption("Display Preference");
 						displayPrefWindow.setImmediate(true);
@@ -144,10 +144,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 								.ordinal());
 						og.setItemCaption(
 								Constants.AnnotationDisplayControl.on.ordinal(),
-								"On");
+								"Show annotations");
 						og.setItemCaption(
 								Constants.AnnotationDisplayControl.off
-										.ordinal(), "Off");
+										.ordinal(), "Hide annotations");
 
 						og.select(((TabularViewUI)parent).getTabViewPreferences()
 								.getAnnotationDisplayControl());
