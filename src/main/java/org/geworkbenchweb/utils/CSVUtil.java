@@ -117,6 +117,7 @@ public class CSVUtil {
 		}else if (markerType.equals("Gene Symbol")){
 			Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 			for(String markerLabel : markerLabels) {
+				if(!map.containsKey(markerLabel)) continue;
 				String geneName = map.get(markerLabel);
 				if(selectedNames.contains(geneName))
 					panel.add(markerLabel);
