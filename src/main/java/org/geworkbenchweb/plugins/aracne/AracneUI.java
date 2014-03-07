@@ -232,7 +232,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		thresholdType.setNullSelectionAllowed(false);
 		thresholdType.addItem("P-Value");
 		thresholdType.addItem("Mutual Info");
-		thresholdType.select("P-Value");
 		thresholdType.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -247,6 +246,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
+		thresholdType.select("P-Value");
 
 		tolerance.setCaption(" ");
 		tolerance.setValue("0.1");
