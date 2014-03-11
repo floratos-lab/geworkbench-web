@@ -2,6 +2,7 @@ package org.geworkbenchweb.plugins.ttest.results;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.geworkbenchweb.pojos.DataSet;
@@ -16,15 +17,13 @@ import com.invient.vaadin.charts.InvientCharts.ChartResetZoomListener;
 import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
 import com.invient.vaadin.charts.InvientCharts.ChartZoomEvent;
 import com.invient.vaadin.charts.InvientCharts.ChartZoomListener;
+import com.invient.vaadin.charts.InvientCharts.Series;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.terminal.StreamResource.StreamSource;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Table;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class ChartMenuBar extends MenuBar {
 
@@ -178,14 +177,11 @@ public class ChartMenuBar extends MenuBar {
 	}
 	
 	public void resetZoom(){
-		MessageBox mb = new MessageBox(getWindow(), "Reset Zoom", MessageBox.Icon.INFO,
-				"To be implemented", new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-		mb.show();
-		/*Map<String, Object> variables = new HashMap<String, Object>();
+		for(Series series : chart.getAllSeries()){
+			series.show();
+		}
+		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put("event", "chartResetZoom");
 		chart.changeVariables(chart, variables);
-		chart.requestRepaint();
-		chart.refresh();
-		GeworkbenchRoot.getPusher().push();*/
 	};
 }
