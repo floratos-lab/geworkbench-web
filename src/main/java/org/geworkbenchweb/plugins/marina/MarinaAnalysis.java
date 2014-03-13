@@ -121,6 +121,11 @@ public class MarinaAnalysis {
 			int ret = submitJob(mradir+submitScriptName);
 			log.info("SubmitJob returns: "+ret);
 
+			try{
+		    	Thread.sleep(POLL_INTERVAL*3); //wait for a minute before polling results
+		    }catch(InterruptedException e){
+		    }
+
 			File resultfile = new File(mradir+finalfile);
 			while(!isJobDone(runid)){
 			    try{
@@ -227,6 +232,7 @@ public class MarinaAnalysis {
 			brErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
 			while ((line = brIn.readLine())!=null || (line = brErr.readLine())!=null){
+				if(line.startsWith("error")) return false; //cluster scheduler error
 				String[] toks = line.trim().split("\\s+");
 				if (toks.length > 3 && toks[2].equals(runid))
 					return false;
