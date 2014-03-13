@@ -9,9 +9,16 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
+import org.geworkbenchweb.pojos.Comment;
+import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.pojos.SubSetContext;
+import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
@@ -68,5 +75,127 @@ public class DataSetOperations {
 		return new MicroarraySet(microarray.getArrayNumber(), microarray.getMarkerNumber(),
 				microarray.getArrayLabels(),
 				microarray.getMarkerLabels(), microarray.getExpressionValues(), null);
+	}
+	
+	/* remove result set for a given ID. this does NOT remove the GUI representation */
+	/* the only children of result set are the comments */
+	public static void deleteResultSet(Long resultSetId) {
+		Map<String, Object> cParam = new HashMap<String, Object>();
+		cParam.put("parent", resultSetId);
+
+		List<Comment> comments = FacadeFactory.getFacade().list(
+				"Select p from Comment as p where p.parent =:parent", cParam);
+		for (Comment comment : comments) {
+			FacadeFactory.getFacade().delete(comment);
+		}
+		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
+				resultSetId);
+		boolean success = UserDirUtils.deleteResultSet(resultSetId);
+		if (!success) {
+			log.error("Unable to delete the selected data. Please contact administrator.");
+		}
+		FacadeFactory.getFacade().delete(result);
+		PreferenceOperations.deleteAllPreferences(resultSetId);
+	}
+	
+	/* remove the dataset for the given ID, and all the related data, including result sets, preference etc. */
+	/* code originally copied from RemoveButtonListener. should refactor */
+	public static void deleteDataSet(Long dataId) {
+
+		DataSet data = FacadeFactory.getFacade().find(DataSet.class, dataId);
+		if (data == null) {
+			log.error("dataset to be deleted not found for ID " + dataId);
+		}
+
+		final Map<String, Object> params = new HashMap<String, Object>();
+		params.put("parent", dataId);
+
+		List<SubSet> labelsets = FacadeFactory.getFacade().list(
+				"Select p from SubSet as p where p.parent =:parent", params);
+		for (SubSet s : labelsets) {
+			FacadeFactory.getFacade().delete(s);
+		}
+
+		List<ResultSet> resultSets = FacadeFactory.getFacade().list(
+				"Select p from ResultSet as p where p.parent =:parent", params);
+		for (ResultSet resultSet : resultSets) {
+			deleteResultSet(resultSet.getId());
+		}
+
+		List<Comment> comments = FacadeFactory.getFacade().list(
+				"Select p from Comment as p where p.parent =:parent", params);
+		for (Comment comment : comments) {
+			FacadeFactory.getFacade().delete(comment);
+		}
+
+		Map<String, Object> cParam = new HashMap<String, Object>();
+		cParam.put("datasetid", dataId);
+		List<DataSetAnnotation> dsannot = FacadeFactory
+				.getFacade()
+				.list("Select p from DataSetAnnotation as p where p.datasetid=:datasetid",
+						cParam);
+		if (dsannot.size() > 0) {
+			Long annotId = dsannot.get(0).getAnnotationId();
+			FacadeFactory.getFacade().delete(dsannot.get(0));
+
+			Annotation annot = FacadeFactory.getFacade().find(Annotation.class,
+					annotId);
+			if (annot != null && annot.getOwner() != null) {
+				Map<String, Object> aiParam = new HashMap<String, Object>();
+				aiParam.put("annotationid", annotId);
+				List<Annotation> annots = FacadeFactory
+						.getFacade()
+						.list("select p from DataSetAnnotation as p where p.annotationid=:annotationid",
+								aiParam);
+				if (annots.size() == 0)
+					FacadeFactory.getFacade().delete(annot);
+			}
+		}
+
+		List<Context> contexts = SubSetOperations.getAllContexts(dataId);
+		for (Context c : contexts) {
+			Map<String, Object> ciParam = new HashMap<String, Object>();
+			ciParam.put("contextid", c.getId());
+			List<SubSetContext> subcontexts = FacadeFactory
+					.getFacade()
+					.list("Select a from SubSetContext a where a.contextid=:contextid",
+							ciParam);
+			FacadeFactory.getFacade().deleteAll(subcontexts);
+			FacadeFactory.getFacade().delete(c);
+		}
+
+		Map<String, Object> ccParam = new HashMap<String, Object>();
+		ccParam.put("datasetid", dataId);
+		List<CurrentContext> cc = FacadeFactory
+				.getFacade()
+				.list("Select p from CurrentContext as p where p.datasetid=:datasetid",
+						ccParam);
+		if (cc.size() > 0)
+			FacadeFactory.getFacade().deleteAll(cc);
+
+		FacadeFactory.getFacade().delete(data);
+
+		// delete dataset preference
+		PreferenceOperations.deleteAllPreferences(dataId);
+	}
+
+	/* remove workspace for a given ID */
+	public static void deleteWorkspace(Long workspaceId) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("workspace", workspaceId);
+
+		List<DataSet> datasets = FacadeFactory.getFacade().list(
+				"Select p from DataSet as p where p.workspace =:workspace",
+				param);
+		for (DataSet dataset : datasets) {
+			deleteDataSet(dataset.getId());
+		}
+		Workspace workspace = FacadeFactory.getFacade().find(Workspace.class,
+				workspaceId);
+		if(workspace==null) {
+			log.error("workspace to be deleted for ID "+workspaceId+" not found");
+			return;
+		}
+		FacadeFactory.getFacade().delete(workspace);
 	}
 }

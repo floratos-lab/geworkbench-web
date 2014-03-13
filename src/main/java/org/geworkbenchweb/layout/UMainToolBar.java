@@ -17,6 +17,7 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
+import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
@@ -32,7 +33,7 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
- * Menu Bar class which will be common for all the Visual Plugins
+ * Main Menu Bar on the right-hand side of the application.
  * @author Nikhil
  */
 public class UMainToolBar extends MenuBar {
@@ -41,6 +42,8 @@ public class UMainToolBar extends MenuBar {
 	private final VisualPluginView pluginView;
 	private UploadDataUI uploadDataUI;
 
+	private Long currentWorkspace; /* the practice of always querying db for active workspace does not make sense */
+	
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
 		
@@ -211,8 +214,9 @@ public class UMainToolBar extends MenuBar {
 		                        		Map<String, Object> param 		= 	new HashMap<String, Object>();
 		                        		param.put("owner", SessionHandler.get().getId());
 
-		                        		List<AbstractPojo> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
-		                        		FacadeFactory.getFacade().delete((ActiveWorkspace) activeWorkspace.get(0));
+		                        		List<ActiveWorkspace> activeWorkspace =  FacadeFactory.getFacade().list("Select p from ActiveWorkspace as p where p.owner=:owner", param);
+		                        		FacadeFactory.getFacade().delete(activeWorkspace.get(0));
+		                        		currentWorkspace = activeWorkspace.get(0).getWorkspace();
 
 		                        		/* Setting active workspace */
 		                        		ActiveWorkspace active = new ActiveWorkspace();
@@ -234,15 +238,18 @@ public class UMainToolBar extends MenuBar {
 			}
 		});
 		
-		/*workspace.addItem("Delete Workspace", new Command() {
+		workspace.addItem("Delete Workspace", new Command() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				
+				DeleteWorkspaceDialog dialog = new DeleteWorkspaceDialog("Delete Workspace", UMainToolBar.this);
+				Application app = getApplication();
+				Window mainWindow = app.getMainWindow();
+				mainWindow.addWindow(dialog);
 			}
-		});*/
+		});
 		
 		this.addItem("Account", new Command() {
 			private static final long serialVersionUID = 1L;
@@ -300,7 +307,14 @@ public class UMainToolBar extends MenuBar {
 				}
 			}
 		});
-		
+	
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("owner", SessionHandler.get().getId());
+		List<ActiveWorkspace> list = FacadeFactory.getFacade().list(
+				"Select p from ActiveWorkspace as p where p.owner=:owner",
+				param);
+		/* list size must be 1 */
+		currentWorkspace = list.get(0).getWorkspace();
 	}
 	
 	private void clearTabularView(){
@@ -320,6 +334,10 @@ public class UMainToolBar extends MenuBar {
 		List<DataSet> datasets = FacadeFactory.getFacade().list(
 				"Select d from DataSet d where d.owner=:owner and d.name like :name", parameters);
 		return !datasets.isEmpty();
+	}
+
+	public Long getCurrentWorkspace() {
+		return currentWorkspace;
 	}
 
 }
