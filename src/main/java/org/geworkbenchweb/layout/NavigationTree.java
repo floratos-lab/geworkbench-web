@@ -74,9 +74,10 @@ public class NavigationTree extends Tree {
 
 				Object itemId = event.getProperty().getValue();
 				if(itemId==null && dataSetId!=null) {
-					// being selected before unselecting, force it selected. mantis issue 3702
-					ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
-					if (result != null)
+					// being selected before unselecting, force it selected. mantis issue 3702					 
+					ResultSet resultSet =  FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+				    DataSet dataSet =  FacadeFactory.getFacade().find(DataSet.class, dataSetId);					
+					if (resultSet != null || dataSet != null)
 					    NavigationTree.this.select(dataSetId);
 					return;
 				}
