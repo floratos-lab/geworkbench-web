@@ -6,9 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
@@ -282,11 +280,6 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		if (colVal > 255) colVal = 255;
 
 		return colVal;
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

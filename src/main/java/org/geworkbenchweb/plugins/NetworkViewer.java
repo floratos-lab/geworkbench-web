@@ -315,11 +315,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	}
 
 	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
-	}
-
-	@Override
 	public Long getDatasetId() {
 		return datasetId;
 	}

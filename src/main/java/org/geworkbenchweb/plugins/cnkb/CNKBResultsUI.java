@@ -19,7 +19,6 @@ import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -593,11 +592,6 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 	{
 		throttlePanel.replaceComponent(plot, drawPlot(resultSet, minX, maxX));
 		plot = (InvientCharts)throttlePanel.getFirstComponent();
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

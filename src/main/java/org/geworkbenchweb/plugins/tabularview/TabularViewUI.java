@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
@@ -304,14 +303,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	{
 		return tabViewPreferences;
 	} 
-	 
- 
-	@Override
-	public PluginEntry getPluginEntry() {
-		return new PluginEntry("Tabular Microarray Viewer", 
-				"Presents the numerical values of the expression measurements in a table format. " +
-				"One row is created per individual marker/probe and one column per microarray.");
-	}
 
 	@Override
 	public Long getDatasetId() {

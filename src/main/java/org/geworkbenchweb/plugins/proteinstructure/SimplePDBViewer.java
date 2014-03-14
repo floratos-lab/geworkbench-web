@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -65,14 +64,6 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 		Label content = new Label(sb.toString());
 		content.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(content);
-	}
-
-	@Override
-	// this is kind of mandatory implementation until the design evolved to some
-	// better structure.
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(
-				this.getClass());
 	}
 
 	@Override

@@ -2,9 +2,7 @@ package org.geworkbenchweb.plugins.anova.results;
 
 import java.util.Map;
 
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.Preference;
@@ -242,11 +240,6 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	public AnovaTablePreferences getAnovaTablePreferences()
 	{
 		return this.anovaTablePref;
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

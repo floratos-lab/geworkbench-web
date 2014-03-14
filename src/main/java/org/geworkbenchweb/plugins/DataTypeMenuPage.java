@@ -73,7 +73,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 			try {
 				final Visualizer visualizer = visualizerClass.getConstructor(
 						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
-				buildOneItem(visualizerGroup, visualizer.getPluginEntry(),
+				buildOneItem(visualizerGroup, null,
 						visualizer);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
@@ -177,7 +177,18 @@ public class DataTypeMenuPage extends VerticalLayout {
 		final Button infoButton = new Button();
 		final Button cancelButton = new Button();
 
-		Button toolButton = new Button(analysis.getName(),
+		final String pluginName, pluginDescription;
+		if (analysis != null) {
+			pluginName = analysis.getName();
+			pluginDescription = analysis.getDescription();
+		} else {
+			Visualizer v = (Visualizer) container;
+			PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
+					.getVisualizerPluginEntry(v.getClass());
+			pluginName = plugin.getName();
+			pluginDescription = plugin.getDescription();
+		}
+		Button toolButton = new Button(pluginName,
 				new Button.ClickListener() {
 
 					private static final long serialVersionUID = 1L;
@@ -215,7 +226,6 @@ public class DataTypeMenuPage extends VerticalLayout {
 			toolButton.addStyleName("nolink");
 		}
 
-		final String itemDescription = analysis.getDescription();
 		infoButton.addListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -224,7 +234,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				itemLayout.removeComponent(infoButton);
 				itemLayout.addComponent(cancelButton, 1, 0);
-				itemLayout.addDescription(itemDescription);
+				itemLayout.addDescription(pluginDescription);
 			}
 		});
 		cancelButton.addListener(new Button.ClickListener() {

@@ -1,7 +1,5 @@
 package org.geworkbenchweb.plugins.markus.results;
 
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -59,11 +57,6 @@ public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 		public void buttonClick(ClickEvent event) {
 			browser.requestRepaint();
 		}
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

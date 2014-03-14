@@ -1,7 +1,5 @@
 package org.geworkbenchweb.plugins.marina.results;
 
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -52,11 +50,6 @@ public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 		mraTable.setColumnCollapsingAllowed(true);
 		setSizeFull();
 		addComponent(mraTable);
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override

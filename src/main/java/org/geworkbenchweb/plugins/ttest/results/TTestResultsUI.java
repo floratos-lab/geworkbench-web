@@ -5,8 +5,6 @@ import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
@@ -195,11 +193,6 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		series.setSeriesPoints(newPoints);
 		chart.addSeries(series);
 		return chart;
-	}
-
-	@Override
-	public PluginEntry getPluginEntry() {
-		return GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(this.getClass());
 	}
 
 	@Override
