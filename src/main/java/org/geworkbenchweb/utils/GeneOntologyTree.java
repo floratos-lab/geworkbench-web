@@ -400,9 +400,7 @@ public class GeneOntologyTree {
 		}
 	}
 	
-	// file for the updated version retrieved remotely
-	public final static String OBO_FILENAME = "go-basic.obo";
-
+	 
 	/**
 	 * Read ontology file from remote URL
 	 */
@@ -426,16 +424,16 @@ public class GeneOntologyTree {
 						stream));
 				// this file is put under default current directory meant to be user transparent
 			
-				PrintWriter pw = new PrintWriter(new FileWriter(dirName + OBO_FILENAME));
+				PrintWriter pw = new PrintWriter(new FileWriter(dirName + DEFAULT_OBO_FILE));
 				String line = in.readLine();
 				while(line!=null) {
 					pw.println(line);
 					line = in.readLine();
 				}
 				pw.close();
-				BufferedReader in2 = new BufferedReader(new FileReader(dirName + OBO_FILENAME));
+				BufferedReader in2 = new BufferedReader(new FileReader(dirName + DEFAULT_OBO_FILE));
 				parseOBOFile(in2);
-				actualUsedOboSource = null;
+			 
 			} else {				 
 				log.warn("error in reading remote obo from "+url);
 			}
@@ -459,9 +457,9 @@ public class GeneOntologyTree {
 			log.warn("Remote obo file was not loaded succesfully due to connection problem:\n>> "+e.getMessage()
 						    +"\nAttempting to load local copy.");
 						     
-			actualUsedOboSource = DEFAULT_OBO_FILE;
+			 
 			InputStream inputStream = this.getClass().getClassLoader()
-					.getResourceAsStream(actualUsedOboSource);
+					.getResourceAsStream(DEFAULT_OBO_FILE);
 			if (inputStream != null) {
 			InputStreamReader is = new InputStreamReader(inputStream);
 			   BufferedReader in = new BufferedReader(is);
@@ -483,7 +481,6 @@ public class GeneOntologyTree {
 		return date;
 	}
 
-
-	private String actualUsedOboSource = null;
+ 
 	 
 }
