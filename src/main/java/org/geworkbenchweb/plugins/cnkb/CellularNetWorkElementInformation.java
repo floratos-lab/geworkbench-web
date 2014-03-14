@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
+import org.geworkbenchweb.utils.GOTerm;
+import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 

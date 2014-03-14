@@ -11,7 +11,7 @@ import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
+import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
