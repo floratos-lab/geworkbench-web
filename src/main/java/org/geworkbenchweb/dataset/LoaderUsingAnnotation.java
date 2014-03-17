@@ -79,7 +79,9 @@ public abstract class LoaderUsingAnnotation implements Loader {
 		Annotation annotation = new Annotation(annotFile.getName(),
 				annotType.toString(), newAnnotation);
 		annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
+		log.warn("started store annotation to database.");
 		FacadeFactory.getFacade().store(annotation);
+		log.warn("finished store annotation to database.");
 		annotationId = annotation.getId();
 
 		if (annotationId != null){
@@ -100,8 +102,10 @@ public abstract class LoaderUsingAnnotation implements Loader {
 		}
 
 		try {
+			log.warn("started  parse annotation file");
 			Map<String, AnnotationFields> annotation = annotParser.parse(
 					annotFile, false);
+			log.warn("finished parse annotation file");
 			List<AnnotationEntry> list = new ArrayList<AnnotationEntry>();
 			for(String probeSetId : annotation.keySet()) {
 				AnnotationFields fields = annotation.get(probeSetId);
