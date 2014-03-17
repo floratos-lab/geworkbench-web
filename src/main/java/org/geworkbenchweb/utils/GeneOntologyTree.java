@@ -1,6 +1,7 @@
 package org.geworkbenchweb.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -42,7 +43,6 @@ public class GeneOntologyTree {
 	
 	public final static String DEFAULT_REMOTE_LOCATION = "http://purl.obolibrary.org/obo/go/go-basic.obo";
 	public final static String DEFAULT_OBO_FILE = "/go-basic.obo";
-	 
 	
 	private static GeneOntologyTree instance = null;
 	private static String dirName;
@@ -423,7 +423,9 @@ public class GeneOntologyTree {
 				BufferedReader in = new BufferedReader(new InputStreamReader(
 						stream));
 				// this file is put under default current directory meant to be user transparent
-			
+			    File dir = new File(dirName);			   
+				if(!dir.exists())  
+					  dir.mkdirs();			 
 				PrintWriter pw = new PrintWriter(new FileWriter(dirName + DEFAULT_OBO_FILE));
 				String line = in.readLine();
 				while(line!=null) {
