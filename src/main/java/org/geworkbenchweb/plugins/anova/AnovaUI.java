@@ -273,8 +273,8 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				
 				params.put("form", AnovaUI.this);
 				ResultSet resultSet = new ResultSet();
-				java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-				resultSet.setDateField(date);
+				java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+				resultSet.setTimestamp(timestamp);
 				String dataSetName = "Anova - Pending";
 				resultSet.setName(dataSetName);
 				resultSet.setType(getResultType().getName());

@@ -202,8 +202,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private ResultSet storePendingResultSet() {
 
 		ResultSet resultSet = new ResultSet();
-		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
+		java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+		resultSet.setTimestamp(timestamp);
 		String dataSetName = analysisName + " - Pending";
 		resultSet.setName(dataSetName);
 		resultSet.setType(getResultType().getName());

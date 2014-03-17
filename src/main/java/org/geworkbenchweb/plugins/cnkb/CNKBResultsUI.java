@@ -442,8 +442,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			params.put(CNKBParameters.CNKB_RESULTSET, resultSet);
 			 
 			ResultSet resultSet = new ResultSet();
-			java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-			resultSet.setDateField(date);
+			java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+			resultSet.setTimestamp(timestamp);
 			String dataSetName = "Cytoscape - Pending";
 			resultSet.setName(dataSetName);
 			resultSet.setType(AdjacencyMatrix.class.getName());

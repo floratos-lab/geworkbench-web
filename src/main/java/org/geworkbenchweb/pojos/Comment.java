@@ -1,6 +1,5 @@
 package org.geworkbenchweb.pojos;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -14,8 +13,7 @@ public class Comment extends AbstractPojo {
 
 	private String comment;
 	private Long parent;
-	@Column(name = "DATE_FIELD")
-	private java.sql.Date date;
+	private java.sql.Timestamp timestamp;
 	
 	public String getComment() {
 		return comment;
@@ -33,11 +31,11 @@ public class Comment extends AbstractPojo {
 		this.parent = parent;
 	}
 	
-	public java.sql.Date getDate() {
-		return date;
+	public java.sql.Timestamp getTimestamp() {
+		return timestamp;
 	}
 	
-	public void setDate(java.sql.Date date) {
-		this.date = date;
+	public void setTimestamp(java.sql.Timestamp timestamp) {
+		this.timestamp = timestamp;
 	}
 }

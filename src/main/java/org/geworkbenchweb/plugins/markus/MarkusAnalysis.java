@@ -89,8 +89,8 @@ public class MarkusAnalysis {
 		
 		ResultSet resultSet = 	new ResultSet();
 		resultSet.setDataId(dataId);
-		java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
+		java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+		resultSet.setTimestamp(timestamp);
 		String dataSetName 	=	results;
 		resultSet.setName(dataSetName);
 		resultSet.setType(MarkUsResultDataSet.class.getName());

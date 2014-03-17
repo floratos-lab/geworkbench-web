@@ -387,9 +387,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					if (validInputData()) {
 
 						ResultSet resultSet = new ResultSet();
-						java.sql.Date date = new java.sql.Date(System
-								.currentTimeMillis());
-						resultSet.setDateField(date);
+						java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+						resultSet.setTimestamp(timestamp);
 						String dataSetName = "Aracne - Pending";
 						resultSet.setName(dataSetName);
 						resultSet.setType(getResultType().getName());

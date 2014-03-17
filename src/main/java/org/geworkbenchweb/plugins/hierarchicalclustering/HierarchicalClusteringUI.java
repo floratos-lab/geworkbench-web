@@ -136,8 +136,8 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 				try {
 					
 					ResultSet resultSet = 	new ResultSet();
-					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
-					resultSet.setDateField(date);
+					java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+					resultSet.setTimestamp(timestamp);
 					String dataSetName = "Hierarchical Clustering - Pending" ;
 					resultSet.setName(dataSetName);
 					resultSet.setType(getResultType().getName());

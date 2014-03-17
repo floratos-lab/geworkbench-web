@@ -1,6 +1,5 @@
 package org.geworkbenchweb.pojos;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -17,8 +16,7 @@ public class ResultSet extends AbstractPojo {
 	private String type;
 	private Long owner;
 	private Long dataId; /* ID for the JPA representation of the actual data, for now microarray expression data MicroarrayDataset. */
-	@Column(name = "DATE_FIELD")
-	private java.sql.Date date;
+	private java.sql.Timestamp timestamp;
 	
 	public String getName() {
 		return name;
@@ -53,12 +51,12 @@ public class ResultSet extends AbstractPojo {
 		this.owner = owner;
 	}
 
-	public java.sql.Date getDateField() {
-		return date;
+	public java.sql.Timestamp getTimestamp() {
+		return timestamp;
 	}
 
-	public void setDateField(java.sql.Date dateField) {
-		this.date = dateField;
+	public void setTimestamp(java.sql.Timestamp timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public Long getDataId() {

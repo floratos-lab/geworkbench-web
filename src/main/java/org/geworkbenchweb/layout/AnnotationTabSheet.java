@@ -64,8 +64,8 @@ public class AnnotationTabSheet extends TabSheet {
 		List<AbstractPojo> comments =  FacadeFactory.getFacade().list("Select p from Comment as p where p.parent =:parent", params);
 		if(comments.size() != 0){
 			for(int i=0;i<comments.size();i++) {
-				java.sql.Date date = ((Comment) comments.get(i)).getDate();
-				Label comment = new Label(date.toString()+
+				java.sql.Timestamp timestamp = ((Comment) comments.get(i)).getTimestamp();
+				Label comment = new Label(DateFormat.getDateTimeInstance().format(timestamp)+
 						" - " +
 						((Comment) comments.get(i)).getComment());
 				commentsLayout.addComponent(comment);
@@ -92,15 +92,15 @@ public class AnnotationTabSheet extends TabSheet {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				if(!dataArea.getValue().toString().isEmpty()) {
-					java.sql.Date date 	=	new java.sql.Date(System.currentTimeMillis());
+					java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
 					
 					Comment c = new Comment();
 					c.setParent(dataSetId);
 					c.setComment(dataArea.getValue().toString());
-					c.setDate(date);
+					c.setTimestamp(timestamp);
 					FacadeFactory.getFacade().store(c);
 					
-					Label comment = new Label(date.toString()+
+					Label comment = new Label(DateFormat.getDateTimeInstance().format(timestamp)+
 							" - " +
 							dataArea.getValue().toString());
 					commentsLayout.addComponent(comment);

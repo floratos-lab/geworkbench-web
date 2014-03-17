@@ -227,7 +227,7 @@ public class NavigationTree extends Tree {
 			params.put("parent", dataId);
 			List<AbstractPojo> results = FacadeFactory
 					.getFacade()
-					.list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.date",
+					.list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.timestamp",
 							params);
 
 			if (results.size() == 0) {

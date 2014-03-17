@@ -436,8 +436,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private void submitCnkbEvent(Long dataSetId) {
 		resultSet = new ResultSet();
-		java.sql.Date date = new java.sql.Date(System.currentTimeMillis());
-		resultSet.setDateField(date);
+		java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+		resultSet.setTimestamp(timestamp);
 		String dataSetName = "CNKB - Pending";
 		resultSet.setName(dataSetName);
 		resultSet.setType(getResultType().getName());
