@@ -8,8 +8,10 @@ import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
@@ -22,6 +24,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
@@ -208,6 +211,18 @@ public class UMainLayout extends VerticalLayout {
 		logo.addStyleName("logo");
 		topBar.addComponent(logo);
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
+
+		Label userName = new Label("<span style=color:white>User name: "
+				+ user.getName() + "</span>", Label.CONTENT_XHTML);
+		Long wsid = mainToolBar.getCurrentWorkspace();
+		Workspace current = FacadeFactory.getFacade().find(Workspace.class,
+				wsid);
+		Label workspaceName = new Label("<span style=color:white>Workspace: "
+				+ current.getName() + "</span>", Label.CONTENT_XHTML);
+		topBar.addComponent(userName);
+		topBar.addComponent(workspaceName);
+		topBar.setComponentAlignment(userName, Alignment.MIDDLE_CENTER);
+		topBar.setComponentAlignment(workspaceName, Alignment.MIDDLE_CENTER);
 
 		mainSplit.setSizeFull();
 		mainSplit.setStyleName("main-split");
