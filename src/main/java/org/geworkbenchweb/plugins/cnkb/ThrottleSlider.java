@@ -55,7 +55,7 @@ public class ThrottleSlider extends  HorizontalLayout{
 	        horslider.setMax(maxValue);	        
 	        if (maxValue < 10)
 	            horslider.setResolution(2); 	        
-	        horslider.setWidth(450);
+	        horslider.setWidth(450, UNITS_PIXELS);
 	        
 	        tf.addListener(new Property.ValueChangeListener() {
 	           
