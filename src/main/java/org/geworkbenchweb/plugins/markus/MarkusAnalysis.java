@@ -28,7 +28,8 @@ public class MarkusAnalysis {
 	final private String pdbFilename;
 	private MarkUsUI mcp = null;
 	private Long dataSetId;
-	public static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
+	private static final String MARKUS_RESULT_URL = "https://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
+	private static final String browseUrl = "https://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 	private String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"submit\"\r\n\r\nUpload\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
@@ -67,7 +68,7 @@ public class MarkusAnalysis {
 				|| results.equals("cancelled") || results.equals("na")) return;
 
 		// start waiting for this job's results
-		String url = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=" + results;
+		String url = browseUrl + results;
 		UrlStatus urlstat = checkUrlStatus(url);
 		log.info("URL status: " + urlstat + " " + url);
 		while(urlstat != UrlStatus.FINISHED) {
