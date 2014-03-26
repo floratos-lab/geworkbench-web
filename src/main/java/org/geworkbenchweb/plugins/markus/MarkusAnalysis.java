@@ -15,7 +15,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -99,8 +98,8 @@ public class MarkusAnalysis {
 		resultSet.setOwner(sessionId);	
 		FacadeFactory.getFacade().store(resultSet);
 		
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		GeworkbenchRoot app = (GeworkbenchRoot) mcp.getApplication();
+		app.addNode(resultSet);
 	}
 	
     public static java.lang.String submitJob(java.lang.String string) {

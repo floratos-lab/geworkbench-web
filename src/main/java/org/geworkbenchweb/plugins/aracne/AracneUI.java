@@ -8,7 +8,6 @@ import java.util.List;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -397,8 +396,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						FacadeFactory.getFacade().store(resultSet);
 						resultSetId = resultSet.getId(); // must be after store
 						
-						NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-						GeworkbenchRoot.getBlackboard().fire(resultEvent);
+						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
+								.getApplication();
+						app.addNode(resultSet);
 
 						params.put(AracneParameters.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
 						params.put(AracneParameters.ARRAY_SET,markerArraySelector.getSelectedArraySet());

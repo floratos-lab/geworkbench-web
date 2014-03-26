@@ -9,7 +9,6 @@ import java.util.List;
 import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
@@ -149,8 +148,9 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setOwner(userId);
 				FacadeFactory.getFacade().store(resultSet);
 
-				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-				GeworkbenchRoot.getBlackboard().fire(resultEvent);
+				GeworkbenchRoot app = (GeworkbenchRoot) TTestUI.this
+						.getApplication();
+				app.addNode(resultSet);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 						resultSet, params, TTestUI.this);

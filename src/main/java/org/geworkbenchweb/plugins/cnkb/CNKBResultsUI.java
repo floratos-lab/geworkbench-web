@@ -18,7 +18,6 @@ import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -451,8 +450,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);
 
-			NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-			GeworkbenchRoot.getBlackboard().fire(resultEvent);
+			GeworkbenchRoot app = (GeworkbenchRoot) CNKBResultsUI.this
+					.getApplication();
+			app.addNode(resultSet);
 
 			/* this is a special case of the work flow: NetworkCreation uses the interface method execute but ignore the DataSet argument. */
 			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(

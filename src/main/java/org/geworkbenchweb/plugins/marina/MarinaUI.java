@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -211,8 +210,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		resultSet.setOwner(SessionHandler.get().getId());
 		FacadeFactory.getFacade().store(resultSet);
 
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		GeworkbenchRoot app = (GeworkbenchRoot) MarinaUI.this.getApplication();
+		app.addNode(resultSet);
 
 		return resultSet;
 	}

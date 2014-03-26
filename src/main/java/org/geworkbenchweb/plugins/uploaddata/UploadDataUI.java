@@ -14,7 +14,6 @@ import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
 import org.geworkbenchweb.dataset.Loader;
 import org.geworkbenchweb.dataset.LoaderFactory;
 import org.geworkbenchweb.dataset.LoaderUsingAnnotation;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.uploaddata.AnnotationUploadLayout.Anno;
 import org.geworkbenchweb.pojos.Annotation;
@@ -200,8 +199,9 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 				annotFile);
 
 		// add pending dataset node
-		NodeAddEvent datasetEvent = new NodeAddEvent(dataset);
-		GeworkbenchRoot.getBlackboard().fire(datasetEvent);
+		GeworkbenchRoot app = (GeworkbenchRoot) UploadDataUI.this
+				.getApplication();
+		app.addNode(dataset);
 	}
 
 	static private DataSet storePendingData(String fileName, Long userId){
@@ -264,9 +264,8 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 							private static final long serialVersionUID = 1L;
 							@Override
 							public void buttonClicked(ButtonType buttonType) {    	
-								if(buttonType == ButtonType.OK) {
-									NodeAddEvent resultEvent = new NodeAddEvent(dataSet);
-									GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								if (buttonType == ButtonType.OK) {
+									mainLayout.addNode(dataSet);
 								}
 							}
 						});

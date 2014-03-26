@@ -22,7 +22,6 @@ import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
@@ -448,8 +447,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		generateHistoryString();
 
-		NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-		GeworkbenchRoot.getBlackboard().fire(resultEvent);
+		GeworkbenchRoot app = (GeworkbenchRoot) CNKBUI.this.getApplication();
+		app.addNode(resultSet);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, CNKBUI.this);

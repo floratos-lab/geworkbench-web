@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
@@ -153,10 +152,10 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					
 					generateHistoryString(resultSet.getId());
 					
-					NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-					GeworkbenchRoot.getBlackboard().fire(resultEvent);
+					GeworkbenchRoot app = (GeworkbenchRoot) HierarchicalClusteringUI.this.getApplication();
+					app.addNode(resultSet);
 
-							AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 									resultSet, params,
 									HierarchicalClusteringUI.this);
 					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
