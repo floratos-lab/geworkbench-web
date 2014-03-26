@@ -222,9 +222,9 @@ public class RegistrationForm extends VerticalLayout {
 	
 	public static void sendMail(User user){
 		String title = "Registration Confirmation for Your geWorkbench Account";
-		String firstName = user.getName().split(" ")[0];
-		if(firstName.length() == 0) firstName = "Guest";
-		String content = "<font face=\"Monogram\">Welcome " + firstName +"!<p>"
+		String realName = user.getName();
+		if(realName.length() == 0) realName = "Guest";
+		String content = "<font face=\"Monogram\">Welcome " + realName +"!<p>"
 				+ "Thanks for signing up with geWorkbench-web!"
 				+ "<p>Here is your geWorkbench account information: "
 				+ "<p>User name: " + user.getUsername()

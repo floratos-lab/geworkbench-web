@@ -3,6 +3,7 @@ package org.geworkbenchweb.authentication;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -128,17 +129,19 @@ public class ForgotListener implements ClickListener{
 		String query = "SELECT u FROM User u WHERE u." + field + " = :" + field;
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(field, value);
-		User user = FacadeFactory.getFacade().find(query, parameters);
-		if (user == null)
+		List<User> users = FacadeFactory.getFacade().list(query, parameters);
+		if (users.size() == 0){
 			message.setValue("User with " + field + " " + value + " is not found.");
-		return user;
+			return null;
+		}
+		return users.get(0);
 	}
 		
 	private void sendMail(String forgotType, User user){
 		String title = "";
-		String firstName = user.getName().split(" ")[0];
-		if(firstName.length() == 0) firstName = "Guest";
-		String content = "<font face=\"Monogram\">Dear " + firstName +",<p>";
+		String realName = user.getName();
+		if(realName.length() == 0) realName = "Guest";
+		String content = "<font face=\"Monogram\">Dear " + realName +",<p>";
 		
 		if(forgotType.contains("password")){
 			String tmppasswd = generatePassword();
