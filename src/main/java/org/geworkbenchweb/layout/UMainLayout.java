@@ -3,8 +3,6 @@ package org.geworkbenchweb.layout;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -89,10 +87,6 @@ public class UMainLayout extends VerticalLayout {
 	}
 	
 	public UMainLayout() {
-
-		/* Add listeners here */
-		NodeAddListener addNodeListener = new NodeAddListener();
-		GeworkbenchRoot.getBlackboard().addListener(addNodeListener);
 
 		/*Enable genspace logger in geWorkbench*/
 		if(GeworkbenchRoot.genespaceEnabled()) {
@@ -417,22 +411,6 @@ public class UMainLayout extends VerticalLayout {
 		} else {
 			log.error("cannot add node of an object of this "
 					+ object.getClass().getName());
-		}
-	}
-
-	/**
-	 * Adds the node to the dataTree  
-	 */
-	public class NodeAddListener implements NodeAddEventListener {
-		@Override
-		public void addNode(NodeAddEvent event) {	
-			if(event.getData() instanceof ResultSet ) {
-				ResultSet  res = (ResultSet) event.getData();
-				addResultSetNode(res);
-			} else if(event.getData() instanceof DataSet) {
-				DataSet dS = (DataSet) event.getData();
-				addDataSet(dS);
-			}
 		}
 	}
 

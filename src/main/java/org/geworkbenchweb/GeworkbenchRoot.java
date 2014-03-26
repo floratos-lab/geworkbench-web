@@ -13,14 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
-import org.geworkbenchweb.events.NodeAddEvent;
-import org.geworkbenchweb.events.NodeAddEvent.NodeAddEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
+import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.artur.icepush.ICEPush;
@@ -186,13 +184,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	 */
 	private void registerAllEventsForApplication() {
 		
-		/* This event should be fired whenever new ResultNode is added */
-		getBlackboard().register(NodeAddEventListener.class, NodeAddEvent.class);
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
-		
-		/* Register two new events for genSpace. */
-		/*getBlackboard().register(LogCompleteEventListener.class, LogCompleteEvent.class);
-		getBlackboard().register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);*/
 	}	
 
 	// TODO verify when .get() returns null and code accordingly to be explicit
