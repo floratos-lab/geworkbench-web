@@ -5,10 +5,8 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -106,8 +104,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 						@Override
 						public void buttonClicked(ButtonType buttonType) {    	
 							if(buttonType == ButtonType.OK) {
-								NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-								GeworkbenchRoot.getBlackboard().fire(resultEvent);
+								uMainLayout.addNode(resultSet);
 							}
 						}
 					});	

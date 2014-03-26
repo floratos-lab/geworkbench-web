@@ -407,6 +407,19 @@ public class UMainLayout extends VerticalLayout {
 		}
 	}
 	
+	public void addNode(Object object) {
+		if (object instanceof ResultSet) {
+			ResultSet res = (ResultSet) object;
+			addResultSetNode(res);
+		} else if (object instanceof DataSet) {
+			DataSet dS = (DataSet) object;
+			addDataSet(dS);
+		} else {
+			log.error("cannot add node of an object of this "
+					+ object.getClass().getName());
+		}
+	}
+
 	/**
 	 * Adds the node to the dataTree  
 	 */

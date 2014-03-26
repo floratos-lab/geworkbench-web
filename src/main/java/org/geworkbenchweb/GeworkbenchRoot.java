@@ -11,6 +11,8 @@ import javax.persistence.Persistence;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -27,6 +29,7 @@ import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
 import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 
@@ -38,6 +41,7 @@ import com.vaadin.ui.Window;
 public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
 	
 	private static final long serialVersionUID = 6853924772669700361L;
+	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
 	
 	private static ThreadLocal<PluginRegistry> pluginRegistry		= 	new ThreadLocal<PluginRegistry>();
 	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
@@ -243,5 +247,15 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		return System.getProperty("user.home")
 				+ System.getProperty("file.separator")
 				+ prop.getProperty("public.annotation.directory");
+	}
+	
+	public void addNode(Object node) {
+		Window w = getMainWindow();
+		ComponentContainer content = w.getContent();
+		if (content instanceof UMainLayout) {
+			((UMainLayout) content).addNode(node);
+		} else {
+			log.error("main container content is an incorrect type " + content);
+		}
 	}
 }

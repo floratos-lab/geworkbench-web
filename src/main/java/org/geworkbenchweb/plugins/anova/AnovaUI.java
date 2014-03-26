@@ -11,7 +11,6 @@ import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.NodeAddEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -282,8 +281,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
 
-				NodeAddEvent resultEvent = new NodeAddEvent(resultSet);
-				GeworkbenchRoot.getBlackboard().fire(resultEvent);
+				GeworkbenchRoot app = (GeworkbenchRoot) AnovaUI.this
+						.getApplication();
+				app.addNode(resultSet);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(resultSet, params, AnovaUI.this);
 				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
