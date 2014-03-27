@@ -113,7 +113,10 @@ public class SetViewLayout extends CssLayout {
 		this.addComponent(createContextLayout("Context for Phenotype Sets", contextSelector, newContextButton));
 		this.addComponent(arrayTree);
 		this.addComponent(arraySetTree);
-	} /* end of constructor. TODO this definitely needs more refactoring. */ 
+		
+		new SetRenameHandler(markerSetTree);
+		new SetRenameHandler(arraySetTree);
+	} /* end of constructor */ 
 
 	Long getSelectedSetId() {
 		return selectedSubSetId;
