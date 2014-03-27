@@ -101,6 +101,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 
 		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "AracneUI");
 	 
+		hubGeneMarkerSetBox.setTextInputAllowed(false);
 		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets");
 		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
