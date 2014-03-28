@@ -18,6 +18,9 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.Icon;
+
 /**
  * @author zji
  * 
@@ -89,9 +92,17 @@ public class RenameHandler implements Handler {
 		dialog.setImmediate(true);
 
 		final Item item = navigationTree.getItem(itemId);
-		Object oldName = item.getItemProperty("Name").getValue();
+		String oldName = item.getItemProperty("Name").getValue().toString();
+		if (oldName.contains("Pending")) {
+			MessageBox mb = new MessageBox(navigationTree.getWindow(),
+					"Pending node cannot be renamed.", Icon.ERROR,
+					"You cannot rename a pending node.",
+					new MessageBox.ButtonConfig(MessageBox.ButtonType.OK, "OK"));
+			mb.show();
+			return;
+		}
 		final TextField newName = new TextField();
-		newName.setInputPrompt(oldName.toString());
+		newName.setInputPrompt(oldName);
 		newName.setImmediate(true);
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
