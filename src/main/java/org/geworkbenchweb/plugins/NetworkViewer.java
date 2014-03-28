@@ -43,6 +43,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private AdjacencyMatrix adjMatrix; 	
 
 	final private Long datasetId;
+	private String messageLabel = null;
 	
 	public NetworkViewer(Long dataSetId) {
 		datasetId = dataSetId;
@@ -57,22 +58,22 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		} catch (FileNotFoundException e) { 
 			// TODO pending node should be designed and implemented explicitly as so, eventually
 			// let's make a naive assumption for now that "file not found" means pending computation
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			messageLabel = "Pending computation - ID "+ dataSetId;
 			adjMatrix = null;
 			return;
 		} catch (IOException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			messageLabel = "Result (ID "+ dataSetId+ ") not available due to "+e;
 			adjMatrix = null;
 			return;
 		} catch (ClassNotFoundException e) {
-			addComponent(new Label("Result (ID "+ dataSetId+ ") not available due to "+e));
+			messageLabel = "Result (ID "+ dataSetId+ ") not available due to "+e;
 			adjMatrix = null;
 			return;
 		}
 		if(! (object instanceof AdjacencyMatrix)) {
 			String type = null;
 			if(object!=null) type = object.getClass().getName();
-			addComponent(new Label("Result (ID "+ dataSetId+ ") has wrong type: "+type));
+			messageLabel = "Result (ID "+ dataSetId+ ") has wrong type: "+type;
 			adjMatrix = null;
 			return;
 		}
@@ -87,7 +88,10 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	public void attach() {
 		this.removeAllComponents();
 		
-		if(adjMatrix==null) return;
+		if(adjMatrix==null) {
+			addComponent(new Label(messageLabel));
+			return;
+		}
 		
 		int edgeNumber = adjMatrix.getConnectionNo();
 		int nodeNumber = adjMatrix.getNodeNumber();
