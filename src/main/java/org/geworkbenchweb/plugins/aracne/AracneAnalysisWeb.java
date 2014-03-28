@@ -116,7 +116,7 @@ public class AracneAnalysisWeb {
 		aracneInput.setBootstrapNumber(bs);
 		aracneInput.setConsensusThreshold(pt);
 
-		setDSMicroarraydata(aracneInput, microarrays);
+		setDSMicroarraydata(aracneInput, microarrays, hubGeneList);
 
 		AracneOutput aracneOutput = computeAracneRemote(aracneInput);
 
@@ -132,7 +132,7 @@ public class AracneAnalysisWeb {
 
 	} 
 
-	private void setDSMicroarraydata(AracneInput aracneInput, final MicroarraySet microarrays) {
+	private void setDSMicroarraydata(AracneInput aracneInput, final MicroarraySet microarrays, List<String> hubGeneList) {
 
 		// get selected Marker Names
 		List<String> selectedMarkerNames = new ArrayList<String>();
@@ -152,6 +152,11 @@ public class AracneAnalysisWeb {
 					selectedMarkerNames.add(temp1);
 				}
 
+			}
+			for(String hubmarker : hubGeneList) {
+				if(!selectedMarkerNames.contains(hubmarker)) {
+					selectedMarkerNames.add(hubmarker);
+				}
 			}
 		}
 
