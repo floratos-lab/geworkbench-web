@@ -392,7 +392,8 @@ public class SubSetOperations {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getArraySet(setNameId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
+		ArrayList<String> positions = new ArrayList<String>();
+		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
 
 		return positions;
 	}
@@ -401,7 +402,8 @@ public class SubSetOperations {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
+		ArrayList<String> positions = new ArrayList<String>();
+		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
 		return positions;
 	}
 }

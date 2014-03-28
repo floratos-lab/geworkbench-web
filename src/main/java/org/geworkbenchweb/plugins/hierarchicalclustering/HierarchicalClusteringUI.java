@@ -1,15 +1,19 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.MarkerArraySelector;
+import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -218,29 +222,65 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	}
 	
 	private void generateHistoryString(Long resultSetId) {
-		StringBuilder mark = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 		
-		mark.append("Hierarchical Clustering Parameters : \n");
-		mark.append("Clustering Method - " + clustMethod + "\n");
-		mark.append("Clustering Dimension - " + clustDim + "\n");
-		mark.append("Clustering Metric - " + clustMetric + "\n");
+		builder.append("Hierarchical Clustering Parameters : \n");
+		builder.append("Clustering Method - " + clustMethod + "\n");
+		builder.append("Clustering Dimension - " + clustDim + "\n");
+		builder.append("Clustering Metric - " + clustMetric + "\n");
 		
-		mark.append("Markers used - \n\t" );
+		int numMarker = 0, numArray = 0;
+		Long masetId = null;
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		if(dataset != null) masetId = dataset.getDataId();
+		
 		String[] m = (String[])params.get(HierarchicalClusteringParams.MARKER_SET);
-		if(m==null) mark.append( "all" );
-		else { // FIXME it shows set ID's. not good
-			for(String setName : m) 	mark.append(setName).append(", ");
+		StringBuilder markerBuilder = new StringBuilder();
+		if(m==null) {
+			String[] markers = DataSetOperations.getStringLabels("markerLabels", masetId);
+			if(markers != null){
+				for(String markerName : markers)
+					markerBuilder.append(markerName).append(", ");
+				numMarker = markers.length;
+			}
+		} else { 
+			for(String setName : m) {
+				ArrayList<String> markers = SubSetOperations.getMarkerData(Long.parseLong(setName.trim()));
+				for(String markerName : markers)
+					markerBuilder.append(markerName).append(", ");
+				numMarker += markers.size();
+			}
 		}
-		mark.append("\nPhenotypes used - \n\t" );
+		builder.append("Markers used (" + numMarker + ") - \n\t" );
+		String markerStr = markerBuilder.toString();
+		if(markerStr.length()>1)
+			builder.append(markerStr.substring(0, markerStr.length()-2));
+		
 		m = (String[])params.get(HierarchicalClusteringParams.MICROARRAY_SET);
-		if(m==null) mark.append( "all" );
-		else {
-			for(String setName : m) 	mark.append(setName).append(", ");
+		StringBuilder arrayBuilder = new StringBuilder();
+		if(m==null) {
+			String[] arrays = DataSetOperations.getStringLabels("arrayLabels", masetId);
+			if(arrays != null){
+				for(String arrayName : arrays)
+					arrayBuilder.append(arrayName).append(", ");
+				numArray = arrays.length;
+			}
+		} else {
+			for(String setName : m) {
+				ArrayList<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
+				for(String arrayName : arrays)
+					arrayBuilder.append(arrayName).append(", ");
+				numArray += arrays.size();
+			}
 		}
+		builder.append("\nPhenotypes used (" + numArray + ") - \n\t" );
+		String arrayStr = arrayBuilder.toString();
+		if(arrayStr.length()>1)
+			builder.append(arrayStr.substring(0, arrayStr.length()-2));
 		
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);
-		his.setData(mark.toString());
+		his.setData(builder.toString());
 		FacadeFactory.getFacade().store(his);
 	}
 
