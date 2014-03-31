@@ -13,6 +13,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.AnovaResult;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
@@ -281,6 +282,8 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
 
+				generateHistoryString(resultSet.getId());
+				
 				GeworkbenchRoot app = (GeworkbenchRoot) AnovaUI.this
 						.getApplication();
 				app.addNode(resultSet);
@@ -291,7 +294,35 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		}
 	}
 	
-	
+	private void generateHistoryString(Long resultSetId) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("Anova Parameters : \n");
+		builder.append("P Value estimation - ");
+		if(pValEstCbx.getValue().equals(PValueEstimation.permutation.ordinal())) {
+			builder.append("Permutation\n");
+			builder.append("Permutation# - ").append(getPermNumber()).append("\n");
+		} else {
+			builder.append("F-Distribution\n");
+		}
+		builder.append("P-Value Threshold - " + getPValThreshold() + "\n");
+		builder.append("Correction-method - ");
+		if (og.getValue().equals(FalseDiscoveryRateControl.number.ordinal())) {
+			builder.append("Number\n\tFalse Significant Genes limits: ")
+					.append(getFalseSignificantGenesLimit()).append("\n");
+		} else if (og.getValue().equals(FalseDiscoveryRateControl.proportion.ordinal())) {
+			builder.append("Proportion\n\tFalse Significant Genes proportion limits: ")
+					.append(getFalseSignificantGenesLimit()).append("\n");
+		} else 
+			builder.append(og.getItemCaption(og.getValue())).append("\n");
+		
+		builder.append(markerArraySelector.generateHistoryString());
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSetId);
+		his.setData(builder.toString());
+		FacadeFactory.getFacade().store(his);
+	}
 	 
 
 	public int getPValueEstimation() {		 

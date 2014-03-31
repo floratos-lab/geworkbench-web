@@ -1,14 +1,16 @@
 package org.geworkbenchweb.utils;
 
+import java.util.ArrayList;
 import java.util.List;
- 
+
 import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.SubSet;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
- 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -271,5 +273,59 @@ public class MarkerArraySelector extends GridLayout{
 					Context.class.getName(),
 					parentName + "." + MARKERCONTEXT,
 					dataSetId, userId);
+    }
+    
+    public String generateHistoryString(){
+    	StringBuilder builder = new StringBuilder();
+		int numMarker = 0, numArray = 0;
+		Long masetId = null;
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		if(dataset != null) masetId = dataset.getDataId();
+		
+		String[] m = getSelectedMarkerSet();
+		StringBuilder markerBuilder = new StringBuilder();
+		if(m==null) {
+			String[] markers = DataSetOperations.getStringLabels("markerLabels", masetId);
+			if(markers != null){
+				for(String markerName : markers)
+					markerBuilder.append(markerName).append(", ");
+				numMarker = markers.length;
+			}
+		} else { 
+			for(String setName : m) {
+				ArrayList<String> markers = SubSetOperations.getMarkerData(Long.parseLong(setName.trim()));
+				for(String markerName : markers)
+					markerBuilder.append(markerName).append(", ");
+				numMarker += markers.size();
+			}
+		}
+		builder.append("Markers used (" + numMarker + ") - \n\t" );
+		String markerStr = markerBuilder.toString();
+		if(markerStr.length()>1)
+			builder.append(markerStr.substring(0, markerStr.length()-2));
+		
+		m = getSelectedArraySet();
+		StringBuilder arrayBuilder = new StringBuilder();
+		if(m==null) {
+			String[] arrays = DataSetOperations.getStringLabels("arrayLabels", masetId);
+			if(arrays != null){
+				for(String arrayName : arrays)
+					arrayBuilder.append(arrayName).append(", ");
+				numArray = arrays.length;
+			}
+		} else {
+			for(String setName : m) {
+				ArrayList<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
+				for(String arrayName : arrays)
+					arrayBuilder.append(arrayName).append(", ");
+				numArray += arrays.size();
+			}
+		}
+		builder.append("\nPhenotypes used (" + numArray + ") - \n\t" );
+		String arrayStr = arrayBuilder.toString();
+		if(arrayStr.length()>1)
+			builder.append(arrayStr.substring(0, arrayStr.length()-2));
+		
+		return builder.toString();
     }
 }
