@@ -192,6 +192,15 @@ public class NetworkCreator {
 		float[][] rows = microarray.getExpressionValues();
 
 		if (matrix==null) return null;
+		Map<String, String> map = null;
+		if(matrix.getNodeNumber()>0){
+			NodeType nodeType = matrix.getNodes().get(0).type;
+			if(nodeType != NodeType.PROBESET_ID){
+				String type = nodeType == NodeType.GENE_SYMBOL ? GENE_NAME : ENTREZ_ID;
+				map = getAnnotationMap(type);
+			}
+		}
+
 		boolean goodNetwork = false;
 		ui.allpos = true;
 		BufferedWriter bw = null;
@@ -201,9 +210,9 @@ public class NetworkCreator {
 			bw = new BufferedWriter(new OutputStreamWriter(bo));
 
 			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				String marker1 = getMarkerInNode(node1);
+				String marker1 = getMarkerInNode(node1, map);
 				int marker1Index = markerLabels.indexOf(marker1);
-				if (marker1 != null) {
+				if (marker1 != null && marker1Index >- 1) {
 					double[] v1 = new double[arrayNumber];
 					double[] v2 = new double[arrayNumber];
 					float[] value1 = rows[marker1Index];
@@ -213,9 +222,9 @@ public class NetworkCreator {
 					
 					StringBuilder builder = new StringBuilder();
 					for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-						String marker2 = getMarkerInNode(edge.node2);
+						String marker2 = getMarkerInNode(edge.node2, map);
 						int marker2Index = markerLabels.indexOf(marker2);
-						if (marker2 != null) {
+						if (marker2 != null && marker2Index > -1) {
 							double rho = 1, pvalue = 0;
 							float[] value2 = rows[marker2Index];
 							for (int i = 0; i < arrayNumber; i++) {
@@ -272,9 +281,12 @@ public class NetworkCreator {
 		return out;
 	}
 
-	private String getMarkerInNode(AdjacencyMatrix.Node node){
+	private String getMarkerInNode(AdjacencyMatrix.Node node, Map<String, String> map){
 		if (node == null) return null;
-		return node.getStringId();
+		String nodeLabel = node.getStringId();
+		if (map == null) return nodeLabel;
+		if (!map.containsKey(nodeLabel)) return null;
+		return map.get(nodeLabel);
 	}
 	
 	public void printWarning() {
