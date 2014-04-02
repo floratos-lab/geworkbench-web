@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -17,10 +20,14 @@ import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
@@ -28,10 +35,12 @@ import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
@@ -51,6 +60,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
 	protected Button submitButton = new Button("Submit", form, "commit");
 	private ClassSelector classSelector = null;	 
+	private OptionGroup og = null;
+	private ComboBox networkNodes = null;
 	protected MarinaParamBean bean = null;
 	protected BeanItem<MarinaParamBean> item = null;
 	protected HashMap<String, String> arraymap = null;
@@ -60,6 +71,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
 	private static final String analysisName = "MARINa";
+	private static final String selectNetworkNode = "Select Network Node";
+	private static final String uploadNetworkFile = "Upload Network File";
+	private static final String[] networkOptions = {selectNetworkNode, uploadNetworkFile};
 
 	protected Long dataSetId = null;
 	
@@ -80,7 +94,51 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getLayout().addComponent(classSelector.getH1());
 		form.getLayout().addComponent(classSelector.getH2());
 		
-		//TODO: allow network to be loaded from adjacency matrix data node
+		og = new OptionGroup("Load Network Method", Arrays.asList(networkOptions));
+		og.setImmediate(true);
+		og.select(uploadNetworkFile);
+		og.addListener(new ValueChangeListener(){
+			private static final long serialVersionUID = -6950089065248041770L;
+			public void valueChange(ValueChangeEvent e){
+				if(e.getProperty().getValue().equals(selectNetworkNode)){
+					networkNodes.setVisible(true);
+					upload.setVisible(false);
+					networkNodes.select(null);
+				}else{
+					networkNodes.setVisible(false);
+					upload.setVisible(true);		
+					networkNotLoaded(null);
+				}
+			}
+		});
+		form.getLayout().addComponent(og);
+		
+		networkNodes = new ComboBox("Select Network Node");
+		networkNodes.setImmediate(true);
+		networkNodes.setVisible(false);
+		networkNodes.addListener(new ValueChangeListener(){
+			private static final long serialVersionUID = -6950089065248041770L;
+			public void valueChange(ValueChangeEvent e){
+				Long itemId = (Long)e.getProperty().getValue();
+				if(itemId == null) { networkNotLoaded(null); return; }
+				item.getItemProperty("network").setValue(networkNodes.getItemCaption(itemId));
+				Object object = null;
+				try {
+					object = UserDirUtils.deserializeResultSet(itemId);
+					if(object instanceof AdjacencyMatrix){
+						NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);
+						AdjacencyMatrix adjMatrix = (AdjacencyMatrix)object;
+						networkLoaded(networkCreator.getNetworkFromAdjMatrix(adjMatrix));
+						networkCreator.printWarning();
+					}
+				} catch (Exception exc) {
+					networkNotLoaded("Failed to load the network selected");
+					exc.printStackTrace();
+				}
+			}
+		});
+		form.getLayout().addComponent(networkNodes);
+		
 		upload = new Upload("Upload Network File", this);
 		upload.setButtonCaption("Upload");
 		upload.addListener((Upload.SucceededListener)this);
@@ -123,12 +181,14 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getField("retrievePriorResultWithId").setEnabled(false);
 
 		priorBox.setImmediate(true);
-		priorBox.addListener(new Button.ClickListener() {
+		priorBox.addListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -5548846734511323624L;
-			public void buttonClick(ClickEvent event) {
+			public void valueChange(ValueChangeEvent event) {
 				if (priorBox.booleanValue()){
 					for (String item : order)
 						form.getField(item).setEnabled(false);
+					og.setEnabled(false);
+					networkNodes.setEnabled(false);
 					upload.setEnabled(false);
 					classSelector.getArrayContextCB().setEnabled(false);
 					classSelector.getH1().setEnabled(false);
@@ -138,6 +198,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}else {
 					for (String item : order)
 						form.getField(item).setEnabled(true);
+					og.setEnabled(true);
+					networkNodes.setEnabled(true);
 					upload.setEnabled(true);
 					classSelector.getArrayContextCB().setEnabled(true);
 					classSelector.getH1().setEnabled(true);
@@ -187,6 +249,28 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		addComponent(form);
 	}
 	
+	private void addNetworkNodes(Long userId, Long dataId){
+		networkNodes.removeAllItems();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("owner", userId);
+		params.put("parent", dataId);
+		List<AbstractPojo> results = FacadeFactory
+				.getFacade()
+				.list("Select p from ResultSet as p where p.owner=:owner and p.parent=:parent ORDER by p.timestamp",
+						params);
+
+		for (int j = 0; j < results.size(); j++) {
+			String nodeName = ((ResultSet) results.get(j)).getName();
+			Long   nodeId   = ((ResultSet) results.get(j)).getId();
+			String nodeType = ((ResultSet) results.get(j)).getType();
+
+			if (nodeType.equals(AdjacencyMatrix.class.getName()) && 
+					!nodeName.contains("Pending")) {
+				networkNodes.addItem(nodeId);
+				networkNodes.setItemCaption(nodeId, nodeName);
+			}
+		}
+	}
 	/* 
 	 * convert abbrev in field title to uppercase
 	 */
@@ -255,6 +339,18 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getField("network").setEnabled(true);
 		if (classSelector.getTf1().isEnabled())
 			submitButton.setEnabled(true);
+		
+		if (allpos && bean.getGseaTailNumber()==2){
+			MessageBox mb = new MessageBox(
+					getWindow(),
+					"Warning",
+					MessageBox.Icon.WARN,
+					"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
+					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+			bean.setGseaTailNumber(1);
+			item.getItemProperty("gseaTailNumber").setValue(1);
+		}
 	}
 	
 	public class PositiveIntValidator extends IntegerValidator {
@@ -306,7 +402,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		
 		if(dataSetId==null || dataSetId==0) return;
 
+		bean.reset();
 		classSelector.setData(dataSetId, SessionHandler.get().getId());
+		addNetworkNodes(SessionHandler.get().getId(), dataId);
+		og.select(uploadNetworkFile);
+		priorBox.setValue(false);
 	 
 		arraymap.put(null, "");
 	}

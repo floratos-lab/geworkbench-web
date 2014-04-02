@@ -18,6 +18,20 @@ public class MarinaParamBean implements Serializable{
 	private String network = "";
 	private byte[] networkBytes = null;
 
+	public void reset(){
+		minimumTargetNumber = 20;
+		minimumSampleNumber = 6;
+		gseaPermutationNumber = 1000;
+		gseaTailNumber = 2;
+		shadowPValue = 0.01;
+		synergyPValue = 0.01;
+		gseaPValue = 0.01;
+		retrievePriorResultWithId = "";
+		class1 = "";
+		class2 = "";
+		network = "";
+		networkBytes = null;
+	}
 	public void setNetworkBytes(byte[] n){
 		networkBytes = n;
 	}

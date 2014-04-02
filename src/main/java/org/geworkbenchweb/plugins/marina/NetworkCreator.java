@@ -29,6 +29,9 @@ import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+
 public class NetworkCreator {
 	private MarinaUI ui;
 	private Long dataSetId = null;
@@ -272,6 +275,20 @@ public class NetworkCreator {
 	private String getMarkerInNode(AdjacencyMatrix.Node node){
 		if (node == null) return null;
 		return node.getStringId();
+	}
+	
+	public void printWarning() {
+		if (ui.bean.getGseaTailNumber() == 2) {
+			MessageBox mb = new MessageBox(
+					ui.getWindow(),
+					"Warning",
+					MessageBox.Icon.WARN,
+					"For 2-tailed GSEA with an adjacency matrix network, the expression node should be the complete dataset from "
+							+ "which the network (adjacency matrix) was originally calculated.<p>If it is not, a 5-column-format "
+							+ "network file (with regulon correlation values from the original dataset) should be loaded instead.",
+					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+		}
 	}
 
 }

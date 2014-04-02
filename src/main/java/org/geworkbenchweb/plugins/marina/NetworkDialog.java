@@ -15,15 +15,12 @@ import org.geworkbench.parsers.InputFileFormatException;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class NetworkDialog {
 	private Log log = LogFactory.getLog(NetworkDialog.class);
@@ -126,24 +123,13 @@ public class NetworkDialog {
 								interactionTypeMap, selectedFormat,
 								selectedRepresentedBy, isRestrict);
 						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));
+						networkCreator.printWarning();
 					} catch (InputFileFormatException e1) {
 						log.error(e1.getMessage());
 						e1.printStackTrace();
 					}
 				}else{
 					ui.networkLoaded(bean.getNetworkBytes());
-				}
-
-				if (ui.allpos && bean.getGseaTailNumber()==2){
-					MessageBox mb = new MessageBox(
-							mainWindow,
-							"Warning",
-							MessageBox.Icon.WARN,
-							"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					bean.setGseaTailNumber(1);
-					ui.item.getItemProperty("gseaTailNumber").setValue(1);
 				}
 			}
 		});
