@@ -288,21 +288,19 @@ public class MarkerArraySelector extends GridLayout{
 			String[] markers = DataSetOperations.getStringLabels("markerLabels", masetId);
 			if(markers != null){
 				for(String markerName : markers)
-					markerBuilder.append(markerName).append(", ");
+					markerBuilder.append("\t").append(markerName).append("\n");
 				numMarker = markers.length;
 			}
 		} else { 
 			for(String setName : m) {
 				ArrayList<String> markers = SubSetOperations.getMarkerData(Long.parseLong(setName.trim()));
 				for(String markerName : markers)
-					markerBuilder.append(markerName).append(", ");
+					markerBuilder.append("\t").append(markerName).append("\n");
 				numMarker += markers.size();
 			}
 		}
-		builder.append("Markers used (" + numMarker + ") - \n\t" );
-		String markerStr = markerBuilder.toString();
-		if(markerStr.length()>1)
-			builder.append(markerStr.substring(0, markerStr.length()-2));
+		builder.append("Markers used (" + numMarker + ") - \n" );
+		builder.append(markerBuilder.toString());
 		
 		m = getSelectedArraySet();
 		StringBuilder arrayBuilder = new StringBuilder();
@@ -310,21 +308,19 @@ public class MarkerArraySelector extends GridLayout{
 			String[] arrays = DataSetOperations.getStringLabels("arrayLabels", masetId);
 			if(arrays != null){
 				for(String arrayName : arrays)
-					arrayBuilder.append(arrayName).append(", ");
+					arrayBuilder.append("\t").append(arrayName).append("\n");
 				numArray = arrays.length;
 			}
 		} else {
 			for(String setName : m) {
 				ArrayList<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
 				for(String arrayName : arrays)
-					arrayBuilder.append(arrayName).append(", ");
+					arrayBuilder.append("\t").append(arrayName).append("\n");
 				numArray += arrays.size();
 			}
 		}
-		builder.append("\nPhenotypes used (" + numArray + ") - \n\t" );
-		String arrayStr = arrayBuilder.toString();
-		if(arrayStr.length()>1)
-			builder.append(arrayStr.substring(0, arrayStr.length()-2));
+		builder.append("Phenotypes used (" + numArray + ") - \n" );
+		builder.append(arrayBuilder.toString());
 		
 		return builder.toString();
     }
