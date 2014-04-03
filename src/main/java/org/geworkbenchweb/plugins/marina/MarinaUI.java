@@ -16,9 +16,12 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MraResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -70,6 +73,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
+	private final String priorStr = order[order.length-1];
 	private static final String analysisName = "MARINa";
 	private static final String selectNetworkNode = "Select Network Node";
 	private static final String uploadNetworkFile = "Upload Network File";
@@ -294,10 +298,51 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		resultSet.setOwner(SessionHandler.get().getId());
 		FacadeFactory.getFacade().store(resultSet);
 
+		generateHistoryString(resultSet.getId());
+		
 		GeworkbenchRoot app = (GeworkbenchRoot) MarinaUI.this.getApplication();
 		app.addNode(resultSet);
 
 		return resultSet;
+	}
+		
+	private void generateHistoryString(Long resultSetId) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("Marina Parameters : \n");
+		if(priorBox.booleanValue()){
+			builder.append(form.getField(priorStr).getCaption()+" - " + form.getField(priorStr).getValue() + "\n");
+		}else{
+			for (String item : order){
+				if(!item.equals(priorStr))
+					builder.append(form.getField(item).getCaption()+" - " + form.getField(item).getValue() + "\n");
+			}
+		}
+		
+		String class1str = bean.getClass1();
+		String class2str = bean.getClass2();
+		int n1 = class1str.equals("")?0:class1str.split(",").length;
+		int n2 = class2str.equals("")?0:class2str.split(",").length;
+		builder.append("\nArrays used (" + (n1+n2) + ") - \n" );
+		builder.append("Cases (" + n1 + ") - \n\t");
+		if(n1>0) builder.append(class1str.replaceAll(",", "\n\t"));
+		builder.append("\nControls (" + n2 + ") - \n\t");
+		if(n2>0) builder.append(class2str.replaceAll(",", "\n\t"));
+		
+		Long masetId = null;
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+		if(dataset != null) masetId = dataset.getDataId();
+		String[] markers = DataSetOperations.getStringLabels("markerLabels", masetId);
+		builder.append("\nMarkers used (" + (markers==null?0:markers.length) + ") - \n");
+		if(markers != null){
+			for(String markerName : markers)
+				builder.append("\t").append(markerName).append("\n");
+		}
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSetId);
+		his.setData(builder.toString());
+		FacadeFactory.getFacade().store(his);
 	}
 	
 	// Callback method to begin receiving the upload.
