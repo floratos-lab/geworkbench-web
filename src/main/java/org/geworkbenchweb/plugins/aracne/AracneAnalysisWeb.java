@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.aracne;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class AracneAnalysisWeb {
 		this.datasetId = datasetId;
 	}
 
-	public AdjacencyMatrix execute() {
+	public AdjacencyMatrix execute() throws RemoteException {
 
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
@@ -234,7 +235,7 @@ public class AracneAnalysisWeb {
  
 	}
 
-	private AracneOutput computeAracneRemote(AracneInput input) {
+	private AracneOutput computeAracneRemote(AracneInput input) throws RemoteException {
 		AracneOutput output = null;
 		RPCServiceClient serviceClient;
 
@@ -248,10 +249,9 @@ public class AracneAnalysisWeb {
 
 			
 			long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
-			options.setTimeOutInMilliSeconds(soTimeout);
-
-			EndpointReference targetEPR = new EndpointReference(url);
-					 
+			options.setTimeOutInMilliSeconds(soTimeout);			 
+			EndpointReference targetEPR = new EndpointReference(url);					 
+			
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
@@ -282,9 +282,15 @@ public class AracneAnalysisWeb {
 			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
 			e.printStackTrace();
+			throw new RemoteException( "Aracne AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+					+ " reason: " + e.getReason());		
+			
 		}
-
-		return output;
+		catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException( "Coumpute Aracne error:" + e.getMessage());
+		}
+		 
 	}
 
 	private boolean isPrune() {

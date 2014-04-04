@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class HierarchicalClusteringComputation {
 		matrix = geValues(values, selectedMarkers, selectedArrays);
 	}
 
-	HierarchicalClusteringResult execute() {		  
+	HierarchicalClusteringResult execute() throws RemoteException {		  
 		String distanceType = null;
 		String linkageType = null;
 		String dimensionType = null;
@@ -175,7 +176,7 @@ public class HierarchicalClusteringComputation {
 		return array;
 	}
 	
-	 private HierClusterOutput computeHierarchicalClusteringRemote(HierClusterInput input) {
+	 private HierClusterOutput computeHierarchicalClusteringRemote(HierClusterInput input) throws RemoteException {
 		 HierClusterOutput output = null;
 			RPCServiceClient serviceClient;
 
@@ -188,9 +189,7 @@ public class HierarchicalClusteringComputation {
 				Options options = serviceClient.getOptions();
 
 				long soTimeout =  24 * 60 * 60 * 1000; // 24 hours
-				options.setTimeOutInMilliSeconds(soTimeout);
-
-
+				options.setTimeOutInMilliSeconds(soTimeout); 
 				EndpointReference targetEPR = new EndpointReference(url);
 						 
 				options.setTo(targetEPR);
@@ -223,9 +222,15 @@ public class HierarchicalClusteringComputation {
 				log.debug("fault action: " + e.getFaultAction());
 				log.debug("reason: " + e.getReason());
 				e.printStackTrace();
+				throw new RemoteException( "TTest AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+						+ " reason: " + e.getReason());		
+				
 			}
-
-			return output;
+			catch (Exception e) {
+				e.printStackTrace();
+				throw new RemoteException( "Coumpute TTest error:" + e.getMessage());
+			}
+			 
 		}
 	 
 		

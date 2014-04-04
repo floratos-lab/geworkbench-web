@@ -1,7 +1,7 @@
 package org.geworkbenchweb.plugins.ttest;
-
-import java.io.IOException;
+ 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +93,7 @@ public class TTestAnalysisWeb {
 		}
 	}
 
-	public TTestOutput execute() throws IOException {
+	public TTestOutput execute() throws RemoteException {
 		
 		String[] selectedCaseSets 		= 	(String[]) params.get(TTestParameters.CASEARRAY);
 		String[] selectedControlSets 	= 	(String[]) params.get(TTestParameters.CONTROLARRAY);
@@ -186,13 +186,13 @@ public class TTestAnalysisWeb {
 		
 		TTestOutput ttestOutput = computeTtestRemote(tTestInput);
 		if(ttestOutput==null) {
-			throw new IOException("t-test failed to get result from URL "+url);
+			throw new RemoteException("t-test failed to get result from URL "+url);
 		}
 		
 		return ttestOutput;
 	}
 	
-	private TTestOutput computeTtestRemote(TTestInput input) {
+	private TTestOutput computeTtestRemote(TTestInput input) throws RemoteException {
 		TTestOutput output = null;
 
 		try {       
@@ -206,8 +206,7 @@ public class TTestAnalysisWeb {
 
 			
 			long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
-			options.setTimeOutInMilliSeconds(soTimeout);
-
+			options.setTimeOutInMilliSeconds(soTimeout);		 
 			EndpointReference targetEPR = new EndpointReference(url);
 					 
 			options.setTo(targetEPR);
@@ -242,9 +241,14 @@ public class TTestAnalysisWeb {
 			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
 			e.printStackTrace();
+			throw new RemoteException( "TTest AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+					+ " reason: " + e.getReason());		
+			
 		}
-
-		return output;
+		catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException( "Coumpute TTest error:" + e.getMessage());
+		}
 	}
 	
 	/**

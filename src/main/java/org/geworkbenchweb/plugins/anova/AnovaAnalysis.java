@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.anova;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ public class AnovaAnalysis {
 		this.paramForm = paramForm;
 	}
 
-	public AnovaResult execute() {
+	public AnovaResult execute() throws RemoteException {
 
 		AnovaInput anovaInput = getAnovaInput();
 		AnovaOutput output = computeAnovaRemote(anovaInput);
@@ -73,7 +74,8 @@ public class AnovaAnalysis {
 		return anovaResultSet;
 	}
 
-	private AnovaOutput computeAnovaRemote(AnovaInput input) {
+	private AnovaOutput computeAnovaRemote(AnovaInput input)
+			throws RemoteException {
 		AnovaOutput output = null;
 		RPCServiceClient serviceClient;
 
@@ -87,8 +89,7 @@ public class AnovaAnalysis {
 
 			long soTimeout =  24 * 60 * 60 * 1000; // 24 hours
 			options.setTimeOutInMilliSeconds(soTimeout);
-
-
+		 
 			EndpointReference targetEPR = new EndpointReference(url);
 					 
 			options.setTo(targetEPR);
@@ -121,9 +122,17 @@ public class AnovaAnalysis {
 			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
 			e.printStackTrace();
+			
+			throw new RemoteException( "Anova AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+					+ " reason: " + e.getReason());
+			
+			 
+		}
+		catch (Exception e) {
+			throw new RemoteException( "Coumpute Anova error:" + e.getMessage());
 		}
 
-		return output;
+		 
 	}
 
 	private AnovaInput getAnovaInput() {
