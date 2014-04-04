@@ -446,9 +446,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		FacadeFactory.getFacade().store(resultSet);
 
 		generateHistoryString();
-
-		GeworkbenchRoot app = (GeworkbenchRoot) CNKBUI.this.getApplication();
-		app.addNode(resultSet);
+	 
+	    ((GeworkbenchRoot)app).addNode(resultSet);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, CNKBUI.this);
