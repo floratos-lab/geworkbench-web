@@ -36,7 +36,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private Log log = LogFactory.getLog(NetworkViewer.class);
 
 	private static final String LIMIT_CYTOSCAPE_OBJECTS = "limit.cytoscape.objects";
-	private static final int DEFAULT_LIMIT_CYTOSCAPE_OBJECTS = 5000;
+	private static final int DEFAULT_LIMIT_CYTOSCAPE_OBJECTS = 2000;
 	private static int limit_num = 0;
 	
 	// TODO final is remove due to jdk compile problem, need to fix the real problem
