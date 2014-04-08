@@ -251,14 +251,14 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		    chartConfig.getTooltip().setFormatterJsFunc(
 				"function() { "
 						+ " return '<b>' + this.series.name + '</b><br/>' +  "
-						+ "Math.round(((this.x+0.005)*100))/100 + ' '+ "
+						+ "Math.round(((this.x)*100))/100 + ' '+ "
 						+ "' to 1 - ' + " + "this.y + ' interactions'" + "}");
 
 		else //this need to be fixed. Don't know how to pass maxX to function
 			 chartConfig.getTooltip().setFormatterJsFunc(
 						"function() { "
 								+ " return '<b>' + this.series.name + '</b><br/>' +  "
-								+ "Math.round(((this.x+0.005)*100))/100 + ' to max value - '+ "
+								+ "Math.round(((this.x)*100))/100 + ' to max value - '+ "
 								+ "this.y + ' interactions'" + "}");
 		 
 		InvientCharts chart = new InvientCharts(chartConfig);	
