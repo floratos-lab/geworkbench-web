@@ -1,6 +1,10 @@
 @import url(../reindeer/styles.css);
 @import url(../custom/styles.css);
 
+.v-app-GeworkbenchRoot .feature-info div.deco a {
+	color: #ff0;
+}
+
 .v-panel-content-xpanel > div {
 	background: transparent;
 }

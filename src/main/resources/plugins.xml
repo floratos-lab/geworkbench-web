@@ -22,7 +22,8 @@
 
 		<plugin>
 			<name>ARACNe</name>
-			<description>ARACNe (Algorithm for the Reconstruction of Accurate
+			<description>&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
+			    (Algorithm for the Reconstruction of Accurate
 				Cellular Networks)
 				(Basso 2005, Margolin 2006a, 2006b) is an
 				information-theoretic algorithm
