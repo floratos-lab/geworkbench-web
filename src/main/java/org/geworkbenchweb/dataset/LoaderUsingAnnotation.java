@@ -13,7 +13,7 @@ import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.annotation.Affy3ExpressionAnnotationParser;
 import org.geworkbenchweb.annotation.AffyAnnotationParser;
 import org.geworkbenchweb.annotation.AffyGeneExonStAnnotationParser;
-import org.geworkbenchweb.annotation.AnnotationFields;
+import org.geworkbenchweb.annotation.AnnotationFields; 
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
@@ -33,57 +33,41 @@ public abstract class LoaderUsingAnnotation implements Loader {
 	 * @param annotOwner: either the actual user, or null - meaning a public annotation is chosen.
 	 * */
 	public void parseAnnotation(File annotFile, AnnotationType annotType,
-			User annotOwner, Long dsId) throws GeWorkbenchLoaderException {
-
-		if (annotFile == null) {
-			return;
-		}
-		
-		Long annotationId = null;
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("name", annotFile.getName());
-		// if a public annotation is chosen,
-		if (annotOwner == null) {
+			User annotOwner, Long dsId, Long annoId) throws GeWorkbenchLoaderException {
+ 
+		Long annotationId = null;		
+		Map<String, Object> parameters = new HashMap<String, Object>();	
+		// if a public or private  annotation is chosen,
+		if (annoId != null) {
+			parameters.put("id", annoId);
 			List<Annotation> annots = FacadeFactory
 					.getFacade()
-					.list("Select a from Annotation as a where a.name=:name and a.owner is NULL",
+					.list("Select a from Annotation as a where a.id=:id",
 							parameters);
-			if (!annots.isEmpty()){
-				annotationId = annots.get(0).getId();
-			}
-		}
-		// if the user's private annotation is chosen,
-		else {
-			parameters.put("owner", annotOwner.getId());
-			List<Annotation> annots = FacadeFactory
-					.getFacade()
-					.list("Select a from Annotation as a where a.name=:name and a.owner=:owner",
-							parameters);
-			if (!annots.isEmpty()){
-				annotationId = annots.get(0).getId();
-			}
-			if (annotType == null){
-				log.warn("Private annotation "+annotFile.getName()+" not found in database.");
+			if (annots.isEmpty()){
+				log.warn("The selected annotation file which id is "+ annoId +" not found in database.");
 				return;
 			}
+			annotationId = annoId;
 		}
+		// if a new annotation is chosen,
+		else {
+			
+			if (annotFile == null || !annotFile.exists()){
+				log.warn("New annotation "+annotFile.getPath()+" not found on server.");
+				return;
+			}
+			List<AnnotationEntry> newAnnotation = parse(annotFile, annotType.toString());
 
-		// otherwise, this is a new annotation file.
-		if (!annotFile.exists()){
-			log.warn("New annotation "+annotFile.getPath()+" not found on server.");
-			return;
+			Annotation annotation = new Annotation(annotFile.getName(),
+					annotType.toString(), newAnnotation);
+			annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
+			log.debug("started store annotation to database.");
+			FacadeFactory.getFacade().store(annotation);
+			log.debug("finished store annotation to database.");			
+			annotationId = annotation.getId();
 		}
-		List<AnnotationEntry> newAnnotation = parse(annotFile, annotType.toString());
-
-		Annotation annotation = new Annotation(annotFile.getName(),
-				annotType.toString(), newAnnotation);
-		annotation.setOwner(annotOwner == null ? null : annotOwner.getId());
-		log.warn("started store annotation to database.");
-		FacadeFactory.getFacade().store(annotation);
-		log.warn("finished store annotation to database.");
-		annotationId = annotation.getId();
-
+	 
 		if (annotationId != null){
 			DataSetAnnotation da = new DataSetAnnotation();
 			da.setDatasetId(dsId);

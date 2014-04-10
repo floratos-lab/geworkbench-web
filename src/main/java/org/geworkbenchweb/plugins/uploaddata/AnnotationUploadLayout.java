@@ -12,14 +12,14 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Annotation;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout; 
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 
@@ -36,6 +36,8 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 	final private Tree annotChoices = createAnnotChoices();
 	final private ComboBox annotTypes;
 	final private FileUploadLayout annotUploadLayout;
+	 // Id for the caption property
+	final private static  Object CAPTION_PROPERTY = "caption";
 
 	public static enum Anno {
 		NO("No annotation"), NEW("Load new annotation"), PUBLIC(
@@ -114,6 +116,9 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 
 	private Tree createAnnotChoices() {
 		final Tree annotChoices = new Tree("Choose annotation");
+		annotChoices.addContainerProperty(CAPTION_PROPERTY, String.class, "");
+		annotChoices.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		annotChoices.setItemCaptionPropertyId(CAPTION_PROPERTY);
 		annotChoices.setNullSelectionAllowed(false);
 		annotChoices.setWidth(220, 0);
 		annotChoices.setImmediate(true);
@@ -140,48 +145,51 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 			}
 		});
 
-		annotChoices.addItem(Anno.NO);
+		annotChoices.addItem(Anno.NO).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NO);
 		annotChoices.setChildrenAllowed(Anno.NO, false);
 
-		annotChoices.addItem(Anno.NEW);
+		annotChoices.addItem(Anno.NEW).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NEW);
 		annotChoices.setChildrenAllowed(Anno.NEW, false);
 
-		annotChoices.addItem(Anno.PUBLIC);
-		File dir = new File(GeworkbenchRoot.getPublicAnnotationDirectory());
-		if (!dir.exists() || !dir.isDirectory()) {
-			log.error("public annotation file directory missing or corrupted");
-		} else {
-			int cnt = 0;
-			for (File f : dir.listFiles()) {
-				if (f.isFile() && f.getName().endsWith(".csv")) {
-					String fname = f.getName();
-					annotChoices.addItem(fname);
-					annotChoices.setParent(fname, Anno.PUBLIC);
-					annotChoices.setChildrenAllowed(fname, false);
-					cnt++;
-				}
-			}
-			if (cnt == 0)
-				annotChoices.setChildrenAllowed(Anno.PUBLIC, false);
-		}
-
-		annotChoices.addItem(Anno.PRIVATE);
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("owner", SessionHandler.get().getId());
+		annotChoices.addItem(Anno.PUBLIC).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PUBLIC);
+		Map<String, Object> params = new HashMap<String, Object>();		 
 		List<Annotation> annots = FacadeFactory
 				.getFacade()
-				.list("Select a from Annotation as a where a.owner=:owner order by a.name",
-						params);
+				.list("select a from Annotation a  where a.owner is NULL   order by a.name, a.id desc", params);
+		String preAnnoName = "";
 		for (Annotation a : annots) {
 			String aname = a.getName();
-			annotChoices.addItem(aname);
-			annotChoices.setParent(aname, Anno.PRIVATE);
-			annotChoices.setChildrenAllowed(aname, false);
+			if (aname.equals(preAnnoName))
+				continue;
+			Long aId = a.getId();
+			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);		 		 
+			annotChoices.setParent(aId, Anno.PUBLIC);
+			annotChoices.setChildrenAllowed(aId, false);
+			preAnnoName=aname;
+		}
+	
+		annotChoices.addItem(Anno.PRIVATE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PRIVATE);	 
+		params = new HashMap<String, Object>();
+		params.put("owner", SessionHandler.get().getId());	 
+		annots = FacadeFactory
+				.getFacade()
+				.list("Select a from Annotation as a where a.owner=:owner order by a.name, a.id desc",
+						params);
+		preAnnoName = "";
+		for (Annotation a : annots) {
+			String aname = a.getName();
+			if (aname.equals(preAnnoName))
+				continue;
+			Long aId = a.getId();
+			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);		 		 
+			annotChoices.setParent(aId, Anno.PRIVATE);
+			annotChoices.setChildrenAllowed(aId, false);
+			preAnnoName=aname;
 		}
 		if (annots.isEmpty())
 			annotChoices.setChildrenAllowed(Anno.PRIVATE, false);
 
-		annotChoices.addItem(Anno.DELETE);
+		annotChoices.addItem(Anno.DELETE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.DELETE);;;
 		annotChoices.setChildrenAllowed(Anno.DELETE, false);
 
 		annotChoices.setValue(Anno.NO);

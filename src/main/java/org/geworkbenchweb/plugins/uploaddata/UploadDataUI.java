@@ -112,6 +112,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		Object choice = annoLayout.getAnnotationChoice();
 		User annotOwner = SessionHandler.get();
 		AnnotationType annotType = annoLayout.getAnnotationType();
+		Long annoId = null;
 
 		File dataFile = dataUploadLayout.getDataFile();
 		if (dataFile == null) {
@@ -141,32 +142,17 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 				mb.show();
 				return;
 			}
-		} else if (!(choice instanceof Anno)) {
-			String annotFname = (String) choice;
+		} else if (!(choice instanceof Anno)) {		 
 			Anno parent = annoLayout.getAnnotationChoiceGroup();
 			// shared default annotation
 			if (parent == Anno.PUBLIC) {
 				annotOwner = null;
-				annotType = AnnotationType.values()[0];
-				annotFile = new File(
-						GeworkbenchRoot.getPublicAnnotationDirectory(),
-						annotFname);
-				if (!annotFile.exists()) {
-					MessageBox mb = new MessageBox(getWindow(),
-							"Loading problem", MessageBox.Icon.ERROR,
-							"Annotation file not found on server",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					return;
-				}
+				annoId = (Long)choice;
+				 
 			}
 			// user's loaded annotation
 			else if (parent == Anno.PRIVATE) {
-				annotType = null;
-				String annotDir = GeworkbenchRoot.getBackendDataDirectory()
-						+ System.getProperty("file.separator")
-						+ annotOwner.getUsername() + "/annotation/";
-				annotFile = new File(annotDir, annotFname);
+				annoId = (Long)choice;
 			}
 		} else if (choice == Anno.NO) {
 			annotFile = null;
@@ -196,7 +182,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		DataSet dataset = storePendingData(dataFile.getName(), SessionHandler
 				.get().getId());
 		processFromBackgroundThread(dataFile, dataset, annotOwner, annotType,
-				annotFile);
+				annotFile, annoId);
 
 		// add pending dataset node
 		GeworkbenchRoot app = (GeworkbenchRoot) UploadDataUI.this
@@ -227,7 +213,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		
 	private void processFromBackgroundThread(final File dataFile2,
 			final DataSet dataSet, final User annotOwner,
-			final AnnotationType annotType, final File annotFile) {
+			final AnnotationType annotType, final File annotFile, final Long annoId) {
 
 		final UMainLayout mainLayout = getMainLayout();
 		Thread uploadThread = new Thread() {
@@ -239,7 +225,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 					if (selectedLoader instanceof LoaderUsingAnnotation) {
 						LoaderUsingAnnotation expressionFileLoader = (LoaderUsingAnnotation) selectedLoader;
 						expressionFileLoader.parseAnnotation(annotFile, annotType,
-								annotOwner, dataSet.getId());
+								annotOwner, dataSet.getId(), annoId);
 					}
 					selectedLoader.load(dataFile2, dataSet);
 				} catch (GeWorkbenchLoaderException e) {
