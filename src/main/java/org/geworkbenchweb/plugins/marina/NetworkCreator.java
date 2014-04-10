@@ -1,13 +1,5 @@
 package org.geworkbenchweb.plugins.marina;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,7 +109,7 @@ public class NetworkCreator {
 		return geneToMarker;
 	}
 
-	public AdjacencyMatrix parseAdjacencyMatrix(byte[] bytes,
+	public AdjacencyMatrix parseAdjacencyMatrix(String network,
 			Map<String, String> interactionTypeSifMap, String format,
 			String selectedRepresentedBy, boolean isRestrict)
 			throws InputFileFormatException {
@@ -125,14 +117,15 @@ public class NetworkCreator {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(ui.bean.getNetwork(), interactionTypeSifMap);
 
 		Map<String, String> map = getAnnotationMap(selectedRepresentedBy);
-		 
+
+		String[] lines = network.split("\n");
+		if (lines == null || lines.length == 0) {
+			throw new InputFileFormatException("empty network");
+		}
+		
 		try {
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
-
-			String line = null;
-
-			while ((line = br.readLine()) != null) {
+			for (String line : lines) {
 				// skip comments
 				if (line.trim().equals("") || line.startsWith(">")
 						|| line.startsWith("-"))
@@ -169,10 +162,6 @@ public class NetworkCreator {
 			} // end of reading while loop
 		} catch (NumberFormatException ex) {
 			throw new InputFileFormatException(ex.getMessage());
-		} catch (FileNotFoundException ex3) {
-			throw new InputFileFormatException(ex3.getMessage());
-		} catch (IOException ex) {
-			throw new InputFileFormatException(ex.getMessage());
 		} catch (Exception e) {
 			throw new InputFileFormatException(e.getMessage());
 		}
@@ -180,10 +169,7 @@ public class NetworkCreator {
 		return matrix;
 	}
 	
-	/* FIXME The process that turns AdjacencyMatrix to String, then to Stream, then to byte array, then to file, does not make sense.
-	 * Assuming we have to create the network file as required by MRINA submission (MarinaAnalysis.java line 409), 
-	 * we just need to write the String to a file. */
-	public byte[] getNetworkFromAdjMatrix(AdjacencyMatrix matrix){
+	public String getNetworkFromAdjMatrix(AdjacencyMatrix matrix){
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -206,70 +192,57 @@ public class NetworkCreator {
 
 		boolean goodNetwork = false;
 		ui.allpos = true;
-		BufferedWriter bw = null;
 		
-		try{
-			ByteArrayOutputStream bo = new ByteArrayOutputStream();
-			bw = new BufferedWriter(new OutputStreamWriter(bo));
+		StringBuilder builder = new StringBuilder();
+		for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
+			String marker1 = getMarkerInNode(node1, map);
+			int marker1Index = markerLabels.indexOf(marker1);
+			if (marker1 != null && marker1Index > -1) {
+				double[] v1 = new double[arrayNumber];
+				double[] v2 = new double[arrayNumber];
+				float[] value1 = rows[marker1Index];
+				for (int i = 0; i < arrayNumber; i++) {
+					v1[i] = value1[i];
+				}
 
-			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				String marker1 = getMarkerInNode(node1, map);
-				int marker1Index = markerLabels.indexOf(marker1);
-				if (marker1 != null && marker1Index >- 1) {
-					double[] v1 = new double[arrayNumber];
-					double[] v2 = new double[arrayNumber];
-					float[] value1 = rows[marker1Index];
-					for (int i = 0; i < arrayNumber; i++) {
-						v1[i] = value1[i];
-					}
-					
-					StringBuilder builder = new StringBuilder();
-					for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-						String marker2 = getMarkerInNode(edge.node2, map);
-						int marker2Index = markerLabels.indexOf(marker2);
-						if (marker2 != null && marker2Index > -1) {
-							double rho = 1, pvalue = 0;
-							float[] value2 = rows[marker2Index];
-							for (int i = 0; i < arrayNumber; i++) {
-								v2[i] = value2[i];
-							}
-							if (v1 != null && v1.length > 0 && v2 != null && v2.length > 0){
-								double[][] arrayData = new double[][]{v1, v2};
-								RealMatrix rm = new SpearmansCorrelation().computeCorrelationMatrix(transpose(arrayData));
-								if (rm.getColumnDimension() > 1)  rho = rm.getEntry(0, 1);
-								if (ui.allpos && rho < 0)  ui.allpos = false;
-								try{
-									pvalue = new PearsonsCorrelation(rm, v1.length).getCorrelationPValues().getEntry(0, 1);
-								}catch(Exception e){
-									e.printStackTrace();
-								}
-							}
-							builder.append(marker1 + "\t");
-							builder.append(marker2 + "\t"
-									+ edge.info.value +"\t"  // Mutual information
-									+ rho+ "\t"   // Spearman's correlation = 1
-									+ pvalue +"\n"); // P-value for Spearman's correlation = 0
+				for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
+					String marker2 = getMarkerInNode(edge.node2, map);
+					int marker2Index = markerLabels.indexOf(marker2);
+					if (marker2 != null && marker2Index > -1) {
+						double rho = 1, pvalue = 0;
+						float[] value2 = rows[marker2Index];
+						for (int i = 0; i < arrayNumber; i++) {
+							v2[i] = value2[i];
 						}
+						if (v1 != null && v1.length > 0 && v2 != null
+								&& v2.length > 0) {
+							double[][] arrayData = new double[][] { v1, v2 };
+							RealMatrix rm = new SpearmansCorrelation()
+									.computeCorrelationMatrix(transpose(arrayData));
+							if (rm.getColumnDimension() > 1)
+								rho = rm.getEntry(0, 1);
+							if (ui.allpos && rho < 0)
+								ui.allpos = false;
+							try {
+								pvalue = new PearsonsCorrelation(rm, v1.length)
+										.getCorrelationPValues().getEntry(0, 1);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+						builder.append(marker1 + "\t");
+						builder.append(marker2 + "\t" + edge.info.value + "\t" // Mutual information
+								+ rho + "\t" // Spearman's correlation = 1
+								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
 					}
-					if (!goodNetwork && builder.length() > 0) goodNetwork = true;
-					bw.write(builder.toString());
 				}
-			}
-			bw.close();
-			if (!goodNetwork) return null;
-			return bo.toByteArray();
-		}catch(IOException e){
-			e.printStackTrace();
-			return null;
-		}finally{
-			if (bw!=null) {
-				try{
-					bw.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+				if (!goodNetwork && builder.length() > 0)
+					goodNetwork = true;
 			}
 		}
+		if (!goodNetwork)
+			return null;
+		return builder.toString();
 	}
 
 	private double[][] transpose(double[][] in){

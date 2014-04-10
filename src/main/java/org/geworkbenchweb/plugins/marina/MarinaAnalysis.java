@@ -2,13 +2,12 @@ package org.geworkbenchweb.plugins.marina;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class MarinaAnalysis {
 			}
 			mraResult = convertResult(resultfile);
 		}else{			
-			byte[] network = bean.getNetworkBytes();
+			String network = bean.getNetworkString();
 			if (network == null)
 			    throw new RemoteException("Please reload a network file in 5-column format, or use a valid AdjacencyMatrix that matches this dataset.");
 
@@ -85,7 +84,7 @@ public class MarinaAnalysis {
 			String networkFname = bean.getNetwork();
 			if (networkFname.length() == 0) 
 				throw new RemoteException("Network not loaded");
-			bytesToFile(networkFname, network, mradir);
+			createNetworkFile(networkFname, network, mradir);
 
 			if (bean.getClass1() == null) return null;
 
@@ -369,26 +368,15 @@ public class MarinaAnalysis {
 	    }
 	}
 
-	private void bytesToFile(String fname, byte[] bytes, String mradir){
-	    int blocksize = 4096;
-	    ByteArrayInputStream bi = null;
-	    FileOutputStream fout = null;
+	private void createNetworkFile(String fname, String networkString, String mradir){
+	    PrintWriter pw = null;
 	    try{
-			bi = new ByteArrayInputStream(bytes);
-			byte[] buffer = new byte[blocksize];
-			fout = new FileOutputStream(mradir+fname);
-			int length;
-			while ((length = bi.read(buffer, 0, blocksize)) != -1)
-			    fout.write(buffer, 0, length);
+			pw = new PrintWriter(new File(mradir+fname));
+			pw.print(networkString);
 	    }catch(IOException e){
 	    	e.printStackTrace();
 	    }finally{
-			try{
-				if (bi != null)	  bi.close();
-			    if (fout!=null)   fout.close();
-			}catch(IOException e){
-			    e.printStackTrace();
-			}
+			if (pw != null)	  pw.close();
 	    }
 	}
 

@@ -16,7 +16,7 @@ public class MarinaParamBean implements Serializable{
 	private String class1 = "";
 	private String class2 = "";
 	private String network = "";
-	private byte[] networkBytes = null;
+	private String networkString = null;
 
 	public void reset(){
 		minimumTargetNumber = 20;
@@ -30,13 +30,13 @@ public class MarinaParamBean implements Serializable{
 		class1 = "";
 		class2 = "";
 		network = "";
-		networkBytes = null;
+		networkString = null;
 	}
-	public void setNetworkBytes(byte[] n){
-		networkBytes = n;
+	public void setNetworkString(String n){
+		networkString = n;
 	}
-	public byte[] getNetworkBytes(){
-		return networkBytes;
+	public String getNetworkString(){
+		return networkString;
 	}
 	public void setRetrievePriorResultWithId(String n){
 		retrievePriorResultWithId = n;

@@ -1,9 +1,5 @@
 package org.geworkbenchweb.plugins.marina;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -107,7 +103,7 @@ public class NetworkDialog {
 				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !bean.getNetwork().toLowerCase().endsWith(".sif"))
 						|| (bean.getNetwork().toLowerCase().endsWith(".sif") && !selectedFormat
 								.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))
-						||(selectedFormat.equals(marina5colformat) && !is5colnetwork(bean.getNetworkBytes()))){
+						||(selectedFormat.equals(marina5colformat) && !is5colnetwork(bean.getNetworkString()))){
 					ui.networkNotLoaded("The network format selected does not match that of the file.");
 					return;
 				}
@@ -119,7 +115,7 @@ public class NetworkDialog {
 				if (!selectedFormat.equals(marina5colformat)){
 					try {
 						NetworkCreator networkCreator = new NetworkCreator(ui);
-						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(bean.getNetworkBytes(),
+						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(bean.getNetworkString(),
 								interactionTypeMap, selectedFormat,
 								selectedRepresentedBy, isRestrict);
 						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));
@@ -129,7 +125,7 @@ public class NetworkDialog {
 						e1.printStackTrace();
 					}
 				}else{
-					ui.networkLoaded(bean.getNetworkBytes());
+					ui.networkLoaded(bean.getNetworkString());
 				}
 			}
 		});
@@ -163,33 +159,23 @@ public class NetworkDialog {
 	 * @param bytes    network in bytes
 	 * @return if the network is in 5-column format
 	 */
-	private boolean is5colnetwork(byte[] bytes){
-		if (bytes == null || bytes.length == 0)
+	private boolean is5colnetwork(String network){
+		if (network == null || network.length() == 0)
 			return false;
-		BufferedReader br = null;
-		try{
-			br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
-			ui.allpos = true;
-			String line = null;
-			while( (line = br.readLine()) != null) {
-				String[] toks = line.split("\t");
-				if (toks.length != 5 || !isDouble(toks[2]) 
-						|| !isDouble(toks[3]) || !isDouble(toks[4]))
-					return false;
-				if (ui.allpos && Double.valueOf(toks[correlationCol]) < 0)
-					ui.allpos = false;
-			}
-			return true;
-		}catch(IOException e){
-			e.printStackTrace();
+
+		ui.allpos = true;
+		String[] lines = network.split("\n");
+		if (lines == null || lines.length == 0)
 			return false;
-		}finally{
-			try{ 
-				if (br!=null) br.close(); 
-			}catch(IOException e){
-				e.printStackTrace();
-			}
+		for (String line : lines) {
+			String[] toks = line.split("\t");
+			if (toks.length != 5 || !isDouble(toks[2]) || !isDouble(toks[3])
+					|| !isDouble(toks[4]))
+				return false;
+			if (ui.allpos && Double.valueOf(toks[correlationCol]) < 0)
+				ui.allpos = false;
 		}
+		return true;
 	}
 
 	private boolean isDouble(String s){

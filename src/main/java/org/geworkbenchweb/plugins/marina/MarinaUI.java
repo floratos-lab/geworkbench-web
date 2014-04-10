@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -361,13 +362,13 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	// This is called if the upload is finished.
 	public void uploadSucceeded(SucceededEvent event) {
-		bean.setNetworkBytes(os.toByteArray());
+		bean.setNetworkString(new String(os.toByteArray(), Charset.defaultCharset()));
 		NetworkDialog dialog = new NetworkDialog(this);
 		dialog.openDialog();
 	}
 
 	protected void networkNotLoaded(String msg){
-		bean.setNetworkBytes(null);
+		bean.setNetworkString(null);
 		item.getItemProperty("network").setValue("");
 		form.getField("network").setEnabled(false);
 		submitButton.setEnabled(false);
@@ -379,8 +380,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		}
 	}
 
-	protected void networkLoaded(byte[] networkBytes){
-		bean.setNetworkBytes(networkBytes);
+	protected void networkLoaded(String networkString){
+		bean.setNetworkString(networkString);
 		form.getField("network").setEnabled(true);
 		if (classSelector.getTf1().isEnabled())
 			submitButton.setEnabled(true);
