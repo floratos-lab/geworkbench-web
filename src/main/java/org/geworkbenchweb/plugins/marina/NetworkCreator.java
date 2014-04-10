@@ -180,6 +180,9 @@ public class NetworkCreator {
 		return matrix;
 	}
 	
+	/* FIXME The process that turns AdjacencyMatrix to String, then to Stream, then to byte array, then to file, does not make sense.
+	 * Assuming we have to create the network file as required by MRINA submission (MarinaAnalysis.java line 409), 
+	 * we just need to write the String to a file. */
 	public byte[] getNetworkFromAdjMatrix(AdjacencyMatrix matrix){
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
