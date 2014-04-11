@@ -3,11 +3,23 @@
  */
 package org.geworkbenchweb.authentication;
 
+import org.geworkbenchweb.genspace.GenSpaceServerFactory;
+import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.pojos.ActiveWorkspace;
+import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
+import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
+import org.vaadin.appfoundation.authentication.exceptions.PasswordRequirementException;
+import org.vaadin.appfoundation.authentication.exceptions.PasswordsDoNotMatchException;
+import org.vaadin.appfoundation.authentication.exceptions.TooShortPasswordException;
+import org.vaadin.appfoundation.authentication.exceptions.TooShortUsernameException;
+import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsException;
 import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
+import org.vaadin.appfoundation.authentication.util.UserUtil;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.terminal.ThemeResource;
@@ -30,6 +42,7 @@ import com.vaadin.ui.themes.BaseTheme;
 public class LoginForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -469128068617789982L;
+	private GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
 
 	public LoginForm(Button switchToRegisterButton) {
 
@@ -56,21 +69,117 @@ public class LoginForm extends VerticalLayout {
 				String username = (String) usernameField.getValue();
 				String password = (String) passwordField.getValue();
 
-				try {
-					AuthenticationUtil.authenticate(username, password);
-					getApplication().getMainWindow().setContent(
-							new UMainLayout());
-				} catch (InvalidCredentialsException e) {
-					feedbackLabel
-							.setValue("Either username or password was wrong");
-				} catch (AccountLockedException e) {
-					feedbackLabel.setValue("The given account has been locked");
-				} catch (Exception e) {
-					e.printStackTrace();
-					feedbackLabel.setValue("Some other exception: "
-							+ e.getMessage());
-				}
-			}
+				boolean needToLogin = true;
+				while(needToLogin) {
+					needToLogin = false;
+					try {	
+					    // Try logging in geWorkbench 
+						AuthenticationUtil.authenticate(username, password);
+						getApplication().getMainWindow().setContent(
+										new UMainLayout());
+						
+						// System.out.printf("[DEBUG] User [%s] exists in geWorkbench.\n", username);
+						
+						// If user exists in geWorkbench, then check whether it exists in genSpace
+						if (!genSpaceServerFactory.userLogin(username, password)) {
+							// System.out.printf("[DEBUG] User [%s] does NOT exsit in genSpace.\n", username);
+							// System.out.printf("[DEBUG] Try registerring new user [%s] in genSpace.\n", username);
+							
+							UserWrapper u = new UserWrapper(
+									new org.geworkbench.components.genspace.server.stubs.User(), 
+									null);
+							u.setUsername(username);
+							u.setPasswordClearText(password);
+							u.setFirstName("");
+							u.setLastName("");
+							if(genSpaceServerFactory.userRegister(u.getDelegate())) {
+								// System.out.printf("[DEBUG] Successfully register new user [%s] in genSpace.\n",
+								//		username);
+							}
+							else {
+								// System.out.printf("[DEBUG] Fail to register new user [%s] in genSpace.\n", 
+								//		username);
+							}
+	
+						}
+						else {
+							// System.out.printf("[DEBUG] User [%s] exists in genSpace.\n", username);
+						}
+						
+					} catch (InvalidCredentialsException e) {
+						String err_msg = "Either username or password was wrong";
+						
+						//If user does NOT exist in geWorkbench, then try logging in genSpace
+						// System.out.printf("[DEBUG] User [%s] does NOT exist in geWorkbench.\n", username);
+						
+						if (!genSpaceServerFactory.userLogin(username, password)) {
+							// if user does NOT exist in genSpace
+							// System.out.printf("[DEBUG] User [%s] dose NOT exist in genSpace.\n", username);
+						}
+						else {
+							// if user exists in genSpace, then register a new user in geWorkbench
+							// System.out.printf("[DEBUG] User [%s] exists in genSpace.\n", username);
+							
+							User user;
+							// System.out.printf("[DEBUG] Try registering new user [%s] in geWorkbench.\n",
+							//		username);
+							try {
+								/* Create user object */
+								user = UserUtil.registerUser(username,password,password);
+								
+								user.setName("");
+								user.setEmail("");
+	
+								FacadeFactory.getFacade().store(user);
+	
+								/* Creating default workspace */
+								Workspace workspace = new Workspace();
+								workspace.setOwner(user.getId());
+								workspace.setName("Default Workspace");
+								FacadeFactory.getFacade().store(workspace);
+	
+								/* Setting active workspace */
+								ActiveWorkspace active = new ActiveWorkspace();
+								active.setOwner(user.getId());
+								active.setWorkspace(workspace.getId());
+								FacadeFactory.getFacade().store(active);
+								
+								// System.out.printf("[DEBUG] Successfully register new user [%s] in genWorkbench.\n",
+								//		username);
+								needToLogin = true;
+								
+							} catch (TooShortPasswordException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (TooShortUsernameException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (PasswordsDoNotMatchException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (UsernameExistsException e1) {
+								// TODO Auto-generateds catch block
+								e1.printStackTrace();
+							} catch (PasswordRequirementException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+		
+						}
+						
+						feedbackLabel
+								.setValue(err_msg);
+							
+						} catch (AccountLockedException e) {
+							// feedbackLabel.setValue("The given account has been locked");
+						} catch (Exception e) {
+							// e.printStackTrace();
+							// feedbackLabel.setValue("Some other exception: "
+							//		+ e.getMessage());
+						}
+					}
+			} //while()
+
 		});
 
 		login.setClickShortcut(KeyCode.ENTER);
