@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.genspace.chat.ChatReceiver;
+import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.artur.icepush.ICEPush;
@@ -71,6 +73,10 @@ public class NetworkPanel extends SocialPanel{
 	
 	private ICEPush pusher = new ICEPush();
 	
+	private RosterFrame rf;
+	
+	private ChatReceiver cr;
+	
 	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
@@ -78,6 +84,14 @@ public class NetworkPanel extends SocialPanel{
 		this.setCompositionRoot(blLayout);
 		this.title = panelTitle;
 		this.updatePanel();
+	}
+	
+	public void setRf(RosterFrame rf){
+		this.rf = rf;
+	}
+	
+	public void setCr(ChatReceiver cr){
+		this.cr = cr;
 	}
 	
 	public String getPanelTitle() {
@@ -100,7 +114,7 @@ public class NetworkPanel extends SocialPanel{
 	
 	private void createMainLayout() {		
 		mainLayout = new HorizontalLayout();
-				
+		mainLayout.addComponent(pusher);		
 		nwPresentationLayout = new VerticalLayout();
 				
 		if(this.usrNetContainer.size() > 0)
@@ -196,8 +210,11 @@ public class NetworkPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event){
+				if(event.getProperty().getValue()==null){
+					return;
+				}
 				selectedNet = (Network)event.getProperty().getValue();
-				System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
+				//System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
 			}
 		});
 		
@@ -216,11 +233,13 @@ public class NetworkPanel extends SocialPanel{
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
 							//addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
 							updatePanel();
+							rf.refresh();
 							//createMainLayout();
 						}
 					}else{
 						
 					}
+					pusher.push();
 			}
 		});
 		
@@ -231,16 +250,25 @@ public class NetworkPanel extends SocialPanel{
 			public void buttonClick(ClickEvent event){
 				//System.out.println("DEBUG : leave " + selectedNet.getName());
 				if (selectedNet != null && selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
-					System.out.println("selected network captured by the leave button: " + selectedNet.getName());
+					//System.out.println("selected network captured by the leave button: " + selectedNet.getName());
 					UserNetwork un = isCachedMyNetWorks();
 					if(un != null) {
-						System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
+						//System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
 						
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
 						//elimNetwork(selectedNet.getName());
 						updatePanel();
+					
+						//System.out.println(rf.getCaption());
+						rf.refresh();
+						
+						//cr.updateRoster();
+						//cr.createRosterFrame();
 					}
+				}else{
+					
 				}
+				pusher.push();
 			}
 		});
 		leaveButton.setWidth("150px");

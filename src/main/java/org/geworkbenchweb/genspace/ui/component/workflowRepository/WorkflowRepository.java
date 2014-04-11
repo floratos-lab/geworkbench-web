@@ -102,12 +102,12 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 			public void buttonClick(Button.ClickEvent evt) {
 				//System.out.println("Delete test");
 				UserWorkflow curWorkflow = repositoryPanel.getCurWorkFlow();
-				System.out.println(curWorkflow);
+				//System.out.println(curWorkflow);
 				
 				if (curWorkflow == null) {
 					return ;
 				}
-				System.out.println(curWorkflow.getName());
+				//System.out.println(curWorkflow.getName());
 				login.getGenSpaceServerFactory().getWorkflowOps().deleteMyWorkflow(curWorkflow.getId());
 				login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
 				repositoryPanel.recalculateAndReload();

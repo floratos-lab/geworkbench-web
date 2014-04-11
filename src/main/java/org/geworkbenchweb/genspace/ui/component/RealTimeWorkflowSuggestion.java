@@ -152,7 +152,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 						tmpOrder = (Integer)tmpItem.getItemProperty(ORDER).getValue();
 						tmpTool = results.get(tmpOrder);
 						toolList.add(tmpTool);
-						System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
+						//System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
 					}
 				}
 				

@@ -36,6 +36,7 @@ import org.jivesoftware.smack.packet.Presence.Mode;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.artur.icepush.ICEPush;
 
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -93,10 +94,13 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	{
 		if (this.cr.getConnection().isConnected()) {
 			this.rosterTree.removeAllItems();
+			
 			this.cr.getConnection().getRoster().reload();
+			//this.roster = this.cr.getConnection().getRoster();
 			this.roster.reload();
 			this.setUpRosterTree();
-			System.out.println("refreshed!");
+			//this.addComponent(pusher);
+			//System.out.println("refreshed!");
 		} 
 	}
 	
@@ -317,6 +321,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			while(elList.hasNext()) {
 				tmpEntry = elList.next();
 				entryID = hBeans.addItem();
+				//System.out.println("check roster frame: "+tmpEntry.getUser());
 				hBeans.getContainerProperty(entryID, "name").setValue(tmpEntry.getUser().replace("@genspace", ""));
 				hBeans.getContainerProperty(entryID, "group").setValue(false);
 				hBeans.getContainerProperty(entryID, "rGroup").setValue(null);
@@ -359,7 +364,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.cr = cr;
 		this.username = this.login.getGenSpaceServerFactory().getUsername();
-		System.out.println("Check username in Roster: "+this.username);
+		//System.out.println("Check username in Roster: "+this.username);
 		setCaption(this.rosterCaption);
 		initComponents();
 		/*addListener(new Window.CloseListener() {
@@ -381,39 +386,43 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	 * @param e
 	 */
 	private void cmbStatusActionPerformed(ValueChangeEvent e) {
-		String status = e.getProperty().getValue().toString();
-		Presence pr;
 		
+		if (e.getProperty().getValue() == null) {
+			//System.out.println("Check property: " + e.getProperty());
+			return ;
+		}
+		String status = e.getProperty().getValue().toString();
+		Presence pr;		
 		if (status.equalsIgnoreCase(statuses[0])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.available);
-			
+		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.onlineEmbed);
-			System.out.println("change to available!");
+			//System.out.println("change to available!");
 		} else if (status.equalsIgnoreCase(statuses[1])) {
 			pr = new Presence(Presence.Type.available);
 			pr.setMode(Presence.Mode.away);
-			
+		
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.leaveEmbed);
-			System.out.println("change to leave!");
+			//System.out.println("change to leave!");
 		} else {
 			pr = new Presence(Presence.Type.unavailable);
 			
 			iconLayout.removeAllComponents();
 			iconLayout.addComponent(this.offlineEmbed);
-			System.out.println("change to unavailable!");
+			//System.out.println("change to unavailable!");
 		}
-		
+		//iconLayout.addComponent(pusher);
 		pr.setStatus(status);
 		cr.getConnection().sendPacket(pr);
-		System.out.println("send status change event!");
+		//System.out.println("send status change event!");
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
-		System.out.println("start refresh!");
+		//System.out.println("start refresh!");
 		this.refresh();
-		
-		System.out.println("DEBUG: " + this.username + " fire a status event");
+			
+		//System.out.println("DEBUG: " + this.username + " fire a status event");
 	};
 	
 	private VerticalLayout vMainLayout;
@@ -432,9 +441,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		
 		vMainLayout = new VerticalLayout();
 		vMainLayout.setSpacing(true);
+		
 		bLayout.addComponent(vMainLayout, BorderLayout.Constraint.CENTER);
 		this.addComponent(bLayout);
-		
+		vMainLayout.addComponent(pusher);
 		//Panel for RosterGroups
 		vScrollPane1 = new Panel();
 		vScrollPane1.getContent().setSizeUndefined();
@@ -461,10 +471,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 					if (p.getType().equals(Presence.Type.unavailable) || fname.equals(username))
 						return ;
 
-					System.out.println("Test tree listener: " + e.getName());
-					System.out.println("Test manager: " + cr.getManager());
+					//System.out.println("Test tree listener: " + e.getName());
+					//System.out.println("Test manager: " + cr.getManager());
 					cr.getManager().createChat(e.getUser(), null);
-					System.out.println("create chat finished!");
+					//System.out.println("create chat finished!");
 				}
 			}
 		});
@@ -497,8 +507,9 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		statusLayout.addComponent(emptyLabel);
 		
 		iconLayout = new HorizontalLayout();
+	
 		iconLayout.addComponent(this.onlineEmbed);
-		iconLayout.addComponent(pusher);
+		//iconLayout.addComponent(pusher);
 		statusLayout.addComponent(iconLayout);
 		vMainLayout.addComponent(statusLayout);
 
@@ -524,8 +535,11 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
-		System.out.println("DEBUG: " + this.username + " got a status change event");
+		//System.out.println("DEBUG: " + this.username + " got a status change event");
+		//System.out.println("DEBUG: Check roster frame: " + this);
 		this.refresh();
+		//this.addComponent(pusher);
+		//System.out.println("check pusher application: "+pusher.getApplication());
 		pusher.push();
 		//this.login.getPusher().push();
 	}
@@ -535,7 +549,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		//System.out.println("Get event from " + evt.getFriendName());
 		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
 			this.refresh();
-			this.initComponents();
+			//this.initComponents();
 			pusher.push();
 			//this.login.getPusher().push();
 		}

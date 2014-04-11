@@ -175,7 +175,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 			//Label tableText = new Label(itemDescription);
 			//tableText.setContentMode(Label.CONTENT_XHTML);
 			addComponent(mostPopularToolsCss, 0, 1, 1, 1);
-			System.out.println(mostPopularToolsCss.getComponentCount());
+			//System.out.println(mostPopularToolsCss.getComponentCount());
 		}
 		
 		private void clearDescription() {
@@ -216,7 +216,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 			//Label tableText = new Label(itemDescription);
 			//tableText.setContentMode(Label.CONTENT_XHTML);
 			addComponent(mostPopularToolsStartCss, 0, 1, 1, 1);
-			System.out.println(mostPopularToolsStartCss.getComponentCount());
+			//System.out.println(mostPopularToolsStartCss.getComponentCount());
 		}
 		
 		private void clearDescription() {

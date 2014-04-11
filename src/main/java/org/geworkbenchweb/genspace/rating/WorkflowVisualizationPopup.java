@@ -169,12 +169,18 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			
 			this.vLayout.addComponent(toolRatePanel);
 			this.vLayout.addComponent(wfRatePanel);
+		}else{
+			
 		}
 	}
 	
 	public void attachAllPushers() {
-		this.toolRatePanel.attachPusher();
-		this.wfRatePanel.attachPusher();
+		if(toolRatePanel == null || wfRatePanel == null){
+			
+		}else{
+			this.toolRatePanel.attachPusher();
+			this.wfRatePanel.attachPusher();
+		}
 	}
 	
 	public void buttonClick(Button.ClickEvent evt) {

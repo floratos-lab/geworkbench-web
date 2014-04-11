@@ -553,7 +553,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 
 	@Override
 	public void loggedIn() {
-		System.out.println("Reserach notebook logged in");
+		//System.out.println("Reserach notebook logged in");
 		borderLayout.removeComponent(infoLabel);
 		borderLayout.addComponent(sortArea, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(table, BorderLayout.Constraint.CENTER);

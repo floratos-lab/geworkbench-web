@@ -49,6 +49,7 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.textArea.setImmediate(true);
 		this.textArea.setSizeFull();
 		this.textArea.setHeight("270px");
+		//System.out.println(receiver.getCaption());
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin_1 login)
@@ -59,12 +60,12 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 	public void setAndPrintWorkflow(UserWorkflow usrWorkflow) {
 		this.usrWorkflow = usrWorkflow;
 		//this.workflow = workflow;
-		System.out.println("set print detail! "+this.usrWorkflow);
+		//System.out.println("set print detail! "+this.usrWorkflow);
 		if (this.usrWorkflow == null) {
 			getTextArea().setValue("");
 		} else {
 			String string = getWorkflowDetailsString(this.usrWorkflow.getWorkflow());
-			System.out.println("check detail: "+string);
+			//System.out.println("check detail: "+string);
 			getTextArea().setValue(string);
 		}
 	}

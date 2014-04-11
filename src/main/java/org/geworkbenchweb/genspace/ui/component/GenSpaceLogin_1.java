@@ -84,14 +84,14 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	
 	public GenSpaceServerFactory getGenSpaceServerFactory()
 	{
-		System.out.println("Check genSpaceServerFactory before return: " + this.genSpaceServerFactory.getUsername());
+		//System.out.println("Check genSpaceServerFactory before return: " + this.genSpaceServerFactory.getUsername());
 		return this.genSpaceServerFactory;
 	}
 	
 	//@Override
 	public void loggedIn() {
 		String user = genSpaceServerFactory.getUsername();
-		System.out.println("User name in GesnSpaceLogin: " + user);
+		//System.out.println("User name in GesnSpaceLogin: " + user);
 		GenSpaceSecurityPanel p = new GenSpaceSecurityPanel(user, genSpaceParent, this);
 		mainLayout.removeAllComponents();
 		mainLayout.addComponent(p);
@@ -103,6 +103,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(this.push);
+		//System.out.println("Check application: " + this.getApplication());
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 	}
 	
@@ -141,7 +142,6 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	 */
 	public GenSpaceLogin_1(GenspaceLayout genspaceParent) {
 		//super(null);
-		//this.addComponent(new Panel("Test456"));
 		this.genSpaceParent = genspaceParent ;
 		buildMainLayout();
 		this.push = this.genSpaceParent.getPusher();

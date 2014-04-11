@@ -160,8 +160,8 @@ public class StarRatingPanel extends Panel {
 	}
 
 	public void setRatingValue(double rating, long totalRatings) {
-		System.out.println("Test totalRatings: " + totalRatings);
-		System.out.println("Test rating: " + rating);
+		//System.out.println("Test totalRatings: " + totalRatings);
+		//System.out.println("Test rating: " + rating);
 		if (totalRatings != 0) {
 			setStarValue(rating);
 			DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
@@ -172,7 +172,7 @@ public class StarRatingPanel extends Panel {
 			setStarValue(0);
 			ratingInfo.setCaption("Not yet rated.");
 		}
-		System.out.println("Test caption: " + ratingInfo.getCaption());
+		//System.out.println("Test caption: " + ratingInfo.getCaption());
 		hLayout.addComponent(ratingInfo);
 		ratingInfo.setVisible(true);
 		this.updateUI();
@@ -247,11 +247,11 @@ public class StarRatingPanel extends Panel {
 		private void loadWorkflow() {
 			WorkflowRating rating = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyWorkflowRating(this.id);
 			setClickable(true);
-			
+			//System.out.println(this.id);
 			Workflow rateWorkflow = login.getGenSpaceServerFactory().getPrivUsageFacade().getWorkflow(this.id);
 			if(rateWorkflow != null)
 			{
-				System.out.println("set rating value workflow!");
+				//System.out.println("set rating value workflow!");
 				WorkflowWrapper rat = new WorkflowWrapper(rateWorkflow);
 				setRatingValue(rat.getOverallRating(), rat.getNumRating());
 			}
@@ -263,7 +263,7 @@ public class StarRatingPanel extends Panel {
 			
 			Tool rateTool= login.getGenSpaceServerFactory().getPrivUsageFacade().getTool(this.id);
 			if (rateTool != null) {
-				System.out.println("set rating value tool!");
+				//System.out.println("set rating value tool!");
 				ToolWrapper rat = new ToolWrapper(rateTool);
 				setRatingValue(rat.getOverallRating(), rat.getNumRating());
 			}
@@ -283,7 +283,7 @@ public class StarRatingPanel extends Panel {
 		}
 		
 		public void run() {
-			System.out.println("Start running");
+			//System.out.println("Start running");
 			Workflow result = login.getGenSpaceServerFactory().getPrivUsageFacade().saveWorkflowRating(workflow.getId(), this.rating);
 			
 			if (result == null) {
@@ -293,7 +293,7 @@ public class StarRatingPanel extends Panel {
 			
 			workflow.setSumRating(result.getSumRating());
 			workflow.setNumRating(result.getNumRating());
-			System.out.println("Test rating in run " + rating);
+			//System.out.println("Test rating in run " + rating);
 			setStarValue(rating);
 			WorkflowWrapper wrap = new WorkflowWrapper(result);
 			setRatingValue(wrap.getOverallRating(), wrap.getNumRating());

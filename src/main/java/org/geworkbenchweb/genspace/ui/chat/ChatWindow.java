@@ -87,8 +87,8 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * @param m
 	 */
 	private void processTextMessage(Message m) {
-		System.out.println("In processTextMessage: " + m.getBody());
-		System.out.println("Last chat: " + last);
+		//System.out.println("In processTextMessage: " + m.getBody());
+		//System.out.println("Last chat: " + last);
 		if (!last.equals(lastChatter.YOU)) {
 			chatText += "<br><font color=\"green\">"
 					+ chat.getParticipant().replace("@genspace", "").replaceAll("([0-9a-zA-Z.]*)(/)([0-9a-zA-Z.]*)", "$1")
@@ -108,7 +108,7 @@ public class ChatWindow extends Window implements Action.Handler{
 	}
 
 	/**
-	 * Triage incoming messages
+	 * Triage incoming messages 
 	 * 
 	 * @param m
 	 *            Message
@@ -268,7 +268,7 @@ public class ChatWindow extends Window implements Action.Handler{
 		try {
 			Message m = new Message();
 			m.setBody(ogm.getValue().toString());
-			System.out.println("ChatWindow ogm.getValue: " + ogm.getValue().toString());
+			//System.out.println("ChatWindow ogm.getValue: " + ogm.getValue().toString());
 						
 			m.setProperty("specialType", messageTypes.CHAT);
 			chat.sendMessage(m);

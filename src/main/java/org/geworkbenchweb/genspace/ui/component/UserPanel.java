@@ -9,6 +9,8 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.Runo;
 
 public class UserPanel extends Panel{
 	
@@ -29,7 +31,7 @@ public class UserPanel extends Panel{
 		this.forListener = forListener;
 		
 		this.setScrollable(true);
-		this.setWidth("800px");
+		this.setWidth("430px");
 		this.makeLayout();
 	}
 	
@@ -97,6 +99,8 @@ public class UserPanel extends Panel{
 	
 	private Panel createPanel(String panelName, List<String> panelContent) {
 		Panel panel = new Panel(panelName);
+		panel.addStyleName(Runo.PANEL_LIGHT);
+		panel.setWidth("400px");
 		Iterator<String> pIT = panelContent.iterator();
 		while(pIT.hasNext()){
 			Label label = new Label(pIT.next());
