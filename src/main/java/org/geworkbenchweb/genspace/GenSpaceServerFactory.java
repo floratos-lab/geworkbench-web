@@ -313,7 +313,7 @@ public class GenSpaceServerFactory {
 					return true;
 			} 
 			catch (Exception e) {
-				handleException(e);
+//				handleException(e);
 				return false;
 			}
 //			return true;
