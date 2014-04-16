@@ -52,7 +52,7 @@ public class SetViewLayout extends CssLayout {
 
 		List<AbstractPojo> aSets = SubSetOperations.getArraySets(dataSetId);
 		HierarchicalContainer arrayData = createSetContainer(aSets,
-				"arraySets", "Phenotype Sets");
+				"arraySets", "Array Sets/Phenotypes");
 		arraySetTree = createSetTree(arrayData);
 		
 		markerSetTree.addListener(new SetTreeClickListener(arraySetTree));
@@ -98,7 +98,7 @@ public class SetViewLayout extends CssLayout {
 				dataSetId, arraySetTree,
 				ChangeContextListener.ContextType.MICROARRAY));
 
-		Tree arrayTree = createItemTree("Phenotypes",
+		Tree arrayTree = createItemTree("Arrays",
 				createLabelContainer(arrayLabels, false, null),
 				new ArrayTreeActionHandler(dataSetId, arraySetTree,
 						contextSelector));
@@ -110,7 +110,7 @@ public class SetViewLayout extends CssLayout {
 		this.addComponent(createContextLayout("Context for Marker Sets", mrkcontextSelector, mrknewContextButton));
 		this.addComponent(markerTree);
 		this.addComponent(markerSetTree);
-		this.addComponent(createContextLayout("Context for Phenotype Sets", contextSelector, newContextButton));
+		this.addComponent(createContextLayout("Context for Array Sets/Phenotypes", contextSelector, newContextButton));
 		this.addComponent(arrayTree);
 		this.addComponent(arraySetTree);
 		
@@ -239,7 +239,7 @@ public class SetViewLayout extends CssLayout {
 		HierarchicalContainer tableData = new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
-		String topItemLabel = "Phenotypes";
+		String topItemLabel = "Arrays";
 		if(isMarker)topItemLabel = "Markers";
 		
 		Item mainItem = tableData.addItem(topItemLabel);

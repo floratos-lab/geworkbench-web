@@ -64,7 +64,7 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 		} else if (contextType == ContextType.MICROARRAY) {
 			SubSetOperations.setCurrentArrayContext(dataSetId, context);
 			topItem = "arraySets";
-			setName = "Phenotype Sets";
+			setName = "Array Sets/Phenotypes";
 		} else {
 			log.error("invalid context type " + contextType);
 			return;
