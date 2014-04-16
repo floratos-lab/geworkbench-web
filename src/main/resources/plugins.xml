@@ -10,13 +10,15 @@
 		<plugin>
 			<name>ANOVA</name>
 			<description>
-				The geWorkbench 
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA" target="_blank"&gt;ANOVA&lt;/a&gt;
+				The geWorkbench ANOVA
 				component implements a one-way analysis of variance calculation derived from TIGR's 
 				&lt;a href="http://www.tm4.org/mev.html" target="_blank"&gt;MeV&lt;/a&gt;
 				(MultiExperiment Viewer). At least three sets of
 				arrays must be specified.  The ANOVA analysis returns any markers that
-				show a significant expression difference across the array sets.
+				show a significant expression difference across the array sets. 
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA" target="_blank"&gt;ANOVA&lt;/a&gt;
+				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.anova.AnovaUI</uiClass>
 		</plugin>
@@ -24,42 +26,49 @@
 		<plugin>
 			<name>ARACNe</name>
 			<description>
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
-				(Algorithm for the Reconstruction of Accurate Cellular Networks)
+				ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks)
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/15778709" target="_blank"&gt;Basso et al. 2005&lt;/a&gt;)
 				is an information-theoretic algorithm used
 				to identify transcriptional interactions between gene products using
 				microarray gene expression profile data.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
+				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.aracne.AracneUI</uiClass>
 		</plugin>
 		<plugin>
 			<name>Cellular Network Knowledge Base</name>
 			<description>
-				The 
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" target="_blank"&gt;Cellular Networks Knowledge Base&lt;/a&gt;
-				(CNKB) is a repository of molecular interactions,
+				The Cellular Networks Knowledge Base (CNKB) is a repository of molecular interactions,
 				including ones both computationally and experimentally derived. Sources for interactions
 				include both publicly available databases such as BIND, MINT, and Reactome, as well as reverse-engineered
-				cellular context-specific regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.</description>
+				cellular context-specific regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
+				tutorial).
+			</description>
 			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBUI</uiClass>
 		</plugin>
 		<plugin>
 			<name>Hierarchical Clustering</name>
 			<description>
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;   
+				Hierarchical Clustering   
 				is a method to group arrays and/or markers together based on similarity on their expression profiles.
 				geWorkbench implements its own code for agglomerative hierarchical clustering. Starting from individual points
 				(the leaves of the tree), nearest neighbors are found for individual points, and then for groups of points,
 				at each step building up a branched structure that converges toward a root that contains all points.
-				The resulting graph tends to group similar items together. Several options for clustering method and metric are provided.</description>
+				The resulting graph tends to group similar items together. Several options for clustering method and metric are provided.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;
+				tutorial).
+			</description>
 			<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI</uiClass>
 		</plugin>
 		<plugin>
 			<name>MARINa</name>
 			<description>
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa" target="_blank"&gt;MARINa&lt;/a&gt; 
-				(MAster Regulator INference algorithm) 
+				MARINa (MAster Regulator INference algorithm) 
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/19209726" target="_blank"&gt;Lim et al., 2009&lt;/a&gt;, 
 				&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/20531406" target="_blank"&gt;Lefebvre  et al., 2010&lt;/a&gt;)
 				uses gene set enrichment analysis (GSEA) to calculate if the regulon of a transcription factor (TF) is enriched for genes that are differentially
@@ -68,16 +77,21 @@
 				supply a transcriptional network (e.g. reverse-engineered using
 				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
 				) and a gene expression dataset.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa" target="_blank"&gt;MARINa&lt;/a&gt;
+				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.marina.MarinaUI</uiClass>
 		</plugin>
 		<plugin>
 			<name>Differential Expression (T-Test)</name>
 			<description>
-				A 
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression" target="_blank"&gt;t-Test&lt;/a&gt;
+				A t-Test
 				analysis can be used to identify markers with statistically
-				significant differential expression between two sets of microarrays.
+				significant differential expression between two sets of microarrays (e.g. representing two different treatments or phenotypes).
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression" target="_blank"&gt;t-Test&lt;/a&gt;
+				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.ttest.TTestUI</uiClass>
 		</plugin>
@@ -86,11 +100,14 @@
 		<plugin>
 			<name>MarkUs</name>
 			<description>
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs" target="_blank"&gt;MarkUs&lt;/a&gt;
+				MarkUs
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed?term=21672961" target="_blank"&gt;Fischer et al., 2011&lt;/a&gt;)
 				is a web server which runs a variety of analyses to characterize the biochemical function of a provided protein structure.
 				MarkUs identifies related protein structures and sequences, detects protein cavities, and calculates the surface electrostatic
 				potentials and amino acid conservation profile.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs" target="_blank"&gt;MarkUs&lt;/a&gt;
+				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.markus.MarkUsUI</uiClass>
 		</plugin>
@@ -120,7 +137,11 @@
 	<plugin>
 		<name>ANOVA Result Viewer</name>
 		<description>
-			The ANOVA Result Viewer displays the results of an ANOVA analysis in a table.
+			The ANOVA Result Viewer displays results in a spreadsheet format.
+			The table columns are the same as those described for the desktop version of the analysis
+			(see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA#Tabular_Viewer" target="_blank"&gt;Tabular Viewer section of the ANOVA&lt;/a&gt;
+			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
 	</plugin>
@@ -139,6 +160,9 @@
 		<name>CNKB Result View</name>
 		<description>
 			The result of a CNKB query is displayed in a table; a "throttle" allows the number of hits to be adjusted by significance.
+			The basic functionality is very similar to that described for the desktop version of the analysis (see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
+			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBResultsUI</uiClass>
 	</plugin>
@@ -147,16 +171,24 @@
 	<plugin>
 		<name>MARINa result viewer</name>
 		<description>
-			Show result of MARINa analysis.
+			The results of a MARINa analysis are shown in a table.
+			The table columns are the same as those described for the desktop version of the analysis
+			(see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa#Results" target="_blank"&gt;Results section of the MARINa&lt;/a&gt;
+			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.marina.results.MarinaResultsUI</uiClass>
 	</plugin>
 	</inputType>
 	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet">
 	<plugin>
-		<name>MARKUS result viewer</name>
+		<name>MarkUs Result Viewer</name>
 		<description>
-			Show result MARKUS result in embedded browser
+			Displays the web page generated by the MarkUs service for functional protein structure analysis.
+			The display is the same as that described for the desktop version of the analysis
+			(see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs#Results" target="_blank"&gt;Results section of the MarkUs&lt;/a&gt;
+			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.markus.results.MarkusResultsUI</uiClass>
 	</plugin>
@@ -165,7 +197,7 @@
 	<plugin>
 		<name>Tabular Microarray Viewer</name>
 		<description>
-			Presents the numerical values of the expression measurements in a table format.
+			Presents the matrix of expression measurements in a spreadsheet format.
 			Each row represents an individual marker/probe and each column represents one sample/microarray.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.tabularview.TabularViewUI</uiClass>
@@ -175,7 +207,10 @@
 	<plugin>
 		<name>T-test result viewer</name>
 		<description>
-			Depicts the t-test result using a Volcano plot.
+			The Volcano Plot graphs for each marker the t-test significance value vs the expression fold-change.
+			The plot is very similar to the desktop version; see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Volcano_Plot" target="_blank"&gt;Volcano Plot&lt;/a&gt;
+			tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.ttest.results.TTestResultsUI</uiClass>
 	</plugin>
