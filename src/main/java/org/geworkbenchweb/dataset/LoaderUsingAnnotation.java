@@ -87,10 +87,10 @@ public abstract class LoaderUsingAnnotation implements Loader {
 		}
 
 		try {
-			log.warn("started  parse annotation file");
+			log.debug("started  parse annotation file");
 			Map<String, AnnotationFields> annotation = annotParser.parse(
 					annotFile, false);
-			log.warn("finished parse annotation file");
+			log.debug("finished parse annotation file");
 			List<AnnotationEntry> list = new ArrayList<AnnotationEntry>();
 			for(String probeSetId : annotation.keySet()) {
 				AnnotationFields fields = annotation.get(probeSetId);
