@@ -19,6 +19,8 @@ import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.Network;
+import org.geworkbenchweb.pojos.NetworkEdges;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -232,6 +234,79 @@ public class NetworkCreator {
 						}
 						builder.append(marker1 + "\t");
 						builder.append(marker2 + "\t" + edge.info.value + "\t" // Mutual information
+								+ rho + "\t" // Spearman's correlation = 1
+								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
+					}
+				}
+				if (!goodNetwork && builder.length() > 0)
+					goodNetwork = true;
+			}
+		}
+		if (!goodNetwork)
+			return null;
+		return builder.toString();
+	}
+	
+	/* based on getNetworkFromAdjMatrix, which I doubt is completely correct */
+	public String getNetworkString(Network network){
+		
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
+				dataSetId);
+		Long id = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
+				MicroarrayDataset.class, id);
+		List<String> markerLabels = Arrays.asList( microarray.getMarkerLabels() );
+		int arrayNumber = microarray.getArrayNumber();
+		float[][] rows = microarray.getExpressionValues();
+
+		boolean goodNetwork = false;
+		ui.allpos = true;
+		
+		StringBuilder builder = new StringBuilder();
+		String[] node1s = network.getNode1();
+		NetworkEdges[] allEdges = network.getEdges();
+		for (int index=0; index<node1s.length; index++) {
+			String marker1 = node1s[index];
+			NetworkEdges edges = allEdges[index];
+			
+			int marker1Index = markerLabels.indexOf(marker1);
+			if (marker1 != null && marker1Index > -1) {
+				double[] v1 = new double[arrayNumber];
+				double[] v2 = new double[arrayNumber];
+				float[] value1 = rows[marker1Index];
+				for (int i = 0; i < arrayNumber; i++) {
+					v1[i] = value1[i];
+				}
+
+				String[] node2s = edges.getNode2s();
+				double[] weights = edges.getWeights();
+				for (int index2=0; index2<node2s.length; index2++) {
+					String marker2 = node2s[index2];
+					int marker2Index = markerLabels.indexOf(marker2);
+					if (marker2 != null && marker2Index > -1) {
+						double rho = 1, pvalue = 0;
+						float[] value2 = rows[marker2Index];
+						for (int i = 0; i < arrayNumber; i++) {
+							v2[i] = value2[i];
+						}
+						if (v1 != null && v1.length > 0 && v2 != null
+								&& v2.length > 0) {
+							double[][] arrayData = new double[][] { v1, v2 };
+							RealMatrix rm = new SpearmansCorrelation()
+									.computeCorrelationMatrix(transpose(arrayData));
+							if (rm.getColumnDimension() > 1)
+								rho = rm.getEntry(0, 1);
+							if (ui.allpos && rho < 0)
+								ui.allpos = false;
+							try {
+								pvalue = new PearsonsCorrelation(rm, v1.length)
+										.getCorrelationPValues().getEntry(0, 1);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+						builder.append(marker1 + "\t");
+						builder.append(marker2 + "\t" + weights[index2] + "\t" // Mutual information
 								+ rho + "\t" // Spearman's correlation = 1
 								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
 					}

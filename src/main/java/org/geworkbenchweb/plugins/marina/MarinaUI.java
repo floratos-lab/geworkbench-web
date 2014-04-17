@@ -13,18 +13,17 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MraResult;
+import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -127,19 +126,22 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				Long itemId = (Long)e.getProperty().getValue();
 				if(itemId == null) { networkNotLoaded(null); return; }
 				item.getItemProperty("network").setValue(networkNodes.getItemCaption(itemId));
-				Object object = null;
-				try {
-					object = UserDirUtils.deserializeResultSet(itemId);
-					if(object instanceof AdjacencyMatrix){
-						NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);
-						AdjacencyMatrix adjMatrix = (AdjacencyMatrix)object;
-						networkLoaded(networkCreator.getNetworkFromAdjMatrix(adjMatrix));
-						networkCreator.printWarning();
-					}
-				} catch (Exception exc) {
-					networkNotLoaded("Failed to load the network selected");
-					exc.printStackTrace();
+				
+				ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, itemId);
+				Long id = resultSet.getDataId();
+				if(id==null) {
+					networkNotLoaded("Failed to load the network selected. Result Set Id="+itemId);
+					return;
 				}
+				Network network = FacadeFactory.getFacade().find(Network.class, id);
+				if(network==null) {
+					networkNotLoaded("Failed to load the network selected. Network Id="+id);
+					return;
+				}
+
+				NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);
+				networkLoaded(networkCreator.getNetworkString(network));
+				networkCreator.printWarning();
 			}
 		});
 		form.getLayout().addComponent(networkNodes);
@@ -269,7 +271,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 			Long   nodeId   = ((ResultSet) results.get(j)).getId();
 			String nodeType = ((ResultSet) results.get(j)).getType();
 
-			if (nodeType.equals(AdjacencyMatrix.class.getName()) && 
+			if (nodeType.equals(Network.class.getName()) && 
 					!nodeName.contains("Pending")) {
 				networkNodes.addItem(nodeId);
 				networkNodes.setItemCaption(nodeId, nodeName);
