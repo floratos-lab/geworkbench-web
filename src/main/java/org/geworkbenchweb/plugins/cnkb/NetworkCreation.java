@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.Network;
+import org.geworkbenchweb.pojos.NetworkEdges;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
@@ -37,7 +38,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 
 	@Override
 	public Class<?> getResultType() {
-		return AdjacencyMatrix.class;
+		return Network.class;
 	}
 
 	 
@@ -56,7 +57,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		    hits = resultSet.getCellularNetWorkElementInformations();
 		    confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 		}
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
+		Map<String, NetworkEdges> networkMap = new HashMap<String, NetworkEdges>();
 
 		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
 				 
@@ -70,32 +71,37 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 			String geneSymbol = map.get(markerLabel);
 			String geneName = markerLabel;
 			if(geneSymbol!=null) geneName = geneSymbol;
-			AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
-					NodeType.GENE_SYMBOL, geneName);
+
+			List<String> node2s = new ArrayList<String>();
+			List<Double> weights = new ArrayList<Double>();
 
 			for (InteractionDetail interactionDetail : arrayList) {
 
 				String mid2 = interactionDetail.getdSGeneId();
 				String mName2 = interactionDetail.getdSGeneName();
-				AdjacencyMatrix.Node node2 = null;
+				String node2 = null;
 
 				if (mName2 != null && !mName2.trim().equals(""))
-					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-							mName2);
+					node2 = mName2;
 				else {
-					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, mid2);
+					node2 = mid2;
 				}
 
-				matrix.add(
-						node1,
-						node2,
-						new Float(interactionDetail
-								.getConfidenceValue(interactionDetail
-										.getConfidenceTypes().get(0))));
+				double weight = interactionDetail
+						.getConfidenceValue(interactionDetail
+								.getConfidenceTypes().get(0));
+				node2s.add(node2);
+				weights.add(weight);
 			}
+			networkMap.put(geneName, new NetworkEdges(node2s, weights));
 		} // end for loop
 
-		UserDirUtils.serializeResultSet(resultId, matrix);
+		Network network = new Network(networkMap);
+		FacadeFactory.getFacade().store(network);
+		ResultSet networkResult = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		networkResult.setDataId(network.getId());
+		FacadeFactory.getFacade().store(networkResult);
+
 		return "Cytoscape";
 	}
 }

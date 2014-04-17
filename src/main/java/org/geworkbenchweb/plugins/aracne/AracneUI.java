@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.Network;
+import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -54,8 +55,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
-
-	private Long resultSetId;
 
 	public AracneUI() {
 		this(0L);
@@ -395,7 +394,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						resultSet.setParent(dataSetId);
 						resultSet.setOwner(SessionHandler.get().getId());
 						FacadeFactory.getFacade().store(resultSet);
-						resultSetId = resultSet.getId(); // must be after store
 						
 						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
 								.getApplication();
@@ -587,7 +585,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		return AdjacencyMatrix.class;
+		return Network.class;
 	}
 
 	@Override
@@ -595,8 +593,13 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			HashMap<Serializable, Serializable> parameters, Long userId)
 			throws IOException, Exception {
 		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
-		AdjacencyMatrix result = analyze.execute();
-		UserDirUtils.serializeResultSet(resultSetId, result);
+		Map<String, NetworkEdges> networkMap = analyze.execute();
+		Network network = new Network(networkMap);
+		FacadeFactory.getFacade().store(network);
+		ResultSet networkResult = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		networkResult.setDataId(network.getId());
+		FacadeFactory.getFacade().store(networkResult);
+
 		return "Aracne";
 	}
 }

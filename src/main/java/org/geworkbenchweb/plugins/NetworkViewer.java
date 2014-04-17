@@ -1,7 +1,6 @@
 package org.geworkbenchweb.plugins;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,11 +8,12 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.utils.UserDirUtils;
+import org.geworkbenchweb.pojos.Network;
+import org.geworkbenchweb.pojos.NetworkEdges;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.visualizations.Cytoscape;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.Application;
 import com.vaadin.terminal.FileResource;
@@ -39,8 +39,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private static final int DEFAULT_LIMIT_CYTOSCAPE_OBJECTS = 2000;
 	private static int limit_num = 0;
 	
-	// TODO final is remove due to jdk compile problem, need to fix the real problem
-	private AdjacencyMatrix adjMatrix; 	
+	private final Network networkResult;
 
 	final private Long datasetId;
 	private String messageLabel = null;
@@ -48,36 +47,21 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	public NetworkViewer(Long dataSetId) {
 		datasetId = dataSetId;
 		if(dataSetId==null) {
-			adjMatrix = null;
+			networkResult = null;
 			return;
 		}
 
-		Object object = null;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) { 
-			// TODO pending node should be designed and implemented explicitly as so, eventually
-			// let's make a naive assumption for now that "file not found" means pending computation
-			messageLabel = "Pending computation - ID "+ dataSetId;
-			adjMatrix = null;
-			return;
-		} catch (IOException e) {
-			messageLabel = "Result (ID "+ dataSetId+ ") not available due to "+e;
-			adjMatrix = null;
-			return;
-		} catch (ClassNotFoundException e) {
-			messageLabel = "Result (ID "+ dataSetId+ ") not available due to "+e;
-			adjMatrix = null;
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		Long id = resultSet.getDataId();
+		if(id==null) { // pending node
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			networkResult = null;
 			return;
 		}
-		if(! (object instanceof AdjacencyMatrix)) {
-			String type = null;
-			if(object!=null) type = object.getClass().getName();
-			messageLabel = "Result (ID "+ dataSetId+ ") has wrong type: "+type;
-			adjMatrix = null;
-			return;
+		networkResult = FacadeFactory.getFacade().find(Network.class, id);
+		if(networkResult==null) {
+			messageLabel = "Error in retreiving the network information. Id="+id;
 		}
-		adjMatrix = (AdjacencyMatrix) object;
 
 		setImmediate(true);
 		setSizeFull();		 
@@ -88,13 +72,13 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	public void attach() {
 		this.removeAllComponents();
 		
-		if(adjMatrix==null) {
+		if(networkResult==null) {
 			addComponent(new Label(messageLabel));
 			return;
 		}
-		
-		int edgeNumber = adjMatrix.getConnectionNo();
-		int nodeNumber = adjMatrix.getNodeNumber();
+
+		int edgeNumber = networkResult.getEdgeNumber();
+		int nodeNumber = networkResult.getNodeNumber();
 		if ((edgeNumber + nodeNumber) > limit_num) {
 			String theMessage = "This network has "
 					+ nodeNumber
@@ -124,14 +108,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		}
 	}
 	
-	static private String getExportName(AdjacencyMatrix.Node node) {
-		if (node.type == NodeType.MARKER) {
-			return node.marker.getLabel();
-		} else {
-			return node.stringId;
-		}
-	}
-
 	private void viewAsText()
 	{
 		TextArea area = new TextArea();
@@ -140,26 +116,13 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		area.setWordwrap(false);
 		 
 		area.setImmediate(true);
-		int edgeNumber = adjMatrix.getConnectionNo();
-		int nodeNumber = adjMatrix.getNodeNumber();
+		int edgeNumber = networkResult.getEdgeNumber();
+		int nodeNumber = networkResult.getNodeNumber();
 		StringBuffer sb = new StringBuffer("This network has "
 				+ nodeNumber + " nodes and " + edgeNumber
 				+ " edges: \n\n");
-        
-       
-		for (AdjacencyMatrix.Node node1 : adjMatrix.getNodes()) {
-			
-			sb.append(getExportName(node1) + "\t");
 
-			for (AdjacencyMatrix.Edge edge : adjMatrix
-					.getEdges(node1)) {
-				sb.append(getExportName(edge.node2)
-						+ "\t" + edge.info.value + "\t");
-			}
-			sb.append("\n");
-			
-			 
-		}
+		sb.append(networkResult.toString());
 		area.setValue(sb.toString());
 		 
 		 
@@ -175,56 +138,38 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		ArrayList<String> nodes = new ArrayList<String>();
 		ArrayList<String> edges = new ArrayList<String>();
 
-		for (int i = 0; i < adjMatrix.getEdges()
-				.size(); i++) {
-			String id1;
-			String label1;
-			String id2;
-			String label2;
-			if (adjMatrix.getEdges().get(i).node1.type
-					.equals(NodeType.MARKER)) {
-				id1 = adjMatrix.getEdges().get(i).node1.marker
-						.getLabel();
-				label1 = adjMatrix.getEdges()
-						.get(i).node1.marker.getGeneName();
-				if (label1.equals("---"))
-					label1 = id1;
-				id2 = adjMatrix.getEdges().get(i).node2.marker
-						.getLabel();
-				label2 = adjMatrix.getEdges()
-						.get(i).node2.marker.getGeneName();
-				if (label2.equals("---"))
-					label2 = id2;
+		String[] node1s = networkResult.getNode1();
+		NetworkEdges[] eds = networkResult.getEdges();
+		for (int index=0; index<node1s.length; index++) {
 
-			} else {
-				id1 = adjMatrix.getEdges().get(i).node1
-						.getStringId();
-				label1 = id1;
-				id2 = adjMatrix.getEdges().get(i).node2
-						.getStringId();
-				label2 = id2;
-			}
+			String[] node2s = eds[index].getNode2s();
+			/* ignored weight here*/
+			/* double[] weights = eds[index].getWeights(); */ 
+			
+			String id1 = node1s[index];
+			for(int j=0; j< node2s.length; j++) {
+				String id2 = node2s[j];
+				String edge = id1 + "," + id2;
 
-			String edge = id1 + "," + id2;
+				String node1 = id1 + "," + id1 + ",0"; /* meant to be probeset ID, gene symbol*/
+				String node2 = id2 + "," + id2 + ",0";
 
-			String node1 = id1 + "," + label1 + ",0";
-			String node2 = id2 + "," + label2 + ",0";
-
-			if (edges.isEmpty()) {
-				edges.add(edge);
-			} else if (!edges.contains(edge)) {
-				edges.add(edge);
-			}
-
-			if (nodes.isEmpty()) {
-				nodes.add(node1);
-				nodes.add(node2);
-			} else {
-				if (!nodes.contains(node1)) {
-					nodes.add(node1);
+				if (edges.isEmpty()) {
+					edges.add(edge);
+				} else if (!edges.contains(edge)) {
+					edges.add(edge);
 				}
-				if (!nodes.contains(node2)) {
+
+				if (nodes.isEmpty()) {
+					nodes.add(node1);
 					nodes.add(node2);
+				} else {
+					if (!nodes.contains(node1)) {
+						nodes.add(node1);
+					}
+					if (!nodes.contains(node2)) {
+						nodes.add(node2);
+					}
 				}
 			}
 		}
@@ -287,15 +232,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 				+ ".adj");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
-			for (AdjacencyMatrix.Node node1 : adjMatrix.getNodes()) {
-				pw.write(getExportName(node1) + "\t");
-
-				for (AdjacencyMatrix.Edge edge : adjMatrix.getEdges(node1)) {
-					pw.write(getExportName(edge.node2) + "\t" + edge.info.value
-							+ "\t");
-				}
-				pw.write("\n");
-			}
+			pw.print(networkResult.toString());
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();

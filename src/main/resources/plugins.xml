@@ -146,7 +146,7 @@
 		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix">
+	<inputType className="org.geworkbenchweb.pojos.Network">
 	<plugin>
 		<name>Cytoscape</name>
 		<description>

@@ -17,14 +17,13 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.components.aracne.data.AracneGraphEdge;
 import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -55,7 +54,7 @@ public class AracneAnalysisWeb {
 		this.datasetId = datasetId;
 	}
 
-	public AdjacencyMatrix execute() throws RemoteException {
+	public Map<String, NetworkEdges> execute() throws RemoteException {
 
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
@@ -124,8 +123,8 @@ public class AracneAnalysisWeb {
 		if (aracneOutput.getGraphEdges().length > 0) {
 			boolean prune = isPrune();
 			//set dataset = null to AdjacencyMatrixDataSet object
-			AdjacencyMatrix adjacencyMatrix = convert(aracneOutput, hubGeneList, map, prune);
-			return adjacencyMatrix;
+			Map<String, NetworkEdges> network = convert(aracneOutput, hubGeneList, map, prune);
+			return network;
 		} else {
 			// this.tellUserToRelaxThresholds();
 			return null;
@@ -301,13 +300,15 @@ public class AracneAnalysisWeb {
 	/**
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
 	 */
-	private static AdjacencyMatrix convert(AracneOutput aracneOutput,
+	private static Map<String, NetworkEdges> convert(AracneOutput aracneOutput,
 			List<String> hubGeneList, final Map<String, String> map, boolean prune) {
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
+		Map<String, NetworkEdges> network = new HashMap<String, NetworkEdges>();
 		AracneGraphEdge[] aracneGraphEdges = aracneOutput.getGraphEdges();
 		if (aracneGraphEdges == null || aracneGraphEdges.length == 0)
-			return matrix;
+			return network;
 
+		Map<String, List<String>> node2s = new HashMap<String, List<String>>();
+		Map<String, List<Double>> weights = new HashMap<String, List<Double>>();
 		int nEdge = 0;
 		for (int i = 0; i < aracneGraphEdges.length; i++) {
 			String marker1 = aracneGraphEdges[i].getNode1();
@@ -319,27 +320,43 @@ public class AracneAnalysisWeb {
 				marker2 = m;
 			}
 
-			AdjacencyMatrix.Node node1, node2;
+			String node1, node2;
 			if (!prune) {
-				node1 = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, marker1);
-				node2 = new AdjacencyMatrix.Node(NodeType.PROBESET_ID, marker2);
-				matrix.add(node1, node2, aracneGraphEdges[i].getWeight(), null);
+				node1 = marker1;
+				node2 = marker2;
 			} else {
 				String geneName1 = map.get( marker1 );
 				if (geneName1.equals("---"))
 					geneName1 = marker1;
-				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName1);
+				node1 = geneName1;
 				 
 				String geneName2 = map.get( marker2 );
 				if (geneName2.equals("---"))
 					geneName2 = marker2;
-				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,geneName2);						 
-				matrix.add(node1, node2, aracneGraphEdges[i].getWeight());
+				node2 = geneName2;
 			}
+			List<String> n2 = node2s.get(node1);
+			if(n2==null) {
+				n2 = new ArrayList<String>();
+				node2s.put(node1, n2);
+			}
+			n2.add(node2);
+			List<Double> w = weights.get(node1);
+			if(w==null) {
+				w = new ArrayList<Double>();
+				weights.put(node1, w);
+			}
+			w.add( new Double(aracneGraphEdges[i].getWeight()) );
 			nEdge++;
 		}
+		for(String node1 : node2s.keySet()) {
+			List<String> n2 = node2s.get(node1);
+			List<Double> w = weights.get(node1);
+			NetworkEdges edges = new NetworkEdges(n2, w); 
+			network.put(node1, edges);
+		}
 		log.debug("edge count " + nEdge);
-		return matrix;
+		return network;
 	}
 	
 	

@@ -12,13 +12,13 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.Visualizer;
+import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.UserDirUtils;
@@ -445,7 +445,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			resultSet.setTimestamp(timestamp);
 			String dataSetName = "Cytoscape - Pending";
 			resultSet.setName(dataSetName);
-			resultSet.setType(AdjacencyMatrix.class.getName());
+			resultSet.setType(Network.class.getName());
 			resultSet.setParent(parentId);
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);
