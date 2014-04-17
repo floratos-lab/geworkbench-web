@@ -54,7 +54,8 @@ public abstract class LoaderUsingAnnotation implements Loader {
 		else {
 			
 			if (annotFile == null || !annotFile.exists()){
-				log.warn("New annotation "+annotFile.getPath()+" not found on server.");
+				if (annotFile != null)
+				    log.warn("New annotation "+annotFile.getPath()+" not found on server.");
 				return;
 			}
 			List<AnnotationEntry> newAnnotation = parse(annotFile, annotType.toString());
