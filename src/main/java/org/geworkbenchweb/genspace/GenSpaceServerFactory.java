@@ -4,6 +4,8 @@ package org.geworkbenchweb.genspace;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -55,6 +58,18 @@ public class GenSpaceServerFactory {
 	
 	public Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
 	private GenSpaceLogin_1 login;
+	
+	
+	private Properties conf = new Properties();
+	
+//	static {
+//		try {
+//			 conf.load(CopyOfGenSpaceServerFactory.class.getResourceAsStream("conf.properties"));	
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
 //	private static UserFacade userFacade;
 //	private static UsageInformation usageFacade;
 //	private static FriendFacade friendFacade;
@@ -249,6 +264,19 @@ public class GenSpaceServerFactory {
 	
 	public GenSpaceServerFactory() {
 		super();
+		try {
+			//String binPath = GenSpaceServerFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+			File curFile = new File(GenSpaceServerFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			File parentDir = curFile.getParentFile();
+			String binPath = parentDir.getCanonicalPath();
+//			System.out.println("Check path " + binPath);
+//			 System.out.println("=========================================" + GenSpaceServerFactory.class.getResource("conf.properties").getFile());
+			 String configPath = binPath + "/conf.properties";
+			 //conf.load(new FileReader(new File(configPath)));	
+			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("conf.properties"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public WorkflowFolder rootFolder = null;
@@ -338,6 +366,22 @@ public class GenSpaceServerFactory {
 		return true;
 	}
 	
+	
+	public boolean userExists(String username) {
+		try {
+			this.username = conf.getProperty("username");
+			this.password = conf.getProperty("password");
+			// System.out.println(this.username);
+			// System.out.println(this.password);
+			return getUserOps().userExists(username);
+		} 
+		catch (Exception e) {
+//			handleException(e);
+			return false;
+		}
+//		return true;
+	}
+	
 	public boolean otherUserUpdate(User otheruser) {
 		try {
 			getUserOps().updateUser(otheruser);
@@ -390,6 +434,10 @@ public class GenSpaceServerFactory {
 			return true;
 		return user2.isVisible();
 	}
-
 	
+	public static void main(String[] args) {
+		GenSpaceServerFactory t = new GenSpaceServerFactory();
+		System.out.println(t.userLogin("aaa123", ""));
+	}
+
 }

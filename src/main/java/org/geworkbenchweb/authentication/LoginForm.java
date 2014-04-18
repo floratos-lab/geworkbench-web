@@ -3,6 +3,9 @@
  */
 package org.geworkbenchweb.authentication;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -43,7 +46,7 @@ public class LoginForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -469128068617789982L;
 	private GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
-
+	
 	public LoginForm(Button switchToRegisterButton) {
 
 		final Label feedbackLabel = new Label();
@@ -77,14 +80,14 @@ public class LoginForm extends VerticalLayout {
 						AuthenticationUtil.authenticate(username, password);
 						getApplication().getMainWindow().setContent(
 										new UMainLayout());
-						
+
 						// System.out.printf("[DEBUG] User [%s] exists in geWorkbench.\n", username);
 						
 						// If user exists in geWorkbench, then check whether it exists in genSpace
-						if (!genSpaceServerFactory.userLogin(username, password)) {
+						if (!genSpaceServerFactory.userExists(username)) {
 							// System.out.printf("[DEBUG] User [%s] does NOT exsit in genSpace.\n", username);
 							// System.out.printf("[DEBUG] Try registerring new user [%s] in genSpace.\n", username);
-							
+													
 							UserWrapper u = new UserWrapper(
 									new org.geworkbench.components.genspace.server.stubs.User(), 
 									null);
@@ -100,10 +103,20 @@ public class LoginForm extends VerticalLayout {
 								// System.out.printf("[DEBUG] Fail to register new user [%s] in genSpace.\n", 
 								//		username);
 							}
-	
 						}
 						else {
+
 							// System.out.printf("[DEBUG] User [%s] exists in genSpace.\n", username);
+							// Change password to empty string
+							
+							if (!genSpaceServerFactory.userLogin(username, password)) {
+								UserWrapper u = genSpaceServerFactory.getWrappedUser();
+								u.setPasswordClearText(password);
+								genSpaceServerFactory.userUpdate();
+							}
+							else {
+								// the most complicated case
+							}
 						}
 						
 					} catch (InvalidCredentialsException e) {
@@ -112,6 +125,7 @@ public class LoginForm extends VerticalLayout {
 						//If user does NOT exist in geWorkbench, then try logging in genSpace
 						// System.out.printf("[DEBUG] User [%s] does NOT exist in geWorkbench.\n", username);
 						
+
 						if (!genSpaceServerFactory.userLogin(username, password)) {
 							// if user does NOT exist in genSpace
 							// System.out.printf("[DEBUG] User [%s] dose NOT exist in genSpace.\n", username);
@@ -173,7 +187,7 @@ public class LoginForm extends VerticalLayout {
 						} catch (AccountLockedException e) {
 							// feedbackLabel.setValue("The given account has been locked");
 						} catch (Exception e) {
-							// e.printStackTrace();
+							// e.p:rintStackTrace();
 							// feedbackLabel.setValue("Some other exception: "
 							//		+ e.getMessage());
 						}

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
@@ -270,7 +271,13 @@ public class UMainToolBar extends MenuBar {
 				GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
 				genSpaceWindow.setWidth("70%");
 				genSpaceWindow.setHeight("70%");
+				
+
+				User u = new User();
+				genSpaceWindow.getLayout().getGenSpaceLogin_1().auto_login(u);
+
 				getApplication().getMainWindow().addWindow(genSpaceWindow);
+				
 			}
 		});
 		

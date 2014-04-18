@@ -1,5 +1,6 @@
 package org.geworkbenchweb.genspace.ui.component;
 
+import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
@@ -303,6 +304,32 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 				Notification.TYPE_TRAY_NOTIFICATION);
 		mainWindow.showNotification(notification);
 
+		chatHandler = new ChatReceiver(this);
+		chatHandler.login(username, password);
+		
+		//getApplication().getMainWindow().addWindow(chatHandler.rf);
+		//chatHandler.rf.setPositionX(getApplication().getMainWindow().getBrowserWindowWidth()/2 + 100);
+		// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
+		//GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+		//GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+
+		//this.createAFWindow();
+		
+		//this.chatHandler.rf.focus();
+		//this.afWindow.focus();
+		
+		genSpaceParent.fireLoggedIn();
+	}
+	
+	
+	public void auto_login(User u) {
+
+		String username = "aaa123";
+		String password = "aaa123";
+		if (!genSpaceServerFactory.userLogin(username, password)) {
+
+		}
+		
 		chatHandler = new ChatReceiver(this);
 		chatHandler.login(username, password);
 		
