@@ -101,7 +101,7 @@ public class TTestAnalysisWeb {
 		List<String> controlArrayPositions = new ArrayList<String>();
 		for (int i = 0; i < selectedCaseSets.length; i++) {			
 			 
-			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+			 List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedCaseSets[i].trim()));			 
 			 for (int j = 0; j < arrays.size(); j++)  			 
 				caseArrayPositions.add(arrays.get(j));				 
@@ -109,7 +109,7 @@ public class TTestAnalysisWeb {
 		}
 		for (int i = 0; i < selectedControlSets.length; i++) {			
 			 
-			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+			 List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedControlSets[i].trim()));			 
 			 for (int j = 0; j < arrays.size(); j++)  			 
 				 controlArrayPositions.add(arrays.get(j));				 

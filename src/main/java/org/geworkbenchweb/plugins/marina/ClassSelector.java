@@ -1,6 +1,5 @@
 package org.geworkbenchweb.plugins.marina;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.geworkbenchweb.pojos.Context;
@@ -99,7 +98,7 @@ public class ClassSelector extends FormLayout{
 								arraySubSet.getName());	
 						
 						
-						ArrayList<String> pos = arraySubSet.getPositions();
+						List<String> pos = arraySubSet.getPositions();
 						if (pos == null || pos.isEmpty()) continue;
 						StringBuilder builder = new StringBuilder();
 						

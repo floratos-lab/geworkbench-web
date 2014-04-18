@@ -150,7 +150,7 @@ public class AnovaAnalysis {
 		} else {
 			selectedMarkers = new ArrayList<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				ArrayList<String> temp = paramForm.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
+				List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 				for(int m=0; m<temp.size(); m++) {
 					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
 					selectedMarkers.add(temp1);
@@ -186,7 +186,7 @@ public class AnovaAnalysis {
 
 		log.debug("selectedMarkers.size() = " + selectedMarkers.size());
 		for (int i = 0; i < numSelectedGroups; i++) {
-			ArrayList<String> arrayPositions = paramForm.getArrayData(Long
+			List<String> arrayPositions = SubSetOperations.getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
 			
 			int[] selectedArrayIndex = new int[arrayPositions.size()];

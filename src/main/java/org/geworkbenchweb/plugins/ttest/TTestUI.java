@@ -347,7 +347,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		/* for each group */
 		for (int i = 0; i < selectedCaseSets.length; i++) {			
 			 caseSetList.add(selectedCaseSets[i].trim());
-			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+			 List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedCaseSets[i].trim()));	 
 			 
 			 for (int j = 0; j < arrays.size(); j++) {
@@ -364,7 +364,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 							.parseLong(selectedControlSets[i].trim())).get(0);
 				 return "Case and control groups have same array set " + subset.getName() + ".";
 			 }
-			 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+			 List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedControlSets[i].trim()));	 			 
 			 for (int j = 0; j < arrays.size(); j++) {
 				if (microarrayPosList.contains(arrays.get(j)))  				

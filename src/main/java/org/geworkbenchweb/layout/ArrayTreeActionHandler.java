@@ -112,7 +112,7 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 										if(buttonType.equals(ButtonType.CANCEL)) {
 											return;
 										} else {
-											ArrayList<String> arrays 		= 	arrayset.getPositions();
+											List<String> arrays 		= 	arrayset.getPositions();
 											ArrayList<String> newarrays 	= 	new ArrayList<String>();
 											for(int i=0; i<temp.length; i++) {
 												String array = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();

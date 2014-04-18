@@ -112,7 +112,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 										if(buttonType.equals(ButtonType.CANCEL)) {
 											return;
 										} else {
-											ArrayList<String> markers	 = 	markerset.getPositions();
+											List<String> markers	 = 	markerset.getPositions();
 											ArrayList<String> newmarkers = 	new ArrayList<String>();
 											for(int i=0; i<temp.length; i++) {
 												String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();

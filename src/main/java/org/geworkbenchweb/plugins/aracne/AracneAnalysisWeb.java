@@ -93,7 +93,7 @@ public class AracneAnalysisWeb {
 				.equalsIgnoreCase("Do Not Apply")) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.DPI_SET));
-			ArrayList<String> targetGeneList = SubSetOperations.getMarkerData(subSetId);
+			List<String> targetGeneList = SubSetOperations.getMarkerData(subSetId);
 			aracneInput
 					.setTargetGeneList(targetGeneList.toArray(new String[0]));
 		}
@@ -144,7 +144,7 @@ public class AracneAnalysisWeb {
 			selectedMarkerNames = Arrays.asList( microarrays.markerLabels );
 		} else {
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				ArrayList<String> temp = SubSetOperations.getMarkerData(Long
+				List<String> temp = SubSetOperations.getMarkerData(Long
 						.parseLong(selectedMarkerSet[i].trim()));
 
 				for (int m = 0; m < temp.size(); m++) {
@@ -171,7 +171,7 @@ public class AracneAnalysisWeb {
 		} else {
 			for (int i = 0; i < selectedArraySet.length; i++) {
 
-				ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+				List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
 				totalSelectedArrayNum = totalSelectedArrayNum + arrays.size();
 
@@ -205,7 +205,7 @@ public class AracneAnalysisWeb {
 
 		} else {
 			for (int i = 0; i < selectedArraySet.length; i++) {
-				ArrayList<String> arrayPositions = SubSetOperations.getArrayData(Long
+				List<String> arrayPositions = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
 				
 				int[] selectedArrayIndex = new int[arrayPositions.size()];

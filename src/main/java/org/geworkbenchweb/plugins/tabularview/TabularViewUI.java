@@ -19,7 +19,6 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
@@ -200,9 +199,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 			for (int i = 0; i < selectedArraySet.length; i++) {
 
-				List<?> subSet = SubSetOperations.getArraySet(selectedArraySet[i]);
-				ArrayList<String> positions = (((SubSet) subSet.get(0))
-						.getPositions());
+				List<String> positions = SubSetOperations.getArrayData(selectedArraySet[i]);
  
 				for (int j = 0; j < arrayLabels.length; j++) {
 					String array = arrayLabels[j];
@@ -234,11 +231,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			
 			Set<String> included = new HashSet<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				List<?> subSet = SubSetOperations.getMarkerSet(selectedMarkerSet[i]);
-				if (subSet == null || subSet.size() == 0)
-					continue;
-				ArrayList<String> positions = (((SubSet) subSet.get(0))
-						.getPositions());
+				List<String> positions = SubSetOperations.getMarkerData(selectedMarkerSet[i]);
 
 				for (int m = 0; m < positions.size(); m++) {
 					String temp = ((positions.get(m)).split("\\s+"))[0].trim();

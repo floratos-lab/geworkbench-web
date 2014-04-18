@@ -273,7 +273,7 @@ public class SubSetOperations {
 	 * @param context   context containing this subset
 	 * @return SubSet Id
 	 */
-	public static Long storeSubSetInContext(ArrayList<String> itemList,
+	public static Long storeSubSetInContext(List<String> itemList,
 			String name, String type, long datasetId, Context context) {
 		if (context == null || !type.equals(context.getType())) return null;
 
@@ -363,24 +363,24 @@ public class SubSetOperations {
 		List<AbstractPojo> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id", parameters);
 		return (SubSet) data.get(0);
 	}
-	
-	
-	
-	public static ArrayList<String> getArrayData(long setNameId) {
+
+	/** Get the list of array names for a given set ID. */
+	public static List<String> getArrayData(long setNameId) {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getArraySet(setNameId);
-		ArrayList<String> positions = new ArrayList<String>();
+		List<String> positions = new ArrayList<String>();
 		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
 
 		return positions;
 	}
 	
-	public static ArrayList<String> getMarkerData(long setNameId) {
+	/** Get the list of marker names for a given set ID. */
+	public static List<String> getMarkerData(long setNameId) {
 
 		@SuppressWarnings("rawtypes")
 		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		ArrayList<String> positions = new ArrayList<String>();
+		List<String> positions = new ArrayList<String>();
 		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
 		return positions;
 	}
