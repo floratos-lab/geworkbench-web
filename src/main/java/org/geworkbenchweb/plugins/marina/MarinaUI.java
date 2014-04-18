@@ -484,8 +484,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		{ 
 			for (int i = 0; i < selectedclass2Sets.length; i++) {		 
 			   if (caseSetList.contains(selectedclass2Sets[i].trim()))
-			   {   SubSet subset = (SubSet)SubSetOperations.getArraySet(Long
-							.parseLong(selectedclass2Sets[i].trim())).get(0);
+			   {
+					SubSet subset = SubSetOperations.getArraySet(Long
+							.parseLong(selectedclass2Sets[i].trim()));
 				    return "Class1 and class2 groups have same array set " + subset.getName() + ".";
 			   }
 				List<String> arrays = SubSetOperations.getArrayData(Long

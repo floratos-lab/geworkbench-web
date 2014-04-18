@@ -15,6 +15,7 @@ import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -84,14 +85,14 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 	 * store Contexts, CurrentContext, arrays SubSets and SubSetContexts for microarraySet
 	 */
 	private void storeContext(Map<String, String[]> setInformation, String[] arrayLabels){
-		Context defaultContext = new Context("Default Context", "microarray", datasetId);
+		Context defaultContext = new Context("Default Context", SubSet.SET_TYPE_MICROARRAY, datasetId);
 		FacadeFactory.getFacade().store(defaultContext);
-		CurrentContext current = new CurrentContext("microarray", datasetId, defaultContext.getId());
+		CurrentContext current = new CurrentContext(SubSet.SET_TYPE_MICROARRAY, datasetId, defaultContext.getId());
 		FacadeFactory.getFacade().store(current);
 		
 		for (String contextName : setInformation.keySet()){
 			
-			Context context = new Context(contextName, "microarray", datasetId);
+			Context context = new Context(contextName, SubSet.SET_TYPE_MICROARRAY, datasetId);
 			FacadeFactory.getFacade().store(context);
 
 			Map<String, ArrayList<String>> arraySets = new LinkedHashMap<String, ArrayList<String>>();
@@ -127,9 +128,9 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 		}
 
 		/* add a default context for markers */
-		Context defaultMarkerContext = new Context("Default Context", "marker", datasetId);
+		Context defaultMarkerContext = new Context("Default Context", SubSet.SET_TYPE_MARKER, datasetId);
 		FacadeFactory.getFacade().store(defaultMarkerContext);
-		CurrentContext currentMarkerContext = new CurrentContext("marker", datasetId, defaultMarkerContext.getId());
+		CurrentContext currentMarkerContext = new CurrentContext(SubSet.SET_TYPE_MARKER, datasetId, defaultMarkerContext.getId());
 		FacadeFactory.getFacade().store(currentMarkerContext);
 	}
 

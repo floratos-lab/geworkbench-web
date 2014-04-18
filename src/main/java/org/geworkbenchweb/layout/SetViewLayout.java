@@ -88,7 +88,7 @@ public class SetViewLayout extends CssLayout {
 
 		Button mrknewContextButton = new Button("New");
 		mrknewContextButton.addListener(new NewContextListener(this, dataSetId,
-				mrkcontextSelector, "marker"));
+				mrkcontextSelector, SubSet.SET_TYPE_MARKER));
 
 		// array context
 		List<Context> contexts = SubSetOperations.getArrayContexts(dataSetId);
@@ -105,7 +105,7 @@ public class SetViewLayout extends CssLayout {
 
 		Button newContextButton = new Button("New");
 		newContextButton.addListener(new NewContextListener(this, dataSetId,
-				contextSelector, "microarray"));
+				contextSelector, SubSet.SET_TYPE_MICROARRAY));
 
 		this.addComponent(createContextLayout("Context for Marker Sets", mrkcontextSelector, mrknewContextButton));
 		this.addComponent(markerTree);

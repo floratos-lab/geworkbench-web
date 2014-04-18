@@ -52,7 +52,7 @@ public class RemoveSetListener implements Button.ClickListener {
 				List<SubSet> subSets = FacadeFactory.getFacade().list(
 						"Select a from SubSet a where a.id=:id", Param);
 
-				if (subSets.get(0).getType().equalsIgnoreCase("microarray")) {
+				if (subSets.get(0).getType().equalsIgnoreCase(SubSet.SET_TYPE_MICROARRAY)) {
 					Tree arraySetTree = setViewLayout.getArraySetTree();
 					if (arraySetTree .hasChildren(selectedSetId)) {
 						Collection<?> children = arraySetTree

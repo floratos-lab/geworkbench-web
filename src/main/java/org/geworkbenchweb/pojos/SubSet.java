@@ -13,6 +13,10 @@ public class SubSet extends AbstractPojo {
 
 	private static final long serialVersionUID = -2720207271844335675L;
 
+	/* two possible types */
+	public final static String SET_TYPE_MICROARRAY = "microarray";
+	public final static String SET_TYPE_MARKER = "marker";
+
 	private String name;
 	private String type;
 	private Long owner;
