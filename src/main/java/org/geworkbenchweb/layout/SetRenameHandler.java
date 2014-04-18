@@ -83,9 +83,8 @@ public class SetRenameHandler implements Handler {
 		dialog.setImmediate(true);
 
 		final Item item = setTree.getItem(itemId);
-		Object oldName = item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).getValue();
 		final TextField newName = new TextField();
-		newName.setInputPrompt(oldName.toString());
+		newName.setValue(labelSet.getName());
 		newName.setImmediate(true);
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
