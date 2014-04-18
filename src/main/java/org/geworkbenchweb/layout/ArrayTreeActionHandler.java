@@ -124,10 +124,10 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 											if (newarrays.size()>0) {
 												arrayset.setPositions(arrays);
 												FacadeFactory.getFacade().store(arrayset);
-												arraySetTree.getContainerProperty(arrayset.getId(), "setName").setValue(name1 + " [" + arrays.size() + "]");
+												arraySetTree.getContainerProperty(arrayset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(name1 + " [" + arrays.size() + "]");
 												for(int j=0; j<newarrays.size(); j++) {
 													arraySetTree.addItem(newarrays.get(j)+arrayset.getId());
-													arraySetTree.getContainerProperty(newarrays.get(j)+arrayset.getId(), "setName").setValue(newarrays.get(j));
+													arraySetTree.getContainerProperty(newarrays.get(j)+arrayset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(newarrays.get(j));
 													arraySetTree.setParent(newarrays.get(j)+arrayset.getId(), arrayset.getId());
 													arraySetTree.setChildrenAllowed(newarrays.get(j)+arrayset.getId(), false);
 												}
@@ -146,12 +146,12 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 						String subSetName =  (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context);
 						arraySetTree.addItem(subSetId);
-						arraySetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + arrays.size() + "]");
+						arraySetTree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(subSetName + " [" + arrays.size() + "]");
 						arraySetTree.setParent(subSetId, "arraySets");
 						arraySetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<arrays.size(); j++) {
 							arraySetTree.addItem(arrays.get(j)+subSetId);
-							arraySetTree.getContainerProperty(arrays.get(j)+subSetId, "setName").setValue(arrays.get(j));
+							arraySetTree.getContainerProperty(arrays.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(arrays.get(j));
 							arraySetTree.setParent(arrays.get(j)+subSetId, subSetId);
 							arraySetTree.setChildrenAllowed(arrays.get(j)+subSetId, false);
 						}

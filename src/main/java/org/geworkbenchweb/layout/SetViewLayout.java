@@ -160,6 +160,8 @@ public class SetViewLayout extends CssLayout {
 		return selector;
 	}
 	
+	public final static String SET_DISPLAY_NAME = "set_display_name";
+
 	private static Tree createSetTree(final HierarchicalContainer dataContainer) {
 		Tree tree = new Tree();
 		tree.setImmediate(true);
@@ -167,7 +169,7 @@ public class SetViewLayout extends CssLayout {
 		tree.setMultiSelect(false);
 
 		tree.setContainerDataSource(dataContainer);
-		tree.setItemCaptionPropertyId("setName");
+		tree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
 		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
 		return tree;
@@ -206,16 +208,16 @@ public class SetViewLayout extends CssLayout {
 			final List<AbstractPojo> sets, final String topItem,
 			final String setName) {
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
-		dataContainer.addContainerProperty("setName", String.class, null);
+		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
 
 		Item mainItem = dataContainer.addItem(topItem);
-		mainItem.getItemProperty("setName").setValue(setName);
+		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue(setName);
 
 		for (int i = 0; i < sets.size(); i++) {
 			List<String> markers = ((SubSet) sets.get(i)).getPositions();
 			Long subSetId = ((SubSet) sets.get(i)).getId();
 			dataContainer.addItem(subSetId);
-			dataContainer.getContainerProperty(subSetId, "setName").setValue(
+			dataContainer.getContainerProperty(subSetId, SET_DISPLAY_NAME).setValue(
 					((SubSet) sets.get(i)).getName() + " [" + markers.size()
 							+ "]");
 			dataContainer.setParent(subSetId, topItem);
@@ -223,7 +225,7 @@ public class SetViewLayout extends CssLayout {
 			for (int j = 0; j < markers.size(); j++) {
 				dataContainer.addItem(markers.get(j) + subSetId);
 				dataContainer.getContainerProperty(markers.get(j) + subSetId,
-						"setName").setValue(markers.get(j));
+						SET_DISPLAY_NAME).setValue(markers.get(j));
 				dataContainer.setParent(markers.get(j) + subSetId, subSetId);
 				dataContainer.setChildrenAllowed(markers.get(j) + subSetId,
 						false);

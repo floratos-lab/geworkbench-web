@@ -10,7 +10,6 @@ import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
@@ -346,27 +345,6 @@ public class SubSetOperations {
 		return storeMarkerSetInContext(markerList, name, datasetId, getCurrentMarkerContext(datasetId));
 	}
 
-	/**
-	 * store markers SubSet
-	 * @param arrayList names of markers in markerset
-	 * @param name      markerset name
-	 * @param datasetId parent dataset id
-	 * @return markers SubSet Id
-	 */
-	public static Long storeMarkerSet(ArrayList<String> arrayList,
-			String name, long datasetId) {
-
-		SubSet subset  	= 	new SubSet();
-
-		subset.setName(name);
-		subset.setType("marker");
-		subset.setOwner(SessionHandler.get().getId());
-		subset.setParent(datasetId);
-		subset.setPositions(arrayList);
-		FacadeFactory.getFacade().store(subset);
-
-		return subset.getId();
-	}
 	/**
 	 * This method is used to delete all the Marker and Array sets for given dataSet
 	 * @input dataSet ID
