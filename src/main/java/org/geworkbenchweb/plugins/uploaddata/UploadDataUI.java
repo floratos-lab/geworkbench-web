@@ -106,7 +106,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 	/* 'add to workspace button' clicked */
 	@Override
 	public void buttonClick(ClickEvent event) {
-		getMainLayout().unlockGuiForUpload();
+	    getMainLayout().unlockGuiForUpload();
 		addButton.setEnabled(false);
 
 		Object choice = annoLayout.getAnnotationChoice();
@@ -121,6 +121,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 					"Data file not loaded. No valid data file is chosen.",
 					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 			mb.show();
+			addButton.setEnabled(true);	 
 			return;
 		}
 
@@ -129,6 +130,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 					MessageBox.Icon.ERROR, "Operation not supported yet",
 					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 			mb.show();
+			addButton.setEnabled(true);	 
 			return;
 		}
 
@@ -140,6 +142,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 						MessageBox.Icon.ERROR, "Annotation file not selected",
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();
+				addButton.setEnabled(true);	 
 				return;
 			}
 		} else if (!(choice instanceof Anno)) {		 
@@ -164,6 +167,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 						MessageBox.Icon.ERROR, "Annotation file not loaded",
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();
+				addButton.setEnabled(true);	 
 				return;
 			}
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -187,7 +191,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		// add pending dataset node
 		GeworkbenchRoot app = (GeworkbenchRoot) UploadDataUI.this
 				.getApplication();
-		app.addNode(dataset);
+		app.addNode(dataset);		 
 	}
 
 	static private DataSet storePendingData(String fileName, Long userId){
@@ -237,6 +241,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 					mb.show();
 					
 					rollbackFailedUpload(dataSet);
+					addButton.setEnabled(true);	 
 					return;
 				}
 
