@@ -17,6 +17,7 @@ public class Network extends AbstractPojo {
 	/* these two must have the same length to mimic a map */
 	private String[] node1;
 	private NetworkEdges[] edges;
+	private String name = null;
 	
 	public Network() {}
 	
@@ -31,6 +32,19 @@ public class Network extends AbstractPojo {
 			edges[index] = networkMap.get(n1);
 			index++;
 		}
+	}
+	
+	public Network(String name, Map<String, NetworkEdges> networkMap) {
+		this(networkMap);
+		this.name = name;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
 	}
 
 	public String[] getNode1() {

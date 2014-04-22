@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Network;
-import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
@@ -25,6 +23,7 @@ import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
@@ -54,6 +53,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private TextField bootStrapNumber = new TextField();
 	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
+	private CheckBox cluster = null;
 	private Button submitButton = null;
 
 	public AracneUI() {
@@ -375,6 +375,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
+		
+		cluster = new CheckBox("Cluster");
 
 		submitButton = new Button("Submit", new Button.ClickListener() {
 
@@ -428,6 +430,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		gridLayout.addComponent(bootStrapNumber, 0, 5);
 		gridLayout.addComponent(consensusThreshold, 1, 5);
 		gridLayout.addComponent(mergeProbeSets, 0, 6);
+		gridLayout.addComponent(cluster, 1, 6);
 		gridLayout.addComponent(submitButton, 0, 7);
 		
 		addComponent(markerArraySelector);		
@@ -593,13 +596,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			HashMap<Serializable, Serializable> parameters, Long userId)
 			throws IOException, Exception {
 		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
-		Map<String, NetworkEdges> networkMap = analyze.execute();
-		Network network = new Network(networkMap);
+		Network network = analyze.execute(cluster.booleanValue());
 		FacadeFactory.getFacade().store(network);
 		ResultSet networkResult = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 		networkResult.setDataId(network.getId());
 		FacadeFactory.getFacade().store(networkResult);
 
+		String networkName = network.getName();
+		if(networkName != null) return "Aracne - " + networkName;
 		return "Aracne";
 	}
 }
