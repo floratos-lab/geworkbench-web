@@ -71,9 +71,9 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 		}
 
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
-		dataContainer.addContainerProperty("setName", String.class, null);
+		dataContainer.addContainerProperty(SetViewLayout.SET_DISPLAY_NAME, String.class, null);
 		Item mainItem1 = dataContainer.addItem(topItem);
-		mainItem1.getItemProperty("setName").setValue(setName);
+		mainItem1.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(setName);
 		setTree.setContainerDataSource(dataContainer);
 
 		List<SubSet> setList = SubSetOperations.getSubSetsForContext(context);
@@ -81,14 +81,14 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 			List<String> list = subset.getPositions();
 			Long id = subset.getId();
 			dataContainer.addItem(id);
-			dataContainer.getContainerProperty(id, "setName").setValue(
+			dataContainer.getContainerProperty(id, SetViewLayout.SET_DISPLAY_NAME).setValue(
 					subset.getName() + " [" + list.size() + "]");
 			dataContainer.setParent(id, topItem);
 			dataContainer.setChildrenAllowed(id, true);
 			for (int j = 0; j < list.size(); j++) {
 				String item = list.get(j);
 				dataContainer.addItem(item + id);
-				dataContainer.getContainerProperty(item + id, "setName")
+				dataContainer.getContainerProperty(item + id, SetViewLayout.SET_DISPLAY_NAME)
 						.setValue(item);
 				dataContainer.setParent(item + id, id);
 				dataContainer.setChildrenAllowed(item + id, false);

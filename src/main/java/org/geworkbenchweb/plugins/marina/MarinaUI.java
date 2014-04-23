@@ -469,7 +469,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		{
 			for (int i = 0; i < selectedClass1Sets.length; i++) {			
 			    caseSetList.add(selectedClass1Sets[i].trim());
-			    ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+			    List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedClass1Sets[i].trim()));	 
 			 
 			    for (int j = 0; j < arrays.size(); j++) {
@@ -484,11 +484,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		{ 
 			for (int i = 0; i < selectedclass2Sets.length; i++) {		 
 			   if (caseSetList.contains(selectedclass2Sets[i].trim()))
-			   {   SubSet subset = (SubSet)SubSetOperations.getArraySet(Long
-							.parseLong(selectedclass2Sets[i].trim())).get(0);
+			   {
+					SubSet subset = SubSetOperations.getArraySet(Long
+							.parseLong(selectedclass2Sets[i].trim()));
 				    return "Class1 and class2 groups have same array set " + subset.getName() + ".";
 			   }
-				 ArrayList<String> arrays = SubSetOperations.getArrayData(Long
+				List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedclass2Sets[i].trim()));	 			 
 			   for (int j = 0; j < arrays.size(); j++) {
 				  if (microarrayPosList.contains(arrays.get(j)))  				

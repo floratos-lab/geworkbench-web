@@ -25,7 +25,6 @@ import org.geworkbench.components.hierarchicalclustering.data.HierClusterOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
-import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
@@ -63,8 +62,7 @@ public class HierarchicalClusteringComputation {
 			List<Integer> selected = new ArrayList<Integer>();
 			for (String markerSetId : markerSet) {
 				/* what is returned at this point is database id as long */
-				List<?> subSet = SubSetOperations.getMarkerSet(Long.parseLong(markerSetId.trim()));
-				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
+				List<String> positions = SubSetOperations.getMarkerData(Long.parseLong(markerSetId.trim()));
 				for(String markerName : positions) {
 					selected.add(markerLabels.indexOf(markerName));
 				}
@@ -80,8 +78,7 @@ public class HierarchicalClusteringComputation {
 		if (micraoarraySet != null) { // TODO verify null versus empty
 			List<Integer> selected = new ArrayList<Integer>();
 			for (String microarraySetId : micraoarraySet) {
-				List<?> subSet = SubSetOperations.getArraySet(Long.parseLong(microarraySetId.trim()));
-				ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions()); // only the first one is used
+				List<String> positions = SubSetOperations.getArrayData(Long.parseLong(microarraySetId.trim()));
 				for(String microarrayName : positions) {
 					selected.add(arrayLabels.indexOf(microarrayName));
 				}

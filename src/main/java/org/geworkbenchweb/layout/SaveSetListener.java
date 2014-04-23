@@ -1,11 +1,12 @@
 package org.geworkbenchweb.layout;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 
 import org.geworkbenchweb.pojos.SubSet;
-import org.geworkbenchweb.utils.CSVUtil;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -45,7 +46,7 @@ public class SaveSetListener implements Button.ClickListener {
 		if (!new File(saveSetDir).exists())
 			new File(saveSetDir).mkdirs();
 		String savefname = saveSetDir + subSet.getName() + ".csv";
-		CSVUtil.saveSetToFile(savefname, subSet);
+		saveSetToFile(savefname, subSet);
 
 		FileResource resource = new FileResource(new File(savefname),
 				application) {
@@ -70,4 +71,22 @@ public class SaveSetListener implements Button.ClickListener {
 
 	}
 
+	private static void saveSetToFile(String savefname, SubSet subSet){
+		BufferedWriter bw = null;
+		try{
+			bw = new BufferedWriter(new FileWriter(savefname));
+			for (String name : subSet.getPositions()){
+				bw.write(name);
+				bw.newLine();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{ 
+				if (bw!=null) bw.close(); 
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
 }

@@ -112,7 +112,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 										if(buttonType.equals(ButtonType.CANCEL)) {
 											return;
 										} else {
-											ArrayList<String> markers	 = 	markerset.getPositions();
+											List<String> markers	 = 	markerset.getPositions();
 											ArrayList<String> newmarkers = 	new ArrayList<String>();
 											for(int i=0; i<temp.length; i++) {
 												String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
@@ -125,10 +125,10 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 											if (newmarkers.size()>0) {
 												markerset.setPositions(markers);
 												FacadeFactory.getFacade().store(markerset);
-												markerSetTree.getContainerProperty(markerset.getId(), "setName").setValue(name1 +" [" + markers.size() + "]");
+												markerSetTree.getContainerProperty(markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(name1 +" [" + markers.size() + "]");
 												for(int j=0; j<newmarkers.size(); j++) {
 													markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
-													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), "setName").setValue(newmarkers.get(j));
+													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(newmarkers.get(j));
 													markerSetTree.setParent(newmarkers.get(j)+markerset.getId(), markerset.getId());
 													markerSetTree.setChildrenAllowed(newmarkers.get(j)+markerset.getId(), false);
 												}
@@ -149,12 +149,12 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						String subSetName = (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeMarkerSetInContext(markers, subSetName , dataSetId, context);
 						markerSetTree.addItem(subSetId);
-						markerSetTree.getContainerProperty(subSetId, "setName").setValue(subSetName + " [" + markers.size()+ "]");
+						markerSetTree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(subSetName + " [" + markers.size()+ "]");
 						markerSetTree.setParent(subSetId, "MarkerSets");
 						markerSetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<markers.size(); j++) {
 							markerSetTree.addItem(markers.get(j)+subSetId);
-							markerSetTree.getContainerProperty(markers.get(j)+subSetId, "setName").setValue(markers.get(j));
+							markerSetTree.getContainerProperty(markers.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(markers.get(j));
 							markerSetTree.setParent(markers.get(j)+subSetId, subSetId);
 							markerSetTree.setChildrenAllowed(markers.get(j)+subSetId, false);
 						}

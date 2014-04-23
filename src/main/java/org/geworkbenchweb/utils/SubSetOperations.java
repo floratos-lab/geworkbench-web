@@ -10,7 +10,6 @@ import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
@@ -21,36 +20,29 @@ import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 public class SubSetOperations {
 
-	public static List<AbstractPojo> getMarkerSet(Long setId) {
+	/** Return the set for a given ID. */
+	public static SubSet getArraySet(Long setId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("id", setId);
-		parameters.put("type", "marker");
+		parameters.put("type", SubSet.SET_TYPE_MICROARRAY);
 
 		List<AbstractPojo> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id " +
 				"and p.type=:type", parameters);
-		return data;
+		if(data.size()>0) 
+			return (SubSet)data.get(0);
+		else
+			return null;
 	}
 
-	public static List<AbstractPojo> getArraySet(Long setId) {
-
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-
-		parameters.put("id", setId);
-		parameters.put("type", "microarray");
-
-		List<AbstractPojo> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id " +
-				"and p.type=:type", parameters);
-		return data;
-	}
-
+	/** Return the list of all the marker sets under a given parent dataset. */
 	public static List<AbstractPojo> getMarkerSets(Long dataSetId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("parent", dataSetId);
-		parameters.put("type", "marker");
+		parameters.put("type", SubSet.SET_TYPE_MARKER);
 
 		List<AbstractPojo> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type ", parameters);
 
@@ -61,39 +53,31 @@ public class SubSetOperations {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void storeSignificance(List<String> data, Long dataSetId, Long userId) {
  
-		int  significanSetNum = SubSetOperations.getSignificanceSetNum(dataSetId);
-		String significanSetName = null;
-		if (significanSetNum == 0)
-			significanSetName = "Significant Genes ";
-		else	 
-			significanSetName = "Significant Genes(" + significanSetNum + ") ";
-		storeMarkerSetInCurrentContext((ArrayList)data, significanSetName, dataSetId);
-	 
-	}
-	
-	public static int getSignificanceSetNum(Long dataSetId) {
-
 		List<SubSet> list = getMarkerSetsForCurrentContext(dataSetId);
 		int count = 0;
-		if (list != null && list.size() > 0)
-		{
-			for(SubSet s : list)
-			{
+		if (list != null && list.size() > 0) {
+			for (SubSet s : list) {
 				if (s.getName().contains("Significant Genes"))
 					count++;
 			}
 		}
-		return count;
-		 
+
+		String significanSetName = null;
+		if (count == 0)
+			significanSetName = "Significant Genes";
+		else
+			significanSetName = "Significant Genes(" + count + ")";
+		storeMarkerSetInCurrentContext((ArrayList) data, significanSetName,
+				dataSetId);
 	}
 
-
+	/** Return the list of all the microarray sets under a given parent dataset. */
 	public static List<AbstractPojo> getArraySets(Long dataSetId) {
 
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("parent", dataSetId);
-		parameters.put("type", "microarray");
+		parameters.put("type", SubSet.SET_TYPE_MICROARRAY);
 
 		List<AbstractPojo> data = FacadeFactory.getFacade().list("Select p from SubSet as p where p.parent=:parent and p.type=:type ", parameters);
 
@@ -121,7 +105,7 @@ public class SubSetOperations {
  	 * @param type
 	 * @return all Contexts for dataset by type
 	 */
-	public static List<Context> getContextsForType(Long dataSetId, String type){
+	private static List<Context> getContextsForType(Long dataSetId, String type){
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 
 		parameters.put("datasetid", dataSetId);
@@ -138,7 +122,7 @@ public class SubSetOperations {
 	 * @return all array Contexts for dataset
 	 */
 	public static List<Context> getArrayContexts(Long dataSetId){
-		return getContextsForType(dataSetId, "microarray");
+		return getContextsForType(dataSetId, SubSet.SET_TYPE_MICROARRAY);
 	}
 	
 	/**
@@ -147,7 +131,7 @@ public class SubSetOperations {
 	 * @return all marker Contexts for dataset
 	 */
 	public static List<Context> getMarkerContexts(Long dataSetId){
-		return getContextsForType(dataSetId, "marker");
+		return getContextsForType(dataSetId, SubSet.SET_TYPE_MARKER);
 	}
 	
 	/**
@@ -189,12 +173,12 @@ public class SubSetOperations {
 	}
 	
 	/**
-	 * get current Context for dataset by type
+	 * get current Context for dataset by type, either "microarray" or "marker"
 	 * @param datasetId
 	 * @param type
 	 * @return current Context by type
 	 */
-	public static Context getCurrentContextForType(long datasetId, String type){
+	private static Context getCurrentContextForType(long datasetId, String type){
 		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
 		parameters.put("datasetid", datasetId);
 		parameters.put("type", type);
@@ -209,7 +193,7 @@ public class SubSetOperations {
 	 * @return current array Context
 	 */
 	public static Context getCurrentArrayContext(long datasetId){
-		return getCurrentContextForType(datasetId, "microarray");
+		return getCurrentContextForType(datasetId, SubSet.SET_TYPE_MICROARRAY);
 	}
 	
 	/**
@@ -218,7 +202,7 @@ public class SubSetOperations {
 	 * @return current maker Context
 	 */
 	public static Context getCurrentMarkerContext(long datasetId){
-		return getCurrentContextForType(datasetId, "marker");
+		return getCurrentContextForType(datasetId, SubSet.SET_TYPE_MARKER);
 	}
 	
 	/**
@@ -253,7 +237,7 @@ public class SubSetOperations {
 	 * @param context
 	 */
 	public static void setCurrentArrayContext(long datasetId, Context context){
-		setCurrentContextForType(datasetId, context, "microarray");
+		setCurrentContextForType(datasetId, context, SubSet.SET_TYPE_MICROARRAY);
 	}
 
 	/**
@@ -262,7 +246,7 @@ public class SubSetOperations {
 	 * @param context
 	 */
 	public static void setCurrentMarkerContext(long datasetId, Context context){
-		setCurrentContextForType(datasetId, context, "marker");
+		setCurrentContextForType(datasetId, context, SubSet.SET_TYPE_MARKER);
 	}
 
 	/**
@@ -274,7 +258,7 @@ public class SubSetOperations {
 	 * @param context   context containing this subset
 	 * @return SubSet Id
 	 */
-	public static Long storeSubSetInContext(ArrayList<String> itemList,
+	public static Long storeSubSetInContext(List<String> itemList,
 			String name, String type, long datasetId, Context context) {
 		if (context == null || !type.equals(context.getType())) return null;
 
@@ -306,7 +290,7 @@ public class SubSetOperations {
 	 */
 	public static Long storeArraySetInContext(ArrayList<String> arrayList,
 			String name, long datasetId, Context context) {
-		return storeSubSetInContext(arrayList, name, "microarray", datasetId, context);
+		return storeSubSetInContext(arrayList, name, SubSet.SET_TYPE_MICROARRAY, datasetId, context);
 	}
 
 	/**
@@ -319,7 +303,7 @@ public class SubSetOperations {
 	 */
 	public static Long storeMarkerSetInContext(ArrayList<String> markerList,
 			String name, long datasetId, Context context) {
-		return storeSubSetInContext(markerList, name, "marker", datasetId, context);
+		return storeSubSetInContext(markerList, name, SubSet.SET_TYPE_MARKER, datasetId, context);
 	}
 
 	/**
@@ -346,64 +330,29 @@ public class SubSetOperations {
 		return storeMarkerSetInContext(markerList, name, datasetId, getCurrentMarkerContext(datasetId));
 	}
 
-	/**
-	 * store markers SubSet
-	 * @param arrayList names of markers in markerset
-	 * @param name      markerset name
-	 * @param datasetId parent dataset id
-	 * @return markers SubSet Id
-	 */
-	public static Long storeMarkerSet(ArrayList<String> arrayList,
-			String name, long datasetId) {
+	/** Get the list of array names for a given set ID. */
+	public static List<String> getArrayData(long setNameId) {
 
-		SubSet subset  	= 	new SubSet();
-
-		subset.setName(name);
-		subset.setType("marker");
-		subset.setOwner(SessionHandler.get().getId());
-		subset.setParent(datasetId);
-		subset.setPositions(arrayList);
-		FacadeFactory.getFacade().store(subset);
-
-		return subset.getId();
-	}
-	/**
-	 * This method is used to delete all the Marker and Array sets for given dataSet
-	 * @input dataSet ID
-	 * 
-	 */
-	public static void deleteAllSets(Long dataSetId) {
-
-
-
-	}
-
-	public static SubSet getSubSet(Long subSetId) {
-
-		Map<String, Object> parameters 	= 	new HashMap<String, Object>();
-		parameters.put("id", subSetId);
-		List<AbstractPojo> data =  FacadeFactory.getFacade().list("Select p from SubSet as p where p.id=:id", parameters);
-		return (SubSet) data.get(0);
+		SubSet subSet = SubSetOperations.getArraySet(setNameId);
+		if(subSet!=null) 
+			return subSet.getPositions();
+		else
+			return new ArrayList<String>();
 	}
 	
-	
-	
-	public static ArrayList<String> getArrayData(long setNameId) {
+	/** Get the list of marker names for a given set ID. */
+	public static List<String> getMarkerData(long setId) {
 
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getArraySet(setNameId);
-		ArrayList<String> positions = new ArrayList<String>();
-		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("id", setId);
+		parameters.put("type", SubSet.SET_TYPE_MARKER);
+		List<AbstractPojo> subSet = FacadeFactory.getFacade().list(
+				"Select p from SubSet as p where p.id=:id and p.type=:type",
+				parameters);
 
-		return positions;
-	}
-	
-	public static ArrayList<String> getMarkerData(long setNameId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		ArrayList<String> positions = new ArrayList<String>();
-		if(subSet.size() > 0) positions = (((SubSet) subSet.get(0)).getPositions());
+		List<String> positions = new ArrayList<String>();
+		if (subSet.size() > 0)
+			positions = (((SubSet) subSet.get(0)).getPositions());
 		return positions;
 	}
 }

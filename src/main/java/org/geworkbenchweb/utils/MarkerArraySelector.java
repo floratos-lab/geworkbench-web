@@ -1,6 +1,5 @@
 package org.geworkbenchweb.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.geworkbenchweb.pojos.Context;
@@ -293,7 +292,7 @@ public class MarkerArraySelector extends GridLayout{
 			}
 		} else { 
 			for(String setName : m) {
-				ArrayList<String> markers = SubSetOperations.getMarkerData(Long.parseLong(setName.trim()));
+				List<String> markers = SubSetOperations.getMarkerData(Long.parseLong(setName.trim()));
 				for(String markerName : markers)
 					markerBuilder.append("\t").append(markerName).append("\n");
 				numMarker += markers.size();
@@ -313,7 +312,7 @@ public class MarkerArraySelector extends GridLayout{
 			}
 		} else {
 			for(String setName : m) {
-				ArrayList<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
+				List<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
 				for(String arrayName : arrays)
 					arrayBuilder.append("\t").append(arrayName).append("\n");
 				numArray += arrays.size();

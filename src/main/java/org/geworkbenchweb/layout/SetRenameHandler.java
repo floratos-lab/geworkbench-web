@@ -83,9 +83,8 @@ public class SetRenameHandler implements Handler {
 		dialog.setImmediate(true);
 
 		final Item item = setTree.getItem(itemId);
-		Object oldName = item.getItemProperty("setName").getValue();
 		final TextField newName = new TextField();
-		newName.setInputPrompt(oldName.toString());
+		newName.setValue(labelSet.getName());
 		newName.setImmediate(true);
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
@@ -100,7 +99,8 @@ public class SetRenameHandler implements Handler {
 				labelSet.setName(newName.toString());
 				FacadeFactory.getFacade().store(labelSet);
 
-				item.getItemProperty("setName").setValue(newName);
+				int size = labelSet.getPositions().size();
+				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName+"["+size+"]");
 
 				setTree.getApplication().getMainWindow()
 						.removeWindow(dialog);

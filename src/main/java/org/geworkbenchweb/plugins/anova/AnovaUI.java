@@ -15,7 +15,6 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -376,7 +375,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		/* for each group */
 		for (int i = 0; i < selectedArraySet.length; i++) {
 			
-			 ArrayList<String> arrays = getArrayData(Long
+			 List<String> arrays = SubSetOperations.getArrayData(Long
 						.parseLong(selectedArraySet[i].trim()));
 			
 			if (arrays.size() < 2)
@@ -464,31 +463,6 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	public  String[] getSelectedArraySetNames() {	 
 		return markerArraySelector.getSelectedArraySetNames();
 	}	
-	
-	
-	/**
-	 * Create Array Data for selected markerSet
-	 */
-	public ArrayList<String> getArrayData(long setNameId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getArraySet(setNameId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
-
-		return positions;
-	}
-	
-	/**
-	 * Create Marker Data for selected markerSet
-	 */
-	public  ArrayList<String> getMarkerData(long setNameId) {
-
-		@SuppressWarnings("rawtypes")
-		List subSet = SubSetOperations.getMarkerSet(setNameId);
-		ArrayList<String> positions = (((SubSet) subSet.get(0)).getPositions());
-		return positions;
-	}
-
 
 	// TODO this is not a final design. needed only if we decide to reuse the instance
 	@Override

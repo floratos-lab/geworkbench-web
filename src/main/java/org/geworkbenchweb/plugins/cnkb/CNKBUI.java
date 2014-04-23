@@ -255,7 +255,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				.get(CNKBParameters.MARKER_SET_ID);
 		 
 		for (int i = 0; i < selectedMarkerSet.length; i++) {
-			ArrayList<String> markers = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
+			List<String> markers = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 			
 			for(int m=0; m<markers.size(); m++) {
 				mark.append("\t" + markers.get(i) + "\n");
@@ -324,7 +324,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		List<String> selectedMarkers = new ArrayList<String>();
 		hits = new Vector<CellularNetWorkElementInformation>();
 		for (int i = 0; i < selectedMarkerSet.length; i++) {
-			ArrayList<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
+			List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 			for(int m=0; m<temp.size(); m++) {
 				String marker = ((temp.get(m)).split("\\s+"))[0].trim();					 
 				if (marker != null && !selectedMarkers.contains(marker))

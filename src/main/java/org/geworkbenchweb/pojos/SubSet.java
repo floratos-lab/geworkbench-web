@@ -1,6 +1,6 @@
 package org.geworkbenchweb.pojos;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -13,11 +13,15 @@ public class SubSet extends AbstractPojo {
 
 	private static final long serialVersionUID = -2720207271844335675L;
 
+	/* two possible types */
+	public final static String SET_TYPE_MICROARRAY = "microarray";
+	public final static String SET_TYPE_MARKER = "marker";
+
 	private String name;
 	private String type;
 	private Long owner;
 	private Long parent;
-	private ArrayList<String> positions;
+	private List<String> positions;
 
 
 	public String getName() {
@@ -52,11 +56,11 @@ public class SubSet extends AbstractPojo {
 		this.parent = parent;
 	}
 	
-	public ArrayList<String> getPositions() {
+	public List<String> getPositions() {
 		return positions;
 	}
 	
-	public void setPositions(ArrayList<String> positions) {
+	public void setPositions(List<String> positions) {
 		this.positions = positions;
 	}
 	

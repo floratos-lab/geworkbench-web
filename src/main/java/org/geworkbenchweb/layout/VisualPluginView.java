@@ -129,4 +129,11 @@ public class VisualPluginView extends HorizontalLayout {
 		ToolsUI toolList = new ToolsUI();
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
+
+	public void showWeclomeScreen() {
+		removeAllComponents();
+		setWidth("100%");
+		QuickIntro quickIntro = new QuickIntro();
+		addComponent(quickIntro);
+	}
 }
