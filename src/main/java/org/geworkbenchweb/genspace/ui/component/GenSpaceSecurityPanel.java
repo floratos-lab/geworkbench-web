@@ -51,7 +51,7 @@ public class GenSpaceSecurityPanel extends CustomComponent {
 //		mainPanel.setMaximumSize(new Dimension(500,500));
 //		panel.setMaximumSize(new Dimension(500,500));
 		panel.setSpacing(true);
-		panel.addComponent(logout);
+//		panel.addComponent(logout);
 		panel.addComponent(mainPanel);
 		panel.setSizeFull(); 
 		logout.addListener(ClickEvent.class, this, "logoutPerformed");

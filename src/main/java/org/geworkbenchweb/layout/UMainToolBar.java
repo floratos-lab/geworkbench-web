@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.events.ChatStatusChangeEvent;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.events.LogCompleteEvent;
+import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
+import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
+import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
@@ -29,6 +35,7 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -44,6 +51,10 @@ public class UMainToolBar extends MenuBar {
 	private UploadDataUI uploadDataUI;
 
 	private Long currentWorkspace; /* the practice of always querying db for active workspace does not make sense */
+	
+
+	private String username;
+	private String password;
 	
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
@@ -268,16 +279,22 @@ public class UMainToolBar extends MenuBar {
 			
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
+				final GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
 				genSpaceWindow.setWidth("70%");
 				genSpaceWindow.setHeight("70%");
 				
-
-				User u = new User();
-				genSpaceWindow.getLayout().getGenSpaceLogin_1().auto_login(u);
+				genSpaceWindow.addListener(new Window.CloseListener() {
+		            // inline close-listener
+					@Override
+		            public void windowClose(CloseEvent e) {
+						//Remove listener from blackboard
+						GenSpaceWindow.getGenSpaceBlackboard().removeListener(
+								genSpaceWindow.getLayout().getGenSpaceLogin_1().getRf());
+		            }
+		        });
 
 				getApplication().getMainWindow().addWindow(genSpaceWindow);
-				
+				genSpaceWindow.getLayout().getGenSpaceLogin_1().auto_login(username, password);				
 			}
 		});
 		
@@ -346,5 +363,13 @@ public class UMainToolBar extends MenuBar {
 	public Long getCurrentWorkspace() {
 		return currentWorkspace;
 	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

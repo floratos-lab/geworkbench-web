@@ -78,16 +78,12 @@ public class LoginForm extends VerticalLayout {
 					try {	
 					    // Try logging in geWorkbench 
 						AuthenticationUtil.authenticate(username, password);
-						getApplication().getMainWindow().setContent(
-										new UMainLayout());
-
-						// System.out.printf("[DEBUG] User [%s] exists in geWorkbench.\n", username);
+						UMainLayout uMainLayout = new UMainLayout();
+						uMainLayout.getMainToolBar().setUsername(username);
+						uMainLayout.getMainToolBar().setPassword(password);
 						
-						// If user exists in geWorkbench, then check whether it exists in genSpace
+						getApplication().getMainWindow().setContent(uMainLayout);
 						if (!genSpaceServerFactory.userExists(username)) {
-							// System.out.printf("[DEBUG] User [%s] does NOT exsit in genSpace.\n", username);
-							// System.out.printf("[DEBUG] Try registerring new user [%s] in genSpace.\n", username);
-													
 							UserWrapper u = new UserWrapper(
 									new org.geworkbench.components.genspace.server.stubs.User(), 
 									null);
@@ -95,48 +91,15 @@ public class LoginForm extends VerticalLayout {
 							u.setPasswordClearText(password);
 							u.setFirstName("");
 							u.setLastName("");
-							if(genSpaceServerFactory.userRegister(u.getDelegate())) {
-								// System.out.printf("[DEBUG] Successfully register new user [%s] in genSpace.\n",
-								//		username);
-							}
-							else {
-								// System.out.printf("[DEBUG] Fail to register new user [%s] in genSpace.\n", 
-								//		username);
-							}
+							if(!genSpaceServerFactory.userRegister(u.getDelegate())) {
+								throw new Exception();
+							}	
 						}
-						else {
-
-							// System.out.printf("[DEBUG] User [%s] exists in genSpace.\n", username);
-							// Change password to empty string
-							
-							if (!genSpaceServerFactory.userLogin(username, password)) {
-								UserWrapper u = genSpaceServerFactory.getWrappedUser();
-								u.setPasswordClearText(password);
-								genSpaceServerFactory.userUpdate();
-							}
-							else {
-								// the most complicated case
-							}
-						}
-						
 					} catch (InvalidCredentialsException e) {
 						String err_msg = "Either username or password was wrong";
-						
-						//If user does NOT exist in geWorkbench, then try logging in genSpace
-						// System.out.printf("[DEBUG] User [%s] does NOT exist in geWorkbench.\n", username);
-						
-
-						if (!genSpaceServerFactory.userLogin(username, password)) {
-							// if user does NOT exist in genSpace
-							// System.out.printf("[DEBUG] User [%s] dose NOT exist in genSpace.\n", username);
-						}
-						else {
-							// if user exists in genSpace, then register a new user in geWorkbench
-							// System.out.printf("[DEBUG] User [%s] exists in genSpace.\n", username);
+						if (genSpaceServerFactory.userLogin(username, password)) {
 							
 							User user;
-							// System.out.printf("[DEBUG] Try registering new user [%s] in geWorkbench.\n",
-							//		username);
 							try {
 								/* Create user object */
 								user = UserUtil.registerUser(username,password,password);
@@ -157,9 +120,7 @@ public class LoginForm extends VerticalLayout {
 								active.setOwner(user.getId());
 								active.setWorkspace(workspace.getId());
 								FacadeFactory.getFacade().store(active);
-								
-								// System.out.printf("[DEBUG] Successfully register new user [%s] in genWorkbench.\n",
-								//		username);
+
 								needToLogin = true;
 								
 							} catch (TooShortPasswordException e1) {
@@ -181,17 +142,14 @@ public class LoginForm extends VerticalLayout {
 		
 						}
 						
-						feedbackLabel
-								.setValue(err_msg);
+						feedbackLabel.setValue(err_msg);
 							
-						} catch (AccountLockedException e) {
-							// feedbackLabel.setValue("The given account has been locked");
-						} catch (Exception e) {
-							// e.p:rintStackTrace();
-							// feedbackLabel.setValue("Some other exception: "
-							//		+ e.getMessage());
-						}
+					} catch (AccountLockedException e) {
+						feedbackLabel.setValue("The given account has been locked");
+					} catch (Exception e) {
+						feedbackLabel.setValue(e.getMessage());
 					}
+				}
 			} //while()
 
 		});

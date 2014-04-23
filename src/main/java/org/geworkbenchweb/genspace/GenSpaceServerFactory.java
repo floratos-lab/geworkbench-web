@@ -60,15 +60,16 @@ public class GenSpaceServerFactory {
 	private GenSpaceLogin_1 login;
 	
 	
-	private Properties conf = new Properties();
+	private static Properties conf = new Properties();
 	
-//	static {
-//		try {
-//			 conf.load(CopyOfGenSpaceServerFactory.class.getResourceAsStream("conf.properties"));	
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	static {
+		try {
+//			 System.out.println(GenSpaceServerFactory.class.getResource("/genspace_conf.properties").getFile());			 
+			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("/genspace_conf.properties"));	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 //	private static UserFacade userFacade;
 //	private static UsageInformation usageFacade;
@@ -264,19 +265,6 @@ public class GenSpaceServerFactory {
 	
 	public GenSpaceServerFactory() {
 		super();
-		try {
-			//String binPath = GenSpaceServerFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-			File curFile = new File(GenSpaceServerFactory.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-			File parentDir = curFile.getParentFile();
-			String binPath = parentDir.getCanonicalPath();
-//			System.out.println("Check path " + binPath);
-//			 System.out.println("=========================================" + GenSpaceServerFactory.class.getResource("conf.properties").getFile());
-			 String configPath = binPath + "/conf.properties";
-			 //conf.load(new FileReader(new File(configPath)));	
-			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("conf.properties"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public WorkflowFolder rootFolder = null;
@@ -436,8 +424,11 @@ public class GenSpaceServerFactory {
 	}
 	
 	public static void main(String[] args) {
-		GenSpaceServerFactory t = new GenSpaceServerFactory();
-		System.out.println(t.userLogin("aaa123", ""));
+		GenSpaceServerFactory test = new GenSpaceServerFactory();
+		System.out.println(test.userLogin("www123", "www123"));
+//		test.getWrappedUser().setPasswordClearText("qqq123");
+//		test.userUpdate();
+//		System.out.println(test.userLogin("qqq123", "qqq123"));
 	}
 
 }

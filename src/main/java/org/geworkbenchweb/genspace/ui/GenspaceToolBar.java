@@ -1,5 +1,6 @@
 package org.geworkbenchweb.genspace.ui;
 
+import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ObjectLogger;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
@@ -41,7 +42,7 @@ public class GenspaceToolBar extends MenuBar {
 		//this.genspaceLogger = new GenspaceLogger();
 		this.pluginView = pluginView;
 
-		this.addItem("Login", new Command(){
+		this.addItem("Home", new Command(){
 
 			/**
 			 * 
@@ -53,7 +54,7 @@ public class GenspaceToolBar extends MenuBar {
 				// TODO Auto-generated method stub
 				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
 				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Login", "Please use this interface to login.", genSpaceLogin);
+				GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Home", "Please use this interface to login.", genSpaceLogin);
 			}
 			
 		});
@@ -224,7 +225,11 @@ public class GenspaceToolBar extends MenuBar {
 		objectLogger.addCWFListener(realTimeWorkflowSuggestion);
 		objectLogger.addNotebookDataListener(notebookPanel);
 		
-		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Login", "Please use this interface to login.", genSpaceLogin);
+		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Home", "Please use this interface to login.", genSpaceLogin);
+		
+		// After Roster Frame is initialized then fire userlogin event
+		String user = genSpaceLogin.getGenSpaceServerFactory().getUsername();
+		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 		//System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
 //		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
 //		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);

@@ -150,6 +150,9 @@ public class GenSpacePluginView extends HorizontalLayout {
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){
 			this.setAf(genSpaceLogin);
 			this.setChat(genSpaceLogin);
+			
+			genSpaceLogin.setRf(chatHandler.rf);
+			
 			//genspaceLogger.setGenSpaceLogin(genSpaceLogin);
 			/*chatHandler  = genSpaceLogin.getChatHandler();
 			chatHandler.updateRoster();

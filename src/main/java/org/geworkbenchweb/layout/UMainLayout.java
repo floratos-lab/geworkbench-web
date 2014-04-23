@@ -436,4 +436,8 @@ public class UMainLayout extends VerticalLayout {
 	public SetViewLayout getSetViewLayout() {
 		return setViewLayout;
 	}
+	
+	public UMainToolBar getMainToolBar() {
+		return mainToolBar;
+	}
 }

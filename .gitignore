@@ -1,1 +1,5 @@
 /target
+.classpath
+pom.xml
+src/main/resource/META_INF/persistence.xml
+

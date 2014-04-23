@@ -76,7 +76,7 @@ public class GenspaceLayout extends VerticalLayout {
 		this.genspaceLogin = new GenSpaceLogin_1(this);
 		//this.addComponent(genspaceLogin);
 		//this.addComponent(new Panel("1234"));
-		pluginView.setContent(genspaceLogin, "Login", "Please use this interface to login.", genspaceLogin);
+		pluginView.setContent(genspaceLogin, "Home", "Please use this interface to login.", genspaceLogin);
 		this.addComponent(pluginView);
 		//System.out.println(pluginView.toString());
 		//System.out.println("Check login in GenSpaceLayoutout: " + this.genspaceLogin);
@@ -109,4 +109,8 @@ public class GenspaceLayout extends VerticalLayout {
 	public SocialNetworkHome getSocialNetworkHome(){
 		return this.socialNetworkHome;
 	} 
+	
+	public GenSpaceLogin_1 getGenSpaceLogin_1() {
+		return this.genspaceLogin;
+	}
 }

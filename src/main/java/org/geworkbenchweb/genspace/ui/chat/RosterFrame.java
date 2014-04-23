@@ -535,13 +535,9 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
-		//System.out.println("DEBUG: " + this.username + " got a status change event");
-		//System.out.println("DEBUG: Check roster frame: " + this);
 		this.refresh();
-		//this.addComponent(pusher);
-		//System.out.println("check pusher application: "+pusher.getApplication());
-		pusher.push();
-		//this.login.getPusher().push();
+		getPusher().push();
+
 	}
 	
 	@Override
@@ -550,8 +546,21 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
 			this.refresh();
 			//this.initComponents();
-			pusher.push();
+			this.getPusher().push();
 			//this.login.getPusher().push();
 		}
+	}
+	
+	
+	private ICEPush getPusher() {		
+		if (this.pusher == null) {
+			this.pusher = new ICEPush();
+			this.vMainLayout.addComponent(this.pusher);
+		} else if (this.pusher.getApplication() == null) {
+			this.pusher = new ICEPush();
+			this.vMainLayout.addComponent(this.pusher);
+		}
+		
+		return this.pusher;
 	}
 }

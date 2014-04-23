@@ -55,5 +55,6 @@ public class GenSpaceWindow extends Window{
 	
 	public static Blackboard getGenSpaceBlackboard() {
 		return genSpaceBlackboard;
-	}
+	}	
+
 }

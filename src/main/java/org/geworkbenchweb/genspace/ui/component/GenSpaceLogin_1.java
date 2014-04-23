@@ -10,6 +10,7 @@ import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.GenspaceToolBar;
+import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.artur.icepush.ICEPush;
@@ -69,8 +70,9 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	private ICEPush push;
 	private FBManager fbManager;
     private GenspaceLogger genspaceLogger;
-	private GenspaceLayout genSpaceParent;
-
+	private GenspaceLayout genSpaceParent;	
+	private RosterFrame rf;
+	
 
 	public ChatReceiver getChatHandler() {
 		if (this.chatHandler != null)
@@ -104,8 +106,10 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(this.push);
-		//System.out.println("Check application: " + this.getApplication());
-		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+		
+		
+		//Remove this code since can NOT fire userlogin event before RosterFrame is initialized 
+		//GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 	}
 	
 	//@Override
@@ -144,9 +148,14 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	public GenSpaceLogin_1(GenspaceLayout genspaceParent) {
 		//super(null);
 		this.genSpaceParent = genspaceParent ;
-		buildMainLayout();
+		// No need to build mainlayout
+		// buildMainLayout();	
+		this.mainLayout = new VerticalLayout();
+		
 		this.push = this.genSpaceParent.getPusher();
 		this.mainLayout.addComponent(push);
+		
+		
 		this.addComponent(this.mainLayout);
 
 //		initListeners();
@@ -282,10 +291,10 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		gridLayout.addComponent(horizontalLayout_2, 0 ,1);
 		gridLayout.addComponent(msgPanel, 0, 2);
 		
-		CssLayout cssLayout = new CssLayout();
-		cssLayout.addComponent(gridLayout);
+		// CssLayout cssLayout = new CssLayout();
+		// cssLayout.addComponent(gridLayout);
 		
-		borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
+		// borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
 		
 		return mainLayout;
 	}
@@ -322,10 +331,9 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	}
 	
 	
-	public void auto_login(User u) {
+	public void auto_login(String username, String password) {
 
-		String username = "aaa123";
-		String password = "aaa123";
+
 		if (!genSpaceServerFactory.userLogin(username, password)) {
 
 		}
@@ -418,6 +426,14 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	
 	public FBManager getFBManager() {
 		return this.fbManager;
+	}
+	
+	public RosterFrame getRf() {
+		return rf;
+	}
+
+	public void setRf(RosterFrame rf) {
+		this.rf = rf;
 	}
 
 }
