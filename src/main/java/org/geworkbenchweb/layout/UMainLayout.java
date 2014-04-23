@@ -252,7 +252,7 @@ public class UMainLayout extends VerticalLayout {
 		this.addComponent(annotationPanel.menuBar);
 		this.addComponent(annotationPanel); // invisible until a dataset ID is set
 		
-		pluginView.showToolList();
+		pluginView.showWeclomeScreen();
 
 		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
