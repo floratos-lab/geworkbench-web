@@ -151,6 +151,10 @@
 		<name>Cytoscape</name>
 		<description>
 			The Cytoscape Viewer depicts a gene network using Cytoscape Web, or using a plain text view for larger networks.
+			“Cytoscape-web is an open source software for the visualization of molecular networks
+			being developed by a consortium of academic institutions.
+			More information is available at the 
+			&lt;a href="http://cytoscapeweb.cytoscape.org/" target="_blank"&gt;project web site&lt;/a&gt;
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.NetworkViewer</uiClass>
 	</plugin>
