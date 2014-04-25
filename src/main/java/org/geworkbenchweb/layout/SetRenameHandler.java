@@ -100,7 +100,7 @@ public class SetRenameHandler implements Handler {
 				FacadeFactory.getFacade().store(labelSet);
 
 				int size = labelSet.getPositions().size();
-				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName+"["+size+"]");
+				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName+" ["+size+"]");
 
 				setTree.getApplication().getMainWindow()
 						.removeWindow(dialog);

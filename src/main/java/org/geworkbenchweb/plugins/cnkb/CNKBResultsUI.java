@@ -68,6 +68,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 	
 	private static Log log = LogFactory.getLog(CNKBResultsUI.class);
 
+	private static final String COLUMN_GO_ANNOTATIONS = "GO Annotations";
+
 	private VerticalSplitPanel tabPanel;
 	private VerticalSplitPanel throttlePanel;
 
@@ -136,7 +138,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		
 		dataTable.setContainerDataSource(getIndexedContainer(resultSet));
 		dataTable.setColumnWidth("Marker", 300);
-		dataTable.setColumnWidth("Annotation", 150);
+		dataTable.setColumnWidth(COLUMN_GO_ANNOTATIONS, 150);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
 		
 		dataTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {                          
@@ -526,7 +528,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			dataIn.addContainerProperty("Marker", String.class, null);
 			dataIn.addContainerProperty("Gene", String.class, null);
 			dataIn.addContainerProperty("Gene Type", String.class, null);
-			dataIn.addContainerProperty("Annotation", String.class, null);
+			dataIn.addContainerProperty(COLUMN_GO_ANNOTATIONS, String.class, null);
 			for (String selectedType : selectedTypes)
 				dataIn.addContainerProperty(selectedType + " #", Integer.class,
 						null);
@@ -539,7 +541,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			item.getItemProperty("Gene Type").setValue(
 					hits.get(j).getGeneType());
-			item.getItemProperty("Annotation").setValue(
+			item.getItemProperty(COLUMN_GO_ANNOTATIONS).setValue(
 					hits.get(j).getGoInfoStr());
 
 			for (String selectedType : selectedTypes)

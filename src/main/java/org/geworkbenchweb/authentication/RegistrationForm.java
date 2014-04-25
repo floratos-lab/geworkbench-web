@@ -61,7 +61,6 @@ public class RegistrationForm extends VerticalLayout {
 
 	private static final String fromEmail = GeworkbenchRoot.getAppProperty("from.email");
 	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
-	private static final String appUrl = GeworkbenchRoot.getAppProperty("app.url");
 	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
 	private Log log = LogFactory.getLog(RegistrationForm.class);
 
@@ -220,7 +219,7 @@ public class RegistrationForm extends VerticalLayout {
 		}
 	}
 	
-	public static void sendMail(User user){
+	private void sendMail(User user){
 		String title = "Registration Confirmation for Your geWorkbench Account";
 		String realName = user.getName();
 		if(realName.length() == 0) realName = "Guest";
@@ -230,8 +229,10 @@ public class RegistrationForm extends VerticalLayout {
 				+ "<p>User name: " + user.getUsername()
 				+ "<br>Real name: " + user.getName()
 				+ "<br>Email: " + user.getEmail()
-				+ "<p>Please go to " + appUrl + " to explore geWorkbench-web.";
-		content += "<p>Thank you,<br>The geWorkbench Team</font>";
+				+ "<p>Please go to "
+				+ this.getApplication().getURL().toString()
+				+ " to explore geWorkbench-web."
+				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Properties props = new Properties() {
 			private static final long serialVersionUID = -3842038014435217159L;
