@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
@@ -12,7 +13,9 @@ import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.GenspaceToolBar;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.vaadin.addon.borderlayout.BorderLayout;
+import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.artur.icepush.ICEPush;
 
 
@@ -174,15 +177,15 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		mainLayout.setHeight("100%");
 		mainLayout.setMargin(false);
 		mainLayout.addStyleName("genspaceback");
-		
+
 		borderLayout = new BorderLayout();
 		mainLayout.addComponent(borderLayout);
 		mainLayout.setExpandRatio(borderLayout, 1);
-		
+
 		// top-level component properties
 		setWidth("100.0%");
 		setHeight("100.0%");
-		
+
 		// label_1
 		label_1 = new Label();
 		label_1.setImmediate(false);
@@ -190,7 +193,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		label_1.setHeight("-1px");
 		label_1.setValue("Username");
 //		mainLayout.addComponent(label_1, "top:20.0px;left:20.0px;");
-		
+
 		// label_2
 		label_2 = new Label();
 		label_2.setImmediate(false);
@@ -198,7 +201,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		label_2.setHeight("-1px");
 		label_2.setValue("Password");
 //		mainLayout.addComponent(label_2, "top:60.0px;left:20.0px;");
-		
+
 		// txtUsername
 		txtUsername = new TextField();
 		txtUsername.setImmediate(false);
@@ -207,7 +210,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		txtUsername.setRequired(true);
 		txtUsername.setSecret(false);
 //		mainLayout.addComponent(txtUsername, "top:20.0px;left:103.0px;");
-		
+
 		// txtPassword
 		txtPassword = new PasswordField();
 		txtPassword.setImmediate(false);
@@ -216,7 +219,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		txtPassword.setRequired(true);
 //		txtPassword.setSecret(false);
 //		mainLayout.addComponent(txtPassword, "top:60.0px;left:103.0px;");
-		
+
 		// button_1
 		button_1 = new Button();
 		button_1.setCaption("Login");
@@ -224,21 +227,21 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		button_1.setWidth("-1px");
 		button_1.setHeight("-1px");
 //		mainLayout.addComponent(button_1, "top:100.0px;left:173.0px;");
-		
+
 		// button_2
 		button_2 = new Button();
 		button_2.setCaption("Clear");
 		button_2.setImmediate(true);
 		button_2.setWidth("-1px");
 		button_2.setHeight("-1px");
-		
+
 		// button_3
 		button_3 = new Button();
 		button_3.setCaption("Register");
 		button_3.setImmediate(true);
 		button_3.setWidth("-1px");
 		button_3.setHeight("-1px");
-		
+
 		// lblResult
 		lblResult = new Label();
 		lblResult.setImmediate(false);
@@ -246,7 +249,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		lblResult.setHeight("-1px");
 		lblResult.setValue(" ");
 //		mainLayout.addComponent(lblResult, "top:122.0px;left:40.0px;");
-		
+
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		HorizontalLayout horizontalLayout_2 = new HorizontalLayout();
 		horizontalLayout.setWidth("450px");
@@ -264,7 +267,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		button_1.addListener(this);
 		button_2.addListener(this);
 		button_3.addListener(this);
-		
+
 		GridLayout msgPanel = new GridLayout(1, 7);
 
 		Label msgText = new Label("Not a registered user yet? ");
@@ -284,19 +287,91 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		msgPanel.addComponent(msgText4, 0, 4);
 		msgPanel.addComponent(msgText5, 0, 5);
 		msgPanel.addComponent(msgText6, 0, 6);
-		
+
 		GridLayout gridLayout = new GridLayout(1, 3);
 		gridLayout.setHeight("300px");
 		gridLayout.addComponent(horizontalLayout, 0, 0);
 		gridLayout.addComponent(horizontalLayout_2, 0 ,1);
 		gridLayout.addComponent(msgPanel, 0, 2);
-		
-		// CssLayout cssLayout = new CssLayout();
-		// cssLayout.addComponent(gridLayout);
-		
-		// borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
-		
+
+		CssLayout cssLayout = new CssLayout();
+		cssLayout.addComponent(gridLayout);
+
+		borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
+
 		return mainLayout;
+	}
+		
+	public void authorize() {
+		
+		mainLayout.removeAllComponents();
+		mainLayout.setImmediate(false);
+		mainLayout.setWidth("100%");
+		mainLayout.setHeight("100%");
+		mainLayout.setMargin(false);
+		mainLayout.addStyleName("genspaceback");
+		
+		borderLayout = new BorderLayout();
+		mainLayout.addComponent(borderLayout);
+		mainLayout.setExpandRatio(borderLayout, 1);
+		
+		
+		// label_2
+		label_2 = new Label();
+		label_2.setImmediate(false);
+		label_2.setWidth("-1px");
+		label_2.setHeight("-1px");
+		label_2.setValue("Your Password for genSpace");
+//		mainLayout.addComponent(label_2, "top:60.0px;left:20.0px;");
+		
+		// txtPassword
+		txtPassword = new PasswordField();
+		txtPassword.setImmediate(false);
+		txtPassword.setWidth("-1px");
+		txtPassword.setHeight("-1px");
+		txtPassword.setRequired(true);
+//		txtPassword.setSecret(false);
+//		mainLayout.addComponent(txtPassword, "top:60.0px;left:103.0px;");
+		
+		// button_1
+		button_1 = new Button();
+		button_1.setCaption("Authorize");
+		button_1.setImmediate(true);
+		button_1.setWidth("-1px");
+		button_1.setHeight("-1px");
+//		mainLayout.addComponent(button_1, "top:100.0px;left:173.0px;");
+		
+
+		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		HorizontalLayout horizontalLayout_2 = new HorizontalLayout();
+		horizontalLayout.setWidth("450px");
+		horizontalLayout.addComponent(label_2);
+		horizontalLayout.addComponent(txtPassword);
+		// horizontalLayout_2.setSpacing(true);
+		horizontalLayout_2.addComponent(button_1);
+		horizontalLayout_2.addStyleName("genspaceback");
+		horizontalLayout_2.addStyleName("");
+			
+		HorizontalLayout horizontalLayout_info = new HorizontalLayout();
+		Label label_info = new Label("System detects password conflict between geWorkbench and genSpace."
+								+"Please enter your password in genSpace:");
+		horizontalLayout_info.setWidth("450px");
+		horizontalLayout_info.addComponent(label_info);	
+		
+		button_1.addListener(this);
+
+
+		GridLayout gridLayout = new GridLayout(1, 3);
+		gridLayout.setHeight("300px");
+		gridLayout.addComponent(horizontalLayout_info, 0, 0);
+		gridLayout.addComponent(horizontalLayout, 0, 1);
+		gridLayout.addComponent(horizontalLayout_2, 0 ,2);
+
+		CssLayout cssLayout = new CssLayout();
+		cssLayout.addComponent(gridLayout);
+
+		borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
+
 	}
 	
 	public void login(ClickEvent event) {
@@ -331,11 +406,11 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	}
 	
 	
-	public void auto_login(String username, String password) {
+	public boolean autoLogin(String username, String password) {
 
 
 		if (!genSpaceServerFactory.userLogin(username, password)) {
-
+			return false;
 		}
 		
 		chatHandler = new ChatReceiver(this);
@@ -353,6 +428,161 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		//this.afWindow.focus();
 		
 		genSpaceParent.fireLoggedIn();
+		return true;
+	}
+	
+	
+	public void changePassword(ClickEvent event) {
+		
+		String usernameStr = SessionHandler.get().getUsername();
+		String passwordStr = ((String) txtPassword.getValue());
+
+		if(!genSpaceServerFactory.userLogin(usernameStr, passwordStr)) {	
+			Window mainWindow = getApplication().getMainWindow();
+			Notification msg = new Notification("Password wrong.",
+					Notification.TYPE_ERROR_MESSAGE);
+			mainWindow.showNotification(msg);
+			return;
+		}
+		
+		UMainLayout uMainLayout = (UMainLayout)getApplication().getMainWindow().getContent();
+		String newPassword = uMainLayout.getMainToolBar().getPassword();
+		genSpaceServerFactory.getWrappedUser().setPasswordClearText(newPassword);
+		genSpaceServerFactory.userUpdate();
+		
+		
+		autoLogin(usernameStr,  newPassword);
+		
+		
+//		mainLayout = new VerticalLayout();
+//		mainLayout.setImmediate(false);
+//		mainLayout.setWidth("100%");
+//		mainLayout.setHeight("100%");
+//		mainLayout.setMargin(false);
+//		mainLayout.addStyleName("genspaceback");
+//		
+//		borderLayout = new BorderLayout();
+//		mainLayout.addComponent(borderLayout);
+//		mainLayout.setExpandRatio(borderLayout, 1);
+//		
+//		// top-level component properties
+//		setWidth("100.0%");
+//		setHeight("100.0%");
+//		
+//		// label_1
+//		label_1 = new Label();
+//		label_1.setImmediate(false);
+//		label_1.setWidth("-1px");
+//		label_1.setHeight("-1px");
+//		label_1.setValue("Username");
+////		mainLayout.addComponent(label_1, "top:20.0px;left:20.0px;");
+//		
+//		// label_2
+//		label_2 = new Label();
+//		label_2.setImmediate(false);
+//		label_2.setWidth("-1px");
+//		label_2.setHeight("-1px");
+//		label_2.setValue("Password");
+////		mainLayout.addComponent(label_2, "top:60.0px;left:20.0px;");
+//		
+//		// txtUsername
+//		txtUsername = new TextField();
+//		txtUsername.setImmediate(false);
+//		txtUsername.setWidth("-1px");
+//		txtUsername.setHeight("-1px");
+//		txtUsername.setRequired(true);
+//		txtUsername.setSecret(false);
+////		mainLayout.addComponent(txtUsername, "top:20.0px;left:103.0px;");
+//		
+//		// txtPassword
+//		txtPassword = new PasswordField();
+//		txtPassword.setImmediate(false);
+//		txtPassword.setWidth("-1px");
+//		txtPassword.setHeight("-1px");
+//		txtPassword.setRequired(true);
+////		txtPassword.setSecret(false);
+////		mainLayout.addComponent(txtPassword, "top:60.0px;left:103.0px;");
+//		
+//		// button_1
+//		button_1 = new Button();
+//		button_1.setCaption("Authorize");
+//		button_1.setImmediate(true);
+//		button_1.setWidth("-1px");
+//		button_1.setHeight("-1px");
+////		mainLayout.addComponent(button_1, "top:100.0px;left:173.0px;");
+//		
+//		// button_2
+//		button_2 = new Button();
+//		button_2.setCaption("Clear");
+//		button_2.setImmediate(true);
+//		button_2.setWidth("-1px");
+//		button_2.setHeight("-1px");
+//		
+//		
+//		HorizontalLayout horizontalLayout_auth = new HorizontalLayout();
+//		Label label_auth = new Label("Auth Request");
+//		horizontalLayout_auth.setWidth("450px");
+//		horizontalLayout_auth.addComponent(label_auth);		
+//
+//		
+//		HorizontalLayout horizontalLayout_info = new HorizontalLayout();
+//		Label label_info = new Label("Detected: Password conflict between geWorkbench and genSpace");
+//		horizontalLayout_info.setWidth("450px");
+//		horizontalLayout_info.addComponent(label_info);	
+//		
+//		
+//		HorizontalLayout horizontalLayout = new HorizontalLayout();
+//		HorizontalLayout horizontalLayout_2 = new HorizontalLayout();
+//		horizontalLayout.setWidth("450px");
+//		horizontalLayout.addComponent(label_1);		
+//		horizontalLayout.addComponent(txtUsername);
+//		horizontalLayout.addComponent(label_2);
+//		horizontalLayout.addComponent(txtPassword);
+//		horizontalLayout_2.setSpacing(true);
+//		horizontalLayout_2.addComponent(button_1);
+//		horizontalLayout_2.addComponent(button_2);
+//		horizontalLayout_2.addComponent(button_3);
+//		horizontalLayout_2.addComponent(lblResult);
+//		horizontalLayout.addStyleName("genspaceback");
+//		horizontalLayout_2.addStyleName("");
+//		button_1.addListener(this);
+//		button_2.addListener(this);
+//		
+//		GridLayout msgPanel = new GridLayout(1, 7);
+//
+//		Label msgText = new Label("Not a registered user yet? ");
+//		Label msgText1 = new Label(
+//				"Register to take advantage of genSpace security features.");
+//		Label msgText2 = new Label("As a registered user you will be able to:");
+//		Label msgText3 = new Label("1. Set your data visbility preferences.");
+//		Label msgText4 = new Label("2. Post comments and rate workflows and tools.");
+//		Label msgText5 = new Label(
+//				"You can also choose to continue using genSpace without a login in which case");
+//		Label msgText6 = new Label("default security preferences will be applied.");
+//
+//		msgPanel.addComponent(msgText, 0, 0);
+//		msgPanel.addComponent(msgText1, 0, 1);
+//		msgPanel.addComponent(msgText2, 0, 2);
+//		msgPanel.addComponent(msgText3, 0, 3);
+//		msgPanel.addComponent(msgText4, 0, 4);
+//		msgPanel.addComponent(msgText5, 0, 5);
+//		msgPanel.addComponent(msgText6, 0, 6);
+//		
+//		GridLayout gridLayout = new GridLayout(1, 5);
+//		gridLayout.setHeight("300px");
+//		gridLayout.addComponent(horizontalLayout_auth, 0, 0);
+//		gridLayout.addComponent(horizontalLayout_info, 0 ,1);
+//		gridLayout.addComponent(horizontalLayout, 0, 2);
+//		gridLayout.addComponent(horizontalLayout_2, 0 ,3);
+//		gridLayout.addComponent(msgPanel, 0, 4);
+//		
+//		this.addComponent(this.mainLayout);
+		
+		// CssLayout cssLayout = new CssLayout();
+		// cssLayout.addComponent(gridLayout);
+		
+		// borderLayout.addComponent(cssLayout, BorderLayout.Constraint.CENTER);
+		
 	}
 	
 	/*public void createAFWindow() {
@@ -368,6 +598,21 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
 	}*/
 	
+	/*public void createAFWindow() {
+		if (afWindow != null)
+			afWindow = null;
+		
+		
+		afWindow = new ActivityFeedWindow(this);
+		getApplication().getMainWindow().addWindow(afWindow);
+		afWindow.setPositionX(chatHandler.rf.getPositionX());
+		// addLisener twice: one for ChatStatusChangeEventListener, FriendStatusChangeListener
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(afWindow);
+	}*/
+	
+
+
 	public ActivityFeedWindow getAFWindow() {
 		return this.afWindow;
 	}
@@ -404,7 +649,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == button_1) {
-			login(event);
+			changePassword(event);
 		}
 		else if (event.getButton() == button_2) {
 			clear(event);

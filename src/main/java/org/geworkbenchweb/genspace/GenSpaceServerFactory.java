@@ -60,16 +60,16 @@ public class GenSpaceServerFactory {
 	private GenSpaceLogin_1 login;
 	
 	
-	private static Properties conf = new Properties();
-	
-	static {
-		try {
-//			 System.out.println(GenSpaceServerFactory.class.getResource("/genspace_conf.properties").getFile());			 
-			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("/genspace_conf.properties"));	
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	private static Properties conf = new Properties();
+//	
+//	static {
+//		try {
+////			 System.out.println(GenSpaceServerFactory.class.getResource("/genspace_conf.properties").getFile());			 
+//			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("/genspace_conf.properties"));	
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 //	private static UserFacade userFacade;
 //	private static UsageInformation usageFacade;
@@ -324,12 +324,12 @@ public class GenSpaceServerFactory {
 				
 				user = getUserOps().getMe();
 				
-				//System.out.println("Check user: " + user + " " + user.getUsername());
+				// System.out.println("Check user: " + user + " " + user.getUsername());
 				//TODO
 					return true;
 			} 
 			catch (Exception e) {
-//				handleException(e);
+				// handleException(e);
 				return false;
 			}
 //			return true;
@@ -355,20 +355,21 @@ public class GenSpaceServerFactory {
 	}
 	
 	
-	public boolean userExists(String username) {
-		try {
-			this.username = conf.getProperty("username");
-			this.password = conf.getProperty("password");
-			// System.out.println(this.username);
-			// System.out.println(this.password);
-			return getUserOps().userExists(username);
-		} 
-		catch (Exception e) {
+//	public boolean userExists(String username) {
+//		try {
+//			this.username = conf.getProperty("username");
+//			this.password = conf.getProperty("password");
+//			// System.out.println(this.username);
+//			// System.out.println(this.password);
+//			userLogin(this.username, this.password);
+//			return getUserOps().userExists(username);
+//		} 
+//		catch (Exception e) {
 //			handleException(e);
-			return false;
-		}
-//		return true;
-	}
+//			return false;
+//		}
+////		return true;
+//	}
 	
 	public boolean otherUserUpdate(User otheruser) {
 		try {
@@ -425,10 +426,10 @@ public class GenSpaceServerFactory {
 	
 	public static void main(String[] args) {
 		GenSpaceServerFactory test = new GenSpaceServerFactory();
-		System.out.println(test.userLogin("www123", "www123"));
+//		System.out.println(test.userExists("aaa123"));
 //		test.getWrappedUser().setPasswordClearText("qqq123");
 //		test.userUpdate();
-//		System.out.println(test.userLogin("qqq123", "qqq123"));
+		System.out.println(test.userLogin("jon", "test123"));
 	}
 
 }

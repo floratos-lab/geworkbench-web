@@ -294,7 +294,10 @@ public class UMainToolBar extends MenuBar {
 		        });
 
 				getApplication().getMainWindow().addWindow(genSpaceWindow);
-				genSpaceWindow.getLayout().getGenSpaceLogin_1().auto_login(username, password);				
+				
+				 if(!genSpaceWindow.getLayout().getGenSpaceLogin_1().autoLogin(username, password)) {
+				 	genSpaceWindow.getLayout().getGenSpaceLogin_1().authorize();
+				 }
 			}
 		});
 		
@@ -371,5 +374,15 @@ public class UMainToolBar extends MenuBar {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	
+	public String getUsername() {
+		return this.username;
+	}
+
+
+	public String getPassword() {
+		return this.password;
 	}
 }
