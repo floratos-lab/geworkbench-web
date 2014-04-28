@@ -2,6 +2,7 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,6 +83,7 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		String arrayClusterString = arrayString.toString();
 
 		Long parentDatasetId = resultSet.getParent();
+		Map<String, String> map = DataSetOperations.getAnnotationMap(parentDatasetId);
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
 		
 		if(selectedMarkers==null) {
@@ -118,6 +120,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 			int index = reorderedMarker.get(i); // index within the selected markers
 			int markerIndex = selectedMarkers[index];
 			markerNames[i] = microarrays.markerLabels[markerIndex];
+			if(map.size()>0) {
+				markerNames[i] += " ("+ map.get(markerNames[i]) +")";
+			}
 			for (int j=0; j<selectedArrays.length; j++) {
 				int arrayIndex = selectedArrays[reorderedMicroarray.get(j)];
 				double value = values[markerIndex][arrayIndex];
