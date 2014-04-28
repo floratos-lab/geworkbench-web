@@ -90,7 +90,7 @@ public class Network extends AbstractPojo {
 
 			NetworkEdges edge = edges[index];
 			for (int j = 0; j < edge.getCount(); j++) {
-				sb.append(edge.getNode2s()[j] + "\t" + edge.getNode2s()[j]
+				sb.append(edge.getNode2s()[j] + "\t" + edge.getWeights()[j]
 						+ "\t");
 			}
 			sb.append("\n");
