@@ -88,7 +88,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
 		params.put(AracneParameters.WIDTH_VALUE, "0.01");
 		params.put(AracneParameters.TOL_TYPE, "Apply");
-		params.put(AracneParameters.TOL_VALUE, "0.1");
+		params.put(AracneParameters.TOL_VALUE, "0.0");
 		params.put(AracneParameters.T_TYPE, "Mutual Info");
 		params.put(AracneParameters.T_VALUE, "0.01");
 		params.put(AracneParameters.CORRECTION, "No Correction");
@@ -248,7 +248,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		thresholdType.select("P-Value");
 
 		tolerance.setCaption(" ");
-		tolerance.setValue("0.1");
+		tolerance.setValue("0.0");
 		tolerance.setNullSettingAllowed(false);
 		tolerance.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
