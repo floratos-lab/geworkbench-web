@@ -33,6 +33,7 @@ public class VisualPluginView extends HorizontalLayout {
 	
 	public void setContent(Component content) {
 		removeAllComponents();
+		setSizeFull();
 		addComponent(content);
 	}
 	
