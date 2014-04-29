@@ -347,7 +347,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 				String key = keyTf.getValue().toString();
 				if (key.length()>0) results = results+"&key="+key;
 
-				MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), null, dataSetId);
+				MarkusAnalysis analysis = new MarkusAnalysis(pdbFileInfo.getFilename(), MarkUsUI.this, dataSetId);
 				analysis.getResultSet(results);
 			}
 		}
