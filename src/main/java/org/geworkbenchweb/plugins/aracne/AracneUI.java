@@ -83,7 +83,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
 		params.put(AracneParameters.HUB_MARKER_SET, "All vs. All");
-		params.put(AracneParameters.MODE, "Complete");
+		//params.put(AracneParameters.MODE, "Complete");
+		params.put(AracneParameters.MODE, "Discovery");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
 		params.put(AracneParameters.WIDTH_VALUE, "0.01");
@@ -119,10 +120,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.setCaption("Select Mode");
 		modeBox.setNullSelectionAllowed(false);
 		modeBox.setImmediate(true);
-		modeBox.addItem("Complete");
+		//modeBox.addItem("Complete");
 		modeBox.addItem("Discovery");
-		modeBox.addItem("Preprocessing");
-		modeBox.select("Complete");
+		//modeBox.addItem("Preprocessing");
+		//modeBox.select("Complete");
+		modeBox.select("Discovery");
 		modeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
