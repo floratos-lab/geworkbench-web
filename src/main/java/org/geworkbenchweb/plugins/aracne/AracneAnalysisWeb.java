@@ -129,7 +129,13 @@ public class AracneAnalysisWeb {
 
 		AracneOutput aracneOutput = null;
 		if(!cluster) aracneOutput = computeAracneRemote(aracneInput);
-		else aracneOutput = computeAracneRemoteCluster(aracneInput);
+		else {
+			// pval correction = pval/(#markers*#hubs)
+            if(!aracneInput.getIsThresholdMI() && !aracneInput.getNoCorrection()){
+                    aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
+            }
+			aracneOutput = computeAracneRemoteCluster(aracneInput);
+		}
 
 		boolean prune = isPrune();
 		//set dataset = null to AdjacencyMatrixDataSet object
