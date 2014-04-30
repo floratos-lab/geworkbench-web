@@ -145,9 +145,9 @@ public class MarkusAnalysis {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			conn.disconnect();
+			if(conn != null) conn.disconnect();
 			try {
-				in.close(); 
+				if(in != null) in.close(); 
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
@@ -208,9 +208,9 @@ public class MarkusAnalysis {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			conn.disconnect();
+			if(conn != null) conn.disconnect();
 			try {
-				in.close(); 
+				if(in != null) in.close(); 
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
@@ -240,7 +240,7 @@ public class MarkusAnalysis {
     	}catch (IOException e){
     	    e.printStackTrace();
     	    try {
-    			br.close();
+    			if(br != null) br.close();
     		} catch (IOException e1) { // no action intentionally
     			e1.printStackTrace();
     		}
