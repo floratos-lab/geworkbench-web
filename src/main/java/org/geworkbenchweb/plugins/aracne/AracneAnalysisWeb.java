@@ -68,9 +68,7 @@ public class AracneAnalysisWeb {
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
 				&& !params.get(AracneParameters.HUB_MARKER_SET).toString()
-						.trim().equals("")
-				&& !params.get(AracneParameters.HUB_MARKER_SET).toString()
-						.trim().equals("All vs. All")) {
+						.trim().equals("")) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.HUB_MARKER_SET));
 			hubGeneList = SubSetOperations.getMarkerData(subSetId);

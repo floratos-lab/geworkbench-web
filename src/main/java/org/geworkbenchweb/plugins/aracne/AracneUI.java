@@ -82,8 +82,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 */
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
-		params.put(AracneParameters.HUB_MARKER_SET, "All vs. All");
-		//params.put(AracneParameters.MODE, "Complete");
 		params.put(AracneParameters.MODE, "Discovery");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
@@ -201,7 +199,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		correction.setCaption(" ");
 		correction.setNullSelectionAllowed(false);
 		correction.addItem("No Correction");
-		correction.addItem("Correct by # of Markers");
+		correction.addItem("Bonferroni Correction");
 		correction.select("No Correction");
 		correction.setEnabled(true);
 		correction.addListener(new Property.ValueChangeListener() {
@@ -448,6 +446,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					"You did not load any genes as hub markers."));
 			return false;
 		}
+		//check empty hub set
+		List<String> hubGeneList = null;
+		Long subSetId = Long.parseLong((String)hubGeneMarkerSetBox.getValue().toString().trim());
+		hubGeneList = SubSetOperations.getMarkerData(subSetId);
+		if(hubGeneList == null || hubGeneList.size() == 0){
+			hubGeneMarkerSetBox.setComponentError(new UserError(
+					"You did not load any genes as hub markers."));
+			return false;
+		}
 		 
 		hubGeneMarkerSetBox.setComponentError(null);
 
@@ -567,7 +574,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
 		hubGeneMarkerSetBox.removeAllItems();
-		hubGeneMarkerSetBox.addItem("All vs. All");
 		for (int m = 0; m < (markerSubSets).size(); m++) {
 			hubGeneMarkerSetBox
 					.addItem(((SubSet) markerSubSets.get(m)).getId());
@@ -575,7 +581,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getId(),
 					((SubSet) markerSubSets.get(m)).getName());
 		}
-		// hubGeneMarkerSetBox.select("All vs. All");
 		
 		dpiTargetSetBox.removeAllItems();
 		for (int m = 0; m < (markerSubSets).size(); m++) {
