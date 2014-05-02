@@ -32,7 +32,6 @@ public class MarinaAnalysis {
 	private static final String MRAROOT = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/runs/";
 	private static final String MRASRC = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/scripts/";
 	private static final String MRAHOME = "/ifs/data/c2b2/af_lab/cagrid/";
-	private static final String account = "cagrid";
 	private static final String class1Fname = "ix_class1.txt";
 	private static final String class2Fname = "ix_class2.txt";
 	private static final String finalfile = "mra_result.txt";
@@ -222,7 +221,7 @@ public class MarinaAnalysis {
 	}
 	
 	private boolean isJobDone(String runid) throws RemoteException {
-		String cmd = "qstat -u "+account;
+		String cmd = "qstat";
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
 		try{
