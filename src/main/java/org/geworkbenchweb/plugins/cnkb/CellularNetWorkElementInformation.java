@@ -10,8 +10,6 @@ import java.util.TreeMap;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.utils.GOTerm;
 import org.geworkbenchweb.utils.GeneOntologyTree;
-import org.geworkbench.util.network.CellularNetworkPreference;
-import org.geworkbench.util.network.InteractionDetail;
 
 /**
  * This is based on the class from geWorkbench core that has the same name.

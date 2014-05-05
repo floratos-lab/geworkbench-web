@@ -14,7 +14,6 @@ import org.geworkbench.components.interactions.cellularnetwork.InteractionPartic
 import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
-import org.geworkbench.util.network.InteractionDetail;
 
 /* This is based on InteractionsConnectionImpl in CNKB (interactions) component
  * to fix the issue of dependency on 'current dataset' */

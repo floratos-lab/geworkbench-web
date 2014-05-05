@@ -3,8 +3,6 @@ package org.geworkbenchweb.plugins.cnkb;
 import java.util.Vector;
 import java.io.Serializable;
 
-import org.geworkbench.util.network.CellularNetworkPreference;
-
 public class CNKBResultSet implements Serializable{
  
 	private static final long serialVersionUID = -2518573713456876911L;
