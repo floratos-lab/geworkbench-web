@@ -358,12 +358,15 @@ public class UMainToolBar extends MenuBar {
 						}
 					});
 				}else{
+					/* FIXME genSpace team can only fix this by Friday, so I have to make this temporary change so the normal development and test can be carried out.*/
+					/*
 					GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
 					if (tmpServer != null) {
 						//Push a "logout" message
 						GenSpaceWindow.getGenSpaceBlackboard().fire(
 								new ChatStatusChangeEvent(tmpServer.getUsername()));
 					}
+					*/
 					clearTabularView();
 					SessionHandler.logout();
 					getApplication().close();
