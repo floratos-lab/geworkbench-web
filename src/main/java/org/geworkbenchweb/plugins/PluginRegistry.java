@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.digester3.Digester;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
@@ -33,7 +31,7 @@ public class PluginRegistry {
 	private Map<PluginEntry, AnalysisUI> analysisUIMap = new HashMap<PluginEntry, AnalysisUI>();
 	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
 	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
-	private Map<Class<? extends DSDataSet<?>>, List<PluginEntry>> analysisMap = new HashMap<Class<? extends DSDataSet<?>>, List<PluginEntry>>();
+	private Map<Class<?>, List<PluginEntry>> analysisMap = new HashMap<Class<?>, List<PluginEntry>>();
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
@@ -66,10 +64,10 @@ public class PluginRegistry {
 		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
 		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
 
-		iconMap.put(DSMicroarraySet.class, microarrayIcon);
+		iconMap.put(org.geworkbenchweb.pojos.MicroarrayDataset.class, microarrayIcon);
 		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);
 
-		uiMap.put(DSMicroarraySet.class, MicroarrayUI.class);
+		uiMap.put(org.geworkbenchweb.pojos.MicroarrayDataset.class, MicroarrayUI.class);
 		uiMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, ProteinStructureUI.class);
 		
 		Digester digester = new Digester();
@@ -124,7 +122,7 @@ public class PluginRegistry {
 				Class<?> uiClass = Class.forName(info.uiClass);
 				analysisUIMap.put(pluginEntry, (AnalysisUI) uiClass.newInstance());
 			}
-			analysisMap.put((Class<? extends DSDataSet<?>>) Class.forName(entry.getInputType()), entryList);
+			analysisMap.put(Class.forName(entry.getInputType()), entryList);
 		}
 		
 		List<DataTypeEntry> visualizerlist = overall.get(1);

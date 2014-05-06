@@ -6,7 +6,7 @@
 	<!-- analysis and visualizer are separated because they are currently implemented 
 		and used in different ways. -->
 	<analysis>
-	<inputType className="org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet">
+	<inputType className="org.geworkbenchweb.pojos.MicroarrayDataset">
 		<plugin>
 			<name>ANOVA</name>
 			<description>
@@ -197,7 +197,7 @@
 		<uiClass>org.geworkbenchweb.plugins.markus.results.MarkusResultsUI</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet">
+	<inputType className="org.geworkbenchweb.pojos.MicroarrayDataset">
 	<plugin>
 		<name>Tabular Microarray Viewer</name>
 		<description>

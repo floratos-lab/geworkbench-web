@@ -1,6 +1,5 @@
 package org.geworkbenchweb.plugins.microarray;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
 
 /** 
@@ -11,7 +10,7 @@ public class MicroarrayUI extends DataTypeMenuPage {
 	private static final long serialVersionUID = 1L;
 	
 	public MicroarrayUI(final Long dataSetId) {
-		super("Microarray Description", "Microarray Data", DSMicroarraySet.class, dataSetId);
+		super("Microarray Description", "Microarray Data", org.geworkbenchweb.pojos.MicroarrayDataset.class, dataSetId);
     }
 
 }

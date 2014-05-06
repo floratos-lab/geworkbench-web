@@ -103,7 +103,7 @@ public class NavigationTree extends Tree {
 				dataSetId = (Long) itemId;
 				annotationPanel.setDatasetId(dataSetId);
 
-				final String specialClassName = "org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet";
+				final String specialClassName = "org.geworkbenchweb.pojos.MicroarrayDataset";
 				if (specialClassName.equals(className)) {
 					microarraySetId = dataSetId;
 					toolBar.setEnabled(true);
