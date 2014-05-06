@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.Visualizer;

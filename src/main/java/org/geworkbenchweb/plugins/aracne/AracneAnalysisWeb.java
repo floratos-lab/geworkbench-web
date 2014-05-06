@@ -68,9 +68,7 @@ public class AracneAnalysisWeb {
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
 				&& !params.get(AracneParameters.HUB_MARKER_SET).toString()
-						.trim().equals("")
-				&& !params.get(AracneParameters.HUB_MARKER_SET).toString()
-						.trim().equals("All vs. All")) {
+						.trim().equals("")) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.HUB_MARKER_SET));
 			hubGeneList = SubSetOperations.getMarkerData(subSetId);
@@ -129,7 +127,13 @@ public class AracneAnalysisWeb {
 
 		AracneOutput aracneOutput = null;
 		if(!cluster) aracneOutput = computeAracneRemote(aracneInput);
-		else aracneOutput = computeAracneRemoteCluster(aracneInput);
+		else {
+			// pval correction = pval/(#markers*#hubs)
+            if(!aracneInput.getIsThresholdMI() && !aracneInput.getNoCorrection()){
+                    aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
+            }
+			aracneOutput = computeAracneRemoteCluster(aracneInput);
+		}
 
 		boolean prune = isPrune();
 		//set dataset = null to AdjacencyMatrixDataSet object

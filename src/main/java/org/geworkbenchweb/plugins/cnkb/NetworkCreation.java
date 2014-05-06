@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
