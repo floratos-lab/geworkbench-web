@@ -41,6 +41,7 @@ public class GenSpaceWindow extends Window{
 		this.setContent(/*component*/ layout);		
 	}
 	
+	
 	public /*GenSpaceComponent getComponent()*/ GenspaceLayout getLayout() {
 		return layout;
 	}
@@ -56,5 +57,13 @@ public class GenSpaceWindow extends Window{
 	public static Blackboard getGenSpaceBlackboard() {
 		return genSpaceBlackboard;
 	}	
+	
+//	public synchronized static void removeAllListnersFromGenSpaceBlackbord() {	
+//		genSpaceBlackboard.clear();
+//		genSpaceBlackboard.register(LogCompleteEventListener.class, LogCompleteEvent.class);
+//		genSpaceBlackboard.register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);
+//		genSpaceBlackboard.register(FriendStatusChangeListener.class, FriendStatusChangeEvent.class);
+//	}
+	
 
 }

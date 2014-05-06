@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.Workspace;
@@ -91,6 +92,8 @@ public class UMainLayout extends VerticalLayout {
 		/*Enable genspace logger in geWorkbench*/
 		if(GeworkbenchRoot.genespaceEnabled()) {
 			GeworkbenchRoot.getBlackboard().addListener(genspaceLogger);
+			GenSpaceLogin_1 login = new GenSpaceLogin_1();
+			genspaceLogger.setGenSpaceLogin(login);
 		}
 		
 		setSizeFull();

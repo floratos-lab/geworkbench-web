@@ -12,8 +12,11 @@ import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
+import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
+import org.geworkbenchweb.genspace.ui.GenspaceLayout;
+import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -23,6 +26,7 @@ import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -56,9 +60,9 @@ public class UMainToolBar extends MenuBar {
 	private String username;
 	private String password;
 	
+
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
 		this.pluginView = pluginView;
-		
 		setImmediate(true);
 		setStyleName("transparent");
 		
@@ -277,27 +281,45 @@ public class UMainToolBar extends MenuBar {
 		this.addItem("genSpace", new Command() {
 			private static final long serialVersionUID = 1L;
 			
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				final GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
-				genSpaceWindow.setWidth("70%");
-				genSpaceWindow.setHeight("70%");
+//			@Override
+//			public void menuSelected(MenuItem selectedItem) {
+//				final GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
+//				genSpaceWindow.setWidth("70%");
+//				genSpaceWindow.setHeight("70%");
+//				
+//				genSpaceWindow.addListener(new Window.CloseListener() {
+//		            // inline close-listener
+//					@Override
+//		            public void windowClose(CloseEvent e) {
+//						//Remove listener from blackboard
+//						GenSpaceWindow.getGenSpaceBlackboard().removeListener(
+//								genSpaceWindow.getLayout().getGenSpaceLogin_1().getRf());
+//		            }
+//		        });
+//				
+//				
+//				getApplication().getMainWindow().addWindow(genSpaceWindow);
+//				
+////				 if(!genSpaceWindow.getLayout().getGenSpaceLogin_1().autoLogin(username, password)) {
+////				 	genSpaceWindow.getLayout().getGenSpaceLogin_1().authorize();
+////				 }
+//			}
+			
+			@Override 
+			public void menuSelected(MenuItem selectedItem) {	
+				RosterFrame rf = genSpaceLogger.getGenSpaceLogin().getRf();
+				if (rf != null) {
+					GenSpaceWindow.getGenSpaceBlackboard().removeListener(rf);
+				}
+				ICEPush pusher = new ICEPush();
+				GenspaceLayout layout = new GenspaceLayout(genSpaceLogger, pusher);
+				UMainToolBar.this.pluginView.showGenSpace(layout);
+				layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
 				
-				genSpaceWindow.addListener(new Window.CloseListener() {
-		            // inline close-listener
-					@Override
-		            public void windowClose(CloseEvent e) {
-						//Remove listener from blackboard
-						GenSpaceWindow.getGenSpaceBlackboard().removeListener(
-								genSpaceWindow.getLayout().getGenSpaceLogin_1().getRf());
-		            }
-		        });
-
-				getApplication().getMainWindow().addWindow(genSpaceWindow);
+				if (!layout.getGenSpaceLogin_1().autoLogin(username, password)) {
+					layout.getGenSpaceLogin_1().authorize();
+				}
 				
-				 if(!genSpaceWindow.getLayout().getGenSpaceLogin_1().autoLogin(username, password)) {
-				 	genSpaceWindow.getLayout().getGenSpaceLogin_1().authorize();
-				 }
 			}
 		});
 		
@@ -321,6 +343,14 @@ public class UMainToolBar extends MenuBar {
 						public void buttonClicked(ButtonType buttonType) {
 							if (buttonType.toString() == "YES") {
 								uploadDataUI.cancelUpload();
+								
+								GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
+								if (tmpServer != null) {
+									//Push a "logout" message
+									GenSpaceWindow.getGenSpaceBlackboard().fire(
+											new ChatStatusChangeEvent(tmpServer.getUsername()));
+								}
+								
 								clearTabularView();
 								SessionHandler.logout();
 								getApplication().close();
@@ -328,6 +358,12 @@ public class UMainToolBar extends MenuBar {
 						}
 					});
 				}else{
+					GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
+					if (tmpServer != null) {
+						//Push a "logout" message
+						GenSpaceWindow.getGenSpaceBlackboard().fire(
+								new ChatStatusChangeEvent(tmpServer.getUsername()));
+					}
 					clearTabularView();
 					SessionHandler.logout();
 					getApplication().close();
@@ -385,4 +421,5 @@ public class UMainToolBar extends MenuBar {
 	public String getPassword() {
 		return this.password;
 	}
+	
 }

@@ -64,6 +64,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 	
 	private Panel p = new Panel();
 	
+	
 	public RealTimeWorkflowSuggestion(GenSpaceLogin_1 login) {
 		super(login);
 		model.addContainerProperty(NAME, String.class, null);
@@ -237,6 +238,12 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 
 		
 		toolPanel.setExpandRatio(toolListing, 1.0f);
+		
+		Workflow curWorkFlow = this.login.getGenSpaceParent().getLogger().
+								getObjectLogger().getCurWorkflow();
+		if (curWorkFlow != null ) {
+			cwfUpdated(curWorkFlow);
+		}
 		return splitter;
 	}
 	
@@ -377,6 +384,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		// TODO Auto-generated method stub
 		
 	}
+	
 
 	/*
 	 * 

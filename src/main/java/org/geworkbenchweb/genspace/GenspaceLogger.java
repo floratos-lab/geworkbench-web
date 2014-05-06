@@ -93,7 +93,7 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 			log.info("event: " + event.getClass().getSimpleName());
 			objectHandler.handleLogging(event);
 			
-			if (login != null) {
+			if (login != null && login.getParent() != null) {
 				//System.out.println("Check login instance: " + this.login);
 				//System.out.println("Check from objectlogger: " + this.objectLogger.getGenSpaceLogin());
 				//System.out.println("Check from objectHandler: " + this.objectHandler.getGenSpaceLogin());

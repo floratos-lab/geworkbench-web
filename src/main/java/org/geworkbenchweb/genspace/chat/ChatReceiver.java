@@ -49,6 +49,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	
 	public void login(String u, String p) {
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
+//		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5269, "genspace");
+		
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
 			//System.out.println("Connection succeeds");
@@ -162,4 +164,10 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		
 		chats.remove(user);
 	}
+	
+	
+	public static void main(String[] args) {
+		System.out.println("Hello World!");
+	}
+	
 }

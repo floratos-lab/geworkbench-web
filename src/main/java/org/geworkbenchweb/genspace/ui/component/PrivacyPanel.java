@@ -90,8 +90,8 @@ public class PrivacyPanel extends SocialPanel{
 	}
 	
 	public void updatePanel() {
-		//this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriends();
-		this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriendsOnMe();
+		this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriends();
+		//this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriendsOnMe();
 		this.networkList = this.login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 		
 		if (this.bLayout.getComponentCount() > 0) {

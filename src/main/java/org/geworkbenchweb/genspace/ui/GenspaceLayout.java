@@ -73,10 +73,13 @@ public class GenspaceLayout extends VerticalLayout {
 		//setExpandRatio(genspaceToolBar, 1);
 		//setComponentAlignment(genspaceToolBar, Alignment.TOP_CENTER);
 		this.addComponent(p);
-		this.genspaceLogin = new GenSpaceLogin_1(this);
+		// this.genspaceLogin = new GenSpaceLogin_1(this);
+		GenSpaceLogin_1 login = this.genspaceLogger.getGenSpaceLogin();
+		login.resetParent(this);
+		this.genspaceLogin = login;
 		//this.addComponent(genspaceLogin);
 		//this.addComponent(new Panel("1234"));
-		pluginView.setContent(genspaceLogin, "Home", "Please use this interface to login.", genspaceLogin);
+		//pluginView.setContent(genspaceLogin, "Home", "Please use this interface to login.", genspaceLogin);
 		this.addComponent(pluginView);
 		//System.out.println(pluginView.toString());
 		//System.out.println("Check login in GenSpaceLayoutout: " + this.genspaceLogin);
@@ -112,5 +115,10 @@ public class GenspaceLayout extends VerticalLayout {
 	
 	public GenSpaceLogin_1 getGenSpaceLogin_1() {
 		return this.genspaceLogin;
+	}
+	
+	
+	public GenspaceLogger getLogger() {
+		return this.genspaceLogger;
 	}
 }

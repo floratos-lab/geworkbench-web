@@ -429,7 +429,7 @@ public class GenSpaceServerFactory {
 //		System.out.println(test.userExists("aaa123"));
 //		test.getWrappedUser().setPasswordClearText("qqq123");
 //		test.userUpdate();
-		System.out.println(test.userLogin("jon", "test123"));
+		System.out.println(test.userLogin("jon123df", "test123"));
 	}
 
 }

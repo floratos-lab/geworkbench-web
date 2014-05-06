@@ -23,6 +23,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -95,6 +96,10 @@ public final class ObjectHandler {
 					}
 					else if (m.getName().equals("getDatasetId")) {
 						dataSetID = (Long)m.invoke(event);
+					}
+					else if (m.getName().equals("getResultSet")) {
+						ResultSet rs = (ResultSet)m.invoke(event);
+						dataSetID = rs.getParent();
 					}
 				}
 				catch (Exception e) {

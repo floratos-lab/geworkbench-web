@@ -248,6 +248,7 @@ public class GenspaceToolBar extends MenuBar {
 		GenspaceToolBar.this.pluginView.clearChat();
 	} 
 	
+	
 	/*public WorkflowRepository getWorkflowRepository() {
 		return this.workflowRepository;
 	}

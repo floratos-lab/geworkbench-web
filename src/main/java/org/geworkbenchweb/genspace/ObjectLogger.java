@@ -19,6 +19,7 @@ import javax.xml.datatype.DatatypeFactory;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
 /*import org.geworkbench.events.AnalysisInvokedEvent;*/
 import org.geworkbench.util.FilePathnameUtils;
@@ -63,6 +64,11 @@ public class ObjectLogger {
 		return this.curTransactions;
 	}
 	
+	
+	private Workflow curWorkflow = null;
+	
+
+
 	private Transaction prepareTransaction(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {		
 		//System.out.println("DEBUG prepareTransaction: " + analysisName + " " + dataSetName);
 		String hostname = "";
@@ -78,14 +84,12 @@ public class ObjectLogger {
 		if (login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
 			tmpFactory = new GenSpaceServerFactory();
 		} else {
-			//System.out.println("Get server factory from login: " + this.login.getGenSpaceServerFactory());
 			tmpFactory = login.getGenSpaceServerFactory();
 		}
 		
 		Transaction curTransaction = curTransactions.get(dataSetName);
 		if(curTransaction == null || !curTransaction.getClientID().equals(tmpFactory.getUsername() + hostname + transactionId))
 		{
-			
 			curTransaction = new Transaction();
 			curTransaction.setDataSetName(dataSetName);
 			try {
@@ -132,9 +136,10 @@ public class ObjectLogger {
 				recentTime.add(Calendar.MINUTE, -20);
 				if(pending.get(pending.size()).getCreatedAt().toGregorianCalendar().after(recentTime))
 				{
-					for (CWFListener listener : cwfListeners) {
-						listener.cwfUpdated(done.getWorkflow());
-					}
+//					setCurWorkflow(done.getWorkflow());
+//					for (CWFListener listener : cwfListeners) {
+//						listener.cwfUpdated(done.getWorkflow());
+//					}		
 //					RealTimeWorkFlowSuggestion.cwfUpdated();
 					curTransactions.put(dataSetName, done);
 				}
@@ -190,6 +195,7 @@ public class ObjectLogger {
 				for (CWFListener listener : cwfListeners) {
 					listener.cwfUpdated(retTrans.getWorkflow());
 				}
+				setCurWorkflow(retTrans.getWorkflow());
 //				RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());
 				return retTrans;
 			}
@@ -304,11 +310,15 @@ public class ObjectLogger {
 	}
 	
 	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
-		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
-		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) && this.login != null) {
-			//System.out.println("Check application: " + this.login.getApplication());
-			this.login.getGenSpaceParent().getPusher().push();
-			//this.login.getPusher().push(); 
+		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event)
+		
+		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) 
+														&& this.login != null
+														&& this.login.getParent() != null ) {
+//			//System.out.println("Check application: " + this.login.getApplication());
+			ICEPush pusher = this.login.getGenSpaceParent().getPusher();
+			this.login.getUIMainWindow().addComponent(pusher);
+			pusher.push();
 		}
 	}
 	
@@ -334,5 +344,13 @@ public class ObjectLogger {
 	
 	public GenSpaceLogin_1 getGenSpaceLogin() {
 		return this.login;
+	}
+	
+	public Workflow getCurWorkflow() {
+		return curWorkflow;
+	}
+
+	public void setCurWorkflow(Workflow curWorkflow) {
+		this.curWorkflow = curWorkflow;
 	}
 }

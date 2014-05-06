@@ -3,6 +3,7 @@ package org.geworkbenchweb.layout;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 
 import com.vaadin.ui.Component;
@@ -135,5 +136,44 @@ public class VisualPluginView extends HorizontalLayout {
 		setWidth("100%");
 		QuickIntro quickIntro = new QuickIntro();
 		addComponent(quickIntro);
+	}
+		
+	public void showGenSpace(GenspaceLayout layout) {
+		removeAllComponents();
+		setSizeFull();
+		HorizontalLayout pluginLayout = new HorizontalLayout();
+		pluginLayout.removeAllComponents();
+		pluginLayout.setImmediate(true);
+		pluginLayout.setWidth("100%");
+		pluginLayout.setSpacing(true);
+		pluginLayout.setMargin(true);
+		pluginLayout.setStyleName("sample-view");
+		
+		VerticalLayout left = new VerticalLayout();
+		left.setWidth("100%");
+		left.setSpacing(true);
+		left.setMargin(false);
+		
+		HorizontalLayout controls = new HorizontalLayout();
+		controls.setWidth("100%");
+		controls.setStyleName("feature-controls");
+
+		Label title = new Label("<span>genSpace</span>", Label.CONTENT_XHTML);
+		title.setStyleName("title");
+		controls.addComponent(title);
+		controls.setExpandRatio(title, 1);
+		
+		pluginLayout.addComponent(left);
+		pluginLayout.setExpandRatio(left, 1);
+		
+		left.setSizeFull();
+		left.addComponent(controls);
+		Panel panel = new Panel();
+		panel.setSizeFull();
+		panel.addComponent(layout);
+		left.addComponent(panel);
+		left.setExpandRatio(panel, 1);
+		pluginLayout.setSizeFull();
+		this.addComponent(pluginLayout);
 	}
 }
