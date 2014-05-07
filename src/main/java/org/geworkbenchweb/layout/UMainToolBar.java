@@ -277,31 +277,7 @@ public class UMainToolBar extends MenuBar {
 		/* Add an entry to genSpace */
 		this.addItem("genSpace", new Command() {
 			private static final long serialVersionUID = 1L;
-			
-//			@Override
-//			public void menuSelected(MenuItem selectedItem) {
-//				final GenSpaceWindow genSpaceWindow = new GenSpaceWindow(genSpaceLogger);
-//				genSpaceWindow.setWidth("70%");
-//				genSpaceWindow.setHeight("70%");
-//				
-//				genSpaceWindow.addListener(new Window.CloseListener() {
-//		            // inline close-listener
-//					@Override
-//		            public void windowClose(CloseEvent e) {
-//						//Remove listener from blackboard
-//						GenSpaceWindow.getGenSpaceBlackboard().removeListener(
-//								genSpaceWindow.getLayout().getGenSpaceLogin_1().getRf());
-//		            }
-//		        });
-//				
-//				
-//				getApplication().getMainWindow().addWindow(genSpaceWindow);
-//				
-////				 if(!genSpaceWindow.getLayout().getGenSpaceLogin_1().autoLogin(username, password)) {
-////				 	genSpaceWindow.getLayout().getGenSpaceLogin_1().authorize();
-////				 }
-//			}
-			
+
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
 				RosterFrame rf = genSpaceLogger.getGenSpaceLogin().getRf();
