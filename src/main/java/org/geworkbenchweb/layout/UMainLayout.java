@@ -87,7 +87,7 @@ public class UMainLayout extends VerticalLayout {
 		pusher.push();
 	}
 	
-	public UMainLayout() {
+	public UMainLayout() throws Exception {
 
 		/*Enable genspace logger in geWorkbench*/
 		if(GeworkbenchRoot.genespaceEnabled()) {
@@ -214,6 +214,9 @@ public class UMainLayout extends VerticalLayout {
 		Long wsid = mainToolBar.getCurrentWorkspace();
 		Workspace current = FacadeFactory.getFacade().find(Workspace.class,
 				wsid);
+		if(current==null) { /* this should never happen. just to safe guard potential errors */
+			throw new Exception("no current workspace");
+		}
 		Label workspaceName = new Label("<span style=color:white>Workspace: "
 				+ current.getName() + "</span>", Label.CONTENT_XHTML);
 		topBar.addComponent(userName);

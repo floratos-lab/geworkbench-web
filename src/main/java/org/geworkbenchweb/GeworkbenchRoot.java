@@ -109,7 +109,11 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		
 		User user 	= 	SessionHandler.get();
 		if (user != null) {
-			mainWindow.setContent(new UMainLayout());
+			try {
+				mainWindow.setContent(new UMainLayout());
+			} catch (Exception e) {
+				mainWindow.setContent(new UUserAuth());
+			}
 		} else {
 			UUserAuth auth = new UUserAuth(); 
 			mainWindow.setContent(auth);

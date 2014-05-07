@@ -5,13 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
-import org.geworkbenchweb.events.FriendStatusChangeEvent;
-import org.geworkbenchweb.events.LogCompleteEvent;
-import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
-import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
-import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
@@ -24,8 +18,8 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.Application;
@@ -39,7 +33,6 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -241,7 +234,11 @@ public class UMainToolBar extends MenuBar {
 		                        		FacadeFactory.getFacade().store(active);
 
 		                        		getApplication().getMainWindow().removeWindow(workspaceTable);
-		                        		getApplication().getMainWindow().setContent(new UMainLayout()); 
+		                        		try {
+											getApplication().getMainWindow().setContent(new UMainLayout());
+										} catch (Exception e) {
+											e.printStackTrace();
+										} 
 
 		                        	}
 		                        }

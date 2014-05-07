@@ -3,6 +3,8 @@
  */
 package org.geworkbenchweb.authentication;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -41,6 +43,8 @@ import com.vaadin.ui.themes.BaseTheme;
 public class LoginForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -469128068617789982L;
+	private static Log log = LogFactory.getLog(LoginForm.class);
+			
 	private GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
 	
 	public LoginForm(Button switchToRegisterButton) {
@@ -88,7 +92,7 @@ public class LoginForm extends VerticalLayout {
 							u.setFirstName("");
 							u.setLastName("");
 							if(!genSpaceServerFactory.userRegister(u.getDelegate())) {
-								//
+								log.warn("genSpaceServerFactory.userRegister returns false");
 							}	
 						}
 					} catch (InvalidCredentialsException e) {
@@ -146,7 +150,7 @@ public class LoginForm extends VerticalLayout {
 						feedbackLabel.setValue(e.getMessage());
 					}
 				}
-			} //while()
+			}
 		});
 
 		login.setClickShortcut(KeyCode.ENTER);
