@@ -205,7 +205,7 @@ public class MarinaAnalysis {
 	
 	private int submitJob(java.lang.String jobfile)
 			throws RemoteException {
-		String[] command = {"qsub", jobfile};
+		String[] command = {"/opt/gridengine/hpc/bin/lx-amd64/qsub", jobfile};
 		System.out.println(command[1]);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
@@ -226,7 +226,7 @@ public class MarinaAnalysis {
 	}
 	
 	private boolean isJobDone(String runid) throws RemoteException {
-		String cmd = "qstat";
+		String cmd = "/opt/gridengine/hpc/bin/lx-amd64/qstat";
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
 		try{
