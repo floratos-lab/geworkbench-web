@@ -205,10 +205,15 @@ public class MarinaAnalysis {
 	
 	private int submitJob(java.lang.String jobfile)
 			throws RemoteException {
-		String command = "qsub " + jobfile;
-		System.out.println(command);
+		String[] command = {"qsub", jobfile};
+		System.out.println(command[1]);
 		try {
-			Process p = Runtime.getRuntime().exec(command);
+			ProcessBuilder pb = new ProcessBuilder(command);
+			Map<String, String> env = pb.environment();
+			env.put("SGE_ROOT", "/opt/gridengine/hpc");
+			env.put("SGE_CLUSTER_NAME", "hpc");
+			env.put("PATH", "/opt/gridengine/hpc/bin/lx-amd64:$PATH");
+			Process p = pb.start();
 			StreamGobbler out = new StreamGobbler(p.getInputStream(), "INPUT");
 			StreamGobbler err = new StreamGobbler(p.getErrorStream(), "ERROR");
 			out.start();
@@ -225,7 +230,12 @@ public class MarinaAnalysis {
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
 		try{
-			Process p = Runtime.getRuntime().exec(cmd);
+			ProcessBuilder pb = new ProcessBuilder(cmd);
+			Map<String, String> env = pb.environment();
+			env.put("SGE_ROOT", "/opt/gridengine/hpc");
+			env.put("SGE_CLUSTER_NAME", "hpc");
+			env.put("PATH", "/opt/gridengine/hpc/bin/lx-amd64:$PATH");
+			Process p = pb.start();
 			brIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			brErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
