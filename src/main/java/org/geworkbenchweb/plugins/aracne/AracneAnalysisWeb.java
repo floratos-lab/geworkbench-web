@@ -14,13 +14,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import javax.xml.namespace.QName;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.aracne.data.AracneGraphEdge;
@@ -46,12 +41,9 @@ public class AracneAnalysisWeb {
 
 	private static Log log = LogFactory.getLog(AracneAnalysisWeb.class);
 	
-	private static final String  DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/AracneService";
-	private static final String  ARACNE_WEBSERVICE_URL = "aracne.webService.url";
 	private static final String  ARACNE_CLUSTERSERVICE_URL = "aracne.clusterService.url";
 	private static final Pattern pattern = Pattern.compile("^ara\\d+$");
 	
-	private static String url = null;
 	private static final Random random = new Random();
 	final private Long datasetId;
 
@@ -63,7 +55,7 @@ public class AracneAnalysisWeb {
 		this.datasetId = datasetId;
 	}
 
-	public Network execute(boolean cluster) throws RemoteException {
+	public Network execute() throws RemoteException {
 
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
@@ -126,14 +118,12 @@ public class AracneAnalysisWeb {
 		setDSMicroarraydata(aracneInput, microarrays, hubGeneList);
 
 		AracneOutput aracneOutput = null;
-		if(!cluster) aracneOutput = computeAracneRemote(aracneInput);
-		else {
+
 			// pval correction = pval/(#markers*#hubs)
-            if(!aracneInput.getIsThresholdMI() && !aracneInput.getNoCorrection()){
-                    aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
-            }
-			aracneOutput = computeAracneRemoteCluster(aracneInput);
+		if(!aracneInput.getIsThresholdMI() && !aracneInput.getNoCorrection()){
+			aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
 		}
+		aracneOutput = computeAracneRemoteCluster(aracneInput);
 
 		boolean prune = isPrune();
 		//set dataset = null to AdjacencyMatrixDataSet object
@@ -308,64 +298,6 @@ public class AracneAnalysisWeb {
 			if(!expFile.delete()) expFile.deleteOnExit();
 		}
 	}
-	
-	private AracneOutput computeAracneRemote(AracneInput input) throws RemoteException {
-		AracneOutput output = null;
-		RPCServiceClient serviceClient;
-
-		try {       
-			
-			getWebServiceUrl();
-			
-			serviceClient = new RPCServiceClient();
-
-			Options options = serviceClient.getOptions();
-
-			
-			long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
-			options.setTimeOutInMilliSeconds(soTimeout);			 
-			EndpointReference targetEPR = new EndpointReference(url);					 
-			
-			options.setTo(targetEPR);
-
-			// notice that that namespace is in the required form
-			QName opName = new QName(
-					"http://service.aracne.components.geworkbench.org",
-					"execute");
-			Object[] args = new Object[] { input };
-
-			Class<?>[] returnType = new Class[] { AracneOutput.class };
-
-			Object[] response = serviceClient.invokeBlocking(opName, args,
-					returnType);
-			output = (AracneOutput) response[0];
-
-			return output;
-		} catch (AxisFault e) {
-			OMElement x = e.getDetail();
-			if (x != null)
-				log.debug(x);
-
-			Throwable y = e.getCause();
-			while (y != null) {
-				y.printStackTrace();
-				y = y.getCause();
-			}
-
-			log.debug("message: " + e.getMessage());
-			log.debug("fault action: " + e.getFaultAction());
-			log.debug("reason: " + e.getReason());
-			e.printStackTrace();
-			throw new RemoteException( "Aracne AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
-					+ " reason: " + e.getReason());		
-			
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new RemoteException( "Coumpute Aracne error:" + e.getMessage());
-		}
-		 
-	}
 
 	private boolean isPrune() {
 		return params.get(AracneParameters.MERGEPS).toString()
@@ -438,20 +370,6 @@ public class AracneAnalysisWeb {
 		}
 		log.debug("edge count " + nEdge);
 		return new Network(networkName, network);
-	}
-	
-	
-	private void getWebServiceUrl()
-	{
-		if (url == null || url.trim().equals(""))
-		{
-			 		
-				url  = GeworkbenchRoot.getAppProperty(ARACNE_WEBSERVICE_URL);
-				if (url == null || url.trim().equals(""))
-					url = DEFAULT_WEB_SERVICES_URL;
-				
-		}		
-		 
 	}
 
 }

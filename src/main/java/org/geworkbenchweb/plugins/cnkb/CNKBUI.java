@@ -329,7 +329,14 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				{
 					selectedMarkers.add(marker);
 					
-					hits.addElement(new CellularNetWorkElementInformation(marker, annotationMap.get(marker).getMolecularFunction(),  annotationMap.get(marker).getBiologicalProcess()));
+					int[] mf = new int[0];
+					int[] bp = new int[0];
+					AnnotationEntry a = annotationMap.get(marker);
+					if(a!=null) {
+						mf = a.getMolecularFunction();
+						bp = a.getBiologicalProcess();
+					}
+					hits.addElement(new CellularNetWorkElementInformation(marker, mf, bp));
 				}
 			}
 			 
@@ -358,8 +365,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			}
 			
 			AnnotationEntry entry = annotationMap.get(label);
-			String geneId = entry.getEntrezId();
-			String geneSymbol = entry.getGeneSymbol();
+			String geneId = "";
+			String geneSymbol =  "";
+			if(entry!=null) {
+				geneId = entry.getEntrezId();
+				geneSymbol = entry.getGeneSymbol();
+			}
 
 			if (geneId!=null && !geneId.trim().equals("---")
 					&& cellularNetWorkElementInformation.isDirty()) {				
@@ -465,7 +476,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			creatAuthenticationDialog(dataSetId);
 			return "UnAuthenticatedException";
 		} catch (NullPointerException e) {
-			throw new IOException("null pointer caught in CNKBUI"); // using IOException because of the limitation of the interface AnalysisUI
+			e.printStackTrace();
+			throw new IOException("null pointer caught in CNKBUI"+e); // using IOException because of the limitation of the interface AnalysisUI
 		}
 		return "CNKB";
 	}

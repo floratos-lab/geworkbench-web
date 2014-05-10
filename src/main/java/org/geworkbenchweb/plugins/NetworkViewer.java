@@ -54,7 +54,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long id = resultSet.getDataId();
 		if(id==null) { // pending node
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+			messageLabel = "Pending computation - ID "+ dataSetId;
 			networkResult = null;
 			return;
 		}

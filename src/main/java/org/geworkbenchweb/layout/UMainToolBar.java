@@ -5,14 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.GeworkbenchRoot;
+=======
+>>>>>>> 6c8b220e3c50b323b5d694450efc0812692dc382
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
-import org.geworkbenchweb.events.FriendStatusChangeEvent;
-import org.geworkbenchweb.events.LogCompleteEvent;
-import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
-import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
-import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
@@ -25,8 +23,8 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.Application;
@@ -40,8 +38,11 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
+<<<<<<< HEAD
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.Notification;
+=======
+>>>>>>> 6c8b220e3c50b323b5d694450efc0812692dc382
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -243,7 +244,11 @@ public class UMainToolBar extends MenuBar {
 		                        		FacadeFactory.getFacade().store(active);
 
 		                        		getApplication().getMainWindow().removeWindow(workspaceTable);
-		                        		getApplication().getMainWindow().setContent(new UMainLayout()); 
+		                        		try {
+											getApplication().getMainWindow().setContent(new UMainLayout());
+										} catch (Exception e) {
+											e.printStackTrace();
+										} 
 
 		                        	}
 		                        }
@@ -282,14 +287,15 @@ public class UMainToolBar extends MenuBar {
 		
 		/* Add an entry to genSpace */
 		this.addItem("genSpace", new Command() {
-			private static final long serialVersionUID = 1L;	
+			private static final long serialVersionUID = 1L;
+
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
 				if (GeworkbenchRoot.genespaceEnabled()) {
-//					RosterFrame rf = genSpaceLogger.getGenSpaceLogin().getRf();
-//					if (rf != null) {
-//						GenSpaceWindow.getGenSpaceBlackboard().removeListener(rf);
-//					}
+					RosterFrame rf = genSpaceLogger.getGenSpaceLogin().getRf();
+					if (rf != null) {
+						GenSpaceWindow.getGenSpaceBlackboard().removeListener(rf);
+					}
 					GenSpaceWindow.removeAllListnersFromGenSpaceBlackbord();
 					
 					ICEPush pusher = new ICEPush();
@@ -346,6 +352,7 @@ public class UMainToolBar extends MenuBar {
 						}
 					});
 				}else{
+<<<<<<< HEAD
 					
 //					if (genSpaceLogger.getGenSpaceLogin() != null 
 //							&& genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory() != null) {
@@ -355,6 +362,17 @@ public class UMainToolBar extends MenuBar {
 //								new ChatStatusChangeEvent(tmpServer.getUsername()));
 //					}
 					
+=======
+					/* FIXME genSpace team can only fix this by Friday, so I have to make this temporary change so the normal development and test can be carried out.*/
+					/*
+					GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
+					if (tmpServer != null) {
+						//Push a "logout" message
+						GenSpaceWindow.getGenSpaceBlackboard().fire(
+								new ChatStatusChangeEvent(tmpServer.getUsername()));
+					}
+					*/
+>>>>>>> 6c8b220e3c50b323b5d694450efc0812692dc382
 					clearTabularView();
 					SessionHandler.logout();
 					getApplication().close();
