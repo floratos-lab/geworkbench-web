@@ -131,25 +131,24 @@ public class DeleteWorkspaceDialog extends Window implements
 
 	}
 
+	private transient boolean newWorkspaceCreated = false;
+
 	private void delete(Set<Long> toBeDelectedId) {
 		Long currentWorkspace = uMainToolBar.getCurrentWorkspace();
 		if (toBeDelectedId.contains(currentWorkspace)) {
 			Workspace c = FacadeFactory.getFacade().find(Workspace.class,
 					currentWorkspace);
-			String extraMessage = "You choose to delete the current workspace called '"
-					+ c.getName()
-					+ "', please enter a name for the new workspace.";
-			createNewWorkspace(extraMessage);
+			showNewWorkspaceDialog(toBeDelectedId, currentWorkspace, c.getName());
+		} else {
+			for (Long id : toBeDelectedId) {
+				DataSetOperations.deleteWorkspace(id);
+			}
 		}
-		for (Long id : toBeDelectedId) {
-			DataSetOperations.deleteWorkspace(id);
-		}
-
 	}
 
-	// TODO this is the same as the one in UMainToolBar. maybe better be
-	// refactored.
-	private void createNewWorkspace(String extraMessage) {
+	/* Show a dialog to create a new workspace. When it is closed, do the action of deleting workspaces. */
+	private void showNewWorkspaceDialog(final Set<Long> toBeDelectedId,
+			final Long currentWorkspaceId, final String currentWorkspaceName) {
 		Application app = getApplication();
 		final Window mainWindow = app.getMainWindow();
 
@@ -159,6 +158,22 @@ public class DeleteWorkspaceDialog extends Window implements
 		newWorkspace.setDraggable(false);
 		newWorkspace.setResizable(false);
 		newWorkspace.setWidth("300px");
+		newWorkspace.addListener(new CloseListener() {
+
+			private static final long serialVersionUID = -7856367679710164681L;
+
+			@Override
+			public void windowClose(CloseEvent e) {
+				for (Long id : toBeDelectedId) {
+					if(id.equals(currentWorkspaceId) && !newWorkspaceCreated) {
+						log.debug("current workspace "+currentWorkspaceName+" not deleted");
+						continue;
+					}
+					DataSetOperations.deleteWorkspace(id);
+				}
+			}
+			
+		});
 
 		FormLayout workspaceForm = new FormLayout();
 
@@ -175,6 +190,7 @@ public class DeleteWorkspaceDialog extends Window implements
 				workspace.setOwner(SessionHandler.get().getId());
 				workspace.setName(name.getValue().toString());
 				FacadeFactory.getFacade().store(workspace);
+				newWorkspaceCreated = true;
 
 				Map<String, Object> param = new HashMap<String, Object>();
 				param.put("owner", SessionHandler.get().getId());
@@ -215,11 +231,15 @@ public class DeleteWorkspaceDialog extends Window implements
 		workspaceForm.setMargin(true);
 		workspaceForm.setImmediate(true);
 		workspaceForm.setSpacing(true);
-		workspaceForm.addComponent(new Label(extraMessage));
+		workspaceForm.addComponent(new Label(
+				"You choose to delete the current workspace called '"
+						+ currentWorkspaceName
+						+ "', please enter a name for the new workspace."));
 		workspaceForm.addComponent(name);
 		workspaceForm.addComponent(submit);
 
 		newWorkspace.addComponent(workspaceForm);
+		newWorkspaceCreated = false;
 		mainWindow.addWindow(newWorkspace);
 	}
 }

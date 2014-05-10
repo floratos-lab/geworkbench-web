@@ -1,5 +1,7 @@
 package org.geworkbenchweb.pojos;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Entity;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;

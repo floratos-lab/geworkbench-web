@@ -54,16 +54,16 @@ public class GenSpaceWindow extends Window{
 		return this.pusher;
 	}
 	
-	public static Blackboard getGenSpaceBlackboard() {
+	public synchronized static Blackboard getGenSpaceBlackboard() {
 		return genSpaceBlackboard;
 	}	
 	
-//	public synchronized static void removeAllListnersFromGenSpaceBlackbord() {	
-//		genSpaceBlackboard.clear();
-//		genSpaceBlackboard.register(LogCompleteEventListener.class, LogCompleteEvent.class);
-//		genSpaceBlackboard.register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);
-//		genSpaceBlackboard.register(FriendStatusChangeListener.class, FriendStatusChangeEvent.class);
-//	}
+	public synchronized static void removeAllListnersFromGenSpaceBlackbord() {	
+		genSpaceBlackboard.clear();
+		genSpaceBlackboard.register(LogCompleteEventListener.class, LogCompleteEvent.class);
+		genSpaceBlackboard.register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);
+		genSpaceBlackboard.register(FriendStatusChangeListener.class, FriendStatusChangeEvent.class);
+	}
 	
 
 }

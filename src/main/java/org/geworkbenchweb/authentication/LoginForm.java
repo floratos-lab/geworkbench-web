@@ -123,20 +123,12 @@ public class LoginForm extends VerticalLayout {
 
 								needToLogin = true;
 								
-							} catch (TooShortPasswordException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (TooShortUsernameException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (PasswordsDoNotMatchException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (UsernameExistsException e1) {
+							} 
+							catch (UsernameExistsException e1) {
 								// TODO Auto-generateds catch block
-								e1.printStackTrace();
-							} catch (PasswordRequirementException e1) {
-								// TODO Auto-generated catch block
+								// User try to log with genSpace's password, and than avoid registering an existing user
+							} 
+							catch (Exception e1) {
 								e1.printStackTrace();
 							}
 		

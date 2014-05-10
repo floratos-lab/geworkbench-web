@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.GeworkbenchRoot;
+
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
@@ -33,6 +36,8 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.Notification;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -274,23 +279,30 @@ public class UMainToolBar extends MenuBar {
 			}
 		});
 		
+		
 		/* Add an entry to genSpace */
 		this.addItem("genSpace", new Command() {
 			private static final long serialVersionUID = 1L;
 
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
-				RosterFrame rf = genSpaceLogger.getGenSpaceLogin().getRf();
-				if (rf != null) {
-					GenSpaceWindow.getGenSpaceBlackboard().removeListener(rf);
+				if (GeworkbenchRoot.genespaceEnabled()) {
+					GenSpaceWindow.removeAllListnersFromGenSpaceBlackbord();
+					
+					ICEPush pusher = new ICEPush();
+					GenspaceLayout layout = new GenspaceLayout(genSpaceLogger, pusher);
+					UMainToolBar.this.pluginView.showGenSpace(layout);
+					layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
+					
+					if (!layout.getGenSpaceLogin_1().autoLogin(username, password)) {
+						layout.getGenSpaceLogin_1().authorizeLayout();
+					}
 				}
-				ICEPush pusher = new ICEPush();
-				GenspaceLayout layout = new GenspaceLayout(genSpaceLogger, pusher);
-				UMainToolBar.this.pluginView.showGenSpace(layout);
-				layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
-				
-				if (!layout.getGenSpaceLogin_1().autoLogin(username, password)) {
-					layout.getGenSpaceLogin_1().authorize();
+				else {
+					Window mainWindow = getApplication().getMainWindow();
+					Notification msg = new Notification("Genspace is not activated. Please contact the system administrator.",
+							Notification.TYPE_HUMANIZED_MESSAGE);
+					mainWindow.showNotification(msg);
 				}
 				
 			}
@@ -317,13 +329,6 @@ public class UMainToolBar extends MenuBar {
 							if (buttonType.toString() == "YES") {
 								uploadDataUI.cancelUpload();
 								
-								GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
-								if (tmpServer != null) {
-									//Push a "logout" message
-									GenSpaceWindow.getGenSpaceBlackboard().fire(
-											new ChatStatusChangeEvent(tmpServer.getUsername()));
-								}
-								
 								clearTabularView();
 								SessionHandler.logout();
 								getApplication().close();
@@ -331,15 +336,7 @@ public class UMainToolBar extends MenuBar {
 						}
 					});
 				}else{
-					/* FIXME genSpace team can only fix this by Friday, so I have to make this temporary change so the normal development and test can be carried out.*/
-					/*
-					GenSpaceServerFactory tmpServer = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory();
-					if (tmpServer != null) {
-						//Push a "logout" message
-						GenSpaceWindow.getGenSpaceBlackboard().fire(
-								new ChatStatusChangeEvent(tmpServer.getUsername()));
-					}
-					*/
+					
 					clearTabularView();
 					SessionHandler.logout();
 					getApplication().close();
