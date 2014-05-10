@@ -186,6 +186,12 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 			}
 			else {
 				preference = logOptions.indexOf(logOptionsSelect.getValue());
+				
+				
+				this.objectHandler = this.login.getGenSpaceLogger().getObjectHandler();
+
+				System.out.println("handler:" + this.objectHandler + " pre:" + preference);
+				
 				if (objectHandler != null) {
 					objectHandler.setLogStatus(preference);
 				}

@@ -350,6 +350,7 @@ public class GenSpaceServerFactory {
 			getUserOps().updateUser(user);
 		} catch (Exception e) {
 			handleException(e);
+			return false;
 		}
 		return true;
 	}

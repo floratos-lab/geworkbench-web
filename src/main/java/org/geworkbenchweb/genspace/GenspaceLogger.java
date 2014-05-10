@@ -74,7 +74,12 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 		return objectLogger;
 	}
 	
+	public ObjectHandler getObjectHandler() {
+		return this.objectHandler;
+	}
+	
 	public void setGenSpaceLogin(GenSpaceLogin_1 genSpaceLogin) {
+		genSpaceLogin.setGenSpaceLogger(this);
 		this.login = genSpaceLogin;
 		this.objectLogger.setGenSpaceLogin(this.login);
 		this.objectHandler.setGenSpaceLogin(this.login);

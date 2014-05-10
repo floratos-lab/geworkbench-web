@@ -167,6 +167,69 @@ public class GenSpacePluginView extends HorizontalLayout {
 	}
 	
 	
+	public void setContentWithoutListner(ComponentContainer content, String titleText, String description, GenSpaceLogin_1 genSpaceLogin) {
+		removeAllComponents();
+		setSizeFull();
+		pluginLayout = new HorizontalLayout();
+		pluginLayout.removeAllComponents();
+		pluginLayout.setImmediate(true);
+		pluginLayout.setWidth("100%");
+		pluginLayout.setSpacing(true);
+		pluginLayout.setMargin(true);
+		pluginLayout.setStyleName("sample-view");
+		left = new VerticalLayout();
+		left.setWidth("100%");
+		left.setSpacing(true);
+		left.setMargin(false);
+		
+		VerticalLayout rightLayout = new VerticalLayout();
+		//right = new Panel(rightLayout);
+		right = new VerticalLayout();
+		right.setWidth("319px");
+		//Panel p = new Panel();
+		rightLayout.setMargin(true, false, false, false);
+		right1 = new Panel();
+		right1.setStyleName(Panel.STYLE_LIGHT);
+		right1.addStyleName("feature-info");
+		right.addComponent(right1);
+		
+		HorizontalLayout controls = new HorizontalLayout();
+		controls.setWidth("100%");
+		controls.setStyleName("feature-controls");
+
+		Label title = new Label("<span>" + titleText + "</span>", Label.CONTENT_XHTML);
+		title.setStyleName("title");
+		controls.addComponent(title);
+		controls.setExpandRatio(title, 1);
+		
+		pluginLayout.addComponent(left);
+		pluginLayout.setExpandRatio(left, 1);
+		pluginLayout.addComponent(right);
+		
+		left.setSizeFull();
+		left.addComponent(controls);
+		//Panel panel = new Panel();
+		//panel.setSizeFull();
+		//panel.addComponent(content);
+		//panel.setStyleName(Reindeer.PANEL_LIGHT);
+		//left.addComponent(panel);
+		//left.setExpandRatio(panel, 1);
+		left.addComponent(content);
+		left.setExpandRatio(content, 1);
+		right1.setCaption("Description");
+		if (description != null && description != "") {
+			final Label l = new Label(
+					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
+							+ description + "</div></div>", Label.CONTENT_XHTML);
+			right1.addComponent(l);
+		}
+		//right.addComponent(af);
+
+		pluginLayout.setSizeFull();
+		this.addComponent(pluginLayout);
+	}
+	
+	
 	public void setChat(GenSpaceLogin_1 genspaceLogin){
 		chatHandler  = genspaceLogin.getChatHandler();
 		

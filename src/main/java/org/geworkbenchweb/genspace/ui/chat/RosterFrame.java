@@ -536,7 +536,9 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
 		this.refresh();
-		getPusher().push();
+		if (getPusher().getApplication() != null ) { 
+			getPusher().push();
+		}
 
 	}
 	
@@ -546,7 +548,9 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
 			this.refresh();
 			//this.initComponents();
-			this.getPusher().push();
+			if (getPusher().getApplication() != null ) { 
+				getPusher().push();
+			}
 			//this.login.getPusher().push();
 		}
 	}
