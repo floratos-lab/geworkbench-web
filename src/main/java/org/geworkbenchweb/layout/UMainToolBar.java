@@ -11,8 +11,10 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
+import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
@@ -35,6 +37,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.Notification;
@@ -53,6 +56,7 @@ public class UMainToolBar extends MenuBar {
 	private UploadDataUI uploadDataUI;
 
 	private Long currentWorkspace; /* the practice of always querying db for active workspace does not make sense */
+	private Window chatMain;
 	
 
 	private String username;
@@ -294,7 +298,7 @@ public class UMainToolBar extends MenuBar {
 					UMainToolBar.this.pluginView.showGenSpace(layout);
 					layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
 					
-					if (!layout.getGenSpaceLogin_1().autoLogin(username, password)) {
+					if (!layout.getGenSpaceLogin_1().autoLogin(username, password, true)) {
 						layout.getGenSpaceLogin_1().authorizeLayout();
 					}
 				}
@@ -305,6 +309,72 @@ public class UMainToolBar extends MenuBar {
 					mainWindow.showNotification(msg);
 				}
 				
+			}
+		});
+		
+		this.addItem("Chat", new Command() {
+			private static final long serialVersionUID = 1L;
+			
+			public void menuSelected(MenuItem selectedItem) {
+				final GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
+				final Window mainWindow = getApplication().getMainWindow();
+				if (GeworkbenchRoot.genespaceEnabled()) {
+					if (!genSpaceServerFactory.userLogin(username, password)) {
+						Notification errMsg = new Notification("Invalid username and/or password for Chatter", 
+								Notification.TYPE_ERROR_MESSAGE);
+						mainWindow.showNotification(errMsg);
+					} else {
+						
+						if (chatMain != null && chatMain.getWindow() != null)
+							mainWindow.removeWindow(chatMain);
+						
+						genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
+						
+						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+						chatMain = new Window();
+						chatMain.setHeight("380px");
+						chatMain.setWidth("310px");
+						chatMain.setResizable(false);
+						chatMain.setScrollable(false);
+						chatMain.addListener(new Window.CloseListener() {
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void windowClose(CloseEvent e) {
+								// TODO Auto-generated method stub
+								for (ChatWindow cw: chatHandler.chats.values()) {
+									if (cw.getParent() != null)
+										mainWindow.removeWindow(cw);
+								}
+								String user = genSpaceServerFactory.getUsername();
+								GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+							}
+						});
+						VerticalLayout chatLayout = new VerticalLayout();
+						chatMain.addComponent(chatLayout);
+						
+						if (chatHandler.rf != null){
+							GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+							GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+						}
+						
+						chatHandler.updateRoster();
+						chatHandler.createRosterFrame();
+						chatHandler.rf.addStyleName("feature-info");
+						chatLayout.addComponent(chatHandler.rf);
+						GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+						GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+						mainWindow.addWindow(chatMain);
+						
+						String user = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().getUsername();
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+					}
+				} else {
+					Notification msg = new Notification("Please enable Genspace first for using the Chat agent",
+							Notification.TYPE_HUMANIZED_MESSAGE);
+					mainWindow.showNotification(msg);
+				}
 			}
 		});
 		

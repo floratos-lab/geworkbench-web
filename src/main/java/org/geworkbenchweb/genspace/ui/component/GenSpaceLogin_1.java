@@ -420,7 +420,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	}
 	
 	
-	public boolean autoLogin(String username, String password) {
+	public boolean autoLogin(String username, String password, boolean shouldFire) {
 
 
 		if (!genSpaceServerFactory.userLogin(username, password)) {
@@ -429,8 +429,9 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		
 		chatHandler = new ChatReceiver(this);
 		chatHandler.login(username, password);
-
-		genSpaceParent.fireLoggedIn();
+		
+		if (shouldFire)
+			genSpaceParent.fireLoggedIn();
 		return true;
 	}
 	
@@ -469,7 +470,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 					Notification.TYPE_ERROR_MESSAGE);
 			mainWindow.showNotification(msg);
 		}
-		autoLogin(usernameStr,  newPassword);
+		autoLogin(usernameStr,  newPassword, true);
 		
 	}
 	

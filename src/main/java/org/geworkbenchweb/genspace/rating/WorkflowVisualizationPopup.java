@@ -16,6 +16,7 @@ import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
 
+import com.vaadin.Application;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -72,8 +73,6 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 	
 	private String contactCaption;
 	
-	
-	
 	public WorkflowVisualizationPopup(GenSpaceLogin_1 login2, Workflow workflow, Tool selectedTool) {
 		this.login = login2;
 		this.workflow = workflow;
@@ -85,12 +84,19 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.expertLabel.setWidth("240px");
 		this.viewComment.setWidth("240px");
 
-		this.vLayout = new VerticalLayout();
-		this.addComponent(vLayout);
+		//this.vLayout = new VerticalLayout();
+		//this.addComponent(vLayout);
+		//this.createWorkflowPanel();
 		this.createWorkflowPanel();
+		this.addComponent(vLayout);
 	}
 	
-	private void createWorkflowPanel() {		
+	public VerticalLayout getVLayout() {
+		return this.vLayout;
+	}
+	
+	private void createWorkflowPanel() {
+		this.vLayout = new VerticalLayout();
 		this.workflowPanel = new Panel();
 		
 		BorderLayout wLayout = new BorderLayout();
@@ -111,6 +117,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		/*this.gotoPage = new Button("Go");
 		this.gotoPage.addListener(this);*/
 		this.gotoPage = new Link("Go", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + selectedTool.getId(), "_blank"));
+		this.gotoPage.setTargetName("_blank");
 		wLayout.addComponent(gotoPage, BorderLayout.Constraint.EAST);
 		
 		wLayout = new BorderLayout();
@@ -143,6 +150,7 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		/*this.view = new Button("View");
 		this.view.addListener(this);*/
 		this.view = new Link("View", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "workflow/index/" + workflow.getId(), "_blank"));
+		this.view.setTargetName("_blank");
 		wLayout.addComponent(this.view, BorderLayout.Constraint.EAST);
 		
 		//Unify the width for all buttons here
@@ -169,8 +177,6 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 			
 			this.vLayout.addComponent(toolRatePanel);
 			this.vLayout.addComponent(wfRatePanel);
-		}else{
-			
 		}
 	}
 	
@@ -183,46 +189,63 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		}
 	}
 	
+	public void detachAndAttachListener(final Application app) {
+		this.addWkButton.removeListener(this);
+		this.addWkButton.addListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void buttonClick(Button.ClickEvent evt) {
+				if (!login.getGenSpaceServerFactory().isLoggedIn()) {
+					app.getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+					return ;
+				}
+				addWorkFlowToRepository(app);
+			}
+		});
+		
+		this.contact.removeListener(this);
+		this.contact.addListener(new ClickListener() {
+			private static final long serialVersionUID = 1L;
+			
+			public void buttonClick(Button.ClickEvent evt) {
+				if (login.getGenSpaceServerFactory().isLoggedIn()) {
+					UserSearchWindow usw = new UserSearchWindow(expert, login, login.getGenSpaceParent().getSocialNetworkHome());
+					app.getMainWindow().addWindow(usw);
+				} else {
+					app.getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
+					return ;
+				}
+			}
+		});
+	}
+	
 	public void buttonClick(Button.ClickEvent evt) {
 		String buttonCaption = evt.getButton().getCaption();
-		String args = "";
-		boolean browser = true;
 		
 		if (buttonCaption.equals("Add")) {
 			if (!login.getGenSpaceServerFactory().isLoggedIn()) {
 				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
 				return ;
 			}
-			
-			browser = false;
-			addWorkFlowToRepository();
-		} else if (buttonCaption.equals("Go") && selectedTool.getId() > 0) {
-			args = "tool/index/" + selectedTool.getId();
-		} else if (buttonCaption.equals("View") && workflow.getId() > 0) {
-			args = "workflow/index/" + workflow.getId();
+			addWorkFlowToRepository(getApplication());
 		} else if (buttonCaption.equals("Contact")) {
 			if (login.getGenSpaceServerFactory().isLoggedIn()) {
 				UserSearchWindow usw = new UserSearchWindow(expert, login, login.getGenSpaceParent().getSocialNetworkHome());
 				getApplication().getMainWindow().addWindow(usw);
-				browser = false;
 			} else {
 				getApplication().getMainWindow().showNotification("You need to be logged in to use GenSpace's social features.");
 				return ;
 			}
 		}
-		
-		if (browser) {
-			getApplication().getMainWindow().open(new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + args, "_blank"));
-		}
 	} 
 	
-	private void addWorkFlowToRepository() {
+	private void addWorkFlowToRepository(final Application app) {
 		final Window nameWindow = new Window();
 		nameWindow.setCaption("Workflow Confirmation");
 		nameWindow.setWidth("450px");
 		nameWindow.setHeight("100px");
 		
-		this.getApplication().getMainWindow().addWindow(nameWindow);
+		app.getMainWindow().addWindow(nameWindow);
 		VerticalLayout nLayout = new VerticalLayout();
 		nameWindow.addComponent(nLayout);
 		
@@ -261,13 +284,13 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 						return ;
 					}
 					login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
-					getApplication().getMainWindow().showNotification("Workflow added succesfully to repository");
+					app.getMainWindow().showNotification("Workflow added succesfully to repository");
 				} else {
-					getApplication().getMainWindow().showNotification("Operation cancelled: A valid name has to be specified");
+					app.getMainWindow().showNotification("Operation cancelled: A valid name has to be specified");
 				}
 
-				getApplication().getMainWindow().removeWindow(nameWindow);
-				getApplication().getMainWindow().removeWindow(WorkflowVisualizationPopup.this);
+				app.getMainWindow().removeWindow(nameWindow);
+				app.getMainWindow().removeWindow(WorkflowVisualizationPopup.this);
 			}
 		});
 		buttonLayout.addComponent(confirm);

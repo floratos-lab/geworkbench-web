@@ -21,6 +21,8 @@ public class WorkflowVisualizationPanel extends Panel {
 	
 	private static final long serialVersionUID = -3135103378675075343L;
 	
+	private static final String clickDescription = "Click for more";
+	
 	private Resource resource;
 	
 	private String resourcePath = "img/arrow.png";
@@ -29,12 +31,20 @@ public class WorkflowVisualizationPanel extends Panel {
 	
 	private WorkflowVisualizationPopup popup;
 	
+	private Panel resultPanel = new Panel("Workflow Actions");
+	
 	private GenSpaceLogin_1 login;
+	
+	//True for window and false for panel
+	private boolean isWindow = true;
 
 	public WorkflowVisualizationPanel() {
-		this.setScrollable(true);
-				
+		this.setScrollable(true);		
 		this.resource = new ThemeResource(resourcePath);
+	}
+	
+	public void setIsWindow(boolean isWindow) {
+		this.isWindow = isWindow;
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
@@ -66,6 +76,7 @@ public class WorkflowVisualizationPanel extends Panel {
 				
 				flowLabel = new Label(tmpTool.getName());
 				flowLabel.setData(tmpTool);
+				flowLabel.setDescription(clickDescription);
 				
 				flowLayout.addComponent(flowLabel);
 				if (wIT.hasNext()) {
@@ -94,7 +105,14 @@ public class WorkflowVisualizationPanel extends Panel {
 					popup.setHeight("350px");
 					popup.setCaption("Workflow Actions");
 					
-					getApplication().getMainWindow().addWindow(popup);
+					if (isWindow) {
+						getApplication().getMainWindow().addWindow(popup);
+					} else {
+						resultPanel.removeAllComponents();
+						popup.detachAndAttachListener(getApplication());
+						resultPanel.addComponent(popup.getVLayout());
+						addComponent(resultPanel);
+					}
 					popup.attachAllPushers();
 				}
 			});

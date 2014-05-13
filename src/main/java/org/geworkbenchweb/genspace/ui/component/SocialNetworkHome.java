@@ -505,7 +505,10 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.netPanel.updatePanel();
 		this.privacyPanel.updatePanel();
 		this.viewPanel.updatePanel();
-		this.chatHandler.rf.refresh();
+		
+		//Because the chat agent has been individualized
+		if (this.chatHandler.rf != null)
+			this.chatHandler.rf.refresh();
 		this.loadSearchItems();
 	}
 	

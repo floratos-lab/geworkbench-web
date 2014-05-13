@@ -56,6 +56,7 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		//selectRootPanel.setScrollable(true);
 		borderLayout.setScrollable(true);
 		vis.setScrollable(true);
+		vis.setIsWindow(false);
 		initComponents();
 		setCompositionRoot(borderLayout);
 	}
@@ -117,6 +118,8 @@ public class WorkflowVisualization extends AbstractGenspaceTab implements
 		result.setExpandRatio(vis, 1);
 		vis.setStyleName(Reindeer.PANEL_LIGHT);
 		//vis.setSizeFull();
+		
+		
 	}
 
 	@Override

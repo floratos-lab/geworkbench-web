@@ -149,18 +149,8 @@ public class GenSpacePluginView extends HorizontalLayout {
 		//right.addComponent(af);
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){
 			this.setAf(genSpaceLogin);
-			this.setChat(genSpaceLogin);
-			
-			genSpaceLogin.setRf(chatHandler.rf);
-			
-			//genspaceLogger.setGenSpaceLogin(genSpaceLogin);
-			/*chatHandler  = genSpaceLogin.getChatHandler();
-			chatHandler.updateRoster();
-			chatHandler.createRosterFrame();
-			chatHandler.rf.addStyleName("feature-info");
-			right.addComponent(chatHandler.rf);
-			GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-			GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);*/
+			//this.setChat(genSpaceLogin);
+			//genSpaceLogin.setRf(chatHandler.rf);
 		}
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
