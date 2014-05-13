@@ -37,7 +37,6 @@ import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
-import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -171,8 +170,11 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			private static final long serialVersionUID = -4510368918141762449L;
 
 			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				new ExcelExport(dataTable).export();	
+			public void menuSelected(MenuItem selectedItem) {				
+				ExcelExport excelExport = new ExcelExport(dataTable);
+				excelExport.excludeCollapsedColumns();				 
+				excelExport.setDoubleDataFormat("0");
+				excelExport.export();
 			}
 			
 		}).setStyleName("plugin");
@@ -370,28 +372,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	/**
-	 * Called to export Table to Excel sheet or CSV
-	 */
-	public  void exportInteractionTable(String format) {
-
-		if (format.equalsIgnoreCase("excel")) {
-
-			ExcelExport excelExport = new ExcelExport(dataTable);
-			excelExport.excludeCollapsedColumns();
-			excelExport.setExportFileName("CNKBInteractions.xls");
-			excelExport.export();
-
-		} else {
-
-			CsvExport csvExport = new CsvExport(dataTable);
-			csvExport.excludeCollapsedColumns();
-			csvExport.setExportFileName("CNKBInteractions.csv");
-			csvExport.export();
-
-		}
-
-	}
+	 
 
 	private class CreateNetworkCommand implements Command {
 

@@ -205,14 +205,14 @@ public class MarinaAnalysis {
 	
 	private int submitJob(java.lang.String jobfile)
 			throws RemoteException {
-		String[] command = {"/opt/gridengine/hpc/bin/lx-amd64/qsub", jobfile};
+		String[] command = {"/opt/gridengine/hpc2/bin/lx-amd64/qsub", jobfile};
 		System.out.println(command[1]);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
 			Map<String, String> env = pb.environment();
-			env.put("SGE_ROOT", "/opt/gridengine/hpc");
-			env.put("SGE_CLUSTER_NAME", "hpc");
-			env.put("PATH", "/opt/gridengine/hpc/bin/lx-amd64:$PATH");
+			env.put("SGE_ROOT", "/opt/gridengine/hpc2");
+			env.put("SGE_CLUSTER_NAME", "hpc2");
+			env.put("PATH", "/opt/gridengine/hpc2/bin/lx-amd64:$PATH");
 			Process p = pb.start();
 			StreamGobbler out = new StreamGobbler(p.getInputStream(), "INPUT");
 			StreamGobbler err = new StreamGobbler(p.getErrorStream(), "ERROR");
@@ -226,15 +226,15 @@ public class MarinaAnalysis {
 	}
 	
 	private boolean isJobDone(String runid) throws RemoteException {
-		String cmd = "/opt/gridengine/hpc/bin/lx-amd64/qstat";
+		String cmd = "/opt/gridengine/hpc2/bin/lx-amd64/qstat";
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
 		try{
 			ProcessBuilder pb = new ProcessBuilder(cmd);
 			Map<String, String> env = pb.environment();
-			env.put("SGE_ROOT", "/opt/gridengine/hpc");
-			env.put("SGE_CLUSTER_NAME", "hpc");
-			env.put("PATH", "/opt/gridengine/hpc/bin/lx-amd64:$PATH");
+			env.put("SGE_ROOT", "/opt/gridengine/hpc2");
+			env.put("SGE_CLUSTER_NAME", "hpc2");
+			env.put("PATH", "/opt/gridengine/hpc2/bin/lx-amd64:$PATH");
 			Process p = pb.start();
 			brIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			brErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
