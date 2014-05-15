@@ -1,7 +1,5 @@
 package org.geworkbenchweb.pojos;
 
-import java.sql.Timestamp;
-
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
