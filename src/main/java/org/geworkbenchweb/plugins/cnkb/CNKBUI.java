@@ -116,6 +116,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		final ListSelect interactomeBox;
 		final ListSelect versionBox;
 		final Label interactomeDes = new Label();
+		final Label versionDes = new Label();
 		 
 		interactomeBox = new ListSelect("Select Interactome:");
 		interactomeBox.setRows(4);
@@ -169,6 +170,35 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 			}
 		});
+		
+		versionBox.addListener(new Property.ValueChangeListener() {		 
+		 
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+
+				    versionDes.setValue("");
+					Object version = valueChangeEvent
+							.getProperty().getValue();
+					if (version == null || version.toString().trim().length() == 0 )
+						return;
+					String versionValue =  version.toString().trim();
+						
+					for(VersionDescriptor vd : versionList)
+					{					 
+						if (vd.getVersion().trim().equals(versionValue))
+						{
+							if (vd.getVersionDesc() != null && vd.getVersionDesc().trim().length() > 0 && !vd.getVersionDesc().trim().equals("null"))
+							    versionDes.setValue(vd.getVersionDesc());
+							else
+								versionDes.setValue("NO DESCRIPTION");
+							break;
+						}
+					}
+			}
+ 
+		});
+		
 
 		final Button submitButton = new Button("Submit",
 				new Button.ClickListener() {
@@ -211,11 +241,15 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		interactomeDes.setStyleName(Reindeer.LABEL_SMALL);
 		interactomeDes.setImmediate(true);
+		
+		versionDes.setStyleName(Reindeer.LABEL_SMALL);
+		versionDes.setImmediate(true);
 
 		addComponent(markerSelector);
 		addComponent(interactomeBox);
 		addComponent(interactomeDes);
 		addComponent(versionBox);
+		addComponent(versionDes);
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
 
