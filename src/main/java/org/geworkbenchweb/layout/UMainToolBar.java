@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbenchweb.GeworkbenchRoot;
-
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
@@ -15,7 +13,6 @@ import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
-import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
