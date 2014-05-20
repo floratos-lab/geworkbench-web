@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
@@ -47,6 +49,8 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  * @author Nikhil
  */
 public class UMainToolBar extends MenuBar {
+	
+	private static Log log = LogFactory.getLog(UMainToolBar.class);
 
 	private static final long serialVersionUID = 1L;
 	private final VisualPluginView pluginView;
@@ -418,6 +422,7 @@ public class UMainToolBar extends MenuBar {
 				param);
 		/* list size must be 1 */
 		currentWorkspace = list.get(0).getWorkspace();
+		log.debug("current workspace ID "+currentWorkspace);
 	}
 	
 	private void clearTabularView(){

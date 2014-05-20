@@ -13,6 +13,7 @@ public class Workspace extends AbstractPojo {
 
 	private String name;
 	private Long owner;
+	private java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 
 	public String getName() {
 		return name;
@@ -28,6 +29,14 @@ public class Workspace extends AbstractPojo {
 
 	public void setOwner(Long owner) {
 		this.owner = owner;
+	}
+
+	public java.sql.Timestamp getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(java.sql.Timestamp timestamp) {
+		this.timestamp = timestamp;
 	}
 	
 }

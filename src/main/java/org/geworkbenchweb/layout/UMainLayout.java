@@ -215,7 +215,7 @@ public class UMainLayout extends VerticalLayout {
 		Workspace current = FacadeFactory.getFacade().find(Workspace.class,
 				wsid);
 		if(current==null) { /* this should never happen. just to safe guard potential errors */
-			throw new Exception("no current workspace");
+			throw new Exception("no current workspace for ID="+wsid);
 		}
 		Label workspaceName = new Label("<span style=color:white>Workspace: "
 				+ current.getName() + "</span>", Label.CONTENT_XHTML);
