@@ -6,12 +6,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
-import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
@@ -132,41 +130,9 @@ public class DataTypeMenuPage extends VerticalLayout {
 		}
 	}
 	
-	private static class ItemLayout extends GridLayout {
-
-		private static final long serialVersionUID = -2801145303701009347L;
-		
-		private final FancyCssLayout cssLayout = new FancyCssLayout();
-		
-		private ItemLayout() {
-			setColumns(2);
-			setRows(2);
-			setSizeFull();
-			setImmediate(true);
-			setColumnExpandRatio(1, 1.0f);
-
-			cssLayout.setSlideEnabled(true);
-			cssLayout.setWidth("95%");
-			cssLayout.addStyleName("lay");
-		}
-	
-		private void addDescription(String itemDescription) {
-			Label tableText = new Label(
-					"<p align = \"justify\">"+itemDescription+"</p>");
-			tableText.setContentMode(Label.CONTENT_XHTML);
-			cssLayout.addComponent(tableText);
-			addComponent(cssLayout, 0, 1, 1, 1);
-		}
-		
-		private void clearDescription() {
-			cssLayout.removeAllComponents();
-			removeComponent(cssLayout);
-		}
-	}
-
-	private final ThemeResource ICON = new ThemeResource(
+	protected final ThemeResource ICON = new ThemeResource(
 			"../custom/icons/icon_info.gif");
-	private final ThemeResource CancelIcon = new ThemeResource(
+	protected final ThemeResource CancelIcon = new ThemeResource(
 			"../runo/icons/16/cancel.png");
 
 	private void buildOneItem(VerticalLayout group,
