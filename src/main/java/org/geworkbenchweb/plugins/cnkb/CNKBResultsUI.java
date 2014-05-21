@@ -173,7 +173,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {				
 				ExcelExport excelExport = new ExcelExport(dataTable);
 				excelExport.excludeCollapsedColumns();				 
-				excelExport.setDoubleDataFormat("0");
+				excelExport.setDoubleDataFormat("0");	
+				excelExport.setDisplayTotals(false);
 				excelExport.export();
 			}
 			

@@ -226,6 +226,9 @@ public class TTestAnalysisWeb {
 			output = (TTestOutput) response[0];
 
 			return output;
+		} catch(java.lang.OutOfMemoryError e) {
+			e.printStackTrace();
+			throw new RemoteException("OutOfMemoryError from invoking web service "+e.toString());
 		} catch (AxisFault e) {
 			OMElement x = e.getDetail();
 			if (x != null)
