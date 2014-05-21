@@ -78,11 +78,7 @@ public class PrivacyPanel extends SocialPanel{
 		bLayout = new BorderLayout();
 		setCompositionRoot(bLayout);
 		this.panelTitle = panelTitle;
-		//System.out.println("1new parivacy panel!!");
-
 		this.updatePanel();
-		//System.out.println("new parivacy panel!!");
-
 	}
 	
 	public String getPanelTitle() {
@@ -91,7 +87,6 @@ public class PrivacyPanel extends SocialPanel{
 	
 	public void updatePanel() {
 		this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriends();
-		//this.friendList = this.login.getGenSpaceServerFactory().getFriendOps().getFriendsOnMe();
 		this.networkList = this.login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 		
 		if (this.bLayout.getComponentCount() > 0) {
@@ -149,12 +144,9 @@ public class PrivacyPanel extends SocialPanel{
 			tmpWrapper = new UserWrapper(tempUser, login);
 			tempID = userContainer.addItem(tmpWrapper);
 			
-			//System.out.println("Check friend visible: " + tempUser.isVisible());
-			//System.out.println("Check friend mutual: ");
 			
 			if (!tempUser.isVisible()) {
 				invisibleIDs.add(tempID);
-				//System.out.println("^^ friend who cannot see: "+tempUser);
 			}
 			
 		}
@@ -162,15 +154,12 @@ public class PrivacyPanel extends SocialPanel{
 		friendSelect = new TwinColSelect(friends, userContainer);
 		HashSet<UserWrapper> invSet = new HashSet<UserWrapper>();
 		for(int i=0; i<invisibleIDs.size(); i++){
-			//System.out.println("***"+invisibleIDs.get(i));
 			invSet.add(invisibleIDs.get(i).getBean());
 		}
 		friendSelect.setValue(invSet);
 		friendSelect.setLeftColumnCaption("Friend who can see");
 		
 		friendSelect.setRightColumnCaption("Friend who cannot see");
-		//friendSelect = new TwinColSelect(friends, userContainer);
-		//friendSelect.setRows(userContainer.size());
 		friendSelect.setMultiSelect(true);
 		friendSelect.setWidth("400px");
 		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -192,16 +181,13 @@ public class PrivacyPanel extends SocialPanel{
 			
 			if(!tempNet.isVisible()) {
 				invisibleIDs.add(tempID);
-				//System.out.println("^^ network who cannot see: " + tempWrap.getName());
 			}
 		}
 		
 		networkSelect = new TwinColSelect(member, networkContainer);
 		HashSet<UserNetworkWrapper> invSet = new HashSet<UserNetworkWrapper>();
 		for(int i=0; i<invisibleIDs.size(); i++){
-			//System.out.println("^^^"+invisibleIDs.get(i));
 			invSet.add(invisibleIDs.get(i).getBean());
-			//networkSelect.select(invisibleIDs.get(i));
 		}
 		networkSelect.setValue(invSet);
 		networkSelect.setLeftColumnCaption("Network that can see");
@@ -210,14 +196,10 @@ public class PrivacyPanel extends SocialPanel{
 		networkSelect.setWidth("400px");
 		networkSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
 		networkSelect.setItemCaptionPropertyId("name");
-		
-		//setInitialNetworkSelectValue(visibleIDs);
 	}
 	
 	private void setInitialNetworkSelectValue(List<Object> visibleIDs) {
 		for(Object id: visibleIDs) {
-			//System.out.println("^^"+networkContainer.getItem(id).getBean().getId());
-			//System.out.println("**"+networkContainer.getItem(id).getBean().getName());
 			networkSelect.setValue(id);
 		}
 	}
@@ -228,18 +210,14 @@ public class PrivacyPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 			
 			public void buttonClick(ClickEvent event) {
-				//resetVisibility();
 				Iterator<UserNetworkWrapper> nSelect = networkContainer.getItemIds().iterator();
 				UserNetworkWrapper nSelected;
 				while(nSelect.hasNext()) {
 					nSelected = nSelect.next();
 					if(networkContainer.getItem(nSelected)==null){
-						//System.out.println("empty: "+nSelected);
 					}else if(networkSelect.isSelected(nSelected)) {
-						//System.out.println("Network: false " + networkContainer.getItem(nSelected).getBean().getName());
 						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), false);
 					} else {
-						//System.out.println("Network: true  " + networkContainer.getItem(nSelected).getBean().getName());
 						login.getGenSpaceServerFactory().getNetworkOps().updateNetworkVisibility(networkContainer.getItem(nSelected).getBean().getId(), true);
 					}
 				}
@@ -250,25 +228,18 @@ public class PrivacyPanel extends SocialPanel{
 				while(fSelect.hasNext()) {
 					fSelected = fSelect.next();
 					if(friendSelect.isSelected(fSelected)) {
-						//System.out.println("friend: false " + userContainer.getItem(fSelected).getBean().getUsername());
 						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), false);
-						//System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
 						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 						createFriendListSelect();
-						//System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
 
 					}else{
-						//System.out.println("frined: true "+ userContainer.getItem(fSelected).getBean().getUsername());
 						login.getGenSpaceServerFactory().getFriendOps().updateFriendVisibility(userContainer.getItem(fSelected).getBean().getId(), true);
-						//System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
 
 						friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 						createFriendListSelect();
-						//System.out.println(userContainer.getItem(fSelected).getBean().isVisible());
 
 					}
 				}
-				//createFriendListSelect();
 				pusher.push();
 			}
 			

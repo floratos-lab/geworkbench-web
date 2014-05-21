@@ -146,14 +146,6 @@ public class XMLLoader {
 			minutes = getTextValue(e, "minute");
 			seconds = getTextValue(e, "second");
 
-			/*
-				System.out.println("year " + year);
-				System.out.println("month " + month);
-				System.out.println("day "+ day);
-				System.out.println("hours " + hour);
-				System.out.println("mins " + minutes);
-				System.out.println("secs " + seconds);
-			 */
 		}
 
 		HashMap<String, String> parameters = new HashMap<String, String>();
@@ -165,7 +157,6 @@ public class XMLLoader {
 				String key = getTextValue(e, "key");
 				String value = getTextValue(e, "value");
 				parameters.put(key, value);
-				//System.out.println("Key: " + key + "; value: " + value);
 			}
 
 		}
@@ -293,16 +284,6 @@ public class XMLLoader {
 	{
 		// this is for reading one file at a time
 		String name = "geworkbench_log.xml"; //null;
-		/*
-		if (args.length == 0)
-		{
-			System.out.println("Please specify an XML file or directory to read.");
-			Scanner scan = new Scanner(System.in);
-			name = scan.nextLine();
-		}
-		else
-			name = args[0];
-		 */
 
 		try
 		{

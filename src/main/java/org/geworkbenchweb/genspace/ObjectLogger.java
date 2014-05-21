@@ -70,7 +70,6 @@ public class ObjectLogger {
 
 
 	private Transaction prepareTransaction(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {		
-		//System.out.println("DEBUG prepareTransaction: " + analysisName + " " + dataSetName);
 		String hostname = "";
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
@@ -137,11 +136,6 @@ public class ObjectLogger {
 				recentTime.add(Calendar.MINUTE, -20);
 				if(pending.get(pending.size()).getCreatedAt().toGregorianCalendar().after(recentTime))
 				{
-//					setCurWorkflow(done.getWorkflow());
-//					for (CWFListener listener : cwfListeners) {
-//						listener.cwfUpdated(done.getWorkflow());
-//					}		
-//					RealTimeWorkFlowSuggestion.cwfUpdated();
 					curTransactions.put(dataSetName, done);
 				}
 			}
@@ -171,7 +165,6 @@ public class ObjectLogger {
 						p.setParameterValue(parameters.get(key).toString());
 					}
 					
-					//p.setParameterValue(parameters.get(key).toString());
 					params.add(p);
 				}
 			}
@@ -179,7 +172,6 @@ public class ObjectLogger {
 		try
 		{	
 			Transaction retTrans = (tmpFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
-			// curTransactions.put(dataSetName, retTrans);
 			tmpFactory.clearCache();
 			
 			if (this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1) {
@@ -202,7 +194,6 @@ public class ObjectLogger {
 					listener.cwfUpdated(retTrans.getWorkflow());
 				}
 				setCurWorkflow(retTrans.getWorkflow());
-//				RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());	
 				return retTrans;
 			}
 			
@@ -226,7 +217,6 @@ public class ObjectLogger {
 			String[] fileName = dataSetName.split("\\.");
 			String fileExtension = fileName[fileName.length - 1];
 
-			// fw.write("<measurement>");
 			fw.write("\t<metric name=\"analysis\">");
 			fw.write("\n\t\t<user name=\"" + login.getGenSpaceServerFactory().getUsername() + "\" genspace=\""
 					+1+ "\"/>");
@@ -277,14 +267,11 @@ public class ObjectLogger {
 				fw.write("\n\t\t</parameters>");
 			}
 			fw.write("\n\t</metric>\n");
-			// fw.write("\n</measurement>\n");
 
 			fw.close();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return null;
-//			GenSpace.logger.warn("Unable to write log file",e1);
-			//this.handleExceptions(e1);
 		}
 		
 		return null;
@@ -292,12 +279,9 @@ public class ObjectLogger {
 	
 	private boolean completeLoggin(String analysisName, String dataSetName, String transactionId, Map parameters, AnalysisSubmissionEvent event) {
 		Transaction ret = null;
-		//System.out.println("DEBUG dataset name in completeLogging: " + dataSetName);
 		try {
 			ret = this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event);
 		} catch (Exception e) {
-			//login.getGenSpaceServerFactory().clearCache();
-			//this.handleExceptions(e);
 			e.printStackTrace();
 			return false;
 		}
@@ -318,12 +302,10 @@ public class ObjectLogger {
 	}
 	
 	public void log(String analysisName, String dataSetName, String transactionId, @SuppressWarnings("rawtypes") final Map parameters, AnalysisSubmissionEvent event) {
-		//this.prepareTransaction(analysisName, dataSetName, transactionId, parameters, event)
 		
 		if (this.completeLoggin(analysisName, dataSetName, transactionId, parameters, event) 
 														&& this.login != null
 														&& this.login.getParent() != null ) {
-//			//System.out.println("Check application: " + this.login.getApplication());
 			ICEPush pusher = this.login.getGenSpaceParent().getPusher();
 			this.login.getUIMainWindow().addComponent(pusher);
 			pusher.push();
@@ -340,14 +322,11 @@ public class ObjectLogger {
 			FileWriter fw = new FileWriter(f, false);
 			fw.close();
 		} catch (Exception e) {
-			// don't complain if something happens here
-			// e.printStackTrace();
 		}
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin_1 login2) {
 		this.login = login2;
-		//System.out.println("Set genSpaceLogin in Object logger:" + this.login);
 	}
 	
 	public GenSpaceLogin_1 getGenSpaceLogin() {

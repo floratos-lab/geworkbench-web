@@ -41,8 +41,6 @@ public class FriendPanel extends SocialPanel{
 		this.setCompositionRoot(blLayout);
 		this.friendPanel = new Panel(this.panelTitle);
 		this.friendPanel.setWidth("430px");
-		//this.friendPanel.addStyleName(Runo.PANEL_LIGHT);
-		//this.friendPanel.setHeight("1000px");
 		this.friendList = login2.getGenSpaceServerFactory().getFriendOps().getFriends();
 		
 		this.createMainLayout();

@@ -226,7 +226,6 @@ public class NetworkPanel extends SocialPanel{
 					return;
 				}
 				selectedNet = (Network)event.getProperty().getValue();
-				//System.out.println("ValueChange: " + selectedNet.getName() + " " + selectedNet);
 			}
 		});
 		
@@ -241,17 +240,9 @@ public class NetworkPanel extends SocialPanel{
 							NetConfirmWindow ncw = new NetConfirmWindow(selectedNet.getName());
 							getApplication().getMainWindow().addWindow(ncw);
 							
-							//Should wait for administrator's approval?
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
-							//addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
 							updatePanel();
-//							if (rf == null) {
-//								rf = NetworkPanel.this.parent.getRf();
-//							}
-//							rf.refresh();
-							
 
-							//createMainLayout();
 						}
 					}else{
 						
@@ -265,30 +256,15 @@ public class NetworkPanel extends SocialPanel{
 			private static final long serialVersionUID = 1L;
 						
 			public void buttonClick(ClickEvent event){
-				//System.out.println("DEBUG : leave " + selectedNet.getName());
 				if (selectedNet != null && selectedNet.getName() != null && !selectedNet.getName().isEmpty()) {
-					//System.out.println("selected network captured by the leave button: " + selectedNet.getName());
 					UserNetwork un = isCachedMyNetWorks();
 					if(un != null) {
-						//System.out.println("elim cachedMyNetWorks: " + un.getNetwork().getName() + " " + un.getId());
-						
 						login.getGenSpaceServerFactory().getNetworkOps().leaveNetwork(un.getId());
-						//elimNetwork(selectedNet.getName());
-						updatePanel();
-					
-						//System.out.println(rf.getCaption());
-//						if (rf == null) {
-//							rf = NetworkPanel.this.parent.getRf();
-//						}
-//						rf.refresh();
-						
+						updatePanel();					
 						FriendStatusChangeEvent e = new FriendStatusChangeEvent(FriendStatusChangeEvent.NETWORK_EVENT, 
 																			FriendStatusChangeEvent.NETWORK_EVENT);
 						e.setOptType(FriendStatusChangeEvent.RM_FRIEND);						
 						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
-						
-						//cr.updateRoster();
-						//cr.createRosterFrame();
 					}
 				}else{
 					

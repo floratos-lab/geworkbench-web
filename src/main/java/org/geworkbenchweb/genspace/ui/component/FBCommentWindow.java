@@ -145,7 +145,6 @@ public class FBCommentWindow extends Window{
 
 			public void buttonClick(Button.ClickEvent evt) {
 				if (login.getFBManager() != null) {
-					//login.getFBManager().publishAnalysisResult(e.getTool().getName(), e.getTransaction().getDataSetName(), aepList, NotebookPanel.convertToDate(e.getCreatedAt()), noteText.getValue().toString());
 					login.getFBManager().publishAnalysisResult(searchString, noteText.getValue().toString());
 					update();
 				}

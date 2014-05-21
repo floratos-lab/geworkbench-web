@@ -29,7 +29,6 @@ public class Star extends Label {
 	}
 
 	public void setStar(int star) {
-		//System.out.println("Check star: " + star);
 		switch (star) {
 		case FULL:
 			setIcon(fullStar);

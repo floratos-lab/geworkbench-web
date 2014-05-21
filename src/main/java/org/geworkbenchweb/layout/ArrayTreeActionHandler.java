@@ -40,8 +40,6 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 		this.arraySetTree = arraySetTree;
 		this.contextSelector = contextSelector;
 	}
-	
- 
 
 	@Override
 	public void handleAction(Action action, Object sender, Object target) {

@@ -144,7 +144,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				
 				Panel myPanel = new Panel("My Tool Usage");
 				Panel friendPanel = new Panel("Friends' Tool Usage");
-				//List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyNotes("", "");
 				List<AnalysisEvent> searchEvents = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyNotesByDate(convertString);
 				List<AnalysisEvent> friendsEvents = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(convertString);
 				
@@ -165,8 +164,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				d.setTime(currentDate);
 				d.add(Calendar.DATE, evtBefore);
 				String queryLimit = charFormatter.format(d.getTime());
-				// System.out.println("DEBUG queryLimit in research notebook: " + queryLimit);
-				
+			
 				return queryLimit;
 			}
 			
@@ -192,7 +190,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				Iterator<String> mapIT = analMap.keySet().iterator();
 				while(mapIT.hasNext()) {
 					String tmpKey = mapIT.next();
-					// System.out.println("Test my analysis: " + tmpKey + " " + analMap.get(tmpKey));
 					pie.addSerie(tmpKey, analMap.get(tmpKey).intValue());
 				}
 				
@@ -334,8 +331,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			final String evtTime = format.format(convertToDate(e.getCreatedAt()));
 			final String eUsrname = e.getTransaction().getUser().getUsername();
 			
-			/*Label noteInfo = new Label(e.getTool().getName() + " at "
-					+ format.format(convertToDate(e.getCreatedAt())));*/
 			Label noteInfo = new Label(e.getTool().getName() + " at "
 					+ evtTime + " User: " + e.getTransaction().getUser().getUsername());
 			Label dataSetName = new Label("Dataset: "
@@ -351,7 +346,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 			noteText.setValue(noteValue);
 			noteText.setWordwrap(true);
 			noteText.setImmediate(true);
-			//final String originalNote = e.getNote();
 			final String originalNote = noteValue;
 			noteText.addListener(new Property.ValueChangeListener() {
 				
@@ -363,8 +357,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					String value = (String) noteText.getValue();
-					//e.setNote(value);
-					//GenSpaceServerFactory.getPrivUsageFacade().saveNote(e);					
+				
 				}
 			});
 			
@@ -504,7 +497,7 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 					
 					Embedded sEmbedded = new Embedded(null, secret);
 					buttonLayout.addComponent(sEmbedded, 3, 0);
-					//buttonLayout.setComponentAlignment(sEmbedded, Alignment.MIDDLE_CENTER);
+
 					
 					vLayout.addComponent(ta);
 					vLayout.setComponentAlignment(ta, Alignment.MIDDLE_CENTER);
@@ -554,7 +547,6 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 
 	@Override
 	public void loggedIn() {
-		//System.out.println("Reserach notebook logged in");
 		borderLayout.removeComponent(infoLabel);
 		borderLayout.addComponent(sortArea, BorderLayout.Constraint.NORTH);
 		borderLayout.addComponent(table, BorderLayout.Constraint.CENTER);

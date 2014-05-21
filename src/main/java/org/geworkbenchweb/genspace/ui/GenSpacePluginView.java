@@ -32,7 +32,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 	 * value - layout of the plugin 
 	 * */
 	private MultiKeyMap pluginCache = new MultiKeyMap();
-	//private Panel af = new Panel();
 	private VerticalLayout afLayout;
 	private String afCaption = "Activity Feeder";
 	private VerticalLayout right;
@@ -106,10 +105,8 @@ public class GenSpacePluginView extends HorizontalLayout {
 		left.setMargin(false);
 		
 		VerticalLayout rightLayout = new VerticalLayout();
-		//right = new Panel(rightLayout);
 		right = new VerticalLayout();
 		right.setWidth("319px");
-		//Panel p = new Panel();
 		rightLayout.setMargin(true, false, false, false);
 		right1 = new Panel();
 		right1.setStyleName(Panel.STYLE_LIGHT);
@@ -131,12 +128,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 		
 		left.setSizeFull();
 		left.addComponent(controls);
-		//Panel panel = new Panel();
-		//panel.setSizeFull();
-		//panel.addComponent(content);
-		//panel.setStyleName(Reindeer.PANEL_LIGHT);
-		//left.addComponent(panel);
-		//left.setExpandRatio(panel, 1);
 		left.addComponent(content);
 		left.setExpandRatio(content, 1);
 		right1.setCaption("Description");
@@ -146,11 +137,8 @@ public class GenSpacePluginView extends HorizontalLayout {
 							+ description + "</div></div>", Label.CONTENT_XHTML);
 			right1.addComponent(l);
 		}
-		//right.addComponent(af);
 		if(genSpaceLogin.getGenSpaceServerFactory().getUser() != null){
 			this.setAf(genSpaceLogin);
-			//this.setChat(genSpaceLogin);
-			//genSpaceLogin.setRf(chatHandler.rf);
 		}
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
@@ -173,10 +161,9 @@ public class GenSpacePluginView extends HorizontalLayout {
 		left.setMargin(false);
 		
 		VerticalLayout rightLayout = new VerticalLayout();
-		//right = new Panel(rightLayout);
 		right = new VerticalLayout();
 		right.setWidth("319px");
-		//Panel p = new Panel();
+
 		rightLayout.setMargin(true, false, false, false);
 		right1 = new Panel();
 		right1.setStyleName(Panel.STYLE_LIGHT);
@@ -198,12 +185,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 		
 		left.setSizeFull();
 		left.addComponent(controls);
-		//Panel panel = new Panel();
-		//panel.setSizeFull();
-		//panel.addComponent(content);
-		//panel.setStyleName(Reindeer.PANEL_LIGHT);
-		//left.addComponent(panel);
-		//left.setExpandRatio(panel, 1);
 		left.addComponent(content);
 		left.setExpandRatio(content, 1);
 		right1.setCaption("Description");
@@ -213,8 +194,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 							+ description + "</div></div>", Label.CONTENT_XHTML);
 			right1.addComponent(l);
 		}
-		//right.addComponent(af);
-
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
 	}
@@ -225,7 +204,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 		
 		if (chatHandler.rf != null || right.getComponentIndex(chatHandler.rf) != -1){
 			clearChat();
-			//System.out.println("clear chat!!");
 		}
 		chatHandler.updateRoster();
 		chatHandler.createRosterFrame();
@@ -233,12 +211,11 @@ public class GenSpacePluginView extends HorizontalLayout {
 		right.addComponent(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
 		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-		//System.out.println("XXXXXX" +chatHandler.rf);
 	}
+	
 	public void setAf(GenSpaceLogin_1 genspaceLogin){
 		if (af != null || right.getComponentIndex(af) != -1){
 			clearAf();
-			//System.out.println("clear af!!");
 		}
 		af = new ActivityFeedWindow(genspaceLogin);
 		af.addStyleName("feature-info");
@@ -256,8 +233,5 @@ public class GenSpacePluginView extends HorizontalLayout {
 		GenSpaceWindow.getGenSpaceBlackboard().removeListener(af);
 		GenSpaceWindow.getGenSpaceBlackboard().removeListener(af);
 	}
-	/*public void showToolList() {
-		ToolsUI toolList = new ToolsUI();
-		setContent(toolList, toolList.getTitle(), toolList.getDescription());
-	}*/
+
 }

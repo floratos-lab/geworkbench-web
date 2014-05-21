@@ -91,9 +91,6 @@ public class UserPanel extends Panel{
 		vLayout.addComponent(uPanel);
 		vLayout.addComponent(researchPanel);
 		vLayout.addComponent(contactInfo);
-		//System.out.println(mainLayout.getParent().getCaption());
-		/*mainLayout.removeAllComponents();
-		mainLayout.addComponent(this);*/
 		
 	}
 	

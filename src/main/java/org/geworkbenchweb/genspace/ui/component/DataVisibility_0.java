@@ -45,8 +45,6 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 	private NativeSelect dataVisOptiionsSelect;
 
 	private Button save;
-
-	// private String username = "";
 	int preference;
 
 	private ObjectHandler objectHandler;
@@ -55,20 +53,10 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 		this.login = login2;
 		// read the preferences from the properties file
 		try {
-			// PropertiesManager properties = PropertiesManager.getInstance();
-			// String pref = properties.getProperty(DataVisibility.class,
-			// PROPERTY_KEY, null);
-
-			// username = GenSpaceServerFactory.getUsername();
-
 			User user = login2.getGenSpaceServerFactory().getUser();
 			int logData = user.getLogData();
-
-			// if (pref == null) {
 			if (logData < 0) {
-				// if the preferences are not set, then show the pop up window
 
-				// ideally this should also be in the properties file
 				String message = "geWorkbench now includes a component called genSpace,\n"
 						+ "which will provide social networking capabilities and allow\n"
 						+ "you to connect with other geWorkbench users.\n\n"
@@ -82,17 +70,8 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 				notification.setDelayMsec(-1);
 				getApplication().getMainWindow().showNotification(notification);
 
-				// // set the default to "log anonymously"
-				// pref = "1";
-				// // write it to the properties file
-				// properties
-				// .setProperty(DataVisibility.class, PROPERTY_KEY, pref);
 				logData = 1;
 			}
-
-			// set the logging level
-			// ObjectHandler.setLogStatus(Integer.parseInt(pref));
-			// preference = Integer.parseInt(pref);
 			if (objectHandler != null) {
 				objectHandler.setLogStatus(logData);
 			}
@@ -105,12 +84,7 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 	}
 
 	private void initComponents() {
-		// BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
-		//
-		// this.setSize(500, 600);
 
-		// l.
-		// this.setLayout(l);
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 
 			removeAllComponents();
@@ -121,34 +95,22 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 			int preference = login.getGenSpaceServerFactory().getUser().getLogData();
 			logOptionsSelect.select(logOptions.get(preference));
 
-			// try {
-			// PropertiesManager properties = PropertiesManager.getInstance();
-			// properties.setProperty(DataVisibility.class, PROPERTY_KEY, ""
-			// + (logPreferences.getSelectedIndex() - 1));
-			// } catch (Exception e) {
-			// }
-
 			if (objectHandler != null) {
 				System.out.println("Object handler is not null");
 				objectHandler.setLogStatus(preference);
 			}
 
-			// c.gridwidth = GridBagConstraints.REMAINDER;
-			// gridbag.setConstraints(logPreferences, c);
 			addComponent(logOptionsSelect);
 			logOptionsSelect.addListener(ItemClickEvent.class, this,
 					"logPrefChanged");
 
-			// c.gridwidth = GridBagConstraints.REMAINDER;
-			// gridbag.setConstraints(blank, c);
-			// add(blank);
 
 			dataVisOptiionsSelect = new NativeSelect(
 					"-- Select Data Visibility Options --", dataVisOptions);
 			preference = login.getGenSpaceServerFactory().getUser().getDataVisibility();
 			dataVisOptiionsSelect.select(dataVisOptions.get(preference));
 			addComponent(dataVisOptiionsSelect);
-			// add(blank);
+
 			TextArea info = new TextArea(
 					"Your selection of data visibility will affect its appearance\n"
 							+ "within recommendations of others. It will also affect your\n"
@@ -157,9 +119,6 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 							+ "based on other users' data.");
 			info.setEnabled(false);
 			info.setWordwrap(true);
-			// info.setOpaque(false);
-			// info.setDisabledTextColor(Color.black);
-			// info.setMaximumSize(new Dimension(500, 400));
 
 			addComponent(info);
 			addComponent(blank);
@@ -168,7 +127,6 @@ public class DataVisibility_0 extends VerticalLayout implements ClickListener {
 		save = new Button("Save");
 		addComponent(save);
 
-		// validate();
 		save.addListener(this);
 	}
 

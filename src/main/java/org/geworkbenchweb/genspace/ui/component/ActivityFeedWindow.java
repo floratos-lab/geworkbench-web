@@ -70,22 +70,17 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		
 		this.setScrollable(true);
-		//this.setWidth("300px");
 		this.setHeight("300px"); 
 		
 		this.afLayout = new VerticalLayout();
 		this.setContent(this.afLayout);
 		this.setCaption(this.afCaption);
-		//this.setPositionX(10);
-		//this.setPositionY(400);
 		
 		this.updateQueryString();
 
 		this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);		
-		//this.eRetriever = new EventRetriever();
 
 		this.makeAFLayout();
-		//this.eRetriever.start();
 	}
 	
 	public static XMLGregorianCalendar convertToXMLDate(Date d) {
@@ -107,7 +102,6 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 		d.setTime(currentDate);
 		d.add(Calendar.DATE, evtBefore);
 		this.queryLimit = sf.format(d.getTime());
-		//System.out.println("DEBUG queryLimit: " + queryLimit);
 	}
 	
 	private void makeAFLayout() {
@@ -192,9 +186,7 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 			this.updateQueryString();
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();
-			//this.addComponent(this.pusher);
 			GenSpaceWindow.sPush(this, this.getPusher());
-			//login.getPusher().push();
 		}
 	}
 	

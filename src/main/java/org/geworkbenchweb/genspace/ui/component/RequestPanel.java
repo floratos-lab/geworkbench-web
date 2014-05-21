@@ -72,7 +72,6 @@ public class RequestPanel extends SocialPanel{
 	private ICEPush pusher = new ICEPush();
 	
 	public RequestPanel(String panelTitle, GenSpaceLogin_1 login) {
-		//System.out.println("mainlayout!!!");
 
 		this.login = login;
 		this.myID = login.getGenSpaceServerFactory().getUser().getId();
@@ -206,16 +205,8 @@ public class RequestPanel extends SocialPanel{
 						
 						if(ar.equals(aFriend)) {
 							accList.add(tmpUser.getId());
-							//System.out.println("Accept user: " + tmpUser.getUsername());
-							/*login.getGenSpaceServerFactory().getFriendOps().addFriend(tmpUser.getId());
-							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, tmpUserID));
-							login.getPusher().push();*/
 						} else if (ar.equals(rFriend)) {
 							rejList.add(tmpUser.getId());
-							/*System.out.println("Reject from user: " + tmpUser.getUsername());
-							login.getGenSpaceServerFactory().getFriendOps().rejectFriend(tmpUser.getId());
-							GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, tmpUserID));
-							login.getPusher().push();*/
 						}
 					}
 				}
@@ -223,30 +214,20 @@ public class RequestPanel extends SocialPanel{
 				//Once user decide to accept/reject a friend, fire an event for notifying friend's ui
 				if(accList.size()>0){
 					for (int friendID: accList) {
-						//System.out.println("Accept user: " + friendID);
 						login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
 						FriendStatusChangeEvent e = new FriendStatusChangeEvent(myID, friendID);
 						e.setOptType(FriendStatusChangeEvent.ADD_FRIEND);	
 						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 					}
 					loadFriends();
-				}/*else{
-					getApplication().getMainWindow().showNotification("No friend request is selected!");
-				}*/
+				}
 				if(rejList.size()>0){
 					for (int friendID: rejList) {
 						login.getGenSpaceServerFactory().getFriendOps().rejectFriend(friendID);
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
 					}
 					loadFriends();
-				}/*else{
-					getApplication().getMainWindow().showNotification("No friend request is selected!");
-				}*/
-					//addComponent(pusher);
-				//attachPusher();
-				//login.getPusher().push();
-				
-				//loadFriends();
+				}
 				pusher.push();
 			}
 		};
@@ -321,15 +302,8 @@ public class RequestPanel extends SocialPanel{
 						
 						if(ar.equals(accept)) {
 							accList.add(tmpUnr.getId());
-							/*System.out.println("Accept request from network: " + tmpUnr.getName());
-							login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(tmpUnr.getId());
-							login.getPusher().push();*/
 						} else if(ar.equals(reject)) {
 							rejList.add(tmpUnr.getId());
-							
-							/*System.out.println("Reject request from network: " + tmpUnr.getName());
-							login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(tmpUnr.getId());
-							login.getPusher().push();*/
 						}
 						
 					}
@@ -345,7 +319,7 @@ public class RequestPanel extends SocialPanel{
 					}
 					loadNetworks();
 				}else{
-					//getApplication().getMainWindow().showNotification("No network request is selected!");
+					
 				}
 				if(rejList.size()>0){
 					for (int unID: rejList) {
@@ -354,10 +328,8 @@ public class RequestPanel extends SocialPanel{
 					loadNetworks();
 
 				}else{
-					//getApplication().getMainWindow().showNotification("No network request is selected!");
+
 				}
-				//attachPusher();
-				//login.getPusher().push();
 				pusher.push();
 				
 			}

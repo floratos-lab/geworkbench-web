@@ -50,7 +50,6 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 	private HorizontalLayout select = new HorizontalLayout();
 	private VerticalLayout mainLayout = new VerticalLayout();
 	
-	// private String username = "";
 	int preference;
 
 	private ObjectHandler objectHandler;
@@ -60,12 +59,7 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 		this.objectHandler = this.login.getGenSpaceLogger().getObjectHandler();
 		// read the preferences from the properties file
 		try {
-			// PropertiesManager properties = PropertiesManager.getInstance();
-			// String pref = properties.getProperty(DataVisibility.class,
-			// PROPERTY_KEY, null);
-
-			// username = GenSpaceServerFactory.getUsername();
-
+			
 			User user = login2.getGenSpaceServerFactory().getUser();
 			int logData = user.getLogData();
 
@@ -87,17 +81,9 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 				notification.setDelayMsec(-1);
 				getApplication().getMainWindow().showNotification(notification);
 
-				// // set the default to "log anonymously"
-				// pref = "1";
-				// // write it to the properties file
-				// properties
-				// .setProperty(DataVisibility.class, PROPERTY_KEY, pref);
 				logData = 1;
 			}
 
-			// set the logging level
-			// ObjectHandler.setLogStatus(Integer.parseInt(pref));
-			// preference = Integer.parseInt(pref);
 			if (objectHandler != null) {
 				objectHandler.setLogStatus(logData);
 			}
@@ -110,12 +96,7 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 	}
 
 	private void initComponents() {
-		// BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
-		//
-		// this.setSize(500, 600);
 
-		// l.
-		// this.setLayout(l);
 		setSpacing(true);
 		if (login.getGenSpaceServerFactory().isLoggedIn()) {
 
@@ -126,26 +107,16 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 
 			logOptionsSelect.select(logOptions.get(preference));
 			logOptionsSelect.setNullSelectionAllowed(false);
-			// try {
-			// PropertiesManager properties = PropertiesManager.getInstance();
-			// properties.setProperty(DataVisibility.class, PROPERTY_KEY, ""
-			// + (logPreferences.getSelectedIndex() - 1));
-			// } catch (Exception e) {
-			// }
 
 			if (objectHandler != null) {
 				objectHandler.setLogStatus(preference);
 			}
 
-			// c.gridwidth = GridBagConstraints.REMAINDER;
-			// gridbag.setConstraints(logPreferences, c);
+
 			select.addComponent(logOptionsSelect);
 			logOptionsSelect.addListener(ItemClickEvent.class, this,
 					"logPrefChanged");
 
-			// c.gridwidth = GridBagConstraints.REMAINDER;
-			// gridbag.setConstraints(blank, c);
-			// add(blank);
 
 			dataVisOptiionsSelect = new ComboBox("-- Select Data Visibility Options --", dataVisOptions);
 			preference = login.getGenSpaceServerFactory().getUser().getDataVisibility();
@@ -160,19 +131,16 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 			mainLayout.setSpacing(true);
 			mainLayout.addComponent(new Label(" "));
 			mainLayout.addComponent(select);
-			// add(blank);
+
 			Label info = new Label(
 					"<p align = \"justify\">Your selection of data visibility will affect its appearance within recommendations of others. It will also affect your ability to see recommendations - if you make your data"
 							+ "completely private, then you will not see any recommendations based on other users' data. </p>");
 			info.setEnabled(false);
 			info.setContentMode(Label.CONTENT_XHTML);
-			//info.setWordwrap(true);
-			// info.setOpaque(false);
-			// info.setDisabledTextColor(Color.black);
-			// info.setMaximumSize(new Dimension(500, 400));
+
 
 			mainLayout.addComponent(info);
-			//mainLayout.addComponent(blank);
+
 		}
 
 		save = new Button("Save");

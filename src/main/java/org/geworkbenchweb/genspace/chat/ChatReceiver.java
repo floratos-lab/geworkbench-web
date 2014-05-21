@@ -56,22 +56,15 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.u = u;
 		this.p = p;
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
-//		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5269, "genspace");
-		
+
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
-			//System.out.println("Connection succeeds");
-			
 			manager = connection.getChatManager();
 			this.updateRoster();
-			// this.createRosterFrame();
-			
 			manager.addChatListener(this);
-			//System.out.println("OOOOOOO"+this.rf);
 			return true;
 		} else{
 			return false;
-			//System.out.println("Connection fails");
 		}
 	}
 	
@@ -94,8 +87,6 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.rf = new RosterFrame(login, this);
 		this.rf.setRoster(r);
 		this.rf.setVisible(true);
-		//this.rf.setPositionX(10);
-		//this.rf.setPositionY(10);
 	}
 	
 	public boolean tryLogin(String u, String p) {
@@ -113,33 +104,25 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
 		if (chats.containsKey(c.getParticipant())) {
-			//System.out.println("contained participant!");
-			//return ;
+			// System.out.println("contained participant!");
+			// return ;
 		}
 		
 		else if(createdLocal) {
-			//System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
 			cw.addComponent(pusher);
 			chats.put(c.getParticipant(), cw);
-			//System.out.println("check chat map: "+ chats);
 			rf.getApplication().getMainWindow().addWindow(cw);
-			//this.login.getPusher().push();
 			pusher.push();
 		}
 		c.addMessageListener(this);
-		//pusher.push();
-		//this.login.getPusher().push();
 	}
 
 	@Override
 	public void processMessage(Chat c, Message m) {
-		// TODO Auto-generated method stub
-		//System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
-		//System.out.println("Get message body: " + m.getBody());
 
 		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals(""))){
 			return;
@@ -158,8 +141,6 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			cw.processMessage(m);
 		}
 		pusher.push();
-		// System.out.println("Message is dispatched in ChatReceiver.processMessage");
-		//this.login.getPusher().push();
 	}
 	
 	public ChatManager getManager() {

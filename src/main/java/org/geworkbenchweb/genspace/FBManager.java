@@ -60,9 +60,6 @@ public class FBManager {
 			}
 			
 		} else {
-			/*System.out.println("The post exists already!");
-			System.out.println(searchPost.getMessage());*/
-			
 			if (!comment.isEmpty() || comment != null) {
 				this.fbManager.publish(searchPost.getId() + "/comments", String.class, Parameter.with("message", comment));
 			}

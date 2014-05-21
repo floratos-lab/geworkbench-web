@@ -267,55 +267,11 @@ public class UserWrapper {
 	public void setZipcode(String zipcode) {
 		delegate.setZipcode(zipcode);
 	}
-
 	
 	public String getFullName() {		
 		return this.getFirstName() + " " + this.getLastName();
 	}
-//	public boolean isFriends()
-//	{
-//		return isFriendsWith(GenSpaceServerFactory.getUser()) != null;
-//	}
-//	public Friend isFriendsWith(User u) {
-//		for(Friend f: getFriends())
-//		{
-//			if(f.getRightUser().equals(u))
-//			{
-//				setFriendsWith(true);
-//				return f;
-//			}
-//		}
-//		setFriendsWith(false);
-//		return null;
-//	}
-//	
-//	public UserNetwork isInNetwork(Network n) {
-//		for(UserNetwork un : getNetworks())
-//		{
-//			if(un.getNetwork().equals(n))
-//				return un;
-//		}
-//		return null;
-//	}
-//	private boolean isVisibleTo(User other)
-//	{
-//		Friend f = isFriendsWith(other);
-//		if(f != null && f.isVisible())
-//		{
-//			return true;
-//		}
-//		//Check the networks
-//		for(UserNetwork u1 : this.getNetworks())
-//		{
-//			if(u1.isVisible())
-//				for(UserNetwork u2 : other.getNetworks())
-//				{
-//					if(u2.getNetwork().equals(u1.getNetwork()))
-//						return true;
-//				}
-//		}
-//		return false;
-//	}
+
 	private String na(String s)
 	{
 		return (s == null || s.length() == 0 ? "N/A" : s);

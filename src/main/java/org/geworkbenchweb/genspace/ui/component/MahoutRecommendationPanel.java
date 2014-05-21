@@ -35,7 +35,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 	private Label peopleSuggestionsArea;
 	private GenSpaceLogin_1 login;
 	private CheckBox filter;
-	//private JCheckBox networkFilterCheckBox;
 	
 	public MahoutRecommendationPanel(GenSpaceLogin_1 genSpaceLogin_1) {
 		this.login = genSpaceLogin_1;
@@ -56,7 +55,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 
 		mahoutSuggestionsPanel.addComponent(workflowsPanel);
 		mahoutSuggestionsPanel.addComponent(peoplePanel);
-		//mahoutSuggestionsPanel.addComponent(filter);
 		mainPanel.addComponent(mahoutSuggestionsPanel);
 
 		final Label wfLabel = new Label("Your Recommended Workflows");
@@ -81,7 +79,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		workflowsPanel.addComponent(wfLabel);
 		workflowsPanel.addComponent(workflowSuggestionsArea);
 		workflowsPanel.setWidth("300px");
-		//workflowsPanel.setStyleName(Reindeer.PANEL_LIGHT);
 		
 		Label emptyLabel = new Label();
 		emptyLabel.setWidth("20px");
@@ -96,16 +93,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 		peoplePanel.setScrollable(true);
 	}
 	
-	/*public void handleLogin() {
-		this.add(networkFilteringPanel, BorderLayout.EAST, 1);
-		displayRecommedations();
-	}
-	
-	public void handleLogout() {
-		networkFilterCheckBox.setSelected(false);
-		this.remove(1);
-		displayRecommedations();
-	}*/
 	
 	public void displayRecommendations() {
 		User user = login.getGenSpaceServerFactory().getUser();
@@ -120,8 +107,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				
 				tu = login.getGenSpaceServerFactory().getPublicFacade().getTasteUserByHostname(hostname);
 			} catch (UnknownHostException e) {
-				//e.printStackTrace();
-				//System.out.println("Unknown host");
 			}
 		}
 	
@@ -144,7 +129,6 @@ public class MahoutRecommendationPanel extends Panel implements ClickListener{
 				if (lim <= 0)
 					break;
 			}
-			//wfs = wfs.substring(0, wfs.length()-5);
 		
 			List<TasteUser> peopleLikeYou = getRealTimeMahoutUserSuggestion(tu);
 		

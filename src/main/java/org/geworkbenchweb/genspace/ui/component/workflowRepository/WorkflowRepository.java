@@ -42,9 +42,6 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 	private WorkflowCommentsPanel workflowCommentsPanel = new WorkflowCommentsPanel();
 	private InboxTablePanel inboxTable = new InboxTablePanel();
 	private GridLayout gridLayout = new GridLayout();
-	//private HorizontalLayout jSplitPane1 = new HorizontalLayout();
-	//private VerticalLayout jSplitPane2 = new VerticalLayout();
-	//private VerticalLayout jSplitPane3 = new VerticalLayout();
 	private Label infoLabel = new Label(
 			"Please login to genSpace to access this area.");
 	private Panel mainLayout = new Panel();
@@ -87,7 +84,6 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		rootRepoPanel.setSizeFull();
 		rootRepoPanel.setHeight("320px");
 		rootRepoPanel.addComponent(repositoryPanel);
-		//compRepoPanel.addComponent(repositoryPanel);
 		compRepoPanel.setSpacing(true);
 		compRepoPanel.addComponent(rootRepoPanel);
 		compRepoPanel.addComponent(delete);
@@ -100,14 +96,11 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(Button.ClickEvent evt) {
-				//System.out.println("Delete test");
 				UserWorkflow curWorkflow = repositoryPanel.getCurWorkFlow();
-				//System.out.println(curWorkflow);
 				
 				if (curWorkflow == null) {
 					return ;
 				}
-				//System.out.println(curWorkflow.getName());
 				login.getGenSpaceServerFactory().getWorkflowOps().deleteMyWorkflow(curWorkflow.getId());
 				login.getGenSpaceParent().getWorkflowRepository().updateFormFieldsBG();
 				repositoryPanel.recalculateAndReload();
@@ -117,17 +110,7 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 				repositoryPanel.setCurWorkFlow(null);
 			}
 		});
-		//jSplitPane3.addComponent(compRepoPanel);
-		
-		//jSplitPane3.addComponent(inboxTable);
-		//jSplitPane2.addComponent(graphPanel);
-		//jSplitPane2.addComponent(tabSheet);
-		//jSplitPane1.addComponent(jSplitPane3);
-		//jSplitPane1.addComponent(jSplitPane2);
-		
-		//jSplitPane1.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);
-		//jSplitPane2.setSplitPosition(70, Sizeable.UNITS_PERCENTAGE);
-		//jSplitPane3.setSplitPosition(50, Sizeable.UNITS_PERCENTAGE);
+	
 		
 		mainLayout.addComponent(infoLabel);
 		mainLayout.setSizeFull();
@@ -192,7 +175,6 @@ public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceT
 		wrapper.loadToolsFromCache();
 		list.add(wrapper);
 		graphPanel.render(list);
-		//workflowDetailsPanel.setAndPrintWorkflow(userWorkflow.getWorkflow());
 		workflowDetailsPanel.setAndPrintWorkflow(userWorkflow);
 		workflowCommentsPanel.setWorkflow(userWorkflow.getWorkflow());
 		repositoryPanel.setCurWorkFlow(userWorkflow);

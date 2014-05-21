@@ -35,7 +35,7 @@ public class WorkflowVisualizationPanel extends Panel {
 	
 	private GenSpaceLogin_1 login;
 	
-	//True for window and false for panel
+
 	private boolean isWindow = true;
 
 	public WorkflowVisualizationPanel() {
@@ -52,10 +52,8 @@ public class WorkflowVisualizationPanel extends Panel {
 	}
 
 	public void render(List<WorkflowWrapper> workflows) {
-		//removeAllComponents();
-		
+	
 		wkflwCache = new HashMap<Integer, WorkflowWrapper>();
-		//this.layout.removeAllComponents();
 		this.removeAllComponents();
 
 		Iterator<WorkflowTool> wIT;
@@ -68,8 +66,7 @@ public class WorkflowVisualizationPanel extends Panel {
 			
 			flowLayout = new HorizontalLayout();
 			flowLayout.setData(w.getId());
-//			System.out.println("DEBUG workflowid: " + w.getId());
-			
+
 			Tool tmpTool;
 			while(wIT.hasNext()) {
 				tmpTool = wIT.next().getTool();
@@ -91,7 +88,6 @@ public class WorkflowVisualizationPanel extends Panel {
 				private static final long serialVersionUID = 1L;
 
 				public void layoutClick(LayoutEvents.LayoutClickEvent evt) {
-//					System.out.println("DEBUG layoutclickevt: " + ((HorizontalLayout)evt.getComponent()).getData());
 					
 					if (evt.getClickedComponent().getClass().getName() != "com.vaadin.ui.Label") {
 						return ;

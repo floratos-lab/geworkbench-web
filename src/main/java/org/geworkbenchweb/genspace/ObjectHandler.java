@@ -73,9 +73,7 @@ public final class ObjectHandler {
 		}
 		
 		AnalysisSubmissionEvent ase = (AnalysisSubmissionEvent) event;
-		
-		//System.out.println("DEBUG handleLogging: " + logStatus);
-		
+	
 		if (logStatus != 2) {
 			Method methods[] = ase.getClass().getDeclaredMethods();
 			AnalysisUI analysis = null;
@@ -84,15 +82,12 @@ public final class ObjectHandler {
 			runningAnalyses.put(ase, null);
 
 			for (Method m : methods) {
-				//System.out.println("Test all method names: " + m.getName());
 				try {
 					if (m.getName().equals("getAnalaysisUI")) {
 						analysis = (AnalysisUI) m.invoke(event);
-						//System.out.println("Get analysis UI: " + analysis.getResultType().getName());
 					}
 					else if (m.getName().equals("getDataSet")) {
 						dataSetName = ((DSDataSet)m.invoke(event)).getLabel();
-						//dataSetName = ((DSDataSet)m.invoke(event)).getDataSetName();
 					}
 					else if (m.getName().equals("getDatasetId")) {
 						dataSetID = (Long)m.invoke(event);
@@ -167,10 +162,7 @@ public final class ObjectHandler {
 									.getLabel());
 				}
 				catch (Exception ex) {
-					// The sound of silence - this probably just means that the
-					// server had never received this event, or it's a
-					// continuation, etc.
-				}
+			}
 				return null;
 			}
 		};
@@ -183,59 +175,6 @@ public final class ObjectHandler {
 	 */
 	public void eventAborted(final AnalysisInvokedEvent invokeEvent) {
 		throw new NotImplementedException();
-//		if (invokeEvent != null)
-//			lastEventCompleteTimes.put(invokeEvent.getDataSetName(),
-//					System.currentTimeMillis());
-//		final Transaction tr = runningAnalyses.remove(invokeEvent);
-//		SwingWorker<Workflow, Void> sw = new SwingWorker<Workflow, Void>() {
-//
-//			@Override
-//			protected Workflow doInBackground() throws Exception {
-//				HashMap<String, Transaction> curTransactions = objectLogger
-//						.getCurTransactions();
-//				try {
-//					curTransactions
-//							.put(invokeEvent.getDataSetName(),
-//									GenSpaceServerFactory
-//											.getUsageOps()
-//											.popAnalysisFromTransaction(
-//													tr,
-//													((AbstractAnalysis) invokeEvent
-//															.getAnalysis())
-//															.getLabel()));
-//				}
-//				catch (Exception ex) {
-//					// The sound of silence - this probably just means that the
-//					// server had never received this event, or it's a
-//					// continuation, etc.
-//				}
-//				return (curTransactions.get(invokeEvent.getDataSetName()) == null ? null
-//						: curTransactions.get(invokeEvent.getDataSetName())
-//								.getWorkflow());
-//			}
-//
-//			@Override
-//			protected void done() {
-//				try {
-//					Workflow wf = get();
-//					if (wf == null) {
-//						wf = new Workflow();
-//					}
-//
-//					// if(GenSpace.getInstance() != null &&
-//					// GenSpace.getInstance().notebookPanel != null)
-//					// GenSpace.getInstance().notebookPanel.updateFormFields();
-//					RealTimeWorkflowSuggestion.cwfUpdated(wf);
-//				}
-//				catch (InterruptedException e) {
-//
-//				}
-//				catch (ExecutionException e) {
-//
-//				}
-//			}
-//		};
-//		sw.execute();
 	}
 
 	/*

@@ -44,13 +44,7 @@ import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 
 public class GenSpaceServerFactory {
 
-	/*private static User user;
-	private static String username = null;
-	private static String password = null;
-	private static String SERVER_ADDR = "http://"+RuntimeEnvironmentSettings.SERVER+":8080";
-	
-	public static Logger logger = Logger.getLogger(GenSpaceServerFactory.class);*/
-	
+
 	private User user;
 	private String username = null;
 	private String password = null;
@@ -58,27 +52,7 @@ public class GenSpaceServerFactory {
 	
 	public Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
 	private GenSpaceLogin_1 login;
-	
-	
-//	private static Properties conf = new Properties();
-//	
-//	static {
-//		try {
-////			 System.out.println(GenSpaceServerFactory.class.getResource("/genspace_conf.properties").getFile());			 
-//			 conf.load(GenSpaceServerFactory.class.getResourceAsStream("/genspace_conf.properties"));	
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	private static UserFacade userFacade;
-//	private static UsageInformation usageFacade;
-//	private static FriendFacade friendFacade;
-//	private static NetworkFacade networkFacade;
-//	private static PublicFacade publicFacade;
-//	private static WorkflowRepository workflowFacade;
-//	private static ToolUsageInformation toolUsageFacade;
-//	
+		
 	private static Object lock = new Object();
 
 	public void init()
@@ -131,28 +105,9 @@ public class GenSpaceServerFactory {
 		}
 	}
 	
-	/*public void handleExecutionException(String msg, Exception e)
-	{
-		e.printStackTrace();
-		this.clearCache();
-		JOptionPane.showMessageDialog(null, "There was an error communicating with the genSpace server:\n"+msg, "Error communicating with server", JOptionPane.ERROR_MESSAGE);
-	}*/
-	
-	/*public void handleExecutionException(Exception e)
-	{
-		e.printStackTrace();
-		this.clearCache();
-		JOptionPane.showMessageDialog(null, "There was an error communicating with the genSpace server.\n Please try your request again", "Error communicating with server", JOptionPane.ERROR_MESSAGE);
-	}*/
 	
 	public void clearCache()
 	{
-//		userFacade = null;
-//		usageFacade = null;
-//		friendFacade = null;
-//		networkFacade = null;
-//		publicFacade = null;
-//		workflowFacade = null;	
 	}
 	
 	public static void handleException(Exception e)
@@ -307,32 +262,17 @@ public class GenSpaceServerFactory {
 	public boolean userLogin(String username, String password) {
 		synchronized(lock)
 		{
-//			System.setProperty("java.security.auth.login.config", "components/genspace/classes/org/geworkbench/components/genspace/login.conf");
-//			System.setProperty("java.security.auth.login.config", "org/geworkbenchweb/components/genspace/login.conf");
-			//System.setProperty("java.security.auth.login.config", "org/geworkbenchweb/genspace/login.conf");
 			System.setProperty("java.security.auth.login.config", "login.conf");
 			try {
 				logout();
-
-				this.username = username;
-				
-				//System.out.println("Login username: " + this.username);
-				
-				this.password = UserWrapper.getEncryptedPassword(password.toCharArray());
-				
-				//System.out.println("Password: " + this.password);
-				
-				user = getUserOps().getMe();
-				
-				// System.out.println("Check user: " + user + " " + user.getUsername());
-				//TODO
-					return true;
+				this.username = username;				
+				this.password = UserWrapper.getEncryptedPassword(password.toCharArray());	
+				user = getUserOps().getMe();		
+				return true;
 			} 
 			catch (Exception e) {
-				// handleException(e);
 				return false;
 			}
-//			return true;
 		}
 	
 	}
@@ -354,23 +294,7 @@ public class GenSpaceServerFactory {
 		}
 		return true;
 	}
-	
-	
-//	public boolean userExists(String username) {
-//		try {
-//			this.username = conf.getProperty("username");
-//			this.password = conf.getProperty("password");
-//			// System.out.println(this.username);
-//			// System.out.println(this.password);
-//			userLogin(this.username, this.password);
-//			return getUserOps().userExists(username);
-//		} 
-//		catch (Exception e) {
-//			handleException(e);
-//			return false;
-//		}
-////		return true;
-//	}
+
 	
 	public boolean otherUserUpdate(User otheruser) {
 		try {
@@ -386,7 +310,6 @@ public class GenSpaceServerFactory {
 	}
 
 	public String getUsername() {
-		//System.out.println("Check user in getUsername: " + this.user);
 		if(user == null)
 			return null;
 		return user.getUsername();
@@ -397,20 +320,9 @@ public class GenSpaceServerFactory {
 	}
 
 	public void logout() {
-		try {
-			//TODO
-//			pm.logout(true);
-		} catch (Exception e) {
-		}
 		rootFolder = null;
-//		userFacade = null;
-//		usageFacade = null;
 		username = null;
 		password = null;
-//		friendFacade = null;
-//		networkFacade = null;
-//		publicFacade = null;
-//		workflowFacade = null;
 		user = null;
 	}
 
@@ -425,12 +337,5 @@ public class GenSpaceServerFactory {
 		return user2.isVisible();
 	}
 	
-	public static void main(String[] args) {
-		GenSpaceServerFactory test = new GenSpaceServerFactory();
-//		System.out.println(test.userExists("aaa123"));
-//		test.getWrappedUser().setPasswordClearText("qqq123");
-//		test.userUpdate();
-		System.out.println(test.userLogin("jon123df", "test123"));
-	}
 
 }

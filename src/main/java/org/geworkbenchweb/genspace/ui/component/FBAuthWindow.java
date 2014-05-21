@@ -82,7 +82,6 @@ public class FBAuthWindow extends Window{
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(Button.ClickEvent evt) {
-				//System.out.println("Test tokens: " + tokenField.getValue().toString());
 				String token = tokenField.getValue().toString();
 				
 				FBManager fbManager = new FBManager(token, login);
@@ -91,7 +90,6 @@ public class FBAuthWindow extends Window{
 					getApplication().getMainWindow().showNotification("Facebook connection succeeds! Login as " + fbManager.getMe().getUsername());
 					fbUserNotebook.setValue("<b>Facebook Account: " + fbManager.getMe().getUsername() + "</b>");
 					pusher.push();
-					//login.getPusher().push();
 					getApplication().getMainWindow().removeWindow(FBAuthWindow.this);
 				} else {
 					getApplication().getMainWindow().showNotification("Facebook connection fails. Please input valid token");

@@ -26,32 +26,25 @@ public class GenSpaceSecurityPanel extends CustomComponent {
 	
 	private GenspaceLayout genSpaceParent;
 	
-	public GenSpaceSecurityPanel(String uName, /*GenSpaceComponent*/ GenspaceLayout genSpaceParent2, GenSpaceLogin_1 login) {
+	public GenSpaceSecurityPanel(String uName, GenspaceLayout genSpaceParent2, GenSpaceLogin_1 login) {
 		this.genSpaceParent = genSpaceParent2;
 		this.login = login;
 		BorderLayout borderLayout = new BorderLayout();
 		setCompositionRoot(borderLayout);
 		
 		VerticalLayout panel = new VerticalLayout();
-//		panel.setPreferredSize(new Dimension(1024, 500));
 
 		TabSheet mainPanel = new TabSheet();
-		mainPanel.setStyleName(Reindeer.TABSHEET_MINIMAL);//mainPanel.setSizeFull();
+		mainPanel.setStyleName(Reindeer.TABSHEET_MINIMAL);
 		DataVisibility_1 dataPanel = new DataVisibility_1(login); 
-//		dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
-		//mainPanel.addTab(dataPanel);
 		mainPanel.addTab(dataPanel, "Data Visibiliy", null); 
-		// NetworkVisibility nwPanel = new NetworkVisibility(uName);
-		// mainPanel.addTab("User Visibility", nwPanel);
 
 		GenSpaceProfile genPanel = new GenSpaceProfile(login);
 		mainPanel.addTab(genPanel, "General Profile", null);
 		
 		
-//		mainPanel.setMaximumSize(new Dimension(500,500));
-//		panel.setMaximumSize(new Dimension(500,500));
 		panel.setSpacing(true);
-//		panel.addComponent(logout);
+
 		panel.addComponent(mainPanel);
 		panel.setSizeFull(); 
 		logout.addListener(ClickEvent.class, this, "logoutPerformed");
@@ -67,7 +60,6 @@ public class GenSpaceSecurityPanel extends CustomComponent {
 				Notification.TYPE_TRAY_NOTIFICATION);
 		mainWindow.showNotification(notification);
 		
-		//GenSpaceServerFactory.logout();
 		login.getGenSpaceServerFactory().logout();
 		genSpaceParent.fireLoggedOut();		
 	}

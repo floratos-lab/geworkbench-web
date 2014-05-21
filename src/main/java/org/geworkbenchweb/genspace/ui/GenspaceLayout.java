@@ -41,12 +41,9 @@ public class GenspaceLayout extends VerticalLayout {
 		if (this.pusher == null) {
 			this.pusher = new ICEPush();
 			this.addComponent(this.pusher);
-			
-			//System.out.println("Layout pusher is null");
-		} else if (this.pusher.getApplication() == null) {
+		} 
+		else if (this.pusher.getApplication() == null) {
 			this.addComponent(this.pusher);
-			
-			//System.out.println("Layout pusher is not attached");
 		}
 		
 		return this.pusher;
@@ -57,7 +54,6 @@ public class GenspaceLayout extends VerticalLayout {
 		this.genspaceLogger = genspaceLogger;
 		this.pusher = pusher;
 		this.addComponent(this.pusher);
-		//this.addComponent(new Panel("Test 123"));
 		
 		this.genspaceToolBar.setPusher(this.pusher);
 		this.genspaceToolBar.setGenSpaceLogger(this.genspaceLogger);
@@ -70,19 +66,12 @@ public class GenspaceLayout extends VerticalLayout {
 		p.setImmediate(true);
 		p.addComponent(genspaceToolBar);
 		genspaceToolBar.setStyleName("transparent");
-		//setExpandRatio(genspaceToolBar, 1);
-		//setComponentAlignment(genspaceToolBar, Alignment.TOP_CENTER);
 		this.addComponent(p);
-		// this.genspaceLogin = new GenSpaceLogin_1(this);
 		GenSpaceLogin_1 login = this.genspaceLogger.getGenSpaceLogin();
 		login.resetParent(this);
 		this.genspaceLogin = login;
-		//this.addComponent(genspaceLogin);
-		//this.addComponent(new Panel("1234"));
 		pluginView.setContentWithoutListner(genspaceLogin, "Home", "Please use this interface to login.", genspaceLogin);
 		this.addComponent(pluginView);
-		//System.out.println(pluginView.toString());
-		//System.out.println("Check login in GenSpaceLayoutout: " + this.genspaceLogin);
 		workflowVisualization = new WorkflowVisualization(genspaceLogin);
 		realTimeWorkflowSuggestion = new RealTimeWorkflowSuggestion(genspaceLogin);
 		workflowStatistics = new WorkflowStatistics_1(genspaceLogin);

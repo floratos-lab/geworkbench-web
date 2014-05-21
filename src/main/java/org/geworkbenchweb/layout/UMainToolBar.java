@@ -292,9 +292,7 @@ public class UMainToolBar extends MenuBar {
 
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
-				if (GeworkbenchRoot.genespaceEnabled()) {
-					// GenSpaceWindow.removeAllListnersFromGenSpaceBlackbord();
-					
+				if (GeworkbenchRoot.genespaceEnabled()) {				
 					ICEPush pusher = new ICEPush();
 					GenspaceLayout layout = UMainToolBar.this.layout;
 					layout = new GenspaceLayout(genSpaceLogger, pusher);

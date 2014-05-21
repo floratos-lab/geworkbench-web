@@ -91,7 +91,6 @@ public class CommentWindow extends Window{
 				updateWindow();
 				addComponent(pusher);
 				pusher.push();
-				//login.getPusher().push();
 			}
 		});
 		this.textPanel.addComponent(save);

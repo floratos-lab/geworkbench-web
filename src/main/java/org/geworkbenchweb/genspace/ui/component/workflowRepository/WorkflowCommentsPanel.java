@@ -152,7 +152,6 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 			Item item = getModel().getItem(itemID);
 			
 			int idx = Integer.parseInt(table.getValue().toString());
-			//System.out.println("Delete row: " + idx);
 			WorkflowComment wc = this.wfComments.get(idx);
 			this.removeComment(wc);
 		}
@@ -178,14 +177,6 @@ public class WorkflowCommentsPanel extends VerticalLayout implements Button.Clic
 				login.getGenSpaceParent().getWorkflowRepository().getRepositoryPanel().recalculateAndReload();
 			}
 			
-			/*UserWorkflow result = login.getGenSpaceParent().getWorkflowRepository().getRepositoryPanel().getCurWorkFlow();
-			System.out.println("Result workflow id: " + result.getId());
-			System.out.println("Current workflow id: " + this.curWorkflow.getId());
-			
-			if (result.getId() == this.curWorkflow.getId()) {
-				login.getGenSpaceParent().getWorkflowRepository().getWorkflowCommentsPanel().setWorkflow(result.getWorkflow());
-				login.getGenSpaceParent().getWorkflowRepository().getWorkflowCommentsPanel().getTable().refreshRowCache();
-			}*/
 			this.setWorkflow(this.curWorkflow);
 			this.table.refreshRowCache();
 		} catch (DatatypeConfigurationException e) {

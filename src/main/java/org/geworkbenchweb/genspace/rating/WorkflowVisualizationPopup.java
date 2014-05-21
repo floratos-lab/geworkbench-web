@@ -83,10 +83,6 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.gotoPageLabel.setWidth("240px");
 		this.expertLabel.setWidth("240px");
 		this.viewComment.setWidth("240px");
-
-		//this.vLayout = new VerticalLayout();
-		//this.addComponent(vLayout);
-		//this.createWorkflowPanel();
 		this.createWorkflowPanel();
 		this.addComponent(vLayout);
 	}
@@ -114,8 +110,6 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.gotoPageLabel.setCaption(gotoCaption);
 		wLayout.addComponent(this.gotoPageLabel, BorderLayout.Constraint.WEST);
 
-		/*this.gotoPage = new Button("Go");
-		this.gotoPage.addListener(this);*/
 		this.gotoPage = new Link("Go", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "tool/index/" + selectedTool.getId(), "_blank"));
 		this.gotoPage.setTargetName("_blank");
 		wLayout.addComponent(gotoPage, BorderLayout.Constraint.EAST);
@@ -147,13 +141,10 @@ public class WorkflowVisualizationPopup extends Window implements Button.ClickLi
 		this.viewPanel.addComponent(wLayout);
 		wLayout.addComponent(this.viewComment, BorderLayout.Constraint.WEST);
 
-		/*this.view = new Button("View");
-		this.view.addListener(this);*/
 		this.view = new Link("View", new ExternalResource(RuntimeEnvironmentSettings.GS_WEB_ROOT + "workflow/index/" + workflow.getId(), "_blank"));
 		this.view.setTargetName("_blank");
 		wLayout.addComponent(this.view, BorderLayout.Constraint.EAST);
 		
-		//Unify the width for all buttons here
 		this.addWkButton.setWidth("80px");
 		this.gotoPage.setWidth("80px");
 		this.contact.setWidth("80px");

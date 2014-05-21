@@ -142,7 +142,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				List<Tool> toolList = new ArrayList<Tool>();
 				Iterator toolListingIT = toolListing.getItemIds().iterator();
 								
-				//List<Tool> results = login.getGenSpaceServerFactory().getUsageOps().getAllTools();
 				while(toolListingIT.hasNext()){
 					Object itemID = (Object)toolListingIT.next();
 					Item tmpItem;
@@ -153,7 +152,6 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 						tmpOrder = (Integer)tmpItem.getItemProperty(ORDER).getValue();
 						tmpTool = results.get(tmpOrder);
 						toolList.add(tmpTool);
-						//System.out.println("DEBUG Tool selected: " + tmpTool.getName() + " " + tmpTool.getId());
 					}
 				}
 				
@@ -161,21 +159,11 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 					wfsPane.setValue("No tool is selected");
 					return ;
 				}
-				
-				/*String criteriaString = "(";
-				List<Integer> toolsIds = new ArrayList<Integer>();
-				for (Tool t : toolList) {
-					toolsIds.add(t.getId());
-					criteriaString += "wt.tool_id=" + t.getId() + " or ";
-				}
-				criteriaString = criteriaString.substring(0, criteriaString.length()-4);
-				criteriaString += ") ";
-				System.out.println("DEBUG CriteriaString: " + criteriaString);*/
+
 				
 				List<Workflow> workFlowList;
 				if(toolList.size() > 0){
 					workFlowList = login.getGenSpaceServerFactory().getUsageOps().getMahoutSimilarWorkflowsSuggestion(toolList);
-					// System.out.println("Suggested workflow list: " + workFlowList.size());
 					
 					if (workFlowList == null || workFlowList.size() == 0) {
 						wfsPane.setValue("No Workflow found");
@@ -212,10 +200,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		toolListPanel.setSizeFull();
 		suggestionsPanel.addComponent(infoArea);
 		suggestionsPanel.addComponent(toolListPanel);
-//		toolListPanel.setExpandRatio(resultsPanel, 1.0f);
-		
-		// add both panels
-		//splitter.setSplitPosition(20, Sizeable.UNITS_PERCENTAGE);  
+
 		
 		Panel leftPanel = new Panel();
 		leftPanel.setHeight("500px");
@@ -226,16 +211,10 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		rightPanel.setHeight("500px");
 		rightPanel.setScrollable(true);
 		rightPanel.addComponent(suggestionsPanel);
-		
-		//splitter.addComponent(leftPanel);     
-		//splitter.addComponent(rightPanel);    
+		 
 		splitter.setSpacing(true);
 		splitter.addComponent(workflowViewerPanel);
 		splitter.addComponent(suggestionsPanel);
-		/*splitter.addComponent(workflowViewerPanel);
-
-		splitter.addComponent(suggestionsPanel);*/
-
 		
 		toolPanel.setExpandRatio(toolListing, 1.0f);
 		
@@ -385,29 +364,5 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 		
 	}
 	
-
-	/*
-	 * 
-	 * 
-	 * public void actionPerformed(ActionEvent e) { if (e.getSource() == save) {
-	 * //System.out.println("Save pressed with " +
-	 * group.getSelection().getActionCommand()); preference =
-	 * Integer.parseInt(group.getSelection().getActionCommand());
-	 * ObjectHandler.setLogStatus(preference); save.setEnabled(false); // write
-	 * it to the properties file try { PropertiesManager properties =
-	 * PropertiesManager.getInstance();
-	 * properties.setProperty(GenSpaceLogPreferences.class, PROPERTY_KEY,
-	 * group.getSelection().getActionCommand()); } catch (Exception ex) { }
-	 * 
-	 * } else if (e.getSource() == reset) {
-	 * //System.out.println("Reset pressed"); logAnon.setSelected(true);
-	 * save.setEnabled(true); } else if (e.getSource() == log) { if (preference
-	 * == 0) { save.setEnabled(false); } else { save.setEnabled(true); } } else
-	 * if (e.getSource() == logAnon) { if (preference == 1) {
-	 * save.setEnabled(false); } else { save.setEnabled(true); } } else if
-	 * (e.getSource() == noLog) { if (preference == 2) { save.setEnabled(false);
-	 * } else { save.setEnabled(true); } } }
-	 */
-
 }
 

@@ -36,10 +36,6 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.setSizeFull();
 		this.setSpacing(true);
 		getTextArea().setSizeFull();
-		/*HorizontalLayout hLayout = new HorizontalLayout();
-		hLayout.setSpacing(true);
-		hLayout.addComponent(receiver);
-		hLayout.addComponent(sendButton);*/
 		this.addComponent(new Label(""));
 		this.addComponent(receiver);
 		this.addComponent(sendButton);
@@ -49,7 +45,6 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		this.textArea.setImmediate(true);
 		this.textArea.setSizeFull();
 		this.textArea.setHeight("270px");
-		//System.out.println(receiver.getCaption());
 	}
 	
 	public void setGenSpaceLogin(GenSpaceLogin_1 login)
@@ -59,13 +54,10 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 	
 	public void setAndPrintWorkflow(UserWorkflow usrWorkflow) {
 		this.usrWorkflow = usrWorkflow;
-		//this.workflow = workflow;
-		//System.out.println("set print detail! "+this.usrWorkflow);
 		if (this.usrWorkflow == null) {
 			getTextArea().setValue("");
 		} else {
 			String string = getWorkflowDetailsString(this.usrWorkflow.getWorkflow());
-			//System.out.println("check detail: "+string);
 			getTextArea().setValue(string);
 		}
 	}
@@ -128,7 +120,6 @@ public class WorkflowDetailsPanel extends VerticalLayout implements ClickListene
 		newW.setName(this.usrWorkflow.getName());
 		newW.setWorkflow(tmpWorkflow);
 		newW.setSender(login.getGenSpaceServerFactory().getUser());
-		//return login.getGenSpaceServerFactory().getWorkflowOps().sendWorkflow(newW, (String) receiver.getValue());
 		return login.getGenSpaceServerFactory().getWorkflowOps().sendWorkflow(newW, receiver);
 	}
 

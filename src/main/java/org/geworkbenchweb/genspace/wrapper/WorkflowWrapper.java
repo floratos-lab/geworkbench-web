@@ -124,19 +124,6 @@ public class WorkflowWrapper {
 			r = r.substring(0,r.length()-2);
 		return r;
 	}
-//	public void updateRatingsCache()
-//	{
-//		//TODO make this called automatically
-//		int numRating =0;
-//		int totalRating =0;
-//		for(WorkflowRating tr : getRatings())
-//		{
-//			numRating++;
-//			totalRating += tr.getRating();
-//		}
-//		setNumRating(numRating);
-//		setSumRating(totalRating);
-//	}
 	
 	public ToolWrapper getLastTool()
 	{

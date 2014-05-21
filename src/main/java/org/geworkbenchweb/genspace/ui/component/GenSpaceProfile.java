@@ -68,24 +68,6 @@ public class GenSpaceProfile extends AbstractGenspaceTab implements GenSpaceTab,
 	
 	private VerticalLayout v = new VerticalLayout();
 
-	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
-
-	
-
-	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
-
-	
-
-	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
-
-	
-
-	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
-
-	
-
-	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
-
 	@Override
 	public void loggedIn() {
 		User u = login.getGenSpaceServerFactory().getUser();
@@ -136,7 +118,6 @@ public class GenSpaceProfile extends AbstractGenspaceTab implements GenSpaceTab,
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//User me = GenSpaceServerFactory.getUser();
 				User me = login.getGenSpaceServerFactory().getUser();
 				me.setAddr1((String) addr1.getValue());
 				me.setAddr2((String) addr2.getValue());
@@ -148,7 +129,6 @@ public class GenSpaceProfile extends AbstractGenspaceTab implements GenSpaceTab,
 				me.setPhone((String) phone.getValue());
 				me.setState((String) state.getValue());
 				me.setZipcode((String) zipcode.getValue());
-				//GenSpaceServerFactory.getUserOps().updateUser(me);
 				login.getGenSpaceServerFactory().getUserOps().updateUser(me);
 			}
 		});
@@ -432,7 +412,6 @@ public class GenSpaceProfile extends AbstractGenspaceTab implements GenSpaceTab,
 			}
 
 		}
-		// System.out.println("valid : " + valid);
 		return valid;
 	}
 

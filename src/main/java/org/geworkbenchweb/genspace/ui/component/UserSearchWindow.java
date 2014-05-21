@@ -66,16 +66,7 @@ public class UserSearchWindow extends Window {
 		
 		this.addComponent(vLayout);		
 		this.updateWindowContents();
-		
-//		this.addListener( new Window.CloseListener() {
-//			
-//			// After close current window, push UI change
-//			@Override
-//			public void windowClose(CloseEvent e) {
-//				GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(
-//						login.getGenSpaceServerFactory().getUsername()));
-//			}
-//		});
+
 		
 	}
 	

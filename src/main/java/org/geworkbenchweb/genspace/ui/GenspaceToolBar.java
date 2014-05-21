@@ -39,7 +39,6 @@ public class GenspaceToolBar extends MenuBar {
 
 
 	public GenspaceToolBar(final GenSpacePluginView pluginView){
-		//this.genspaceLogger = new GenspaceLogger();
 		this.pluginView = pluginView;
 
 		this.addItem("Home", new Command(){
@@ -51,9 +50,6 @@ public class GenspaceToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
 				GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Home", "Please use this interface to login.", genSpaceLogin);
 			}
 			
@@ -69,9 +65,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//workflowVisualization = new WorkflowVisualization(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(workflowVisualization, "Workflow Visualization", "Please select an action and a tool to search for.", genSpaceLogin);
 			}
 			
@@ -87,9 +80,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//realTimeWorkflowSuggestion = new RealTimeWorkflowSuggestion(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(realTimeWorkflowSuggestion, "Real Time Workflow Suggestion", "Please use this interface to get suggestions.", genSpaceLogin);
 			}
 			
@@ -105,9 +95,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//workflowStatistics = new WorkflowStatistics(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(workflowStatistics, "Workflow Statistics", "Select a tool to see its statistics.", genSpaceLogin);
 			}
 			
@@ -123,9 +110,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				///genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//notebookPanel = new NotebookPanel(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(notebookPanel, "Research Notebook", "Enter your search query or use the dropdown.", genSpaceLogin);
 			}
 			
@@ -141,9 +125,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//workflowRepository = new WorkflowRepository(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(workflowRepository, "Workflow Repository", "...", genSpaceLogin);
 			}
 			
@@ -159,9 +140,6 @@ public class GenspaceToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				// TODO Auto-generated method stub
-				//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-				//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-				//socialNetworkHome = new SocialNetworkHome(genSpaceLogin);
 				GenspaceToolBar.this.pluginView.setContent(socialNetworkHome, "Communicator", "Please use this interface to communicate with others.", genSpaceLogin);
 			}
 			
@@ -203,10 +181,6 @@ public class GenspaceToolBar extends MenuBar {
 	
 	public void fireLoggedIn()
 	{
-		//System.out.println("In firedLogged");
-		//genspaceLayout = new GenspaceLayout(genspaceLogger, pusher);
-		//genSpaceLogin = new GenSpaceLogin_1(genspaceLayout);
-		//System.out.println("Check genspace login in GenSpaceToolBar: " + genSpaceLogin);
 		genSpaceLogin.loggedIn();
 		realTimeWorkflowSuggestion.loggedIn();
 		workflowStatistics.loggedIn();
@@ -215,11 +189,6 @@ public class GenspaceToolBar extends MenuBar {
 		workflowRepository.loggedIn();
 		socialNetworkHome.loggedIn();
 		
-		
-		/*GenspaceToolBar.this.pluginView.setAf(genSpaceLogin);
-		GenspaceToolBar.this.pluginView.setChat(genSpaceLogin);*/
-		
-		//System.out.println("Check genSpaceLogin before set in logger: " + genSpaceLogin);
 		genspaceLogger.setGenSpaceLogin(genSpaceLogin);
 		ObjectLogger objectLogger = genspaceLogger.getObjectLogger();
 		objectLogger.addCWFListener(realTimeWorkflowSuggestion);
@@ -227,15 +196,10 @@ public class GenspaceToolBar extends MenuBar {
 		
 		GenspaceToolBar.this.pluginView.setContent(genSpaceLogin, "Home", "Please use this interface to login.", genSpaceLogin);
 		
-		// After Roster Frame is initialized then fire userlogin event
-//		String user = genSpaceLogin.getGenSpaceServerFactory().getUsername();
-//		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
-		//System.out.println("^^^^^ check!!!"+genSpaceLogin.getApplication());
-//		objectLogger.setGenSpaceLogin(genSpaceLogin_1);		
-//		tabSheet_1.getTab(genSpaceLogin_1).setEnabled(false);
 	}
-	public void fireLoggedOut()
-	{
+	
+	public void fireLoggedOut() {
+		
 		genSpaceLogin.loggedOut();
 		realTimeWorkflowSuggestion.loggedOut();
 		workflowStatistics.loggedOut();
@@ -247,15 +211,6 @@ public class GenspaceToolBar extends MenuBar {
 		GenspaceToolBar.this.pluginView.clearAf();
 		GenspaceToolBar.this.pluginView.clearChat();
 	} 
-	
-	
-	/*public WorkflowRepository getWorkflowRepository() {
-		return this.workflowRepository;
-	}
-	
-	public SocialNetworkHome getSocialNetworkHome() {
-		return this.socialNetworkHome;
-	}*/
 	
 	public void setPusher(ICEPush pusher) {
 		this.pusher = pusher;  

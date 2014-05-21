@@ -70,8 +70,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 */
 	public void setChat(Chat c) {
 		this.chat = c;
-		//this.setTitle("Chat with " + c.getParticipant().replace("@genspace", "").replace("/Smack",""));
-		//this.setCaption("Chat with " + c.getParticipant().replace("@genspace", "").replace("/Smack",""));
 		this.setCaption("Chat with " + c.getParticipant().replace("@genspace", "").replaceAll("([0-9a-zA-Z.]*)(/)([0-9a-zA-Z.]*)", "$1"));
 	}
 	
@@ -79,7 +77,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		return this.chat;
 	}
 
-	//private ScreenShareListener screenListener;
 
 	/**
 	 * Handle a standard "text message"
@@ -87,8 +84,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * @param m
 	 */
 	private void processTextMessage(Message m) {
-		//System.out.println("In processTextMessage: " + m.getBody());
-		//System.out.println("Last chat: " + last);
 		if (!last.equals(lastChatter.YOU)) {
 			chatText += "<br><font color=\"green\">"
 					+ chat.getParticipant().replace("@genspace", "").replaceAll("([0-9a-zA-Z.]*)(/)([0-9a-zA-Z.]*)", "$1")
@@ -100,9 +95,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		}
 		last = lastChatter.YOU;
 		chatText += "<br>" + m.getBody();
-		
-		//System.out.println("DEBUG chatText: " + chatText);
-		
 		this.txtMsging.setValue("<html><body>" + chatText + "</body></html>");
 		this.requestRepaintAll();
 	}
@@ -114,7 +106,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 *            Message
 	 */
 	public void processMessage(Message m) {
-		//System.out.println("DEBUG ChatWinow get message body: " + m.getBody());
 		if (m.getBody() != null) {
 			// If this window has been hidden, unhide it
 			if (!this.isVisible()) {
@@ -137,19 +128,10 @@ public class ChatWindow extends Window implements Action.Handler{
 				processScreenHandshakeMessage(m);
 			} else if (m.getProperty("specialType").equals(
 					messageTypes.SCREEN_TX_END)) {
-				// Stop sending screens
-				//screenPublisher.stop();
 				sharingScreen = false;
-				/*mnuShareScreen.setText("Share Screen");
-				screenSendTimer.stop();*/
 			} else if (m.getProperty("specialType").equals(
 					messageTypes.SCREEN_RX_END)) {
-				// Stop showing
-				/*sharingScreen = false;
-				screenListener.stop();
-				screenShareFrame.setVisible(false);*/
 			} else {
-				// This is an unknown screen type.
 			}
 		}
 	}
@@ -172,74 +154,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * @param m
 	 */
 	private void processScreenRequestMessage(Message m) {
-		/*if (screenReceiver == null) {
-			screenShareFrame = new JFrame();
-			screenShareFrame.setSize(600, 600);
-			screenReceiver = new ScreenSharingReceiver();
-			screenShareFrame.add(screenReceiver);
-			screenShareFrame.setVisible(true);
-			screenShareFrame
-					.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-			screenListener = new ScreenShareListener(screenReceiver);
-
-			screenShareFrame.addWindowListener(new WindowListener() {
-
-				@Override
-				public void windowActivated(WindowEvent e) {
-					
-				}
-
-				@Override
-				public void windowClosed(WindowEvent e) {
-					screenShareFrame.setVisible(false);
-					screenShareFrame.dispose();
-					screenListener.stop();
-					Message m = new Message();
-					m.setProperty("specialType", messageTypes.SCREEN_TX_END);
-					try {
-						chat.sendMessage(m);
-					} catch (XMPPException e1) {
-						GenSpaceServerFactory.logger.warn("Error", e1);
-					}
-
-
-				}
-
-				@Override
-				public void windowClosing(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowDeiconified(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowIconified(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowOpened(WindowEvent e) {
-				}
-			});
-			Message ret = new Message(m.getFrom());
-			ret.setBody("IM LISTENING");
-			ret.setProperty("specialType", messageTypes.SCREEN_HANDSHAKE);
-			ret.setProperty("IP", screenListener.getLocalAddress());
-			ret.setProperty("port", screenListener.getLocalPort());
-			try {
-				chat.sendMessage(ret);
-			} catch (XMPPException e) {
-				GenSpaceServerFactory.logger.warn("Error", e);
-			}
-		}*/
 	}
 
 	/**
@@ -268,7 +182,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		try {
 			Message m = new Message();
 			m.setBody(ogm.getValue().toString());
-			//System.out.println("ChatWindow ogm.getValue: " + ogm.getValue().toString());
 						
 			m.setProperty("specialType", messageTypes.CHAT);
 			chat.sendMessage(m);
@@ -290,7 +203,7 @@ public class ChatWindow extends Window implements Action.Handler{
 		ogm.setValue("");
 		this.addComponent(this.pusher);
 		this.pusher.push();
-		//this.login.getPusher().push();
+
 	}
 
 	/**
@@ -299,7 +212,7 @@ public class ChatWindow extends Window implements Action.Handler{
 	 * @param evt
 	 */
 	private void mnuEndChatActionPerformed() {
-		//this.setVisible(false);
+
 		this.getParent().removeWindow(this);
 	}
 
@@ -312,15 +225,6 @@ public class ChatWindow extends Window implements Action.Handler{
 	 *            Destination port
 	 */
 	private void startSendingScreen(InetAddress ip, Integer port) {
-		/*screenPublisher = new ScreenSharePublisher(ip, port);
-
-		screenSendTimer = new Timer(SCREEN_FPS, new ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				sendScreenUpdate();
-			};
-		});
-		screenSendTimer.start();*/
 	}
 
 	/**
@@ -372,7 +276,6 @@ public class ChatWindow extends Window implements Action.Handler{
 
 			public void menuSelected(MenuItem selectedItem) {
 				//TODO: Implement body for sendWorkFlow
-				//System.out.println("DEBUG sendWorkFlow");
 				mnuSendWorkflowActionPerformed();
 			}
 		};
@@ -395,7 +298,6 @@ public class ChatWindow extends Window implements Action.Handler{
 		txtMsging = new Label();
 		txtMsging.setContentMode(Label.CONTENT_XHTML);
 		txtMsging.setWidth("100%");
-		//txtMsging.setHeight("200px");
 		txtMsging.setImmediate(true);
 		
 		txtPanel = new Panel();

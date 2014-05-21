@@ -61,13 +61,10 @@ public class GenSpaceRegistration extends CustomComponent implements
 		this.regPanel.setWidth("400px");
 		this.regPanel.setHeight("600px");
 		this.regPanel.setScrollable(true);
-		//setCompositionRoot(gridLayout);
 		gridLayout.setWidth("100%");
 	}
 
 	private void initComponents() {
-		// this.setSize(500, 500);
-		// this.setLayout(new GridLayout(15, 2));
 		Label label = new Label("Enter sign in user id *");
 		userId = new TextField();
 		gridLayout.addComponent(label);
