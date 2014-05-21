@@ -225,7 +225,9 @@ public class RequestPanel extends SocialPanel{
 					for (int friendID: accList) {
 						//System.out.println("Accept user: " + friendID);
 						login.getGenSpaceServerFactory().getFriendOps().addFriend(friendID);
-						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
+						FriendStatusChangeEvent e = new FriendStatusChangeEvent(myID, friendID);
+						e.setOptType(FriendStatusChangeEvent.ADD_FRIEND);	
+						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 					}
 					loadFriends();
 				}/*else{
@@ -335,6 +337,11 @@ public class RequestPanel extends SocialPanel{
 				if(accList.size()>0){
 					for (int unID: accList) {
 						login.getGenSpaceServerFactory().getNetworkOps().acceptNetworkRequest(unID);
+						
+						FriendStatusChangeEvent e = new FriendStatusChangeEvent(FriendStatusChangeEvent.NETWORK_EVENT, 
+								FriendStatusChangeEvent.NETWORK_EVENT);
+						e.setOptType(FriendStatusChangeEvent.ADD_FRIEND);						
+						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 					}
 					loadNetworks();
 				}else{

@@ -19,6 +19,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.events.LogCompleteEvent;
 import org.geworkbenchweb.events.LogCompleteEvent.LogCompleteEventListener;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.event.MouseEvents.ClickListener;
@@ -192,7 +193,7 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();
 			//this.addComponent(this.pusher);
-			this.pusher.push();
+			GenSpaceWindow.sPush(this, this.getPusher());
 			//login.getPusher().push();
 		}
 	}
@@ -217,5 +218,16 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 		
 		return false;
 	}
+	
+	private ICEPush getPusher() {
+		if (this.pusher == null) {
+			this.pusher = new ICEPush();
+		}
+		if (this.pusher.getApplication() == null) {
+			this.addComponent(this.pusher);
+		}
+		return this.pusher;
+	}
+	
 }
 

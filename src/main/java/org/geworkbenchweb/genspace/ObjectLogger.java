@@ -81,14 +81,15 @@ public class ObjectLogger {
 		
 		/*For fixing when user choose not to login genSpace, still need a GenSpaceServerFactory to log information.*/
 		GenSpaceServerFactory tmpFactory = null;
-		if (login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
+		if (!login.isLogin()) {
 			tmpFactory = new GenSpaceServerFactory();
 		} else {
 			tmpFactory = login.getGenSpaceServerFactory();
 		}
-		
+			
 		Transaction curTransaction = curTransactions.get(dataSetName);
-		if(curTransaction == null || !curTransaction.getClientID().equals(tmpFactory.getUsername() + hostname + transactionId))
+		if(this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1 ||
+				curTransaction == null || !curTransaction.getClientID().equals(tmpFactory.getUsername() + hostname + transactionId))
 		{
 			curTransaction = new Transaction();
 			curTransaction.setDataSetName(dataSetName);
@@ -97,7 +98,7 @@ public class ObjectLogger {
 			} catch (DatatypeConfigurationException e1) {
 				e1.printStackTrace();
 			} //TODO verify
-			if(login == null || login.getGenSpaceServerFactory() == null || login.getGenSpaceServerFactory().getUsername() == null) {
+			if (this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1 || !login.isLogin() ) {
 				curTransaction.setClientID(hostname + transactionId);
 				curTransaction.setUser(null);
 			} else {
@@ -178,8 +179,13 @@ public class ObjectLogger {
 		try
 		{	
 			Transaction retTrans = (tmpFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
-			curTransactions.put(dataSetName, retTrans);
+			// curTransactions.put(dataSetName, retTrans);
 			tmpFactory.clearCache();
+			
+			if (this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1) {
+				return null;
+			}
+			
 			if(retTrans != null)
 			{
 				for(WorkflowTool t : retTrans.getWorkflow().getTools())
@@ -196,9 +202,11 @@ public class ObjectLogger {
 					listener.cwfUpdated(retTrans.getWorkflow());
 				}
 				setCurWorkflow(retTrans.getWorkflow());
-//				RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());
+//				RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());	
 				return retTrans;
 			}
+			
+			
 		}
 		catch(Exception ex)
 		{

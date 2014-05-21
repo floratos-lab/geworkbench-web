@@ -126,7 +126,7 @@ public final class ObjectHandler {
 				parameters = new HashMap<Serializable, Serializable>();
 
 			if (logStatus == 0) {
-				log.debug("genspace - Logging");
+				log.debug("genspace - Logging");	
 				
 				objectLogger.log(analysisName, dataSetName,
 						lastTransactionId.get(dataSetName), parameters,
@@ -261,6 +261,10 @@ public final class ObjectHandler {
 
 	public void setLogStatus(int i) {
 		logStatus = i;
+	}
+	
+	public int getLogStatus() {
+		return this.logStatus;
 	}
 
 }

@@ -1,4 +1,4 @@
-.v-menubar-transparent { 
+/*.v-menubar-transparent { 
 	font-weight: bold;
 	color: #000;
 	background : transparent;
@@ -34,10 +34,10 @@
  
 .v-tabsheet-tabitemcell {
   width: 50% !important;
-}
+}*/
 
 
-.feature-controls {
+/*.feature-controls {
 	background: transparent url(feature-controls-border.png) repeat-x 0 41px;
 	padding-bottom: 10px;
 }
@@ -92,7 +92,7 @@
 }
 .feature-controls .v-nativebutton-reset:focus {
 	outline: none;
-}
+}*/
 
 .feature-info {
 	background: #1e2123 url(info-bubble-bg.png) repeat-y;
@@ -155,10 +155,10 @@
 	border: none;
 }
 
-.v-panel .v-panel {
+/*.v-panel .v-panel {
 	background: transparent;
 	border: none;
-}
+}*/
 
 .feature-info .v-verticallayout .v-verticallayout-margin-left {
 	padding-left: 28px;
@@ -190,7 +190,7 @@
 	margin: 0 5px 0 9px;
 }
 
-.feature-info .description {
+/*.feature-info .description {
 	padding: 0;
 }
 .feature-info .description div.outer-deco {
@@ -212,9 +212,9 @@
 }
 .feature-info .description span.deco {
 	left: -24px;
-}
+}*/
 
-.feature-info .sample-description {
+/*.feature-info .sample-description {
 	padding: 0;
 }
 .feature-info .sample-description div.outer-deco {
@@ -250,5 +250,5 @@
 }
 .feature-info .sample-description span.deco {
 	left: -26px;
-}
+}*/
 

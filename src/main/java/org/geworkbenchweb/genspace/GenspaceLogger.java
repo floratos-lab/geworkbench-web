@@ -93,6 +93,7 @@ public class GenspaceLogger implements AnalysisSubmissionEventListener {
 
 	@Override
 	public void SubmitAnalysis(AnalysisSubmissionEvent event) {
+		
 		if (event != null
 				&& event.getClass().equals(AnalysisSubmissionEvent.class)) {
 			log.info("event: " + event.getClass().getSimpleName());

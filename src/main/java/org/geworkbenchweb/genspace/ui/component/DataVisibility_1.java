@@ -57,6 +57,7 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 
 	public DataVisibility_1(GenSpaceLogin_1 login2) { 
 		this.login = login2;
+		this.objectHandler = this.login.getGenSpaceLogger().getObjectHandler();
 		// read the preferences from the properties file
 		try {
 			// PropertiesManager properties = PropertiesManager.getInstance();
@@ -123,7 +124,6 @@ public class DataVisibility_1 extends VerticalLayout implements ClickListener {
 			setSpacing(true);
 			logOptionsSelect = new ComboBox("-- Select Log Preferences --", logOptions);
 
-			int preference = login.getGenSpaceServerFactory().getUser().getLogData();
 			logOptionsSelect.select(logOptions.get(preference));
 			logOptionsSelect.setNullSelectionAllowed(false);
 			// try {

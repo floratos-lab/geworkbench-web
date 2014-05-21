@@ -2,10 +2,13 @@ package org.geworkbenchweb.genspace.ui.component;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -77,6 +80,9 @@ public class NetworkPanel extends SocialPanel{
 	
 	private ChatReceiver cr;
 	
+	private SocialNetworkHome parent;
+	
+	
 	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login) {
 		this.login = login;
 		
@@ -84,6 +90,11 @@ public class NetworkPanel extends SocialPanel{
 		this.setCompositionRoot(blLayout);
 		this.title = panelTitle;
 		this.updatePanel();
+	}
+	
+	public NetworkPanel(String panelTitle, GenSpaceLogin_1 login, SocialNetworkHome parent) {
+		this(panelTitle, login);
+		this.parent = parent;
 	}
 	
 	public void setRf(RosterFrame rf){
@@ -172,6 +183,7 @@ public class NetworkPanel extends SocialPanel{
 					NetUserPanel nup = new NetUserPanel(nupTitle, login, uNet.getNetwork());
 					nwPresentationLayout.removeAllComponents();
 					nwPresentationLayout.addComponent(nup);
+					NetworkPanel.this.parent.backTo = SocialNetworkHome.BACK_TO_MYNET;
 				}
 			}
 			
@@ -233,7 +245,12 @@ public class NetworkPanel extends SocialPanel{
 							login.getGenSpaceServerFactory().getNetworkOps().joinNetwork(selectedNet.getName());
 							//addNetwork(selectedNet.getName(), new UserWrapper(selectedNet.getOwner(), login).getFullName());
 							updatePanel();
-							rf.refresh();
+//							if (rf == null) {
+//								rf = NetworkPanel.this.parent.getRf();
+//							}
+//							rf.refresh();
+							
+
 							//createMainLayout();
 						}
 					}else{
@@ -260,7 +277,15 @@ public class NetworkPanel extends SocialPanel{
 						updatePanel();
 					
 						//System.out.println(rf.getCaption());
-						rf.refresh();
+//						if (rf == null) {
+//							rf = NetworkPanel.this.parent.getRf();
+//						}
+//						rf.refresh();
+						
+						FriendStatusChangeEvent e = new FriendStatusChangeEvent(FriendStatusChangeEvent.NETWORK_EVENT, 
+																			FriendStatusChangeEvent.NETWORK_EVENT);
+						e.setOptType(FriendStatusChangeEvent.RM_FRIEND);						
+						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 						
 						//cr.updateRoster();
 						//cr.createRosterFrame();

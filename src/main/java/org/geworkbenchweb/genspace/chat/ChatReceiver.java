@@ -2,8 +2,10 @@ package org.geworkbenchweb.genspace.chat;
 
 import java.util.HashMap;
 
+import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
 import org.geworkbenchweb.genspace.ui.chat.MessageTypes;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
@@ -42,21 +44,23 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	
 	private Roster r;
 	private ICEPush pusher = new ICEPush();
+	private String u;
+	private String p;
+	
 	
 	public ChatReceiver(GenSpaceLogin_1 genSpaceLogin_1){
 		this.login = genSpaceLogin_1;
 	}
 	
-	public void login(String u, String p) {
+	public boolean login(String u, String p) {
+		this.u = u;
+		this.p = p;
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
 //		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5269, "genspace");
 		
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
 			//System.out.println("Connection succeeds");
-			Presence pr = new Presence(Presence.Type.available);
-			pr.setStatus("On genspace...");
-			connection.sendPacket(pr);
 			
 			manager = connection.getChatManager();
 			this.updateRoster();
@@ -64,8 +68,20 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			
 			manager.addChatListener(this);
 			//System.out.println("OOOOOOO"+this.rf);
+			return true;
 		} else{
+			return false;
 			//System.out.println("Connection fails");
+		}
+	}
+	
+	public void logout(String user) {
+		
+		if (this.getConnection().isConnected()) {
+			Presence pr = new Presence(Presence.Type.unavailable);
+			this.getConnection().sendPacket(pr);
+			GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+			this.getConnection().disconnect();
 		}
 	}
 	
@@ -151,6 +167,13 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	}
 	
 	public XMPPConnection getConnection() {
+		if (!this.connection.isConnected()) {
+			int tryTimes = 0;
+			while (tryTimes != 5) {
+				if (tryLogin(u, p))
+					break;
+			}
+		}
 		return this.connection;
 	}
 	
@@ -165,9 +188,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		chats.remove(user);
 	}
 	
-	
-	public static void main(String[] args) {
-		System.out.println("Hello World!");
+	public Roster getRoster() {
+		return this.r;
 	}
 	
 }

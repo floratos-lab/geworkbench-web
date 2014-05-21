@@ -11,6 +11,7 @@ import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
+import org.jivesoftware.smack.packet.Presence;
 
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -116,6 +117,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	
 	//@Override
 	public void loggedOut() {
+		this.setParent(null);
 		mainLayout.removeAllComponents();
 		mainLayout.addComponent(borderLayout);
 		mainLayout.setExpandRatio(borderLayout, 1.0f);
@@ -426,12 +428,20 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 		if (!genSpaceServerFactory.userLogin(username, password)) {
 			return false;
 		}
-		
+			
 		chatHandler = new ChatReceiver(this);
-		chatHandler.login(username, password);
+		if (!chatHandler.login(username, password)) {
+			return false;
+		}
 		
-		if (shouldFire)
+		if (shouldFire) {
 			genSpaceParent.fireLoggedIn();
+		}
+		else {
+			Presence pr = new Presence(Presence.Type.available);
+			pr.setStatus("On genspace...");
+			chatHandler.getConnection().sendPacket(pr);
+		}
 		return true;
 	}
 	
@@ -464,13 +474,15 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 			}
 		}
 		
-		if (j==5) {
+		if (j == 5) {
 			Window mainWindow = getApplication().getMainWindow();
 			Notification msg = new Notification("Fail to update password. Please try it later.",
 					Notification.TYPE_ERROR_MESSAGE);
 			mainWindow.showNotification(msg);
 		}
-		autoLogin(usernameStr,  newPassword, true);
+		else {
+			autoLogin(usernameStr, newPassword, true);
+		}
 		
 	}
 	
@@ -548,6 +560,12 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 			register(event);
 			button_3.setEnabled(true);
 		}
+	}
+	
+	public boolean isLogin() {
+		return (this != null) 
+				&& (this.getGenSpaceServerFactory() != null) 
+				&& (this.genSpaceServerFactory.getUsername() != null);
 	}
 	
 	public GenspaceLayout getGenSpaceParent() {

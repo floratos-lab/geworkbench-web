@@ -11,6 +11,7 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
+import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
@@ -89,6 +90,11 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 	private Stack<SocialPanel> last;
 	
 	private SocialNetworkHome instance;
+	
+	public Integer backTo  = -1;
+	
+	public final static int BACK_TO_MYNET = 1;
+	
 	
 	private Label infoLabel = new Label(
 			"Please login to genSpace to access this area.");
@@ -315,8 +321,18 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				if(last.isEmpty())
 					return ;
 				
-				SocialPanel sp = last.pop();
-				//System.out.println(sp.getPanelTitle());
+				SocialPanel sp;
+
+				switch(backTo) {
+				case BACK_TO_MYNET:
+					sp = SocialNetworkHome.this.netPanel;
+					sp.updatePanel();
+					backTo = -1;
+					break;				
+				default:
+					sp = last.pop();
+					break;
+				}
 				
 				setRealContent(sp);
 			}
@@ -488,7 +504,8 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 			this.proPanel.updatePanel();
 			this.friendPanel = new FriendPanel(this.myFriends, this.login);
-			this.netPanel = new NetworkPanel(this.myNet, this.login);
+			this.netPanel = new NetworkPanel(this.myNet, this.login, this);
+			NetworkPanel np = (NetworkPanel)this.netPanel;
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
 			//System.out.println("88");
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
@@ -521,5 +538,9 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 				updateForm();
 			}
 		}
+	}
+	
+	public RosterFrame getRf() {
+		return this.chatHandler.rf;
 	}
 }

@@ -86,7 +86,7 @@ public class UMainLayout extends VerticalLayout {
 	public void push() {
 		pusher.push();
 	}
-	
+		
 	public UMainLayout() throws Exception {
 
 		/*Enable genspace logger in geWorkbench*/

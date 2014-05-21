@@ -22,10 +22,10 @@
                   <properties>
                         <property name="eclipselink.logging.level" value="OFF" />
                         <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
-                        <property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost/gework_web" />
-                        <property name="eclipselink.jdbc.user" value="root" />
-                        <property name="eclipselink.jdbc.password" value="admin" />
-                        <property name="eclipselink.ddl-generation" value="none" />
+                        <property name="eclipselink.jdbc.url" value="jdbc:mysql://127.0.0.1:3306/gework_web" />
+                        <property name="eclipselink.jdbc.user" value="geweb_user" />
+                        <property name="eclipselink.jdbc.password" value="Oring456!" />
+                        <property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
                         <property name="eclipselink.ddl-generation.output-mode"
                                 value="database" />
                         <property name="eclipselink.orm.throw.exceptions" value="true" />

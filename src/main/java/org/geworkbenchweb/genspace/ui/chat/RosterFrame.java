@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.ChatStatusChangeEvent.ChatStatusChangeEventListener;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
@@ -27,10 +28,13 @@ import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListe
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
+import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.layout.UMainToolBar;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -89,19 +93,19 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	private HorizontalLayout iconLayout;
 	
 	private ICEPush pusher = new ICEPush();
+	private Presence pr = null;
 	
 	public void refresh()
-	{
+	{	
 		if (this.cr.getConnection().isConnected()) {
 			this.rosterTree.removeAllItems();
-			
-			this.cr.getConnection().getRoster().reload();
-			//this.roster = this.cr.getConnection().getRoster();
+			this.roster = this.cr.getConnection().getRoster();
 			this.roster.reload();
 			this.setUpRosterTree();
-			//this.addComponent(pusher);
-			//System.out.println("refreshed!");
 		} 
+		else {
+			System.out.println("Fail to refresh due to connection failure!");
+		}
 	}
 	
 	public void cleanSettings() {
@@ -141,7 +145,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				for(RosterEntry e: g.getEntries())
 				{
 					if(! e.getUser().equalsIgnoreCase(RosterFrame.this.login.getGenSpaceServerFactory().getUser().getUsername() + "@genspace") && !(removedCache.contains(e.getUser()) && g.getName().equals("Friends")))
-						children.get(g).add(e);
+							children.get(g).add(e);
 				}
 				if(children.get(g).size() == 0)
 				{
@@ -327,6 +331,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				hBeans.getContainerProperty(entryID, "rGroup").setValue(null);
 				hBeans.getContainerProperty(entryID, "rEntry").setValue(tmpEntry);
 				Presence p = this.roster.getPresence(tmpEntry.getUser());
+				System.out.println("Received " + p.getStatus() + " " + p.toString());
 				if (p.getType().equals(Presence.Type.unavailable))
 					hBeans.getContainerProperty(entryID, "icon").setValue(this.offlineIcon);
 				else {
@@ -360,6 +365,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		//setWidth("300px");
 		setHeight("340px");
 
+		Presence pr = new Presence(Presence.Type.available);
+		pr.setStatus("On genspace...");
+		this.pr = pr;
+		
 		this.login = login2;
 		this.myID = this.login.getGenSpaceServerFactory().getUser().getId();
 		this.cr = cr;
@@ -379,6 +388,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			};
 		});*/
 	}
+
 
 	/**
 	 * Change the current presence
@@ -409,16 +419,18 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			//System.out.println("change to leave!");
 		} else {
 			pr = new Presence(Presence.Type.unavailable);
-			
 			iconLayout.removeAllComponents();
-			iconLayout.addComponent(this.offlineEmbed);
 			//System.out.println("change to unavailable!");
 		}
 		//iconLayout.addComponent(pusher);
 		pr.setStatus(status);
-		cr.getConnection().sendPacket(pr);
+		this.pr = pr;
+		System.out.println("Sending status " + pr.getStatus() + " " + pr.toString());
+		if (cr.getConnection().isConnected()) {
+				cr.getConnection().sendPacket(this.pr);
 		//System.out.println("send status change event!");
-		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
+				GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
+		}
 		//System.out.println("start refresh!");
 		this.refresh();
 			
@@ -535,36 +547,114 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
-		this.refresh();
-		if (getPusher().getApplication() != null ) { 
-			getPusher().push();
+		if (getApplication() == null) {
+			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
 		}
-
+		else {
+			this.refresh();
+			GenSpaceWindow.sPush(this, getPusher());
+		}
+		
 	}
 	
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		//System.out.println("Get event from " + evt.getFriendName());
-		if (myID == evt.getMyID() || myID == evt.getFriendID()) {
-			this.refresh();
-			//this.initComponents();
-			if (getPusher().getApplication() != null ) { 
-				getPusher().push();
+		
+		if (getApplication() == null ) {
+			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
+		}
+		else {
+			if (myID == evt.getMyID() || myID == evt.getFriendID() || 
+					(evt.getMyID() == FriendStatusChangeEvent.NETWORK_EVENT &&
+					evt.getFriendID() == FriendStatusChangeEvent.NETWORK_EVENT)) {
+				
+				this.refresh();
+				if (evt.getOptType() == FriendStatusChangeEvent.ADD_FRIEND || 
+						evt.getOptType() == FriendStatusChangeEvent.RM_FRIEND) {
+					// Broadcast my current status
+					if (this.cr.getConnection().isConnected()) {
+						this.cr.getConnection().sendPacket(this.pr);
+						System.out.println(this.pr.getStatus());
+						GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
+					}
+				}
+				GenSpaceWindow.sPush(this, getPusher());
 			}
-			//this.login.getPusher().push();
 		}
 	}
+	
+	
+	
+//	@Override
+//	public void changeFriendStatus(FriendStatusChangeEvent evt) {
+//		//System.out.println("Get event from " + evt.getFriendName());
+//		
+//		if (getApplication() == null ) {
+//			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
+//		}
+//		else {
+//			if (myID == evt.getMyID() || myID == evt.getFriendID() || 
+//					(evt.getMyID() == FriendStatusChangeEvent.NETWORK_EVENT &&
+//					evt.getFriendID() == FriendStatusChangeEvent.NETWORK_EVENT)) {
+//				
+//				if (evt.getOptType() == FriendStatusChangeEvent.RM_FRIEND) {
+//					this.cr.getConnection().disconnect();
+//					UMainToolBar uMain = ((UMainLayout)getApplication().getMainWindow().getContent()).getMainToolBar();
+//					String username = uMain.getUsername();
+//					String password = uMain.getPassword();
+//					this.cr.login(username, password);
+//					this.cr.updateRoster();
+//					this.roster = this.cr.getRoster();
+//					this.refresh();
+//				}
+//				else if (evt.getOptType() == FriendStatusChangeEvent.ADD_FRIEND) {
+//					this.cr.getConnection().disconnect();
+//					UMainToolBar uMain = ((UMainLayout)getApplication().getMainWindow().getContent()).getMainToolBar();
+//					String username = uMain.getUsername();
+//					String password = uMain.getPassword();
+//					this.cr.login(username, password);
+//					this.cr.updateRoster();
+//					this.roster = this.cr.getRoster();				
+//					this.refresh();
+//					
+//					// Broadcast my current status
+//					if (this.cr.getConnection().isConnected()) {
+//						this.cr.getConnection().sendPacket(this.pr);
+//						System.out.println(this.pr.getStatus());
+//						GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
+//					}
+//				}
+//				else {
+//					this.refresh();
+//				}
+//				sPush(getPusher());
+//			}
+//		}
+//	}
+	
+	
+	// Secured Push method
+//	private void sPush(ICEPush pusher) {
+//		if (pusher.getApplication() == null) {	
+//			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
+//		}
+//		else {
+//			System.out.println("pushed!");
+//			pusher.push();
+//		}
+//	}
 	
 	
 	private ICEPush getPusher() {		
 		if (this.pusher == null) {
 			this.pusher = new ICEPush();
 			this.vMainLayout.addComponent(this.pusher);
-		} else if (this.pusher.getApplication() == null) {
-			this.pusher = new ICEPush();
-			this.vMainLayout.addComponent(this.pusher);
-		}
-		
+		} 
 		return this.pusher;
+	}
+	
+	private void setPresence(Presence pre) {
+		this.pr = pre;
 	}
 }

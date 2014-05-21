@@ -1,6 +1,7 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
@@ -11,6 +12,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 
 public class UserSearchWindow extends Window {
 	
@@ -64,6 +66,16 @@ public class UserSearchWindow extends Window {
 		
 		this.addComponent(vLayout);		
 		this.updateWindowContents();
+		
+//		this.addListener( new Window.CloseListener() {
+//			
+//			// After close current window, push UI change
+//			@Override
+//			public void windowClose(CloseEvent e) {
+//				GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(
+//						login.getGenSpaceServerFactory().getUsername()));
+//			}
+//		});
 		
 	}
 	
@@ -151,7 +163,10 @@ public class UserSearchWindow extends Window {
 						//pusher.push();
 						//When user decide to remove a friend, fire the event.
 						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
-						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
+						// GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
+						FriendStatusChangeEvent e = new FriendStatusChangeEvent(myID, friend.getId());
+						e.setOptType(FriendStatusChangeEvent.RM_FRIEND);						
+						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 						//login.getPusher().push();
 						pusher.push();
 

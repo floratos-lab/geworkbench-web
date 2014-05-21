@@ -22,6 +22,7 @@ import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
+import org.jivesoftware.smack.packet.Presence;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -61,6 +62,7 @@ public class UMainToolBar extends MenuBar {
 
 	private String username;
 	private String password;
+	private GenspaceLayout layout = null;
 	
 
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
@@ -291,10 +293,11 @@ public class UMainToolBar extends MenuBar {
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
 				if (GeworkbenchRoot.genespaceEnabled()) {
-					GenSpaceWindow.removeAllListnersFromGenSpaceBlackbord();
+					// GenSpaceWindow.removeAllListnersFromGenSpaceBlackbord();
 					
 					ICEPush pusher = new ICEPush();
-					GenspaceLayout layout = new GenspaceLayout(genSpaceLogger, pusher);
+					GenspaceLayout layout = UMainToolBar.this.layout;
+					layout = new GenspaceLayout(genSpaceLogger, pusher);
 					UMainToolBar.this.pluginView.showGenSpace(layout);
 					layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
 					
@@ -332,6 +335,7 @@ public class UMainToolBar extends MenuBar {
 						
 						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
 						chatMain = new Window();
+						chatMain.setCaption("GMessage");
 						chatMain.setHeight("380px");
 						chatMain.setWidth("310px");
 						chatMain.setResizable(false);
@@ -347,8 +351,7 @@ public class UMainToolBar extends MenuBar {
 									if (cw.getParent() != null)
 										mainWindow.removeWindow(cw);
 								}
-								String user = genSpaceServerFactory.getUsername();
-								GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+								chatHandler.logout(username);
 							}
 						});
 						VerticalLayout chatLayout = new VerticalLayout();
@@ -384,6 +387,7 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
+				final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
 				if (uploadPending()) {
 					MessageBox mb = new MessageBox(
 							getWindow(),
@@ -398,18 +402,34 @@ public class UMainToolBar extends MenuBar {
 						public void buttonClicked(ButtonType buttonType) {
 							if (buttonType.toString() == "YES") {
 								uploadDataUI.cancelUpload();
-								
 								clearTabularView();
+								
+								if (chatHandler != null) {
+									chatHandler.logout(username);
+								}
+								if (UMainToolBar.this.layout != null) {
+									UMainToolBar.this.layout.fireLoggedOut();
+								}
+								
 								SessionHandler.logout();
 								getApplication().close();
+
 							}
 						}
 					});
-				}else{
-					
+				}else{	
 					clearTabularView();
+					
+					if (chatHandler != null) {
+						chatHandler.logout(username);
+					}
+					if (UMainToolBar.this.layout != null) {
+						UMainToolBar.this.layout.fireLoggedOut();
+					}
+					
 					SessionHandler.logout();
 					getApplication().close();
+
 				}
 			}
 		});

@@ -324,7 +324,8 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		borderLayout = new BorderLayout();
 		setCompositionRoot(borderLayout);
 		borderLayout.addComponent(infoLabel, BorderLayout.Constraint.NORTH);
-	}
+		
+}
 
 	public void displayTable(List<AnalysisEvent> searchEvents) {
 		table.removeAllItems();
@@ -559,6 +560,15 @@ public class NotebookPanel extends AbstractGenspaceTab implements GenSpaceTab, N
 		borderLayout.addComponent(table, BorderLayout.Constraint.CENTER);
 		myName = login.getGenSpaceServerFactory().getUser().getUsername();
 		updateFormFields();
+		
+		setSearchTerm("");
+		
+		List<AnalysisEvent> searchQueryList = login.getGenSpaceServerFactory().getPrivUsageFacade().getMyNotes(searchTerm,
+				sortByMethod); // same
+		List<AnalysisEvent> friendQueryList = login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEventsSortOn(searchTerm, sortByMethod);
+		searchQueryList.addAll(friendQueryList);
+		Collections.sort(searchQueryList, EventSorter.getDateSorter());
+		displayTable(searchQueryList);
 	}
 
 	@Override

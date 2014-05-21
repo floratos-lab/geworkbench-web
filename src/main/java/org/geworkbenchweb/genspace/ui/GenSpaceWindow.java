@@ -58,12 +58,14 @@ public class GenSpaceWindow extends Window{
 		return genSpaceBlackboard;
 	}	
 	
-	public synchronized static void removeAllListnersFromGenSpaceBlackbord() {	
-		genSpaceBlackboard.clear();
-		genSpaceBlackboard.register(LogCompleteEventListener.class, LogCompleteEvent.class);
-		genSpaceBlackboard.register(ChatStatusChangeEventListener.class, ChatStatusChangeEvent.class);
-		genSpaceBlackboard.register(FriendStatusChangeListener.class, FriendStatusChangeEvent.class);
+	static public void sPush(com.github.wolfie.blackboard.Listener listener, ICEPush pusher) {
+		if (pusher.getApplication() == null) {	
+			GenSpaceWindow.getGenSpaceBlackboard().removeListener(listener);
+		}
+		else {
+			System.out.println("pushed!");
+			pusher.push();
+		}
 	}
 	
-
 }
