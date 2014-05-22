@@ -18,11 +18,10 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
@@ -49,10 +48,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox correction = new ComboBox();
 	private TextField tolerance = new TextField();
 	private ComboBox dpiTargetSetBox = new ComboBox();
-	private TextField bootStrapNumber = new TextField();
+	private CheckBox bootStrapNumber = new CheckBox();
 	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
+	private static final String defaultBootsNum = "100";
 
 	public AracneUI() {
 		this(0L);
@@ -319,16 +319,16 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		bootStrapNumber.setCaption("Bootstrap Number");
+		bootStrapNumber.setCaption(defaultBootsNum + " Bootstrapping");
 		bootStrapNumber.setImmediate(true);
-		bootStrapNumber.setValue("1");
-		bootStrapNumber.setNullSettingAllowed(false);
-		bootStrapNumber.addListener(new TextChangeListener() {
+		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
-			public void textChange(TextChangeEvent event) {
-				params.remove(AracneParameters.BOOTS_NUM);
-				params.put(AracneParameters.BOOTS_NUM, event.getText());
+			public void valueChange(Property.ValueChangeEvent event) {
+				if(bootStrapNumber.booleanValue())
+					params.put(AracneParameters.BOOTS_NUM, defaultBootsNum);
+				else
+					params.put(AracneParameters.BOOTS_NUM, "1");
 				try{
 				if (Integer.valueOf((String) params
 						.get(AracneParameters.BOOTS_NUM)) > 1)
