@@ -45,7 +45,7 @@ public class ToolsUI extends DataTypeMenuPage {
 +"cellular processes resulting from perturbation experiments.<br/>"
 +"Data is preliminary, please see "
 +"<a href='http://wiki.c2b2.columbia.edu/workbench/index.php/LINCS_Query#Currently_Available_Data' target='_blank'>"
-+"http://wiki.c2b2.columbia.edu/workbench/index.php/LINCS_Query#Currently_Available_Data</a> "
++"here</a> "
 +"for currently available data.";
 		Button toolButton = new Button(pluginName,
 				new Button.ClickListener() {
