@@ -42,7 +42,11 @@ public class ToolsUI extends DataTypeMenuPage {
 +"Network-based Cellular Signatures) Program supports a "
 +"cellular-network-based investigation into biology at a number of centers "
 +"across the country. It catalogs changes to gene expression and other "
-+"cellular processes resulting from perturbation experiments.";
++"cellular processes resulting from perturbation experiments.<br/>"
++"Data is preliminary, please see "
++"<a href='http://wiki.c2b2.columbia.edu/workbench/index.php/LINCS_Query#Currently_Available_Data' target='_blank'>"
++"http://wiki.c2b2.columbia.edu/workbench/index.php/LINCS_Query#Currently_Available_Data</a> "
++"for currently available data.";
 		Button toolButton = new Button(pluginName,
 				new Button.ClickListener() {
 
