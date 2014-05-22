@@ -120,7 +120,7 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 		annotChoices.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		annotChoices.setItemCaptionPropertyId(CAPTION_PROPERTY);
 		annotChoices.setNullSelectionAllowed(false);
-		annotChoices.setWidth(300, 0);
+		annotChoices.setWidth(270, 0);
 		annotChoices.setImmediate(true);
 		annotChoices.addListener(new ItemClickListener() {
 			private static final long serialVersionUID = 8744518843208040408L;
