@@ -45,6 +45,7 @@ public class AnovaAnalysis {
 	private AnovaUI paramForm = null;
 	private List<String> selectedMarkers = null;
 	private String[] selectedArraySetNames = null;
+	int[] selectedMarkerIndex;
 	
 	public AnovaAnalysis(Long dataSetId, AnovaUI paramForm) {
 		this.dataSetId = dataSetId;
@@ -58,12 +59,15 @@ public class AnovaAnalysis {
 
 		int[] featuresIndexes = output.getFeaturesIndexes();
 		List<String> significantMarkerNames = new ArrayList<String>();
-
+		int[] significantMarkerIndexs = new int[featuresIndexes.length];
+		
 		for (int i = 0; i < featuresIndexes.length; i++) {
 			String item = selectedMarkers.get(featuresIndexes[i]);
 			significantMarkerNames.add(item);
+			significantMarkerIndexs[i]=selectedMarkerIndex[featuresIndexes[i]];
 		}
-
+		 
+		output.setFeaturesIndexes(significantMarkerIndexs);
 		AnovaResult anovaResultSet = new AnovaResult(output, selectedArraySetNames);
 
 		if (significantMarkerNames.size() > 0)
@@ -138,7 +142,8 @@ public class AnovaAnalysis {
 	private AnovaInput getAnovaInput() {
 		String[] selectedMarkerSet = null;
 		String[] selectedArraySet = null;
-
+		List<String> tempSelectedMarkers;
+		
 		@SuppressWarnings("unused")
 		String GroupAndChipsString = "";
 
@@ -146,24 +151,26 @@ public class AnovaAnalysis {
 
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(dataSetId);
 		if (selectedMarkerSet == null) {
-			selectedMarkers = Arrays.asList( microarrays.markerLabels );
+			tempSelectedMarkers = Arrays.asList( microarrays.markerLabels );
 		} else {
-			selectedMarkers = new ArrayList<String>();
+			tempSelectedMarkers = new ArrayList<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 				for(int m=0; m<temp.size(); m++) {
 					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
-					selectedMarkers.add(temp1);
+					tempSelectedMarkers.add(temp1);
 				}
 				 
 			} 
 		}
 
-		int[] selectedMarkerIndex = new int[selectedMarkers.size()];
+		selectedMarkerIndex = new int[tempSelectedMarkers.size()];
+		selectedMarkers = new ArrayList<String>();
 		int index = 0;
 		for(int i=0; i<microarrays.markerNumber; i++) {
-			if(selectedMarkers.contains( microarrays.markerLabels[i]) ) {
+			if(tempSelectedMarkers.contains( microarrays.markerLabels[i]) ) {
 				selectedMarkerIndex[index] = i;
+				selectedMarkers.add( microarrays.markerLabels[i]);
 				index++;
 			}
 		}
