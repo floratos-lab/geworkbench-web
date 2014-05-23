@@ -6,7 +6,7 @@ public class MarinaParamBean implements Serializable{
 
 	private static final long serialVersionUID = -2555236882500050764L;
 	private Integer minimumTargetNumber = 20;
-	private Integer minimumSampleNumber = 6;
+	private Integer minimumSampleNumber = 7;
 	private Integer gseaPermutationNumber = 1000;
 	private Integer gseaTailNumber = 2;
 	private Double shadowPValue = 0.01;
@@ -20,7 +20,7 @@ public class MarinaParamBean implements Serializable{
 
 	public void reset(){
 		minimumTargetNumber = 20;
-		minimumSampleNumber = 6;
+		minimumSampleNumber = 7;
 		gseaPermutationNumber = 1000;
 		gseaTailNumber = 2;
 		shadowPValue = 0.01;

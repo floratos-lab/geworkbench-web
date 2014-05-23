@@ -225,7 +225,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		
 		criticalValue = new TextField();
 		criticalValue.setCaption("Overall Alpha");
-		criticalValue.setValue("0.02");
+		criticalValue.setValue("0.05");
 		criticalValue.setNullSettingAllowed(false);
 		
 		a.addComponent(pValue, 0, 0);
@@ -313,7 +313,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		
 		groupVariances = new OptionGroup();
 		groupVariances.setNullSelectionAllowed(false);
-		groupVariances.setCaption("Group Variences");
+		groupVariances.setCaption("Group Variances");
 		groupVariances.addItem("Unequal (Welch approximation)");
 		groupVariances.addItem("Equal");
 		groupVariances.select("Unequal (Welch approximation)");
