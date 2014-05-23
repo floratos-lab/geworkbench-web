@@ -21,7 +21,6 @@ import org.geworkbenchweb.plugins.PluginRegistry;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
@@ -43,11 +42,9 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	
 	private static ThreadLocal<PluginRegistry> pluginRegistry		= 	new ThreadLocal<PluginRegistry>();
 	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
-	private static ThreadLocal<ICEPush> PUSHER 						= 	new ThreadLocal<ICEPush>();
 	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
 	
 	private final Blackboard blackboardInstance 		= 	new Blackboard();
-	private final ICEPush pusherInstance 				=	new ICEPush();
 	
 	private static final String APP_THEME_NAME 			= 	"geworkbench";
 	private static final String PROPERTIES_FILE 		= 	"application.properties";
@@ -100,7 +97,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		 
 		getContext().addTransactionListener(this);
 		BLACKBOARD.set(blackboardInstance);
-		PUSHER.set(pusherInstance);
 		
 		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
@@ -142,7 +138,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	public void transactionStart(Application application, Object transactionData) {
 		if (application == GeworkbenchRoot.this) {
 			BLACKBOARD.set(blackboardInstance);
-			PUSHER.set(pusherInstance);
 			currentApplication.set(this);
 		}
 	}
@@ -153,7 +148,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			// to avoid keeping an Application hanging, and mitigate the 
 			// possibility of user session crosstalk
 			BLACKBOARD.set(null);
-			PUSHER.set(null);
 			currentApplication.set(null);
             currentApplication.remove();
 		}
@@ -173,14 +167,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	 */
 	public static Blackboard getBlackboard() {
 		return BLACKBOARD.get();
-	}
-	
-	/**
-	 * Method supplies Pusher instance to the entire Application
-	 * @return Pusher Instance for the application
-	 */
-	public static ICEPush getPusher() {
-		return PUSHER.get();
 	}
 
 	/**

@@ -56,7 +56,7 @@ public class UMainLayout extends VerticalLayout {
 			
 	final private CssLayout leftMainLayout = new CssLayout();
 
-	final private ICEPush pusher = GeworkbenchRoot.getPusher();
+	final private ICEPush pusher;
 	
 	final private MenuBar toolBar = new MenuBar();
  
@@ -100,6 +100,7 @@ public class UMainLayout extends VerticalLayout {
 		setSizeFull();
 		setImmediate(true);
 		
+		pusher = new ICEPush();
 		addComponent(pusher);
 
 		HorizontalLayout topBar 		= 	new HorizontalLayout();
@@ -261,7 +262,7 @@ public class UMainLayout extends VerticalLayout {
 		
 		pluginView.showWeclomeScreen();
 
-		analysisListener = new AnalysisListener(this, pusher);
+		analysisListener = new AnalysisListener(this);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 	} // end of the constructor.
 	
