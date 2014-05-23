@@ -11,7 +11,6 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.artur.icepush.ICEPush;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -24,14 +23,12 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 	private final UMainLayout uMainLayout;
-	private final ICEPush pusher;
 
 	/**
 	 * @param uMainLayout
 	 */
-	AnalysisListener(UMainLayout uMainLayout, ICEPush pusher) {
+	AnalysisListener(UMainLayout uMainLayout) {
 		this.uMainLayout = uMainLayout;
-		this.pusher = pusher;
 	}
 
 	@Override
@@ -109,7 +106,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 						}
 					});	
 				}
-				pusher.push();
+				uMainLayout.push();
 			}
 		};
 		analysisThread.start();

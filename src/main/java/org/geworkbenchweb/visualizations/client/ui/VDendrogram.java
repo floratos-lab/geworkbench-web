@@ -276,8 +276,13 @@ public final class VDendrogram extends Composite implements Paintable {
 		if(cellHeight<10) {
 			context4.setFont((cellHeight-1)+"px sans-serif");
 		}
-		int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
 		
+		int markerLabelWidth=0;
+		
+		if (firstMarker > 0)
+			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
+		else
+			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
 		// place things in place
 		positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
 		positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);

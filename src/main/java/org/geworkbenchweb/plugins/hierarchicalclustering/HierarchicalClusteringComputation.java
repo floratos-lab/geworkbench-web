@@ -219,13 +219,13 @@ public class HierarchicalClusteringComputation {
 				log.debug("fault action: " + e.getFaultAction());
 				log.debug("reason: " + e.getReason());
 				e.printStackTrace();
-				throw new RemoteException( "TTest AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+				throw new RemoteException( "HierarchicalClustering AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
 						+ " reason: " + e.getReason());		
 				
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				throw new RemoteException( "Coumpute TTest error:" + e.getMessage());
+				throw new RemoteException( "Coumpute HierarchicalClustering error:" + e.getMessage());
 			}
 			 
 		}
