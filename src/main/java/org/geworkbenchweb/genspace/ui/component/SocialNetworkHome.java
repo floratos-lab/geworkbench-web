@@ -450,7 +450,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.viewPanel.updatePanel();
 		
 		if (this.chatHandler.rf != null)
-			this.chatHandler.rf.refresh();
+			this.chatHandler.rf.refresh(false);
 		this.loadSearchItems();
 	}
 	

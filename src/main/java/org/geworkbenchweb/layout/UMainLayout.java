@@ -72,7 +72,7 @@ public class UMainLayout extends VerticalLayout {
 			
 	final private GenspaceLogger genspaceLogger = new GenspaceLogger();;
 
-	final private UMainToolBar mainToolBar 	= 	new UMainToolBar(pluginView, genspaceLogger);
+	final private UMainToolBar mainToolBar;
 
 	final private MenuItem setViewMeuItem;
 	final private MenuItem workspaceViewMenuItem;
@@ -96,6 +96,7 @@ public class UMainLayout extends VerticalLayout {
 			genspaceLogger.setGenSpaceLogin(login);
 		}
 		
+		this.mainToolBar = new UMainToolBar(pluginView, genspaceLogger);
 		setSizeFull();
 		setImmediate(true);
 		

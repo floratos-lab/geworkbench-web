@@ -61,7 +61,14 @@ public class GenSpaceWindow extends Window{
 			GenSpaceWindow.getGenSpaceBlackboard().removeListener(listener);
 		}
 		else {
+			if (listener.getClass().getName().equals("org.geworkbenchweb.genspace.ui.component.ActivityFeedWindow")) {
+				System.out.println("Activity Feed");
+				pusher.push();
+				System.out.println("Activity Feed finish");
+				return;
+			}
 			pusher.push();
+			
 		}
 	}
 	

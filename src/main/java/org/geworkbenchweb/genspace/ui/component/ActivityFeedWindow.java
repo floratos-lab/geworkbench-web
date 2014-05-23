@@ -193,9 +193,11 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		if (this.myID == evt.getMyID() || this.myID == evt.getFriendID()) {
+			System.out.println(myID + " : receive friendChangeEvent in Act Feeder!");
 			this.updateQueryString();
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();
+			GenSpaceWindow.sPush(this, getPusher());
 		}
 	}
 	
@@ -217,6 +219,10 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 		}
 		if (this.pusher.getApplication() == null) {
 			this.addComponent(this.pusher);
+		}
+		
+		if (this.pusher.getApplication() == null) {
+			System.out.println("Activity Feeder is not attached!");
 		}
 		return this.pusher;
 	}

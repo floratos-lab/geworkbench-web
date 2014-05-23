@@ -158,11 +158,13 @@ public class RequestPanel extends SocialPanel{
 	}
 	
 	private void loadFriends() {
-		
-
 		if(friendSelect != null){
 			friendSelect.removeAllItems();
+
+			if (friendSelect.getParent() != null && friendSelect.getParent() == fLayout)
+				fLayout.removeComponent(friendSelect);
 		}
+		
 		userContainer = new BeanItemContainer<User>(User.class);
 		
 		Iterator<User> fIT = this.friendReqList.iterator();
@@ -178,6 +180,8 @@ public class RequestPanel extends SocialPanel{
 		friendSelect.setWidth("300px");
 		friendSelect.setItemCaptionMode(ListSelect.ITEM_CAPTION_MODE_PROPERTY);
 		friendSelect.setItemCaptionPropertyId("username");
+		
+		fLayout.addComponent(friendSelect);
 		
 	}
 	
@@ -219,6 +223,7 @@ public class RequestPanel extends SocialPanel{
 						e.setOptType(FriendStatusChangeEvent.ADD_FRIEND);	
 						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 					}
+					retrieveBasicInfo();
 					loadFriends();
 				}
 				if(rejList.size()>0){
@@ -226,6 +231,7 @@ public class RequestPanel extends SocialPanel{
 						login.getGenSpaceServerFactory().getFriendOps().rejectFriend(friendID);
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friendID));
 					}
+					retrieveBasicInfo();
 					loadFriends();
 				}
 				pusher.push();

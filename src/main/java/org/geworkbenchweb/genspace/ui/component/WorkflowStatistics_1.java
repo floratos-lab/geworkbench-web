@@ -104,7 +104,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 
 				String usageRateAsWFHead = "" + tool.getWfCountHead();
 				ret += "Total usage rate at start of workflow: "
-						+ usageRateAsWFHead + " <br>";
+						+ usageRateAsWFHead + "<br>";
 				Tool mostPopularNextTool = login.getGenSpaceServerFactory().getUsageOps().getMostPopularNextTool(tool.getId());
 				if(mostPopularNextTool == null)
 					ret += "No tools are used after this one"+ "<br>";
@@ -117,7 +117,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 					ret += "No tools are used before this one"+ "<br>";
 				else
 					ret += "The most popular tool used before this tool: "
-						+ mostPopularPreviousTool.getName();
+						+ mostPopularPreviousTool.getName() + "<br><br><br>";
 				lblToolStatistics.setValue("<html>" + ret + "</html>");
 			}
 		});
@@ -421,7 +421,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 		buildStartTools(verticalLayout_1, "Most Popular Tools at Start of Workflow");
 
 		emptyLabel = new Label();
-		emptyLabel.setHeight("20px");
+		emptyLabel.setHeight("10px");
 		verticalLayout_1.addComponent(emptyLabel);
 				
 				// individualToolStatisticsContainer
@@ -437,7 +437,7 @@ public class WorkflowStatistics_1 extends AbstractGenspaceTab implements GenSpac
 		individualToolStatisticsContainer = new VerticalLayout();
 		individualToolStatisticsContainer.setImmediate(false);
 		individualToolStatisticsContainer.setWidth("-1px");
-		individualToolStatisticsContainer.setHeight("100px");
+		individualToolStatisticsContainer.setHeight("110px");
 		individualToolStatisticsContainer.setMargin(false);
 		
 		// label_3

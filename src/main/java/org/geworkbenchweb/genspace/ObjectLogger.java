@@ -81,9 +81,19 @@ public class ObjectLogger {
 		/*For fixing when user choose not to login genSpace, still need a GenSpaceServerFactory to log information.*/
 		GenSpaceServerFactory tmpFactory = null;
 		if (!login.isLogin()) {
+			String username = this.login.getUsername(); 
+			String password = this.login.getPassword();
+			this.login.getGenSpaceServerFactory().userLogin(username, password);
+		} 
+		
+		if (!login.isLogin()) {
+			System.out.println("Register Error!");
 			tmpFactory = new GenSpaceServerFactory();
-		} else {
+		}
+		else {
 			tmpFactory = login.getGenSpaceServerFactory();
+			int logStatus = login.getGenSpaceServerFactory().getUser().getLogData();
+			this.login.getGenSpaceLogger().getObjectHandler().setLogStatus(logStatus);
 		}
 			
 		Transaction curTransaction = curTransactions.get(dataSetName);
@@ -174,6 +184,7 @@ public class ObjectLogger {
 			Transaction retTrans = (tmpFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
 			tmpFactory.clearCache();
 			
+			System.out.println("logstatus : " + this.login.getGenSpaceLogger().getObjectHandler().getLogStatus());
 			if (this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1) {
 				return null;
 			}

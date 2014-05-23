@@ -17,6 +17,7 @@ public class FriendStatusChangeEvent implements Event{
 	public static final int NETWORK_EVENT = -1;
 	
 	public FriendStatusChangeEvent(int myID, int friendID) {
+		System.out.println(myID + "receives friendChangeEvent!");
 		this.myID = myID;
 		this.friendID = friendID;
 		this.optType = this.STATUS_REFRESH;

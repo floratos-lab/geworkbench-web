@@ -68,13 +68,11 @@ public class DataSet extends AbstractPojo {
 	}
 
 	public java.sql.Timestamp getTimestamp() {
-		Timestamp t =	Timestamp.valueOf("2014-05-02 14:32:29");
-		return t;
-		//return timestamp;
+		return timestamp;
 	}
 
 	public void setTimestamp(java.sql.Timestamp timestamp) {
-		//this.timestamp = timestamp;
+		this.timestamp = timestamp;
 	}
 
 	public Long getDataId() {

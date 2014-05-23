@@ -4,13 +4,14 @@ package org.geworkbenchweb.genspace.ui.component;
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
+
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
-
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
-
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
+
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.layout.UMainToolBar;
 import org.jivesoftware.smack.packet.Presence;
 
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -74,6 +75,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	private GenspaceLayout genSpaceParent;	
 	private RosterFrame rf = null;
 	private Window uiMainWindow= null; 
+	private UMainToolBar toolBar;
 	
 	public ChatReceiver getChatHandler() {
 		if (this.chatHandler != null)
@@ -485,8 +487,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	}
 	
 	public boolean isLogin() {
-		return (this != null) 
-				&& (this.getGenSpaceServerFactory() != null) 
+		return (this.getGenSpaceServerFactory() != null) 
 				&& (this.genSpaceServerFactory.getUsername() != null);
 	}
 	
@@ -524,6 +525,18 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	
 	public void setGenSpaceLogger(GenspaceLogger genspaceLogger) {
 		this.genspaceLogger = genspaceLogger;
+	}
+	
+	public String getUsername() {
+		return this.toolBar.getUsername();	
+	}
+	
+	public String getPassword() {
+		return this.toolBar.getPassword();
+	}
+
+	public void setUMainToolBar(UMainToolBar uMainToolBar) {
+		this.toolBar = uMainToolBar;
 	}
 
 }

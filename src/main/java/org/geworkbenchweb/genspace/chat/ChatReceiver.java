@@ -45,8 +45,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	private Roster r;
 	private ICEPush pusher = new ICEPush();
 	private String u;
-	private String p;
-	
+	private String p;	
 	
 	public ChatReceiver(GenSpaceLogin_1 genSpaceLogin_1){
 		this.login = genSpaceLogin_1;
@@ -56,24 +55,42 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.u = u;
 		this.p = p;
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
-
+//		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5269, "genspace");
+		
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
+			//System.out.println("Connection succeeds");
+			
 			manager = connection.getChatManager();
 			this.updateRoster();
+			// this.createRosterFrame();
+			
 			manager.addChatListener(this);
+			//System.out.println("OOOOOOO"+this.rf);
 			return true;
 		} else{
 			return false;
+			//System.out.println("Connection fails");
 		}
 	}
 	
-	public void logout(String user) {
+	
+	
+	public boolean reLogin() {
+		return login(this.u, this.p);
+	}
+	
+	public void logout(String user, boolean disconnect) {
 		
 		if (this.getConnection().isConnected()) {
 			Presence pr = new Presence(Presence.Type.unavailable);
+			pr.setStatus("Unavailable");
 			this.getConnection().sendPacket(pr);
 			GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+			
+		}
+		
+		if (disconnect) {
 			this.getConnection().disconnect();
 		}
 	}
@@ -87,6 +104,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.rf = new RosterFrame(login, this);
 		this.rf.setRoster(r);
 		this.rf.setVisible(true);
+		//this.rf.setPositionX(10);
+		//this.rf.setPositionY(10);
 	}
 	
 	public boolean tryLogin(String u, String p) {
@@ -104,25 +123,33 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
 		if (chats.containsKey(c.getParticipant())) {
-			// System.out.println("contained participant!");
-			// return ;
+			//System.out.println("contained participant!");
+			//return ;
 		}
 		
 		else if(createdLocal) {
+			//System.out.println("DEBUG participant: " + c.getParticipant());
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
 			cw.addComponent(pusher);
 			chats.put(c.getParticipant(), cw);
+			//System.out.println("check chat map: "+ chats);
 			rf.getApplication().getMainWindow().addWindow(cw);
+			//this.login.getPusher().push();
 			pusher.push();
 		}
 		c.addMessageListener(this);
+		//pusher.push();
+		//this.login.getPusher().push();
 	}
 
 	@Override
 	public void processMessage(Chat c, Message m) {
+		// TODO Auto-generated method stub
+		//System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
+		//System.out.println("Get message body: " + m.getBody());
 
 		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals(""))){
 			return;
@@ -141,6 +168,8 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 			cw.processMessage(m);
 		}
 		pusher.push();
+		// System.out.println("Message is dispatched in ChatReceiver.processMessage");
+		//this.login.getPusher().push();
 	}
 	
 	public ChatManager getManager() {
@@ -148,13 +177,14 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	}
 	
 	public XMPPConnection getConnection() {
-		if (!this.connection.isConnected()) {
-			int tryTimes = 0;
-			while (tryTimes != 5) {
-				if (tryLogin(u, p))
-					break;
-			}
-		}
+//		if (!this.connection.isConnected()) {
+//			int tryTimes = 0;
+//			while (tryTimes < 5) {
+//				tryTimes++;
+//				if (tryLogin(u, p))
+//					break;
+//			}
+//		}
 		return this.connection;
 	}
 	
@@ -171,6 +201,15 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	
 	public Roster getRoster() {
 		return this.r;
+	}
+	
+	
+	public void reShown(String user) {
+		if (this.getConnection().isConnected()) {		
+			Presence pr = new Presence(Presence.Type.available);
+			this.getConnection().sendPacket(pr);
+			GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+		}
 	}
 	
 }

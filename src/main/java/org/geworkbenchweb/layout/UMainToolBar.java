@@ -67,6 +67,7 @@ public class UMainToolBar extends MenuBar {
 	
 
 	public UMainToolBar(final VisualPluginView pluginView, final GenspaceLogger genSpaceLogger) {
+		
 		this.pluginView = pluginView;
 		setImmediate(true);
 		setStyleName("transparent");
@@ -293,16 +294,19 @@ public class UMainToolBar extends MenuBar {
 
 			@Override 
 			public void menuSelected(MenuItem selectedItem) {	
-				if (GeworkbenchRoot.genespaceEnabled()) {				
-					ICEPush pusher = new ICEPush();
-					GenspaceLayout layout = UMainToolBar.this.layout;
-					layout = new GenspaceLayout(genSpaceLogger, pusher);
-					UMainToolBar.this.pluginView.showGenSpace(layout);
-					layout.getGenSpaceLogin_1().setUIMainWindow(getApplication().getMainWindow());
-					
-					if (!layout.getGenSpaceLogin_1().autoLogin(username, password, true)) {
-						layout.getGenSpaceLogin_1().authorizeLayout();
+				if (GeworkbenchRoot.genespaceEnabled()) {
+					if (UMainToolBar.this.layout == null) {
+						ICEPush pusher = new ICEPush();
+						
+						UMainToolBar.this.layout = new GenspaceLayout(genSpaceLogger, pusher);
+						
+						if (!UMainToolBar.this.layout.getGenSpaceLogin_1().autoLogin(username, password, true)) {
+							UMainToolBar.this.layout.getGenSpaceLogin_1().authorizeLayout();
+						}
 					}
+					UMainToolBar.this.pluginView.showGenSpace(UMainToolBar.this.layout);
+					genSpaceLogger.getGenSpaceLogin().setUIMainWindow(getApplication().getMainWindow());
+					
 				}
 				else {
 					Window mainWindow = getApplication().getMainWindow();
@@ -330,9 +334,12 @@ public class UMainToolBar extends MenuBar {
 						if (chatMain != null && chatMain.getWindow() != null)
 							mainWindow.removeWindow(chatMain);
 						
+						
 						genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
 						
+						// in case of chatMain is null
 						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+						
 						chatMain = new Window();
 						chatMain.setCaption("GMessage");
 						chatMain.setHeight("380px");
@@ -350,7 +357,9 @@ public class UMainToolBar extends MenuBar {
 									if (cw.getParent() != null)
 										mainWindow.removeWindow(cw);
 								}
-								chatHandler.logout(username);
+								chatHandler.logout(username, true);
+								//chatMain.setVisible(false);
+								//mainWindow.removeWindow(chatMain);
 							}
 						});
 						VerticalLayout chatLayout = new VerticalLayout();
@@ -372,12 +381,72 @@ public class UMainToolBar extends MenuBar {
 						String user = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().getUsername();
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 					}
-				} else {
-					Notification msg = new Notification("Please enable Genspace first for using the Chat agent",
-							Notification.TYPE_HUMANIZED_MESSAGE);
-					mainWindow.showNotification(msg);
-				}
+						
+						
+//						ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+//						if (chatMain == null || !chatHandler.getConnection().isConnected()) {
+//							genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
+//							
+//							// in case of chatMain is null
+//							chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+//							
+//							chatMain = new Window();
+//							chatMain.setCaption("GMessage");
+//							chatMain.setHeight("380px");
+//							chatMain.setWidth("310px");
+//							chatMain.setResizable(false);
+//							chatMain.setScrollable(false);
+//							
+//							final ChatReceiver chatHandlerTmp = chatHandler;
+//							chatMain.addListener(new Window.CloseListener() {
+//
+//								private static final long serialVersionUID = 1L;
+//
+//								@Override
+//								public void windowClose(CloseEvent e) {
+//									// TODO Auto-generated method stub
+//									for (ChatWindow cw: chatHandlerTmp.chats.values()) {
+//										if (cw.getParent() != null)
+//											mainWindow.removeWindow(cw);
+//									}
+//									chatHandlerTmp.logout(username, false);
+//									chatMain.setVisible(false);
+//								}
+//							});
+//							VerticalLayout chatLayout = new VerticalLayout();
+//							chatMain.addComponent(chatLayout);
+//							
+//							if (chatHandler.rf != null){
+//								GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+//								GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+//							}
+//							
+//							chatHandler.updateRoster();
+//							chatHandler.createRosterFrame();
+//							chatHandler.rf.addStyleName("feature-info");
+//							chatLayout.addComponent(chatHandler.rf);
+//							GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+//							GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+//							mainWindow.addWindow(chatMain);
+//							
+//							String user = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().getUsername();
+//							GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
+//						} else {
+//							chatMain.setVisible(true);
+//							mainWindow.addWindow(chatMain);
+//							String user = genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().getUsername();
+//							chatHandler.reShown(user);
+//						}
+//						
+//
+//					}
+//				} else {
+//					Notification msg = new Notification("Please enable Genspace first for using the Chat agent",
+//							Notification.TYPE_HUMANIZED_MESSAGE);
+//					mainWindow.showNotification(msg);
+//				}
 			}
+				}
 		});
 		
 		this.addItem("Logout", new Command() {
@@ -404,11 +473,11 @@ public class UMainToolBar extends MenuBar {
 								clearTabularView();
 								
 								if (chatHandler != null) {
-									chatHandler.logout(username);
+									chatHandler.logout(username, true);
 								}
-								if (UMainToolBar.this.layout != null) {
-									UMainToolBar.this.layout.fireLoggedOut();
-								}
+//								if (UMainToolBar.this.layout != null) {
+//									UMainToolBar.this.layout.fireLoggedOut();
+//								}
 								
 								SessionHandler.logout();
 								getApplication().close();
@@ -420,11 +489,11 @@ public class UMainToolBar extends MenuBar {
 					clearTabularView();
 					
 					if (chatHandler != null) {
-						chatHandler.logout(username);
+						chatHandler.logout(username, true);
 					}
-					if (UMainToolBar.this.layout != null) {
-						UMainToolBar.this.layout.fireLoggedOut();
-					}
+//					if (UMainToolBar.this.layout != null) {
+//						UMainToolBar.this.layout.fireLoggedOut();
+//					}
 					
 					SessionHandler.logout();
 					getApplication().close();
@@ -441,6 +510,8 @@ public class UMainToolBar extends MenuBar {
 		/* list size must be 1 */
 		currentWorkspace = list.get(0).getWorkspace();
 		log.debug("current workspace ID "+currentWorkspace);
+		
+		genSpaceLogger.getGenSpaceLogin().setUMainToolBar(this);
 	}
 	
 	private void clearTabularView(){

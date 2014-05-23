@@ -94,6 +94,10 @@ public class LoginForm extends VerticalLayout {
 							if(!genSpaceServerFactory.userRegister(u.getDelegate())) {
 								log.warn("genSpaceServerFactory.userRegister returns false");
 							}	
+							else {
+								genSpaceServerFactory.getUser().setLogData(1);
+								genSpaceServerFactory.userUpdate();
+							}
 						}
 					} catch (InvalidCredentialsException e) {
 						String err_msg = "Either username or password was wrong";

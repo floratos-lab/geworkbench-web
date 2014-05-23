@@ -18,7 +18,7 @@ public class UserNetworkReqWrapper {
 	public UserNetworkReqWrapper(UserNetwork un, GenSpaceLogin_1 login2) {
 		this.un = un;
 		this.uw = new UserWrapper(un.getUser(), login2);
-		this.name = this.un.getNetwork().getName();
+		this.name = this.un.getNetwork().getName() + " " + this.un.getUser().getUsername();
 		this.id = this.un.getId();
 	}
 	
