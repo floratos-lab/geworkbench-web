@@ -8,6 +8,7 @@ import java.util.List;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -15,6 +16,7 @@ import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
@@ -118,7 +120,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.setImmediate(true);
 		//modeBox.addItem("Complete");
 		modeBox.addItem("Discovery");
-		//modeBox.addItem("Preprocessing");
+		modeBox.addItem("Preprocessing");
 		//modeBox.select("Complete");
 		modeBox.select("Discovery");
 		modeBox.addListener(new Property.ValueChangeListener() {
@@ -590,6 +592,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
+		if(params.get(AracneParameters.MODE).equals("Preprocessing"))
+			return ConfigResult.class;
 		return Network.class;
 	}
 
@@ -598,14 +602,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			HashMap<Serializable, Serializable> parameters, Long userId)
 			throws IOException, Exception {
 		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
-		Network network = analyze.execute();
-		FacadeFactory.getFacade().store(network);
-		ResultSet networkResult = FacadeFactory.getFacade().find(ResultSet.class, resultId);
-		networkResult.setDataId(network.getId());
-		FacadeFactory.getFacade().store(networkResult);
+		AbstractPojo output = analyze.execute();
+		FacadeFactory.getFacade().store(output);
+		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		result.setDataId(output.getId());
+		FacadeFactory.getFacade().store(result);
 
-		String networkName = network.getName();
-		if(networkName != null) return "Aracne - " + networkName;
+		String resultName = analyze.serviceClient.resultName;
+		if(resultName != null && resultName.trim().length() > 0)
+			return "Aracne - " + resultName;
 		return "Aracne";
 	}
 }
