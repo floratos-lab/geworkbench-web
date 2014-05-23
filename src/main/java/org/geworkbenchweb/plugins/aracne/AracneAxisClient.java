@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -21,28 +24,36 @@ import org.apache.axis2.client.ServiceClient;
 import org.geworkbench.components.aracne.data.AracneGraphEdge;
 import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
+import org.geworkbenchweb.pojos.ConfigResult;
+import org.geworkbenchweb.pojos.Network;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
 public class AracneAxisClient {
 	private static final String aracneNamespace = "http://www.geworkbench.org/service/aracne";
+	private boolean config = false;
+	String resultName = null;
 	
-	public AracneOutput executeAracne(String serviceAddress, AracneInput input, File dataFile) throws AxisFault {
+	public AbstractPojo executeAracne(String serviceAddress, AracneInput input, File dataFile, List<String> hubGeneList, Map<String, String> map, boolean prune) throws AxisFault {
+		config = input.getMode().equals("Preprocessing");
 		OMElement aracneRequest = createAxiomRequestElement(input, dataFile);
-		return doWebServiceCallWithAxis(serviceAddress, aracneRequest);
+		return doWebServiceCallWithAxis(serviceAddress, aracneRequest, hubGeneList, map, prune);
 	}
 
 	private OMElement createAxiomRequestElement(AracneInput input, File dataFile) {
 
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(aracneNamespace, null);
-		OMElement request = omFactory.createOMElement("ExecuteAracneRequest", namespace);
+		String reqstr = config?"ExecuteAracneConfigRequest":"ExecuteAracneRequest";
+		OMElement request = omFactory.createOMElement(reqstr, namespace);
 		
 		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(dataFile)), true);
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
 		omFactory.createOMElement("algorithm", namespace, request).setText(input.getAlgorithm());
+		omFactory.createOMElement("dataSetName", namespace, request).setText(input.getDataSetName());
+		if(config) return request;
 		omFactory.createOMElement("bootstrapNumber", namespace, request).setText(Integer.toString(input.getBootstrapNumber()));
 		omFactory.createOMElement("consensusThreshold", namespace, request).setText(Float.toString(input.getConsensusThreshold()));
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(input.getDataSetIdentifier());
-		omFactory.createOMElement("dataSetName", namespace, request).setText(input.getDataSetName());
 		omFactory.createOMElement("dPITolerance", namespace, request).setText(Float.toString((float)input.getDPITolerance()));
 		omFactory.createOMElement("kernelWidth", namespace, request).setText(Float.toString((float)input.getKernelWidth()));
 		omFactory.createOMElement("mode", namespace, request).setText(input.getMode());
@@ -64,7 +75,7 @@ public class AracneAxisClient {
 		return sb.toString();
 	}
 
-	private AracneOutput doWebServiceCallWithAxis(String serviceAddress, OMElement aracneRequest) throws AxisFault {
+	private AbstractPojo doWebServiceCallWithAxis(String serviceAddress, OMElement aracneRequest, List<String> hubGeneList, Map<String, String> map, boolean prune) throws AxisFault {
 		org.apache.axis2.client.Options serviceOptions = new org.apache.axis2.client.Options();
     	serviceOptions.setProperty( Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE );
     	serviceOptions.setProperty( Constants.Configuration.ATTACHMENT_TEMP_DIR, System.getProperty("java.io.tmpdir") );
@@ -81,16 +92,43 @@ public class AracneAxisClient {
 
 		OMElement response = serviceClient.sendReceive(aracneRequest);
 		
-		OMElement nameElement = (OMElement)response.getFirstChildWithName(new QName(aracneNamespace, "adjName"));
-		String adjName = nameElement.getText();
-		
-		OMElement fileElement = (OMElement)response.getFirstChildWithName(new QName(aracneNamespace, "adjFile"));
-		DataHandler handler = (DataHandler)((OMText)fileElement.getFirstOMChild()).getDataHandler();
-
-		AracneOutput output = new AracneOutput(getEdges(handler), adjName);
-		return output;
+		if(config) return getConfigResult(response);
+		return getNetwork(response, hubGeneList, map, prune);	
 	}
 	
+	private Network getNetwork(OMElement response, List<String> hubGeneList, Map<String, String> map, boolean prune){
+		OMElement nameElement = (OMElement)response.getFirstChildWithName(new QName(aracneNamespace, "adjName"));
+		resultName = nameElement.getText();
+		
+		OMElement fileElement = (OMElement)response.getFirstChildWithName(new QName(aracneNamespace, "adjFile"));
+		DataHandler handler = fileElement==null?null:(DataHandler)((OMText)fileElement.getFirstOMChild()).getDataHandler();
+
+		AracneOutput output = new AracneOutput(getEdges(handler), null);
+		return AracneAnalysisWeb.convert(output, hubGeneList, map, prune);
+	}
+	
+	private ConfigResult getConfigResult(OMElement response){
+		OMElement nameElement = (OMElement)response.getFirstChildWithName(new QName(aracneNamespace, "name"));
+		resultName = nameElement.getText();
+		
+		ArrayList<Float> kernels = new ArrayList<Float>();
+		Iterator<?> elements = response.getChildrenWithName(new QName(aracneNamespace, "kernel"));
+		while(elements.hasNext()){
+			OMElement elem = (OMElement)elements.next();
+			kernels.add(Float.parseFloat(elem.getText()));
+		}
+		
+		ArrayList<Float> thresholds = new ArrayList<Float>();
+		elements = response.getChildrenWithName(new QName(aracneNamespace, "threshold"));
+		while(elements.hasNext()){
+			OMElement elem = (OMElement)elements.next();
+			thresholds.add(Float.parseFloat(elem.getText()));
+		}
+
+		ConfigResult output = new ConfigResult(kernels.toArray(new Float[0]), thresholds.toArray(new Float[0]));
+		return output;
+	}
+
 	private AracneGraphEdge[] getEdges(DataHandler handler){
 		if(handler == null) return null;
 		ArrayList<AracneGraphEdge> edges = new ArrayList<AracneGraphEdge>();

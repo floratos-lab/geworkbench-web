@@ -219,5 +219,14 @@
 		<uiClass>org.geworkbenchweb.plugins.ttest.results.TTestResultsUI</uiClass>
 	</plugin>
 	</inputType>
+	<inputType className="org.geworkbenchweb.pojos.ConfigResult">
+	<plugin>
+		<name>Aracne Preprocessing Result Viewer</name>
+		<description>
+			The Aracne Preprocessing Result Viewer displays text configuration files.
+		</description>
+		<uiClass>org.geworkbenchweb.plugins.aracne.ConfigResultUI</uiClass>
+	</plugin>
+	</inputType>
 	</visualizer>
 </plugins>

@@ -63,6 +63,7 @@ public class PluginRegistry {
 		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
 		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
 		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
+		resultIconMap.put(org.geworkbenchweb.pojos.ConfigResult.class, marinaIcon); // aracne config result
 
 		iconMap.put(org.geworkbenchweb.pojos.MicroarrayDataset.class, microarrayIcon);
 		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);

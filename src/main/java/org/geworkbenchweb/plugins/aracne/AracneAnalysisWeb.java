@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
@@ -28,6 +27,7 @@ import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
@@ -42,7 +42,6 @@ public class AracneAnalysisWeb {
 	private static Log log = LogFactory.getLog(AracneAnalysisWeb.class);
 	
 	private static final String  ARACNE_CLUSTERSERVICE_URL = "aracne.clusterService.url";
-	private static final Pattern pattern = Pattern.compile("^ara\\d+$");
 	
 	private static final Random random = new Random();
 	final private Long datasetId;
@@ -55,7 +54,7 @@ public class AracneAnalysisWeb {
 		this.datasetId = datasetId;
 	}
 
-	public Network execute() throws RemoteException {
+	public AbstractPojo execute() throws RemoteException {
 
 		List<String> hubGeneList = null;
 		if (params.get(AracneParameters.HUB_MARKER_SET) != null
@@ -117,17 +116,15 @@ public class AracneAnalysisWeb {
 
 		setDSMicroarraydata(aracneInput, microarrays, hubGeneList);
 
-		AracneOutput aracneOutput = null;
-
-			// pval correction = pval/(#markers*#hubs)
+		// pval correction = pval/(#markers*#hubs)
 		if(!aracneInput.getIsThresholdMI() && !aracneInput.getNoCorrection()){
 			aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
 		}
-		aracneOutput = computeAracneRemoteCluster(aracneInput);
-
 		boolean prune = isPrune();
+		return computeAracneRemoteCluster(aracneInput, hubGeneList, map, prune);
+
 		//set dataset = null to AdjacencyMatrixDataSet object
-		return convert(aracneOutput, hubGeneList, map, prune);
+		//return convert(aracneOutput, hubGeneList, map, prune);
 	} 
 
 	private void setDSMicroarraydata(AracneInput aracneInput, final MicroarraySet microarrays, List<String> hubGeneList) {
@@ -266,16 +263,17 @@ public class AracneAnalysisWeb {
 		return dataFile;
 	}
 	
-	private static final String aracne_cluster_service_url = GeworkbenchRoot.getAppProperty(ARACNE_CLUSTERSERVICE_URL);
-	private AracneOutput computeAracneRemoteCluster(AracneInput input) throws RemoteException {
+	private static final String aracne_cluster_service_url = GeworkbenchRoot.getAppProperty(ARACNE_CLUSTERSERVICE_URL);	
+	AracneAxisClient serviceClient = null;
+	private AbstractPojo computeAracneRemoteCluster(AracneInput input, List<String> hubGeneList, Map<String, String> map, boolean prune) throws RemoteException {
 
 		File expFile = exportExp(input);
 		if(expFile == null || !expFile.exists())
 			throw new RemoteException("Aracne exportExp error");
 		
-		AracneAxisClient serviceClient = new AracneAxisClient();
+		serviceClient = new AracneAxisClient();
 		try {       			
-			AracneOutput output = serviceClient.executeAracne(aracne_cluster_service_url, input, expFile);
+			AbstractPojo output = serviceClient.executeAracne(aracne_cluster_service_url, input, expFile, hubGeneList, map, prune);
 			return output;
 		} catch (AxisFault e) {
 			OMElement x = e.getDetail();
@@ -307,18 +305,14 @@ public class AracneAnalysisWeb {
 	/**
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
 	 */
-	private static Network convert(AracneOutput aracneOutput,
+	static Network convert(AracneOutput aracneOutput,
 			List<String> hubGeneList, final Map<String, String> map, boolean prune) {
 		Map<String, NetworkEdges> network = new HashMap<String, NetworkEdges>();
 		if(aracneOutput == null) return new Network(network);
 		
-		String networkName = null;
-		String desc = aracneOutput.getParamterDescription();
-		if(desc != null && pattern.matcher(desc).find()) networkName = desc;
-
 		AracneGraphEdge[] aracneGraphEdges = aracneOutput.getGraphEdges();
 		if (aracneGraphEdges == null || aracneGraphEdges.length == 0)
-			return new Network(networkName, network);
+			return new Network(network);
 
 		Map<String, List<String>> node2s = new HashMap<String, List<String>>();
 		Map<String, List<Double>> weights = new HashMap<String, List<Double>>();
@@ -369,7 +363,7 @@ public class AracneAnalysisWeb {
 			network.put(node1, edges);
 		}
 		log.debug("edge count " + nEdge);
-		return new Network(networkName, network);
+		return new Network(network);
 	}
 
 }
