@@ -300,7 +300,7 @@ public class UMainToolBar extends MenuBar {
 						
 						UMainToolBar.this.layout = new GenspaceLayout(genSpaceLogger, pusher);
 						
-						if (!UMainToolBar.this.layout.getGenSpaceLogin_1().autoLogin(username, password, true)) {
+						if (!UMainToolBar.this.layout.getGenSpaceLogin_1().autoLogin(username, password)) {
 							UMainToolBar.this.layout.getGenSpaceLogin_1().authorizeLayout();
 						}
 					}
@@ -335,7 +335,7 @@ public class UMainToolBar extends MenuBar {
 							mainWindow.removeWindow(chatMain);
 						
 						
-						genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
+						// genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
 						
 						// in case of chatMain is null
 						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
@@ -357,7 +357,7 @@ public class UMainToolBar extends MenuBar {
 									if (cw.getParent() != null)
 										mainWindow.removeWindow(cw);
 								}
-								chatHandler.logout(username, true);
+								//chatHandler.logout(username, true);
 								//chatMain.setVisible(false);
 								//mainWindow.removeWindow(chatMain);
 							}
@@ -546,14 +546,39 @@ public class UMainToolBar extends MenuBar {
 		this.password = password;
 	}
 	
-	
+
 	public String getUsername() {
 		return this.username;
 	}
 
-
 	public String getPassword() {
 		return this.password;
+	}
+	
+	public void initGenspaceLayout(GenspaceLogger genSpaceLogger) {
+		ICEPush pusher = new ICEPush();	
+		this.layout = new GenspaceLayout(genSpaceLogger, pusher);	
+		if (!this.layout.getGenSpaceLogin_1().autoLogin(username, password)) {
+			this.layout.getGenSpaceLogin_1().authorizeLayout();
+		}
+		
+		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
+	}
+	
+	public void initGenspaceLogin(GenspaceLogger genSpaceLogger) {
+		
+		if (!genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().userLogin(username, password)) {
+			return;
+		}
+		
+		ChatReceiver chatHandler = new ChatReceiver(genSpaceLogger.getGenSpaceLogin());
+		chatHandler.login(username, password);
+		genSpaceLogger.getGenSpaceLogin().setChatHandler(chatHandler);
+		Presence pr = new Presence(Presence.Type.available);
+		pr.setStatus("On genspace...");
+		chatHandler.getConnection().sendPacket(pr);
+		
+		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
 	}
 	
 }

@@ -59,6 +59,7 @@ public class GenSpaceWindow extends Window{
 	static public void sPush(com.github.wolfie.blackboard.Listener listener, ICEPush pusher) {
 		if (pusher.getApplication() == null) {	
 			GenSpaceWindow.getGenSpaceBlackboard().removeListener(listener);
+			System.out.println("My application is null");
 		}
 		else {
 			if (listener.getClass().getName().equals("org.geworkbenchweb.genspace.ui.component.ActivityFeedWindow")) {

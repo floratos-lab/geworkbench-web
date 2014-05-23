@@ -5,6 +5,7 @@ package org.geworkbenchweb.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -81,6 +82,9 @@ public class LoginForm extends VerticalLayout {
 						UMainLayout uMainLayout = new UMainLayout();
 						uMainLayout.getMainToolBar().setUsername(username);
 						uMainLayout.getMainToolBar().setPassword(password);
+						if (GeworkbenchRoot.genespaceEnabled()) {
+							uMainLayout.getMainToolBar().initGenspaceLogin(uMainLayout.getGenSpaceLogger());
+						}
 						
 						getApplication().getMainWindow().setContent(uMainLayout);
 						if (!genSpaceServerFactory.userLogin(username, password)) {

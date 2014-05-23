@@ -103,11 +103,6 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			int oldCount = this.roster.getEntryCount();
 			Iterator<RosterEntry> i;
 			while (true) {
-				System.out.println(myID + "\'s Friends ");
-				i = this.roster.getEntries().iterator();
-				while (i.hasNext()) {
-					System.out.println(i.next().getName());
-				}
 				this.rosterTree.removeAllItems();
 				this.cr.updateRoster();
 				//this.roster = this.cr.getConnection().getRoster();
@@ -119,7 +114,6 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				}
 				
 				try {
-					System.out.println("Enter loop");
 					Thread.sleep(500);
 					cnt++;
 				} catch (InterruptedException e) {
@@ -130,10 +124,6 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			
 			this.setUpRosterTree();
 			
-			i = this.roster.getEntries().iterator();
-			while (i.hasNext()) {
-				System.out.println(i.next().getName());
-			}
 		} 
 		else {
 			System.out.println("Fail to refresh due to connection failure!");
@@ -427,13 +417,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 
 		pr.setStatus(status);
 		this.pr = pr;
-		System.out.println("Sending status " + pr.getStatus() + " " + pr.toString());
 		if (cr.getConnection().isConnected()) {
 				cr.getConnection().sendPacket(this.pr);
-		//System.out.println("send status change event!");
 				GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
 		}
-		//System.out.println("start refresh!");
 		this.refresh(false);
 			
 	};
@@ -542,7 +529,6 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
-		System.out.println(myID + "receives chatChangeEvent!");
 		// TODO Auto-generated method stub
 		if (getApplication() == null) {
 			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
@@ -557,12 +543,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 
-		System.out.println(myID + "receives friendChangeEvent!");
 		if (getApplication() == null ) {
 			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
 		}
 		else {
-			System.out.println(myID + " : receive friendChangeEvent in Roster!");
 			if (myID == evt.getMyID() || myID == evt.getFriendID() || 
 					(evt.getMyID() == FriendStatusChangeEvent.NETWORK_EVENT &&
 					evt.getFriendID() == FriendStatusChangeEvent.NETWORK_EVENT)) {
@@ -570,14 +554,20 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 					this.cr.getConnection().disconnect();
 					this.cr.reLogin();
 				}
-				this.refresh(true);
-				this.refresh(true);
+				if ((myID == evt.getMyID() || myID == evt.getFriendID()) 
+						&& evt.getOptType() == FriendStatusChangeEvent.RM_FRIEND) {
+					this.refresh(false);
+				}
+				else {
+					this.refresh(true);
+					this.refresh(true);
+				}
+				
 				if (evt.getOptType() == FriendStatusChangeEvent.ADD_FRIEND || 
 						evt.getOptType() == FriendStatusChangeEvent.RM_FRIEND) {
 					// Broadcast my current status
 					if (this.cr.getConnection().isConnected()) {
 						this.cr.getConnection().sendPacket(this.pr);
-						System.out.println(this.pr.getStatus());
 						GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
 					}
 				}
@@ -585,7 +575,14 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				//Need to call push multiple times to guarantee UI be refreshed 
 				for (int i=0; i<3; i++) {
 					GenSpaceWindow.sPush(this, getPusher());
+					try {
+						Thread.sleep(100);
+					}
+					catch(Exception e) {
+						
+					}
 				}
+				
 			}
 		}
 	}

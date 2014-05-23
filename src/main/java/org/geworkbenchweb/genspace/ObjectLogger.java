@@ -184,7 +184,7 @@ public class ObjectLogger {
 			Transaction retTrans = (tmpFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
 			tmpFactory.clearCache();
 			
-			System.out.println("logstatus : " + this.login.getGenSpaceLogger().getObjectHandler().getLogStatus());
+			//System.out.println("logstatus : " + this.login.getGenSpaceLogger().getObjectHandler().getLogStatus());
 			if (this.login.getGenSpaceLogger().getObjectHandler().getLogStatus() == 1) {
 				return null;
 			}

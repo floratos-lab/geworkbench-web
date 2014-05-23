@@ -177,6 +177,7 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 	
 	@Override
 	public void completeLog(LogCompleteEvent evt) {
+		System.out.println("Check evt: " + evt.getID());
 		int id = evt.getID();
 		if (this.myID == id) {
 			return ;
@@ -186,6 +187,7 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 			this.updateQueryString();
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();
+			System.out.println("Before sPush");
 			GenSpaceWindow.sPush(this, this.getPusher());
 		}
 	}

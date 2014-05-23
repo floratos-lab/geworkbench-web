@@ -63,17 +63,17 @@ public class UserPanel extends Panel{
 		
 		paramList = new ArrayList<String>();
 		String phone = forListener.getPhone();
-		if (phone.isEmpty()) {
+		if (phone == null || phone.isEmpty()) {
 			phone = "N\\A";
 		}
 		
 		String email = forListener.getEmail();
-		if (email.isEmpty()) {
+		if (email == null || email.isEmpty()) {
 			email = "N\\A";
 		}
 		
 		String mailAddress;
-		if (forListener.getAddr1().isEmpty()){
+		if (forListener.getAddr1() == null || forListener.getAddr1().isEmpty()){
 			mailAddress = "not provided";
 		}	else {
 			mailAddress = forListener.getAddr1() + forListener.getAddr2() + 

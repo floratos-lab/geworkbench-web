@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.genspace.GenspaceLogger;
+import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -446,5 +447,9 @@ public class UMainLayout extends VerticalLayout {
 	
 	public UMainToolBar getMainToolBar() {
 		return mainToolBar;
+	}
+	
+	public GenspaceLogger getGenSpaceLogger() {
+		return this.genspaceLogger;
 	}
 }

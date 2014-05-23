@@ -9,7 +9,6 @@ public class ChatStatusChangeEvent implements Event{
 	
 	public ChatStatusChangeEvent (String username) {
 		this.username = username;
-		System.out.println(username + "sends chatChangeEvent!");
 	}
 	
 	public String getUsername() {

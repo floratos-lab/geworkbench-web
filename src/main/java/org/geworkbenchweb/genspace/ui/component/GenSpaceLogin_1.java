@@ -84,6 +84,10 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 			return null;
 	}
 	
+	public void setChatHandler(ChatReceiver chat) {
+		this.chatHandler = chat;
+	}
+	
 	public ICEPush getPusher() {
 		return this.push;
 	}
@@ -374,26 +378,20 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	}
 	
 	
-	public boolean autoLogin(String username, String password, boolean shouldFire) {
+	public boolean autoLogin(String username, String password) {
 
 
 		if (!genSpaceServerFactory.userLogin(username, password)) {
+			System.out.println(username + " , " + password);
 			return false;
 		}
 			
-		chatHandler = new ChatReceiver(this);
-		if (!chatHandler.login(username, password)) {
-			return false;
-		}
+//		chatHandler = new ChatReceiver(this);
+//		if (!chatHandler.login(username, password)) {
+//			return false;
+//		}
 		
-		if (shouldFire) {
-			genSpaceParent.fireLoggedIn();
-		}
-		else {
-			Presence pr = new Presence(Presence.Type.available);
-			pr.setStatus("On genspace...");
-			chatHandler.getConnection().sendPacket(pr);
-		}
+		genSpaceParent.fireLoggedIn();		
 		return true;
 	}
 	
@@ -433,7 +431,7 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 			mainWindow.showNotification(msg);
 		}
 		else {
-			autoLogin(usernameStr, newPassword, true);
+			autoLogin(usernameStr, newPassword);
 		}
 		
 	}
@@ -537,6 +535,10 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 
 	public void setUMainToolBar(UMainToolBar uMainToolBar) {
 		this.toolBar = uMainToolBar;
+	}
+	
+	public UMainToolBar getUMainToolBar() {
+		return this.toolBar;
 	}
 
 }

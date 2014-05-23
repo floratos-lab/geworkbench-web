@@ -17,7 +17,6 @@ public class FriendStatusChangeEvent implements Event{
 	public static final int NETWORK_EVENT = -1;
 	
 	public FriendStatusChangeEvent(int myID, int friendID) {
-		System.out.println(myID + "receives friendChangeEvent!");
 		this.myID = myID;
 		this.friendID = friendID;
 		this.optType = this.STATUS_REFRESH;
@@ -38,26 +37,6 @@ public class FriendStatusChangeEvent implements Event{
 	public int getOptType() {
 		return this.optType;
 	}
-	
-//	public String getMyName() {
-//		return myName;
-//	}
-//
-//	public void setMyName(String myName) {
-//		this.myName = myName;
-//	}
-//
-//	public void setMyID(int myID) {
-//		this.myID = myID;
-//	}
-//	
-//	public String getFriendName() {
-//		return friendName;
-//	}
-//
-//	public void setFriendName(String friendName) {
-//		this.friendName = friendName;
-//	}
 	
 	public interface FriendStatusChangeListener extends Listener {
 		public void changeFriendStatus(FriendStatusChangeEvent evt);
