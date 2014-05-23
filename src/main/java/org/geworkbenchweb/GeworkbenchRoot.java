@@ -254,4 +254,27 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			log.error("main container content is an incorrect type " + content);
 		}
 	}
+
+	/* create new layout and make sure the old listener is removed first */
+	public void createNewMainLayout() {
+		Window mainWindow = getMainWindow();
+		if (mainWindow == null) {
+			log.error("null main winwdow");
+			return;
+		}
+		ComponentContainer content = mainWindow.getContent();
+		if (content instanceof UMainLayout) {
+			UMainLayout mainLayout = (UMainLayout) content;
+			boolean removed = GeworkbenchRoot.getBlackboard().removeListener(
+					mainLayout.getAnalysisListener());
+			log.debug("anaysis listener found and removed? " + removed);
+		} else {
+			log.error("main winwdow content is not UMainLayout");
+		}
+		try {
+			mainWindow.setContent(new UMainLayout());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

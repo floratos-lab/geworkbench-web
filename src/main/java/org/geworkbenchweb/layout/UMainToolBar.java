@@ -155,8 +155,12 @@ public class UMainToolBar extends MenuBar {
 					    			new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 
 					    	mb.show();
-					    	getApplication().getMainWindow().setContent(new UMainLayout());				    	
-
+					    	Application app = getApplication();
+							if(app instanceof GeworkbenchRoot) {
+								((GeworkbenchRoot) app).createNewMainLayout();
+							} else {
+								log.error("application is not GeworkbenchRoot: "+app);
+							}
 					    } catch(Exception e) {
 					    	e.printStackTrace();
 					    }
@@ -247,12 +251,12 @@ public class UMainToolBar extends MenuBar {
 		                        		FacadeFactory.getFacade().store(active);
 
 		                        		getApplication().getMainWindow().removeWindow(workspaceTable);
-		                        		try {
-											getApplication().getMainWindow().setContent(new UMainLayout());
-										} catch (Exception e) {
-											e.printStackTrace();
-										} 
-
+		                        		Application app = getApplication();
+		                        		if(app instanceof GeworkbenchRoot) {
+		                        			((GeworkbenchRoot) app).createNewMainLayout();
+		                        		} else {
+		                        			log.error("application is not GeworkbenchRoot: "+app);
+		                        		}
 		                        	}
 		                        }
 						 });

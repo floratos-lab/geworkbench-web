@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -166,8 +167,7 @@ public class DeleteWorkspaceDialog extends Window implements
 	private transient Long newCurrentWorkspace = 0L;
 
 	private void delete(Set<Long> toBeDelectedId) {
-		Application app = getApplication();
-		final Window mainWindow = app.getMainWindow();
+		final Application app = getApplication();
 		
 		final String defaultWorkspaceName = "Default Workspace";
 		Long currentWorkspace = uMainToolBar.getCurrentWorkspace();
@@ -194,7 +194,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			newDefaultWorksapce.setName(defaultWorkspaceName);
 			FacadeFactory.getFacade().store(newDefaultWorksapce);
 			/* Step 3: set the new default workspace as the current */
-			switchWorkspace(mainWindow, newDefaultWorksapce.getId());
+			switchWorkspace(app, newDefaultWorksapce.getId());
 			/* Step 4: delete all the selected workspaces */
 			for (Long id : toBeDelectedId) {
 				DataSetOperations.deleteWorkspace(id);
@@ -212,7 +212,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			/* Step 2: choose a new current workspace */
 			if(notSelected.size()==1) { /* it must be least one */
 				/* set the only unselected as the current */
-				switchWorkspace(mainWindow, notSelected.iterator().next());
+				switchWorkspace(app, notSelected.iterator().next());
 				/* Step 3: otherwise, just delete all selected (because the current workspace will not be changed */
 				for (Long id : toBeDelectedId) {
 					DataSetOperations.deleteWorkspace(id);
@@ -231,7 +231,7 @@ public class DeleteWorkspaceDialog extends Window implements
 		}
 	}
 	
-	private static void switchWorkspace(final Window mainWindow, Long wsid) {
+	private static void switchWorkspace(final Application app, Long wsid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("owner", SessionHandler.get().getId());
 		List<AbstractPojo> activeWorkspace = FacadeFactory
@@ -246,11 +246,11 @@ public class DeleteWorkspaceDialog extends Window implements
 		active.setWorkspace(wsid);
 		FacadeFactory.getFacade().store(active);
 		
-		try {
-			/* switch GUI to the newly selected workspace */
-			mainWindow.setContent(new UMainLayout());
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		/* switch GUI to the newly selected workspace */
+		if(app instanceof GeworkbenchRoot) {
+			((GeworkbenchRoot) app).createNewMainLayout();
+		} else {
+			log.error("application is not GeworkbenchRoot: "+app);
 		}
 	}
 
@@ -277,7 +277,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			}
 		}
 
-		Application app = getApplication();
+		final Application app = getApplication();
 		final Window mainWindow = app.getMainWindow();
 
 		final Window chooseDialog = new Window("Choose New Current Workspace");
@@ -292,7 +292,7 @@ public class DeleteWorkspaceDialog extends Window implements
 
 			@Override
 			public void windowClose(CloseEvent e) {
-				switchWorkspace(mainWindow, newCurrentWorkspace);
+				switchWorkspace(app, newCurrentWorkspace);
 				for (Long id : toBeDelectedId) {
 					DataSetOperations.deleteWorkspace(id);
 				}

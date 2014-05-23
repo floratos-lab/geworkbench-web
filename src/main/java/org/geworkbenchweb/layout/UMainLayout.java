@@ -261,9 +261,14 @@ public class UMainLayout extends VerticalLayout {
 		
 		pluginView.showWeclomeScreen();
 
-		AnalysisListener analysisListener = new AnalysisListener(this, pusher);
+		analysisListener = new AnalysisListener(this, pusher);
 		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 	} // end of the constructor.
+	
+	private AnalysisListener analysisListener;
+	public AnalysisListener getAnalysisListener() {
+		return analysisListener; 
+	}
 
 	/* This locks GUI except for the plugin view panel.
 	 * The code that calls this, which is meant to be data upload UI, is responsible to enable it later. */
