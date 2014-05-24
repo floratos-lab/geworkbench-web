@@ -90,13 +90,21 @@ public class ChatWindow extends Window implements Action.Handler{
 					+ "      "
 					+ Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
 					+ ":"
-					+ Calendar.getInstance().get(Calendar.MINUTE)
+					+ this.processMinute(Calendar.getInstance().get(Calendar.MINUTE))
 					+ "</font>";
 		}
 		last = lastChatter.YOU;
 		chatText += "<br>" + m.getBody();
 		this.txtMsging.setValue("<html><body>" + chatText + "</body></html>");
 		this.requestRepaintAll();
+	}
+	
+	private String processMinute(int minute) {
+		if (minute < 10) {
+			return "0" + minute;
+		} else {
+			return String.valueOf(minute);
+		}
 	}
 
 	/**

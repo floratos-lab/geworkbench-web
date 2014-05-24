@@ -25,6 +25,7 @@ import org.vaadin.artur.icepush.ICEPush;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 public class ChatReceiver implements MessageListener, ChatManagerListener, Window.CloseListener {
 	
@@ -43,13 +44,52 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	
 	private GenSpaceLogin_1 login;
 	
-	private Window chatMain;
-	
 	private Roster r;
 	private ICEPush pusher = new ICEPush();
 	private String u;
 	private String p;	
 	
+	public static Window createChatMain(final ChatReceiver chatHandler, final Window mainWindow) {
+		Window ret = new Window();
+		ret.setCaption("GMessage");
+		ret.setHeight("380px");
+		ret.setWidth("310px");
+		ret.setResizable(false);
+		ret.setScrollable(false);
+		/*ret.addListener(new Window.CloseListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void windowClose(CloseEvent e) {
+				for (ChatWindow cw : chatHandler.chats.values()) {
+					if (cw.getParent() != null)
+						mainWindow.removeWindow(cw);
+				}
+			}
+		});*/
+		VerticalLayout chatLayout = new VerticalLayout();
+		ret.addComponent(chatLayout);
+
+		if (chatHandler.rf != null) {
+			GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+			GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
+		}
+
+		chatHandler.updateRoster();
+		chatHandler.createRosterFrame();
+		chatHandler.rf.addStyleName("feature-info");
+		chatLayout.addComponent(chatHandler.rf);
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
+		
+		return ret;
+	}
+	
+	private static String genKey(String participant) {
+		return participant.replace("@genspace", "").replaceAll("([0-9a-zA-Z.]*)(/)([0-9a-zA-Z.]*)", "$1");
+	}
+		
 	public ChatReceiver(GenSpaceLogin_1 genSpaceLogin_1){
 		this.login = genSpaceLogin_1;
 	}
@@ -58,23 +98,16 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		this.u = u;
 		this.p = p;
 		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5222, "genspace");
-//		config.setReconnectionAllowed(false);
-//		ConnectionConfiguration config = new ConnectionConfiguration(RuntimeEnvironmentSettings.PROD_HOST, 5269, "genspace");
 		
 		connection = new XMPPConnection(config);
 		if(tryLogin(u, p)) {
-			//System.out.println("Connection succeeds");
-			
 			manager = connection.getChatManager();
 			this.updateRoster();
-			// this.createRosterFrame();
 			
 			manager.addChatListener(this);
-			//System.out.println("OOOOOOO"+this.rf);
 			return true;
 		} else{
 			return false;
-			//System.out.println("Connection fails");
 		}
 	}
 	
@@ -135,59 +168,62 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	@Override
 	public void chatCreated(Chat c, boolean createdLocal) {
 		// TODO Auto-generated method stub
-		if (chats.containsKey(c.getParticipant())) {
-			//System.out.println("contained participant!");
-			//return ;
-		}
-		
-		else if(createdLocal) {
-			System.out.println("DEBUG sender to receiver: " + this.login.getGenSpaceServerFactory().getUsername() + " " + c.getParticipant());
+		String key = genKey(c.getParticipant());
+		Window mainWindow = login.getUMainToolBar().getApplication().getMainWindow();
+		if (chats.containsKey(key)) {
+			ChatWindow cw = chats.get(key);
+			if (cw.getParent() == null) {
+				cw.setVisible(true);
+				mainWindow.addWindow(cw);
+			}
+		} else if(createdLocal) {
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
 			cw.addComponent(pusher);
-			chats.put(c.getParticipant(), cw);
-			//System.out.println("check chat map: "+ chats);
+			chats.put(key, cw);
 			rf.getApplication().getMainWindow().addWindow(cw);
-			//this.login.getPusher().push();
 			pusher.push();
 		}
 		c.addMessageListener(this);
-		//pusher.push();
-		//this.login.getPusher().push();
 	}
 
 	@Override
 	public void processMessage(Chat c, Message m) {
 		// TODO Auto-generated method stub
-		//System.out.println("Get message prpoerty: " + m.getProperty("specialType"));
-		System.out.println("Debug receiver: " + c.getParticipant());
-		System.out.println("Get message body: " + m.getBody());
-
+		Window mainWindow = login.getUMainToolBar().getApplication().getMainWindow();
+		String key = genKey(c.getParticipant());
 		if ((m.getProperty("specialType") == null || m.getProperty("specialType").equals(MessageTypes.CHAT)) && (m.getBody() == null || m.getBody().equals(""))){
 			return;
 		}
-		if (chats.containsKey(c.getParticipant())) {
-			chats.get(c.getParticipant()).processMessage(m);
-		}
-		else {
+		if (chats.containsKey(key)) {
+			ChatWindow cw = chats.get(key);
+			
+			if (cw.getParent() == null) {
+				cw.setVisible(true);
+				mainWindow.addWindow(cw);
+			}
+			
+			chats.get(key).processMessage(m);
+		} else {
 			final ChatWindow cw = new ChatWindow(login);
 			cw.setChat(c);
 			cw.setVisible(true);
 			cw.addListener(this);
 			cw.addComponent(pusher);
-			chats.put(c.getParticipant(), cw);
+			chats.put(key, cw);
 			
-			if (rf.getApplication() != null) {
+			if (rf != null && rf.getApplication() != null) {
 				rf.getApplication().getMainWindow().addWindow(cw);
 			} else {
-				System.out.println("The rosterframe is not has not been shown: " + this.login.getGenSpaceServerFactory().getUsername());
-				this.createChatMain();
-				System.out.println("Add chat main: " + this.chatMain);
-				this.login.getUMainToolBar().getApplication().getMainWindow().addWindow(this.chatMain);
-				System.out.println("Add cw: " + cw);
-				this.login.getUMainToolBar().getApplication().getMainWindow().addWindow(cw);
+				//If need chatMain, add these back
+				/*this.createRosterFrame();
+				Window chatMain = createChatMain(this, mainWindow);
+				this.login.getUMainToolBar().setChatMain(chatMain);
+				System.out.println("Add chat main: ");
+				mainWindow.addWindow(chatMain);*/
+				mainWindow.addWindow(cw);
 			}
 			cw.processMessage(m);
 		}
@@ -201,14 +237,6 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	}
 	
 	public XMPPConnection getConnection() {
-//		if (!this.connection.isConnected()) {
-//			int tryTimes = 0;
-//			while (tryTimes < 5) {
-//				tryTimes++;
-//				if (tryLogin(u, p))
-//					break;
-//			}
-//		}
 		return this.connection;
 	}
 	
@@ -216,11 +244,11 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 		return this.rf;
 	}
 	
+	@Override
 	public void windowClose(CloseEvent event) {
 		ChatWindow tmpCw = (ChatWindow)event.getWindow();
-		String user = tmpCw.getChat().getParticipant();
-		
-		chats.remove(user);
+		String user = genKey(tmpCw.getChat().getParticipant());
+		//chats.remove(user);
 	}
 	
 	public Roster getRoster() {
@@ -228,57 +256,11 @@ public class ChatReceiver implements MessageListener, ChatManagerListener, Windo
 	}
 	
 	
-	public void reShown(String user) {
+	private void reShown(String user) {
 		if (this.getConnection().isConnected()) {		
 			Presence pr = new Presence(Presence.Type.available);
 			this.getConnection().sendPacket(pr);
 			GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
 		}
-	}
-	
-	public void createChatMain() {
-		
-		final Window mainWindow = this.login.getUMainToolBar().getApplication().getMainWindow();
-		chatMain = new Window();
-		chatMain.setCaption("GMessage");
-		chatMain.setHeight("380px");
-		chatMain.setWidth("310px");
-		chatMain.setResizable(false);
-		chatMain.setScrollable(false);
-		chatMain.addListener(new Window.CloseListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void windowClose(CloseEvent e) {
-				// TODO Auto-generated method stub
-				for (ChatWindow cw: chats.values()) {
-					if (cw.getParent() != null)
-						mainWindow.removeWindow(cw);
-				}
-				//chatHandler.logout(username, true);
-				//chatMain.setVisible(false);
-				//mainWindow.removeWindow(chatMain);
-			}
-		});
-		VerticalLayout chatLayout = new VerticalLayout();
-		chatMain.addComponent(chatLayout);
-		
-		if (this.rf != null){
-			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this.rf);
-			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this.rf);
-		}
-		
-		this.updateRoster();
-		this.createRosterFrame();
-		this.rf.addStyleName("feature-info");
-		chatLayout.addComponent(this.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(this.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(this.rf);
-		mainWindow.addWindow(chatMain);
-		
-		//String user = login.getGenSpaceServerFactory().getUsername();
-		//GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(user));
-	}
-	
+	}	
 }

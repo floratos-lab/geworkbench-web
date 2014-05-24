@@ -1,6 +1,5 @@
 package org.geworkbenchweb.pojos;
 
-
 import javax.persistence.Entity;
 
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;

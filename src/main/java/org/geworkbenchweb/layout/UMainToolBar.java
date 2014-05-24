@@ -14,7 +14,6 @@ import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
-import org.geworkbenchweb.genspace.ui.chat.ChatWindow;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -37,9 +36,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.Notification;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -63,7 +60,6 @@ public class UMainToolBar extends MenuBar {
 									 * active workspace does not make sense
 									 */
 	private Window chatMain;
-
 	private String username;
 	private String password;
 	private GenspaceLayout layout = null;
@@ -379,56 +375,10 @@ public class UMainToolBar extends MenuBar {
 							mainWindow.removeWindow(chatMain);
 						
 						// genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
-						
 						// in case of chatMain is null
-						final ChatReceiver chatHandler = genSpaceLogger
-								.getGenSpaceLogin().getChatHandler();
-
-						chatMain = new Window();
-						chatMain.setCaption("GMessage");
-						chatMain.setHeight("380px");
-						chatMain.setWidth("310px");
-						chatMain.setResizable(false);
-						chatMain.setScrollable(false);
-						chatMain.addListener(new Window.CloseListener() {
-
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public void windowClose(CloseEvent e) {
-								for (ChatWindow cw : chatHandler.chats.values()) {
-									if (cw.getParent() != null)
-										mainWindow.removeWindow(cw);
-								}
-								//chatHandler.logout(username, true);
-								//chatMain.setVisible(false);
-								//mainWindow.removeWindow(chatMain);
-							}
-						});
-						VerticalLayout chatLayout = new VerticalLayout();
-						chatMain.addComponent(chatLayout);
-
-						if (chatHandler.rf != null) {
-							GenSpaceWindow.getGenSpaceBlackboard()
-									.removeListener(chatHandler.rf);
-							GenSpaceWindow.getGenSpaceBlackboard()
-									.removeListener(chatHandler.rf);
-						}
-
-						chatHandler.updateRoster();
-						chatHandler.createRosterFrame();
-						chatHandler.rf.addStyleName("feature-info");
-						chatLayout.addComponent(chatHandler.rf);
-						GenSpaceWindow.getGenSpaceBlackboard().addListener(
-								chatHandler.rf);
-						GenSpaceWindow.getGenSpaceBlackboard().addListener(
-								chatHandler.rf);
+						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+						chatMain = ChatReceiver.createChatMain(chatHandler, mainWindow);
 						mainWindow.addWindow(chatMain);
-
-						String user = genSpaceLogger.getGenSpaceLogin()
-								.getGenSpaceServerFactory().getUsername();
-						GenSpaceWindow.getGenSpaceBlackboard().fire(
-								new ChatStatusChangeEvent(user));
 					}
 				}
 			}
@@ -562,5 +512,13 @@ public class UMainToolBar extends MenuBar {
 		chatHandler.getConnection().sendPacket(pr);
 		
 		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
+	}
+	
+	/**
+	 * It's possible that chatMain will be created by new chat, not by menu bar
+	 * @param chatMain
+	 */
+	public void setChatMain(Window chatMain) {
+		this.chatMain = chatMain;
 	}
 }

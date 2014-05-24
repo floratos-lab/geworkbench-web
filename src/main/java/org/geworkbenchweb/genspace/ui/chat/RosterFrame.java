@@ -292,7 +292,7 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 		this.setUpRosterTree();
 	}
 	
-	private void setUpRosterTree() {
+	private synchronized void setUpRosterTree() {
 		RosterModel model = new RosterModel();
 		model.setData(roster);
 		Iterator<RosterGroup> rgIT = model.getRosterGroup().iterator();
@@ -350,12 +350,11 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				hBeans.getContainerProperty(entryID, "rGroup").setValue(null);
 				hBeans.getContainerProperty(entryID, "rEntry").setValue(tmpEntry);
 				Presence p = this.roster.getPresence(tmpEntry.getUser());
-				if (p.getType().equals(Presence.Type.unavailable))
+				if (p.getType().equals(Presence.Type.unavailable) || p.getStatus().equals("Offline"))
 					hBeans.getContainerProperty(entryID, "icon").setValue(this.offlineIcon);
 				else {
 					if (p.getMode() != null
-							&& (p.getMode().equals(Mode.away) || p.getMode()
-									.equals(Mode.dnd))) {
+							&& (p.getMode().equals(Mode.away) || p.getMode().equals(Mode.dnd))) {
 						hBeans.getContainerProperty(entryID, "icon").setValue(this.leaveIcon);
 					} else {
 						hBeans.getContainerProperty(entryID, "icon").setValue(this.onlineIcon);
@@ -412,13 +411,18 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 			iconLayout.addComponent(this.leaveEmbed);
 		} else {
 			pr = new Presence(Presence.Type.unavailable);
+			
 			iconLayout.removeAllComponents();
+			iconLayout.addComponent(this.offlineEmbed);
 		}
 
 		pr.setStatus(status);
 		this.pr = pr;
 		if (cr.getConnection().isConnected()) {
 				cr.getConnection().sendPacket(this.pr);
+				
+				//For pr to be really updated
+				this.sleep(20);
 				GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(this.username));
 		}
 		this.refresh(false);
@@ -467,9 +471,10 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 					
 					Presence p = roster.getPresence(e.getUser());
 					String fname = e.getUser().substring(0, e.getUser().indexOf('@'));
+
 					if (p.getType().equals(Presence.Type.unavailable) || fname.equals(username))
 						return ;
-
+					
 					cr.getManager().createChat(e.getUser(), null);
 
 				}
@@ -530,14 +535,22 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 	@Override
 	public void changeStatus(ChatStatusChangeEvent evt) {
 		// TODO Auto-generated method stub
+		String fName = evt.getUsername();
 		if (getApplication() == null) {
 			GenSpaceWindow.getGenSpaceBlackboard().removeListener(this);
+		} else if (fName.equals(this.username)) {
+			return ;
+		}else {
+			//RosterGroup is contained in the roster
+			for (RosterEntry r: this.roster.getEntries()) {
+				String rName = r.getUser().replace("@genspace", "");
+				if (rName.equals(fName)) {
+					this.refresh(false);
+					GenSpaceWindow.sPush(this, getPusher());
+					return ;
+				}
+			}
 		}
-		else {
-			this.refresh(false);
-			GenSpaceWindow.sPush(this, getPusher());
-		}
-		
 	}
 	
 	@Override
@@ -575,15 +588,18 @@ public class RosterFrame extends Panel implements RosterListener, ChatStatusChan
 				//Need to call push multiple times to guarantee UI be refreshed 
 				for (int i=0; i<3; i++) {
 					GenSpaceWindow.sPush(this, getPusher());
-					try {
-						Thread.sleep(100);
-					}
-					catch(Exception e) {
-						
-					}
+					this.sleep(100);
 				}
 				
 			}
+		}
+	}
+	
+	public void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (Exception e) {
+			System.out.println("Fail to sleep for updating UI");
 		}
 	}
 	
