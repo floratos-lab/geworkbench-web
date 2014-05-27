@@ -9,6 +9,7 @@ import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
+import org.geworkbenchweb.genspace.chat.BroadCaster;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -234,6 +235,8 @@ public class RequestPanel extends SocialPanel{
 					retrieveBasicInfo();
 					loadFriends();
 				}
+				
+				BroadCaster.broadcastPresence(login);
 				pusher.push();
 			}
 		};
@@ -324,18 +327,17 @@ public class RequestPanel extends SocialPanel{
 						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
 					}
 					loadNetworks();
-				}else{
-					
 				}
+				
 				if(rejList.size()>0){
 					for (int unID: rejList) {
 						login.getGenSpaceServerFactory().getNetworkOps().rejectNetworkRequest(unID);
 					}
 					loadNetworks();
 
-				}else{
-
-				}
+				}				
+				
+				BroadCaster.broadcastPresence(login);
 				pusher.push();
 				
 			}
@@ -343,5 +345,4 @@ public class RequestPanel extends SocialPanel{
 		
 		return cListener;
 	}
-
 }

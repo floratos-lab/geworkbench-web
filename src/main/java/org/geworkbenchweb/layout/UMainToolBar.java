@@ -370,15 +370,29 @@ public class UMainToolBar extends MenuBar {
 								Notification.TYPE_ERROR_MESSAGE);
 						mainWindow.showNotification(errMsg);
 					} else {
-
-						if (chatMain != null && chatMain.getWindow() != null)
-							mainWindow.removeWindow(chatMain);
-						
-						// genSpaceLogger.getGenSpaceLogin().autoLogin(username, password, false);
-						// in case of chatMain is null
 						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
-						chatMain = ChatReceiver.createChatMain(chatHandler, mainWindow);
-						mainWindow.addWindow(chatMain);
+						if (chatMain != null && chatMain.getWindow() != null) {
+							chatHandler.getRoster().reload();
+							chatMain.setVisible(true);
+							if (chatMain.getParent() == null) {
+								mainWindow.addWindow(chatMain);
+							}
+						} else {
+							// in case chatMain is null
+							chatMain = ChatReceiver.createChatMain(chatHandler);
+							if (chatHandler.getRoster() != null) {
+								chatHandler.getRoster().reload();
+							} else {
+								//For the case that roster disappear for no reason 
+								try {
+									chatHandler.reLogin();
+									chatMain = ChatReceiver.createChatMain(chatHandler);
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
+							}
+							mainWindow.addWindow(chatMain);
+						}
 					}
 				}
 			}
@@ -413,6 +427,7 @@ public class UMainToolBar extends MenuBar {
 
 								if (chatHandler != null) {
 									chatHandler.logout(username, true);
+									handleChatMain();
 								}
 
 								SessionHandler.logout();
@@ -426,6 +441,7 @@ public class UMainToolBar extends MenuBar {
 
 					if (chatHandler != null) {
 						chatHandler.logout(username, true);
+						handleChatMain();
 					}
 
 					SessionHandler.logout();
@@ -507,18 +523,19 @@ public class UMainToolBar extends MenuBar {
 		ChatReceiver chatHandler = new ChatReceiver(genSpaceLogger.getGenSpaceLogin());
 		chatHandler.login(username, password);
 		genSpaceLogger.getGenSpaceLogin().setChatHandler(chatHandler);
-		Presence pr = new Presence(Presence.Type.available);
-		pr.setStatus("On genspace...");
-		chatHandler.getConnection().sendPacket(pr);
 		
-		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
+		//Temporary leave it here. connect() will broadcast availibility of user. No need to send packet
+		/*Presence pr = new Presence(Presence.Type.available);
+		pr.setStatus("On genspace...");
+		chatHandler.getConnection().sendPacket(pr);*/
 	}
 	
-	/**
-	 * It's possible that chatMain will be created by new chat, not by menu bar
-	 * @param chatMain
-	 */
-	public void setChatMain(Window chatMain) {
-		this.chatMain = chatMain;
+	private void handleChatMain() {
+		if (chatMain != null) {
+			chatMain.removeAllComponents();
+			if (chatMain.getParent() != null)
+				getApplication().getMainWindow().removeWindow(chatMain);
+		}
+		chatMain = null;
 	}
 }

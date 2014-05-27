@@ -139,7 +139,6 @@ public class StarRatingPanel extends Panel {
 			this.setVisible(true);
 		
 		RateWorker rw = new RateWorker(workflow.getId(), false);
-		//this.login.getPusher().push();
 		this.updateUI();
 	}
 	
@@ -153,7 +152,6 @@ public class StarRatingPanel extends Panel {
 			this.setVisible(true);
 
 		RateWorker rw = new RateWorker(tool.getId(), true);
-		//this.login.getPusher().push();
 		this.updateUI();
 	}
 

@@ -13,7 +13,6 @@ import org.vaadin.addon.borderlayout.BorderLayout;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -25,7 +24,6 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements GenSpaceTab, CWFListener, Button.ClickListener {

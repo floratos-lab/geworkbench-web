@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.rating;
 
-import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeFactory;
@@ -9,7 +8,6 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
-import org.geworkbench.util.BrowserLauncher;
 import org.geworkbenchweb.genspace.RuntimeEnvironmentSettings;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.UserSearchWindow;

@@ -9,6 +9,7 @@ import org.geworkbench.components.genspace.server.stubs.UserNetwork;
 import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent.FriendStatusChangeListener;
+import org.geworkbenchweb.genspace.chat.BroadCaster;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
@@ -17,7 +18,6 @@ import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -436,11 +436,12 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			NetworkPanel np = (NetworkPanel)this.netPanel;
 			this.privacyPanel = new PrivacyPanel(this.settings, this.login);
 			this.viewPanel = new RequestPanel(this.pRequests, this.login);
+						
 			this.loadSearchItems();
 		}
 	}
 	
-	public void updateForm() {
+	public void updateForm(boolean needBroadcast) {
 		this.friendList = login.getGenSpaceServerFactory().getFriendOps().getFriends();
 		this.uNetworkList = login.getGenSpaceServerFactory().getNetworkOps().getMyNetworks();
 		this.proPanel.updatePanel();
@@ -449,8 +450,20 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 		this.privacyPanel.updatePanel();
 		this.viewPanel.updatePanel();
 		
-		if (this.chatHandler.rf != null)
-			this.chatHandler.rf.refresh(false);
+		if (needBroadcast) {			
+			//Sleep for roster updated
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {
+				//Do nothing if we cannot sleep
+			}
+			
+			BroadCaster.broadcastPresence(this.login);
+			/*if (this.chatHandler.rf != null) {
+				this.chatHandler.rf.refresh(false);
+			}*/
+		}
+		
 		this.loadSearchItems();
 	}
 	
@@ -460,7 +473,7 @@ public class SocialNetworkHome extends AbstractGenspaceTab implements GenSpaceTa
 			int myID = login.getGenSpaceServerFactory().getUser().getId();
 			
 			if (myID == evt.getMyID() || myID == evt.getFriendID()) {
-				updateForm();
+				updateForm(true);
 			}
 		}
 	}

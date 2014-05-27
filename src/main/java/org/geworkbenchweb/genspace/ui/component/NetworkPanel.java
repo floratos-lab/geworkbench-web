@@ -2,7 +2,6 @@ package org.geworkbenchweb.genspace.ui.component;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import org.geworkbench.components.genspace.server.stubs.Network;
 import org.geworkbench.components.genspace.server.stubs.UserNetwork;

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbenchweb.genspace.chat.ChatReceiver;
+import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualizationPanel;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
@@ -43,6 +45,8 @@ public class ChatWindow extends Window implements Action.Handler{
 	private static final long serialVersionUID = 6960828216997367807L;
 	private Chat chat;
 	private String chatText = "";
+	private String userKey;
+	private ChatReceiver cr;
 
 	private enum lastChatter {
 		YOU, ME, NONE
@@ -75,6 +79,14 @@ public class ChatWindow extends Window implements Action.Handler{
 	
 	public Chat getChat() {
 		return this.chat;
+	}
+	
+	public void setUserkey(String userKey) {
+		this.userKey = userKey;
+	}
+	
+	public void setChatReceiver(ChatReceiver cr) {
+		this.cr = cr;
 	}
 
 
@@ -193,8 +205,10 @@ public class ChatWindow extends Window implements Action.Handler{
 						
 			m.setProperty("specialType", messageTypes.CHAT);
 			chat.sendMessage(m);
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			login.getGenSpaceServerFactory().logger.warn("Error", e);
+			this.cr.clearWindow(this.userKey);
+			return ;
 		}
 		
 		if (!last.equals(lastChatter.ME)) {

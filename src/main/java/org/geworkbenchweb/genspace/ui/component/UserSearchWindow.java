@@ -1,7 +1,6 @@
 package org.geworkbenchweb.genspace.ui.component;
 
 import org.geworkbench.components.genspace.server.stubs.User;
-import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.events.FriendStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
@@ -12,7 +11,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseEvent;
 
 public class UserSearchWindow extends Window {
 	
@@ -66,8 +64,6 @@ public class UserSearchWindow extends Window {
 		
 		this.addComponent(vLayout);		
 		this.updateWindowContents();
-
-		
 	}
 	
 	public void attachPusher(){
@@ -80,9 +76,8 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(pusher);
 			refreshDB();
 		}
-		//System.out.println("update window!!!");
+
 		boolean isFriend = this.friend.isFriendsWith();
-		//System.out.println("isFriend: " + isFriend);
 		Panel userNamePanel = new Panel(this.friend.getUsername());
 		Label organization = new Label();
 		String affiliation = this.friend.getLabAffiliation();
@@ -134,7 +129,6 @@ public class UserSearchWindow extends Window {
 		
 		Label friendSituation = new Label();
 		if (isFriend) {
-			//System.out.println("Is a Friend");
 			friendString = friendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button remove = new Button("Remove friend");
@@ -149,16 +143,11 @@ public class UserSearchWindow extends Window {
 						refreshDB();
 						getApplication().getMainWindow().showNotification(removeFriend);
 												
-						sHome.getInstance().updateForm();
+						sHome.getInstance().updateForm(false);
 						updateWindowContents();
-						//pusher.push();
-						//When user decide to remove a friend, fire the event.
-						//The other two button invokes nothing, because user has to wait his/her requesting recipient to response
-						// GenSpaceWindow.getGenSpaceBlackboard().fire(new FriendStatusChangeEvent(myID, friend.getId()));
 						FriendStatusChangeEvent e = new FriendStatusChangeEvent(myID, friend.getId());
 						e.setOptType(FriendStatusChangeEvent.RM_FRIEND);						
 						GenSpaceWindow.getGenSpaceBlackboard().fire(e);
-						//login.getPusher().push();
 						pusher.push();
 
 					} catch (Exception e) {
@@ -170,7 +159,6 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(friendSituation);
 			vLayout.addComponent(remove);
 		} else if (sHome.getInstance().pendingFriendRequestTo(friend)) {
-			//System.out.println("A pending friend");
 			friendString = requestFriendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button cancel = new Button("Cancel friend request");
@@ -185,11 +173,9 @@ public class UserSearchWindow extends Window {
 						refreshDB();
 						getApplication().getMainWindow().showNotification(cancelFriend);
 						
-						sHome.getInstance().updateForm();
-						//System.out.println(sHome.getInstance().pendingFriendRequestTo(friend));
+						sHome.getInstance().updateForm(false);
 						updateWindowContents();
 						pusher.push();
-						//login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}
@@ -198,7 +184,6 @@ public class UserSearchWindow extends Window {
 			vLayout.addComponent(friendSituation);
 			vLayout.addComponent(cancel);
 		} else {
-			//System.out.println("Not a friend");
 			friendString = noFriendString.replace("xxx", this.friend.getUsername());
 			friendSituation.setValue(friendString);
 			Button add = new Button("Add as a friend");
@@ -213,11 +198,9 @@ public class UserSearchWindow extends Window {
 						refreshDB();
 						getApplication().getMainWindow().showNotification(addFriend);
 						
-						sHome.getInstance().updateForm();
-						//System.out.println("^^"+sHome.getInstance().pendingFriendRequestTo(friend)+' '+friend.isFriendsWith());
+						sHome.getInstance().updateForm(false);
 						updateWindowContents();
 						pusher.push();
-						//login.getPusher().push();
 					} catch (Exception e) {
 						GenSpaceServerFactory.handleException(e);
 					}

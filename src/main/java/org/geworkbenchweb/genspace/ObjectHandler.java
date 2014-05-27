@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace;
 
-import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Calendar;
@@ -15,17 +14,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.events.AnalysisInvokedEvent;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.UserDirUtils;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**

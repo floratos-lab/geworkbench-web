@@ -1,23 +1,17 @@
 package org.geworkbenchweb.genspace.ui;
 
-import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ObjectLogger;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.RealTimeWorkflowSuggestion;
 import org.geworkbenchweb.genspace.ui.component.SocialNetworkHome;
-import org.geworkbenchweb.genspace.ui.component.WorkflowStatistics_0;
 import org.geworkbenchweb.genspace.ui.component.WorkflowStatistics_1;
 import org.geworkbenchweb.genspace.ui.component.WorkflowVisualization;
 import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
 import org.geworkbenchweb.genspace.ui.component.workflowRepository.WorkflowRepository;
 import org.vaadin.artur.icepush.ICEPush;
 
-import com.vaadin.Application;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Window.Notification;
 
 public class GenspaceToolBar extends MenuBar {
 	/**

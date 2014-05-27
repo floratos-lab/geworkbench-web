@@ -9,7 +9,6 @@ import org.geworkbench.components.genspace.server.stubs.User;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
 
 public class UserPanel extends Panel{
@@ -45,8 +44,6 @@ public class UserPanel extends Panel{
 			paramList.add(invisibleUser);
 			uPanel = createPanel(this.userPanelTitle, paramList);
 			vLayout.addComponent(uPanel);
-			/*mainLayout.removeAllComponents();
-			mainLayout.addComponent(this);*/
 			return ;
 		}
 		

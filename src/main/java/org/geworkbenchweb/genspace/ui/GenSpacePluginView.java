@@ -3,12 +3,10 @@ package org.geworkbenchweb.genspace.ui;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
 import org.geworkbenchweb.genspace.ui.component.ActivityFeedWindow;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.vaadin.artur.icepush.ICEPush;
-//import org.geworkbenchweb.plugins.tools.ToolsUI;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -16,7 +14,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 
 /**
  * ViusalPluginView sets the visualplugin to the main layout.
@@ -40,11 +37,8 @@ public class GenSpacePluginView extends HorizontalLayout {
 	private ActivityFeedWindow af;
 	private ChatReceiver chatHandler;
 	Panel right1;
-
-	
 	private ICEPush pusher = new ICEPush();
 
-	
 	public GenSpacePluginView() {
 		setImmediate(true);
 	}
@@ -209,8 +203,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 		chatHandler.createRosterFrame();
 		chatHandler.rf.addStyleName("feature-info");
 		right.addComponent(chatHandler.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().addListener(chatHandler.rf);
 	}
 	
 	public void setAf(GenSpaceLogin_1 genspaceLogin){
@@ -225,8 +217,6 @@ public class GenSpacePluginView extends HorizontalLayout {
 	}
 	public void clearChat(){
 		right.removeComponent(chatHandler.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
-		GenSpaceWindow.getGenSpaceBlackboard().removeListener(chatHandler.rf);
 	}
 	public void clearAf(){
 		right.removeComponent(af);

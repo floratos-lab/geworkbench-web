@@ -10,9 +10,7 @@ import org.geworkbenchweb.genspace.ui.component.notebook.NotebookPanel;
 import org.geworkbenchweb.genspace.ui.component.workflowRepository.WorkflowRepository;
 import org.vaadin.artur.icepush.ICEPush;
 
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 public class GenspaceLayout extends VerticalLayout {

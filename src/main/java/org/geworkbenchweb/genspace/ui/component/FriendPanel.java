@@ -11,7 +11,6 @@ import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.themes.Runo;
 
 public class FriendPanel extends SocialPanel{

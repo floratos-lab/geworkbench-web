@@ -31,7 +31,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.Reindeer;
 
 public class ActivityFeedWindow extends Panel implements LogCompleteEventListener, FriendStatusChangeListener{
 	
@@ -104,7 +103,7 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 		this.queryLimit = sf.format(d.getTime());
 	}
 	
-	private void makeAFLayout() {
+	private synchronized void makeAFLayout() {
 		this.afLayout.removeAllComponents();
 		this.afLayout.addComponent(pusher);
 		Iterator<AnalysisEvent> evtIT = evtList.iterator();
@@ -195,7 +194,6 @@ public class ActivityFeedWindow extends Panel implements LogCompleteEventListene
 	@Override
 	public void changeFriendStatus(FriendStatusChangeEvent evt) {
 		if (this.myID == evt.getMyID() || this.myID == evt.getFriendID()) {
-			System.out.println(myID + " : receive friendChangeEvent in Act Feeder!");
 			this.updateQueryString();
 			this.evtList = this.login.getGenSpaceServerFactory().getFriendOps().getMyFriendsEvents(this.queryLimit);
 			this.makeAFLayout();

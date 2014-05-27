@@ -1,7 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
-
 import com.vaadin.ui.CustomComponent;
 
 public abstract class AbstractGenspaceTab extends CustomComponent implements GenSpaceTab {

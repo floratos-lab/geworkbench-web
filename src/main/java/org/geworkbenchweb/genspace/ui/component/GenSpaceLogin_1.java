@@ -1,6 +1,5 @@
 package org.geworkbenchweb.genspace.ui.component;
 
-
 import org.geworkbenchweb.genspace.FBManager;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
@@ -12,7 +11,6 @@ import org.geworkbenchweb.genspace.ui.chat.RosterFrame;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.layout.UMainToolBar;
-import org.jivesoftware.smack.packet.Presence;
 
 import org.vaadin.addon.borderlayout.BorderLayout;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -80,8 +78,14 @@ public class GenSpaceLogin_1 extends VerticalLayout implements ClickListener{
 	public ChatReceiver getChatHandler() {
 		if (this.chatHandler != null)
 			return this.chatHandler;
-		else
-			return null;
+		else {
+			//Prevent chatHandler from being null
+			String username = this.getUMainToolBar().getUsername();
+			String password = this.getUMainToolBar().getPassword();
+			this.chatHandler = new ChatReceiver(this);
+			this.chatHandler.login(username, password);
+			return this.chatHandler;
+		}
 	}
 	
 	public void setChatHandler(ChatReceiver chat) {

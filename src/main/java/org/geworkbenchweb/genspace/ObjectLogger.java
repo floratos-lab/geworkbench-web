@@ -21,7 +21,6 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
-/*import org.geworkbench.events.AnalysisInvokedEvent;*/
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;

@@ -6,7 +6,6 @@ import java.util.List;
 import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
 import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
 import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
-import org.geworkbenchweb.genspace.ui.GenSpacePluginView;
 import org.geworkbenchweb.genspace.ui.component.AbstractGenspaceTab;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceTab;
@@ -16,17 +15,12 @@ import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import com.vaadin.data.Item;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 public class WorkflowRepository extends AbstractGenspaceTab implements GenSpaceTab, ItemClickListener {
