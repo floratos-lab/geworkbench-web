@@ -38,8 +38,12 @@ public class MarinaResultsUI  extends VerticalLayout implements Visualizer {
 		int colNum = columnNames.length;
 		boolean complete = rdata.length > 0 && rdata[0].length == colNum;
 		for (String col : columnNames){
-			if (complete || (!col.equals("MeanClass1") && !col.equals("MeanClass2")))
+			if(col.equals("TFsym") || col.equals("GeneName"))
 				mraTable.addContainerProperty(col, String.class, null);
+			else if(col.startsWith("Num") || col.startsWith("Original"))
+				mraTable.addContainerProperty(col, Integer.class, null);
+			else if (complete || (!col.equals("MeanClass1") && !col.equals("MeanClass2")))
+				mraTable.addContainerProperty(col, Double.class, null);
 		}
 		mraTable.setSizeFull();
 		mraTable.setImmediate(true);
