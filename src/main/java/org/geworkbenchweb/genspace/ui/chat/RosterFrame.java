@@ -89,7 +89,7 @@ public class RosterFrame extends Panel implements RosterListener, FriendStatusCh
 	private ICEPush pusher = new ICEPush();
 	private Presence pr = null;
 	
-	public synchronized boolean refresh(boolean needSleep)
+	public boolean refresh(boolean needSleep)
 	{	
 		if (this.cr.getRoster() == null)
 			return false;

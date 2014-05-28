@@ -90,7 +90,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 					theMessage, new MessageBox.ButtonConfig(
 							MessageBox.ButtonType.CUSTOM1, "View as text"),
 					new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
-							"View in Cytoscape"));
+							"View in Cytoscape", "150px"));
 			mb.show(new MessageBox.EventListener() {
 
 				private static final long serialVersionUID = 1L;
