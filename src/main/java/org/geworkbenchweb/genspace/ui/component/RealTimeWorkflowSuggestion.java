@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
 import org.geworkbenchweb.genspace.CWFListener;
 import org.geworkbenchweb.genspace.wrapper.WorkflowWrapper;
 import org.vaadin.addon.borderlayout.BorderLayout;
@@ -179,12 +180,45 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 				for(Workflow tmp: workFlowList){
 					wfw = new WorkflowWrapper(tmp);
 					wfw.loadToolsFromCache();
-					wfsString = wfsString + wfCounter++ + " " + wfw.toString() + "\n";
+					//wfsString = wfsString + wfCounter++ + " " + wfw.toString() + "\n";
+					//Only show single tool if all the tools are the same in the workflow
+					wfsString = wfsString + wfCounter++ + " " + filterWorkflow(wfw) + "\n";
 					lim--;
 					if (lim <= 0)
 						break;
 				}
 				wfsPane.setValue(wfsString);
+			}
+			
+			public String filterWorkflow(WorkflowWrapper wfw) {
+				if (wfw.getToolIds().size() == 1) {
+					return wfw.getTools().get(0).getTool().getName();
+				} else {
+					List<Integer> toolIds = wfw.getToolIds();
+					
+					int curId = toolIds.get(0);
+					boolean isDup = true;
+					for (int i = 1; i < toolIds.size(); i++) {
+						int tmpId = toolIds.get(i);
+						if (tmpId != curId) {
+							isDup = false;
+							break;
+						}
+					}
+					
+					if (!isDup) {
+						String r = "";
+						for(WorkflowTool wt : wfw.getTools())
+						{
+							r += wt.getTool().getName() + ", ";
+						}
+						if(r.length() > 2)
+							r = r.substring(0,r.length()-2);
+						return r;
+					} else {
+						return wfw.getTools().get(0).getTool().getName() + " (Multiple Invocations)";
+					}
+				}
 			}
 		});
 		
