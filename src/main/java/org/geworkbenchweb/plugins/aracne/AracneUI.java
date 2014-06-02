@@ -118,10 +118,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.setCaption("Select Mode");
 		modeBox.setNullSelectionAllowed(false);
 		modeBox.setImmediate(true);
-		//modeBox.addItem("Complete");
+		modeBox.addItem("Complete");
 		modeBox.addItem("Discovery");
 		modeBox.addItem("Preprocessing");
-		//modeBox.select("Complete");
 		modeBox.select("Discovery");
 		modeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
