@@ -145,12 +145,7 @@
 		<repository>
 			<id>maven2-public</id>
 			<url>https://maven.onehippo.com/content/groups/maven2</url>
-		</repository>
-		<repository>
-			<id>maven-jahia</id>
-			<url>http://maven.jahia.org/maven2/</url>
-		</repository>
-		
+		</repository>		 
 		
 	</repositories>
 
@@ -397,13 +392,7 @@
             <artifactId>simplecaptcha</artifactId>
             <version>1.1.1</version>
         </dependency>
-        
-        <dependency>
-             <groupId>com.jhlabs</groupId>
-             <artifactId>imaging</artifactId>
-             <version>01012005</version>
-         </dependency>
-		 
+       
 
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
 		<dependency>
