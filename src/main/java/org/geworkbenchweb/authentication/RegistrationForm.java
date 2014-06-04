@@ -19,14 +19,18 @@ import javax.mail.internet.MimeUtility;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
+import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordRequirementException;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordsDoNotMatchException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortPasswordException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortUsernameException;
 import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsException;
+import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -64,10 +68,11 @@ public class RegistrationForm extends VerticalLayout {
 	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
 	private Log log = LogFactory.getLog(RegistrationForm.class);
 
+	final Label feedbackLabel = new Label();
+
 	public RegistrationForm() {
 
 		final Panel registrationPanel = new Panel();
-		final Label feedbackLabel = new Label();
 		final TextField username = new TextField("Username");
 		final PasswordField password = new PasswordField("Password");
 		final PasswordField verifyPassword = new PasswordField(
@@ -144,19 +149,10 @@ public class RegistrationForm extends VerticalLayout {
 			}
 		});
 
-		Button backLogin = new Button("Login", new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				getApplication().close();
-			}
-		});
 		registerButton.setClickShortcut(KeyCode.ENTER);
 
 		HorizontalLayout group = new HorizontalLayout();
 		group.setSpacing(true);
-		group.addComponent(backLogin);
 		group.addComponent(registerButton);
 		layout.addComponent(group);
 		registrationPanel.addComponent(layout);
@@ -173,9 +169,11 @@ public class RegistrationForm extends VerticalLayout {
 			throws TooShortPasswordException, TooShortUsernameException,
 			PasswordsDoNotMatchException, UsernameExistsException,
 			PasswordRequirementException {
+		final String usernameText = (String) username.getValue();
+		final String passwordText = (String) password.getValue();
+		
 		log.debug("before registering a new user");
-		User user = UserUtil.registerUser((String) username.getValue(),
-				(String) password.getValue(),
+		User user = UserUtil.registerUser(usernameText, passwordText,
 				(String) verifyPassword.getValue());
 		log.debug("user object is created");
 
@@ -204,14 +202,28 @@ public class RegistrationForm extends VerticalLayout {
 
 		MessageBox mb = new MessageBox(getWindow(), dialogCaption, dialogIcon,
 				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-						"Back to Log-in", "150px"));
+						"Start using geWorkbench web", "250px"));
 		mb.show(new MessageBox.EventListener() {
 
 			private static final long serialVersionUID = -8489356760651132447L;
 
 			@Override
 			public void buttonClicked(ButtonType buttonType) {
-				getApplication().close();
+				try {
+					AuthenticationUtil.authenticate(usernameText, passwordText);
+					UMainLayout uMainLayout = new UMainLayout();
+					/* FIXME maintaining credentials in the toolbar is problematic. added by genspace developers */
+					uMainLayout.getMainToolBar().setUsername(usernameText);
+					uMainLayout.getMainToolBar().setPassword(passwordText);
+					getApplication().getMainWindow().setContent(uMainLayout);
+				} catch (InvalidCredentialsException e) {
+					//e.printStackTrace();
+					feedbackLabel.setValue("Invalid credentials entered for username "+usernameText);
+				} catch (AccountLockedException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		if(emailPattern.matcher(user.getEmail()).matches()){
