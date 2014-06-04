@@ -35,9 +35,7 @@ import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -56,8 +54,6 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 import de.steinwedel.vaadin.MessageBox.Icon;
 
-import nl.captcha.Captcha;
-
 /**
  * @author zji
  * @version $Id$
@@ -72,7 +68,7 @@ public class RegistrationForm extends VerticalLayout {
 	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
 	private Log log = LogFactory.getLog(RegistrationForm.class);
 
-	final Label feedbackLabel = new Label();	 
+	final Label feedbackLabel = new Label();
 
 	public RegistrationForm() {
 
@@ -83,8 +79,6 @@ public class RegistrationForm extends VerticalLayout {
 				"Verify password");
 		final TextField realName = new TextField("Real name");
 		final TextField email = new TextField("Email address");
-		final TextField captchaCode = new TextField("Enter the code above");
-		
 		FormLayout layout = new FormLayout();
 
 		username.setWidth("145px");
@@ -92,28 +86,19 @@ public class RegistrationForm extends VerticalLayout {
 		verifyPassword.setWidth("145px");
 		realName.setWidth("145px");
 		email.setWidth("145px");
-		captchaCode.setWidth("145px");
 
 		registrationPanel.setStyleName(Reindeer.PANEL_LIGHT);
-		registrationPanel.setWidth("350px");
+		registrationPanel.setWidth("300px");
 
 		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
-		Embedded image = new Embedded("", resource);		
-
-		ThemeResource resourceCaptcha = new ThemeResource("img/simpleCaptcha.jpg");
-		Embedded imageCaptcha = new Embedded("", resourceCaptcha);
-		imageCaptcha.setImmediate(true);
-		
-		imageCaptcha.setWidth("145px");
-		imageCaptcha.setHeight("30px");
+		Embedded image = new Embedded("", resource);
 
 		username.setNullRepresentation("");
 		password.setNullRepresentation("");
 		verifyPassword.setNullRepresentation("");
 		realName.setNullRepresentation("");
 		email.setNullRepresentation("");
-		captchaCode.setNullRepresentation("");
-		
+
 		layout.setSpacing(true);
 		layout.addComponent(feedbackLabel);
 		layout.addComponent(username);
@@ -121,8 +106,6 @@ public class RegistrationForm extends VerticalLayout {
 		layout.addComponent(verifyPassword);
 		layout.addComponent(realName);
 		layout.addComponent(email);
-		layout.addComponent(imageCaptcha);
-		layout.addComponent(captchaCode);
 
 		Button registerButton = new Button("Register", new ClickListener() {
 
@@ -130,17 +113,14 @@ public class RegistrationForm extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
-				Boolean resetPassword = false;
 				try {
 					register(username, password, verifyPassword, realName,
-							email, captchaCode);
+							email);
 				} catch (TooShortPasswordException e) {
 					feedbackLabel
 							.setValue("Password is too short, it needs to be at least "
 									+ UserUtil.getMinPasswordLength()
 									+ " characters long");
-					resetPassword = true;
 
 				} catch (TooShortUsernameException e) {
 
@@ -148,30 +128,23 @@ public class RegistrationForm extends VerticalLayout {
 							.setValue("Username is too short, it needs to be at least "
 									+ UserUtil.getMinUsernameLength()
 									+ " characters long");
-					resetPassword =true;
 
 				} catch (PasswordsDoNotMatchException e) {
 
 					feedbackLabel.setValue("Password verification has failed");
-					resetPassword =true;
 
 				} catch (UsernameExistsException e) {
 
 					feedbackLabel
 							.setValue("The chosen username already exists, please pick another one");
-					resetPassword =true;
 
 				} catch (PasswordRequirementException e) {
 					feedbackLabel
 							.setValue("Password does not meet the set requirements");
-					resetPassword =true;
 				}
 
-				if ( resetPassword )
-				{
-					password.setValue(null);				
-				    verifyPassword.setValue(null);
-				}
+				password.setValue(null);
+				verifyPassword.setValue(null);
 
 			}
 		});
@@ -192,26 +165,12 @@ public class RegistrationForm extends VerticalLayout {
 	}
 
 	private void register(TextField username, PasswordField password,
-			PasswordField verifyPassword, TextField realName, TextField email, TextField captchaCode)
+			PasswordField verifyPassword, TextField realName, TextField email)
 			throws TooShortPasswordException, TooShortUsernameException,
 			PasswordsDoNotMatchException, UsernameExistsException,
 			PasswordRequirementException {
 		final String usernameText = (String) username.getValue();
 		final String passwordText = (String) password.getValue();
-		final String captchaText = (String) captchaCode.getValue();
-		
-		ApplicationContext cntxt = getApplication().getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
-	   
-	    Captcha captcha =  (Captcha)wcntxt.getHttpSession().getAttribute(Captcha.NAME);
-	    if (!captcha.isCorrect(captchaText))
-        {
-	    	feedbackLabel
-			.setValue("Captcha code does not match");	
-	    	//getApplication().getMainWindow().executeJavaScript("window.location.reload();");
-	    	 
-	    	return;
-        }
 		
 		log.debug("before registering a new user");
 		User user = UserUtil.registerUser(usernameText, passwordText,
