@@ -80,7 +80,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 				String mName2 = interactionDetail.getdSGeneName();
 				String node2 = null;
 
-				if (mName2 != null && !mName2.trim().equals(""))
+				if (mName2 != null && !mName2.trim().equals("") && !mName2.equals("null"))
 					node2 = mName2;
 				else {
 					node2 = mid2;
