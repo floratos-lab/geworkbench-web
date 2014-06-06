@@ -16,6 +16,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
+import nl.captcha.Captcha;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -50,17 +52,15 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 import de.steinwedel.vaadin.MessageBox.Icon;
 
-import nl.captcha.Captcha;
-
 /**
  * @author zji
- * @version $Id$
  * 
  */
 public class RegistrationForm extends VerticalLayout {
@@ -181,6 +181,22 @@ public class RegistrationForm extends VerticalLayout {
 		group.setSpacing(true);
 		group.addComponent(registerButton);
 		layout.addComponent(group);
+
+		Button backtoLogin = new Button("Back to Login Page");
+		backtoLogin.setStyleName(BaseTheme.BUTTON_LINK);
+		backtoLogin.setDescription("Go Back to the Login Page");
+		backtoLogin.addListener(new ClickListener() {
+
+			private static final long serialVersionUID = -4747422973711586108L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				getApplication().close();
+			}
+			
+		});
+		layout.addComponent(backtoLogin);
+		layout.setComponentAlignment(backtoLogin, Alignment.MIDDLE_CENTER);
 		registrationPanel.addComponent(layout);
 
 		this.setSizeFull();
