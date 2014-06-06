@@ -141,13 +141,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		configBox.setCaption("Select Configuration");
 		configBox.setNullSelectionAllowed(false);
 		configBox.setImmediate(true);
+		configBox.addItem("Default");
+		configBox.select("Default");
 		configBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.CONFIG);
-				params.put(AracneParameters.CONFIG, valueChangeEvent
-						.getProperty().getValue().toString());
+				Object o = valueChangeEvent.getProperty().getValue();
+				if(o != null) params.put(AracneParameters.CONFIG, o.toString());
 			}
 		});
 
@@ -608,6 +610,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		configBox.removeAllItems();
 		configBox.addItem("Default");
+		configBox.select("Default");
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
 		parameter.put("type", ConfigResult.class.getName());
