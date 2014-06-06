@@ -22,6 +22,7 @@ import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
+import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
@@ -121,11 +122,38 @@ public class AracneAnalysisWeb {
 			aracneInput.setThreshold(aracneInput.getThreshold() / (aracneInput.getMarkers().length * aracneInput.gethubGeneList().length));
 		}
 		boolean prune = isPrune();
-		return computeAracneRemoteCluster(aracneInput, hubGeneList, map, prune);
+		String[] configstr = getConfig();
+		return computeAracneRemoteCluster(aracneInput, hubGeneList, map, prune, configstr);
 
 		//set dataset = null to AdjacencyMatrixDataSet object
 		//return convert(aracneOutput, hubGeneList, map, prune);
 	} 
+	
+	private String[] getConfig(){
+		String config = (String) params.get(AracneParameters.CONFIG);
+		String config_kernel = "", config_threshold = "";
+		if(!config.equals("Default")) {
+			Long id = Long.parseLong(config);
+			ConfigResult rslt = FacadeFactory.getFacade().find(ConfigResult.class, id);
+			if(rslt != null){
+				Float[] kernels = rslt.getKernel();
+				for(int i = 0; i < kernels.length; i++){
+					config_kernel += kernels[i];
+					if(i < kernels.length-1)
+						config_kernel += "\t";
+					else config_kernel += "\n";
+				}
+				Float[] thresholds = rslt.getThreshold();
+				for(int i = 0; i < thresholds.length; i++){
+					config_threshold += thresholds[i];
+					if(i < thresholds.length-1)
+						config_threshold += "\t";
+					else config_threshold += "\n";
+				}
+			}
+		}
+		return new String[]{config_kernel, config_threshold};
+	}
 
 	private void setDSMicroarraydata(AracneInput aracneInput, final MicroarraySet microarrays, List<String> hubGeneList) {
 
@@ -265,7 +293,9 @@ public class AracneAnalysisWeb {
 	
 	private static final String aracne_cluster_service_url = GeworkbenchRoot.getAppProperty(ARACNE_CLUSTERSERVICE_URL);	
 	AracneAxisClient serviceClient = null;
-	private AbstractPojo computeAracneRemoteCluster(AracneInput input, List<String> hubGeneList, Map<String, String> map, boolean prune) throws RemoteException {
+	private AbstractPojo computeAracneRemoteCluster(AracneInput input,
+			List<String> hubGeneList, Map<String, String> map, boolean prune,
+			String[] configstr) throws RemoteException {
 
 		File expFile = exportExp(input);
 		if(expFile == null || !expFile.exists())
@@ -273,7 +303,7 @@ public class AracneAnalysisWeb {
 		
 		serviceClient = new AracneAxisClient();
 		try {       			
-			AbstractPojo output = serviceClient.executeAracne(aracne_cluster_service_url, input, expFile, hubGeneList, map, prune);
+			AbstractPojo output = serviceClient.executeAracne(aracne_cluster_service_url, input, expFile, hubGeneList, map, prune, configstr);
 			return output;
 		} catch (AxisFault e) {
 			OMElement x = e.getDetail();

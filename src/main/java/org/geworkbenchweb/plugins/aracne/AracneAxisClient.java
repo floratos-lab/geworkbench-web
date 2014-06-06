@@ -33,13 +33,15 @@ public class AracneAxisClient {
 	private boolean config = false;
 	String resultName = null;
 	
-	public AbstractPojo executeAracne(String serviceAddress, AracneInput input, File dataFile, List<String> hubGeneList, Map<String, String> map, boolean prune) throws AxisFault {
+	public AbstractPojo executeAracne(String serviceAddress, AracneInput input,
+			File dataFile, List<String> hubGeneList, Map<String, String> map,
+			boolean prune, String[] configstr) throws AxisFault {
 		config = input.getMode().equals("Preprocessing");
-		OMElement aracneRequest = createAxiomRequestElement(input, dataFile);
+		OMElement aracneRequest = createAxiomRequestElement(input, dataFile, configstr);
 		return doWebServiceCallWithAxis(serviceAddress, aracneRequest, hubGeneList, map, prune);
 	}
 
-	private OMElement createAxiomRequestElement(AracneInput input, File dataFile) {
+	private OMElement createAxiomRequestElement(AracneInput input, File dataFile, String[] configstr) {
 
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(aracneNamespace, null);
@@ -64,6 +66,8 @@ public class AracneAxisClient {
 		omFactory.createOMElement("isKernelWidthSpecified", namespace, request).setText(Boolean.toString(input.getIsKernelWidthSpecified()));
 		omFactory.createOMElement("isThresholdMI", namespace, request).setText(Boolean.toString(input.getIsThresholdMI()));
 		omFactory.createOMElement("noCorrection", namespace, request).setText(Boolean.toString(input.getNoCorrection()));
+		omFactory.createOMElement("configKernel", namespace, request).setText(configstr[0]);
+		omFactory.createOMElement("configThreshold", namespace, request).setText(configstr[1]);
 
 		return request;
 	}

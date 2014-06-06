@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -41,6 +42,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox modeBox = new ComboBox();
 	private ComboBox algoBox = new ComboBox();
+	private ComboBox configBox = new ComboBox();
 	private ComboBox kernelWidth = new ComboBox();
 	private ComboBox thresholdType = new ComboBox();
 	private ComboBox dpiTolerance = new ComboBox();
@@ -83,6 +85,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
 		params.put(AracneParameters.MODE, "Discovery");
+		params.put(AracneParameters.CONFIG, "Default");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
 		params.put(AracneParameters.WIDTH_VALUE, "0.01");
@@ -128,6 +131,22 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.MODE);
 				params.put(AracneParameters.MODE, valueChangeEvent
+						.getProperty().getValue().toString());
+				if(params.get(AracneParameters.MODE).equals("Discovery"))
+					configBox.setEnabled(true);
+				else configBox.setEnabled(false);
+			}
+		});
+		
+		configBox.setCaption("Select Configuration");
+		configBox.setNullSelectionAllowed(false);
+		configBox.setImmediate(true);
+		configBox.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.remove(AracneParameters.CONFIG);
+				params.put(AracneParameters.CONFIG, valueChangeEvent
 						.getProperty().getValue().toString());
 			}
 		});
@@ -414,6 +433,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 
 		gridLayout.addComponent(hubGeneMarkerSetBox, 0, 0);
 		gridLayout.addComponent(modeBox, 1, 0);
+		gridLayout.addComponent(configBox, 2, 0);
 		gridLayout.addComponent(algoBox, 0, 1);
 		gridLayout.addComponent(kernelWidth, 1, 1);
 		gridLayout.addComponent(widthValue, 2, 1);
@@ -586,6 +606,20 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getName());
 		}
 
+		configBox.removeAllItems();
+		configBox.addItem("Default");
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		parameter.put("type", ConfigResult.class.getName());
+		List<ResultSet> list = FacadeFactory.getFacade().list(
+				"SELECT r FROM ResultSet AS r WHERE "
+				+ "r.parent=:dataSetId and "
+				+ "r.type=:type",
+				parameter);
+		for(ResultSet r : list){
+			configBox.addItem(r.getDataId());
+			configBox.setItemCaption(r.getDataId(), r.getName());
+		}
 		 
 	}
 

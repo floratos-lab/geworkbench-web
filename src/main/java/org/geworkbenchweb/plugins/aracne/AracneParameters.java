@@ -5,6 +5,7 @@ public class AracneParameters {
 	public static String ARRAY_SET 	= 	"arraySet";
 	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
 	public static String MODE		 	= 	"mode";
+	public static String CONFIG		 	= 	"config";
 	public static String ALGORITHM 		= 	"algorithm";
 	public static String KERNEL_WIDTH	=	"width";
 	public static String WIDTH_VALUE 	= 	"widthValue";
