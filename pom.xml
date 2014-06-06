@@ -141,7 +141,12 @@
 		<repository>
 			<id>in-project</id>
 			<url>file://${project.basedir}/repo/lib</url>
-		</repository>
+		</repository>		
+		<repository>
+			<id>maven2-public</id>
+			<url>https://maven.onehippo.com/content/groups/maven2</url>
+		</repository>		 
+		
 	</repositories>
 
 	<pluginRepositories>
@@ -381,6 +386,13 @@
 			<artifactId>XmlSchema</artifactId>
 			<version>1.4.7</version>
 		</dependency>
+		 
+		<dependency>
+            <groupId>nl.captcha</groupId>
+            <artifactId>simplecaptcha</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+       
 
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
 		<dependency>

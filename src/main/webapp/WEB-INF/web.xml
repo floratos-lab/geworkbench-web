@@ -23,6 +23,18 @@
       <param-value>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</param-value>
     </init-param>
   </servlet>
+  
+	<servlet>
+		<servlet-name>SimpleCaptcha</servlet-name>
+		<servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SimpleCaptcha</servlet-name>
+		<url-pattern>/VAADIN/themes/geworkbench/img/simpleCaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	 
+  
+  
   <listener>
     <listener-class>
   			org.geworkbenchweb.GeworkbenchContextListener
