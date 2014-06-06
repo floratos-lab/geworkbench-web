@@ -617,6 +617,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		List<ResultSet> list = FacadeFactory.getFacade().list(
 				"SELECT r FROM ResultSet AS r WHERE "
 				+ "r.parent=:dataSetId and "
+				+ "r.dataid is not null and "
 				+ "r.type=:type",
 				parameter);
 		for(ResultSet r : list){
