@@ -5,6 +5,10 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.events.AnalysisCompleteEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -22,6 +26,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
  */
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
+	private static Log log = LogFactory.getLog(AnalysisListener.class);
 	private final UMainLayout uMainLayout;
 
 	/**
@@ -39,10 +44,10 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 		Thread analysisThread = new Thread() {
 			@Override
 			public void run() {
-				Long resultId = event.getResultSet().getId();
+				final Long resultId = event.getResultSet().getId();
 				HashMap<Serializable, Serializable> params = event.getParameters();
 
-				AnalysisUI analysisUI = event.getAnalaysisUI();
+				final AnalysisUI analysisUI = event.getAnalaysisUI();
 				String resultName = null;
 				try {
 					resultName = analysisUI.execute(resultId, params, userId);
@@ -99,10 +104,22 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					mb.show(new MessageBox.EventListener() {
 						private static final long serialVersionUID = 1L;
 						@Override
-						public void buttonClicked(ButtonType buttonType) {    	
-							if(buttonType == ButtonType.OK) {
-								uMainLayout.addNode(resultSet);
-							}
+						public void buttonClicked(ButtonType buttonType) {
+							/* Note that everything else in the run() method is in a thread different from the GUI thread (vaadin main thread),
+							 * so the blackboard is not available, until you get into this method,
+							 * where we are back in the main thread so we have access to the blackboard. */
+							AnalysisCompleteEvent analysisCompleleteEvent = new AnalysisCompleteEvent(
+									analysisUI.getClass().getName(), resultId);
+							log.debug("complelte event being fired: "+analysisCompleleteEvent.analysisClassName+" "+analysisCompleleteEvent.resultId);
+							GeworkbenchRoot.getBlackboard().fire(analysisCompleleteEvent);
+
+							/* TODO uMainLayout.addNode(resultSet) is implemented in a way that works properly only in GUI thread,
+							 * so we need to call this method here. Theoretically, this is not necessary. If the design is improved, 
+							 * this action could possibly be done in the background thread, and the confirmation dialog will no be necessary. */
+							/* In short, the AnalysisUI should be implemented separating the constructor and method attach() because only the
+							 * latter logically requires the GUI thread. In a background thread, getApplication() would return null, 
+							 * and SessionHandler.get() throws null pointer exception by appfoundation. */
+							uMainLayout.addNode(resultSet);
 						}
 					});	
 				}
