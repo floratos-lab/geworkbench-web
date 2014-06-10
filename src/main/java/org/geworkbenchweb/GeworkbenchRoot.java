@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.authentication.UUserAuth;
+import org.geworkbenchweb.events.AnalysisCompleteEventListener;
+import org.geworkbenchweb.events.AnalysisCompleteEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -175,6 +177,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	private void registerAllEventsForApplication() {
 		
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
+		getBlackboard().register(AnalysisCompleteEventListener.class, AnalysisCompleteEvent.class);
 	}	
 
 	// TODO verify when .get() returns null and code accordingly to be explicit
