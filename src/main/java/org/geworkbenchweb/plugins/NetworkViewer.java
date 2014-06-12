@@ -13,6 +13,7 @@ import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.visualizations.Cytoscape;
+import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.Application;
@@ -228,7 +229,14 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	
 	private void downloadNetwork() {
 		final Application app = getApplication();
-		final File file = new File("network_" + System.currentTimeMillis()
+		String dir = GeworkbenchRoot.getBackendDataDirectory()
+				+ System.getProperty("file.separator")
+				+ SessionHandler.get().getUsername()
+				+ System.getProperty("file.separator") + "export";
+		if (!new File(dir).exists())
+			new File(dir).mkdirs();
+		
+		final File file = new File(dir, "network_" + System.currentTimeMillis()
 				+ ".adj");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
