@@ -77,8 +77,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private long dataSetId;
 
-	private int interaction_flag = 1;
-
 	public CNKBUI() {
 		this(0L);
 	}
@@ -410,15 +408,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 					&& cellularNetWorkElementInformation.isDirty()) {				
 				List<InteractionDetail> interactionDetails = null;
 
-				if (interaction_flag == 0) {
-					interactionDetails = cnkb
-							.getInteractionsByEntrezIdOrGeneSymbol_1(geneId, geneSymbol,
-									context, version, userInfo);
-				} else {
-					interactionDetails = cnkb
-							.getInteractionsByEntrezIdOrGeneSymbol_2(geneId, geneSymbol,
-									context, version, userInfo);
-				}
+				interactionDetails = cnkb
+						.getInteractionsByEntrezIdOrGeneSymbol_2(geneId,
+								geneSymbol, context, version, userInfo);
 
 				cellularNetWorkElementInformation.setDirty(false);
 				cellularNetWorkElementInformation.setInteractionDetails(

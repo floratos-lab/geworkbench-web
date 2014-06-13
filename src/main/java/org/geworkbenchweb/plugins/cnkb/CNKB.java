@@ -30,99 +30,12 @@ public class CNKB {
 	private static class Constants {
 		static String DEL = "|";
 	};
-	
-	/**
-	 * This is similar to getInteractionsByEntrezIdOrGeneSymbol_2 and currently
-	 * NOT used. The difference is that this version only retains the 'edges'
-	 * that involve the queried marker, not those that belong to an interaction
-	 * that includes the queried marker but does not connect directly.
-	 */
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
-			String geneId, String geneSymbol, String context, String version, String userInfo)
-			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException {
-
-		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
-
-		String msid1 = geneId;
-		String geneName1 = geneSymbol;
-		String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
-				+ Constants.DEL + msid1 + Constants.DEL + geneName1
-				+ Constants.DEL + context + Constants.DEL + version;
-
-		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(methodAndParams,
-				ResultSetlUtil.getUrl(), userInfo);
-		String previousInteractionId = null;
-		boolean firstHit = true;
-		while (rs.next()) {
-			try {
-				String msid2 = rs.getString("primary_accession");
-				String geneName2 = rs.getString("gene_symbol");
-				String db2_xref = rs.getString("accession_db");
-				String interactionId = rs.getString("interaction_id");
-				if (previousInteractionId == null
-						|| !previousInteractionId.equals(interactionId)) {
-					previousInteractionId = interactionId;
-					firstHit = true;
-				}
-				if ((db2_xref.equals(ENTREZ_GENE) && msid1.equals(msid2))
-						|| (geneName2.equalsIgnoreCase(geneName1))) {
-					if (firstHit == true) {
-						firstHit = false;
-						continue;
-					} else {
-						msid2 = msid1;
-						db2_xref = ENTREZ_GENE;
-					}
-				}
-
-				String interactionType = rs.getString("interaction_type")
-						.trim();
-				Short evidenceId = 0;
-				if (rs.getString("evidence_id") != null
-						&& !rs.getString("evidence_id").trim().equals("null")) {
-					evidenceId = new Short(rs.getString("evidence_id"));
-				}
-
-				InteractionDetail interactionDetail = new InteractionDetail(
-						msid2, geneName2, db2_xref, interactionType,
-						interactionId, evidenceId);
-
-				double confidenceValue = rs.getDouble("confidence_value");
-				Short confidenceType = new Short(rs
-						.getString("confidence_type").trim());
-				interactionDetail
-						.addConfidence(confidenceValue, confidenceType);
-				String otherConfidenceValues = rs
-						.getString("other_confidence_values");
-				String otherConfidenceTypes = rs
-						.getString("other_confidence_types");
-				if (!otherConfidenceValues.equals("null")) {
-					String[] values = otherConfidenceValues.split(";");
-					String[] types = otherConfidenceTypes.split(";");
-
-					for (int i = 0; i < values.length; i++)
-						interactionDetail.addConfidence(new Double(values[i]),
-								new Short(types[i]));
-
-				}
-
-				arrayList.add(interactionDetail);
-
-			} catch (NullPointerException npe) {
-				logger.error("db row is dropped because a NullPointerException");
-			}
-		}
-		rs.close();
-
-		return arrayList;
-	}
 
 	/**
-	 * This is similar to getInteractionsByEntrezIdOrGeneSymbol_1 and currently
-	 * used. The difference is that this version retains all the 'edges' of the
-	 * interactions that include the queried marker even if they are not
-	 * connected directly.
+	 * This was originally developed to retain all the 'edges' of the
+	 * interactions that include the queried marker even if the edges are not
+	 * connected to the queried marker. That behavior is no longer supported in the
+	 * current implementation.
 	 */
 	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
 			String geneId, String geneSymbol, String context, String version, String userInfo)
