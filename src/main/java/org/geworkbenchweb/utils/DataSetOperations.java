@@ -90,10 +90,6 @@ public class DataSetOperations {
 		}
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
 				resultSetId);
-		boolean success = UserDirUtils.deleteResultSet(resultSetId);
-		if (!success) {
-			log.error("Unable to delete the selected data. Please contact administrator.");
-		}
 		FacadeFactory.getFacade().delete(result);
 		PreferenceOperations.deleteAllPreferences(resultSetId);
 	}

@@ -1,7 +1,5 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,15 +10,14 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.Visualizer;
+import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -86,28 +83,14 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		datasetId = dataSetId;
 		if(dataSetId==null) return;
 
-		Object object;
-		try {
-			object = UserDirUtils.deserializeResultSet(dataSetId);
-		} catch (FileNotFoundException e) {
-			/* expected before the data file is ready */
-			log.warn("file not found. dataset ID "+dataSetId);
-			addComponent(new Label("Pending query - ID "+ dataSetId + ": checked time "+new java.util.Date()));
-			//e.printStackTrace();
-			return;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		} catch (IOException e) {
-			e.printStackTrace();
+		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		Long id = resultSet.getDataId();
+		if(id==null) { // pending node
+			addComponent(new Label("Pending computation - ID "+ dataSetId));
 			return;
 		}
-		if(!(object instanceof CNKBResultSet)) {
-			log.error("wrong type of CNKB result "+object.getClass().getName());
-			return;
-		}
-		final CNKBResultSet  resultSet = (CNKBResultSet)object;
-	 
+		CNKBResultSet cnkbResult = FacadeFactory.getFacade().find(org.geworkbenchweb.pojos.CNKBResultSet.class, id);
+
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
 		
@@ -134,7 +117,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);
 		
-		dataTable.setContainerDataSource(getIndexedContainer(resultSet));
+		dataTable.setContainerDataSource(getIndexedContainer(cnkbResult));
 		dataTable.setColumnWidth("Marker", 300);
 		dataTable.setColumnWidth(COLUMN_GO_ANNOTATIONS, 150);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
@@ -155,16 +138,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			 
 		});
 		
-		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
-		double maxValue = getMaxValue(resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType));
+		Short confidenceType = cnkbResult.getCellularNetworkPreference().getSelectedConfidenceType();
+		double maxValue = getMaxValue(cnkbResult.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType));
 		
-		plot = drawPlot(resultSet, 0, maxValue);
+		plot = drawPlot(cnkbResult, 0, maxValue);
 	 
 		
 		MenuBar menuBar = new MenuBar();
 		menuBar.setStyleName("transparent");
 		menuBar.addItem("Create Network", new CreateNetworkCommand(parentId,
-				resultSet)).setStyleName("plugin");
+				cnkbResult)).setStyleName("plugin");
 		menuBar.addItem("Export", new Command() {
 
 			private static final long serialVersionUID = -4510368918141762449L;
@@ -182,7 +165,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		
 		addComponent(menuBar);		
 	
-		ThrottleSlider slider = new ThrottleSlider(resultSet, 0, maxValue, this);	
+		ThrottleSlider slider = new ThrottleSlider(cnkbResult, 0, maxValue, this);	
 		slider.setStyleName("small");
 		throttlePanel = new VerticalSplitPanel();
 		throttlePanel.setSizeFull();	 
@@ -545,7 +528,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			ResultSetlUtil.setTimeout(3000);
 		}
 		
-		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+		CNKB interactionsConnection = new CNKB();
 		try{
 		   confidentTypeMap =  interactionsConnection.getConfidenceTypeMap();
 		}

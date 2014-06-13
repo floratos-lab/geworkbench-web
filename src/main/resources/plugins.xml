@@ -159,7 +159,7 @@
 		<uiClass>org.geworkbenchweb.plugins.NetworkViewer</uiClass>
 	</plugin>
 	</inputType>
-	<inputType className="org.geworkbenchweb.plugins.cnkb.CNKBResultSet">
+	<inputType className="org.geworkbenchweb.pojos.CNKBResultSet">
 	<plugin>
 		<name>CNKB Result View</name>
 		<description>

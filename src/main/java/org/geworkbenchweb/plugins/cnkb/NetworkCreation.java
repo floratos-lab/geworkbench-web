@@ -12,6 +12,7 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 

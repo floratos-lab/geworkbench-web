@@ -18,7 +18,6 @@ import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.SubSetContext;
 import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 
@@ -93,15 +92,6 @@ public class RemoveButtonListener implements ClickListener {
 										FacadeFactory.getFacade().delete((Comment) comments.get(j));
 									}
 								}
-								boolean success =  UserDirUtils.deleteResultSet(((ResultSet) resultSets.get(i)).getId());
-								if(!success) {
-									MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-											"Error", 
-											MessageBox.Icon.ERROR, 
-											"Unable to delete the selected data. Please contact administrator.", 
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-								}
 								FacadeFactory.getFacade().delete((ResultSet) resultSets.get(i));
 								//delete resultset preference
 								PreferenceOperations.deleteAllPreferences(((ResultSet) resultSets.get(i)).getId());								
@@ -161,15 +151,6 @@ public class RemoveButtonListener implements ClickListener {
 							}
 						}
 						ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
-						boolean success = UserDirUtils.deleteResultSet(result.getId());
-						if(!success) {
-							MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-									"Error", 
-									MessageBox.Icon.ERROR, 
-									"Unable to delete the selected data. Please contact administrator.", 
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-							mb.show();
-						}
 						FacadeFactory.getFacade().delete(result);
 					} 
 					

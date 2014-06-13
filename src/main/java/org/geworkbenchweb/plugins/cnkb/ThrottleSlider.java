@@ -2,15 +2,15 @@ package org.geworkbenchweb.plugins.cnkb;
  
 import java.util.Vector;
 
-import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
+import org.geworkbenchweb.pojos.CNKBResultSet;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Slider; 
-import com.vaadin.ui.Slider.ValueOutOfBoundsException;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Slider;
+import com.vaadin.ui.Slider.ValueOutOfBoundsException;
+import com.vaadin.ui.TextField;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;

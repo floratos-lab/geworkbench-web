@@ -1,15 +1,23 @@
-package org.geworkbenchweb.plugins.cnkb;
+package org.geworkbenchweb.pojos;
 
 import java.util.Vector;
-import java.io.Serializable;
 
-public class CNKBResultSet implements Serializable{
+import javax.persistence.Entity;
+
+import org.geworkbenchweb.plugins.cnkb.CellularNetWorkElementInformation;
+import org.geworkbenchweb.plugins.cnkb.CellularNetworkPreference;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
+
+@Entity
+public class CNKBResultSet extends AbstractPojo {
  
 	private static final long serialVersionUID = -2518573713456876911L;
 	
 	private Vector<CellularNetWorkElementInformation> hits = null;
 	private CellularNetworkPreference cnkbPref = null;
-	final private Long datasetId;
+	private Long datasetId;
+	
+	public CNKBResultSet() {}
 	
 	public CNKBResultSet(Vector<CellularNetWorkElementInformation> hits, CellularNetworkPreference cnkbPref, Long datasetId)
 	{

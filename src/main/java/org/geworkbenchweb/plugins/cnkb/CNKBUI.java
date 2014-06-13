@@ -24,9 +24,9 @@ import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.utils.MarkerSelector;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.geworkbenchweb.utils.UserDirUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -508,9 +508,13 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			HashMap<Serializable, Serializable> parameters, Long userId)
 			throws IOException, Exception {
 		try {
-			CNKBResultSet resultSet = getInteractions(
+			CNKBResultSet result = getInteractions(
 					dataSetId, params);
-			UserDirUtils.serializeResultSet(resultId, resultSet);
+			FacadeFactory.getFacade().store(result);
+
+			ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+			resultSet.setDataId(result.getId());
+			FacadeFactory.getFacade().store(resultSet);
 		} catch (UnAuthenticatedException uae) {
 			creatAuthenticationDialog(dataSetId);
 			return "UnAuthenticatedException";

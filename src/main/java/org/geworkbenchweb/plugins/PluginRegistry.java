@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.apache.commons.digester3.Digester;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
-import org.geworkbenchweb.plugins.cnkb.CNKBResultSet;
 import org.geworkbenchweb.plugins.microarray.MicroarrayUI;
 import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
 import org.xml.sax.SAXException;
@@ -57,7 +56,7 @@ public class PluginRegistry {
 	/** Add all the initial registry entries.*/
 	public void init() {
 		resultIconMap.put(org.geworkbenchweb.pojos.HierarchicalClusteringResult.class, hcIcon); // hierarchical clustering result
-		resultIconMap.put(CNKBResultSet.class, cnkbIcon); // cnkb result
+		resultIconMap.put(org.geworkbenchweb.pojos.CNKBResultSet.class, cnkbIcon); // cnkb result
 		resultIconMap.put(org.geworkbenchweb.pojos.Network.class, networkIcon); // aracne result or 'cytoscape' result
 		resultIconMap.put(MarkUsResultDataSet.class, markusIcon); // markus result
 		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
