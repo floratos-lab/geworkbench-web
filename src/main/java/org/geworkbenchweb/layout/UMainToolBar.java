@@ -20,7 +20,6 @@ import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
-import org.jivesoftware.smack.packet.Presence;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
