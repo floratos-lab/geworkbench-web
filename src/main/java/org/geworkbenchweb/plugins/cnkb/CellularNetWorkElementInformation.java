@@ -1,105 +1,48 @@
 package org.geworkbenchweb.plugins.cnkb;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbenchweb.utils.GOTerm;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 
 /**
+ * All CNKB results for ONE queried marker. It is uniquely identified by the markerLabel.
+ * 
  * This is based on the class from geWorkbench core that has the same name.
  * Dependency on bison types is removed; name is kept to avoid too much immediate change of other code.
- * TODO: dependency on the old annotation mechanism needs to be reviewed and replaced
  */
 public class CellularNetWorkElementInformation implements java.io.Serializable {
 
 	private static final long serialVersionUID = -4163326138016520667L;
-  
-	
-	private HashMap<String, Integer> interactionNumMap = new HashMap<String, Integer>();
 
-	private static Set<String> allInteractionTypes = new HashSet<String>();
-
-	final private String markerLabel;
+	private final String markerLabel;
 	
-	private InteractionDetail[] interactionDetails;
+	private final InteractionDetail[] interactionDetails;
 	private double threshold;
-	private boolean isDirty;
-	private int[] molecularFunctionGoIds;
-	private int[] biologicalProcessGoIds;
+
+	private final int[] molecularFunctionGoIds;
+	private final int[] biologicalProcessGoIds;
 	
-	final private static int binNumber = 101; 
- 
-	public CellularNetWorkElementInformation(String markerLabel, int[] molecularFunctionGoIds, int[] biologicalProcessGoIds) {
+	public CellularNetWorkElementInformation(String markerLabel, int[] molecularFunctionGoIds, int[] biologicalProcessGoIds,
+			List<InteractionDetail> arrayList) {
 		this.markerLabel = markerLabel;	 
-		isDirty = true;		 
+
 		this.biologicalProcessGoIds = biologicalProcessGoIds;
-		this.molecularFunctionGoIds = molecularFunctionGoIds;	 
-		reset();
-	}
+		this.molecularFunctionGoIds = molecularFunctionGoIds;
 
-  
-
-	private Set<GOTerm> getAllGOTerms() {
-		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
-	 
-		if (tree != null) {
-			Set<GOTerm> set = new HashSet<GOTerm>();
-			for (int goId : biologicalProcessGoIds) {				 
-			    if (tree.getTerm(goId) != null)
-				   set.add(tree.getTerm(goId));
-				 
+		if (arrayList != null && arrayList.size() > 0) {
+			interactionDetails = new InteractionDetail[arrayList.size()];
+			
+			for(int i=0; i<arrayList.size(); i++) {
+				interactionDetails[i] = arrayList.get(i);
 			}
-			return set;
+		} else { /* when there is no result back from CNKB db */
+			interactionDetails = null;
 		}
-
-		return null;
 	}
-
-	public TreeMap<String, Set<GOTerm>> getAllAncestorGoTerms(String catagory) {
-		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
-		String[] goTerms = AnnotationParser.getInfo(markerLabel, catagory);
-
-		TreeMap<String, Set<GOTerm>> treeMap = new TreeMap<String, Set<GOTerm>>();
-		if (goTerms != null) {
-
-			for (String goTerm : goTerms) {
-				String goIdStr = goTerm.split("/")[0].trim();
-				try {
-					if (!goIdStr.equalsIgnoreCase("---")) {
-						Integer goId = new Integer(goIdStr);
-						if (goId != null) {
-							treeMap.put(goTerm, tree.getAncestors(goId));
-						}
-					}
-				} catch (NumberFormatException ne) {
-					ne.printStackTrace();
-				}
-
-			}
-		}
-		return treeMap;
-	}
-
-	/**
-	 * Remove all previous retrieved information.
-	 */
-	public void reset() {
-		if (isDirty) {
-			for (String interactionType : allInteractionTypes) {
-				interactionNumMap.put(interactionType, -1);
-			}
-		} else {
-			for (String interactionType : allInteractionTypes) {
-				interactionNumMap.put(interactionType, 0);
-			}
-		}
-	}	 
 
 	public ArrayList<InteractionDetail> getSelectedInteractions(
 			List<String> interactionIncludedList, short selectedConfidenceType) {
@@ -139,175 +82,8 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		return arrayList;
 	}
 
-	
-	
-	public int[] getDistribution(List<String> displaySelectedInteractionTypes, short selectedConfidenceType, double smallestIncrement) {
-		 
-		int[] distribution = new int[binNumber];
-		for (int i = 0; i < binNumber; i++)
-			distribution[i] = 0;
-		if (interactionDetails == null || interactionDetails.length <= 0)
-			return distribution;
-		for (InteractionDetail interactionDetail : interactionDetails) {
-			if (interactionDetail != null
-					&& displaySelectedInteractionTypes
-							.contains(interactionDetail.getInteractionType())) {
-				int confidence = (int) (interactionDetail.getConfidenceValue(selectedConfidenceType) / smallestIncrement);
-				if (confidence >= 0) {
-					if (confidence >= distribution.length)
-						confidence = distribution.length-1;
-				 
-					for (int i = 0; i <= confidence; i++)
-						distribution[i]++;
-
-				}
-
-			}
-		}
-	 
-		return distribution;
-	}
-
-	public static int getBinNumber() {	 
-		return binNumber;
-	}
-	
- 
-	public boolean isDirty() {
-		return isDirty;
-	}
-
-	public static void setAllInteractionTypes(
-			List<String> allInteractionTypeList) {
-		allInteractionTypes.clear();
-		allInteractionTypes.addAll(allInteractionTypeList);
-
-	}
-
-	public void setDirty(boolean dirty) {
-		isDirty = dirty;		 
-	}
-
-	public Integer getInteractionNum(String interactionType) {
-		if (interactionNumMap.containsKey(interactionType))
-			return interactionNumMap.get(interactionType);
-		else
-			return null;
-	}
-
-	public double getThreshold() {
-		return threshold;
-	}
-
-	public void setThreshold(double threshold, short selectedConfidenceType) {
-		 
+	public void setThreshold(double threshold) {
 			this.threshold = threshold; 
-		    update(selectedConfidenceType);
-	}
-
-	/**
-	 * Associate the gene marker with the details.
-	 * 
-	 * @param arrayList
-	 */
-	public void setInteractionDetails(List<InteractionDetail> arrayList, CellularNetworkPreference pref) {
-		 
-		if (arrayList != null && arrayList.size() > 0) {
-			interactionDetails = new InteractionDetail[arrayList.size()];
-			
-			for(int i=0; i<arrayList.size(); i++)
-			{
-				interactionDetails[i] = arrayList.get(i);
-				List<Short> typeIdList = interactionDetails[i].getConfidenceTypes();
-				for (int j=0; j<typeIdList.size(); j++)
-				{  
-					Short typeId = typeIdList.get(j);
-					Double maxConfidenceValue = pref.getMaxConfidenceValue(typeId);
-					double confidenceValue = interactionDetails[i].getConfidenceValue(typeId);
-					if (maxConfidenceValue == null )
-						pref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
-					else
-					{
-						if (maxConfidenceValue < confidenceValue)
-						{	 
-							pref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
-						}
-					}
-					if (!pref.getConfidenceTypeList().contains(typeId))
-						pref.getConfidenceTypeList().add(typeId);
-				}
-				 
-			}
-		} else {
-			interactionDetails = null;
-			reset();
-		}
-
-		if (interactionDetails != null) {
-			if (pref.getSelectedConfidenceType() == null || pref.getSelectedConfidenceType().shortValue() == 0)
-			   pref.setSelectedConfidenceType(pref.getConfidenceTypeList().get(0)); //use first one as default value.
-			update(pref.getSelectedConfidenceType());
-		}
-
-	}
-
-	/**
-	 * Update the number of interaction based on the new threshold or new
-	 * InteractionDetails.
-	 */
-	private void update(short selectedConfidenceType) {		 
-			
-		reset();
-		
-		if (interactionDetails == null || interactionDetails.length == 0) {
-			return;
-		}
-
-		for (InteractionDetail interactionDetail : interactionDetails) {
-			if (interactionDetail != null) {
-				double confidence = interactionDetail.getConfidenceValue(selectedConfidenceType);
-				String interactionType = interactionDetail.getInteractionType();
-				if (confidence >= threshold) {
-					if (this.interactionNumMap.containsKey(interactionType)) {
-						int num = interactionNumMap.get(interactionType) + 1;
-						interactionNumMap.put(interactionType, num);
-
-					} else {
-						interactionNumMap.put(interactionType, 1);
-
-					}
-
-				}
-			}
-		}
-
-	}
-
-	public int[] getInteractionDistribution(String interactionType, short selectedConfidenceType, double smallestIncrement) {	
-	 
-		int[] interactionDistribution = new int[binNumber];
-		for (int i = 0; i < binNumber; i++)
-			interactionDistribution[i] = 0;
-		if (interactionDetails == null || interactionDetails.length <= 0)
-			return interactionDistribution;
-
-		for (InteractionDetail interactionDetail : interactionDetails) {
-			int confidence = (int) (interactionDetail.getConfidenceValue(selectedConfidenceType) / smallestIncrement);
-			if (confidence >= 0) {
-
-				if (interactionDetail.getInteractionType().equals(
-						interactionType)) {
-					if (confidence >= interactionDistribution.length)
-						confidence = interactionDistribution.length-1;				 
-					for (int i = 0; i <= confidence; i++)
-						interactionDistribution[i]++;
-
-				}
-			}
-
-		}
-	 
-		return interactionDistribution;
 	}
 
 	public String getMarkerLabel() {
@@ -320,8 +96,21 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		else if( biologicalProcessGoIds == null || biologicalProcessGoIds.length ==0 )
 			 return "---";	
 		
-		String goInfoStr = "";	
-		Set<GOTerm> set = getAllGOTerms();
+		String goInfoStr = "";
+		
+		/* get all GO terms */
+		Set<GOTerm> set = null;
+		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
+		 
+		if (tree != null) {
+			set = new HashSet<GOTerm>();
+			for (int goId : biologicalProcessGoIds) {				 
+			    if (tree.getTerm(goId) != null)
+				   set.add(tree.getTerm(goId));
+				 
+			}
+		}
+
 		if (set != null)
 		{
 			for (GOTerm goTerm : set) 
@@ -330,8 +119,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		return goInfoStr;
 	}
  
-	
-	String getGeneType() {		 
+	String getGeneType() {
 		if (GeneOntologyTree.getInstance()==null)
 			 return  "pending";
 		else if( molecularFunctionGoIds == null || molecularFunctionGoIds.length ==0 )
@@ -379,10 +167,8 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 				}				 
 				 
 		}
-		 
-
-		// all other cases
-		return "";
+		
+		return ""; // all other cases
 	}
 	
 }

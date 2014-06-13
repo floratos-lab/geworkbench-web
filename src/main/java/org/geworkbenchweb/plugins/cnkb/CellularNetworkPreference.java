@@ -24,17 +24,7 @@ public class CellularNetworkPreference implements java.io.Serializable {
 	{
 		return this.title;
 	}
-	
-	public void setContext(String context)
-	{
-		// not implemented
-	}
-	
-	public void setVersion(String version)
-	{
-		// not implemented
-	}
-	
+
 	/* FIXME replace this with an add method so we don't have to expose this list directly */
 	public List<String> getDisplaySelectedInteractionTypes() {
 		return this.displaySelectedInteractionTypes;

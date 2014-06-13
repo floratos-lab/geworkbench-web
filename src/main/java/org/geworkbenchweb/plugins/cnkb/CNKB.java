@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.geworkbench.components.interactions.cellularnetwork.InteractionParticipant;
-import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 

@@ -37,9 +37,8 @@ public class ThrottleSlider extends  HorizontalLayout{
 				public void valueChange(ValueChangeEvent event) {
 					double value = (Double) horslider.getValue();
 					Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-					short confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-						cellularNetWorkElementInformation.setThreshold(value, confidentType);
+						cellularNetWorkElementInformation.setThreshold(value);
 
 					}
 					parent.dataTable.setContainerDataSource(parent.getIndexedContainer(resultSet));
@@ -80,10 +79,9 @@ public class ThrottleSlider extends  HorizontalLayout{
 	                try
 	                {
 	                	Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-						short confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 						double thresholdValue = Double.parseDouble(value);
 						for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-							cellularNetWorkElementInformation.setThreshold(thresholdValue, confidentType);
+							cellularNetWorkElementInformation.setThreshold(thresholdValue);
 
 						}
 						parent.dataTable.setContainerDataSource(parent.getIndexedContainer(resultSet));

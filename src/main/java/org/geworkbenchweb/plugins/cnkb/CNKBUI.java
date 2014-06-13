@@ -14,8 +14,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.interactions.cellularnetwork.InteractionsConnectionImpl;
-import org.geworkbench.components.interactions.cellularnetwork.VersionDescriptor;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -62,9 +60,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	
 	private static final long serialVersionUID = -1221913812891134388L;
 
-	private ResultSet resultSet;
+	private static final String CNKB_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+	private static final int TIMEOUT = 3000;
 
-	private static final int timeout = 3000;
+	private ResultSet resultSet;
 
 	private List<String> contextList = new ArrayList<String>();
 
@@ -88,14 +87,20 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	// FIXME why the GUI implementation of this analysis is different from other
-	// analysis plug-ins
+	/*
+	 * Initialization in this method instead of constructors is done in the main
+	 * GUI thread instead of a background thread.
+	 */
 	@Override
 	public void attach() {
 
 		super.attach();
-		loadApplicationProperty();
-		final InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+
+		/* Create a connection with the server. */
+		ResultSetlUtil.setUrl(CNKB_SERVLET_URL);
+		ResultSetlUtil.setTimeout(TIMEOUT);
+
+		final CNKB interactionsConnection = new CNKB();
 
 		try {
 			contextList = interactionsConnection.getDatasetAndInteractioCount();
@@ -262,15 +267,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		session = wcntxt.getHttpSession();
 	}
 
-	/**
-	 * Create a connection with the server.
-	 */
-	private void loadApplicationProperty() {
-		String interactionsServletUrl = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-		ResultSetlUtil.setUrl(interactionsServletUrl);
-		ResultSetlUtil.setTimeout(timeout);
-	}
-
 	private void generateHistoryString() {
 		StringBuilder mark = new StringBuilder();
 
@@ -313,13 +309,14 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private HttpSession session = null;
 
+	/**
+	 * Main function of this class: query the CNKB db for the interactions.
+	 */
 	private CNKBResultSet getInteractions(Long dataSetId,
 			HashMap<Serializable, Serializable> params)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
 
-		Vector<CellularNetWorkElementInformation> hits = null;
-		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
 		String version = (String) params.get(CNKBParameters.VERSION);
 
@@ -352,7 +349,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
 		List<String> selectedMarkers = new ArrayList<String>();
-		hits = new Vector<CellularNetWorkElementInformation>();
 		for (int i = 0; i < selectedMarkerSet.length; i++) {
 			List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
 			for(int m=0; m<temp.size(); m++) {
@@ -360,43 +356,33 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				if (marker != null && !selectedMarkers.contains(marker))
 				{
 					selectedMarkers.add(marker);
-					
-					int[] mf = new int[0];
-					int[] bp = new int[0];
-					AnnotationEntry a = annotationMap.get(marker);
-					if(a!=null) {
-						mf = a.getMolecularFunction();
-						bp = a.getBiologicalProcess();
-					}
-					hits.addElement(new CellularNetWorkElementInformation(marker, mf, bp));
 				}
 			}
-			 
-		}
-		log.debug("hist size "+hits.size());
 
-		/* this is the new variation of InteractionsConnectionImpl */
+		}
+		log.debug("hist size " + selectedMarkers.size());
+
 		CNKB cnkb = new CNKB();
-		
+
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference(
 				"Throttle Graph(" + context + version + ")");
-		cnkbPref.setContext(context);
-		cnkbPref.setVersion(version);
-		List<String> interactionTypes = interactionsConnection
+		List<String> interactionTypes = cnkb
 				.getInteractionTypesByInteractomeVersion(context, version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
-		
-
-		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-
-			String label = cellularNetWorkElementInformation.getMarkerLabel();
-			if(label==null) {
-				log.warn("marker label is null");
-				continue;
+		Vector<CellularNetWorkElementInformation> hits = new Vector<CellularNetWorkElementInformation>(); 
+		for(String marker: selectedMarkers) {
+	
+			int[] mf = new int[0];
+			int[] bp = new int[0];
+			AnnotationEntry a = annotationMap.get(marker);
+			if (a != null) {
+				mf = a.getMolecularFunction();
+				bp = a.getBiologicalProcess();
 			}
 			
-			AnnotationEntry entry = annotationMap.get(label);
+			/* get detail */
+			AnnotationEntry entry = annotationMap.get(marker);
 			String geneId = "";
 			String geneSymbol =  "";
 			if(entry!=null) {
@@ -404,21 +390,48 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				geneSymbol = entry.getGeneSymbol();
 			}
 
-			if (geneId!=null && !geneId.trim().equals("---")
-					&& cellularNetWorkElementInformation.isDirty()) {				
-				List<InteractionDetail> interactionDetails = null;
-
+			List<InteractionDetail> interactionDetails = null;
+			if (geneId != null && !geneId.trim().equals("---")) {
+				/* the earlier codes says to do this only when it is 'dirty'. it does not appear correct. */
 				interactionDetails = cnkb
 						.getInteractionsByEntrezIdOrGeneSymbol_2(geneId,
 								geneSymbol, context, version, userInfo);
-
-				cellularNetWorkElementInformation.setDirty(false);
-				cellularNetWorkElementInformation.setInteractionDetails(
-						interactionDetails, cnkbPref);
-			 
 			}
-			 
-		}
+			
+			CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(
+					marker, mf, bp, interactionDetails);
+			hits.addElement(element);
+			
+			/* FIXME update preference. this is inherited from the earlier code. I don't think it does the correct thing
+			 * considering this is repeated in this loop of all markers.*/
+			if (interactionDetails != null && interactionDetails.size() > 0) {
+				
+				for(InteractionDetail detail : interactionDetails)
+				{
+					List<Short> typeIdList = detail.getConfidenceTypes();
+					for (int j=0; j<typeIdList.size(); j++)
+					{  
+						Short typeId = typeIdList.get(j);
+						Double maxConfidenceValue = cnkbPref.getMaxConfidenceValue(typeId);
+						double confidenceValue = detail.getConfidenceValue(typeId);
+						if (maxConfidenceValue == null )
+							cnkbPref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
+						else
+						{
+							if (maxConfidenceValue < confidenceValue)
+							{	 
+								cnkbPref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
+							}
+						}
+						if (!cnkbPref.getConfidenceTypeList().contains(typeId))
+							cnkbPref.getConfidenceTypeList().add(typeId);
+					}
+					 
+				}
+				if (cnkbPref.getSelectedConfidenceType() == null || cnkbPref.getSelectedConfidenceType().shortValue() == 0)
+					cnkbPref.setSelectedConfidenceType(cnkbPref.getConfidenceTypeList().get(0)); //use first one as default value.
+			}
+		} /* end of the loop of all markers */
 
 		return new CNKBResultSet(hits, cnkbPref, dataSetId);
 	}

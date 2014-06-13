@@ -1,20 +1,26 @@
 package org.geworkbenchweb.plugins.cnkb;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * The detail of one interaction.
+ * 
+ * This class maintains only one end of the interaction. 
+ * Each instance would belong to a CellularNetWorkElementInformation, 
+ * where the other end is maintained.
  */
 public class InteractionDetail implements Serializable {
 
 	private static final long serialVersionUID = 8301576364169764124L;
 	
-	private final String dSGeneId;
+	private final String dSGeneId; /* unique identifier */
 	private final String dSGeneName;
 	private final String interactionType;
-	private final List<Confidence> confidenceList;
+	private final Map<Short, Double> confidence;
 
 	public InteractionDetail(String dSGeneId, String dSGeneName,
 			String dbSource, String interactionType,
@@ -25,7 +31,7 @@ public class InteractionDetail implements Serializable {
 		/* dbSource is ignored */		 
 		this.interactionType = interactionType;
 		/* evidenceId is ignored */
-		confidenceList = new ArrayList<Confidence>();
+		confidence = new HashMap<Short, Double>();
 	}
 
 	public String getdSGeneId() {
@@ -37,22 +43,17 @@ public class InteractionDetail implements Serializable {
 	}
 
 	public double getConfidenceValue(int usedConfidenceType) {
-		for (int i=0; i<confidenceList.size(); i++)
-			if (confidenceList.get(i).getType() == usedConfidenceType)
-				return confidenceList.get(i).getScore();
-		//if usedConfidenceType is not found, return 0.
-		return 0;
+		Double d = confidence.get((short)usedConfidenceType);
+		if(d!=null) return d;
+		else return 0; //if usedConfidenceType is not found, return 0.
 	}
 
 	public List<Short> getConfidenceTypes() {
-		List<Short> types = new ArrayList<Short>();
-		for (int i=0; i<confidenceList.size(); i++)
-			types.add(confidenceList.get(i).getType());
-		return types;
+		return new ArrayList<Short>(confidence.keySet());
 	}
 	 
 	public void addConfidence(double score, short type) {
-		confidenceList.add(new Confidence(score, type));
+		confidence.put(type, score);
 	}
 
 	public String getInteractionType() {
@@ -73,30 +74,4 @@ public class InteractionDetail implements Serializable {
 	public int hashCode() {
 		return dSGeneId.hashCode();
 	}
-	
-	private class Confidence implements Serializable
-	{
-		 
-		private static final long serialVersionUID = 4151510293677929250L;
-		private double score;
-		private short type;
-		
-		Confidence(double score, short type)
-		{
-			this.score = score;
-			this.type = type;
-		}
-		
-		public double getScore()
-		{
-			return score;
-		}
-		
-		public short getType()
-		{
-			return type;
-		}
-		
-	}
-
 }
