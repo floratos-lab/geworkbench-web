@@ -386,8 +386,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			String geneId = "";
 			String geneSymbol =  "";
 			if(entry!=null) {
-				geneId = entry.getEntrezId();
-				geneSymbol = entry.getGeneSymbol();
+				geneId = entry.getEntrezId().trim();
+				geneSymbol = entry.getGeneSymbol().trim();
 			}
 
 			List<InteractionDetail> interactionDetails = null;
