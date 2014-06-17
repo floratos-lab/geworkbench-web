@@ -41,8 +41,10 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		return Network.class;
 	}
 
-	 
-	/* the method signature is interface defined. this class in fact ignores datasetId and userId*/
+	/*
+	 * the method signature is interface defined. this class in fact ignores
+	 * datasetId and userId
+	 */
 	@Override
 	public String execute(Long resultId,
 			HashMap<Serializable, Serializable> params, Long userId)
@@ -50,55 +52,66 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		Vector<CellularNetWorkElementInformation> hits = null;
 		CNKBResultSet resultSet = null;
 		Short confidentType = null;
-		if (params.get(CNKBParameters.CNKB_RESULTSET) != null)
-		{	
+		if (params.get(CNKBParameters.CNKB_RESULTSET) != null) {
 			resultSet = (CNKBResultSet) params
 					.get(CNKBParameters.CNKB_RESULTSET);
-		    hits = resultSet.getCellularNetWorkElementInformations();
-		    confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+			hits = resultSet.getCellularNetWorkElementInformations();
+			confidentType = resultSet.getCellularNetworkPreference()
+					.getSelectedConfidenceType();
 		}
 		Map<String, NetworkEdges> networkMap = new HashMap<String, NetworkEdges>();
 
-		List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
-				 
+		List<String> selectedTypes = resultSet.getCellularNetworkPreference()
+				.getDisplaySelectedInteractionTypes();
+
 		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
 					.getSelectedInteractions(selectedTypes, confidentType);
 
-			String markerLabel = cellularNetWorkElementInformation.getMarkerLabel();
+			String markerLabel = cellularNetWorkElementInformation
+					.getMarkerLabel();
 			String geneSymbol = map.get(markerLabel);
 			String geneName = markerLabel;
-			if(geneSymbol!=null) geneName = geneSymbol;
+			if (geneSymbol != null)
+				geneName = geneSymbol;
 
 			List<String> node2s = new ArrayList<String>();
 			List<Double> weights = new ArrayList<Double>();
 
 			for (InteractionDetail interactionDetail : arrayList) {
+				List<InteractionParticipant> participants = interactionDetail
+						.getParticipantList();
+				for (InteractionParticipant p : participants) {
+					String mid2 = p.getGeneId();
+					String mName2 = p.getGeneName();
+					String node2 = null;
 
-				String mid2 = interactionDetail.getdSGeneId();
-				String mName2 = interactionDetail.getdSGeneName();
-				String node2 = null;
+					if (mName2 != null && !mName2.trim().equals("")
+							&& !mName2.equals("null"))
+						node2 = mName2;
+					else {
+						node2 = mid2;
+					}
 
-				if (mName2 != null && !mName2.trim().equals("") && !mName2.equals("null"))
-					node2 = mName2;
-				else {
-					node2 = mid2;
-				}
-
-				double weight = interactionDetail
-						.getConfidenceValue(interactionDetail
-								.getConfidenceTypes().get(0));
-				node2s.add(node2);
-				weights.add(weight);
+					double weight = interactionDetail
+							.getConfidenceValue(interactionDetail
+									.getConfidenceTypes().get(0));
+					node2s.add(node2);
+					weights.add(weight);
+				}				
+				
 			}
-			networkMap.put(geneName, new NetworkEdges(node2s, weights));
+			networkMap.put(geneName, new NetworkEdges(node2s, weights));			
+			
+			
 		} // end for loop
 
 		Network network = new Network(networkMap);
 		FacadeFactory.getFacade().store(network);
-		ResultSet networkResult = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		ResultSet networkResult = FacadeFactory.getFacade().find(
+				ResultSet.class, resultId);
 		networkResult.setDataId(network.getId());
 		FacadeFactory.getFacade().store(networkResult);
 

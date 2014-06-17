@@ -1,25 +1,27 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-public class InteractionParticipant {
+import java.io.Serializable;
 
-	private final String dSGeneId;    
-    private final String dSGeneName;     
-    private final String dbSource;   
+public class InteractionParticipant implements Serializable{
+ 
+	private static final long serialVersionUID = 7386897433039268337L;
+	
+	private final String geneId;    
+    private final String geneName;     
    
-    public InteractionParticipant(String dSGeneMarker, String dSGeneName, String dbSource) {
-        this.dSGeneId = dSGeneMarker; 
-        this.dSGeneName = dSGeneName;        
-        this.dbSource = dbSource;       
+   
+    public InteractionParticipant(String geneId, String geneName) {
+        this.geneId = geneId; 
+        this.geneName = geneName;        
+             
     }
     
-    public String getdSGeneId() {
-        return dSGeneId;
+    public String getGeneId() {
+        return geneId;
     }
 
-    public String getdSGeneName() {
-        return dSGeneName;
+    public String getGeneName() {
+        return geneName;
     }
-    public String getDbSource() {
-        return this.dbSource;
-    }
+    
 }
