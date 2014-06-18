@@ -96,8 +96,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 					}
 
 					double weight = interactionDetail
-							.getConfidenceValue(interactionDetail
-									.getConfidenceTypes().get(0));
+							.getConfidenceValue(confidentType);
 					node2s.add(node2);
 					weights.add(weight);
 				}				
