@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.aracne;
 
 public class AracneParameters {
+	/* these are the texts of parameter keys */
 	public static String MARKER_SET 	= 	"markerSet";
 	public static String ARRAY_SET 	= 	"arraySet";
 	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
@@ -19,4 +20,10 @@ public class AracneParameters {
 	public static String BOOTS_NUM 		= 	"bootstrapNumber";
 	public static String CONSENSUS_THRESHOLD 		= 	"consensusThreshold";
 	public static String MERGEPS 		= 	"mergeProbeSets";
+	
+	/* following are the constant string values of the parameters */
+	/* mode */
+	public static String PREPROCESSING = "Preprocessing";
+	public static String COMPLETE = "Complete";
+	public static String DISCOVERY = "Discovery";
 }

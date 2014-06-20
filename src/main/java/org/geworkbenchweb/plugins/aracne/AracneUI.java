@@ -36,7 +36,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private Long dataSetId;
 	private Long userId  = null;
-	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
+	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private MarkerArraySelector markerArraySelector;	 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
@@ -84,7 +84,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 */
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
-		params.put(AracneParameters.MODE, "Discovery");
+		params.put(AracneParameters.MODE, AracneParameters.DISCOVERY);
 		params.put(AracneParameters.CONFIG, "Default");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
@@ -121,10 +121,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.setCaption("Select Mode");
 		modeBox.setNullSelectionAllowed(false);
 		modeBox.setImmediate(true);
-		modeBox.addItem("Complete");
-		modeBox.addItem("Discovery");
-		modeBox.addItem("Preprocessing");
-		modeBox.select("Discovery");
+		modeBox.addItem(AracneParameters.COMPLETE);
+		modeBox.addItem(AracneParameters.DISCOVERY);
+		modeBox.addItem(AracneParameters.PREPROCESSING);
+		modeBox.select(AracneParameters.DISCOVERY);
 		modeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -132,7 +132,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				params.remove(AracneParameters.MODE);
 				params.put(AracneParameters.MODE, valueChangeEvent
 						.getProperty().getValue().toString());
-				if(params.get(AracneParameters.MODE).equals("Discovery"))
+				if(params.get(AracneParameters.MODE).equals(AracneParameters.DISCOVERY))
 					configBox.setEnabled(true);
 				else configBox.setEnabled(false);
 			}
@@ -457,6 +457,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	private boolean validInputData() {
+		if(params.get(AracneParameters.MODE).equals(AracneParameters.PREPROCESSING)) {
+			return true;
+		}
 
 		if (hubGeneMarkerSetBox.getValue() == null
 				|| hubGeneMarkerSetBox.getValue().toString().trim().equals("")) {
@@ -629,7 +632,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		if(params.get(AracneParameters.MODE).equals("Preprocessing"))
+		if(params.get(AracneParameters.MODE).equals(AracneParameters.PREPROCESSING))
 			return ConfigResult.class;
 		return Network.class;
 	}
