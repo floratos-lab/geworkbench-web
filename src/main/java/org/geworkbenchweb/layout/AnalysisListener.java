@@ -13,6 +13,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.OverLimitException;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -51,6 +52,24 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				String resultName = null;
 				try {
 					resultName = analysisUI.execute(resultId, params, userId);
+				} catch (OverLimitException e) {
+					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
+							"Size Limit", MessageBox.Icon.INFO, e.getMessage(),
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show(new MessageBox.EventListener(){
+
+						private static final long serialVersionUID = 737428008969387125L;
+
+						@Override
+						public void buttonClicked(ButtonType buttonType) {
+							uMainLayout.noSelection();
+						}
+						
+					});
+					ResultSet resultSet = event.getResultSet();
+					FacadeFactory.getFacade().delete(resultSet);
+					uMainLayout.removeItem(resultSet.getId());
+					return;
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 

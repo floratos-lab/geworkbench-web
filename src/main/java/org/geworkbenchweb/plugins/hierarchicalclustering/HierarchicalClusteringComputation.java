@@ -26,6 +26,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.OverLimitException;
 import org.geworkbenchweb.utils.SubSetOperations;
 
 public class HierarchicalClusteringComputation {
@@ -46,6 +47,12 @@ public class HierarchicalClusteringComputation {
 
 	private final int[] selectedMarkers;
 	private final int[] selectedArrays;
+	
+	private static final int MARKER_NUMBER_LIMIT;
+	static {
+		String limit = GeworkbenchRoot.getAppProperty("hierarchical.clustering.limit");
+		MARKER_NUMBER_LIMIT = Integer.parseInt(limit);
+	}
 	
 	public HierarchicalClusteringComputation(Long datasetId,
 			HashMap<Serializable, Serializable> params, Long userId) throws Exception {
@@ -151,7 +158,7 @@ public class HierarchicalClusteringComputation {
 	}
 
 	/* construct an arrray of only the part that is selected. */
-	private static double[][] geValues(float[][] data, int[] selectedMarkers, int[] selectedArrays) {
+	private static double[][] geValues(float[][] data, int[] selectedMarkers, int[] selectedArrays) throws OverLimitException {
 		if(selectedMarkers==null) {
 			selectedMarkers = new int[data.length];
 			for(int i=0; i<data.length; i++) selectedMarkers[i] = i;
@@ -161,6 +168,12 @@ public class HierarchicalClusteringComputation {
 			for(int i=0; i<data[0].length; i++) selectedArrays[i] = i;
 		}
 		int rows = selectedMarkers.length;
+		if (rows > MARKER_NUMBER_LIMIT)
+			throw new OverLimitException(
+					"Hierarchical Clustering plugin can only handle "
+							+ MARKER_NUMBER_LIMIT
+							+ " markers or fewer. You are trying to process "
+							+ rows + " markers.");
 		int cols = selectedArrays.length;
 		double[][] array = new double[rows][cols];
 		for (int i = 0; i < rows; i++) {
