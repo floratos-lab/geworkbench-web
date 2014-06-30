@@ -412,7 +412,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	@Override
 	public void export() {
 		final Application app = getApplication();
-		final File file = new File("expression_data_" + datasetId + ".txt");
+		final File file = new File("expression_data_" + datasetId + ".tab");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
 			Collection<?> properties = displayTable.getContainerDataSource()
@@ -437,6 +437,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			e.printStackTrace();
 		}
 		Resource resource = new FileResource(file, app);
-		app.getMainWindow().open(resource, "exported");
+		app.getMainWindow().open(resource);
 	}
 }
