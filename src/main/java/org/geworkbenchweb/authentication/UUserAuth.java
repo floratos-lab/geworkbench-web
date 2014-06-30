@@ -60,7 +60,7 @@ public class UUserAuth extends VerticalLayout {
 	final VerticalLayout layout 		= 	new VerticalLayout();
 	
 	RegistrationForm registrationForm = new RegistrationForm();
-	Button switchToRegisterButton = new Button("Register", new ClickListener() {
+	Button switchToRegisterButton = new Button("Create New Account", new ClickListener() {
 
 		private static final long serialVersionUID = 1L;
 

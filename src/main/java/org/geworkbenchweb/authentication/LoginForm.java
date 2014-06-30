@@ -27,7 +27,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
@@ -151,11 +150,6 @@ public class LoginForm extends VerticalLayout {
 
 		login.setClickShortcut(KeyCode.ENTER);
 
-		HorizontalLayout group = new HorizontalLayout();
-		group.setSpacing(true);
-		group.addComponent(switchToRegisterButton);
-		group.addComponent(login);
-
 		Button forgotPasswd = new Button("Forgot password?");
 		forgotPasswd.setStyleName(BaseTheme.BUTTON_LINK);
 		forgotPasswd.setDescription("Reset Password for geWorkbench Account");
@@ -168,12 +162,22 @@ public class LoginForm extends VerticalLayout {
 		
 		this.addComponent(image);
 		this.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
+		Label betaLabel = new Label("(beta)");
+		betaLabel.setWidth("35px");
+		this.addComponent(betaLabel);
+		this.setComponentAlignment(betaLabel, Alignment.MIDDLE_CENTER);
 		this.addComponent(usernameField);
 		this.setComponentAlignment(usernameField, Alignment.MIDDLE_CENTER);
 		this.addComponent(passwordField);
 		this.setComponentAlignment(passwordField, Alignment.MIDDLE_CENTER);
-		this.addComponent(group);
-		this.setComponentAlignment(group, Alignment.MIDDLE_CENTER);
+		this.addComponent(login);
+		this.setComponentAlignment(login, Alignment.MIDDLE_CENTER);
+		Label orLabel = new Label("or");
+		orLabel.setWidth("15px");
+		this.addComponent(orLabel);
+		this.setComponentAlignment(orLabel, Alignment.MIDDLE_CENTER);
+		this.addComponent(switchToRegisterButton);
+		this.setComponentAlignment(switchToRegisterButton, Alignment.MIDDLE_CENTER);
 		this.addComponent(forgotPasswd);
 		this.setComponentAlignment(forgotPasswd, Alignment.MIDDLE_CENTER);
 		this.addComponent(forgotUsername);
