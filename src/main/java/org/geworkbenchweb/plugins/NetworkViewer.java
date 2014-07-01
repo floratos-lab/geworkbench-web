@@ -116,7 +116,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	
 		area.setWordwrap(false);
 		 
-		area.setImmediate(true);
+		area.setImmediate(false);
 		int edgeNumber = networkResult.getEdgeNumber();
 		int nodeNumber = networkResult.getNodeNumber();
 		StringBuffer sb = new StringBuffer("This network has "
@@ -125,7 +125,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 		sb.append(networkResult.toString());
 		area.setValue(sb.toString());
-		 
+		area.setReadOnly(true);
 		 
 		addComponent(area);
 		 
