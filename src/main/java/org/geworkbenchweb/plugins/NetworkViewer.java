@@ -23,8 +23,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.TextArea;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -111,12 +112,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	
 	private void viewAsText()
 	{
-		TextArea area = new TextArea();
-		area.setSizeFull();
-	
-		area.setWordwrap(false);
-		 
-		area.setImmediate(false);
+		Label area = new Label();
 		int edgeNumber = networkResult.getEdgeNumber();
 		int nodeNumber = networkResult.getNodeNumber();
 		StringBuffer sb = new StringBuffer("This network has "
@@ -126,10 +122,15 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		sb.append(networkResult.toString());
 		area.setValue(sb.toString());
 		area.setReadOnly(true);
-		 
-		addComponent(area);
-		 
+		area.setContentMode(Label.CONTENT_PREFORMATTED);
 		
+		Panel panel = new Panel();
+		panel.setSizeFull();
+        panel.setStyleName(Reindeer.PANEL_LIGHT);
+		panel.getContent().setSizeUndefined();
+		panel.addComponent(area);
+		 
+		addComponent(panel);
 	}
 
 	private void viewAsCytoscape()
