@@ -102,7 +102,8 @@ public class HierarchicalClusteringComputation {
 		this.method = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_METHOD);
 		this.dimension = (Integer) params.get(HierarchicalClusteringParams.CLUSTER_DIMENSION);
 		
-		matrix = geValues(values, selectedMarkers, selectedArrays);
+		boolean checkMarkerNumber = (dimension==0)||(dimension==2);
+		matrix = geValues(values, selectedMarkers, selectedArrays, checkMarkerNumber);
 	}
 
 	HierarchicalClusteringResult execute() throws RemoteException {		  
@@ -158,7 +159,8 @@ public class HierarchicalClusteringComputation {
 	}
 
 	/* construct an arrray of only the part that is selected. */
-	private static double[][] geValues(float[][] data, int[] selectedMarkers, int[] selectedArrays) throws OverLimitException {
+	private static double[][] geValues(float[][] data, int[] selectedMarkers, int[] selectedArrays,
+			boolean checkMarkerNumber) throws OverLimitException {
 		if(selectedMarkers==null) {
 			selectedMarkers = new int[data.length];
 			for(int i=0; i<data.length; i++) selectedMarkers[i] = i;
@@ -168,7 +170,7 @@ public class HierarchicalClusteringComputation {
 			for(int i=0; i<data[0].length; i++) selectedArrays[i] = i;
 		}
 		int rows = selectedMarkers.length;
-		if (rows > MARKER_NUMBER_LIMIT)
+		if (checkMarkerNumber && rows > MARKER_NUMBER_LIMIT)
 			throw new OverLimitException(
 					"Hierarchical Clustering plugin can only handle "
 							+ MARKER_NUMBER_LIMIT
