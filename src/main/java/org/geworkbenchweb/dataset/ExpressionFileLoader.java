@@ -136,7 +136,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 
 	@Override
 	public String toString() {
-		return "Expression File";
+		return "Expression File (.exp)";
 	}
 
 }
