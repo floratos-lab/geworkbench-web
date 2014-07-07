@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -42,6 +44,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
 	
+	private static Log log = LogFactory.getLog(TTestAnalysisWeb.class);
+	
 	private Long dataSetId;
 	private Long userId;
 	
@@ -73,10 +77,12 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		this(0L);
 	}
 	
-	public TTestUI(Long dId) {
+	public TTestUI(Long dId) {		 
 		
 		this.dataSetId = dId;
 		userId = SessionHandler.get().getId();
+		
+		log.debug("userId is:" + userId);
 		
 		setSpacing(true);
 		setImmediate(true);
@@ -88,7 +94,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		tabs.addTab(buildAlphaCorrections(), "Alpha Corrections", null);
 		tabs.addTab(buildDegOfFreedom(), "Degree of Freedom", null);
 		 
-		
+		log.debug("userId is:" + userId);
 		setDataSetId(dId);
 		
 		submit = new Button("Submit", new Button.ClickListener() {
@@ -144,8 +150,10 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				String dataSetName = "TTest - Pending";
 				resultSet.setName(dataSetName);
 				resultSet.setType(getResultType().getName());
-				resultSet.setParent(dataSetId);		
-				resultSet.setOwner(userId);
+				resultSet.setParent(dataSetId);	
+				log.debug("userId is:" + userId);
+				log.debug("SessionHandler.get().getId():" + userId);
+				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
 
 				GeworkbenchRoot app = (GeworkbenchRoot) TTestUI.this
