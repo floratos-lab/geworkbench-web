@@ -69,7 +69,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 
-	User user = SessionHandler.get();
+	User user = null;
 	Application app = null;
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
@@ -114,6 +114,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			e1.printStackTrace();
 		}
 
+		user = SessionHandler.get();
 		final MarkerSelector markerSelector = new MarkerSelector(dataSetId,
 				user.getId(), "CNKBUI");
 		final ListSelect interactomeBox;

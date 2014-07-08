@@ -5,9 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+ 
 import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
@@ -43,11 +41,8 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
-	
-	private static Log log = LogFactory.getLog(TTestAnalysisWeb.class);
-	
-	private Long dataSetId;
-	private Long userId;
+	 
+	private Long dataSetId; 
 	
 	private Accordion tabs;
 	
@@ -79,24 +74,15 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	
 	public TTestUI(Long dId) {		 
 		
-		this.dataSetId = dId;
-		userId = SessionHandler.get().getId();
-		
-		log.debug("userId is:" + userId);
-		
+		this.dataSetId = dId;	 
 		setSpacing(true);
-		setImmediate(true);
-		
-		tabs 			= 	new Accordion();
-		caseControlSelector = new CaseControlSelector(dataSetId, userId, "TTestUI");	 
-		
+		setImmediate(true);		
+		tabs 			= 	new Accordion();	 
+		caseControlSelector = new CaseControlSelector(dataSetId, "TTestUI");	
 		tabs.addTab(buildPValuePanel(), "P-Value Parameters", null);
 		tabs.addTab(buildAlphaCorrections(), "Alpha Corrections", null);
 		tabs.addTab(buildDegOfFreedom(), "Degree of Freedom", null);
-		 
-		log.debug("userId is:" + userId);
-		setDataSetId(dId);
-		
+		 	
 		submit = new Button("Submit", new Button.ClickListener() {
 			
 			private static final long serialVersionUID = 1L;
@@ -150,9 +136,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				String dataSetName = "TTest - Pending";
 				resultSet.setName(dataSetName);
 				resultSet.setType(getResultType().getName());
-				resultSet.setParent(dataSetId);	
-				log.debug("userId is:" + userId);
-				log.debug("SessionHandler.get().getId():" + userId);
+				resultSet.setParent(dataSetId);			 
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
 
@@ -333,9 +317,9 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	@Override
-	public void setDataSetId(Long dataId) {
+	public void setDataSetId(Long dataId) {		
 		this.dataSetId = dataId;		
-		caseControlSelector.setData(dataId, userId);	 
+		caseControlSelector.setData(dataId, SessionHandler.get().getId());	 
 	}
 
 	@Override

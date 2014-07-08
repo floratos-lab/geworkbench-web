@@ -37,11 +37,10 @@ public class CaseControlSelector extends GridLayout{
 	private boolean isArrayContextSetByApp = false;
 	 
 	
-	public CaseControlSelector(Long dataSetId, Long userId, String parentName) {
+	public CaseControlSelector(Long dataSetId,  String parentName) {
  
 		this.parentName = parentName;
-		this.dataSetId = dataSetId;
-		this.userId = userId;
+		this.dataSetId = dataSetId;	 
 		setColumns(2);
 		setRows(3);
 		setSpacing(true);
