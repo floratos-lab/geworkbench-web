@@ -391,8 +391,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		if (allpos && bean.getGseaTailNumber()==2){
 			MessageBox mb = new MessageBox(
 					getWindow(),
-					"Warning",
-					MessageBox.Icon.WARN,
+					"Information",
+					MessageBox.Icon.INFO,
 					"Since all Spearman's correlation >= 0, gsea will use tail = 1.",
 					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 			mb.show();
