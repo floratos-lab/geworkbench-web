@@ -57,6 +57,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
 	private static final String defaultBootsNum = "100";
+	private static final String adaptivePartitioning = "Adaptive Partitioning";
+	private static final String fixedBandwidth = "Fixed Bandwidth";
 
 	public AracneUI() {
 		this(0L);
@@ -156,19 +158,19 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		algoBox.setCaption("Select Algorithm");
 		algoBox.setImmediate(true);
 		algoBox.setNullSelectionAllowed(false);
-		algoBox.addItem("Adaptive Partitioning");
-		algoBox.addItem("Fixed Bandwidth");
-		algoBox.select("Adaptive Partitioning");
+		algoBox.addItem(adaptivePartitioning);
+		algoBox.addItem(fixedBandwidth);
+		algoBox.select(adaptivePartitioning);
 		algoBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("Fixed Bandwidth")) {
+						.equalsIgnoreCase(fixedBandwidth)) {
 					kernelWidth.setEnabled(true);
 					widthValue.setEnabled(true);
 				} else if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("Adaptive Partitioning")) {
+						.equalsIgnoreCase(adaptivePartitioning)) {
 					kernelWidth.setEnabled(false);
 					widthValue.setEnabled(false);
 				}
@@ -478,6 +480,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		}
 		 
 		hubGeneMarkerSetBox.setComponentError(null);
+		
+		String alg = algoBox.getValue().toString();
+		String config = configBox.getItemCaption(configBox.getValue());
+		if ((alg.equalsIgnoreCase(adaptivePartitioning) && config.contains("FB")) ||
+				(alg.equalsIgnoreCase(fixedBandwidth) &&  config.contains("AP")))
+		{
+			configBox.setComponentError(new UserError(
+					"The selected configuration does not match the selected Algorithm."));
+			return false;
+		}
+		configBox.setComponentError(null);
 
 		float floatValue = -1;
 		try {
