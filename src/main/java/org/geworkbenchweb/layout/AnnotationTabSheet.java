@@ -140,7 +140,8 @@ public class AnnotationTabSheet extends TabSheet {
 		Map<String, Object> eParams 		= 	new HashMap<String, Object>();
 		eParams.put("parent", dataSetId);
 
-		/* TODO that is not much useful information implemented in DataHistory */
+		/* Note that dataSetId is the ID of either a dataset or a result set.
+		 * More DataHistory data is implemented for the latter. */
 		List<AbstractPojo> histories =  FacadeFactory.getFacade().list("Select p from DataHistory as p where p.parent =:parent", eParams);
 		for(int i=0; i<histories.size(); i++) {
 			DataHistory dH = (DataHistory) histories.get(i);
