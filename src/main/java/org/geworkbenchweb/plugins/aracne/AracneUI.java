@@ -482,9 +482,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		hubGeneMarkerSetBox.setComponentError(null);
 		
 		String alg = algoBox.getValue().toString();
-		String config = configBox.getItemCaption(configBox.getValue());
-		if ((alg.equalsIgnoreCase(adaptivePartitioning) && config.contains("FB")) ||
-				(alg.equalsIgnoreCase(fixedBandwidth) &&  config.contains("AP")))
+		String config = configBox.getItemCaption(configBox.getValue());	 
+		if (configBox.isEnabled() && ((alg.equalsIgnoreCase(adaptivePartitioning) && config.contains("FB")) ||
+				(alg.equalsIgnoreCase(fixedBandwidth) &&  config.contains("AP"))))
 		{
 			configBox.setComponentError(new UserError(
 					"The selected configuration does not match the selected Algorithm."));
