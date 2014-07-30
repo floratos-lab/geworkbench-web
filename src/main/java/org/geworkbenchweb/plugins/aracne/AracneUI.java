@@ -10,6 +10,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ConfigResult;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -405,7 +406,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			public void buttonClick(ClickEvent event) {
 				try {
 
-					if (validInputData()) {
+					List<String> hubGeneList = null;
+					Long subSetId;
+					
+					if (hubGeneMarkerSetBox.getValue() != null)
+					{
+						subSetId = Long.parseLong((String)hubGeneMarkerSetBox.getValue().toString().trim());
+					    hubGeneList = SubSetOperations.getMarkerData(subSetId);
+					}
+					if (validInputData(hubGeneList)) {
 
 						ResultSet resultSet = new ResultSet();
 						java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
@@ -416,6 +425,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						resultSet.setParent(dataSetId);
 						resultSet.setOwner(SessionHandler.get().getId());
 						FacadeFactory.getFacade().store(resultSet);
+						
+						generateHistoryString(resultSet.getId(), hubGeneList);
 						
 						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
 								.getApplication();
@@ -458,7 +469,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	private boolean validInputData() {
+	private boolean validInputData(List<String> hubGeneList) {
 		if(params.get(AracneParameters.MODE).equals(AracneParameters.PREPROCESSING)) {
 			return true;
 		}
@@ -469,10 +480,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					"You did not load any genes as hub markers."));
 			return false;
 		}
-		//check empty hub set
-		List<String> hubGeneList = null;
-		Long subSetId = Long.parseLong((String)hubGeneMarkerSetBox.getValue().toString().trim());
-		hubGeneList = SubSetOperations.getMarkerData(subSetId);
+		//check empty hub set		 
 		if(hubGeneList == null || hubGeneList.size() == 0){
 			hubGeneMarkerSetBox.setComponentError(new UserError(
 					"You did not load any genes as hub markers."));
@@ -558,6 +566,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		}
 		tolerance.setComponentError(null); 
 		
+		if (dpiTargetSetBox.isEnabled() && dpiTargetSetBox.getValue() == null)
+		{
+			dpiTargetSetBox.setComponentError(new UserError(		 
+					"Please select DPI Target set."));
+			return false;
+		}
+		
+		dpiTargetSetBox.setComponentError(null);
+		
 		int b = 0;
 		try {
 			if (params.get(AracneParameters.BOOTS_NUM) != null)
@@ -595,6 +612,70 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		
 		return true;
 	}
+	
+	
+	private void generateHistoryString(Long resultSetId, List<String> hubGeneList) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("Aracne Parameters : \n");
+		
+		if (hubGeneList != null)
+		{
+			builder.append("Hub Marker(s) from Sets - " + hubGeneMarkerSetBox.getItemCaption(hubGeneMarkerSetBox.getValue())  + ": \n");
+		    for(String gene : hubGeneList)
+		       builder.append(gene + "\n");
+		}
+		
+		String mode = modeBox.getItemCaption(modeBox.getValue());
+		builder.append("Mode - " + mode  + "\n");
+		if (configBox.isEnabled())
+			builder.append("Configuration - " + configBox.getItemCaption(configBox.getValue())  + "\n");
+		builder.append("Algorithm - " + algoBox.getItemCaption(algoBox.getValue())  + "\n");
+		if (kernelWidth.isEnabled() && !widthValue.isEnabled())
+			builder.append("Kernel Width - " + kernelWidth.getItemCaption(kernelWidth.getValue()) + "\n");
+		else if (widthValue.isEnabled() && widthValue.isEnabled())
+			builder.append("Kernel Width - " + widthValue.getValue().toString() + "\n");
+		
+		builder.append("Threshold Type - " + thresholdType.getItemCaption(thresholdType.getValue())  + ": " + threshold.getValue().toString() +"\n");
+		
+		if (correction.isEnabled())
+			builder.append("Correction Type - " + correction.getItemCaption(correction.getValue()) + "\n");
+		
+		builder.append("DPI Tolerance - " + dpiTolerance.getItemCaption(dpiTolerance.getValue()) + "  ");
+		if (tolerance.isEnabled())
+			builder.append(": " + tolerance.getValue() + "\n");
+		else
+			builder.append("\n");
+		
+		builder.append("DPI Target List - " + dpiTargetList.getItemCaption(dpiTargetList.getValue()) +"\n" );
+		
+		if (dpiTargetSetBox.isEnabled() && (dpiTargetSetBox.getValue() != null))
+		{
+			builder.append(" : " + dpiTargetSetBox.getItemCaption(dpiTargetSetBox.getValue()) + "\n");
+			List<String> targetGeneList = null;
+			Long subSetId = Long.parseLong((String)dpiTargetSetBox.getValue().toString().trim());
+			targetGeneList = SubSetOperations.getMarkerData(subSetId);
+			for(String gene : targetGeneList)
+				   builder.append(gene + "\n");
+		}
+		
+	    if (bootStrapNumber.booleanValue() == true)
+	    {
+	    	builder.append("100 Bootstrapping is checked, Consensus Threshold - " + consensusThreshold.getValue() + "\n");
+	    }
+	    else
+	    	builder.append("100 Bootstrapping is not checked");
+	    
+	    builder.append("Merge multiple probesets - " +  mergeProbeSets.getItemCaption(mergeProbeSets.getValue()) + "\n");
+	
+		builder.append(markerArraySelector.generateHistoryString());
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSetId);
+		his.setData(builder.toString());
+		FacadeFactory.getFacade().store(his);
+	}
+	 
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
