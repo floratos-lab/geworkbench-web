@@ -87,7 +87,9 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		dataTable.setImmediate(true);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
 		dataTable.setContainerDataSource(getIndexedContainer());
-		
+		Object [] properties={"P-Value"};
+		boolean [] ordering={true,false};
+		dataTable.sort(properties, ordering);
 		final MenuBar toolBar = new AnovaTableMenuSelector(this, "AnovaResultsUI");
 		
 		addComponent(toolBar);
