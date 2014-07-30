@@ -89,7 +89,8 @@ public class AracneAnalysisWeb {
 				.get(AracneParameters.TOL_VALUE)));
 
 		if (!((String) params.get(AracneParameters.DPI_LIST))
-				.equalsIgnoreCase("Do Not Apply")) {
+				.equalsIgnoreCase("Do Not Apply") && params
+				.get(AracneParameters.DPI_SET) != null) {
 			Long subSetId = Long.parseLong((String) params
 					.get(AracneParameters.DPI_SET));
 			List<String> targetGeneList = SubSetOperations.getMarkerData(subSetId);
