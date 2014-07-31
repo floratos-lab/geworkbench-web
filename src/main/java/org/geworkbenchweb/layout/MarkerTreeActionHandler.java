@@ -59,6 +59,18 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 	@SuppressWarnings("deprecation")
 	private void addMarkerSetAction(final Tree sender)
 	{
+		final String mark  = 	sender.toString();
+		if (mark.equalsIgnoreCase("[]") || mark.equalsIgnoreCase("[markers]"))
+		{
+			MessageBox mb = new MessageBox(sender.getApplication().getMainWindow(), 		
+				"Warning", 
+				MessageBox.Icon.INFO, 
+				"There is no marker selected!",   
+				new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+			mb.show();
+			return;
+		} 
+		
 		final Window nameWindow = new Window();
 		nameWindow.setModal(true);
 		nameWindow.setClosable(true);
@@ -87,8 +99,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							log.warn("Can't create arrayset: current context is null");
 							return;
 						}
-						Context context = (Context)contextObj;
-						String mark 	= 	sender.toString();
+						Context context = (Context)contextObj;					
 						final String[] temp 	= 	(mark.substring(1, mark.length()-1)).split(",");
 						List<SubSet> markersets = SubSetOperations.getSubSetsForContext(context);
 						for (final SubSet markerset : markersets){
@@ -142,9 +153,11 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						}
 						ArrayList<String> markers = new ArrayList<String>();
 						for(int i=0; i<temp.length; i++) {
+							if (temp[i].equalsIgnoreCase("Markers"))
+								continue;;
 							String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
 							String[] dataA = data.split("\\s+\\(");
-							markers.add(dataA[0]);
+							markers.add(dataA[0]);							 
 						}
 						String subSetName = (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeMarkerSetInContext(markers, subSetName , dataSetId, context);
@@ -154,7 +167,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						markerSetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<markers.size(); j++) {
 							markerSetTree.addItem(markers.get(j)+subSetId);
-							markerSetTree.getContainerProperty(markers.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(markers.get(j));
+							markerSetTree.getContainerProperty(markers.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(markers.get(j));							 
 							markerSetTree.setParent(markers.get(j)+subSetId, subSetId);
 							markerSetTree.setChildrenAllowed(markers.get(j)+subSetId, false);
 						}
