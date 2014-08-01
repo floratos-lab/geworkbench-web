@@ -47,12 +47,12 @@ public class SetViewLayout extends CssLayout {
 
 		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
 		HierarchicalContainer markerData = createSetContainer(sets,
-				"MarkerSets", "Marker Sets");
+				"MarkerSets", "Marker Sets", dataSetId);
 		markerSetTree = createSetTree(markerData);
 
 		List<AbstractPojo> aSets = SubSetOperations.getArraySets(dataSetId);
 		HierarchicalContainer arrayData = createSetContainer(aSets,
-				"arraySets", "Array Sets/Phenotypes");
+				"arraySets", "Array Sets/Phenotypes", dataSetId);
 		arraySetTree = createSetTree(arrayData);
 		
 		markerSetTree.addListener(new SetTreeClickListener(arraySetTree));
@@ -206,12 +206,16 @@ public class SetViewLayout extends CssLayout {
 	
 	private static HierarchicalContainer createSetContainer(
 			final List<AbstractPojo> sets, final String topItem,
-			final String setName) {
+			final String setName, final Long dataSetId) {
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
 
 		Item mainItem = dataContainer.addItem(topItem);
 		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue(setName);
+ 
+		Map<String, String> map = null;		 
+		map = DataSetOperations.getAnnotationMap(dataSetId);
+		 
 
 		for (int i = 0; i < sets.size(); i++) {
 			List<String> markers = ((SubSet) sets.get(i)).getPositions();
@@ -223,9 +227,17 @@ public class SetViewLayout extends CssLayout {
 			dataContainer.setParent(subSetId, topItem);
 			dataContainer.setChildrenAllowed(subSetId, true);
 			for (int j = 0; j < markers.size(); j++) {
-				dataContainer.addItem(markers.get(j) + subSetId);
+				
+				dataContainer.addItem(markers.get(j) + subSetId);	
+				String markerWithGeneName = markers.get(j);
+				if(map!=null) {
+					String geneSymbol = map.get(markers.get(j));
+					if (geneSymbol != null) {
+						markerWithGeneName += " (" + geneSymbol + ")";
+					}
+				}
 				dataContainer.getContainerProperty(markers.get(j) + subSetId,
-						SET_DISPLAY_NAME).setValue(markers.get(j));
+						SET_DISPLAY_NAME).setValue(markerWithGeneName);
 				dataContainer.setParent(markers.get(j) + subSetId, subSetId);
 				dataContainer.setChildrenAllowed(markers.get(j) + subSetId,
 						false);

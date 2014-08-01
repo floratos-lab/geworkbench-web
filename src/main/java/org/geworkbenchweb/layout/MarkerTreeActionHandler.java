@@ -125,12 +125,14 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 										} else {
 											List<String> markers	 = 	markerset.getPositions();
 											ArrayList<String> newmarkers = 	new ArrayList<String>();
+											ArrayList<String> newmarkersWithGenename = new ArrayList<String>();
 											for(int i=0; i<temp.length; i++) {
 												String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
 												String[] dataA = data.split("\\s+\\(");
 												if (!markers.contains(dataA[0])) {
 													markers.add(dataA[0]);
 													newmarkers.add(dataA[0]);
+													newmarkersWithGenename.add(data);
 												}
 											}
 											if (newmarkers.size()>0) {
@@ -139,7 +141,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 												markerSetTree.getContainerProperty(markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(name1 +" [" + markers.size() + "]");
 												for(int j=0; j<newmarkers.size(); j++) {
 													markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
-													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(newmarkers.get(j));
+													markerSetTree.getContainerProperty(newmarkers.get(j)+markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(newmarkersWithGenename.get(j));
 													markerSetTree.setParent(newmarkers.get(j)+markerset.getId(), markerset.getId());
 													markerSetTree.setChildrenAllowed(newmarkers.get(j)+markerset.getId(), false);
 												}
@@ -152,12 +154,14 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 							}
 						}
 						ArrayList<String> markers = new ArrayList<String>();
+						ArrayList<String> markersWithGenename = new ArrayList<String>();
 						for(int i=0; i<temp.length; i++) {
 							if (temp[i].equalsIgnoreCase("Markers"))
 								continue;;
 							String data = (String) sender.getItem(Integer.parseInt(temp[i].trim())).getItemProperty("Labels").getValue();
 							String[] dataA = data.split("\\s+\\(");
-							markers.add(dataA[0]);							 
+							markers.add(dataA[0]);	
+							markersWithGenename.add(data);
 						}
 						String subSetName = (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeMarkerSetInContext(markers, subSetName , dataSetId, context);
@@ -167,7 +171,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						markerSetTree.setChildrenAllowed(subSetId, true);
 						for(int j=0; j<markers.size(); j++) {
 							markerSetTree.addItem(markers.get(j)+subSetId);
-							markerSetTree.getContainerProperty(markers.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(markers.get(j));							 
+							markerSetTree.getContainerProperty(markers.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(markersWithGenename.get(j));							 
 							markerSetTree.setParent(markers.get(j)+subSetId, subSetId);
 							markerSetTree.setChildrenAllowed(markers.get(j)+subSetId, false);
 						}
