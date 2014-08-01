@@ -36,10 +36,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 1L;
 
 	private Long dataSetId;
-	private Long userId  = null;
+	private Long userId = null;
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	private MarkerArraySelector markerArraySelector;	 
+	private MarkerArraySelector markerArraySelector;
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox modeBox = new ComboBox();
 	private ComboBox algoBox = new ComboBox();
@@ -69,18 +69,16 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		this.dataSetId = dataId;
 		User user = SessionHandler.get();
-		if(user!=null)
-			userId  = user.getId();
+		if (user != null)
+			userId = user.getId();
 
 		setSpacing(true);
 		setImmediate(true);
-		
+
 		final GridLayout gridLayout = new GridLayout(4, 10);
-		
-		gridLayout.setSpacing(true);		 
+
+		gridLayout.setSpacing(true);
 		gridLayout.setImmediate(true);
-		 
-		
 
 		/**
 		 * Params default values
@@ -102,15 +100,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
 		params.put(AracneParameters.MERGEPS, "No");
 
-		 
-		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "AracneUI");
-	 
+		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
+				"AracneUI");
+
 		hubGeneMarkerSetBox.setTextInputAllowed(false);
 		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets");
 		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
 		hubGeneMarkerSetBox.setImmediate(true);
-
 
 		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -135,12 +132,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				params.remove(AracneParameters.MODE);
 				params.put(AracneParameters.MODE, valueChangeEvent
 						.getProperty().getValue().toString());
-				if(params.get(AracneParameters.MODE).equals(AracneParameters.DISCOVERY))
+				if (params.get(AracneParameters.MODE).equals(
+						AracneParameters.DISCOVERY))
 					configBox.setEnabled(true);
-				else configBox.setEnabled(false);
+				else
+					configBox.setEnabled(false);
 			}
 		});
-		
+
 		configBox.setCaption("Select Configuration");
 		configBox.setNullSelectionAllowed(false);
 		configBox.setImmediate(true);
@@ -152,7 +151,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 				params.remove(AracneParameters.CONFIG);
 				Object o = valueChangeEvent.getProperty().getValue();
-				if(o != null) params.put(AracneParameters.CONFIG, o.toString());
+				if (o != null)
+					params.put(AracneParameters.CONFIG, o.toString());
 			}
 		});
 
@@ -312,7 +312,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiTargetSetBox.setImmediate(true);
 		dpiTargetSetBox.setEnabled(false);
 
-
 		dpiTargetSetBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -350,19 +349,18 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event) {
-				if(bootStrapNumber.booleanValue())
+				if (bootStrapNumber.booleanValue())
 					params.put(AracneParameters.BOOTS_NUM, defaultBootsNum);
 				else
 					params.put(AracneParameters.BOOTS_NUM, "1");
-				try{
-				if (Integer.valueOf((String) params
-						.get(AracneParameters.BOOTS_NUM)) > 1)
-					consensusThreshold.setEnabled(true);
-				else
-					consensusThreshold.setEnabled(false);
-				}catch(NumberFormatException e)
-				{
-					//do nothing, validate message will in validInputData()
+				try {
+					if (Integer.valueOf((String) params
+							.get(AracneParameters.BOOTS_NUM)) > 1)
+						consensusThreshold.setEnabled(true);
+					else
+						consensusThreshold.setEnabled(false);
+				} catch (NumberFormatException e) {
+					// do nothing, validate message will in validInputData()
 				}
 			}
 
@@ -398,7 +396,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
-		
+
 		submitButton = new Button("Submit", new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -408,16 +406,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 					List<String> hubGeneList = null;
 					Long subSetId;
-					
-					if (hubGeneMarkerSetBox.getValue() != null)
-					{
-						subSetId = Long.parseLong((String)hubGeneMarkerSetBox.getValue().toString().trim());
-					    hubGeneList = SubSetOperations.getMarkerData(subSetId);
+
+					if (hubGeneMarkerSetBox.getValue() != null) {
+						subSetId = Long.parseLong((String) hubGeneMarkerSetBox
+								.getValue().toString().trim());
+						hubGeneList = SubSetOperations.getMarkerData(subSetId);
 					}
 					if (validInputData(hubGeneList)) {
 
 						ResultSet resultSet = new ResultSet();
-						java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+						java.sql.Timestamp timestamp = new java.sql.Timestamp(
+								System.currentTimeMillis());
 						resultSet.setTimestamp(timestamp);
 						String dataSetName = "Aracne - Pending";
 						resultSet.setName(dataSetName);
@@ -425,15 +424,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						resultSet.setParent(dataSetId);
 						resultSet.setOwner(SessionHandler.get().getId());
 						FacadeFactory.getFacade().store(resultSet);
-						
+
 						generateHistoryString(resultSet.getId(), hubGeneList);
-						
+
 						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
 								.getApplication();
 						app.addNode(resultSet);
 
-						params.put(AracneParameters.MARKER_SET, markerArraySelector.getSelectedMarkerSet());
-						params.put(AracneParameters.ARRAY_SET,markerArraySelector.getSelectedArraySet());
+						params.put(AracneParameters.MARKER_SET,
+								markerArraySelector.getSelectedMarkerSet());
+						params.put(AracneParameters.ARRAY_SET,
+								markerArraySelector.getSelectedArraySet());
 						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 								resultSet, params, AracneUI.this);
 						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
@@ -445,7 +446,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		 
 		gridLayout.addComponent(hubGeneMarkerSetBox, 0, 0);
 		gridLayout.addComponent(modeBox, 1, 0);
 		gridLayout.addComponent(configBox, 2, 0);
@@ -463,14 +463,15 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		gridLayout.addComponent(consensusThreshold, 1, 5);
 		gridLayout.addComponent(mergeProbeSets, 0, 6);
 		gridLayout.addComponent(submitButton, 0, 7);
-		
-		addComponent(markerArraySelector);		
+
+		addComponent(markerArraySelector);
 		addComponent(gridLayout);
 
 	}
 
 	private boolean validInputData(List<String> hubGeneList) {
-		if(params.get(AracneParameters.MODE).equals(AracneParameters.PREPROCESSING)) {
+		if (params.get(AracneParameters.MODE).equals(
+				AracneParameters.PREPROCESSING)) {
 			return true;
 		}
 
@@ -480,22 +481,25 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					"You did not load any genes as hub markers."));
 			return false;
 		}
-		//check empty hub set		 
-		if(hubGeneList == null || hubGeneList.size() == 0){
+		// check empty hub set
+		if (hubGeneList == null || hubGeneList.size() == 0) {
 			hubGeneMarkerSetBox.setComponentError(new UserError(
 					"You did not load any genes as hub markers."));
 			return false;
 		}
-		 
+
 		hubGeneMarkerSetBox.setComponentError(null);
-		
+
 		String alg = algoBox.getValue().toString();
-		String config = configBox.getItemCaption(configBox.getValue());	 
-		if (configBox.isEnabled() && ((alg.equalsIgnoreCase(adaptivePartitioning) && config.contains("FB")) ||
-				(alg.equalsIgnoreCase(fixedBandwidth) &&  config.contains("AP"))))
-		{
-			configBox.setComponentError(new UserError(
-					"The selected configuration does not match the selected Algorithm."));
+		String config = configBox.getItemCaption(configBox.getValue());
+		if (configBox.isEnabled()
+				&& ((alg.equalsIgnoreCase(adaptivePartitioning) && config
+						.contains("FB")) || (alg
+						.equalsIgnoreCase(fixedBandwidth) && config
+						.contains("AP")))) {
+			configBox
+					.setComponentError(new UserError(
+							"The selected configuration does not match the selected Algorithm."));
 			return false;
 		}
 		configBox.setComponentError(null);
@@ -526,9 +530,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 
 		}
-        
+
 		threshold.setComponentError(null);
-		
+
 		floatValue = -1;
 		try {
 			if (widthValue.getValue() != null)
@@ -546,7 +550,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		}
 		widthValue.setComponentError(null);
-		
+
 		floatValue = -1;
 		try {
 			if (tolerance.getValue() != null)
@@ -564,17 +568,16 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 
 		}
-		tolerance.setComponentError(null); 
-		
-		if (dpiTargetSetBox.isEnabled() && dpiTargetSetBox.getValue() == null)
-		{
-			dpiTargetSetBox.setComponentError(new UserError(		 
+		tolerance.setComponentError(null);
+
+		if (dpiTargetSetBox.isEnabled() && dpiTargetSetBox.getValue() == null) {
+			dpiTargetSetBox.setComponentError(new UserError(
 					"Please select DPI Target set."));
 			return false;
 		}
-		
+
 		dpiTargetSetBox.setComponentError(null);
-		
+
 		int b = 0;
 		try {
 			if (params.get(AracneParameters.BOOTS_NUM) != null)
@@ -588,7 +591,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					"Must be an integer"));
 			return false;
 		}
-		
+
 		bootStrapNumber.setComponentError(null);
 
 		floatValue = -1;
@@ -597,7 +600,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				floatValue = Float.parseFloat(consensusThreshold.getValue()
 						.toString());
 		} catch (NumberFormatException e) {
-		}	
+		}
 
 		if (b > 1) {
 			if (floatValue <= 0 || floatValue > 1) {
@@ -607,75 +610,97 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 			}
 		}
-		consensusThreshold.setComponentError(null);		
+		consensusThreshold.setComponentError(null);
 		submitButton.setComponentError(null);
-		
+
 		return true;
 	}
-	
-	
-	private void generateHistoryString(Long resultSetId, List<String> hubGeneList) {
+
+	private void generateHistoryString(Long resultSetId,
+			List<String> hubGeneList) {
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append("Aracne Parameters : \n");
-		
-		if (hubGeneList != null)
-		{
-			builder.append("Hub Marker(s) from Sets - " + hubGeneMarkerSetBox.getItemCaption(hubGeneMarkerSetBox.getValue())  + ": \n");
-		    for(String gene : hubGeneList)
-		       builder.append(gene + "\n");
+
+		if (hubGeneList != null) {
+			builder.append("Hub Marker(s) from Sets - "
+					+ hubGeneMarkerSetBox.getItemCaption(hubGeneMarkerSetBox
+							.getValue()) + ": \n");
+			for (String gene : hubGeneList)
+				builder.append(gene + "\n");
 		}
-		
+
 		String mode = modeBox.getItemCaption(modeBox.getValue());
-		builder.append("Mode - " + mode  + "\n");
-		if (configBox.isEnabled())
-			builder.append("Configuration - " + configBox.getItemCaption(configBox.getValue())  + "\n");
-		builder.append("Algorithm - " + algoBox.getItemCaption(algoBox.getValue())  + "\n");
-		if (kernelWidth.isEnabled() && !widthValue.isEnabled())
-			builder.append("Kernel Width - " + kernelWidth.getItemCaption(kernelWidth.getValue()) + "\n");
-		else if (widthValue.isEnabled() && widthValue.isEnabled())
-			builder.append("Kernel Width - " + widthValue.getValue().toString() + "\n");
-		
-		builder.append("Threshold Type - " + thresholdType.getItemCaption(thresholdType.getValue())  + ": " + threshold.getValue().toString() +"\n");
-		
-		if (correction.isEnabled())
-			builder.append("Correction Type - " + correction.getItemCaption(correction.getValue()) + "\n");
-		
-		builder.append("DPI Tolerance - " + dpiTolerance.getItemCaption(dpiTolerance.getValue()) + "  ");
-		if (tolerance.isEnabled())
-			builder.append(": " + tolerance.getValue() + "\n");
-		else
-			builder.append("\n");
-		
-		builder.append("DPI Target List - " + dpiTargetList.getItemCaption(dpiTargetList.getValue()) +"\n" );
-		
-		if (dpiTargetSetBox.isEnabled() && (dpiTargetSetBox.getValue() != null))
-		{
-			builder.append(" : " + dpiTargetSetBox.getItemCaption(dpiTargetSetBox.getValue()) + "\n");
-			List<String> targetGeneList = null;
-			Long subSetId = Long.parseLong((String)dpiTargetSetBox.getValue().toString().trim());
-			targetGeneList = SubSetOperations.getMarkerData(subSetId);
-			for(String gene : targetGeneList)
-				   builder.append(gene + "\n");
-		}
-		
-	    if (bootStrapNumber.booleanValue() == true)
-	    {
-	    	builder.append("100 Bootstrapping is checked, Consensus Threshold - " + consensusThreshold.getValue() + "\n");
-	    }
-	    else
-	    	builder.append("100 Bootstrapping is not checked");
-	    
-	    builder.append("Merge multiple probesets - " +  mergeProbeSets.getItemCaption(mergeProbeSets.getValue()) + "\n");
-	
+		builder.append("Mode - " + mode + "\n");
+		if (!mode.equalsIgnoreCase(AracneParameters.PREPROCESSING)) {
+			if (configBox.isEnabled())
+				builder.append("Configuration - "
+						+ configBox.getItemCaption(configBox.getValue()) + "\n");
+			builder.append("Algorithm - "
+					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
+			if (kernelWidth.isEnabled() && !widthValue.isEnabled())
+				builder.append("Kernel Width - "
+						+ kernelWidth.getItemCaption(kernelWidth.getValue())
+						+ "\n");
+			else if (widthValue.isEnabled() && widthValue.isEnabled())
+				builder.append("Kernel Width - "
+						+ widthValue.getValue().toString() + "\n");
+
+			builder.append("Threshold Type - "
+					+ thresholdType.getItemCaption(thresholdType.getValue())
+					+ ": " + threshold.getValue().toString() + "\n");
+
+			if (correction.isEnabled())
+				builder.append("Correction Type - "
+						+ correction.getItemCaption(correction.getValue())
+						+ "\n");
+
+			builder.append("DPI Tolerance - "
+					+ dpiTolerance.getItemCaption(dpiTolerance.getValue())
+					+ "  ");
+			if (tolerance.isEnabled())
+				builder.append(": " + tolerance.getValue() + "\n");
+			else
+				builder.append("\n");
+
+			builder.append("DPI Target List - "
+					+ dpiTargetList.getItemCaption(dpiTargetList.getValue())
+					+ "\n");
+
+			if (dpiTargetSetBox.isEnabled()
+					&& (dpiTargetSetBox.getValue() != null)) {
+				builder.append(" : "
+						+ dpiTargetSetBox.getItemCaption(dpiTargetSetBox
+								.getValue()) + "\n");
+				List<String> targetGeneList = null;
+				Long subSetId = Long.parseLong((String) dpiTargetSetBox
+						.getValue().toString().trim());
+				targetGeneList = SubSetOperations.getMarkerData(subSetId);
+				for (String gene : targetGeneList)
+					builder.append(gene + "\n");
+			}
+
+			if (bootStrapNumber.booleanValue() == true) {
+				builder.append("100 Bootstrapping is checked, Consensus Threshold - "
+						+ consensusThreshold.getValue() + "\n");
+			} else
+				builder.append("100 Bootstrapping is not checked");
+
+			builder.append("Merge multiple probesets - "
+					+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
+					+ "\n");
+
+		} else
+			builder.append("Algorithm - "
+					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
+
 		builder.append(markerArraySelector.generateHistoryString());
-		
+
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);
 		his.setData(builder.toString());
 		FacadeFactory.getFacade().store(his);
 	}
-	 
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
@@ -696,7 +721,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getId(),
 					((SubSet) markerSubSets.get(m)).getName());
 		}
-		
+
 		dpiTargetSetBox.removeAllItems();
 		for (int m = 0; m < (markerSubSets).size(); m++) {
 			dpiTargetSetBox.addItem(((SubSet) markerSubSets.get(m)).getId());
@@ -713,20 +738,20 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		parameter.put("type", ConfigResult.class.getName());
 		List<ResultSet> list = FacadeFactory.getFacade().list(
 				"SELECT r FROM ResultSet AS r WHERE "
-				+ "r.parent=:dataSetId and "
-				+ "r.dataId is not null and "
-				+ "r.type=:type",
+						+ "r.parent=:dataSetId and "
+						+ "r.dataId is not null and " + "r.type=:type",
 				parameter);
-		for(ResultSet r : list){
+		for (ResultSet r : list) {
 			configBox.addItem(r.getDataId());
 			configBox.setItemCaption(r.getDataId(), r.getName());
 		}
-		 
+
 	}
 
 	@Override
 	public Class<?> getResultType() {
-		if(params.get(AracneParameters.MODE).equals(AracneParameters.PREPROCESSING))
+		if (params.get(AracneParameters.MODE).equals(
+				AracneParameters.PREPROCESSING))
 			return ConfigResult.class;
 		return Network.class;
 	}
@@ -738,12 +763,13 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
 		AbstractPojo output = analyze.execute();
 		FacadeFactory.getFacade().store(output);
-		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class, resultId);
+		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
+				resultId);
 		result.setDataId(output.getId());
 		FacadeFactory.getFacade().store(result);
 
 		String resultName = analyze.serviceClient.resultName;
-		if(resultName != null && resultName.trim().length() > 0)
+		if (resultName != null && resultName.trim().length() > 0)
 			return "Aracne - " + resultName;
 		return "Aracne";
 	}
