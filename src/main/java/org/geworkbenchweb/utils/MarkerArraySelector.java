@@ -81,8 +81,8 @@ public class MarkerArraySelector extends GridLayout{
 					Context context = (Context)val;							 
 					List<SubSet> markerSubSets = SubSetOperations.getSubSetsForContext(context);
 					markerSetSelect.removeAllItems();
-					markerSetSelect.addItem("");
-					markerSetSelect.setItemCaption("", "All Markers");
+					markerSetSelect.addItem("All Markers");
+					markerSetSelect.setItemCaption("All Markers", "All Markers");
 					for (int m = 0; m < (markerSubSets).size(); m++) {					 
 						markerSetSelect.addItem(((SubSet) markerSubSets.get(m)).getId());
 						markerSetSelect.setItemCaption(
@@ -108,8 +108,8 @@ public class MarkerArraySelector extends GridLayout{
 					Context context = (Context)val;							 
 					List<SubSet> arraySubSets = SubSetOperations.getSubSetsForContext(context);
 					arraySetSelect.removeAllItems();
-					arraySetSelect.addItem("");
-					arraySetSelect.setItemCaption("", "All Arrays");
+					arraySetSelect.addItem("All Arrays");
+					arraySetSelect.setItemCaption("All Arrays", "All Arrays");
 					for (int m = 0; m < (arraySubSets).size(); m++) {					 
 						arraySetSelect.addItem(((SubSet) arraySubSets.get(m)).getId());
 						arraySetSelect.setItemCaption(
@@ -285,9 +285,7 @@ public class MarkerArraySelector extends GridLayout{
 		StringBuilder markerBuilder = new StringBuilder();
 		if(m==null) {
 			String[] markers = DataSetOperations.getStringLabels("markerLabels", masetId);
-			if(markers != null){
-				for(String markerName : markers)
-					markerBuilder.append("\t").append(markerName).append("\n");
+			if(markers != null){				 
 				numMarker = markers.length;
 			}
 		} else { 
@@ -299,15 +297,17 @@ public class MarkerArraySelector extends GridLayout{
 			}
 		}
 		builder.append("Markers used (" + numMarker + ") - \n" );
-		builder.append(markerBuilder.toString());
+		
+		if (m==null)
+			builder.append("All Markers \n");
+		else
+		    builder.append(markerBuilder.toString());
 		
 		m = getSelectedArraySet();
 		StringBuilder arrayBuilder = new StringBuilder();
 		if(m==null) {
 			String[] arrays = DataSetOperations.getStringLabels("arrayLabels", masetId);
-			if(arrays != null){
-				for(String arrayName : arrays)
-					arrayBuilder.append("\t").append(arrayName).append("\n");
+			if(arrays != null){				 
 				numArray = arrays.length;
 			}
 		} else {
@@ -319,8 +319,14 @@ public class MarkerArraySelector extends GridLayout{
 			}
 		}
 		builder.append("Phenotypes used (" + numArray + ") - \n" );
-		builder.append(arrayBuilder.toString());
+		if (m==null)
+			builder.append("All Arrays\n");
+		else			
+		    builder.append(arrayBuilder.toString());
 		
 		return builder.toString();
     }
+    
+    
+    
 }
