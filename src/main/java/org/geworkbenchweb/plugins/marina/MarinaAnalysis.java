@@ -26,6 +26,10 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class MarinaAnalysis {
 
 	private Log log = LogFactory.getLog(MarinaAnalysis.class);
+	
+	private static final String SGE_CLUSTER_NAME = "hpc";
+	private static final String SGE_ROOT = "/opt/gridengine/"+SGE_CLUSTER_NAME;
+	
 	private final Long dataSetId;
 	private MarinaParamBean bean = null;
 	private static final String delimiter = "\t";
@@ -205,14 +209,14 @@ public class MarinaAnalysis {
 	
 	private int submitJob(java.lang.String jobfile)
 			throws RemoteException {
-		String[] command = {"/opt/gridengine/hpc2/bin/lx-amd64/qsub", jobfile};
+		String[] command = {SGE_ROOT+"/bin/lx-amd64/qsub", jobfile};
 		System.out.println(command[1]);
 		try {
 			ProcessBuilder pb = new ProcessBuilder(command);
 			Map<String, String> env = pb.environment();
-			env.put("SGE_ROOT", "/opt/gridengine/hpc2");
-			env.put("SGE_CLUSTER_NAME", "hpc2");
-			env.put("PATH", "/opt/gridengine/hpc2/bin/lx-amd64:$PATH");
+			env.put("SGE_ROOT", SGE_ROOT);
+			env.put("SGE_CLUSTER_NAME", SGE_CLUSTER_NAME);
+			env.put("PATH", SGE_ROOT+"/bin/lx-amd64:$PATH");
 			Process p = pb.start();
 			StreamGobbler out = new StreamGobbler(p.getInputStream(), "INPUT");
 			StreamGobbler err = new StreamGobbler(p.getErrorStream(), "ERROR");
@@ -226,15 +230,15 @@ public class MarinaAnalysis {
 	}
 	
 	private boolean isJobDone(String runid) throws RemoteException {
-		String cmd = "/opt/gridengine/hpc2/bin/lx-amd64/qstat";
+		String cmd = SGE_ROOT+"/bin/lx-amd64/qstat";
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
 		try{
 			ProcessBuilder pb = new ProcessBuilder(cmd);
 			Map<String, String> env = pb.environment();
-			env.put("SGE_ROOT", "/opt/gridengine/hpc2");
-			env.put("SGE_CLUSTER_NAME", "hpc2");
-			env.put("PATH", "/opt/gridengine/hpc2/bin/lx-amd64:$PATH");
+			env.put("SGE_ROOT", SGE_ROOT);
+			env.put("SGE_CLUSTER_NAME", SGE_CLUSTER_NAME);
+			env.put("PATH", SGE_ROOT+"/bin/lx-amd64:$PATH");
 			Process p = pb.start();
 			brIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			brErr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
