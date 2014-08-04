@@ -15,10 +15,12 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.CNKBResultSet;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.DataSetOperations; 
 import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.invient.vaadin.charts.InvientCharts;
@@ -363,20 +365,20 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		private static final long serialVersionUID = 831124091338570481L;
 
 		final private Long parentId;		
-		final private CNKBResultSet resultSet;		 
+		final private CNKBResultSet cnkbResultSet;		 
 	 
 		public CreateNetworkCommand(final Long parentId,
 				final CNKBResultSet resultSet) {
 
 			this.parentId = parentId;
-			this.resultSet = resultSet;            
+			this.cnkbResultSet = resultSet;            
 		}
 
 		private int getInteractionTotalNum(short confidentType) {
 
 			int interactionNum = 0;
-			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-			List<String> selectedTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
+			Vector<CellularNetWorkElementInformation> hits = cnkbResultSet.getCellularNetWorkElementInformations();
+			List<String> selectedTypes = cnkbResultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
 			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
 				ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
@@ -393,8 +395,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		@Override
 		public void menuSelected(MenuItem selectedItem) {
 
-			Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-			if (hits == null || getInteractionTotalNum(resultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
+			Vector<CellularNetWorkElementInformation> hits = cnkbResultSet.getCellularNetWorkElementInformations();
+			if (hits == null || getInteractionTotalNum(cnkbResultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
 
 				MessageBox mb = new MessageBox(getWindow(), "Warning",
 						MessageBox.Icon.INFO,
@@ -404,7 +406,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				return;
 			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
-			params.put(CNKBParameters.CNKB_RESULTSET, resultSet);
+			params.put(CNKBParameters.CNKB_RESULTSET, cnkbResultSet);
 			 
 			ResultSet resultSet = new ResultSet();
 			java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
@@ -415,6 +417,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			resultSet.setParent(parentId);
 			resultSet.setOwner(SessionHandler.get().getId());
 			FacadeFactory.getFacade().store(resultSet);
+			
+			generateHistoryString(datasetId, hits.get(0).getThreshold(), resultSet);
 
 			GeworkbenchRoot app = (GeworkbenchRoot) CNKBResultsUI.this
 					.getApplication();
@@ -563,6 +567,29 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 	@Override
 	public Long getDatasetId() {
 		return datasetId;
+	}
+	
+	private void generateHistoryString(long cnkbResultSetId, double threshold, ResultSet cytoscapeResultSet) {
+		
+		Map<String, Object> eParams = new HashMap<String, Object>();
+		eParams.put("parent", cnkbResultSetId); 
+		List<AbstractPojo> histories =  FacadeFactory.getFacade().list("Select h from DataHistory as h where h.parent =:parent", eParams);
+		DataHistory dH = (DataHistory) histories.get(0);			 
+		
+		String[] temp = dH.getData().split("Markers used");	
+		
+		StringBuilder histBuilder = new StringBuilder();		
+		
+		histBuilder.append(temp[0]);
+		histBuilder.append("Threshold - " +  threshold + "\n");
+		histBuilder.append("Markers used" + temp[1]);
+		
+		 
+
+		DataHistory his = new DataHistory();
+		his.setParent(cytoscapeResultSet.getId());
+		his.setData(histBuilder.toString());
+		FacadeFactory.getFacade().store(his);
 	}
 
 }

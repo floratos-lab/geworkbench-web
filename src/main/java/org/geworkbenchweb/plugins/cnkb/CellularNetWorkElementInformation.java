@@ -126,6 +126,11 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 			 return "---";		 
 		return checkMarkerFunctions();
 	}
+	
+	double getThreshold()
+	{
+		return this.threshold;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
