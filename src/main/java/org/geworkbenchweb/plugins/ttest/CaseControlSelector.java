@@ -186,5 +186,42 @@ public class CaseControlSelector extends GridLayout{
 					dataSetId, userId);
     }
     
+    
+    public String generateHistoryString(){
+    	int numArray = 0;	
+    	StringBuilder builder = new StringBuilder();
+		StringBuilder arrayBuilder = new StringBuilder();
+		String[] m = getSelectedCaseSet();
+		if(m != null)  
+		{
+			for(String setName : m) {
+				List<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
+				for(String arrayName : arrays)
+					arrayBuilder.append("\t").append(arrayName).append("\n");
+				numArray += arrays.size();
+			}
+		}
+		builder.append("Select Case Sets: (" + numArray + ") - \n" );		 	
+		builder.append(arrayBuilder.toString());
+		
+		arrayBuilder = new StringBuilder();
+		m = getSelectedControlSet();
+		numArray = 0;
+		if(m != null)  
+		{
+			for(String setName : m) {
+				List<String> arrays = SubSetOperations.getArrayData(Long.parseLong(setName.trim()));
+				for(String arrayName : arrays)
+					arrayBuilder.append("\t").append(arrayName).append("\n");
+				numArray += arrays.size();
+			}
+		}
+		
+		builder.append("Select Control Sets: (" + numArray + ") - \n" );		 	
+		builder.append(arrayBuilder.toString());		
+		
+		return builder.toString();
+    }
+    
      
 }

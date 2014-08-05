@@ -10,6 +10,7 @@ import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -139,6 +140,8 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				resultSet.setParent(dataSetId);			 
 				resultSet.setOwner(SessionHandler.get().getId());
 				FacadeFactory.getFacade().store(resultSet);
+				
+				generateHistoryString(resultSet.getId());
 
 				GeworkbenchRoot app = (GeworkbenchRoot) TTestUI.this
 						.getApplication();
@@ -402,5 +405,43 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		 
 		return "TTest";
 	}	
+	
+	private void generateHistoryString(Long resultSetId) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("=======T-Test Parameters ======= \n\n");
+		builder.append("P-Value Parameters - \n");
+		builder.append("Correction Method: " + pValue.getItemCaption(pValue.getValue())+ "\n");
+		builder.append("Overall Alpha: " + criticalValue.getValue() + "\n");
+		if ( perOp.isEnabled() )
+		{
+		   builder.append(perOp.getItemCaption(perOp.getValue()) + " is selected \n");
+		   if (perOp.getItemCaption(perOp.getValue()).equalsIgnoreCase("Randomly group experiments"))
+			   builder.append("#times: " + groupTimes.getValue() + "\n");
+		}
+		    
+		builder.append("Data is log2-transformed: " + logNorm.getItemCaption(logNorm.getValue()) + "\n\n");
+		
+		builder.append("Alpha Corrections Parameters - \n");
+        if (stepMethod.isEnabled() && stepMethod.getValue() != null)
+        {
+        	 builder.append(stepMethod.getItemCaption(stepMethod.getValue()) + " is selected \n\n");
+        }
+        else
+        {
+        	builder.append(correctionMethod.getItemCaption(correctionMethod.getValue()) + " is selected \n\n");
+        }
+		
+        builder.append("Degree of Freedom - \n");
+        builder.append("Group Variances: " +  groupVariances.getItemCaption(groupVariances.getValue())+ "\n\n");
+        		
+		builder.append(caseControlSelector.generateHistoryString());		    
+		
+		DataHistory his = new DataHistory();
+		his.setParent(resultSetId);
+		his.setData(builder.toString());
+		FacadeFactory.getFacade().store(his);
+	}
+	
 	
 }
