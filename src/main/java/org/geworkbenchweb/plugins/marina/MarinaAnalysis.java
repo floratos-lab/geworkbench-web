@@ -53,102 +53,121 @@ public class MarinaAnalysis {
 		this.bean = (MarinaParamBean)params.get("bean");
 	}
 	
-	public MraResult execute() throws RemoteException{
-		String runid = "mra21099";
-		String mradir = MRAROOT;
-		String[][] mraResult;
-		String s = bean.getRetrievePriorResultWithId().toLowerCase();
-		if (s!=null && s.matches("^mra\\d+$")){
-			runid = s;
-			String resultfile = MRAROOT+runid+"/"+finalfile;
-			mradir = MRAROOT + runid + "/";
-			if (!new File(resultfile).exists()) {
-			    String err = null;
-			    if ((err = runError(mradir)) != null)
-		    		throw new RemoteException("MRA run for "+runid+" got error: \n"+err);
-			    else
-			    	throw new RemoteException("MRA result for "+runid+" doesn't exist on server.");
-			}
-			mraResult = convertResult(resultfile);
-		}else{			
-			String network = bean.getNetworkString();
-			if (network == null)
-			    throw new RemoteException("Please reload a network file in 5-column format, or use a valid AdjacencyMatrix that matches this dataset.");
+	private static MraResult retrieveExistingResult(String runId)
+			throws RemoteException {
+		String resultfile = MRAROOT + runId + "/" + finalfile;
+		String mradir = MRAROOT + runId + "/";
+		if (!new File(resultfile).exists()) {
+			String err = null;
+			if ((err = runError(mradir)) != null)
+				throw new RemoteException("MRA run for " + runId
+						+ " got error: \n" + err);
+			else
+				throw new RemoteException("MRA result for " + runId
+						+ " doesn't exist on server.");
+		}
+		String[][] resultArray = convertResult(resultfile);
+		return new MraResult(runId, resultArray);
+	}
+	
+	public MraResult execute() throws Exception{
+		String existingRunId = bean.getRetrievePriorResultWithId()
+				.toLowerCase();
+		if (existingRunId != null && existingRunId.matches("^mra\\d+$")) {
+			MraResult result = retrieveExistingResult(existingRunId);
+			return result;
+		}
+		
+		/* following is the normal case (submission of a new job) instead of retrieving existing result*/
+		String network = bean.getNetworkString();
+		if (network == null)
+			throw new RemoteException(
+					"Please reload a network file in 5-column format, or use a valid AdjacencyMatrix that matches this dataset.");
 
-			IDBean ids = new IDBean(runid, mradir);
-			//one sample->split into two paired samples; all in class1->paired; two classes->unpaired 
-			boolean paired = false;
-			boolean unique_probeids = true;
-			if (!init(ids))
-			    throw new RemoteException("Not able to create MRA run directory on server");
-			runid = ids.getRunid();
-			mradir = ids.getMradir();
+		boolean paired = false;
+		boolean unique_probeids = true;
 
-			String networkFname = bean.getNetwork();
-			if (networkFname.length() == 0) 
-				throw new RemoteException("Network not loaded");
-			createNetworkFile(networkFname, network, mradir);
-
-			if (bean.getClass1() == null) return null;
-
-			String[] class1 = bean.getClass1().split(", *");
-			String[] class2 = bean.getClass2().split(", *");
-			if (bean.getClass2().equals("")
-			    && class1.length == 1 && !class1[0].equals("")){
-			    String[] ixclass1 = new String[2];
-			    ixclass1[0] = class1[0]+"-sr2";
-			    ixclass1[1] = class1[0]+"+sr2";
-			    writeToFile(class1Fname, ixclass1, mradir);
-			} else 
-			    writeToFile(class1Fname, class1, mradir);
-
-			if (bean.getClass2().equals(""))
-			    paired = true;
-			writeToFile(class2Fname, class2, mradir);
-
-			DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-			Long id = dataset.getDataId();
-			MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-
-			String expFname = dataset.getName();
-			if (expFname.length() == 0) expFname = "maset.exp";
-			else if (!expFname.endsWith(".exp")) expFname = expFname+".exp";
-			unique_probeids = exportExp(expFname, mradir, microarray);
-
-			StringBuilder matlabjob_template = new StringBuilder();
-			String marina_script = prepareMarina(matlabjob_template, paired, unique_probeids, expFname, networkFname, runid, mradir);
-			writeToFile(marinaScriptName, marina_script, mradir);
-			writeToFile(submitScriptName, matlabjob_template.toString(), mradir);
-
-			int ret = submitJob(mradir+submitScriptName);
-			log.info("SubmitJob returns: "+ret);
-
-			try{
-		    	Thread.sleep(POLL_INTERVAL*3); //wait for a minute before polling results
-		    }catch(InterruptedException e){
-		    }
-
-			File resultfile = new File(mradir+finalfile);
-			while(!isJobDone(runid)){
-			    try{
-			    	Thread.sleep(POLL_INTERVAL);
-			    }catch(InterruptedException e){
-			    }
-			}
-			if (!resultfile.exists()){
-			    String err = null;
-			    if ((err = runError(mradir)) != null)
-			    	throw new RemoteException("MRA run for "+runid+" got error:\n"+err);
-			    else
-			    	throw new RemoteException("MRA run for "+runid+" was killed unexpectedly");
-			}
-			mraResult = convertResult(resultfile.getPath());
+		String runid = createRunID();
+		String mradir = MRAROOT + runid + "/";
+		if (!new File(mradir).mkdir()) {
+			throw new Exception(
+					"Failed to create individual MARINA run directory");
 		}
 
-		return new MraResult(runid, mraResult);
+		String networkFname = bean.getNetwork();
+		if (networkFname.length() == 0)
+			throw new RemoteException("Network not loaded");
+		createNetworkFile(networkFname, network, mradir);
+
+		if (bean.getClass1() == null)
+			return null;
+
+		// one sample->split into two paired samples; all in class1->paired; two
+		// classes->unpaired
+		String[] class1 = bean.getClass1().split(", *");
+		String[] class2 = bean.getClass2().split(", *");
+		if (bean.getClass2().equals("") && class1.length == 1
+				&& !class1[0].equals("")) {
+			String[] ixclass1 = new String[2];
+			ixclass1[0] = class1[0] + "-sr2";
+			ixclass1[1] = class1[0] + "+sr2";
+			writeToFile(class1Fname, ixclass1, mradir);
+		} else
+			writeToFile(class1Fname, class1, mradir);
+
+		if (bean.getClass2().equals(""))
+			paired = true;
+		writeToFile(class2Fname, class2, mradir);
+
+		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
+				dataSetId);
+		Long dataId = dataset.getDataId();
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
+				MicroarrayDataset.class, dataId);
+
+		String expFname = dataset.getName();
+		if (expFname.length() == 0)
+			expFname = "maset.exp";
+		else if (!expFname.endsWith(".exp"))
+			expFname = expFname + ".exp";
+		unique_probeids = exportExp(expFname, mradir, microarray);
+
+		StringBuilder matlabjob_template = new StringBuilder();
+		String marina_script = prepareMarina(matlabjob_template, paired,
+				unique_probeids, expFname, networkFname, runid, mradir);
+		writeToFile(marinaScriptName, marina_script, mradir);
+		writeToFile(submitScriptName, matlabjob_template.toString(), mradir);
+
+		int ret = submitJob(mradir + submitScriptName);
+		log.info("SubmitJob returns: " + ret);
+
+		try {
+			Thread.sleep(POLL_INTERVAL * 3); // wait for a minute before polling results
+		} catch (InterruptedException e) {
+		}
+
+		File resultfile = new File(mradir + finalfile);
+		while (!isJobDone(runid)) {
+			try {
+				Thread.sleep(POLL_INTERVAL);
+			} catch (InterruptedException e) {
+			}
+		}
+		if (!resultfile.exists()) {
+			String err = null;
+			if ((err = runError(mradir)) != null)
+				throw new RemoteException("MRA run for " + runid
+						+ " got error:\n" + err);
+			else
+				throw new RemoteException("MRA run for " + runid
+						+ " was killed unexpectedly");
+		}
+		String[][] resultArray = convertResult(resultfile.getPath());
+
+		return new MraResult(runid, resultArray);
 	}
 
-	private String[][] convertResult(String fname){
+	private static String[][] convertResult(String fname){
 		ArrayList<String[]> data = new ArrayList<String[]>();
 		BufferedReader br = null;
 		try{
@@ -173,7 +192,7 @@ public class MarinaAnalysis {
 		return rdata;
 	}
 
-	private String runError(String mradir){
+	private static String runError(String mradir){
 		StringBuilder str = new StringBuilder();
 		BufferedReader br = null;
 		boolean error = false;
@@ -262,28 +281,27 @@ public class MarinaAnalysis {
 		return true;
 	}
 
-	private boolean init(IDBean ids){
+	private static String createRunID() throws Exception {
 		File root = new File(MRAROOT);
-		if (!root.exists() && !root.mkdir()) return false;
+		if (!root.exists() && !root.mkdir())
+			throw new Exception(
+					"Cannot access or create MARINA run top directory");
 
-		File randdir = null;;
+		String runId = null;
+		File dir = null;
+
 		int i = 0;
-		String runid = null;
-		String mradir = MRAROOT;
-		try{
-		    do{
-		    	runid = "mra" + random.nextInt(Short.MAX_VALUE);
-		    	mradir = MRAROOT + runid + "/";
-		    	randdir = new File(mradir);
-		    }while(randdir.exists() && ++i < Short.MAX_VALUE);
-		}catch(Exception e){
-		    e.printStackTrace();
-		    return false;
+		do {
+			runId = "mra" + random.nextInt(Short.MAX_VALUE);
+			dir = new File(MRAROOT + runId + "/");
+			i++;
+		} while (dir.exists() && i < Short.MAX_VALUE);
+
+		if (i >= Short.MAX_VALUE) {
+			throw new Exception("Tried too many times to create MARINA run ID");
 		}
-		ids.setRunid(runid);
-		ids.setMradir(mradir);
-		if (i < Short.MAX_VALUE) return randdir.mkdir();
-		else return false;
+
+		return runId;
 	}
 
 	private boolean exportExp(String expFname, String mradir, MicroarrayDataset microarray){
@@ -432,24 +450,4 @@ public class MarinaAnalysis {
 	    return marina_config.toString();
 	}
 
-	public class IDBean{
-		private String runid;
-		private String mradir;
-		public IDBean(String r, String m){
-			runid=r;
-			mradir=m;
-		}
-		public String getRunid(){
-			return runid;
-		}
-		public void setRunid(String rid){
-			runid = rid;
-		}
-		public String getMradir(){
-			return mradir;
-		}
-		public void setMradir(String mdir){
-			mradir = mdir;
-		}
-	}
 }
