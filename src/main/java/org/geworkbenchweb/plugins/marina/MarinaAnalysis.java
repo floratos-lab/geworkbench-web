@@ -97,7 +97,7 @@ public class MarinaAnalysis {
 		String networkFname = bean.getNetwork();
 		if (networkFname.length() == 0)
 			throw new RemoteException("Network not loaded");
-		createNetworkFile(networkFname, network, mradir);
+		writeToFile(mradir+networkFname, network);
 
 		if (bean.getClass1() == null)
 			return null;
@@ -111,13 +111,13 @@ public class MarinaAnalysis {
 			String[] ixclass1 = new String[2];
 			ixclass1[0] = class1[0] + "-sr2";
 			ixclass1[1] = class1[0] + "+sr2";
-			writeToFile(class1Fname, ixclass1, mradir);
+			writeToFile(mradir+class1Fname, ixclass1);
 		} else
-			writeToFile(class1Fname, class1, mradir);
+			writeToFile(mradir+class1Fname, class1);
 
 		if (bean.getClass2().equals(""))
 			paired = true;
-		writeToFile(class2Fname, class2, mradir);
+		writeToFile(mradir+class2Fname, class2);
 
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -132,11 +132,11 @@ public class MarinaAnalysis {
 			expFname = expFname + ".exp";
 		unique_probeids = exportExp(expFname, mradir, microarray);
 
-		StringBuilder matlabjob_template = new StringBuilder();
-		String marina_script = prepareMarina(matlabjob_template, paired,
-				unique_probeids, expFname, networkFname, runid, mradir);
-		writeToFile(marinaScriptName, marina_script, mradir);
-		writeToFile(submitScriptName, matlabjob_template.toString(), mradir);
+		String matlabConfig = createMatlabConfig(paired, unique_probeids,
+				expFname, networkFname);
+		writeToFile(mradir+marinaScriptName, matlabConfig);
+		String submissionScript = createSubmissionScript(runid, mradir);
+		writeToFile(mradir+submitScriptName, submissionScript);
 
 		int ret = submitJob(mradir + submitScriptName);
 		log.info("SubmitJob returns: " + ret);
@@ -226,7 +226,7 @@ public class MarinaAnalysis {
 		return null;
 	}
 	
-	private int submitJob(java.lang.String jobfile)
+	private static int submitJob(java.lang.String jobfile)
 			throws RemoteException {
 		String[] command = {SGE_ROOT+"/bin/lx-amd64/qsub", jobfile};
 		System.out.println(command[1]);
@@ -248,7 +248,7 @@ public class MarinaAnalysis {
 		}
 	}
 	
-	private boolean isJobDone(String runid) throws RemoteException {
+	private static boolean isJobDone(String runid) throws RemoteException {
 		String cmd = SGE_ROOT+"/bin/lx-amd64/qstat";
 		BufferedReader brIn = null;
 		BufferedReader brErr = null;
@@ -372,56 +372,49 @@ public class MarinaAnalysis {
 		return unique_probeids;
 	}
 
-	private void writeToFile(String fname, String string, String mradir){
-	    String[] strings = new String[1];
-	    strings[0] = string;
-	    writeToFile(fname, strings, mradir);
-	}
-
-	private void writeToFile(String fname, String[] strings, String mradir){
-	    BufferedWriter bw = null;
-	    try{
-			bw = new BufferedWriter(new FileWriter(mradir+fname));
-			for (String string : strings){
-			    bw.write(string);
-			    if (strings.length>1)
-			    	bw.write("\n");
-			    bw.flush();
+	private static void writeToFile(String filename, String[] strings) {
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new File(filename));
+			for (String line : strings) {
+				pw.println(line);
 			}
-	    }catch(IOException e){
-	    	e.printStackTrace();
-	    }finally{
-			try{
-			    if (bw!=null) bw.close();
-			}catch(IOException e){
-			    e.printStackTrace();
-			}
-	    }
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
 	}
 
-	private void createNetworkFile(String fname, String networkString, String mradir){
-	    PrintWriter pw = null;
-	    try{
-			pw = new PrintWriter(new File(mradir+fname));
-			pw.print(networkString);
-	    }catch(IOException e){
-	    	e.printStackTrace();
-	    }finally{
-			if (pw != null)	  pw.close();
-	    }
+	private static void writeToFile(String filename, String content) {
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new File(filename));
+			pw.print(content);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (pw != null)
+				pw.close();
+		}
 	}
 
-	private String prepareMarina(StringBuilder matlabjob_template, boolean paired, boolean unique_probeids, String expFname, String networkFname, String runid, String mradir){
-	    matlabjob_template.append("#!/bin/bash\n#$ -l mem="+maxmem+",time="+timeout+" -cwd -j y -o ").append(mradir).append(logfile).append(" -N ").append(runid)
+	private static String createSubmissionScript(String runid, String mradir) {
+		StringBuilder script = new StringBuilder();
+		script.append("#!/bin/bash\n#$ -l mem="+maxmem+",time="+timeout+" -cwd -j y -o ").append(mradir).append(logfile).append(" -N ").append(runid)
 	    .append("\nexport MATLAB_PREFDIR=").append(MRAHOME).append(".matlab/R2012a")
 	    .append("\n\nexport HOME=").append(MRAHOME).append("\nexport level=\"$SGE_TASK_ID\"\nexport MATLABROOT=/nfs/apps/matlab/2012a\ncd ").append(mradir)
 	    .append("\nmkdir mcr\nexport LD_LIBRARY_PATH=$MATLABROOT/sys/os/glnxa64/:$MATLABROOT/bin/glnxa64/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/native_threads/:")
 	    .append("$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/server/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/:$MATLABROOT/runtime/glnxa64/:$LD_LIBRARY_PATH")
 	    .append("\nexport MCR_CACHE_ROOT=$PWD/mcr/$level\n\n/nfs/apps/matlab/2012a/bin/matlab -nodisplay -nodesktop -nosplash < ").append(marinaScriptName)
 	    .append("\nrm -rf grid_submit.sh gsea *.mat network_shadow_mras.txt original_mra*.txt shadow_recovery_gsea2.txt synerg*_pair*txt shadow_runs tmp mcr\n");
+	    return script.toString();
+	}
 
-	    StringBuilder marina_config = new StringBuilder("clc\nclear\n");
-	    marina_config.append("src_dir = '").append(MRASRC).append("';\n")
+	private String createMatlabConfig(boolean paired, boolean unique_probeids, String expFname, String networkFname){
+	    StringBuilder matlabConfig = new StringBuilder("clc\nclear\n");
+	    matlabConfig.append("src_dir = '").append(MRASRC).append("';\n")
 		.append("addpath(src_dir)\nsrc_dir = addTrailingSlash(src_dir);\n")
 		.append("final_file = '").append(finalfile).append("';\n")
 		.append("filename_exp = ['").append(expFname).append("'];\n")
@@ -447,7 +440,7 @@ public class MarinaAnalysis {
 		.append("[a,b,c] = intersect(samples_bcell,sensitive_samples);\n")
 		.append("ix_class2 = b;\n")
 		.append("marina_2012a(src_dir,template,final_file,filename_exp,filename_network_5col,paired,min_targets,min_samples,nperm,pvalue_gsea,unique_probeids,pv_shadow_threshold,pv_synergy_threshold,ix_class1,ix_class2,tail,verbose)\n");
-	    return marina_config.toString();
+	    return matlabConfig.toString();
 	}
 
 }
