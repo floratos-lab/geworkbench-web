@@ -30,24 +30,28 @@ public class MarinaAnalysis {
 	private static final String SGE_CLUSTER_NAME = "hpc";
 	private static final String SGE_ROOT = "/opt/gridengine/"+SGE_CLUSTER_NAME;
 	
-	private final Long dataSetId;
-	private MarinaParamBean bean = null;
-	private static final String delimiter = "\t";
-	private static final String MRAROOT = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/runs/";
-	private static final String MRASRC = "/ifs/data/c2b2/af_lab/cagrid/matlab/marina/scripts/";
-	private static final String MRAHOME = "/ifs/data/c2b2/af_lab/cagrid/";
-	private static final String class1Fname = "ix_class1.txt";
-	private static final String class2Fname = "ix_class2.txt";
-	private static final String finalfile = "mra_result.txt";
-	private static final String logfile = "matlab.log";
-	private static final String submitScriptName="marina_submit.sh";
-	private static final String marinaScriptName="running_marina.m";
-	private static final Random random = new Random();
-	private static final int rstcolnum = 16;
-	private static final long POLL_INTERVAL = 20000; //20 seconds
-	private static final String maxmem = "6G";
-	private static final String timeout = "48::";
+	private static final String USER_HOME = "/ifs/data/c2b2/af_lab/cagrid/";
+	private static final String MARINA_RUNS_DIR = USER_HOME+"matlab/marina/runs/";
 
+	private static final String CLASS1_FILENAME = "ix_class1.txt";
+	private static final String CLASS2_FILENAME = "ix_class2.txt";
+	private static final String FINAL_FILE = "mra_result.txt";
+	private static final String LOG_FILE = "matlab.log";
+	private static final String SUBMIT_SCRIPT_FILE ="marina_submit.sh";
+	private static final String MARINA_MATLAB_FILE ="running_marina.m";
+	
+	private static final String delimiter = "\t";
+
+	private static final int RESULT_COLUMN_NUMBER = 16;
+	private static final long POLL_INTERVAL = 20000; //20 seconds
+
+	/* these parameters are for submitting cluster jobs */
+	private static final String JOB_MAX_MEM = "6G";
+	private static final String JOB_TIMEOUT = "48::";
+
+	private final Long dataSetId;
+	private final MarinaParamBean bean;
+	
 	public MarinaAnalysis(Long dataSetId, HashMap<Serializable, Serializable> params){
 		this.dataSetId = dataSetId;
 		this.bean = (MarinaParamBean)params.get("bean");
@@ -55,8 +59,8 @@ public class MarinaAnalysis {
 	
 	private static MraResult retrieveExistingResult(String runId)
 			throws RemoteException {
-		String resultfile = MRAROOT + runId + "/" + finalfile;
-		String mradir = MRAROOT + runId + "/";
+		String resultfile = MARINA_RUNS_DIR + runId + "/" + FINAL_FILE;
+		String mradir = MARINA_RUNS_DIR + runId + "/";
 		if (!new File(resultfile).exists()) {
 			String err = null;
 			if ((err = runError(mradir)) != null)
@@ -88,7 +92,7 @@ public class MarinaAnalysis {
 		boolean unique_probeids = true;
 
 		String runid = createRunID();
-		String mradir = MRAROOT + runid + "/";
+		String mradir = MARINA_RUNS_DIR + runid + "/";
 		if (!new File(mradir).mkdir()) {
 			throw new Exception(
 					"Failed to create individual MARINA run directory");
@@ -111,13 +115,13 @@ public class MarinaAnalysis {
 			String[] ixclass1 = new String[2];
 			ixclass1[0] = class1[0] + "-sr2";
 			ixclass1[1] = class1[0] + "+sr2";
-			writeToFile(mradir+class1Fname, ixclass1);
+			writeToFile(mradir+CLASS1_FILENAME, ixclass1);
 		} else
-			writeToFile(mradir+class1Fname, class1);
+			writeToFile(mradir+CLASS1_FILENAME, class1);
 
 		if (bean.getClass2().equals(""))
 			paired = true;
-		writeToFile(mradir+class2Fname, class2);
+		writeToFile(mradir+CLASS2_FILENAME, class2);
 
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -134,11 +138,11 @@ public class MarinaAnalysis {
 
 		String matlabConfig = createMatlabConfig(paired, unique_probeids,
 				expFname, networkFname);
-		writeToFile(mradir+marinaScriptName, matlabConfig);
+		writeToFile(mradir+MARINA_MATLAB_FILE, matlabConfig);
 		String submissionScript = createSubmissionScript(runid, mradir);
-		writeToFile(mradir+submitScriptName, submissionScript);
+		writeToFile(mradir+SUBMIT_SCRIPT_FILE, submissionScript);
 
-		int ret = submitJob(mradir + submitScriptName);
+		int ret = submitJob(mradir + SUBMIT_SCRIPT_FILE);
 		log.info("SubmitJob returns: " + ret);
 
 		try {
@@ -146,7 +150,7 @@ public class MarinaAnalysis {
 		} catch (InterruptedException e) {
 		}
 
-		File resultfile = new File(mradir + finalfile);
+		File resultfile = new File(mradir + FINAL_FILE);
 		while (!isJobDone(runid)) {
 			try {
 				Thread.sleep(POLL_INTERVAL);
@@ -174,7 +178,7 @@ public class MarinaAnalysis {
 		    br = new BufferedReader(new FileReader(fname));
 		    String line = br.readLine();//skip table header
 		    while((line = br.readLine()) != null){
-			    data.add(line.split(delimiter, rstcolnum));
+			    data.add(line.split(delimiter, RESULT_COLUMN_NUMBER));
 		    }
 		}catch(IOException e){
 		    e.printStackTrace();
@@ -185,7 +189,7 @@ public class MarinaAnalysis {
 		    	e.printStackTrace();
 		    }
 		}
-		String[][] rdata = new String[data.size()][rstcolnum];
+		String[][] rdata = new String[data.size()][RESULT_COLUMN_NUMBER];
 		for (int i = 0; i < data.size(); i++)
 		    rdata[i] = data.get(i);
 
@@ -196,9 +200,9 @@ public class MarinaAnalysis {
 		StringBuilder str = new StringBuilder();
 		BufferedReader br = null;
 		boolean error = false;
-		if (!new File(mradir+logfile).exists()) return null;
+		if (!new File(mradir+LOG_FILE).exists()) return null;
 		try{
-			br = new BufferedReader(new FileReader(mradir+logfile));
+			br = new BufferedReader(new FileReader(mradir+LOG_FILE));
 			String line = null; int i = 0;
 			while((line = br.readLine())!=null){
 				if (error){
@@ -282,7 +286,7 @@ public class MarinaAnalysis {
 	}
 
 	private static String createRunID() throws Exception {
-		File root = new File(MRAROOT);
+		File root = new File(MARINA_RUNS_DIR);
 		if (!root.exists() && !root.mkdir())
 			throw new Exception(
 					"Cannot access or create MARINA run top directory");
@@ -290,10 +294,11 @@ public class MarinaAnalysis {
 		String runId = null;
 		File dir = null;
 
+		Random random = new Random();
 		int i = 0;
 		do {
 			runId = "mra" + random.nextInt(Short.MAX_VALUE);
-			dir = new File(MRAROOT + runId + "/");
+			dir = new File(MARINA_RUNS_DIR + runId + "/");
 			i++;
 		} while (dir.exists() && i < Short.MAX_VALUE);
 
@@ -402,21 +407,21 @@ public class MarinaAnalysis {
 
 	private static String createSubmissionScript(String runid, String mradir) {
 		StringBuilder script = new StringBuilder();
-		script.append("#!/bin/bash\n#$ -l mem="+maxmem+",time="+timeout+" -cwd -j y -o ").append(mradir).append(logfile).append(" -N ").append(runid)
-	    .append("\nexport MATLAB_PREFDIR=").append(MRAHOME).append(".matlab/R2012a")
-	    .append("\n\nexport HOME=").append(MRAHOME).append("\nexport level=\"$SGE_TASK_ID\"\nexport MATLABROOT=/nfs/apps/matlab/2012a\ncd ").append(mradir)
+		script.append("#!/bin/bash\n#$ -l mem="+JOB_MAX_MEM+",time="+JOB_TIMEOUT+" -cwd -j y -o ").append(mradir).append(LOG_FILE).append(" -N ").append(runid)
+	    .append("\nexport MATLAB_PREFDIR=").append(USER_HOME).append(".matlab/R2012a")
+	    .append("\n\nexport HOME=").append(USER_HOME).append("\nexport level=\"$SGE_TASK_ID\"\nexport MATLABROOT=/nfs/apps/matlab/2012a\ncd ").append(mradir)
 	    .append("\nmkdir mcr\nexport LD_LIBRARY_PATH=$MATLABROOT/sys/os/glnxa64/:$MATLABROOT/bin/glnxa64/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/native_threads/:")
 	    .append("$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/server/:$MATLABROOT/sys/java/jre/glnxa64/jre/lib/amd64/:$MATLABROOT/runtime/glnxa64/:$LD_LIBRARY_PATH")
-	    .append("\nexport MCR_CACHE_ROOT=$PWD/mcr/$level\n\n/nfs/apps/matlab/2012a/bin/matlab -nodisplay -nodesktop -nosplash < ").append(marinaScriptName)
+	    .append("\nexport MCR_CACHE_ROOT=$PWD/mcr/$level\n\n/nfs/apps/matlab/2012a/bin/matlab -nodisplay -nodesktop -nosplash < ").append(MARINA_MATLAB_FILE)
 	    .append("\nrm -rf grid_submit.sh gsea *.mat network_shadow_mras.txt original_mra*.txt shadow_recovery_gsea2.txt synerg*_pair*txt shadow_runs tmp mcr\n");
 	    return script.toString();
 	}
 
 	private String createMatlabConfig(boolean paired, boolean unique_probeids, String expFname, String networkFname){
 	    StringBuilder matlabConfig = new StringBuilder("clc\nclear\n");
-	    matlabConfig.append("src_dir = '").append(MRASRC).append("';\n")
+	    matlabConfig.append("src_dir = '").append(USER_HOME).append("matlab/marina/scripts/';\n")
 		.append("addpath(src_dir)\nsrc_dir = addTrailingSlash(src_dir);\n")
-		.append("final_file = '").append(finalfile).append("';\n")
+		.append("final_file = '").append(FINAL_FILE).append("';\n")
 		.append("filename_exp = ['").append(expFname).append("'];\n")
 		.append("filename_network_5col = ['").append(networkFname).append("'];\n")
 		.append("paired = ").append(paired?1:0).append(";\n")
@@ -433,8 +438,8 @@ public class MarinaAnalysis {
 		.append("%%\ndisp('Importing dataset')\n")
 		.append("[data textdata] = importfile(filename_exp);\n")
 		.append("samples_bcell = textdata(1,3:end);\n")
-		.append("resistant_samples = textread('").append(class1Fname).append("','%s');\n")
-		.append("sensitive_samples = textread('").append(class2Fname).append("','%s');\n")
+		.append("resistant_samples = textread('").append(CLASS1_FILENAME).append("','%s');\n")
+		.append("sensitive_samples = textread('").append(CLASS2_FILENAME).append("','%s');\n")
 		.append("[a,b,c] = intersect(samples_bcell,resistant_samples);\n")
 		.append("ix_class1 = b;\n")
 		.append("[a,b,c] = intersect(samples_bcell,sensitive_samples);\n")
