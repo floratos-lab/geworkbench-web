@@ -1,5 +1,7 @@
 package org.geworkbenchweb.layout;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +29,7 @@ import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -396,6 +399,9 @@ public class UMainToolBar extends MenuBar {
 				}
 			}
 		});
+		
+		final MenuBar.MenuItem aboutItem = this.addItem("About", null);
+		buildAboutMenuItem(aboutItem);
 
 		this.addItem("Logout", new Command() {
 
@@ -460,6 +466,38 @@ public class UMainToolBar extends MenuBar {
 		log.debug("current workspace ID " + currentWorkspace);
 
 		genSpaceLogger.getGenSpaceLogin().setUMainToolBar(this);
+	}
+
+	private void buildAboutMenuItem(MenuItem aboutItem) {
+		aboutItem.addItem("geWorkbench-web", null);
+		aboutItem.addItem("Quick Intro", new Command() {
+
+			private static final long serialVersionUID = -7959889051119455878L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				pluginView.showWeclomeScreen();
+			}
+			
+		});
+		aboutItem.addItem("Contact Us", new Command() {
+
+			private static final long serialVersionUID = 2634675198032992450L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				try {
+					String emailURL = "mailto:geworkbench@c2b2.columbia.edu&subject=user inquiry&body=Please feel free to contact us to report any problems encountered when using the application or to offer suggestions for functionality improvements. When reporting problems please describe the sequence of actions that led to the issue you are reporting in as much detail as possible, this will help us replicate it in our environment.";
+				    URL windowURL = new URL(emailURL);
+					    Window window = getApplication().getMainWindow();
+					    window.open(new ExternalResource(windowURL));
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		});
+
 	}
 
 	private void clearTabularView() {
