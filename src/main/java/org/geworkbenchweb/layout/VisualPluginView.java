@@ -191,4 +191,11 @@ public class VisualPluginView extends HorizontalLayout {
 		addComponent(e);
 		this.setSizeFull();
 	}
+
+	public void showAboutInfo() {
+		removeAllComponents();
+		setWidth("100%");
+		AboutInfo aboutInfo = new AboutInfo();
+		addComponent(aboutInfo);
+	}
 }

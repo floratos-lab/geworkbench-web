@@ -469,10 +469,24 @@ public class UMainToolBar extends MenuBar {
 	}
 
 	private void buildAboutMenuItem(MenuItem aboutItem) {
-		aboutItem.addItem("geWorkbench-web", null);
-		aboutItem.addItem("Quick Intro", new Command() {
+		aboutItem.addItem("geWorkbench-web", new Command() {
 
 			private static final long serialVersionUID = -7959889051119455878L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				/* the text is short so it seems better to have a message box, but the requirement specifies the main GUI area. */
+//				MessageBox mb = new MessageBox(getWindow(), "About", Icon.INFO,
+//						"Release number 1.0.0 beta", new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
+//								"Ok"));
+//				mb.show();
+				pluginView.showAboutInfo();
+			}
+			
+		});
+		aboutItem.addItem("Quick Intro", new Command() {
+
+			private static final long serialVersionUID = 2634675198032992450L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
