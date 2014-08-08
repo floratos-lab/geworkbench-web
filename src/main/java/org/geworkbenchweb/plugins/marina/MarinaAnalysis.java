@@ -12,8 +12,10 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +91,6 @@ public class MarinaAnalysis {
 					"Please reload a network file in 5-column format, or use a valid AdjacencyMatrix that matches this dataset.");
 
 		boolean paired = false;
-		boolean unique_probeids = true;
 
 		String runid = createRunID();
 		String mradir = MARINA_RUNS_DIR + runid + "/";
@@ -125,16 +126,13 @@ public class MarinaAnalysis {
 
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
-		Long dataId = dataset.getDataId();
-		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
-				MicroarrayDataset.class, dataId);
 
 		String expFname = dataset.getName();
 		if (expFname.length() == 0)
 			expFname = "maset.exp";
 		else if (!expFname.endsWith(".exp"))
 			expFname = expFname + ".exp";
-		unique_probeids = exportExp(expFname, mradir, microarray);
+		boolean unique_probeids = exportExp(expFname, mradir, dataset.getDataId());
 
 		String matlabConfig = createMatlabConfig(paired, unique_probeids,
 				expFname, networkFname);
@@ -309,7 +307,13 @@ public class MarinaAnalysis {
 		return runId;
 	}
 
-	private boolean exportExp(String expFname, String mradir, MicroarrayDataset microarray){
+	/* FIXME it is very likely that the code of 'splitting the column' is incorrect.
+	 * Note sometimes class1[0] is compared with string (array label),
+	 * sometimes it is compared with a number (the count of array labels). */
+	private boolean exportExp(String expFname, String mradir, Long dataId){
+		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
+				MicroarrayDataset.class, dataId);
+		
 		String[] arrayLabels = microarray.getArrayLabels();
 		String[] markerLabels = microarray.getMarkerLabels();
 		float[][] values = microarray.getExpressionValues();
@@ -337,12 +341,14 @@ public class MarinaAnalysis {
 		    bw.flush();
 
 		    int i = 0;
-		    HashMap<String, Boolean> hm = new HashMap<String, Boolean>();
+		    Set<String> markerSet = new HashSet<String>();
 		    for (String markerName : markerLabels){
 				if (unique_probeids){
-				    if (hm.get(markerName) == null)
-				    	hm.put(markerName, true);
-				    else unique_probeids = false;
+				    if (!markerSet.contains(markerName)) {
+				    	markerSet.add(markerName);
+				    } else {
+				    	unique_probeids = false;
+				    }
 				}
 				String geneName = map.get( markerName );
 				if(geneName==null)geneName = markerName;
