@@ -110,7 +110,7 @@ public class ConfirmUserServlet extends HttpServlet {
 
 		}
 
-		return "/VAADIN/pages/error.html/";
+		return "/VAADIN/pages/error.html";
 
 	}
 
