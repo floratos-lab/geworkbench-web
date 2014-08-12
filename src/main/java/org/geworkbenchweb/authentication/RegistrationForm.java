@@ -271,7 +271,7 @@ public class RegistrationForm extends VerticalLayout {
 				+ this.getApplication().getURL().toString() 
 				+ "servlet/ConfirmUser?userID=" + user.getId()
 				+ "&key=" + user.getReasonForLockedAccount()
-				+ " to active your geWorkbench-web account."
+				+ " to activate your geWorkbench-web account."
 				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Properties props = new Properties() {
