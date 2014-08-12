@@ -38,6 +38,16 @@
 		<url-pattern>/VAADIN/themes/geworkbench/img/simpleCaptcha.jpg</url-pattern>
 	</servlet-mapping>
 	 
+    <servlet>
+        <servlet-name>ConfirmUserServlet</servlet-name>
+        <servlet-class>org.geworkbenchweb.authentication.ConfirmUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConfirmUserServlet</servlet-name>
+        <url-pattern>/servlet/ConfirmUser</url-pattern>
+    </servlet-mapping>
+	
+   
   
   
   <listener>

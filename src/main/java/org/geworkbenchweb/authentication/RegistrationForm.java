@@ -6,6 +6,7 @@ package org.geworkbenchweb.authentication;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.util.Random;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -227,7 +228,11 @@ public class RegistrationForm extends VerticalLayout {
 	    	 
 	    	return;
         }
-		
+	    if(email.getValue() == null || ! emailPattern.matcher(email.getValue().toString()).matches()) 
+	    {
+	    	feedbackLabel.setValue("Email address is invalid");	
+			return;
+	    }
 		log.debug("before registering a new user");
 		User user = UserUtil.registerUser(usernameText, passwordText,
 				(String) verifyPassword.getValue());
@@ -235,56 +240,21 @@ public class RegistrationForm extends VerticalLayout {
 
 		user.setName((String) realName.getValue());
 		user.setEmail((String) email.getValue());
+		user.setAccountLocked(true);
+		Random random = new Random();
+		user.setReasonForLockedAccount(new Integer(random.nextInt()).toString());
+		if(emailPattern.matcher(user.getEmail()).matches()){
+			sendMail(user);
+		}		
 
 		FacadeFactory.getFacade().store(user);
 		log.debug("user object is stored");
 
-		/* Creating default workspace */
-		Workspace workspace = new Workspace();
-		workspace.setOwner(user.getId());
-		workspace.setName("Default Workspace");
-		FacadeFactory.getFacade().store(workspace);
-
-		/* Setting active workspace */
-		ActiveWorkspace active = new ActiveWorkspace();
-		active.setOwner(user.getId());
-		active.setWorkspace(workspace.getId());
-		FacadeFactory.getFacade().store(active);
-
-		String dialogCaption = "Registration Successed";
-		Icon dialogIcon = Icon.INFO;
-		String message = "Welcome, " + user.getName() + "(" + username
-				+ ")!\nYou have successfully registered.";
-
-		MessageBox mb = new MessageBox(getWindow(), dialogCaption, dialogIcon,
-				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-						"Start using geWorkbench web", "250px"));
-		mb.show(new MessageBox.EventListener() {
-
-			private static final long serialVersionUID = -8489356760651132447L;
-
-			@Override
-			public void buttonClicked(ButtonType buttonType) {
-				try {
-					AuthenticationUtil.authenticate(usernameText, passwordText);
-					UMainLayout uMainLayout = new UMainLayout();
-					/* FIXME maintaining credentials in the toolbar is problematic. added by genspace developers */
-					uMainLayout.getMainToolBar().setUsername(usernameText);
-					uMainLayout.getMainToolBar().setPassword(passwordText);
-					getApplication().getMainWindow().setContent(uMainLayout);
-				} catch (InvalidCredentialsException e) {
-					//e.printStackTrace();
-					feedbackLabel.setValue("Invalid credentials entered for username "+usernameText);
-				} catch (AccountLockedException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		if(emailPattern.matcher(user.getEmail()).matches()){
-			sendMail(user);
-		}
+		String confirmPage = this.getApplication().getURL().toString() + "VAADIN/pages/confirm.html";
+		getApplication().close();
+		
+		getApplication().setLogoutURL(confirmPage);
+		 
 	}
 	
 	private void sendMail(User user){
@@ -297,9 +267,11 @@ public class RegistrationForm extends VerticalLayout {
 				+ "<p>User name: " + user.getUsername()
 				+ "<br>Real name: " + user.getName()
 				+ "<br>Email: " + user.getEmail()
-				+ "<p>Please go to "
-				+ this.getApplication().getURL().toString()
-				+ " to explore geWorkbench-web."
+				+ "<p>Please click on  "
+				+ this.getApplication().getURL().toString() 
+				+ "servlet/ConfirmUser?userID=" + user.getId()
+				+ "&key=" + user.getReasonForLockedAccount()
+				+ " to active your geWorkbench-web account."
 				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Properties props = new Properties() {
