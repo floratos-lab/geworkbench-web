@@ -53,7 +53,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	private int precisonNumber = 2;
 	private String searchStr;	
 	private TabularViewPreferences tabViewPreferences;
-    private PagedTableView displayTable;
+    private final PagedTableView displayTable;
     
 	final private Long datasetId;
 	
@@ -64,6 +64,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
  
 		datasetId = dataSetId;
 		if(dataSetId==null) {
+			displayTable = null;
 			annotationMap = null;	 
 			return;
 		}
@@ -94,24 +95,30 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setSizeFull();
 		displayTable.setImmediate(true);
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
-		
-		displayTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {                          
-			 
-			private static final long serialVersionUID = 1L;
 
-			public String generateDescription(Component source, Object itemId, Object propertyId) {
-			    if(propertyId == null) 
-			        return null;
-			     else 
-			     {
-			    	 Item item = ((Table)source).getItem(itemId);
-			    	 return item.getItemProperty(propertyId).getValue().toString();
-			     }
-			}                                                          
-			 
-		});
-		
-		
+		displayTable
+				.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
+
+					private static final long serialVersionUID = -7851708164038772830L;
+
+					public String generateDescription(Component source,
+							Object itemId, Object propertyId) {
+						if (propertyId == null) {
+							return null;
+						} else if (propertyId.equals(Constants.MARKER_HEADER)
+								|| propertyId
+										.equals(Constants.GENE_SYMBOL_HEADER)
+								|| propertyId
+										.equals(Constants.ANNOTATION_HEADER)) {
+							Item item = ((Table) source).getItem(itemId);
+							return item.getItemProperty(propertyId).getValue()
+									.toString();
+						} else {
+							return null;
+						}
+					}
+
+				});
 
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
@@ -308,11 +315,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		return false;
 	}
 	 
-	PagedTableView getDisplayTable()
-	{
-		return displayTable;
-	}
-	
 	TabularViewPreferences getTabViewPreferences()
 	{
 		return tabViewPreferences;
