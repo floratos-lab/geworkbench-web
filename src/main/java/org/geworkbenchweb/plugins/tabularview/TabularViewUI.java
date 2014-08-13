@@ -33,8 +33,11 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.Resource;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -91,6 +94,24 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setSizeFull();
 		displayTable.setImmediate(true);
 		displayTable.setStyleName(Reindeer.TABLE_STRONG);
+		
+		displayTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {                          
+			 
+			private static final long serialVersionUID = 1L;
+
+			public String generateDescription(Component source, Object itemId, Object propertyId) {
+			    if(propertyId == null) 
+			        return null;
+			     else 
+			     {
+			    	 Item item = ((Table)source).getItem(itemId);
+			    	 return item.getItemProperty(propertyId).getValue().toString();
+			     }
+			}                                                          
+			 
+		});
+		
+		
 
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
