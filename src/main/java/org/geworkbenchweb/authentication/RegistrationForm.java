@@ -18,22 +18,18 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
 import nl.captcha.Captcha;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.layout.UMainLayout;
-import org.geworkbenchweb.pojos.ActiveWorkspace;
-import org.geworkbenchweb.pojos.Workspace;
+ 
 import org.vaadin.appfoundation.authentication.data.User;
-import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
-import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
+ 
 import org.vaadin.appfoundation.authentication.exceptions.PasswordRequirementException;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordsDoNotMatchException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortPasswordException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortUsernameException;
 import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsException;
-import org.vaadin.appfoundation.authentication.util.AuthenticationUtil;
+ 
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -55,10 +51,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-import de.steinwedel.vaadin.MessageBox.Icon;
+ 
 
 /**
  * @author zji

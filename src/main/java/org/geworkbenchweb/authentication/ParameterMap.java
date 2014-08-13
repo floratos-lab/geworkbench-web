@@ -4,9 +4,12 @@ import java.util.HashMap;
 /**
  * A convenience class for storing request parameters.
  */
+@SuppressWarnings("rawtypes")
 public class ParameterMap extends HashMap {
 
-    public String getParameter(String name) {
+	private static final long serialVersionUID = 4166699153622899254L;
+
+	public String getParameter(String name) {
         Object value = get(name);
         return value == null ? null :
                 value instanceof String ?
@@ -14,7 +17,8 @@ public class ParameterMap extends HashMap {
                         ((String[]) value)[0];
     }
 
-    public void addParameter(String name, String value) {
+    @SuppressWarnings("unchecked")
+	public void addParameter(String name, String value) {
         Object curValue = get(name);
         if (curValue == null) {
             put(name, value);
