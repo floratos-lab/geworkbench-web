@@ -111,8 +111,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 								|| propertyId
 										.equals(Constants.ANNOTATION_HEADER)) {
 							Item item = ((Table) source).getItem(itemId);
-							return item.getItemProperty(propertyId).getValue()
-									.toString();
+							Property property = item.getItemProperty(propertyId);
+							Object value = property.getValue();
+							return (String)value;
 						} else {
 							return null;
 						}
