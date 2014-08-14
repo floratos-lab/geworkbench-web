@@ -49,10 +49,10 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	private static final long serialVersionUID = -1544215388914183715L;
 
-	private Long userId;
+	private final Long userId;
 	private int precisonNumber = 2;
 	private String searchStr;	
-	private TabularViewPreferences tabViewPreferences;
+	private final TabularViewPreferences tabViewPreferences;
     private final PagedTableView displayTable;
     
 	final private Long datasetId;
@@ -64,8 +64,10 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
  
 		datasetId = dataSetId;
 		if(dataSetId==null) {
+			userId = null;
 			displayTable = null;
-			annotationMap = null;	 
+			annotationMap = null;
+			tabViewPreferences = null;
 			return;
 		}
 		
@@ -105,17 +107,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 							Object itemId, Object propertyId) {
 						if (propertyId == null) {
 							return null;
-						} else if (propertyId.equals(Constants.MARKER_HEADER)
-								|| propertyId
-										.equals(Constants.GENE_SYMBOL_HEADER)
-								|| propertyId
-										.equals(Constants.ANNOTATION_HEADER)) {
+						} else {
 							Item item = ((Table) source).getItem(itemId);
 							Property property = item.getItemProperty(propertyId);
 							Object value = property.getValue();
-							return (String)value;
-						} else {
-							return null;
+							if(value!=null) {
+								return value.toString();
+							} else {
+								return null;
+							}
 						}
 					}
 
