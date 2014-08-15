@@ -70,6 +70,9 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		getLimitCytoscapeObjectsNum();
 	}
 	
+	private static enum DisplayOption {UNDECIDED, TEXT, CYTOSCAPE};
+	private volatile DisplayOption option = DisplayOption.UNDECIDED;
+	
 	@Override
 	public void attach() {
 		this.removeAllComponents();
@@ -81,7 +84,15 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 		int edgeNumber = networkResult.getEdgeNumber();
 		int nodeNumber = networkResult.getNodeNumber();
-		if ((edgeNumber + nodeNumber) > limit_num) {
+		if(edgeNumber + nodeNumber <= limit_num) {
+			option=DisplayOption.CYTOSCAPE;
+		}
+		
+		if(option==DisplayOption.CYTOSCAPE) {
+			viewAsCytoscape();
+		} else if(option==DisplayOption.TEXT) {
+			viewAsText();
+		} else if (option==DisplayOption.UNDECIDED) {
 			String theMessage = "This network has "
 					+ nodeNumber
 					+ " nodes and "
@@ -100,13 +111,13 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 				@Override
 				public void buttonClicked(ButtonType buttonType) {
 					if (buttonType == ButtonType.CUSTOM1)
-						viewAsText();
+						option=DisplayOption.TEXT;
 					else
-						viewAsCytoscape();
+						option=DisplayOption.CYTOSCAPE;
+					attach();
 				}
 			});
-		} else {
-			viewAsCytoscape();
+			option = null; // prevent message box is shown again before the option is ready
 		}
 	}
 	
