@@ -74,6 +74,12 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private volatile DisplayOption option = DisplayOption.UNDECIDED;
 	
 	@Override
+	public void detach() {
+		super.detach();
+		option = DisplayOption.UNDECIDED;
+	}
+	
+	@Override
 	public void attach() {
 		this.removeAllComponents();
 		
