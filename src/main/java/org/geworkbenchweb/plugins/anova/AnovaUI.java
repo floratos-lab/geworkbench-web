@@ -45,7 +45,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = -738580934848570913L;
  
-	private MarkerArraySelector markerArraySelector;	 
+	private final MarkerArraySelector markerArraySelector;	 
 	private Label pValEstLabel;
 	private Label pValEstCbxLabel;
 	private ComboBox pValEstCbx;
@@ -94,8 +94,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		setSpacing(true);
 		setImmediate(true);
 		
-		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "AnovaUI");
-
+		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
+				"AnovaUI", "Limit to selected markers (optional)",
+				"Select array sets for comparison", 20);
 	  
 
 		pValEstLabel = new Label(

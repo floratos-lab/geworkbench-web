@@ -36,6 +36,14 @@ public class MarkerArraySelector extends GridLayout{
 	private boolean isArrayContextSetByApp = false;
 	private boolean isMarkerContextSetByApp = false;
 	
+	public MarkerArraySelector(Long dataSetId, Long userId, String parentName, String markerSelectCaption, String arraySelectCaption, int width) {
+		this(dataSetId, userId, parentName);
+		markerSetSelect.setCaption(markerSelectCaption);
+		markerSetSelect.setColumns(width);
+		arraySetSelect.setCaption(arraySelectCaption);
+		arraySetSelect.setColumns(width);
+	}
+	
 	public MarkerArraySelector(Long dataSetId, Long userId, String parentName) {
  
 		this.parentName = parentName;
