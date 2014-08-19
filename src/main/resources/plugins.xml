@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- TODO a schema (xsd) need to be written -->
 <plugins xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="PluginConfigurationSchema.xsd">
+	xsi:noNamespaceSchemaLocation="plugins.xsd">
 
 	<!-- analysis and visualizer are separated because they are currently implemented 
 		and used in different ways. -->

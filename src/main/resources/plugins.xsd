@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="plugins">
+    <xs:annotation>
+      <xs:documentation>Schema for geworkbench web plug-ins configuration</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="analysis">
+          <xs:annotation>
+            <xs:documentation>analysis plug-ins</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="inputType" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="plugin" type="PluginType" maxOccurs="unbounded" minOccurs="0" />
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="className" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="visualizer">
+          <xs:annotation>
+            <xs:documentation>visualizer plug-ins</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="inputType" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="plugin" type="PluginType" />
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="className" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="PluginType">
+	<xs:all>
+		<xs:element type="xs:string" name="name" />
+		<xs:element type="xs:string" name="description" />
+		<xs:element type="xs:string" name="uiClass" />
+	</xs:all>
+  </xs:complexType>
+</xs:schema>
