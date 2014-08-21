@@ -307,9 +307,6 @@ public class MarinaAnalysis {
 		return runId;
 	}
 
-	/* FIXME it is very likely that the code of 'splitting the column' is incorrect.
-	 * Note sometimes class1[0] is compared with string (array label),
-	 * sometimes it is compared with a number (the count of array labels). */
 	private boolean exportExp(String expFname, String mradir, Long dataId){
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, dataId);
@@ -358,7 +355,7 @@ public class MarinaAnalysis {
 				    float data = values[i][index];
 				    if ((class2.length == 1 && class2[0].length()==0)
 						&& class1.length == 1
-						&& class1[0].equals(arrayLabels.length)) {
+						&& class1[0].equals(arrayLabels[index])) {
 				    	float data1 = data - (float)Math.sqrt(2);
 				    	float data2 = data + (float)Math.sqrt(2);
 				    	bw.write(data1+delimiter+data2);
