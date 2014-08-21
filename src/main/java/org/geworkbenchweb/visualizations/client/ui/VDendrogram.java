@@ -1,5 +1,6 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
+ 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.Context2d.TextAlign;
@@ -13,6 +14,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
+ 
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
@@ -118,6 +120,7 @@ public final class VDendrogram extends Composite implements Paintable {
 			client.updateVariable(paintableId, "selectedMarkerClusters", markerDendrogramSelected.toString(), false);
 			client.updateVariable(paintableId, "markerIndex1", yIndex1, false);
 			client.updateVariable(paintableId, "markerIndex2", yIndex2, true);
+		
 		}
     };
 
@@ -199,10 +202,43 @@ public final class VDendrogram extends Composite implements Paintable {
 			// this does not show in eclipse workspace browser somehow
 			Canvas offline = createOfflineImage();
 			// use the fixed window name so the window is reused for this functionality
-			Window.open(offline.toDataUrl("image/png"), "dendrogram_snapshot", "");
+			String dataUrl = offline.toDataUrl("image/png");		 
+			
+			if (isIEBrowser())
+			    openCanvasImage(dataUrl);
+			else
+		        Window.open(dataUrl, "dendrogram_snapshot", "");
+		     
+		    
 //			client.updateVariable(paintableId, "imageUrl", heatmapCanvas.toDataUrl("image/png"), true);
 		}
 	}
+	
+	
+	public native void openCanvasImage(String dataUrl)/*-{
+  
+         var canvasDataUrl = dataUrl;      
+         var win=window.open();    
+         win.document.write("<div align=\"center\" ><img src='" + canvasDataUrl + "' /></div>");     
+         win.document.title = "dendrogram snapshot";
+    
+    }-*/;
+	
+	
+	/**
+	* Returns true if the current browser is IE (Internet Explorer).
+	*/
+	public static boolean isIEBrowser() {
+	    return getBrowserName().toLowerCase().contains("msie");
+	}
+
+	
+	/**
+	* Gets the name of the used browser.
+	*/
+	public static native String getBrowserName() /*-{
+	    return navigator.userAgent.toLowerCase();
+	}-*/;
 	
 	private Canvas createOfflineImage() {
 		int heatmapWidth = cellWidth*(xIndex2 - xIndex1 +1);
