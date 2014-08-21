@@ -1,10 +1,8 @@
 package org.geworkbenchweb.plugins.marina;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -307,7 +305,14 @@ public class MarinaAnalysis {
 		return runId;
 	}
 
-	private boolean exportExp(String expFname, String mradir, Long dataId){
+	/**
+	 * Create a .exp file for MARINa computation.
+	 * @param expFname
+	 * @param mradir
+	 * @param dataId
+	 * @return true if all the marker labels are unique; false if there are duplicated markers.
+	 */
+	private boolean exportExp(String expFname, String mradir, Long dataId) throws Exception {
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, dataId);
 		
@@ -321,62 +326,88 @@ public class MarinaAnalysis {
 		String[] class1 = bean.getClass1().split(", *");
 		String[] class2 = bean.getClass2().split(", *");
 		
-		BufferedWriter bw = null;
-		try{
-		    bw = new BufferedWriter(new FileWriter(mradir+expFname));
-		    bw.write("AffyID\tAnnotation");
-		    for (String arrayLabel : arrayLabels){
-				bw.write(delimiter+arrayLabel);
-				
-			    if ((class2.length == 1 && class2[0].length()==0)
-					&& class1.length == 1
-					&& class1[0].equals(arrayLabel)) {
-			    	bw.write("-sr2\t"+arrayLabel+"+sr2");
-			    }
-		    }
-		    bw.write("\n");
-		    bw.flush();
-
-		    int i = 0;
-		    Set<String> markerSet = new HashSet<String>();
-		    for (String markerName : markerLabels){
-				if (unique_probeids){
-				    if (!markerSet.contains(markerName)) {
-				    	markerSet.add(markerName);
-				    } else {
-				    	unique_probeids = false;
-				    }
-				}
-				String geneName = map.get( markerName );
-				if(geneName==null)geneName = markerName;
-				bw.write(markerName+delimiter+geneName);
-				for (int index=0; index<arrayLabels.length; index++){
-				    bw.write(delimiter);
-				    float data = values[i][index];
-				    if ((class2.length == 1 && class2[0].length()==0)
-						&& class1.length == 1
-						&& class1[0].equals(arrayLabels[index])) {
-				    	float data1 = data - (float)Math.sqrt(2);
-				    	float data2 = data + (float)Math.sqrt(2);
-				    	bw.write(data1+delimiter+data2);
-				    }else{
-				    	if (data==(int)data)
-				    		bw.write(String.valueOf((int)data));
-				    	else bw.write(String.valueOf(data));
-				    }
-				}
-				bw.write("\n");
-				i++;
-		    }
-		}catch(IOException e){
-		    e.printStackTrace();
-		}finally{
-		    try{
-		    	if (bw!=null) bw.close();
-		    }catch(IOException e){
-		    	e.printStackTrace();
-		    }
+		/* Although the specification (mantis 3848) requires that "it is a paired analysis",
+		 * it is in fact the only possibility by definition. So we only check the number of columns here. */
+		if(arrayLabels.length==1) {
+			if(class1.length!=1 || class1[0].trim().length()==0 || class2.length!=1 || class2[0].length()!=0) {
+				throw new Exception("Invalid class choice for t-statistic special case");
+			}
+			return exportExpFileForSpecialTStatsticCase(mradir+expFname, class1[0], markerLabels, map, values);
 		}
+		
+		PrintWriter pw = new PrintWriter(new File(mradir + expFname));
+		pw.print("AffyID\tAnnotation");
+		for (String arrayLabel : arrayLabels) {
+			pw.print(delimiter + arrayLabel);
+		}
+		pw.println();
+
+		Set<String> markerSet = new HashSet<String>();
+		for (int i = 0; i < markerLabels.length; i++) {
+			String markerName = markerLabels[i];
+			if (unique_probeids) {
+				if (!markerSet.contains(markerName)) {
+					markerSet.add(markerName);
+				} else {
+					unique_probeids = false;
+				}
+			}
+			String geneName = map.get(markerName);
+			if (geneName == null)
+				geneName = markerName;
+			pw.print(markerName + delimiter + geneName);
+			for (int index = 0; index < arrayLabels.length; index++) {
+				float data = values[i][index];
+				if (data == (int) data)
+					pw.print(delimiter + String.valueOf((int) data));
+				else
+					pw.print(delimiter + String.valueOf(data));
+			}
+			pw.println();
+		}
+		if (pw != null)
+			pw.close();
+
+		return unique_probeids;
+	}
+
+	/**
+	 * Create the .exp file for the special case of 't-statistic'.
+	 * @return true if the marker labels are all unique
+	 */
+	private static boolean exportExpFileForSpecialTStatsticCase(String filename,
+			String arrayLabel, String[] markerLabels, Map<String, String> map,
+			float[][] values) throws IOException {
+		boolean unique_probeids = true;
+		PrintWriter pw = new PrintWriter(new File(filename));
+		pw.println("AffyID\tAnnotation\t" + arrayLabel + "-r-sr2\t" + arrayLabel
+				+ "+r-sr2");
+
+		final float ONE_OVER_SQRT2 = 1.f/(float)Math.sqrt(2.);
+		Set<String> markerSet = new HashSet<String>();
+		for (int i = 0; i < markerLabels.length; i++) {
+			String markerName = markerLabels[i];
+			if (unique_probeids) {
+				if (!markerSet.contains(markerName)) {
+					markerSet.add(markerName);
+				} else {
+					unique_probeids = false;
+				}
+			}
+			String geneName = map.get(markerName);
+			if (geneName == null)
+				geneName = markerName;
+
+			float data = values[i][0]; /* there must be only one column. */
+
+			/* the order of the two columns is not important, but this order is preferred. */
+			pw.println(markerName + "\t" + geneName + "\t"
+					+ (data - ONE_OVER_SQRT2) + "\t" + (data + ONE_OVER_SQRT2));
+		}
+
+		if (pw != null)
+			pw.close();
+
 		return unique_probeids;
 	}
 
