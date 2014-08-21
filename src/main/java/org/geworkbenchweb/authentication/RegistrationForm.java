@@ -229,13 +229,14 @@ public class RegistrationForm extends VerticalLayout {
 		log.debug("before registering a new user");
 		User user = UserUtil.registerUser(usernameText, passwordText,
 				(String) verifyPassword.getValue());
+		
 		log.debug("user object is created");
 
 		user.setName((String) realName.getValue());
 		user.setEmail((String) email.getValue());
 		user.setAccountLocked(true);
 		Random random = new Random();
-		user.setReasonForLockedAccount(new Integer(random.nextInt()).toString());
+		user.setReasonForLockedAccount(new Integer(random.nextInt()).toString() + "(waiting for confirmation from user)");
 		if(emailPattern.matcher(user.getEmail()).matches()){
 			sendMail(user);
 		}		
@@ -254,17 +255,19 @@ public class RegistrationForm extends VerticalLayout {
 		String title = "Registration Confirmation for Your geWorkbench Account";
 		String realName = user.getName();
 		if(realName.length() == 0) realName = "Guest";
+		String hrefStr = this.getApplication().getURL().toString() 
+				+ "servlet/ConfirmUser?userID=" + user.getId()
+				+ "&key=" + user.getReasonForLockedAccount().split("\\(")[0];
 		String content = "<font face=\"Monogram\">Welcome " + realName +"!<p>"
 				+ "Thanks for signing up with geWorkbench-web!"
 				+ "<p>Here is your geWorkbench account information: "
 				+ "<p>User name: " + user.getUsername()
 				+ "<br>Real name: " + user.getName()
 				+ "<br>Email: " + user.getEmail()
-				+ "<p>Please click on  "
-				+ this.getApplication().getURL().toString() 
-				+ "servlet/ConfirmUser?userID=" + user.getId()
-				+ "&key=" + user.getReasonForLockedAccount()
-				+ " to activate your geWorkbench-web account."
+				+ "<p>Please click on the following link<br>"
+				+ "<a href=\"" + hrefStr + "\" >"
+				+ hrefStr + "<a>"
+				+ "<br>to activate your geWorkbench-web account."
 				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Properties props = new Properties() {

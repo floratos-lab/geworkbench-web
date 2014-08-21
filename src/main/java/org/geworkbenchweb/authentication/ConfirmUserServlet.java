@@ -82,10 +82,15 @@ public class ConfirmUserServlet extends HttpServlet {
 		Long userID = new Long(userIDString);
 
 		User user = FacadeFactory.getFacade().find(User.class, userID);
+	
 		if (user != null) {
-			if (keyString.equals(user.getReasonForLockedAccount())) {
+			if (user.getReasonForLockedAccount() == null)
+				return "/VAADIN/pages/error.html";
+			String dbKey = user.getReasonForLockedAccount().split("\\(")[0];
+			if (keyString.equals(dbKey)) {
 				if (user.isAccountLocked()) {
 					user.setAccountLocked(false);
+					user.setReasonForLockedAccount(keyString + "(user account has been confirmed.)");
 					FacadeFactory.getFacade().store(user);
 					/* Creating default workspace */
 					Workspace workspace = new Workspace();
