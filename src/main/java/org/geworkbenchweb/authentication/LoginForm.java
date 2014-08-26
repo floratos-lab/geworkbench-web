@@ -139,8 +139,8 @@ public class LoginForm extends VerticalLayout {
 						
 						feedbackLabel.setValue(err_msg);
 							
-					} catch (AccountLockedException e) {
-						feedbackLabel.setValue("The given account has not been activated.");
+					} catch (AccountLockedException e) {						 
+						feedbackLabel.setValue("The given account has been locked.");
 					} catch (Exception e) {
 						feedbackLabel.setValue(e.getMessage());
 					}
