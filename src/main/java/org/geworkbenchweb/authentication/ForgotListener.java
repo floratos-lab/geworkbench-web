@@ -172,7 +172,7 @@ public class ForgotListener implements ClickListener{
 		};
 		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(fromEmail, fromPassword);
+	            return new PasswordAuthentication("geworkbenchteam-web", "geWorkbench-web");
 	        }
 	    });
 		MimeMessage mailMessage = new MimeMessage(mailSession);
