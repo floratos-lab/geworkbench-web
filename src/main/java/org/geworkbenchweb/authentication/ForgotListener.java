@@ -206,9 +206,9 @@ public class ForgotListener implements ClickListener{
 		if(forgotType.contains("password")){
 			title = "Requested Password Reset for Your geWorkbench Account";
 			content += "You recently requested that your geWorkbench account password be reset."
-					+ "<p>But you have multiple accounts under " + users.get(0).getEmail() + ": "
+					+ "<p>However, you have multiple accounts with email address " + users.get(0).getEmail() + ": "
 					+  userNames
-					+ "<br>Please use one of your username to make request.";
+					+ "<br>Please use the option to change your password by user account name for one of these accounts.";
 		}else{
 			title = "Requested Username for Your geWorkbench Account";
 			content += "You recently requested the username for your geWorkbench account."
