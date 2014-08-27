@@ -172,7 +172,7 @@ public class ForgotListener implements ClickListener{
 		};
 		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication("geworkbenchteam-web", "geWorkbench-web");
+	            return new PasswordAuthentication(fromEmail, fromPassword);
 	        }
 	    });
 		MimeMessage mailMessage = new MimeMessage(mailSession);
@@ -188,6 +188,54 @@ public class ForgotListener implements ClickListener{
 			e.printStackTrace();
 		}
 	}
+	
+	/*private void sendC2b2Mail(String forgotType, User user){
+		String title = "";
+		String realName = user.getName();
+		if(realName.length() == 0) realName = "Guest";
+		String content = "<font face=\"Monogram\">Dear " + realName +",<p>";
+		
+		if(forgotType.contains("password")){
+			String tmppasswd = generatePassword();
+			user.setPassword(PasswordUtil.generateHashedPassword(tmppasswd));
+			FacadeFactory.getFacade().store(user);
+
+			title = "Requested Password Reset for Your geWorkbench Account";
+			content += "You recently requested that your geWorkbench account password be reset."
+					+ "<p>The temporary password for your geWorkbench account is: "
+					+ "<font color=\"red\">" + tmppasswd + "</font>"
+					+ "<br>Please login with it, then change password from geWorkbench GUI.";
+		}else{
+			title = "Requested Username for Your geWorkbench Account";
+			content += "You recently requested the username for your geWorkbench account."
+					+ "<p>The username for your geWorkbench account is: "
+					+ "<font color=\"red\">" + user.getUsername() + "</font>";
+		}
+		content += "<p>Thank you,<br>The geWorkbench Team</font>";
+
+		Properties props = new Properties() {
+			private static final long serialVersionUID = -3842038014435217159L;
+			{				 
+				put("mail.smtp.host", "mail.c2b2.columbia.edu");			 
+			}
+		};
+		Session mailSession = Session.getInstance(props);
+	       
+		MimeMessage mailMessage = new MimeMessage(mailSession);
+		try{
+			title = MimeUtility.encodeText(title, "utf-8", null);
+			mailMessage.setSubject(title);
+			mailMessage.setFrom(new InternetAddress("geworkbenchteam@c2b2.columbia.edu", "NoReply"));
+			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
+			mailMessage.setContent(content, "text/html");
+			Transport.send(mailMessage);
+		}catch(MessagingException e){
+			e.printStackTrace();
+		}catch(UnsupportedEncodingException e){
+			e.printStackTrace();
+		}
+	}  */	
+	 
 	
 	private String generatePassword(){
 		ArrayList<Character> chars = new ArrayList<Character>();
