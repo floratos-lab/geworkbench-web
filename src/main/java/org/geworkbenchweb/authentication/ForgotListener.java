@@ -79,7 +79,7 @@ public class ForgotListener implements ClickListener{
 			private static final long serialVersionUID = 8292680051084017446L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-				User user = null;
+				List<User> users = null;
 				String option = options.getValue().toString().toLowerCase();
 				String value = textField.getValue().toString();
 				if (value.isEmpty()){
@@ -88,14 +88,17 @@ public class ForgotListener implements ClickListener{
 						&& !emailPattern.matcher(value).matches()) {
 					message.setValue("Invalid email.");
 				}else{
-					user = findUser(option, value);
-					if(user != null && !emailPattern.matcher(user.getEmail()).matches()){
+					users = findUser(option, value);
+					if(users != null && !emailPattern.matcher(users.get(0).getEmail()).matches()){
 						message.setValue("Invalid email.");
-						user = null;
+						users = null;
 					}
 				}
-				if(user != null){
-					sendMail(forgotBtn.getCaption(), user);
+				if(users != null){
+					if ( users.size() == 1 )
+					    sendMail(forgotBtn.getCaption(), users.get(0));
+					else
+						sendMail(forgotBtn.getCaption(), users);
 					layout.removeAllComponents();
 					message.setValue("An email has been sent to you.<br>Please follow the instructions in the email.");
 					layout.addComponent(message);
@@ -125,7 +128,7 @@ public class ForgotListener implements ClickListener{
 		forgotBtn.getApplication().getMainWindow().addWindow(window);
 	}
 	
-	private User findUser(String field, String value){
+	private List<User> findUser(String field, String value){
 		String query = "SELECT u FROM User u WHERE u." + field + " = :" + field;
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put(field, value);
@@ -134,7 +137,7 @@ public class ForgotListener implements ClickListener{
 			message.setValue("User with " + field + " " + value + " is not found.");
 			return null;
 		}
-		return users.get(0);
+		return users;
 	}
 		
 	private void sendMail(String forgotType, User user){
@@ -189,44 +192,52 @@ public class ForgotListener implements ClickListener{
 		}
 	}
 	
-	/*private void sendC2b2Mail(String forgotType, User user){
+	//Send mail for user who has multiple account
+	private void sendMail(String forgotType, List<User> users){
 		String title = "";
-		String realName = user.getName();
+		String realName = users.get(0).getName();
 		if(realName.length() == 0) realName = "Guest";
 		String content = "<font face=\"Monogram\">Dear " + realName +",<p>";
 		
+		String userNames = "";
+		for (User u: users)
+			userNames += "<br><font color=\"red\">" + u.getUsername() + "</font>";
+		
 		if(forgotType.contains("password")){
-			String tmppasswd = generatePassword();
-			user.setPassword(PasswordUtil.generateHashedPassword(tmppasswd));
-			FacadeFactory.getFacade().store(user);
-
 			title = "Requested Password Reset for Your geWorkbench Account";
 			content += "You recently requested that your geWorkbench account password be reset."
-					+ "<p>The temporary password for your geWorkbench account is: "
-					+ "<font color=\"red\">" + tmppasswd + "</font>"
-					+ "<br>Please login with it, then change password from geWorkbench GUI.";
+					+ "<p>But you have multiple accounts under " + users.get(0).getEmail() + ": "
+					+  userNames
+					+ "<br>Please use one of your username to make request.";
 		}else{
 			title = "Requested Username for Your geWorkbench Account";
 			content += "You recently requested the username for your geWorkbench account."
-					+ "<p>The username for your geWorkbench account is: "
-					+ "<font color=\"red\">" + user.getUsername() + "</font>";
+					+ "<p>The username for your geWorkbench accounts are: "
+					+ userNames;
 		}
+	 
 		content += "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Properties props = new Properties() {
 			private static final long serialVersionUID = -3842038014435217159L;
-			{				 
-				put("mail.smtp.host", "mail.c2b2.columbia.edu");			 
+			{
+				put("mail.smtp.auth", "true");
+				put("mail.smtp.host", "smtp.gmail.com");
+				put("mail.smtp.port", "587");
+				put("mail.smtp.starttls.enable", "true");
 			}
 		};
-		Session mailSession = Session.getInstance(props);
-	       
+		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+	        protected PasswordAuthentication getPasswordAuthentication() {
+	            return new PasswordAuthentication(fromEmail, fromPassword);
+	        }
+	    });
 		MimeMessage mailMessage = new MimeMessage(mailSession);
 		try{
 			title = MimeUtility.encodeText(title, "utf-8", null);
 			mailMessage.setSubject(title);
-			mailMessage.setFrom(new InternetAddress("geworkbenchteam@c2b2.columbia.edu", "NoReply"));
-			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
+			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(users.get(0)
+					.getEmail()));
 			mailMessage.setContent(content, "text/html");
 			Transport.send(mailMessage);
 		}catch(MessagingException e){
@@ -234,7 +245,7 @@ public class ForgotListener implements ClickListener{
 		}catch(UnsupportedEncodingException e){
 			e.printStackTrace();
 		}
-	}  */	
+	}
 	 
 	
 	private String generatePassword(){
