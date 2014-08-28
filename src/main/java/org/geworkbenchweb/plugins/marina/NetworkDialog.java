@@ -118,8 +118,7 @@ public class NetworkDialog {
 						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(bean.getNetworkString(),
 								interactionTypeMap, selectedFormat,
 								selectedRepresentedBy, isRestrict);
-						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));
-						networkCreator.printWarning();
+						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));						 
 					} catch (InputFileFormatException e1) {
 						log.error(e1.getMessage());
 						e1.printStackTrace();

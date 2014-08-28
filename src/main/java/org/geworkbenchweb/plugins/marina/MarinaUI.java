@@ -48,6 +48,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.VerticalLayout;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -60,6 +61,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	protected Form form = new Form();
 	private Upload upload = null;
+	private Button networkRequirements = null;
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
 	protected Button submitButton = new Button("Submit", form, "commit");
 	private ClassSelector classSelector = null;	 
@@ -140,8 +142,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}
 
 				NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);
-				networkLoaded(networkCreator.getNetworkString(network));
-				networkCreator.printWarning();
+				networkLoaded(networkCreator.getNetworkString(network));				 
 			}
 		});
 		form.getLayout().addComponent(networkNodes);
@@ -152,6 +153,14 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
         upload.addListener((Upload.FailedListener)this);
 		form.getLayout().addComponent(upload);
 
+		networkRequirements = new Button("Network Requirements");
+		networkRequirements.setStyleName(Reindeer.BUTTON_LINK);
+		form.getLayout().addComponent(networkRequirements);
+		String desc = "For 2-tailed GSEA with an adjacency matrix network, the expression node should be the complete dataset from "
+				+ "which the network (adjacency matrix) was originally calculated.<p>If it is not, a 5-column-format "
+				+ "network file (with regulon correlation values from the original dataset) should be loaded instead.";
+		networkRequirements.setDescription(desc);	 
+		
 		bean = new MarinaParamBean();
 		DefaultFieldFactory.createCaptionByPropertyId(bean);
 		item = new BeanItem<MarinaParamBean>(bean, order);
@@ -195,6 +204,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					for (String item : order)
 						form.getField(item).setEnabled(false);
 					og.setEnabled(false);
+					networkRequirements.setEnabled(false);
 					networkNodes.setEnabled(false);
 					upload.setEnabled(false);
 					classSelector.getArrayContextCB().setEnabled(false);
@@ -206,6 +216,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					for (String item : order)
 						form.getField(item).setEnabled(true);
 					og.setEnabled(true);
+					networkRequirements.setEnabled(true);
 					networkNodes.setEnabled(true);
 					upload.setEnabled(true);
 					classSelector.getArrayContextCB().setEnabled(true);
