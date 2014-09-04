@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
@@ -435,8 +436,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	@Override
 	public void export() {
+		/* temporary file location */
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+				+ "export";
+		File dir = new File(dirName);
+		if (!dir.exists())
+			dir.mkdirs();
+
 		final Application app = getApplication();
-		final File file = new File("expression_data_" + datasetId + ".tab");
+		final File file = new File(dirName + "/expression_data_" + datasetId + ".tab");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
 			Collection<?> properties = displayTable.getContainerDataSource()
