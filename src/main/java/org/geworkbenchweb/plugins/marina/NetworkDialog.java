@@ -21,7 +21,7 @@ import com.vaadin.ui.Window;
 public class NetworkDialog {
 	private Log log = LogFactory.getLog(NetworkDialog.class);
 	private MarinaUI ui;
-	private MarinaParamBean bean;
+
 	private Window mainWindow;
 	private Window loadDialog;
 	private ComboBox formatBox;
@@ -32,11 +32,14 @@ public class NetworkDialog {
 	private boolean isRestrict = true;
 	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
 	private String marina5colformat = "marina 5-column format";
+	
+	private final String networkName, networkString;
 
-	public NetworkDialog(MarinaUI ui){
+	public NetworkDialog(MarinaUI ui, String networkName, String networkString){
 		this.ui = ui;
 		this.mainWindow = ui.getApplication().getMainWindow();
-		this.bean = ui.bean;
+		this.networkName = networkName;
+		this.networkString = networkString;
 	}
 
 	public void openDialog(){
@@ -86,9 +89,9 @@ public class NetworkDialog {
 			}
 		});
 
-		if (bean.getNetwork().toLowerCase().endsWith(".sif"))
+		if (networkName.toLowerCase().endsWith(".sif"))
 			formatBox.setValue(AdjacencyMatrixDataSet.SIF_FORMART);
-		else if (bean.getNetwork().toLowerCase().contains("5col"))
+		else if (networkName.toLowerCase().contains("5col"))
 			formatBox.setValue(marina5colformat);
 		else
 			formatBox.setValue(AdjacencyMatrixDataSet.ADJ_FORMART);
@@ -100,10 +103,10 @@ public class NetworkDialog {
 				selectedRepresentedBy = presentBox.getValue().toString();
 				mainWindow.removeWindow(loadDialog);
 
-				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !bean.getNetwork().toLowerCase().endsWith(".sif"))
-						|| (bean.getNetwork().toLowerCase().endsWith(".sif") && !selectedFormat
+				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkName.toLowerCase().endsWith(".sif"))
+						|| (networkName.toLowerCase().endsWith(".sif") && !selectedFormat
 								.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))
-						||(selectedFormat.equals(marina5colformat) && !is5colnetwork(bean.getNetworkString()))){
+						||(selectedFormat.equals(marina5colformat) && !is5colnetwork(networkString))){
 					ui.networkNotLoaded("The network format selected does not match that of the file.");
 					return;
 				}
@@ -115,7 +118,7 @@ public class NetworkDialog {
 				if (!selectedFormat.equals(marina5colformat)){
 					try {
 						NetworkCreator networkCreator = new NetworkCreator(ui);
-						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(bean.getNetworkString(),
+						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(networkString,
 								interactionTypeMap, selectedFormat,
 								selectedRepresentedBy, isRestrict);
 						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));						 
@@ -124,7 +127,7 @@ public class NetworkDialog {
 						e1.printStackTrace();
 					}
 				}else{
-					ui.networkLoaded(bean.getNetworkString());
+					ui.networkLoaded(networkString);
 				}
 			}
 		});

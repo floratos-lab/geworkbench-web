@@ -281,10 +281,10 @@ public class MarinaAnalysis {
 		return true;
 	}
 
-	private static String createRunID() throws Exception {
+	private static String createRunID() throws IOException {
 		File root = new File(MARINA_RUNS_DIR);
 		if (!root.exists() && !root.mkdir())
-			throw new Exception(
+			throw new IOException(
 					"Cannot access or create MARINA run top directory");
 
 		String runId = null;
@@ -299,7 +299,7 @@ public class MarinaAnalysis {
 		} while (dir.exists() && i < Short.MAX_VALUE);
 
 		if (i >= Short.MAX_VALUE) {
-			throw new Exception("Tried too many times to create MARINA run ID");
+			throw new IOException("Tried too many times to create MARINA run ID");
 		}
 
 		return runId;

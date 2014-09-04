@@ -48,20 +48,20 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
+/* the main reason/benefit of implementing all the uploading listeners together is to pass around the outputstream */
 public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver, AnalysisUI {
 
 	private static final long serialVersionUID = 845011602285963638L;
 	private Log log = LogFactory.getLog(MarinaUI.class);
 
-	protected Form form = new Form();
-	private Upload upload = null;
-	private Button networkRequirements = null;
+	private final Form form = new Form();
+
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
 	protected Button submitButton = new Button("Submit", form, "commit");
 	private ClassSelector classSelector = null;	 
@@ -71,7 +71,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	protected BeanItem<MarinaParamBean> item = null;
 	protected HashMap<String, String> arraymap = null;
 	protected boolean allpos = true;
-	private final ByteArrayOutputStream os = new ByteArrayOutputStream(10240);
+	
+	private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(10240);
+	
 	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
@@ -90,6 +92,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	public MarinaUI(Long dataId){
 		this.dataSetId = dataId;
 		
+		final Upload upload = new Upload("Upload Network File", this);
+		upload.setButtonCaption("Upload");
+		upload.addListener((Upload.SucceededListener)this);
+        upload.addListener((Upload.FailedListener)this);
+        
 		arraymap = new HashMap<String, String>();
 		classSelector = new ClassSelector(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this);
 	 
@@ -147,13 +154,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		});
 		form.getLayout().addComponent(networkNodes);
 		
-		upload = new Upload("Upload Network File", this);
-		upload.setButtonCaption("Upload");
-		upload.addListener((Upload.SucceededListener)this);
-        upload.addListener((Upload.FailedListener)this);
 		form.getLayout().addComponent(upload);
 
-		networkRequirements = new Button("Network Requirements");
+		/* this is not a real button, just to show text with tooltip */
+		final Button networkRequirements = new Button("Network Requirements");
 		networkRequirements.setStyleName(Reindeer.BUTTON_LINK);
 		form.getLayout().addComponent(networkRequirements);
 		String desc = "For 2-tailed GSEA with an adjacency matrix network, the expression node should be the complete dataset from "
@@ -360,13 +364,14 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	}
 	
 	// Callback method to begin receiving the upload.
+	@Override
 	public OutputStream receiveUpload(String filename, String mimeType) {
-		item.getItemProperty("network").setValue(filename);
-		os.reset();
-		return os;
+		outputStream.reset();
+		return outputStream;
 	}
 
 	// This is called if the upload fails.
+	@Override
 	public void uploadFailed(FailedEvent event) {
 		String fname = event.getFilename();
 		log.info("Failed to upload "+fname);
@@ -374,13 +379,16 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	}
 
 	// This is called if the upload is finished.
+	@Override
 	public void uploadSucceeded(SucceededEvent event) {
-		bean.setNetworkString(new String(os.toByteArray(), Charset.defaultCharset()));
-		NetworkDialog dialog = new NetworkDialog(this);
+		String networkName = event.getFilename();
+		item.getItemProperty("network").setValue(networkName);
+		String networkString = new String(outputStream.toByteArray(), Charset.defaultCharset());
+		NetworkDialog dialog = new NetworkDialog(this, networkName, networkString);
 		dialog.openDialog();
 	}
 
-	protected void networkNotLoaded(String msg){
+	void networkNotLoaded(String msg){
 		bean.setNetworkString(null);
 		item.getItemProperty("network").setValue("");
 		form.getField("network").setEnabled(false);
@@ -393,7 +401,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		}
 	}
 
-	protected void networkLoaded(String networkString){
+	void networkLoaded(String networkString){
 		bean.setNetworkString(networkString);
 		form.getField("network").setEnabled(true);
 		if (classSelector.getTf1().isEnabled())
@@ -533,5 +541,10 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		FacadeFactory.getFacade().store(resultSet);
 
 		return analysisName + " - " + result.getLabel();
+	}
+	
+	/* to keep the earlier behavior. not a clean design. */
+	boolean isNetworkNameEnabled() {
+		return form.getField("network").isEnabled();
 	}
 }

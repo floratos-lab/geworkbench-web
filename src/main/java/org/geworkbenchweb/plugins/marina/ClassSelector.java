@@ -143,7 +143,7 @@ public class ClassSelector extends FormLayout{
 					marinaUI.submitButton.setEnabled(false);
 				}else{
 					tf1.setEnabled(true);
-					if (marinaUI.form.getField("network").isEnabled())
+					if (marinaUI.isNetworkNameEnabled())
 						marinaUI.submitButton.setEnabled(true);
 				}
 			}
