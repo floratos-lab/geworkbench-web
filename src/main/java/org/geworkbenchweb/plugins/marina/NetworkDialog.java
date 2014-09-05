@@ -1,5 +1,9 @@
 package org.geworkbenchweb.plugins.marina;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -7,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbenchweb.GeworkbenchRoot;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -33,13 +38,12 @@ public class NetworkDialog {
 	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
 	private String marina5colformat = "marina 5-column format";
 	
-	private final String networkName, networkString;
+	private final String networkName;
 
-	public NetworkDialog(MarinaUI ui, String networkName, String networkString){
+	public NetworkDialog(MarinaUI ui, String networkName){
 		this.ui = ui;
 		this.mainWindow = ui.getApplication().getMainWindow();
 		this.networkName = networkName;
-		this.networkString = networkString;
 	}
 
 	public void openDialog(){
@@ -105,8 +109,7 @@ public class NetworkDialog {
 
 				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkName.toLowerCase().endsWith(".sif"))
 						|| (networkName.toLowerCase().endsWith(".sif") && !selectedFormat
-								.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))
-						||(selectedFormat.equals(marina5colformat) && !is5colnetwork(networkString))){
+								.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) ){
 					ui.networkNotLoaded("The network format selected does not match that of the file.");
 					return;
 				}
@@ -115,19 +118,41 @@ public class NetworkDialog {
 					interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
 				}
 				
+				String uploadedFile = GeworkbenchRoot.getBackendDataDirectory()
+						+ "/upload/" + networkName;
 				if (!selectedFormat.equals(marina5colformat)){
 					try {
 						NetworkCreator networkCreator = new NetworkCreator(ui);
-						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(networkString,
+						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
 								interactionTypeMap, selectedFormat,
 								selectedRepresentedBy, isRestrict);
-						ui.networkLoaded(networkCreator.getNetworkFromAdjMatrix(matrix));						 
+						networkCreator.createNetworkFile(matrix, networkName);
+						ui.networkLoaded();						 
 					} catch (InputFileFormatException e1) {
 						log.error(e1.getMessage());
 						e1.printStackTrace();
+					} catch (IOException e) {
+						log.error(e.getMessage());
+						e.printStackTrace();
 					}
-				}else{
-					ui.networkLoaded(networkString);
+				} else if(!is5colnetwork(uploadedFile)) {
+						ui.networkNotLoaded("The network file is not 5-column format as claimed.");
+				} else { /* the case of 5-columned file */
+					try {
+						/* copying is not intrinsically necessary, only to keep 5-columned files and processed files in a consistent place */
+						String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+								+ "networks";
+						File dir = new File(dirName);
+						if (!dir.exists())
+							dir.mkdirs();
+
+						MarinaAnalysis.copyFile(uploadedFile, dirName + "/"
+								+ networkName);
+						ui.networkLoaded();
+					} catch (IOException e) {
+						ui.networkNotLoaded("Failed copying the uploaded network file");
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -158,24 +183,38 @@ public class NetworkDialog {
 	
 	/**
 	 * Test if the network is in 5-column format, and if all correlation cols are positive.
-	 * @param bytes    network in bytes
 	 * @return if the network is in 5-column format
 	 */
-	private boolean is5colnetwork(String network){
-		if (network == null || network.length() == 0)
-			return false;
+	private boolean is5colnetwork(String networkFile) {
+		
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(networkFile));
 
-		ui.allpos = true;
-		String[] lines = network.split("\n");
-		if (lines == null || lines.length == 0)
+			ui.allpos = true;
+
+			String line = br.readLine();
+			while (line != null) {
+				String[] toks = line.split("\t");
+				if (toks.length != 5 || !isDouble(toks[2])
+						|| !isDouble(toks[3]) || !isDouble(toks[4])) {
+					br.close();
+					return false;
+				}
+				if (ui.allpos && Double.valueOf(toks[correlationCol]) < 0)
+					ui.allpos = false;
+
+				line = br.readLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
-		for (String line : lines) {
-			String[] toks = line.split("\t");
-			if (toks.length != 5 || !isDouble(toks[2]) || !isDouble(toks[3])
-					|| !isDouble(toks[4]))
-				return false;
-			if (ui.allpos && Double.valueOf(toks[correlationCol]) < 0)
-				ui.allpos = false;
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException e) {
+			}
 		}
 		return true;
 	}

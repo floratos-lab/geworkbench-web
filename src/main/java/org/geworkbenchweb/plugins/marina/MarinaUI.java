@@ -1,10 +1,10 @@
 package org.geworkbenchweb.plugins.marina;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +54,6 @@ import com.vaadin.ui.themes.Reindeer;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-/* the main reason/benefit of implementing all the uploading listeners together is to pass around the outputstream */
 public class MarinaUI extends VerticalLayout implements Upload.SucceededListener,Upload.FailedListener,Upload.Receiver, AnalysisUI {
 
 	private static final long serialVersionUID = 845011602285963638L;
@@ -71,8 +70,6 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	protected BeanItem<MarinaParamBean> item = null;
 	protected HashMap<String, String> arraymap = null;
 	protected boolean allpos = true;
-	
-	private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(10240);
 	
 	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
@@ -149,7 +146,13 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				}
 
 				NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);
-				networkLoaded(networkCreator.getNetworkString(network));				 
+				try {
+					networkCreator.createNetworkFile(network, (String)(item.getItemProperty("network").getValue()) );
+					networkLoaded();				 
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					networkNotLoaded("failed creating network file");
+				}
 			}
 		});
 		form.getLayout().addComponent(networkNodes);
@@ -366,8 +369,27 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	// Callback method to begin receiving the upload.
 	@Override
 	public OutputStream receiveUpload(String filename, String mimeType) {
-		outputStream.reset();
-		return outputStream;
+		/* because the file must be under a directory named by 'run ID' that is only created when execute() is called,
+		 * we have to upload first then copy it later. */
+		/* temporary file location */
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+				+ "upload";
+		File dir = new File(dirName);
+		if (!dir.exists())
+			dir.mkdirs();
+
+		FileOutputStream fos = null; // Output stream to write to
+		File file = new File(dirName + "/" + filename);
+        try {
+            // Open the file for writing.
+            fos = new FileOutputStream(file);
+        } catch (final java.io.FileNotFoundException e) {
+            // Error while opening the file. Not reported here.
+            e.printStackTrace();
+            return null;
+        }
+
+        return fos; // Return the output stream to write to
 	}
 
 	// This is called if the upload fails.
@@ -383,13 +405,11 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	public void uploadSucceeded(SucceededEvent event) {
 		String networkName = event.getFilename();
 		item.getItemProperty("network").setValue(networkName);
-		String networkString = new String(outputStream.toByteArray(), Charset.defaultCharset());
-		NetworkDialog dialog = new NetworkDialog(this, networkName, networkString);
+		NetworkDialog dialog = new NetworkDialog(this, networkName);
 		dialog.openDialog();
 	}
 
 	void networkNotLoaded(String msg){
-		bean.setNetworkString(null);
 		item.getItemProperty("network").setValue("");
 		form.getField("network").setEnabled(false);
 		submitButton.setEnabled(false);
@@ -401,8 +421,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		}
 	}
 
-	void networkLoaded(String networkString){
-		bean.setNetworkString(networkString);
+	void networkLoaded(){
 		form.getField("network").setEnabled(true);
 		if (classSelector.getTf1().isEnabled())
 			submitButton.setEnabled(true);

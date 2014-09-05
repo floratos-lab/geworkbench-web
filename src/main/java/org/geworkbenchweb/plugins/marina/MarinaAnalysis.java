@@ -2,9 +2,13 @@ package org.geworkbenchweb.plugins.marina;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -17,6 +21,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MraResult;
@@ -83,11 +88,6 @@ public class MarinaAnalysis {
 		}
 		
 		/* following is the normal case (submission of a new job) instead of retrieving existing result*/
-		String network = bean.getNetworkString();
-		if (network == null)
-			throw new RemoteException(
-					"Please reload a network file in 5-column format, or use a valid AdjacencyMatrix that matches this dataset.");
-
 		boolean paired = false;
 
 		String runid = createRunID();
@@ -100,7 +100,11 @@ public class MarinaAnalysis {
 		String networkFname = bean.getNetwork();
 		if (networkFname.length() == 0)
 			throw new RemoteException("Network not loaded");
-		writeToFile(mradir+networkFname, network);
+
+		/* copy the uploaded (and possibly processed) network file */
+		String source = GeworkbenchRoot.getBackendDataDirectory() + "/"
+				+ "networks/"+networkFname;
+		copyFile(source, mradir+networkFname);
 
 		if (bean.getClass1() == null)
 			return null;
@@ -165,6 +169,24 @@ public class MarinaAnalysis {
 		String[][] resultArray = convertResult(resultfile.getPath());
 
 		return new MraResult(runid, resultArray);
+	}
+
+	// TODO there will be easier ways to copy files in Java 7
+	static void copyFile(String source, String dest) throws IOException {
+		InputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new FileInputStream(source);
+			output = new FileOutputStream(dest);
+			byte[] buf = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = input.read(buf)) > 0) {
+				output.write(buf, 0, bytesRead);
+			}
+		} finally {
+			if(input!=null) input.close();
+			if(output!=null) output.close();
+		}
 	}
 
 	private static String[][] convertResult(String fname){

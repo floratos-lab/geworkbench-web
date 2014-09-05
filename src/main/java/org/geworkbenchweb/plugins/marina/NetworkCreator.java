@@ -1,5 +1,11 @@
 package org.geworkbenchweb.plugins.marina;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,12 +14,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
@@ -24,6 +33,8 @@ import org.geworkbenchweb.pojos.NetworkEdges;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class NetworkCreator {
+	private Log log = LogFactory.getLog(NetworkCreator.class);
+	
 	private final MarinaUI ui;
 	private final Long dataSetId;
 	public static final String SIF_FORMART = "sif format";
@@ -108,7 +119,7 @@ public class NetworkCreator {
 		return geneToMarker;
 	}
 
-	public AdjacencyMatrix parseAdjacencyMatrix(String network,
+	public AdjacencyMatrix parseAdjacencyMatrix(String networkFile,
 			Map<String, String> interactionTypeSifMap, String format,
 			String selectedRepresentedBy, boolean isRestrict)
 			throws InputFileFormatException {
@@ -117,14 +128,12 @@ public class NetworkCreator {
 
 		Map<String, String> map = getAnnotationMap(selectedRepresentedBy);
 
-		String[] lines = network.split("\n");
-		if (lines == null || lines.length == 0) {
-			throw new InputFileFormatException("empty network");
-		}
-		
+		BufferedReader br = null;
 		try {
+			br = new BufferedReader(new FileReader(networkFile));
+			String line = br.readLine();
 
-			for (String line : lines) {
+			while (line!=null) {
 				// skip comments
 				if (line.trim().equals("") || line.startsWith(">")
 						|| line.startsWith("-"))
@@ -157,18 +166,27 @@ public class NetworkCreator {
 					}
 				 
 					matrix.add(node, node2, mi, interactionType);
-				} // end of the token loop for one line			 
+				} // end of the token loop for one line
+				
+				line = br.readLine();
 			} // end of reading while loop
 		} catch (NumberFormatException ex) {
 			throw new InputFileFormatException(ex.getMessage());
 		} catch (Exception e) {
 			throw new InputFileFormatException(e.getMessage());
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return matrix;
 	}
 	
-	public String getNetworkFromAdjMatrix(AdjacencyMatrix matrix){
+	public void createNetworkFile(AdjacencyMatrix matrix, String networkName) throws IOException {
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -179,7 +197,11 @@ public class NetworkCreator {
 		int arrayNumber = microarray.getArrayNumber();
 		float[][] rows = microarray.getExpressionValues();
 
-		if (matrix==null) return null;
+		if (matrix==null) {
+			log.error("null AajacencyMatrix");
+			return;
+		}
+		
 		Map<String, String> map = null;
 		if(matrix.getNodeNumber()>0){
 			NodeType nodeType = matrix.getNodes().get(0).type;
@@ -189,10 +211,15 @@ public class NetworkCreator {
 			}
 		}
 
-		boolean goodNetwork = false;
 		ui.allpos = true;
 		
-		StringBuilder builder = new StringBuilder();
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+				+ "networks";
+		File dir = new File(dirName);
+		if (!dir.exists())
+			dir.mkdirs();
+		
+		PrintWriter pw = new PrintWriter(new FileWriter(dirName+"/"+networkName));
 		for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
 			String marker1 = getMarkerInNode(node1, map);
 			int marker1Index = markerLabels.indexOf(marker1);
@@ -229,23 +256,26 @@ public class NetworkCreator {
 								e.printStackTrace();
 							}
 						}
-						builder.append(marker1 + "\t");
-						builder.append(marker2 + "\t" + edge.info.value + "\t" // Mutual information
+						pw.print(marker1 + "\t");
+						pw.print(marker2 + "\t" + edge.info.value + "\t" // Mutual information
 								+ rho + "\t" // Spearman's correlation = 1
 								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
 					}
 				}
-				if (!goodNetwork && builder.length() > 0)
-					goodNetwork = true;
 			}
 		}
-		if (!goodNetwork)
-			return null;
-		return builder.toString();
+		pw.close();
 	}
 	
-	/* based on getNetworkFromAdjMatrix, which I doubt is completely correct */
-	public String getNetworkString(Network network){
+	/* TODO need testing and verification */
+	public void createNetworkFile(Network network, String networkName) throws IOException {
+		String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+				+ "networks";
+		File dir = new File(dirName);
+		if (!dir.exists())
+			dir.mkdirs();
+		
+		PrintWriter pw = new PrintWriter(new FileWriter(dirName+"/"+networkName));
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -256,10 +286,8 @@ public class NetworkCreator {
 		int arrayNumber = microarray.getArrayNumber();
 		float[][] rows = microarray.getExpressionValues();
 
-		boolean goodNetwork = false;
 		ui.allpos = true;
 		
-		StringBuilder builder = new StringBuilder();
 		String[] node1s = network.getNode1();
 		NetworkEdges[] allEdges = network.getEdges();
 		for (int index=0; index<node1s.length; index++) {
@@ -302,19 +330,17 @@ public class NetworkCreator {
 								e.printStackTrace();
 							}
 						}
-						builder.append(marker1 + "\t");
-						builder.append(marker2 + "\t" + weights[index2] + "\t" // Mutual information
+						pw.print(marker1 + "\t");
+						pw.print(marker2 + "\t" + weights[index2] + "\t" // Mutual information
 								+ rho + "\t" // Spearman's correlation = 1
 								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
 					}
 				}
-				if (!goodNetwork && builder.length() > 0)
-					goodNetwork = true;
 			}
 		}
-		if (!goodNetwork)
-			return null;
-		return builder.toString();
+
+		pw.close();
+		return;
 	}
 
 	private double[][] transpose(double[][] in){
