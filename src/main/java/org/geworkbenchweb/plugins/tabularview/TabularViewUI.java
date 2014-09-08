@@ -444,7 +444,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			dir.mkdirs();
 
 		final Application app = getApplication();
-		final File file = new File(dirName + "/expression_data_" + datasetId + ".tab");
+		final File file = new File(dirName + "/expression_data_" + datasetId + ".tsv");
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
 			Collection<?> properties = displayTable.getContainerDataSource()
