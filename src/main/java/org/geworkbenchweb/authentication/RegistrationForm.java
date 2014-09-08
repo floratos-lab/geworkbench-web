@@ -21,6 +21,8 @@ import nl.captcha.Captcha;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.pojos.ActiveWorkspace;
+import org.geworkbenchweb.pojos.Workspace;
  
 import org.vaadin.appfoundation.authentication.data.User;
  
@@ -243,6 +245,19 @@ public class RegistrationForm extends VerticalLayout {
 
 		FacadeFactory.getFacade().store(user);
 		log.debug("user object is stored");
+		
+		/* Creating default workspace */
+		Workspace workspace = new Workspace();
+		workspace.setOwner(user.getId());
+		workspace.setName("Default Workspace");
+		FacadeFactory.getFacade().store(workspace);
+
+		/* Setting active workspace */
+		ActiveWorkspace active = new ActiveWorkspace();
+		active.setOwner(user.getId());
+		active.setWorkspace(workspace.getId());
+		FacadeFactory.getFacade().store(active);
+		
 
 		String confirmPage = this.getApplication().getURL().toString() + "VAADIN/pages/confirm.html";
 		getApplication().close();

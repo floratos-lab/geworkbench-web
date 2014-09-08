@@ -91,18 +91,7 @@ public class ConfirmUserServlet extends HttpServlet {
 				if (user.isAccountLocked()) {
 					user.setAccountLocked(false);
 					user.setReasonForLockedAccount(keyString + "(user account has been confirmed.)");
-					FacadeFactory.getFacade().store(user);
-					/* Creating default workspace */
-					Workspace workspace = new Workspace();
-					workspace.setOwner(user.getId());
-					workspace.setName("Default Workspace");
-					FacadeFactory.getFacade().store(workspace);
-
-					/* Setting active workspace */
-					ActiveWorkspace active = new ActiveWorkspace();
-					active.setOwner(user.getId());
-					active.setWorkspace(workspace.getId());
-					FacadeFactory.getFacade().store(active);
+					FacadeFactory.getFacade().store(user);			 
 				}
 				HttpSession session = request.getSession(false);
 				if (session != null) {
