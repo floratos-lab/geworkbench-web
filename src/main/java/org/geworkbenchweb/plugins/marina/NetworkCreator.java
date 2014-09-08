@@ -136,15 +136,19 @@ public class NetworkCreator {
 			while (line!=null) {
 				// skip comments
 				if (line.trim().equals("") || line.startsWith(">")
-						|| line.startsWith("-"))
+						|| line.startsWith("-")) {
+					line = br.readLine();
 					continue;
+				}
 
 				StringTokenizer tr = new StringTokenizer(line, "\t");
 
 				AdjacencyMatrix.Node node = token2node(tr.nextToken(),
 						selectedRepresentedBy, isRestrict, map);
-				if (node == null)
+				if (node == null) {
+					line = br.readLine();
 					continue; // skip it when we don't have it
+				}
 			 
 				String interactionType = null;
 				if (format.equals(SIF_FORMART) && tr.hasMoreTokens())
@@ -186,6 +190,7 @@ public class NetworkCreator {
 		return matrix;
 	}
 	
+	/* TODO this method may take time, partly because we need to do SpearmansCorrelation computation here. it should be managed in a background thread instead executing in 'GUI thread'.*/
 	public void createNetworkFile(AdjacencyMatrix matrix, String networkName) throws IOException {
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
