@@ -178,7 +178,7 @@ public class ForgotListener implements ClickListener{
 			}
 		};
 		
-		log.info("fromEmail is " + fromEmail + ", fromPassword is " +  fromPassword);
+		log.debug("fromEmail is " + fromEmail + ", fromPassword is " +  fromPassword);
 		Session mailSession = Session.getInstance(props, new javax.mail.Authenticator() {
 	        protected PasswordAuthentication getPasswordAuthentication() {
 	            return new PasswordAuthentication(fromEmail, fromPassword);
