@@ -17,6 +17,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.util.PasswordUtil;
@@ -41,6 +43,8 @@ public class ForgotListener implements ClickListener{
 	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
 
 	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
+	
+	private Log log = LogFactory.getLog(ForgotListener.class);
 	
 	public ForgotListener(Button btn){
 		forgotBtn = btn;
@@ -173,7 +177,9 @@ public class ForgotListener implements ClickListener{
 				put("mail.smtp.starttls.enable", "true");
 			}
 		};
-		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+		
+		log.info("fromEmail is " + fromEmail + ", fromPassword is " +  fromPassword);
+		Session mailSession = Session.getInstance(props, new javax.mail.Authenticator() {
 	        protected PasswordAuthentication getPasswordAuthentication() {
 	            return new PasswordAuthentication(fromEmail, fromPassword);
 	        }
