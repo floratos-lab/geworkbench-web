@@ -192,6 +192,7 @@ public class NetworkCreator {
 	
 	/* TODO this method may take time, partly because we need to do SpearmansCorrelation computation here. it should be managed in a background thread instead executing in 'GUI thread'.*/
 	public void createNetworkFile(AdjacencyMatrix matrix, String networkName) throws IOException {
+		long time0 = System.currentTimeMillis();
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -199,7 +200,7 @@ public class NetworkCreator {
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, id);
 		List<String> markerLabels = Arrays.asList( microarray.getMarkerLabels() );
-		int arrayNumber = microarray.getArrayNumber();
+		final int arrayNumber = microarray.getArrayNumber();
 		float[][] rows = microarray.getExpressionValues();
 
 		if (matrix==null) {
@@ -270,6 +271,9 @@ public class NetworkCreator {
 			}
 		}
 		pw.close();
+		
+		long time1 = System.currentTimeMillis();
+		log.debug("elapsed milliseconds creating network file "+(time1-time0));
 	}
 	
 	/* TODO need testing and verification */
