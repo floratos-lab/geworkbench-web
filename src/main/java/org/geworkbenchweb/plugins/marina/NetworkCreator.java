@@ -16,6 +16,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
@@ -201,7 +202,7 @@ public class NetworkCreator {
 				MicroarrayDataset.class, id);
 		List<String> markerLabels = Arrays.asList( microarray.getMarkerLabels() );
 		final int arrayNumber = microarray.getArrayNumber();
-		float[][] rows = microarray.getExpressionValues();
+		float[][] allValues = microarray.getExpressionValues();
 
 		if (matrix==null) {
 			log.error("null AajacencyMatrix");
@@ -229,51 +230,50 @@ public class NetworkCreator {
 		for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
 			String marker1 = getMarkerInNode(node1, map);
 			int marker1Index = markerLabels.indexOf(marker1);
-			if (marker1 != null && marker1Index > -1) {
-				double[] v1 = new double[arrayNumber];
-				double[] v2 = new double[arrayNumber];
-				float[] value1 = rows[marker1Index];
-				for (int i = 0; i < arrayNumber; i++) {
-					v1[i] = value1[i];
+			if (marker1 == null || marker1Index < 0)
+				continue;
+
+			for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
+				String marker2 = getMarkerInNode(edge.node2, map);
+				int marker2Index = markerLabels.indexOf(marker2);
+				if (marker2 == null || marker2Index < 0)
+					continue;
+
+				double rho = 1, pvalue = 0; /* default values of Spearman's correlation and p-value */
+
+				double[][] sliced = getDataOfMarkerPair(allValues, arrayNumber,
+						marker1Index, marker2Index);
+				RealMatrix rm = new SpearmansCorrelation()
+						.computeCorrelationMatrix(sliced);
+				if (rm.getColumnDimension() > 1)
+					rho = rm.getEntry(0, 1);
+				if (ui.allpos && rho < 0)
+					ui.allpos = false;
+				try {
+					pvalue = new PearsonsCorrelation(rm, arrayNumber)
+							.getCorrelationPValues().getEntry(0, 1);
+				} catch (MathException e) {
+					e.printStackTrace();
 				}
 
-				for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-					String marker2 = getMarkerInNode(edge.node2, map);
-					int marker2Index = markerLabels.indexOf(marker2);
-					if (marker2 != null && marker2Index > -1) {
-						double rho = 1, pvalue = 0;
-						float[] value2 = rows[marker2Index];
-						for (int i = 0; i < arrayNumber; i++) {
-							v2[i] = value2[i];
-						}
-						if (v1 != null && v1.length > 0 && v2 != null
-								&& v2.length > 0) {
-							double[][] arrayData = new double[][] { v1, v2 };
-							RealMatrix rm = new SpearmansCorrelation()
-									.computeCorrelationMatrix(transpose(arrayData));
-							if (rm.getColumnDimension() > 1)
-								rho = rm.getEntry(0, 1);
-							if (ui.allpos && rho < 0)
-								ui.allpos = false;
-							try {
-								pvalue = new PearsonsCorrelation(rm, v1.length)
-										.getCorrelationPValues().getEntry(0, 1);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-						pw.print(marker1 + "\t");
-						pw.print(marker2 + "\t" + edge.info.value + "\t" // Mutual information
-								+ rho + "\t" // Spearman's correlation = 1
-								+ pvalue + "\n"); // P-value for Spearman's correlation = 0
-					}
-				}
+				pw.print(marker1 + "\t" + marker2 + "\t" + edge.info.value
+						+ "\t" + rho + "\t" + pvalue + "\n");
 			}
 		}
 		pw.close();
 		
 		long time1 = System.currentTimeMillis();
 		log.debug("elapsed milliseconds creating network file "+(time1-time0));
+	}
+	
+	private static double[][] getDataOfMarkerPair(float[][] allData,
+			int microarrayNumber, int marker1, int marker2) {
+		double[][] sliced = new double[microarrayNumber][2];
+		for (int i = 0; i < microarrayNumber; i++) {
+			sliced[i][0] = allData[marker1][i];
+			sliced[i][1] = allData[marker2][i];
+		}
+		return sliced;
 	}
 	
 	/* TODO need testing and verification */
