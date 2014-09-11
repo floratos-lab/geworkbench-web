@@ -21,6 +21,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Window;
 
 public class NetworkDialog {
@@ -39,6 +40,10 @@ public class NetworkDialog {
 	private String marina5colformat = "marina 5-column format";
 	
 	private final String networkName;
+	
+	/* This is not only a visual clue, but crucial to trigger the UI update. */
+	final ProgressIndicator indicator =
+	        new ProgressIndicator(new Float(0.0));
 
 	public NetworkDialog(MarinaUI ui, String networkName){
 		this.ui = ui;
@@ -65,8 +70,8 @@ public class NetworkDialog {
 		presentBox.addItem(AdjacencyMatrixDataSet.ENTREZ_ID);
 		presentBox.addItem(AdjacencyMatrixDataSet.OTHER);
 
-		Button continueButton = new Button("Continue");
-		Button cancelButton = new Button("Cancel");
+		final Button continueButton = new Button("Continue");
+		final Button cancelButton = new Button("Cancel");
 		formatBox.addListener(new Property.ValueChangeListener(){
 			private static final long serialVersionUID = -7717934520937460169L;
 			public void valueChange(ValueChangeEvent event) {
@@ -103,57 +108,11 @@ public class NetworkDialog {
 		continueButton.addListener(new ClickListener(){
 			private static final long serialVersionUID = -5207079864397027215L;
 			public void buttonClick(ClickEvent event) {
-				selectedFormat = formatBox.getValue().toString();
-				selectedRepresentedBy = presentBox.getValue().toString();
-				mainWindow.removeWindow(loadDialog);
-
-				if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkName.toLowerCase().endsWith(".sif"))
-						|| (networkName.toLowerCase().endsWith(".sif") && !selectedFormat
-								.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) ){
-					ui.networkNotLoaded("The network format selected does not match that of the file.");
-					return;
-				}
-
-				if (selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) {
-					interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
-				}
+				final WorkThread thread = new WorkThread();
+				thread.start();
 				
-				String uploadedFile = GeworkbenchRoot.getBackendDataDirectory()
-						+ "/upload/" + networkName;
-				if (!selectedFormat.equals(marina5colformat)){
-					try {
-						NetworkCreator networkCreator = new NetworkCreator(ui);
-						AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
-								interactionTypeMap, selectedFormat,
-								selectedRepresentedBy, isRestrict);
-						networkCreator.createNetworkFile(matrix, networkName);
-						ui.networkLoaded();						 
-					} catch (InputFileFormatException e1) {
-						log.error(e1.getMessage());
-						e1.printStackTrace();
-					} catch (IOException e) {
-						log.error(e.getMessage());
-						e.printStackTrace();
-					}
-				} else if(!is5colnetwork(uploadedFile)) {
-						ui.networkNotLoaded("The network file is not 5-column format as claimed.");
-				} else { /* the case of 5-columned file */
-					try {
-						/* copying is not intrinsically necessary, only to keep 5-columned files and processed files in a consistent place */
-						String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
-								+ "networks";
-						File dir = new File(dirName);
-						if (!dir.exists())
-							dir.mkdirs();
-
-						MarinaAnalysis.copyFile(uploadedFile, dirName + "/"
-								+ networkName);
-						ui.networkLoaded();
-					} catch (IOException e) {
-						ui.networkNotLoaded("Failed copying the uploaded network file");
-						e.printStackTrace();
-					}
-				}
+				indicator.setVisible(true);
+				continueButton.setVisible(false);
 			}
 		});
 		cancelButton.addListener(new ClickListener(){
@@ -172,13 +131,76 @@ public class NetworkDialog {
 		Form loadform = new Form();
 		loadform.getLayout().addComponent(formatBox);
 		loadform.getLayout().addComponent(presentBox);
-		loadform.getFooter().addComponent(bar);
-
+		
+		indicator.setSizeFull();
+		indicator.setVisible(false);
+		
 		loadDialog.addComponent(loadform);
+		loadDialog.addComponent(indicator);
+		loadDialog.addComponent(bar);
 		loadDialog.setWidth("340px");
 		loadDialog.setModal(true);
 		loadDialog.setVisible(true);
 		mainWindow.addWindow(loadDialog);
+	}
+	
+	private class WorkThread extends Thread {
+		
+		public void run() {
+
+			selectedFormat = formatBox.getValue().toString();
+			selectedRepresentedBy = presentBox.getValue().toString();
+
+			if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkName.toLowerCase().endsWith(".sif"))
+					|| (networkName.toLowerCase().endsWith(".sif") && !selectedFormat
+							.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) ){
+				ui.networkNotLoaded("The network format selected does not match that of the file.");
+				return;
+			}
+
+			if (selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) {
+				interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
+			}
+			
+			String uploadedFile = GeworkbenchRoot.getBackendDataDirectory()
+					+ "/upload/" + networkName;
+			if (!selectedFormat.equals(marina5colformat)){
+				try {
+					NetworkCreator networkCreator = new NetworkCreator(ui, indicator);
+					AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
+							interactionTypeMap, selectedFormat,
+							selectedRepresentedBy, isRestrict);
+					networkCreator.createNetworkFile(matrix, networkName);
+					ui.networkLoaded();						 
+				} catch (InputFileFormatException e1) {
+					log.error(e1.getMessage());
+					e1.printStackTrace();
+				} catch (IOException e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+				}
+			} else if(!is5colnetwork(uploadedFile)) {
+					ui.networkNotLoaded("The network file is not 5-column format as claimed.");
+			} else { /* the case of 5-columned file */
+				try {
+					/* copying is not intrinsically necessary, only to keep 5-columned files and processed files in a consistent place */
+					String dirName = GeworkbenchRoot.getBackendDataDirectory() + "/"
+							+ "networks";
+					File dir = new File(dirName);
+					if (!dir.exists())
+						dir.mkdirs();
+
+					MarinaAnalysis.copyFile(uploadedFile, dirName + "/"
+							+ networkName);
+					ui.networkLoaded();
+				} catch (IOException e) {
+					ui.networkNotLoaded("Failed copying the uploaded network file");
+					e.printStackTrace();
+				}
+			}
+			
+			mainWindow.removeWindow(loadDialog);
+		}
 	}
 	
 	/**

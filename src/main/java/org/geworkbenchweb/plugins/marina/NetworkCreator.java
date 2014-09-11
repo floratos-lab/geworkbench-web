@@ -33,6 +33,8 @@ import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.ui.ProgressIndicator;
+
 public class NetworkCreator {
 	private Log log = LogFactory.getLog(NetworkCreator.class);
 	
@@ -47,8 +49,15 @@ public class NetworkCreator {
 	public NetworkCreator(MarinaUI ui){
 		this.ui = ui;
 		this.dataSetId = ui.dataSetId;
+		this.indicator = null;
 	}
 	
+	public NetworkCreator(MarinaUI ui, ProgressIndicator indicator) {
+		this.ui = ui;
+		this.dataSetId = ui.dataSetId;
+		this.indicator = indicator;
+	}
+
 	private static AdjacencyMatrix.Node token2node(String token,
 			final String selectedRepresentedBy, final boolean isRestrict,
 			final Map<String, String> map) {
@@ -191,9 +200,22 @@ public class NetworkCreator {
 		return matrix;
 	}
 	
-	/* TODO this method may take time, partly because we need to do SpearmansCorrelation computation here. it should be managed in a background thread instead executing in 'GUI thread'.*/
+	private final ProgressIndicator indicator;
+	private int progress = 0;
+	
+	public void updateProgress(int np) {
+		progress = np;
+		log.info("progress="+progress+"%");
+		if(indicator!=null) { /* For now, it is allowed to have null ProgressIndicator. */
+			indicator.setValue(new Float(progress*0.01));
+		}
+	}
+	
+	/* This method may take time (mainly due to SpearmansCorrelation computation), so it should be invoked in a background thread. */
+	/* The numerical algorithm as it is was introduced on Nov 29, 2011 as commit d539480917add5db2cab2d29e93f7ddf04557a62 */
 	public void createNetworkFile(AdjacencyMatrix matrix, String networkName) throws IOException {
 		long time0 = System.currentTimeMillis();
+		progress = 0;
 		
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -226,12 +248,20 @@ public class NetworkCreator {
 		if (!dir.exists())
 			dir.mkdirs();
 		
+		int p = 0;
+		int total = matrix.getNodes().size();
 		PrintWriter pw = new PrintWriter(new FileWriter(dirName+"/"+networkName));
 		for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
 			String marker1 = getMarkerInNode(node1, map);
 			int marker1Index = markerLabels.indexOf(marker1);
 			if (marker1 == null || marker1Index < 0)
 				continue;
+			
+			int np = p*100/total;
+			if(np%5==0 && np!=progress) {
+				updateProgress(np);
+			}
+			p++;
 
 			for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
 				String marker2 = getMarkerInNode(edge.node2, map);
