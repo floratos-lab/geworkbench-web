@@ -57,6 +57,7 @@ public class ClassSelector extends FormLayout{
 		arrayContextCB.setWidth("140px");
 		arrayContextCB.setImmediate(true);	
 		arrayContextCB.setNullSelectionAllowed(false);
+		arrayContextCB.setDescription("The context of microarray sets.");
 	 
 		
 		class1ArraySelect = new ListSelect();
@@ -64,16 +65,18 @@ public class ClassSelector extends FormLayout{
 		class1ArraySelect.setRows(4);
 		class1ArraySelect.setColumns(11);
 		class1ArraySelect.setImmediate(true);
+		h1.setDescription("Case microarray set.");
 		
 		class2ArraySelect = new ListSelect();
 		class2ArraySelect.setMultiSelect(true);
 		class2ArraySelect.setRows(4);
 		class2ArraySelect.setColumns(11);
 		class2ArraySelect.setImmediate(true);
+		h2.setDescription("Control microarray set.");
+		
 		tf1.setEnabled(false);
 		tf2.setEnabled(false);
 		
-
 		arrayContextCB.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 			public void valueChange(ValueChangeEvent event) {						 
