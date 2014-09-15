@@ -61,9 +61,13 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	private final Form form = new Form();
 
+	private final MicroarrayContext arrayContext;
+	private final MicroarraySetSelect caseSelect;
+	private final MicroarraySetSelect controlSelect;
+	
 	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
 	protected Button submitButton = new Button("Submit", form, "commit");
-	private ClassSelector classSelector = null;	 
+
 	private OptionGroup og = null;
 	private ComboBox networkNodes = null;
 	protected MarinaParamBean bean = null;
@@ -95,14 +99,16 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
         upload.addListener((Upload.FailedListener)this);
         
 		arraymap = new HashMap<String, String>();
-		classSelector = new ClassSelector(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this);
+		caseSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Case", "Case microarray sets", true);
+		controlSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Control", "Control microarray sets", false);
+		arrayContext = new MicroarrayContext(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, caseSelect, controlSelect);
 	 
 
 		setDataSetId(dataSetId);	 
 
-		form.getLayout().addComponent(classSelector.getArrayContextCB());
-		form.getLayout().addComponent(classSelector.getH1());
-		form.getLayout().addComponent(classSelector.getH2());
+		this.addComponent(arrayContext);
+		this.addComponent(caseSelect);
+		this.addComponent(controlSelect);
 		
 		og = new OptionGroup("Load Network Method", Arrays.asList(networkOptions));
 		og.setImmediate(true);
@@ -214,9 +220,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					networkRequirements.setEnabled(false);
 					networkNodes.setEnabled(false);
 					upload.setEnabled(false);
-					classSelector.getArrayContextCB().setEnabled(false);
-					classSelector.getH1().setEnabled(false);
-				    classSelector.getH2().setEnabled(false);
+					arrayContext.setEnabled(false);
+					caseSelect.setEnabled(false);
+					controlSelect.setEnabled(false);
 					form.getField("retrievePriorResultWithId").setEnabled(true);
 					if (form.isValid()) submitButton.setEnabled(true);
 				}else {
@@ -226,12 +232,12 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					networkRequirements.setEnabled(true);
 					networkNodes.setEnabled(true);
 					upload.setEnabled(true);
-					classSelector.getArrayContextCB().setEnabled(true);
-					classSelector.getH1().setEnabled(true);
-					classSelector.getH2().setEnabled(true);
+					arrayContext.setEnabled(true);
+					caseSelect.setEnabled(true);
+					controlSelect.setEnabled(true);
 					form.getField("retrievePriorResultWithId").setEnabled(false);
 					if (form.getField("network").getValue().equals("")) form.getField("network").setEnabled(false);
-					if (classSelector.getTf1().isEnabled() && form.getField("network").isEnabled())
+					if (caseSelect.isTextFieldEnabled() && form.getField("network").isEnabled())
 						submitButton.setEnabled(true);
 					else submitButton.setEnabled(false);
 				}
@@ -245,7 +251,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 			@Override
 			public void buttonClick(ClickEvent event) {			 
-			    String warnMsg = validInputClassData(classSelector.getClass1ArraySet(), classSelector.getClass2ArraySet());
+			    String warnMsg = validInputClassData(caseSelect.getArraySet(), controlSelect.getArraySet());
 				if( warnMsg != null ) 
 				{ 
 					MessageBox mb = new MessageBox(getWindow(), 
@@ -423,7 +429,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 	void networkLoaded(){
 		form.getField("network").setEnabled(true);
-		if (classSelector.getTf1().isEnabled())
+		if (caseSelect.isTextFieldEnabled())
 			submitButton.setEnabled(true);
 		
 		if (allpos && bean.getGseaTailNumber()==2){
@@ -489,7 +495,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		if(dataSetId==null || dataSetId==0) return;
 
 		bean.reset();
-		classSelector.setData(dataSetId, SessionHandler.get().getId());
+		arrayContext.setData(dataSetId, SessionHandler.get().getId());
 		addNetworkNodes(SessionHandler.get().getId(), dataId);
 		og.select(uploadNetworkFile);
 		priorBox.setValue(false);
