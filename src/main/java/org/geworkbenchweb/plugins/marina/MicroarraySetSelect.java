@@ -6,8 +6,8 @@ import org.geworkbenchweb.pojos.SubSet;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
 
@@ -22,6 +22,9 @@ public class MicroarraySetSelect extends HorizontalLayout {
 	private final MarinaUI marinaUI;
 	
 	private final boolean required;
+
+	private final static ThemeResource infoIcon = new ThemeResource(
+			"../custom/icons/icon_info.gif");
 
 	void reset(List<SubSet> arraySubSets) {
 		arraySetSelect.removeAllItems();
@@ -84,14 +87,12 @@ public class MicroarraySetSelect extends HorizontalLayout {
 		});
 
 		this.setSpacing(true);
-		this.setCaption(null);
-		this.addComponent(new ParameterDescriptionButton(description));
-		Label captionLabel = new Label(caption);
-		captionLabel.setWidth("60px");
-		this.addComponent(captionLabel);
+		this.setCaption("\u2605  "+caption);
 		this.addComponent(arraySetSelect);
 		this.addComponent(textField);
 
+//		this.setIcon(infoIcon);
+		this.setDescription(description);
 	}
 
 	public String[] getArraySet() {

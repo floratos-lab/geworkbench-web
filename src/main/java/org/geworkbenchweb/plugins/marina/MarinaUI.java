@@ -106,9 +106,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 
 		setDataSetId(dataSetId);	 
 
-		this.addComponent(arrayContext);
-		this.addComponent(caseSelect);
-		this.addComponent(controlSelect);
+		form.getLayout().addComponent(arrayContext);
+		form.getLayout().addComponent(caseSelect);
+		form.getLayout().addComponent(controlSelect);
 		
 		og = new OptionGroup("Load Network Method", Arrays.asList(networkOptions));
 		og.setImmediate(true);
