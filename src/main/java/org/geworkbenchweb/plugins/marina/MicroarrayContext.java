@@ -35,7 +35,7 @@ public class MicroarrayContext extends ComboBox {
 	public MicroarrayContext(Long dataSetId, Long userId, String parentName,
 			MarinaUI parent, MicroarraySetSelect caseSetSelect,
 			MicroarraySetSelect controlSetSelect) {
-		super("\uFFFD    "+"Array Context");
+		super("Array Context \uFFFD");
 		
 		this.caseSelect = caseSetSelect;
 		this.controlSelect = controlSetSelect;

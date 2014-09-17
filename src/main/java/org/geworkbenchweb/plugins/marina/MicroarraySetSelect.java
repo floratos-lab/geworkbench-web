@@ -87,7 +87,7 @@ public class MicroarraySetSelect extends HorizontalLayout {
 		});
 
 		this.setSpacing(true);
-		this.setCaption("\uFFFD    "+caption);
+		this.setCaption(caption+" \uFFFD");
 		this.addComponent(arraySetSelect);
 		this.addComponent(textField);
 
