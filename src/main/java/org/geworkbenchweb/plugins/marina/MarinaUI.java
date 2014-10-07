@@ -78,6 +78,13 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private final String[] order = {"network", "gseaPValue", 
 			"minimumTargetNumber", "minimumSampleNumber", "gseaPermutationNumber",
 			"gseaTailNumber", "shadowPValue", "synergyPValue", "retrievePriorResultWithId"};
+	private static String QUESTION_MARK = " \uFFFD";
+	private static final Map<String, String> tooltips = new HashMap<String, String>();
+	static {
+		tooltips.put("network", "network file");
+		tooltips.put("gseaPValue", "GSEA p-value"); 
+	}
+	
 	private final String priorStr = order[order.length-1];
 	private static final String analysisName = "MARINa";
 	private static final String selectNetworkNode = "Select Network Node";
@@ -199,6 +206,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 					tf.addValidator(new RegexpValidator("^[mM][rR][aA]\\d+$", 
 							"MRA Result ID must be 'mra' followed by an integer"));
 					}
+				f.setCaption(createCaptionByPropertyId(propertyId)+ "  "+QUESTION_MARK);
+				f.setDescription(tooltips.get(propertyId));
 	            return f;
 	        }
 		});
