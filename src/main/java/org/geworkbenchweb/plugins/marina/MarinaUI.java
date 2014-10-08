@@ -65,7 +65,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private final MicroarraySetSelect caseSelect;
 	private final MicroarraySetSelect controlSelect;
 	
-	private CheckBox priorBox = new CheckBox("Retrieve Prior Result");
+	private CheckBox priorBox = new CheckBox("Retrieve Prior Result" + QUESTION_MARK);
 	protected Button submitButton = new Button("Submit", form, "commit");
 
 	private OptionGroup og = null;
@@ -81,8 +81,16 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	private static String QUESTION_MARK = " \uFFFD";
 	private static final Map<String, String> tooltips = new HashMap<String, String>();
 	static {
-		tooltips.put("network", "network file");
-		tooltips.put("gseaPValue", "GSEA p-value"); 
+		tooltips.put("network", "Name of loaded network file.");
+		tooltips.put("gseaPValue", "The GSEA enrichment score p-value below which a regulon is considered enriched in differentially expressed genes."); 
+		tooltips.put("minimumTargetNumber",  "Minimum number of genes in a hubs gene's regulon required for GSEA, otherwise, the hub is skipped.");
+		tooltips.put("minimumSampleNumber", "Minimum number of samples required to use GSEA sample shuffling instead of gene shuffling.");
+		tooltips.put("gseaPermutationNumber", "Number of GSEA permutation runs to perform.");
+		tooltips.put("gseaTailNumber", "2-tailed GSEA separates regulon genes into positive and negative groups by their Spearman's correlation with expression of the the hub gene; 1-tailed analyzes the regulon as a single group.");
+		tooltips.put("shadowPValue", "Shadow analysis corrects for the possible overlap (shadowing) of one hub gene's regulon with that of a second hub by running GSEA after removing the genes in the intersection of the two regulons.  The Shadow P-Value is the GSEA enrichment score p-value below which a reduced regulon is considered enriched in differentially expressed genes.");
+		tooltips.put("retrievePriorResultWithId", "Enter the prior MARINa run job ID of the form mraNNNN, where Ns represents the job ID number.");
+		tooltips.put("synergyPValue", "Not currently used.");
+		
 	}
 	
 	private final String priorStr = order[order.length-1];
@@ -100,14 +108,15 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 	public MarinaUI(Long dataId){
 		this.dataSetId = dataId;
 		
-		final Upload upload = new Upload("Upload Network File", this);
+		final Upload upload = new Upload("Upload Network File " + QUESTION_MARK, this);
 		upload.setButtonCaption("Upload");
+		upload.setDescription("Available network formats are ARACNe adjacency matrix (.adj), SIF (.sif), and 5-column (.txt)");
 		upload.addListener((Upload.SucceededListener)this);
         upload.addListener((Upload.FailedListener)this);
         
 		arraymap = new HashMap<String, String>();
-		caseSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Case", "Case microarray sets", true);
-		controlSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Control", "Control microarray sets", false);
+		caseSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Case", "Select microarray set(s) to use as Case", true);
+		controlSelect = new MicroarraySetSelect(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, "Control", "Select microarray set(s) to use as Control", false);
 		arrayContext = new MicroarrayContext(dataSetId,  SessionHandler.get().getId(), "MarinaUI", this, caseSelect, controlSelect);
 	 
 
@@ -117,7 +126,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getLayout().addComponent(caseSelect);
 		form.getLayout().addComponent(controlSelect);
 		
-		og = new OptionGroup("Load Network Method", Arrays.asList(networkOptions));
+		og = new OptionGroup("Network Source " + QUESTION_MARK, Arrays.asList(networkOptions));
+		og.setDescription("MARINa requires an interaction network. Choose whether to use an existing network node from the Workspace, or upload the network from a file. ");
 		og.setImmediate(true);
 		og.select(uploadNetworkFile);
 		og.addListener(new ValueChangeListener(){
@@ -136,7 +146,8 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		});
 		form.getLayout().addComponent(og);
 		
-		networkNodes = new ComboBox("Select Network Node");
+		networkNodes = new ComboBox("Select Network Node " + QUESTION_MARK);
+		networkNodes.setDescription("Select a network node from those available in the Workspace");
 		networkNodes.setImmediate(true);
 		networkNodes.setVisible(false);
 		networkNodes.addListener(new ValueChangeListener(){
@@ -219,6 +230,7 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 		form.getField("retrievePriorResultWithId").setEnabled(false);
 
 		priorBox.setImmediate(true);
+		priorBox.setDescription("Retrieve a prior MARINa run using the job ID, of the form mraNNNN, where Ns represents the job ID number. All other input fields are disabled.");
 		priorBox.addListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -5548846734511323624L;
 			public void valueChange(ValueChangeEvent event) {

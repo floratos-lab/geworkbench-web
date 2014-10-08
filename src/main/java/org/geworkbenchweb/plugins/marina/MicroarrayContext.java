@@ -73,7 +73,7 @@ public class MicroarrayContext extends ComboBox {
 		});
 
 //		this.setIcon(infoIcon);
-		this.setDescription("The context of microarray sets.");
+		this.setDescription("Each context can contain a separate list of microarray sets");
 //		this.addStyleName("style_1");
 	}
 

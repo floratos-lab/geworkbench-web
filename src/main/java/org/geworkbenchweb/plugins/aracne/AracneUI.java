@@ -60,6 +60,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private static final String defaultBootsNum = "100";
 	private static final String adaptivePartitioning = "Adaptive Partitioning";
 	private static final String fixedBandwidth = "Fixed Bandwidth";
+	
+	private static String QUESTION_MARK = " \uFFFD";
 
 	public AracneUI() {
 		this(0L);
@@ -103,8 +105,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
 				"AracneUI");
 
+
+		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets" + QUESTION_MARK);
+		hubGeneMarkerSetBox.setDescription("Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
 		hubGeneMarkerSetBox.setTextInputAllowed(false);
-		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets");
 		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
 		hubGeneMarkerSetBox.setImmediate(true);
@@ -118,7 +122,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		modeBox.setCaption("Select Mode");
+		modeBox.setCaption("Select Mode" + QUESTION_MARK);
+		modeBox.setDescription("<b>Preprocessing</b> mode calculates custom parameters for optimally determining P-value Threshold and Kernel Width (Fixed Bandwidth only) for the data set for use during a Discovery run, and saves them as a configuration node in the Workspace. No other parameter except Algorithm need be set to run Preprocessing. <br><br> <b>Discovery</b> mode calculates the mutual information between hub and target markers and can use a configuration node from a Preprocessing run (recommended) or use default parameters to determine the Threshold and Kernel Width parameters as needed. <br><br> <b>Complete mode</b> runs both Preprocessing and Discovery, but does not save a configuration node for future runs.");
 		modeBox.setNullSelectionAllowed(false);
 		modeBox.setImmediate(true);
 		modeBox.addItem(AracneParameters.COMPLETE);
@@ -140,7 +145,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		configBox.setCaption("Select Configuration");
+		configBox.setCaption("Select Configuration" + QUESTION_MARK);
+		configBox.setDescription("Choose a custom parameter configuration node calculated using Preprocessing, or use default parameters");
 		configBox.setNullSelectionAllowed(false);
 		configBox.setImmediate(true);
 		configBox.addItem("Default");
@@ -156,7 +162,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		algoBox.setCaption("Select Algorithm");
+		algoBox.setCaption("Select Algorithm" + QUESTION_MARK);
+		algoBox.setDescription("Choose <b>Adaptive Partitioning</b>, or the original but slower <b>Fixed Bandwidth</b> method");
 		algoBox.setImmediate(true);
 		algoBox.setNullSelectionAllowed(false);
 		algoBox.addItem(adaptivePartitioning);
@@ -181,7 +188,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		widthValue.setCaption(" ");
+		widthValue.setCaption("Kernel Width Value" + QUESTION_MARK);
+		widthValue.setDescription("If specifying a kernel width for the Fixed Bandwidth method, enter here.");
 		widthValue.setValue("0.1");
 		widthValue.setEnabled(false);
 		widthValue.setNullSettingAllowed(false);
@@ -195,7 +203,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		kernelWidth.setCaption("Kernel Width");
+		kernelWidth.setCaption("Kernel Width Method" + QUESTION_MARK);
+		kernelWidth.setDescription("Used by the Fixed Bandwidth method to specify a Gaussian kernel width.  Choose <b>Inferred</b> to calculate a value from the data (using the Preprocessing result if available), or choose <b>Specify</b> and then enter a value in the adjacent text field");
 		kernelWidth.setImmediate(true);
 		kernelWidth.setNullSelectionAllowed(false);
 		kernelWidth.addItem("Inferred");
@@ -219,7 +228,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		correction.setCaption(" ");
+		correction.setCaption("Correction Type" + QUESTION_MARK);
+		correction.setDescription("Whether to use a <b>Bonferroni</b> multiple testing correction, or <b>No Correction</b>");
 		correction.setNullSelectionAllowed(false);
 		correction.addItem("No Correction");
 		correction.addItem("Bonferroni Correction");
@@ -236,7 +246,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		});
 
-		threshold.setCaption(" ");
+		threshold.setCaption("Threshold Value" + QUESTION_MARK);
+		threshold.setDescription("Enter a P-value or Mutual Information threshold value");
 		threshold.setValue("0.01");
 		threshold.setNullSettingAllowed(false);
 		threshold.addListener(new Property.ValueChangeListener() {
@@ -249,7 +260,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		thresholdType.setCaption("Threshold Type");
+		thresholdType.setCaption("Threshold Type" + QUESTION_MARK);
+		thresholdType.setDescription("Threshold for retaining edges calculated using ARACNe.  Choose to use a <b>P-value</b> threshold (calculated using the background model parameters determined during Preprocessing if a preprocessing configuration node was selected), or directly enter a <b>Mutual Information</b> threshold");
 		thresholdType.setImmediate(true);
 		thresholdType.setNullSelectionAllowed(false);
 		thresholdType.addItem("P-Value");
@@ -270,7 +282,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		});
 		thresholdType.select("P-Value");
 
-		tolerance.setCaption(" ");
+		tolerance.setCaption("Tolerance Value" + QUESTION_MARK);
+		tolerance.setDescription("Value for DPI Tolerance");
 		tolerance.setValue("0.0");
 		tolerance.setNullSettingAllowed(false);
 		tolerance.addListener(new Property.ValueChangeListener() {
@@ -283,7 +296,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		});
 
-		dpiTolerance.setCaption("DPI Tolerance");
+		dpiTolerance.setCaption("DPI Tolerance" + QUESTION_MARK);
+		dpiTolerance.setDescription("Choose <b>Apply</b> to use the <b>Data Processing Inequality</b> to remove indirect connections between network nodes, otherwise choose <b>Do Not Apply</b>");
 		dpiTolerance.setImmediate(true);
 		dpiTolerance.setNullSelectionAllowed(false);
 		dpiTolerance.addItem("Apply");
@@ -306,7 +320,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		dpiTargetSetBox.setCaption(" ");
+		dpiTargetSetBox.setCaption("DPI Target List Selection" + QUESTION_MARK);
+		dpiTargetSetBox.setDescription("Choose a marker set to protect from DPI removal");
 		dpiTargetSetBox.setNullSelectionAllowed(false);
 		dpiTargetSetBox.setInputPrompt("Select Marker Set");
 		dpiTargetSetBox.setImmediate(true);
@@ -321,7 +336,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		dpiTargetList.setCaption("DPI TargetList");
+		dpiTargetList.setCaption("DPI Target List" + QUESTION_MARK);
+		dpiTargetList.setDescription("if <b>Apply</b> is chosen, allows a set of hub markers (e.g. transcription factors) to be given whose interactions will not be removed by use of the DPI, even if any such interaction is weaker than other network edges with which it forms a triangle");
 		dpiTargetList.setImmediate(true);
 		dpiTargetList.setNullSelectionAllowed(false);
 		dpiTargetList.addItem("From Sets");
@@ -343,7 +359,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		bootStrapNumber.setCaption(defaultBootsNum + " Bootstrapping");
+		bootStrapNumber.setCaption(defaultBootsNum + " rounds of Bootstrapping" + QUESTION_MARK);
+		bootStrapNumber.setDescription("If checked, run 100 rounds of ARACNe bootstrapping and generate a consensus network, otherwise perform a single run of ARACNe");
 		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -366,7 +383,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		});
 
-		consensusThreshold.setCaption("Consensus Threshold ");
+		consensusThreshold.setCaption("Consensus Threshold " + QUESTION_MARK);
+		consensusThreshold.setDescription("Set a consensus threshold for retaining network edges after ARACNe bootstrapping");
 		consensusThreshold.setImmediate(true);
 		consensusThreshold.setValue("1.e-6");
 		consensusThreshold.setEnabled(false);
@@ -381,7 +399,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		mergeProbeSets.setCaption("Merge multiple probesets");
+		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
+		mergeProbeSets.setDescription("If Yes, summarize each particular gene-gene edge by the strongest connection between their individual probesets, when more than one probeset per gene is present in the network. Rquires than an appropriate annotation file linking probesets to gene symbols was loaded along with the expression matrix.  The network is output in terms of gene symbols.");
 		mergeProbeSets.addItem("Yes");
 		mergeProbeSets.addItem("No");
 		mergeProbeSets.select("No");
