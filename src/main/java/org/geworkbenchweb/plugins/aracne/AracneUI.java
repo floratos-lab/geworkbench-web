@@ -400,7 +400,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		});
 
 		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
-		mergeProbeSets.setDescription("If Yes, summarize each particular gene-gene edge by the strongest connection between their individual probesets, when more than one probeset per gene is present in the network. Rquires than an appropriate annotation file linking probesets to gene symbols was loaded along with the expression matrix.  The network is output in terms of gene symbols.");
+		mergeProbeSets.setDescription("If Yes, summarize each particular gene-gene edge by the strongest connection between their individual probesets, when more than one probeset per gene is present in the network. Requires that an appropriate annotation file linking probesets to gene symbols was loaded along with the expression matrix.  The network is output in terms of gene symbols.");
 		mergeProbeSets.addItem("Yes");
 		mergeProbeSets.addItem("No");
 		mergeProbeSets.select("No");
