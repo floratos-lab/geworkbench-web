@@ -68,6 +68,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	
 	private Long userId  = null;
 	
+	private static final String QUESTION_MARK = " \uFFFD";
+
+	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	public AnovaUI() {
@@ -83,7 +86,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	 
 		final GridLayout gridLayout1 = new GridLayout(4, 3);
 		final GridLayout gridLayout2 = new GridLayout(3, 1);
-
+		
+		final String pvalueMethodTooltip = "The ANOVA p-value can be calculated using the <b>F-distribution</b>, or using <b>Permutations</b>.  If permutations are chosen, additional correction options are available.";
+		final String permutationsTooltip = "Enter the number of permutation steps";
+		final String pvalueThresholdTooltip = "Enter the ANOVA p-value threshold";
 	 
 		gridLayout1.setSpacing(true);
 		gridLayout2.setSpacing(true);
@@ -103,8 +109,10 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				"P-Value Estimation----------------------------------------------------------------------");
 		pValEstLabel.setStyleName(Reindeer.LABEL_SMALL);
 
-		pValEstCbxLabel = new Label("P-Value based on");
+		pValEstCbxLabel = new Label("P-Value based on"  + QUESTION_MARK);
+		pValEstCbxLabel.setDescription(pvalueMethodTooltip);
 		pValEstCbx = new ComboBox();
+		pValEstCbx.setDescription(pvalueMethodTooltip);
 		pValEstCbx.setImmediate(true);
 		pValEstCbx.setNullSelectionAllowed(false);
 		pValEstCbx.addItem(PValueEstimation.fdistribution.ordinal());
@@ -151,17 +159,23 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 			}
 		}); 
 		
-		permNumberLabel = new Label("Permutations #");
+		permNumberLabel = new Label("Permutations #" + QUESTION_MARK);
 		permNumberLabel.setEnabled(false);
+		permNumberLabel.setDescription(permutationsTooltip);
+		
 		permNumber = new TextField();
 		permNumber.setValue("100");
+		permNumber.setDescription(permutationsTooltip);
 		permNumber.setNullSettingAllowed(false);
 		permNumber.setEnabled(false);
 		permNumber.setRequired(true);
 		permNumber.addValidator(new IntegerValidator("Not an integer"));
 		
-		pValThresholdLabel = new Label("P-Value Threshold");
+		pValThresholdLabel = new Label("P-Value Threshold" + QUESTION_MARK);
+		pValThresholdLabel.setDescription(pvalueThresholdTooltip);
+		
 		pValThreshold = new TextField();
+		pValThreshold.setDescription(pvalueThresholdTooltip);
 		pValThreshold.setValue("0.05");
 		permNumber.setRequired(true);
 		permNumber.addValidator(new DoubleValidator("Not a double"));
@@ -179,14 +193,14 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		og.addItem(FalseDiscoveryRateControl.number.ordinal());
 		og.addItem(FalseDiscoveryRateControl.proportion.ordinal());
 		
-		og.setItemCaption(FalseDiscoveryRateControl.alpha.ordinal(), "Just alpha (no correction)");
-		og.setItemCaption(FalseDiscoveryRateControl.bonferroni.ordinal(), "Standard Bonferroni");
-		og.setItemCaption(FalseDiscoveryRateControl.adjbonferroni.ordinal(), "Adjusted Bonferroni");
-		og.setItemCaption(FalseDiscoveryRateControl.westfallyoung.ordinal(), "Westfall-Young step down");
+		og.setItemCaption(FalseDiscoveryRateControl.alpha.ordinal(), "Just alpha (no correction)" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.bonferroni.ordinal(), "Standard Bonferroni" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.adjbonferroni.ordinal(), "Adjusted Bonferroni" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.westfallyoung.ordinal(), "Westfall-Young step down" + QUESTION_MARK);
 		og.setItemEnabled(FalseDiscoveryRateControl.westfallyoung.ordinal(), false);
-		og.setItemCaption(FalseDiscoveryRateControl.number.ordinal(), "The number of false significant genes should not exceed:");
+		og.setItemCaption(FalseDiscoveryRateControl.number.ordinal(), "The number of false significant genes should not exceed:" + QUESTION_MARK);
 		og.setItemEnabled(FalseDiscoveryRateControl.number.ordinal(), false);
-		og.setItemCaption(FalseDiscoveryRateControl.proportion.ordinal(), "The proportion of false significant genes should not exceed:");
+		og.setItemCaption(FalseDiscoveryRateControl.proportion.ordinal(), "The proportion of false significant genes should not exceed:" + QUESTION_MARK);
 		og.setItemEnabled(FalseDiscoveryRateControl.proportion.ordinal(), false);
 				 
 		og.select(FalseDiscoveryRateControl.alpha.ordinal());
