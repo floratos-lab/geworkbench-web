@@ -189,9 +189,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		pValCorrectionLabel.setDescription(
 							"<i>Family-wise control methods (the probability of even one false positive occurring in multiple trials)</i><br><br>" +
 							"<b>* Just alpha (no correction)</b>: no correction is applied to the entered p-value <br><br>" + 
-							"<b>* Standard Bonferroni</b>: The cutoff value (alpha) is divided by the number of tests (markers) before being compared with the calculated p-values<br><br>" +
-							"<b>* Adjusted Bonferroni</b>: Similar to the Bonferroni correction, but for each successive P-value in a list of p-values sorted in increasing order, the divisor for alpha is decremented by one and then the result compared with the P-value. The effect is to slightly reduce the stringency (increase the power) of the Bonferroni correction. This is a step-down procedure. <br><br>" +
-							"<b>* Westfall-Young Step-Down</b>: (available only with permutations) Another step-down procedure which adjusts the critical value alpha using a more complex expression (Dudoit, 2003). <br><br>" +
+							"<b>* Standard Bonferroni</b>: The calculated p-value for each gene is multiplied by the number of tests (markers) before being compared to the cutoff value (alpha) <br><br>" +
+							"<b>* Adjusted Bonferroni</b>: Similar to the Bonferroni correction, but for each successive p-value in a list of p-values sorted in ascending order, the multiplier for the calculated p-value is decremented by one and then the result compared with the cutoff value (alpha). The effect is to slightly reduce the stringency (increase the power) of the Bonferroni correction. This is a step-down procedure. <br><br>" +
+							"<b>* Westfall-Young Step-Down</b>: (available only with permutations) Another step-down procedure which adjusts the critical value alpha using the MaxT algorithm (see Dudoit, 2003). <br><br>" +
 							"<i>False Discover Rate method (available only with permutations) - controls the rate of markers falsely called as showing a significant difference:</i><br><br>" +
 							"<b>* The number of false significant genes should not exceed</b> - an integer representing an upper limit on the number of false positives  <br><br>" + 
 							"<b>* The proportion of false significant genes should not exceed</b> - an integer representing an upper limit on the proportion of false positives  "
