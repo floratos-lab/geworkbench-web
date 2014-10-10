@@ -87,9 +87,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		final GridLayout gridLayout1 = new GridLayout(4, 3);
 		final GridLayout gridLayout2 = new GridLayout(3, 1);
 		
-		final String pvalueMethodTooltip = "The ANOVA p-value can be calculated using the <b>F-distribution</b>, or using <b>Permutations</b>.  If permutations are chosen, additional correction options are available.";
-		final String permutationsTooltip = "Enter the number of permutation steps";
-		final String pvalueThresholdTooltip = "Enter the ANOVA p-value threshold";
+		final String pvalueMethodTooltip = "The ANOVA p-value can be calculated using the <b>F-distribution</b>, or using <b>Permutations</b>.  If permutations are chosen, additional correction options are available below.";
+		final String permutationsTooltip = "Sets the number of permutation steps";
+		final String pvalueThresholdTooltip = "The p-value below which a difference between classes is considered significant";
 	 
 		gridLayout1.setSpacing(true);
 		gridLayout2.setSpacing(true);
@@ -181,11 +181,21 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		permNumber.addValidator(new DoubleValidator("Not a double"));
 
 		pValCorrectionLabel = new Label(
-				"P-value Corrections And False Discovery Control---------------------------");
+				"P-value Corrections And False Discovery Control " + QUESTION_MARK + " -----------------------------");
 		pValCorrectionLabel.setStyleName(Reindeer.LABEL_SMALL);
 
 		og = new OptionGroup();
         og.setImmediate(true);
+		pValCorrectionLabel.setDescription(
+							"<i>Family-wise control methods (the probability of even one false positive occurring in multiple trials)</i><br><br>" +
+							"<b>* Just alpha (no correction)</b>: no correction is applied to the entered p-value <br><br>" + 
+							"<b>* Standard Bonferroni</b>: The cutoff value (alpha) is divided by the number of tests (markers) before being compared with the calculated p-values<br><br>" +
+							"<b>* Adjusted Bonferroni</b>: Similar to the Bonferroni correction, but for each successive P-value in a list of p-values sorted in increasing order, the divisor for alpha is decremented by one and then the result compared with the P-value. The effect is to slightly reduce the stringency (increase the power) of the Bonferroni correction. This is a step-down procedure. <br><br>" +
+							"<b>* Westfall-Young Step-Down</b>: (available only with permutations) Another step-down procedure which adjusts the critical value alpha using a more complex expression (Dudoit, 2003). <br><br>" +
+							"<i>False Discover Rate method (available only with permutations) - controls the rate of markers falsely called as showing a significant difference:</i><br><br>" +
+							"<b>* The number of false significant genes should not exceed</b> - an integer representing an upper limit on the number of false positives  <br><br>" + 
+							"<b>* The proportion of false significant genes should not exceed</b> - an integer representing an upper limit on the proportion of false positives  "
+		);
 		og.addItem(FalseDiscoveryRateControl.alpha.ordinal());
 		og.addItem(FalseDiscoveryRateControl.bonferroni.ordinal());
 		og.addItem(FalseDiscoveryRateControl.adjbonferroni.ordinal());
@@ -193,14 +203,14 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		og.addItem(FalseDiscoveryRateControl.number.ordinal());
 		og.addItem(FalseDiscoveryRateControl.proportion.ordinal());
 		
-		og.setItemCaption(FalseDiscoveryRateControl.alpha.ordinal(), "Just alpha (no correction)" + QUESTION_MARK);
-		og.setItemCaption(FalseDiscoveryRateControl.bonferroni.ordinal(), "Standard Bonferroni" + QUESTION_MARK);
-		og.setItemCaption(FalseDiscoveryRateControl.adjbonferroni.ordinal(), "Adjusted Bonferroni" + QUESTION_MARK);
-		og.setItemCaption(FalseDiscoveryRateControl.westfallyoung.ordinal(), "Westfall-Young step down" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.alpha.ordinal(), "Just alpha (no correction)");
+		og.setItemCaption(FalseDiscoveryRateControl.bonferroni.ordinal(), "Standard Bonferroni");
+		og.setItemCaption(FalseDiscoveryRateControl.adjbonferroni.ordinal(), "Adjusted Bonferroni");
+		og.setItemCaption(FalseDiscoveryRateControl.westfallyoung.ordinal(), "Westfall-Young step down");
 		og.setItemEnabled(FalseDiscoveryRateControl.westfallyoung.ordinal(), false);
-		og.setItemCaption(FalseDiscoveryRateControl.number.ordinal(), "The number of false significant genes should not exceed:" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.number.ordinal(), "The number of false significant genes should not exceed:");
 		og.setItemEnabled(FalseDiscoveryRateControl.number.ordinal(), false);
-		og.setItemCaption(FalseDiscoveryRateControl.proportion.ordinal(), "The proportion of false significant genes should not exceed:" + QUESTION_MARK);
+		og.setItemCaption(FalseDiscoveryRateControl.proportion.ordinal(), "The proportion of false significant genes should not exceed:");
 		og.setItemEnabled(FalseDiscoveryRateControl.proportion.ordinal(), false);
 				 
 		og.select(FalseDiscoveryRateControl.alpha.ordinal());
