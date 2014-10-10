@@ -136,6 +136,7 @@ public class VisualPluginView extends HorizontalLayout {
 
 	public void showWeclomeScreen() {
 		removeAllComponents();
+		setSizeUndefined();
 		setWidth("100%");
 		QuickIntro quickIntro = new QuickIntro();
 		addComponent(quickIntro);
