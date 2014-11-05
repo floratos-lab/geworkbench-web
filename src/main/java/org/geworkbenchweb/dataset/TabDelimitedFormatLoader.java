@@ -42,7 +42,7 @@ public class TabDelimitedFormatLoader extends LoaderUsingAnnotation {
 			
 			dataset.setDataId(id);
 			dataset.setName(file.getName());
-			dataset.setType("org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet");
+			dataset.setType(jpaDataset.getClass().getName());
 			dataset.setDescription("Microarray experiment"+". # of microarrays: " + cleanMicroaraySet.arrayNumber + ",   "
 					+ "# of markers: " + cleanMicroaraySet.markerNumber);
 			FacadeFactory.getFacade().store(dataset);
