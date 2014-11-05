@@ -93,7 +93,7 @@ public class RealTimeWorkflowSuggestion extends AbstractGenspaceTab implements G
 
 		Label label1 = new Label("Advanced suggestions");
 		label1.setStyleName(Reindeer.LABEL_H2);
-		Label label2 = new Label("Get suggestions for people who use these tools:");
+		Label label2 = new Label("Suggested workflows based on other people's use of these tools:");
 		
 		GridLayout headerPanel = new GridLayout(1,2);
 		VerticalLayout resultsPanel = new VerticalLayout();
