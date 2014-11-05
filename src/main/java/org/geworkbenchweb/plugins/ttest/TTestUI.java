@@ -175,7 +175,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		
 		pValue = new ComboBox();
 		pValue.setNullSelectionAllowed(false);
-		pValue.setCaption("Select Correction Method");
+		pValue.setCaption("Select Calculation Method");
 		pValue.addItem("t-distribution");
 		pValue.addItem("permutation");
 		pValue.select("t-distribution");
