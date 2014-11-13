@@ -65,7 +65,10 @@ public class RegistrationForm extends VerticalLayout {
 
 	private static final String fromEmail = GeworkbenchRoot.getAppProperty("from.email");
 	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
-	private Pattern emailPattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+\\.[a-zA-Z]+");
+	private static final String EMAIL_PATTERN = 
+			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
 	private Log log = LogFactory.getLog(RegistrationForm.class);
 
 	final Label feedbackLabel = new Label();
