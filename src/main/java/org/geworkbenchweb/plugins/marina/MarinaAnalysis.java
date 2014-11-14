@@ -172,7 +172,8 @@ public class MarinaAnalysis {
 	}
 
 	// TODO there will be easier ways to copy files in Java 7
-	static void copyFile(String source, String dest) throws IOException {
+	static int copyFile(String source, String dest) throws IOException {
+		int byteCount = 0;
 		InputStream input = null;
 		OutputStream output = null;
 		try {
@@ -182,11 +183,13 @@ public class MarinaAnalysis {
 			int bytesRead;
 			while ((bytesRead = input.read(buf)) > 0) {
 				output.write(buf, 0, bytesRead);
+				byteCount += bytesRead;
 			}
 		} finally {
 			if(input!=null) input.close();
 			if(output!=null) output.close();
 		}
+		return byteCount;
 	}
 
 	private static String[][] convertResult(String fname){

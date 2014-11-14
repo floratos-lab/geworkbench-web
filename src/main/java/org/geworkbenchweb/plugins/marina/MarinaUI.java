@@ -167,6 +167,9 @@ public class MarinaUI extends VerticalLayout implements Upload.SucceededListener
 				if(network==null) {
 					networkNotLoaded("Failed to load the network selected. Network Id="+id);
 					return;
+				} else if (network.getNodeNumber()==0) {
+					networkNotLoaded("Zero node in the network. Network Id="+id);
+					return;
 				}
 
 				NetworkCreator networkCreator = new NetworkCreator(MarinaUI.this);

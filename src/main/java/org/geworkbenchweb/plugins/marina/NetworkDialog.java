@@ -170,8 +170,12 @@ public class NetworkDialog {
 					AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
 							interactionTypeMap, selectedFormat,
 							selectedRepresentedBy, isRestrict);
-					networkCreator.createNetworkFile(matrix, networkName);
-					ui.networkLoaded();						 
+					if(matrix.getNodeNumber()==0) {
+						ui.networkNotLoaded("zero node in the network");
+					} else {
+						networkCreator.createNetworkFile(matrix, networkName);
+						ui.networkLoaded();
+					}
 				} catch (InputFileFormatException e1) {
 					log.error(e1.getMessage());
 					e1.printStackTrace();
@@ -190,11 +194,15 @@ public class NetworkDialog {
 					if (!dir.exists())
 						dir.mkdirs();
 
-					MarinaAnalysis.copyFile(uploadedFile, dirName + "/"
+					int c = MarinaAnalysis.copyFile(uploadedFile, dirName + "/"
 							+ networkName);
-					ui.networkLoaded();
+					if(c==0) {
+						ui.networkNotLoaded("zero bytes are copied");
+					} else {
+						ui.networkLoaded();
+					}
 				} catch (IOException e) {
-					ui.networkNotLoaded("Failed copying the uploaded network file");
+					ui.networkNotLoaded("Failed copying the uploaded network file: "+e.getMessage());
 					e.printStackTrace();
 				}
 			}
