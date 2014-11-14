@@ -147,6 +147,7 @@ public class AnnotationTabSheet extends TabSheet {
 			DataHistory dH = (DataHistory) histories.get(i);
 			Label d = new Label(dH.getData());
 			d.setContentMode(Label.CONTENT_PREFORMATTED);
+			d.setWidth("500px");
 			dataHistory.addComponent(d);
 		}
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
