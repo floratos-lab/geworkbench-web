@@ -6,10 +6,13 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbenchweb.pojos.Context;
+import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.SubSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class TabDelimitedFormatLoader extends LoaderUsingAnnotation {
@@ -46,7 +49,7 @@ public class TabDelimitedFormatLoader extends LoaderUsingAnnotation {
 			dataset.setDescription("Microarray experiment"+". # of microarrays: " + cleanMicroaraySet.arrayNumber + ",   "
 					+ "# of markers: " + cleanMicroaraySet.markerNumber);
 			FacadeFactory.getFacade().store(dataset);
-
+			createDefaultContexts(dataset.getId());
 		} catch (InputFileFormatException e1) {
 			e1.printStackTrace();
 			throw new GeWorkbenchLoaderException("input file format "+e1);
@@ -76,5 +79,19 @@ public class TabDelimitedFormatLoader extends LoaderUsingAnnotation {
 	@Override
 	public String toString() {
 		return "Tab-delimited format File";
+	}
+
+	private static void createDefaultContexts(Long datasetId){
+		/* for microarrays */
+		Context defaultContext = new Context("Default Context", SubSet.SET_TYPE_MICROARRAY, datasetId);
+		FacadeFactory.getFacade().store(defaultContext);
+		CurrentContext current = new CurrentContext(SubSet.SET_TYPE_MICROARRAY, datasetId, defaultContext.getId());
+		FacadeFactory.getFacade().store(current);
+
+		/* for markers */
+		Context defaultMarkerContext = new Context("Default Context", SubSet.SET_TYPE_MARKER, datasetId);
+		FacadeFactory.getFacade().store(defaultMarkerContext);
+		CurrentContext currentMarkerContext = new CurrentContext(SubSet.SET_TYPE_MARKER, datasetId, defaultMarkerContext.getId());
+		FacadeFactory.getFacade().store(currentMarkerContext);
 	}
 }
