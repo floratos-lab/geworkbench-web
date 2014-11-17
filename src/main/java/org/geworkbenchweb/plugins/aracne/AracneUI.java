@@ -703,7 +703,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				builder.append("100 Bootstrapping is checked, Consensus Threshold - "
 						+ consensusThreshold.getValue() + "\n");
 			} else
-				builder.append("100 Bootstrapping is not checked");
+				builder.append("100 Bootstrapping is not checked\n");
 
 			builder.append("Merge multiple probesets - "
 					+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
