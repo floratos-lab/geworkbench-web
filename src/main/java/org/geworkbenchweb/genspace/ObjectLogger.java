@@ -16,6 +16,8 @@ import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
@@ -35,6 +37,7 @@ import com.vaadin.ui.Window.Notification;
  * @author sheths
  */
 public class ObjectLogger {
+	private static Log log = LogFactory.getLog(ObjectLogger.class);
 
 	private Set<CWFListener> cwfListeners = new LinkedHashSet<CWFListener>();
 
@@ -86,7 +89,7 @@ public class ObjectLogger {
 		} 
 		
 		if (!login.isLogin()) {
-			System.out.println("Register Error!");
+			log.error("Register Error!");
 			tmpFactory = new GenSpaceServerFactory();
 		}
 		else {
