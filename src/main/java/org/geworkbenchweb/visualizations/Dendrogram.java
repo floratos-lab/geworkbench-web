@@ -187,6 +187,11 @@ public class Dendrogram extends AbstractComponent {
 
 	private boolean requestExportImage = false;
 	public void exportImage() {
+	    if(cellHeight < 15 && cellWidth < 30)
+	    {
+		   cellWidth = 30;
+		   cellHeight = 15;
+	    }
 		requestExportImage = true;
 		requestRepaint();
 	}
