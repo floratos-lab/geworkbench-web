@@ -82,6 +82,8 @@ public class LoginForm extends VerticalLayout {
 						}
 						
 						getApplication().getMainWindow().setContent(uMainLayout);
+						new PendingNodeProcessor(uMainLayout).start();
+
 						if (!genSpaceServerFactory.userLogin(username, password)) {
 							UserWrapper u = new UserWrapper(
 									new org.geworkbench.components.genspace.server.stubs.User(), 
