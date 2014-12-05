@@ -126,10 +126,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		modeBox.setDescription("<b>Preprocessing</b> mode calculates custom parameters for optimally determining P-value Threshold and Kernel Width (Fixed Bandwidth only) for the data set for use during a Discovery run, and saves them as a configuration node in the Workspace. No other parameter except Algorithm need be set to run Preprocessing. <br><br> <b>Discovery</b> mode calculates the mutual information between hub and target markers and can use a configuration node from a Preprocessing run (recommended) or use default parameters to determine the Threshold and Kernel Width parameters as needed. <br><br> <b>Complete mode</b> runs both Preprocessing and Discovery, but does not save a configuration node for future runs.");
 		modeBox.setNullSelectionAllowed(false);
 		modeBox.setImmediate(true);
-		modeBox.addItem(AracneParameters.COMPLETE);
+		//modeBox.addItem(AracneParameters.COMPLETE);
 		modeBox.addItem(AracneParameters.DISCOVERY);
 		modeBox.addItem(AracneParameters.PREPROCESSING);
-		modeBox.select(AracneParameters.DISCOVERY);
+		modeBox.select(AracneParameters.PREPROCESSING);
 		modeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
