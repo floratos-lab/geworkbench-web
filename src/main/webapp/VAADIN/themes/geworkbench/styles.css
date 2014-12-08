@@ -1,5 +1,6 @@
 @import url(../reindeer/styles.css);
 @import url(../custom/styles.css);
+@import url(fchart.css);
 
 .v-app-GeworkbenchRoot .feature-info div.deco a {
 	color: #ff0;

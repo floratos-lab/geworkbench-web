@@ -1,26 +1,18 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
-import java.awt.Color;
-import java.awt.GradientPaint;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.CategoryToolTipGenerator;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.vaadin.addon.JFreeChartWrapper;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
+import ua.net.freecode.chart.AxisSystem;
+import ua.net.freecode.chart.AxisSystem.AxisHorizontal;
+import ua.net.freecode.chart.AxisSystem.AxisVertical;
+import ua.net.freecode.chart.Chart;
+import ua.net.freecode.chart.CurvePresentation;
+import ua.net.freecode.chart.Marker;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -38,143 +30,77 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
 	final private Long datasetId;
 	final protected Long parentDatasetId;
-	
+
 	public TTestResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null || dataSetId==0) {
+		if (dataSetId == null || dataSetId == 0) {
 			tTestResultSet = null;
 			parentDatasetId = null;
 			return;
 		}
 
 		setImmediate(true);
-		setSizeFull();	
+		setSizeFull();
 
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		parentDatasetId = resultSet.getParent();
 		Long id = resultSet.getDataId();
-		if(id==null) { // pending node
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+		if (id == null) { // pending node
+			addComponent(new Label("Pending computation - ID " + dataSetId));
 			tTestResultSet = null;
 			return;
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		JFreeChartWrapper chart = drawPlot();
+		Chart chart = drawPlot();
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
 
-	private static JFreeChartWrapper drawPlot() {
-		JFreeChart createchart = createchart(createDataset());
-		log.debug("JFreeChart is created");
-        return new JFreeChartWrapper(createchart);
+	private static Chart drawPlot() {
+
+		Chart chart = new Chart();
+		chart.addStyleName("UniqueColorsBlueGreenRedScheme");
+		chart.setWidth("100%");
+		chart.setHeight("400px");
+		//20 pixels at the right is necessary because we have long labels at the bottom axis and when
+		//there is no legend, they are cut if we do not provide some additional space at the right
+		chart.setMinRightMargin(20);
+		//our labels at the bottom axis are at the angle of 45 and they need 100-pixel height of the space
+		chart.setAxisLabelStringHeight(100);
+		chart.setGeneralTitle("Sample General Chart Header");
+		chart.setLegendData(new String[]{"Freecode","OST Ltd.","IT Ltd.","Dobryvechir"});
+		//The value of legend item width is adjusted according to the longest string in the legend data,
+		//which can be chosen experimentally
+		chart.setLegendItemWidth(112);
+		AxisSystem axisSystem = chart.createAxisSystem(AxisHorizontal.Bottom, AxisVertical.Left);
+		//our range is 0..1000 (it is not necessary to specify 0 as minimum since it is the default)
+		axisSystem.setVerticalAxisMaxValue(1000);
+		//the angle for each label at the bottom axis is 45 degrees
+		axisSystem.setHorizontalAxisLabelAngle(45);
+		axisSystem.setHorizontalAxisTitle("Year 2012");
+		axisSystem.setVerticalAxisTitle("Incomes and losses of the company");
+		axisSystem.setCurvePresentation(new CurvePresentation[]{
+				new CurvePresentation(new Marker(Marker.MarkerShape.Circle),0,CurvePresentation.CurveKind.VerticalBar),
+				new CurvePresentation(new Marker(Marker.MarkerShape.Rectangle),0,CurvePresentation.CurveKind.VerticalBar),
+				new CurvePresentation(new Marker(Marker.MarkerShape.Square),2,CurvePresentation.CurveKind.Line),
+				new CurvePresentation(new Marker(Marker.MarkerShape.NoMarker),1,CurvePresentation.CurveKind.Area),
+		});
+		axisSystem.setXDiscreteValues(new String[]{"January 2012",
+				"February 2012","March 2012","April 2012","May 2012","June 2012",
+				"July 2012", "August 2012","September 2012","October 2012",
+				"November 2012","December 2012"});
+		axisSystem.setYDiscreteValuesForAllSeries(new double[][]{
+				new double[]{300,400,450,500,657,450,230,100,500,200,300,500},
+				new double[]{196,20,212,302,0,12,30,33,64,100,200,212},
+				new double[]{0,100,1500,1750,187,155,-190,1900,199,1200,-5,300,-5,300},
+				new double[]{0,72,500,100,20,100,500,88,150,160,10,200}
+		});
+		log.debug("chart created");
+		
+		return chart;
 	}
 
-    private static JFreeChart createchart(CategoryDataset dataset) {
-
-        // create the chart...
-        JFreeChart chart = ChartFactory.createBarChart("Bar Chart Demo 1", // chart
-                // title
-                "Category", // domain axis label
-                "Value", // range axis label
-                dataset, // data
-                PlotOrientation.VERTICAL, // orientation
-                true, // include legend
-                true, // tooltips?
-                false // URLs?
-                );
-
-        // set the background color for the chart...
-        chart.setBackgroundPaint(Color.white);
-
-        // get a reference to the plot for further customisation...
-        CategoryPlot plot = (CategoryPlot) chart.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
-
-        // set the range axis to display integers only...
-        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-        // disable bar outlines...
-        BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        // renderer.setDrawBarOutline(false);
-
-        // set up gradient paints for series...
-        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.blue, 0.0f,
-                0.0f, new Color(0, 0, 64));
-        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.green, 0.0f,
-                0.0f, new Color(0, 64, 0));
-        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.red, 0.0f,
-                0.0f, new Color(64, 0, 0));
-        renderer.setSeriesPaint(0, gp0);
-        renderer.setSeriesPaint(1, gp1);
-        renderer.setSeriesPaint(2, gp2);
-
-        CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions(CategoryLabelPositions
-                .createUpRotationLabelPositions(Math.PI / 6.0));
-        
-        CategoryToolTipGenerator generator = new CategoryToolTipGenerator() {
-
-			@Override
-			public String generateToolTip(CategoryDataset arg0, int arg1,
-					int arg2) {
-				return "TEST TOOLIP HERE...";
-			}
-        	
-        };
-		renderer.setSeriesToolTipGenerator(1, generator );
-
-        return chart;
-    }
-
-	/**
-     * Returns a sample dataset.
-     * 
-     * @return The dataset.
-     */
-    private static CategoryDataset createDataset() {
-
-        // row keys...
-        String series1 = "First";
-        String series2 = "Second";
-        String series3 = "Third";
-
-        // column keys...
-        String category1 = "Category 1";
-        String category2 = "Category 2";
-        String category3 = "Category 3";
-        String category4 = "Category 4";
-        String category5 = "Category 5";
-
-        // create the dataset...
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        dataset.addValue(1.0, series1, category1);
-        dataset.addValue(4.0, series1, category2);
-        dataset.addValue(3.0, series1, category3);
-        dataset.addValue(5.0, series1, category4);
-        dataset.addValue(5.0, series1, category5);
-
-        dataset.addValue(5.0, series2, category1);
-        dataset.addValue(7.0, series2, category2);
-        dataset.addValue(6.0, series2, category3);
-        dataset.addValue(8.0, series2, category4);
-        dataset.addValue(4.0, series2, category5);
-
-        dataset.addValue(4.0, series3, category1);
-        dataset.addValue(3.0, series3, category2);
-        dataset.addValue(2.0, series3, category3);
-        dataset.addValue(3.0, series3, category4);
-        dataset.addValue(6.0, series3, category5);
-
-        return dataset;
-    }
-    
 	@Override
 	public Long getDatasetId() {
 		return datasetId;

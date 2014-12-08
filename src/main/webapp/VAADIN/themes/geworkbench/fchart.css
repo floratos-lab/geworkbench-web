@@ -1,0 +1,142 @@
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line0
+  {
+     stroke: blue;
+     fill: blue;
+  }
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line1
+  {
+     stroke: green;
+     fill: green;
+  }
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line2
+  {
+     stroke: red;
+     fill: red;
+  }
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line3
+  {
+     stroke: yellow;
+     fill: yellow;
+  }
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line4
+  {
+     stroke: rgb(192,192,192);
+     fill: rgb(192,192,192);
+  }
+.UniqueColorsBlueGreenRedScheme .chart-bottom0-left0-line5
+  {
+     stroke: orange;
+     fill: orange;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line0-asc
+  {
+     stroke: red;
+     fill: red;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line0-desc
+  {
+     stroke: blue;
+     fill: blue;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line1-asc
+  {
+     stroke: yellow;
+     fill: yellow;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line1-desc
+  {
+     stroke: green;
+     fill: green;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line2-asc
+  {
+     stroke: brown;
+     fill: brown;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line2-desc
+  {
+     stroke: orange;
+     fill: orange;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line3-asc
+  {
+     stroke: rgb(192,192,192);
+     fill: rgb(192,192,192);
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line3-desc
+  {
+     stroke: green;
+     fill: green;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line4-asc
+  {
+     stroke: yellow;
+     fill: yellow;
+  }
+.AscendingDescendingRedBlueYellowGreenScheme .chart-bottom0-left0-line4-desc
+  {
+     stroke: green;
+     fill: green;
+  }
+  .v-chart
+  {
+     background: #fff;
+  }
+  .chart-data-rectangle
+  {
+     stroke-width:2;
+     stroke:rgb(0,0,0);
+     fill:rgb(255,255,255); 
+     fill-opacity: 0.1;
+     stroke-opacity: 0.5;
+  }
+ line.tick
+  {
+    stroke-width:1;
+    stroke: rgb(0,0,0);
+  }
+  line.chart-mesh-line
+  {
+    stroke: rgb(0,0,0);                                                        
+    stroke-width: 1;
+    stroke-opacity: 0.4;
+  }
+  .axis-title
+  {
+     font-size: 13px;
+     font-weight: bold;
+     color: #4469c0;
+     fill: #4469c0; 
+     stroke: none; 
+  }
+  .general-chart-title-text
+  {
+      font-size: 16px;
+      font-weight: bold;
+     color: #4469c0;
+     fill: #4469c0; 
+     stroke: none; 
+  }   
+  .chart-whole-area
+  {
+       text-align: left;
+       line-height: normal;
+       font-family: Arial;
+       font-size: 12px;
+  }
+  .chart-mesh-item-left, .chart-mesh-item-bottom, .chart-mesh-item-top,
+  .chart-mesh-item-right
+  {
+       font-size: 11px;
+       color: #CCCCCC;
+  }
+  .chart-data-white-mark
+  {
+	fill: white;
+        stroke: white;
+  }
+  .chart-area-fill-opacity
+  {
+	fill-opacity: 0.72;
+	stroke-width: 0;
+  }              
