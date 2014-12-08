@@ -2,7 +2,6 @@ package org.geworkbenchweb;
  
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
@@ -14,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.authentication.UUserAuth;
-import org.geworkbenchweb.events.AnalysisCompleteEventListener;
 import org.geworkbenchweb.events.AnalysisCompleteEvent;
+import org.geworkbenchweb.events.AnalysisCompleteEventListener;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -35,7 +34,6 @@ import com.vaadin.ui.Window;
 /**
  * This is the application entry point.
  * @author Nikhil Reddy
- * @version $Id$
  */
 public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
 	
@@ -50,7 +48,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	
 	private static final String APP_THEME_NAME 			= 	"geworkbench";
 	private static final String PROPERTIES_FILE 		= 	"application.properties";
-    private static String APP_URL 						= 	null;
 	
 	private static Properties prop = new Properties();
 	
@@ -119,23 +116,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		
 		GeneOntologyTree.getInstance();
 	}
-	
-	/**
-     * Tries to guess theme location.
-     * 
-     * @return
-     */
-    public static String getThemeBase() {
-        try {
-            URI uri = new URI(APP_URL + "../VAADIN/themes/"
-                    + APP_THEME_NAME + "/");
-            return uri.normalize().toString();
-        } catch (Exception e) {
-            System.err.println("Theme location could not be resolved:" + e);
-        }
-        return "/VAADIN/themes/" + APP_THEME_NAME + "/";
-    }
-		
+
 	@Override
 	public void transactionStart(Application application, Object transactionData) {
 		if (application == GeworkbenchRoot.this) {
@@ -154,15 +135,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
             currentApplication.remove();
 		}
 	}
-	
-	/**
-	 * Method supplies Application Instance 
-	 * @return Current Application Instance
-	 */
-	public static GeworkbenchRoot getInstance() {
-        return currentApplication.get();
-    }
-	
+
 	/**
 	 * Method supplies Blackboard instance to the entire Application
 	 * @return Blackboard Instance for the application
