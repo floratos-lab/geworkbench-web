@@ -612,6 +612,11 @@
 			<artifactId>vprotovis</artifactId>
 			<version>0.6</version>
 		</dependency>		
+		<dependency>
+		   <groupId>org.vaadin.addon</groupId>
+		   <artifactId>jfreechartwrapper</artifactId>
+		   <version>2.5.0</version><!--  this version for vaadin 6 -->
+		</dependency>
 	</dependencies>	 
 
 </project>

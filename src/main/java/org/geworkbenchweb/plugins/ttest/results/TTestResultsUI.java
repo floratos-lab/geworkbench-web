@@ -1,39 +1,32 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
-import java.util.LinkedHashSet;
+import java.awt.GradientPaint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.CategoryToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.vaadin.addon.JFreeChartWrapper;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.Color.RGB;
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.SeriesType;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
-import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * Visualization for TTest Results is done in this class.
- * @author Nikhil
  */
 
 public class TTestResultsUI extends VerticalLayout implements Visualizer {
@@ -67,134 +60,121 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		InvientCharts chart = drawPlot();
-		addComponent(new ChartMenuBar(chart, this));
+		JFreeChartWrapper chart = drawPlot();
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
 
-	/**
-	 * This method draws the Volcano plot using Invient Charts Add-on.
-	 */
-	private InvientCharts drawPlot() {
-
-		InvientChartsConfig chartConfig = new InvientChartsConfig();
-		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
-		chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
-
-		chartConfig.getTitle().setText(
-				"T-Test");
-
-		chartConfig.getTooltip().setFormatterJsFunc(
-				"function() {"
-						+ " return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; "
-						+ "}");
-
-		NumberXAxis xAxis = new NumberXAxis();
-		xAxis.setTitle(new AxisTitle("Fold Change Log2(ratio)"));
-		xAxis.setStartOnTick(true);
-		xAxis.setEndOnTick(true);
-		xAxis.setShowLastLabel(true);
-		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
-		xAxesSet.add(xAxis);
-		chartConfig.setXAxes(xAxesSet);
-
-		NumberYAxis yAxis = new NumberYAxis();
-		yAxis.setTitle(new AxisTitle("Significance(-Log10)"));
-		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
-		yAxesSet.add(yAxis);
-		chartConfig.setYAxes(yAxesSet);
-
-		ScatterConfig scatterCfg = new ScatterConfig();
-
-		SymbolMarker marker = new SymbolMarker(5);
-		scatterCfg.setMarker(marker);
-		marker.setHoverState(new MarkerState());
-		marker.getHoverState().setEnabled(true);
-		marker.getHoverState().setLineColor(new RGB(100, 100, 100));
-		chartConfig.addSeriesConfig(scatterCfg);
-
-		InvientCharts chart = new InvientCharts(chartConfig);
-		chart.setWidth("100%");
-		chart.setHeight("100%");
-
-		ScatterConfig sCfg = new ScatterConfig();
-		XYSeries series = new XYSeries("Significant Markers", sCfg);
-		
-		double validMinSigValue 	= 	Double.MAX_VALUE;
-		double minPlotValue 		= 	Double.MAX_VALUE;
-		double maxPlotValue 		= 	Double.MIN_VALUE;
-
-		LinkedHashSet<DecimalPoint> points 	= 	new LinkedHashSet<DecimalPoint>();
-
-		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
-		Long id = dataset.getDataId();
-		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		String[] markerLabels = microarray.getMarkerLabels();
-
-		log.debug("t-test result ID "+tTestResultSet.getId());
-		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
-		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
-			
-			int index = tTestResultSet.getSignificantIndex()[i];
-			String mark 	= 	markerLabels[index];
-			double sigValue 	= 	tTestResultSet.getpValue()[index];
-		
-			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
-				sigValue = 4.9E-45;
-			} 
-			else if (sigValue < 0) {
-				//log.debug("Significance less than 0, (" + sigValue + ") setting to 1 for the moment.");
-				sigValue = 1;
-			}
-
-			if (sigValue < validMinSigValue) {
-				validMinSigValue = sigValue;
-			}
-
-
-			double xVal = tTestResultSet.getFoldChange()[index];
-
-			if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
-				double yVal = -Math.log10(sigValue);
-				double plotVal = Math.abs(xVal) * Math.abs(yVal);
-				if (plotVal < minPlotValue) {
-					minPlotValue = plotVal;
-				}
-				if (plotVal > maxPlotValue) {
-					maxPlotValue = plotVal;
-				}
-				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
-				a.setName(mark);
-				points.add(a);
-			} else {
-				//log.debug("Marker " + i + " was infinite or NaN.");
-			}
-
-		}
-		
-		GMTColorPalette.ColorRange[] range = {new GMTColorPalette.ColorRange(minPlotValue, Color.BLUE.brighter(), maxPlotValue - (maxPlotValue / 3), Color.BLUE),
-                new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue, Color.RED)};
-		GMTColorPalette colormap = new GMTColorPalette(range);
-
-		LinkedHashSet<DecimalPoint> newPoints = new LinkedHashSet<DecimalPoint>();
-		for(int i=0; i<points.size(); i++) {
-			
-			DecimalPoint a =  (DecimalPoint) (points.toArray())[i] ;
-			Color aC = colormap.getColor(Math.abs(a.getX()) * Math.abs(a.getY()));
-			
-			SymbolMarker pMarker = new SymbolMarker(5);
-			pMarker.setFillColor(new RGB(aC.getRed(), aC.getGreen(), aC.getBlue()));
-
-			PointConfig aCfg = new PointConfig(pMarker);
-			a.setConfig(aCfg);
-			newPoints.add(a);
-		}
-		series.setSeriesPoints(newPoints);
-		chart.addSeries(series);
-		return chart;
+	private static JFreeChartWrapper drawPlot() {
+		JFreeChart createchart = createchart(createDataset());
+		log.debug("JFreeChart is created");
+        return new JFreeChartWrapper(createchart);
 	}
 
+    private static JFreeChart createchart(CategoryDataset dataset) {
+
+        // create the chart...
+        JFreeChart chart = ChartFactory.createBarChart("Bar Chart Demo 1", // chart
+                // title
+                "Category", // domain axis label
+                "Value", // range axis label
+                dataset, // data
+                PlotOrientation.VERTICAL, // orientation
+                true, // include legend
+                true, // tooltips?
+                false // URLs?
+                );
+
+        // set the background color for the chart...
+        chart.setBackgroundPaint(Color.white);
+
+        // get a reference to the plot for further customisation...
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.lightGray);
+        plot.setDomainGridlinePaint(Color.white);
+        plot.setDomainGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.white);
+
+        // set the range axis to display integers only...
+        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        // disable bar outlines...
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        // renderer.setDrawBarOutline(false);
+
+        // set up gradient paints for series...
+        GradientPaint gp0 = new GradientPaint(0.0f, 0.0f, Color.blue, 0.0f,
+                0.0f, new Color(0, 0, 64));
+        GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.green, 0.0f,
+                0.0f, new Color(0, 64, 0));
+        GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.red, 0.0f,
+                0.0f, new Color(64, 0, 0));
+        renderer.setSeriesPaint(0, gp0);
+        renderer.setSeriesPaint(1, gp1);
+        renderer.setSeriesPaint(2, gp2);
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions
+                .createUpRotationLabelPositions(Math.PI / 6.0));
+        
+        CategoryToolTipGenerator generator = new CategoryToolTipGenerator() {
+
+			@Override
+			public String generateToolTip(CategoryDataset arg0, int arg1,
+					int arg2) {
+				return "TEST TOOLIP HERE...";
+			}
+        	
+        };
+		renderer.setSeriesToolTipGenerator(1, generator );
+
+        return chart;
+    }
+
+	/**
+     * Returns a sample dataset.
+     * 
+     * @return The dataset.
+     */
+    private static CategoryDataset createDataset() {
+
+        // row keys...
+        String series1 = "First";
+        String series2 = "Second";
+        String series3 = "Third";
+
+        // column keys...
+        String category1 = "Category 1";
+        String category2 = "Category 2";
+        String category3 = "Category 3";
+        String category4 = "Category 4";
+        String category5 = "Category 5";
+
+        // create the dataset...
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        dataset.addValue(1.0, series1, category1);
+        dataset.addValue(4.0, series1, category2);
+        dataset.addValue(3.0, series1, category3);
+        dataset.addValue(5.0, series1, category4);
+        dataset.addValue(5.0, series1, category5);
+
+        dataset.addValue(5.0, series2, category1);
+        dataset.addValue(7.0, series2, category2);
+        dataset.addValue(6.0, series2, category3);
+        dataset.addValue(8.0, series2, category4);
+        dataset.addValue(4.0, series2, category5);
+
+        dataset.addValue(4.0, series3, category1);
+        dataset.addValue(3.0, series3, category2);
+        dataset.addValue(2.0, series3, category3);
+        dataset.addValue(3.0, series3, category4);
+        dataset.addValue(6.0, series3, category5);
+
+        return dataset;
+    }
+    
 	@Override
 	public Long getDatasetId() {
 		return datasetId;
