@@ -26,6 +26,7 @@ public class Dendrogram extends AbstractComponent {
 	final private String[] arrayLabels, markerLabels;
 	
 	private int cellWidth = 10, cellHeight = 5;
+	private int exportImageCellWidth = 30, exportImageCellHeight = 15;
 	
 	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster, String markerCluster, String[] arrayLabels, String[] markerLabels, int[] colors) {
 		this.arrayNumber = arrayNumber;
@@ -54,10 +55,12 @@ public class Dendrogram extends AbstractComponent {
 		super.paintContent(target);
 		
 		if(requestExportImage) {
-			target.addVariable(this, "exportImage", true);
+			target.addVariable(this, "exportImage", true);			 
+			target.addAttribute("exportImageCellWidth", exportImageCellWidth);
+			target.addAttribute("exportImageCellHeight", exportImageCellHeight);
 			requestExportImage = false;
 			//return;
-		}
+		}	 
 		
 		/* get a subset of color values */
         if(firstMarker+paintableMarkers>markerNumber) { // handle the last 'page'
@@ -189,8 +192,13 @@ public class Dendrogram extends AbstractComponent {
 	public void exportImage() {
 	    if(cellHeight < 15 && cellWidth < 30)
 	    {
-		   cellWidth = 30;
-		   cellHeight = 15;
+	    	exportImageCellWidth = 30;
+	    	exportImageCellHeight = 15;
+	    }
+	    else
+	    {
+	    	exportImageCellWidth = cellWidth;
+	    	exportImageCellHeight = cellHeight;
 	    }
 		requestExportImage = true;
 		requestRepaint();
