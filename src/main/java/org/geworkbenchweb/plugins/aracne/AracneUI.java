@@ -779,7 +779,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	public String execute(Long resultId,
 			HashMap<Serializable, Serializable> parameters, Long userId)
 			throws IOException, Exception {
-		AracneAnalysisWeb analyze = new AracneAnalysisWeb(dataSetId, params);
+		AracneAnalysisClient analyze = new AracneAnalysisClient(dataSetId, params);
 		AbstractPojo output = analyze.execute();
 		FacadeFactory.getFacade().store(output);
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
@@ -787,7 +787,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		result.setDataId(output.getId());
 		FacadeFactory.getFacade().store(result);
 
-		String resultName = analyze.serviceClient.resultName;
+		String resultName = analyze.resultName;
 		if (resultName != null && resultName.trim().length() > 0)
 			return "Aracne - " + resultName;
 		return "Aracne";
