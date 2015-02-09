@@ -58,6 +58,9 @@ public class AracneAnalysisClient {
 	private static final String ARACNE_SERVICE_URL = GeworkbenchRoot.getAppProperty("aracne.clusterService.url");	
 	private static final String ARACNE_NAMESPACE = "http://www.geworkbench.org/service/aracne";
 
+	private static final String PREPROCESSING_ENDPOINT = "PreprocessRequest";
+	private static final String DISCOVERY_ENDPOINT = "DiscoveryRequest";
+
 	final private Long datasetId;
 	final private HashMap<Serializable, Serializable> params;
 
@@ -372,7 +375,7 @@ public class AracneAnalysisClient {
 
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
-		OMElement request = omFactory.createOMElement("ExecuteAracneRequest", namespace);
+		OMElement request = omFactory.createOMElement(DISCOVERY_ENDPOINT, namespace);
 		
 		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
@@ -414,7 +417,7 @@ public class AracneAnalysisClient {
 
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
-		OMElement request = omFactory.createOMElement("ExecuteAracneConfigRequest", namespace); // TODO replace with the new name "PreprocessRequest" 
+		OMElement request = omFactory.createOMElement(PREPROCESSING_ENDPOINT, namespace); 
 
 		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
