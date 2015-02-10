@@ -87,7 +87,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 */
 		params.put(AracneParameters.MARKER_SET, "All Markers");
 		params.put(AracneParameters.ARRAY_SET, "All Arrays");
-		params.put(AracneParameters.MODE, AracneParameters.DISCOVERY);
+		params.put(AracneParameters.MODE, AracneParameters.PREPROCESSING);
 		params.put(AracneParameters.CONFIG, "Default");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
