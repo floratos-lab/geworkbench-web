@@ -144,7 +144,12 @@ public class LoginForm extends VerticalLayout {
 					} catch (AccountLockedException e) {						 
 						feedbackLabel.setValue("The given account has been locked.");
 					} catch (Exception e) {
-						feedbackLabel.setValue(e.getMessage());
+						if(e.getMessage()==null) { /* this may happen due to library code */
+							feedbackLabel.setValue("Undocumened exception happened.");
+							e.printStackTrace();
+						} else {
+							feedbackLabel.setValue(e.getMessage());
+						}
 					}
 				}
 			}
