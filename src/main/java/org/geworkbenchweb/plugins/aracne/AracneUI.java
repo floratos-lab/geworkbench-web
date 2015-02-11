@@ -82,46 +82,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		gridLayout.setSpacing(true);
 		gridLayout.setImmediate(true);
 
-		/**
-		 * Params default values
-		 */
-		params.put(AracneParameters.MARKER_SET, "All Markers");
-		params.put(AracneParameters.ARRAY_SET, "All Arrays");
-		params.put(AracneParameters.MODE, AracneParameters.PREPROCESSING);
-		params.put(AracneParameters.CONFIG, "Default");
-		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
-		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
-		params.put(AracneParameters.WIDTH_VALUE, "0.01");
-		params.put(AracneParameters.TOL_TYPE, "Apply");
-		params.put(AracneParameters.TOL_VALUE, "0.0");
-		params.put(AracneParameters.T_TYPE, "Mutual Info");
-		params.put(AracneParameters.T_VALUE, "0.01");
-		params.put(AracneParameters.CORRECTION, "No Correction");
-		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
-		params.put(AracneParameters.BOOTS_NUM, "1");
-		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
-		params.put(AracneParameters.MERGEPS, "No");
+		setDefaultParameters(params);
 
 		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
 				"AracneUI");
 
-
-		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets" + QUESTION_MARK);
-		hubGeneMarkerSetBox.setDescription("Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
-		hubGeneMarkerSetBox.setTextInputAllowed(false);
-		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
-		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
-		hubGeneMarkerSetBox.setImmediate(true);
-
-		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.HUB_MARKER_SET, String
-						.valueOf(valueChangeEvent.getProperty().getValue()));
-			}
-		});
-
+		final GridLayout extraParameterLayout = initializeExtraParameterPanel();
+		extraParameterLayout.setVisible(false);
+		
 		modeBox.setCaption("Select Mode" + QUESTION_MARK);
 		modeBox.setDescription("<b>Preprocessing</b> mode calculates custom parameters for optimally determining P-value Threshold and Kernel Width (Fixed Bandwidth only) for the data set for use during a Discovery run, and saves them as a configuration node in the Workspace. No other parameter except Algorithm need be set to run Preprocessing. <br><br> <b>Discovery</b> mode calculates the mutual information between hub and target markers and can use a configuration node from a Preprocessing run (recommended) or use default parameters to determine the Threshold and Kernel Width parameters as needed. <br><br> <b>Complete mode</b> runs both Preprocessing and Discovery, but does not save a configuration node for future runs.");
 		modeBox.setNullSelectionAllowed(false);
@@ -138,10 +106,13 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				params.put(AracneParameters.MODE, valueChangeEvent
 						.getProperty().getValue().toString());
 				if (params.get(AracneParameters.MODE).equals(
-						AracneParameters.DISCOVERY))
-					configBox.setEnabled(true);
-				else
-					configBox.setEnabled(false);
+						AracneParameters.DISCOVERY)) {
+					configBox.setVisible(true);
+					extraParameterLayout.setVisible(true);
+				} else {
+					configBox.setVisible(false);
+					extraParameterLayout.setVisible(false);
+				}
 			}
 		});
 
@@ -161,7 +132,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					params.put(AracneParameters.CONFIG, o.toString());
 			}
 		});
-
+		configBox.setVisible(false); // default mode: preprocessing
+		
 		algoBox.setCaption("Select Algorithm" + QUESTION_MARK);
 		algoBox.setDescription("Choose <b>Adaptive Partitioning</b>, or the original but slower <b>Fixed Bandwidth</b> method");
 		algoBox.setImmediate(true);
@@ -188,6 +160,105 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
+		submitButton = new Button("Submit", new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			public void buttonClick(ClickEvent event) {
+				try {
+
+					List<String> hubGeneList = null;
+					Long subSetId;
+
+					if (hubGeneMarkerSetBox.getValue() != null) {
+						subSetId = Long.parseLong((String) hubGeneMarkerSetBox
+								.getValue().toString().trim());
+						hubGeneList = SubSetOperations.getMarkerData(subSetId);
+					}
+					if (validInputData(hubGeneList)) {
+
+						ResultSet resultSet = new ResultSet();
+						java.sql.Timestamp timestamp = new java.sql.Timestamp(
+								System.currentTimeMillis());
+						resultSet.setTimestamp(timestamp);
+						String dataSetName = "Aracne - Pending";
+						resultSet.setName(dataSetName);
+						resultSet.setType(getResultType().getName());
+						resultSet.setParent(dataSetId);
+						resultSet.setOwner(SessionHandler.get().getId());
+						FacadeFactory.getFacade().store(resultSet);
+
+						generateHistoryString(resultSet.getId(), hubGeneList);
+
+						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
+								.getApplication();
+						app.addNode(resultSet);
+
+						params.put(AracneParameters.MARKER_SET,
+								markerArraySelector.getSelectedMarkerSet());
+						params.put(AracneParameters.ARRAY_SET,
+								markerArraySelector.getSelectedArraySet());
+						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+								resultSet, params, AracneUI.this);
+						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+					}
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		gridLayout.addComponent(modeBox, 0, 0);
+		gridLayout.addComponent(algoBox, 1, 0);
+		gridLayout.addComponent(configBox, 2, 0);
+		gridLayout.addComponent(extraParameterLayout, 0, 2, 2, 6);
+		gridLayout.addComponent(submitButton, 0, 7);
+		
+		addComponent(markerArraySelector);
+		addComponent(gridLayout);
+
+	}
+	
+	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {
+		/**
+		 * Params default values
+		 */
+		params.put(AracneParameters.MARKER_SET, "All Markers");
+		params.put(AracneParameters.ARRAY_SET, "All Arrays");
+		params.put(AracneParameters.MODE, AracneParameters.PREPROCESSING);
+		params.put(AracneParameters.CONFIG, "Default");
+		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
+		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
+		params.put(AracneParameters.WIDTH_VALUE, "0.01");
+		params.put(AracneParameters.TOL_TYPE, "Apply");
+		params.put(AracneParameters.TOL_VALUE, "0.0");
+		params.put(AracneParameters.T_TYPE, "Mutual Info");
+		params.put(AracneParameters.T_VALUE, "0.01");
+		params.put(AracneParameters.CORRECTION, "No Correction");
+		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
+		params.put(AracneParameters.BOOTS_NUM, "1");
+		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
+		params.put(AracneParameters.MERGEPS, "No");
+	}
+	
+	private GridLayout initializeExtraParameterPanel() {
+		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets" + QUESTION_MARK);
+		hubGeneMarkerSetBox.setDescription("Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
+		hubGeneMarkerSetBox.setTextInputAllowed(false);
+		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
+		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
+		hubGeneMarkerSetBox.setImmediate(true);
+
+		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.put(AracneParameters.HUB_MARKER_SET, String
+						.valueOf(valueChangeEvent.getProperty().getValue()));
+			}
+		});
+		
 		widthValue.setCaption("Kernel Width Value" + QUESTION_MARK);
 		widthValue.setDescription("If specifying a kernel width for the Fixed Bandwidth method, enter here.");
 		widthValue.setValue("0.1");
@@ -227,25 +298,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
-
-		correction.setCaption("Correction Type" + QUESTION_MARK);
-		correction.setDescription("Whether to use a <b>Bonferroni</b> multiple testing correction, or <b>No Correction</b>");
-		correction.setNullSelectionAllowed(false);
-		correction.addItem("No Correction");
-		correction.addItem("Bonferroni Correction");
-		correction.select("No Correction");
-		correction.setEnabled(true);
-		correction.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.CORRECTION);
-				params.put(AracneParameters.CORRECTION, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-
-		});
-
+		
 		threshold.setCaption("Threshold Value" + QUESTION_MARK);
 		threshold.setDescription("Enter a P-value or Mutual Information threshold value");
 		threshold.setValue("0.01");
@@ -281,6 +334,24 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 		thresholdType.select("P-Value");
+		
+		correction.setCaption("Correction Type" + QUESTION_MARK);
+		correction.setDescription("Whether to use a <b>Bonferroni</b> multiple testing correction, or <b>No Correction</b>");
+		correction.setNullSelectionAllowed(false);
+		correction.addItem("No Correction");
+		correction.addItem("Bonferroni Correction");
+		correction.select("No Correction");
+		correction.setEnabled(true);
+		correction.addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+				params.remove(AracneParameters.CORRECTION);
+				params.put(AracneParameters.CORRECTION, valueChangeEvent
+						.getProperty().getValue().toString());
+			}
+
+		});
 
 		tolerance.setCaption("Tolerance Value" + QUESTION_MARK);
 		tolerance.setDescription("Value for DPI Tolerance");
@@ -415,77 +486,26 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
-
-		submitButton = new Button("Submit", new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			public void buttonClick(ClickEvent event) {
-				try {
-
-					List<String> hubGeneList = null;
-					Long subSetId;
-
-					if (hubGeneMarkerSetBox.getValue() != null) {
-						subSetId = Long.parseLong((String) hubGeneMarkerSetBox
-								.getValue().toString().trim());
-						hubGeneList = SubSetOperations.getMarkerData(subSetId);
-					}
-					if (validInputData(hubGeneList)) {
-
-						ResultSet resultSet = new ResultSet();
-						java.sql.Timestamp timestamp = new java.sql.Timestamp(
-								System.currentTimeMillis());
-						resultSet.setTimestamp(timestamp);
-						String dataSetName = "Aracne - Pending";
-						resultSet.setName(dataSetName);
-						resultSet.setType(getResultType().getName());
-						resultSet.setParent(dataSetId);
-						resultSet.setOwner(SessionHandler.get().getId());
-						FacadeFactory.getFacade().store(resultSet);
-
-						generateHistoryString(resultSet.getId(), hubGeneList);
-
-						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
-								.getApplication();
-						app.addNode(resultSet);
-
-						params.put(AracneParameters.MARKER_SET,
-								markerArraySelector.getSelectedMarkerSet());
-						params.put(AracneParameters.ARRAY_SET,
-								markerArraySelector.getSelectedArraySet());
-						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-								resultSet, params, AracneUI.this);
-						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
-					}
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		gridLayout.addComponent(hubGeneMarkerSetBox, 0, 0);
-		gridLayout.addComponent(modeBox, 1, 0);
-		gridLayout.addComponent(configBox, 2, 0);
-		gridLayout.addComponent(algoBox, 0, 1);
-		gridLayout.addComponent(kernelWidth, 1, 1);
-		gridLayout.addComponent(widthValue, 2, 1);
-		gridLayout.addComponent(thresholdType, 0, 2);
-		gridLayout.addComponent(threshold, 1, 2);
-		gridLayout.addComponent(correction, 2, 2);
-		gridLayout.addComponent(dpiTolerance, 0, 3);
-		gridLayout.addComponent(tolerance, 1, 3);
-		gridLayout.addComponent(dpiTargetList, 0, 4);
-		gridLayout.addComponent(dpiTargetSetBox, 1, 4);
-		gridLayout.addComponent(bootStrapNumber, 0, 5);
-		gridLayout.addComponent(consensusThreshold, 1, 5);
-		gridLayout.addComponent(mergeProbeSets, 0, 6);
-		gridLayout.addComponent(submitButton, 0, 7);
-
-		addComponent(markerArraySelector);
-		addComponent(gridLayout);
-
+		
+		final GridLayout layout = new GridLayout(4, 7);
+		layout.setSpacing(true);
+		layout.setImmediate(true);
+		
+		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
+		layout.addComponent(kernelWidth, 1, 1);
+		layout.addComponent(widthValue, 2, 1);
+		layout.addComponent(thresholdType, 0, 2);
+		layout.addComponent(threshold, 1, 2);
+		layout.addComponent(correction, 2, 2);
+		layout.addComponent(dpiTolerance, 0, 3);
+		layout.addComponent(tolerance, 1, 3);
+		layout.addComponent(dpiTargetList, 0, 4);
+		layout.addComponent(dpiTargetSetBox, 1, 4);
+		layout.addComponent(bootStrapNumber, 0, 5);
+		layout.addComponent(consensusThreshold, 1, 5);
+		layout.addComponent(mergeProbeSets, 0, 6);
+		
+		return layout;
 	}
 
 	private boolean validInputData(List<String> hubGeneList) {
