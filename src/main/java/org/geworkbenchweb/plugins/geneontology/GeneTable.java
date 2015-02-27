@@ -4,18 +4,25 @@
 package org.geworkbenchweb.plugins.geneontology;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.GOResult;
 import org.geworkbenchweb.utils.GOTerm;
 import org.geworkbenchweb.utils.GeneOntologyTree;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 
 /**
@@ -23,7 +30,8 @@ import com.vaadin.ui.Table;
  *
  */
 public class GeneTable extends Table {
-
+	private static Log log = LogFactory.getLog(GeneTable.class);
+			
 	private static final long serialVersionUID = -3857059757022002759L;
 	private static final Object HEADER_SYMBOL = "Gene Symbol";
 	private static final Object HEADER_DESCRIPTION = "Description";
@@ -31,24 +39,42 @@ public class GeneTable extends Table {
 	private final IndexedContainer container = new IndexedContainer();
 	
 	private final GOResult result;
+	private final Map<String, String> details;
 	
-	GeneTable(GOResult result) {
+	GeneTable(GOResult result, final Long parentId) {
 		this.result = result;
 		container.addContainerProperty(HEADER_SYMBOL, String.class, null);
 		container.addContainerProperty(HEADER_DESCRIPTION, String.class, null);
 		this.setContainerDataSource(container);
+		
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", parentId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		details = new HashMap<String, String>();
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				details.put(entry.getGeneSymbol(), entry.getGeneDescription());
+			}
+		} else {
+			log.debug("annotation is null for dataset "+parentId);
+		}
 	}
 
-	public void addData(int goId) {
+	public void updateData(int goId) {
 		boolean includeDescendants = true; // TODO
 		
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
 		
+		boolean r= container.removeAllItems();
+		log.debug("remove success? "+r);
 		for(String g : genes) {
 			Item item = container.addItem(g);
 			item.getItemProperty(HEADER_SYMBOL).setValue(g);
-			item.getItemProperty(HEADER_DESCRIPTION).setValue("detail .... wukong");
+			item.getItemProperty(HEADER_DESCRIPTION).setValue( details.get(g) );
 		}
 	}
 	
@@ -73,7 +99,7 @@ public class GeneTable extends Table {
 	}
 	
 	private Set<String> getAnnotatedGenes(int goTermId) {
-		return null; //FIXME result.getTerm2Gene().get(goTermId);
+		return result.getTerm2Gene().get(goTermId);
 	}
 	
 	/**

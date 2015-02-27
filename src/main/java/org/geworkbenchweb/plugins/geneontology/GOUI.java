@@ -183,7 +183,6 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		addComponent(calculationName);
 		addComponent(correctionName);
 		addComponent(submitButton);
-		System.out.println("finishing constructor of GOUI");
 	}
 
 	private static void populateAnnotationFiles(ComboBox cmbAnnotationFile) {

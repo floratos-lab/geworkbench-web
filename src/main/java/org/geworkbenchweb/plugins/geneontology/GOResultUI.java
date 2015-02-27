@@ -3,6 +3,8 @@ package org.geworkbenchweb.plugins.geneontology;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.GOResult;
 import org.geworkbenchweb.pojos.GOResultRow;
@@ -23,15 +25,23 @@ import com.vaadin.ui.VerticalLayout;
 
 public class GOResultUI  extends VerticalLayout implements Visualizer {
 
+	private static Log log = LogFactory.getLog(GOResultUI.class);
+			
 	private static final long serialVersionUID = 1781213075723503210L;
 
 	final private Long datasetId;
 
 	private static final String[] namespaces = {"All", "Molecular Function", "Biological Process", "Cellular Component"};
 	
+	private static final String[] GENE_FOR_OPTIONS = {"Term", "Term and its descendants"};
+	private static final String[] GENE_FROM_OPTIONS = {"Changed gene list", "Rerefence list"};
+	
 	public GOResultUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null) return;
+		if(dataSetId==null) {
+			log.debug("dataset ID is null");
+			return;
+		}
 		
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long id = resultSet.getDataId();
@@ -41,7 +51,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		}
 		GOResult result = FacadeFactory.getFacade().find(GOResult.class, id);
 
-		final GeneTable geneTable = new GeneTable(result);
+		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
+		geneTable.setWidth("500px");
 		
 		Table table= new Table();
 		table.setSelectable(true);
@@ -55,7 +66,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 
 			public void valueChange(ValueChangeEvent event) {
 				Integer goId = (Integer)event.getProperty().getValue();
-				geneTable.addData(goId);
+				if(goId==null) return; // unselect
+				geneTable.updateData(goId);
             }
 		});
 		
@@ -64,6 +76,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		HorizontalLayout mainLayout = new HorizontalLayout();
 		VerticalLayout leftLayout = new VerticalLayout();
 		VerticalLayout rightLayout = new VerticalLayout();
+		mainLayout.setMargin(true);
 		mainLayout.setSpacing(true);
 		mainLayout.addComponent(leftLayout);
 		mainLayout.addComponent(rightLayout);
@@ -87,11 +100,16 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			
 		});
 		
+		OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
+		geneForSelect.addStyleName("horizontal");
+		OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
+		geneFromSelect.addStyleName("horizontal");
+		
 		leftLayout.setSpacing(true);
 		leftLayout.addComponent(namespaceSelect);
 		leftLayout.addComponent(table);
-		leftLayout.addComponent(new OptionGroup("Show Genes For"));
-		leftLayout.addComponent(new OptionGroup("Show Genes From"));
+		leftLayout.addComponent( geneForSelect );
+		leftLayout.addComponent( geneFromSelect );
 		leftLayout.addComponent(geneTable);
 		
 		addComponent(mainLayout);

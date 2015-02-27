@@ -25,12 +25,13 @@ public class GOResult extends AbstractPojo {
 	@MapKeyColumn(name="GO_ID", table="GORESULT_GORESULTROW")
 	private Map<Integer, GOResultRow> result = new HashMap<Integer, GOResultRow>();
 	
-	//private Map<Integer, Set<String>> term2Gene;
+	private Map<Integer, Set<String>> term2Gene;
 
 	public GOResult() {}
 	
-	public GOResult(Map<Integer, GOResultRow> result) {//, Map<Integer, Set<String>> term2Gene) {
+	public GOResult(Map<Integer, GOResultRow> result, Map<Integer, Set<String>> term2Gene) {
 		this.result = result;
+		this.term2Gene = term2Gene;
 	}
 	
 	public Map<Integer, GOResultRow> getResult() {
@@ -46,11 +47,11 @@ public class GOResult extends AbstractPojo {
 		this.timestamp = timestamp;
 	}
 
-//	public Map<Integer, Set<String>> getTerm2Gene() {
-//		return term2Gene;
-//	}
-//
-//	public void setTerm2Gene(Map<Integer, Set<String>> term2Gene) {
-//		this.term2Gene = term2Gene;
-//	}
+	public Map<Integer, Set<String>> getTerm2Gene() {
+		return term2Gene;
+	}
+
+	public void setTerm2Gene(Map<Integer, Set<String>> term2Gene) {
+		this.term2Gene = term2Gene;
+	}
 }

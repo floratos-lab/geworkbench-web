@@ -159,7 +159,7 @@ public class GOAnalysis {
 					+ populationSet.getAbsolutePath());
 		}
 		
-		return new GOResult(analysisResult);//, term2Gene);
+		return new GOResult(analysisResult, term2Gene);
 	}
 
 	private static void appendOntologizerResult(Map<Integer, GOResultRow> result, EnrichedGOTermsResult ontologizerResult) {
