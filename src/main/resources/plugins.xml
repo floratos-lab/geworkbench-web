@@ -7,6 +7,14 @@
 	<analysis>
 	<inputType className="org.geworkbenchweb.pojos.MicroarrayDataset">
 		<plugin>
+			<name>Gene Ontology</name>
+			<description>
+				Gene Ontologizer ...
+			</description>
+			<uiClass>org.geworkbenchweb.plugins.geneontology.GOUI</uiClass>
+		</plugin>
+		
+		<plugin>
 			<name>ANOVA</name>
 			<description>
 				The geWorkbench ANOVA
@@ -114,6 +122,15 @@
 	</analysis>
 
 	<visualizer>
+	<inputType className="org.geworkbenchweb.pojos.GOResult">
+	<plugin>
+		<name>GO Result Viewer</name>
+		<description>
+			Gene Ontology Result Viewer.
+		</description>
+		<uiClass>org.geworkbenchweb.plugins.geneontology.GOResultUI</uiClass>
+	</plugin>
+	</inputType>
 	<inputType className="org.geworkbenchweb.pojos.PdbFileInfo">
 	<plugin>
 		<name>PDB File Viewer</name>
