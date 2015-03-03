@@ -34,7 +34,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 	private static final String[] namespaces = {"All", "Molecular Function", "Biological Process", "Cellular Component"};
 	
 	private static final String[] GENE_FOR_OPTIONS = {"Term", "Term and its descendants"};
-	private static final String[] GENE_FROM_OPTIONS = {"Changed gene list", "Rerefence list"};
+	static final String[] GENE_FROM_OPTIONS = {"Changed gene list", "Rerefence list"};
 	
 	public GOResultUI(Long dataSetId) {
 		datasetId = dataSetId;
@@ -54,9 +54,27 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
 		geneTable.setWidth("500px");
 		
-		Table table= new Table();
+		final Table table= new Table();
 		table.setSelectable(true);
 		table.setImmediate(true);
+
+		OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
+		geneForSelect.addStyleName("horizontal");
+		final OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
+		geneFromSelect.setValue(GENE_FROM_OPTIONS[0]);
+		geneFromSelect.addStyleName("horizontal");
+		geneFromSelect.addListener(new Table.ValueChangeListener() {
+
+			private static final long serialVersionUID = -7615528381968321116L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				String newFrom = (String)event.getProperty().getValue();
+				int goId = (Integer) table.getValue();
+				geneTable.updateData(goId , newFrom);
+			}
+			
+		});
 		
 		final IndexedContainer c = new IndexedContainer();
 		fillContainer(c, result);
@@ -67,7 +85,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			public void valueChange(ValueChangeEvent event) {
 				Integer goId = (Integer)event.getProperty().getValue();
 				if(goId==null) return; // unselect
-				geneTable.updateData(goId);
+				geneTable.updateData(goId, (String)geneFromSelect.getValue());
             }
 		});
 		
@@ -99,11 +117,6 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			}
 			
 		});
-		
-		OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
-		geneForSelect.addStyleName("horizontal");
-		OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
-		geneFromSelect.addStyleName("horizontal");
 		
 		leftLayout.setSpacing(true);
 		leftLayout.addComponent(namespaceSelect);

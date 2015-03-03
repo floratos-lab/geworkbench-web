@@ -34,7 +34,7 @@ public class GOAnalysis {
 
 	final private Map<Serializable, Serializable> params;
 	
-	public GOAnalysis(Long dataSetId, HashMap<Serializable, Serializable> params) {
+	public GOAnalysis(Long dataSetId, Map<Serializable, Serializable> params) {
 		this.params = params;
 	}
 
@@ -46,6 +46,9 @@ public class GOAnalysis {
 		String	studySetFilePath = tempPath + studySetFileName;
 		String	populationSetFilePath = tempPath + populationSetFileName;
 
+		Set<String> referenceGenes = new HashSet<String>();
+		Set<String> changedGenes = new HashSet<String>();
+		
 		File studySet = new File(studySetFilePath);
 		File populationSet = new File(populationSetFilePath);
 		try {
@@ -57,7 +60,7 @@ public class GOAnalysis {
 			}
 			for (String gene : changedGenesArray) {
 				pw.println(gene);
-				// FIXME analysisResult.addChangedGenes(gene);
+				changedGenes.add(gene);
 			}
 			pw.close();
 
@@ -68,7 +71,7 @@ public class GOAnalysis {
 			}
 			for (String gene : referenceGenesArray) {
 				pw.println(gene);
-				//FIXME analysisResult.addReferenceGenes(gene);
+				referenceGenes.add(gene);
 			}
 			pw.close();
 		} catch (IOException e1) {
@@ -159,7 +162,7 @@ public class GOAnalysis {
 					+ populationSet.getAbsolutePath());
 		}
 		
-		return new GOResult(analysisResult, term2Gene);
+		return new GOResult(analysisResult, term2Gene, referenceGenes, changedGenes);
 	}
 
 	private static void appendOntologizerResult(Map<Integer, GOResultRow> result, EnrichedGOTermsResult ontologizerResult) {

@@ -27,11 +27,16 @@ public class GOResult extends AbstractPojo {
 	
 	private Map<Integer, Set<String>> term2Gene;
 
+	private Set<String> referenceGenes;
+	private Set<String> changedGenes;
+
 	public GOResult() {}
 	
-	public GOResult(Map<Integer, GOResultRow> result, Map<Integer, Set<String>> term2Gene) {
+	public GOResult(Map<Integer, GOResultRow> result, Map<Integer, Set<String>> term2Gene, Set<String> referenceGenes, Set<String> changedGenes) {
 		this.result = result;
 		this.term2Gene = term2Gene;
+		this.referenceGenes = referenceGenes;
+		this.changedGenes = changedGenes;
 	}
 	
 	public Map<Integer, GOResultRow> getResult() {
@@ -53,5 +58,21 @@ public class GOResult extends AbstractPojo {
 
 	public void setTerm2Gene(Map<Integer, Set<String>> term2Gene) {
 		this.term2Gene = term2Gene;
+	}
+
+	public Set<String> getReferenceGenes() {
+		return referenceGenes;
+	}
+
+	public void setReferenceGenes(Set<String> referenceGenes) {
+		this.referenceGenes = referenceGenes;
+	}
+
+	public Set<String> getChangedGenes() {
+		return changedGenes;
+	}
+
+	public void setChangedGenes(Set<String> changedGenes) {
+		this.changedGenes = changedGenes;
 	}
 }

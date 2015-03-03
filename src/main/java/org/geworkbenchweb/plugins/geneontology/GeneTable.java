@@ -63,14 +63,19 @@ public class GeneTable extends Table {
 		}
 	}
 
-	public void updateData(int goId) {
+	public void updateData(int goId, String geneFrom) {
 		boolean includeDescendants = true; // TODO
 		
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
+		if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[0])) {
+			genes.retainAll(result.getChangedGenes());
+		} else if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[1])) {
+			genes.retainAll(result.getReferenceGenes());
+		}
 		
 		boolean r= container.removeAllItems();
-		log.debug("remove success? "+r);
+		log.debug("cleaned-up? "+r);
 		for(String g : genes) {
 			Item item = container.addItem(g);
 			item.getItemProperty(HEADER_SYMBOL).setValue(g);

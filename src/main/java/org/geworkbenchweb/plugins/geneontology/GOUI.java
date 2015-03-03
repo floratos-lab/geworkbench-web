@@ -25,7 +25,6 @@ import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -57,27 +56,23 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 			Arrays.asList(calculationMethodName));
 	private final ComboBox correctionName = new ComboBox(
 			"Multiple Testing Correction", Arrays.asList(correctionMethodName));
-	
-	public GOUI(Long dataId) {
 
-		this.dataSetId = dataId;
-		User user = SessionHandler.get();
-		if(user==null) { /* otherwise should never happen */
-			log.error("User is null");
-			return;
-		}
-		Long userId = user.getId();
-		log.info("user ID "+userId);
+	private final Map<String, String> geneMap = new HashMap<String, String>();
+
+	public GOUI(Long dataId) {
 
 		setSpacing(true);
 		setImmediate(true);
+		setDefaultParameters(params);
 		
-		setDefaultParameters(params, dataSetId);
-
+		setDataSetId(dataId);
+		
 		referenceGene.addItem("All Genes");
 		referenceGene.select("All Genes");
 		
-		populateSetsForChangedGenes(dataSetId);
+		String[] allGenes = geneMap.values().toArray(new String[geneMap.size()]);
+		params.put(PARAM_REFERENCE_GENE_LIST, allGenes);
+		
 		changedGene.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT_DEFAULTS_ID);
 		changedGene.addListener(new Property.ValueChangeListener() {
 
@@ -88,19 +83,22 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 			public void valueChange(ValueChangeEvent event) {
 				Object newValue = event.getProperty().getValue();
 				if (newValue != null && !((Long) newValue).equals(oldValue)) {
-					List<String> geneList = SubSetOperations
+					List<String> markerList = SubSetOperations
 							.getMarkerData((Long) newValue);
-					params.put(PARAM_CHANGED_GENE_LIST,
-							geneList.toArray(new String[geneList.size()]));
+					String[] genes = new String[markerList.size()];
+					for(int i=0; i<markerList.size(); i++) {
+						genes[i] = geneMap.get(markerList.get(i));
+					}
+					params.put(PARAM_CHANGED_GENE_LIST, genes);
 					oldValue = (Long)newValue;
 				}
 			}
 			
 		});
 		
+		cmbAnnotationFile.setImmediate(true);
 		populateAnnotationFiles(cmbAnnotationFile);
 		params.put(PARAM_ASSOCIATION_FILE, (String)cmbAnnotationFile.getValue());
-		cmbAnnotationFile.setImmediate(true);
 		cmbAnnotationFile.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -332132852289677807L;
@@ -265,8 +263,8 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 			"Parent-Child-Intersection", "Probabilistic", "Term-For-Term",
 			"Topology-Elim", "Topology-Weighted" };
 
-	private static void setDefaultParameters(HashMap<Serializable, Serializable> params, Long dataSetId) {
-		params.put(PARAM_REFERENCE_GENE_LIST, getAllGenes(dataSetId));
+	private static void setDefaultParameters(Map<Serializable, Serializable> params) {
+		params.put(PARAM_REFERENCE_GENE_LIST, new String[]{});
 		params.put(PARAM_CHANGED_GENE_LIST, new String[]{}) ; //getGeneListFromSet(dataSetId)); // new String[]{});
 		params.put(PARAM_CALCULATION_METHOD, calculationMethodName[3]); //"Term-For-Term");
 		params.put(PARAM_CORRECTION, correctionMethodName[4]); //"None");
@@ -295,17 +293,23 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
-		User user = SessionHandler.get();
-		Long userId = null;
-		if (user != null) { /* otherwise should not happen */
-			userId = user.getId();
-		}
-
 		this.dataSetId = dataSetId;
-		setDefaultParameters(params, dataSetId);
-		
+		params.put(PARAM_REFERENCE_GENE_LIST, getAllGenes(dataSetId));
 		populateSetsForChangedGenes(dataSetId);
-		// TODO other stuff that must be updated for a new dataSetId
+		
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
+				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+		if(dataSetAnnotation!=null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
+			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+				geneMap.put(entry.getProbeSetId(), entry.getGeneSymbol());
+			}
+		} else {
+			log.warn("no annotation found for dataset ID "+dataSetId);
+		}
 	}
 
 	@Override
