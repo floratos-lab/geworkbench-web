@@ -70,7 +70,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				String newFrom = (String)event.getProperty().getValue();
-				int goId = (Integer) table.getValue();
+				Integer goId = (Integer) table.getValue();
+				if(goId==null) return;
 				geneTable.updateData(goId , newFrom);
 			}
 			
