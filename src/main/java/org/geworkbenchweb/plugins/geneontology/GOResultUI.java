@@ -58,11 +58,28 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		table.setSelectable(true);
 		table.setImmediate(true);
 
-		OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
-		geneForSelect.addStyleName("horizontal");
+		final OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
 		final OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
+		geneForSelect.setValue(GENE_FOR_OPTIONS[0]);
+		geneForSelect.addStyleName("horizontal");
+		geneForSelect.setImmediate(true);
+		geneForSelect.addListener(new Table.ValueChangeListener() {
+
+			private static final long serialVersionUID = -7615528381968321116L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Integer goId = (Integer) table.getValue();
+				if(goId==null) return;
+				String f = (String)event.getProperty().getValue();
+				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
+				geneTable.updateData(goId , d, (String)geneFromSelect.getValue());
+			}
+			
+		});
 		geneFromSelect.setValue(GENE_FROM_OPTIONS[0]);
 		geneFromSelect.addStyleName("horizontal");
+		geneFromSelect.setImmediate(true);
 		geneFromSelect.addListener(new Table.ValueChangeListener() {
 
 			private static final long serialVersionUID = -7615528381968321116L;
@@ -72,7 +89,9 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 				String newFrom = (String)event.getProperty().getValue();
 				Integer goId = (Integer) table.getValue();
 				if(goId==null) return;
-				geneTable.updateData(goId , newFrom);
+				String f = (String)geneForSelect.getValue();
+				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
+				geneTable.updateData(goId, d, newFrom);
 			}
 			
 		});
@@ -86,7 +105,9 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			public void valueChange(ValueChangeEvent event) {
 				Integer goId = (Integer)event.getProperty().getValue();
 				if(goId==null) return; // unselect
-				geneTable.updateData(goId, (String)geneFromSelect.getValue());
+				String f = (String)geneForSelect.getValue();
+				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
+				geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
             }
 		});
 		

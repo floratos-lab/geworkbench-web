@@ -63,9 +63,7 @@ public class GeneTable extends Table {
 		}
 	}
 
-	public void updateData(int goId, String geneFrom) {
-		boolean includeDescendants = true; // TODO
-		
+	public void updateData(int goId, boolean includeDescendants, String geneFrom) {
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
 		if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[0])) {
