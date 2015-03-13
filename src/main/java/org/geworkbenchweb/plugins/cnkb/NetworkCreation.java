@@ -114,6 +114,6 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		networkResult.setDataId(network.getId());
 		FacadeFactory.getFacade().store(networkResult);
 
-		return "Cytoscape";
+		return "Network";
 	}
 }
