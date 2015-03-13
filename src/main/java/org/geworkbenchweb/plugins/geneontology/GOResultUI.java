@@ -51,6 +51,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		}
 		GOResult result = FacadeFactory.getFacade().find(GOResult.class, id);
 
+		final SingleTermView singleTermView = new SingleTermView();
+
 		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
 		geneTable.setWidth("500px");
 		
@@ -108,6 +110,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 				String f = (String)geneForSelect.getValue();
 				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 				geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
+				singleTermView.updateDataSource(goId);
             }
 		});
 		
@@ -147,7 +150,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		leftLayout.addComponent( geneFromSelect );
 		leftLayout.addComponent(geneTable);
 		
-		rightLayout.addComponent(new SingleTermView());
+		rightLayout.addComponent(singleTermView);
 
 		addComponent(mainLayout);
 	}

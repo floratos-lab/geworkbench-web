@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.utils.GOTerm;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 
-import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.terminal.ThemeResource;
@@ -24,9 +23,13 @@ public class SingleTermView extends VerticalLayout {
 	
 	private static Log log = LogFactory.getLog(SingleTermView.class);
 
+	private final HierarchicalContainer dataSource = new HierarchicalContainer();
+	
 	public SingleTermView() {
-		Tree tree = new Tree("Simgle Term View");
-		Container dataSource = updateDataSource(48523);
+		Tree tree = new Tree("Single Term View");
+		dataSource.addContainerProperty(hw_PROPERTY_NAME, String.class, null);
+		dataSource.addContainerProperty(hw_PROPERTY_ICON, ThemeResource.class,
+				new ThemeResource("../runo/icons/16/document.png"));
 		tree.setContainerDataSource(dataSource);
 		tree.setItemCaptionPropertyId(hw_PROPERTY_NAME);
 		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
@@ -76,10 +79,10 @@ public class SingleTermView extends VerticalLayout {
 	private final static GeneOntologyTree geneOntologyTree = GeneOntologyTree
 			.getInstanceUntilAvailable();
 
-	private boolean findAndAddChildren(Integer targetGene, Integer childId,
-			int parentItemId, HierarchicalContainer hwContainer, int serial) {
+	private boolean findAndAddChildren(Integer targetId, Integer childId,
+			int parentItemId, int serial) {
 		boolean found = false;
-		if (childId.equals(targetGene)) {
+		if (childId.equals(targetId)) {
 			found = true;
 		}
 
@@ -93,18 +96,18 @@ public class SingleTermView extends VerticalLayout {
 		int newItemId = serial;
 		for (Integer grandchild : grandchildren) {
 			serial++;
-			boolean foundInSubtree = findAndAddChildren(targetGene, grandchild,
-					newItemId, hwContainer, serial);
+			boolean foundInSubtree = findAndAddChildren(targetId, grandchild,
+					newItemId, serial);
 			if (foundInSubtree) {
 				found = true;
 			}
 		}
 		if (found) {
-			Item item = hwContainer.getItem(newItemId);
+			Item item = dataSource.getItem(newItemId);
 			if (item != null) {
 				log.debug("Item ID " + newItemId + " already added");
 			} else {
-				item = hwContainer.addItem(newItemId);
+				item = dataSource.addItem(newItemId);
 				if (item == null) {
 					log.error("Item ID " + newItemId + "failed to be added");
 					return found;
@@ -114,30 +117,22 @@ public class SingleTermView extends VerticalLayout {
 			GOTerm term = geneOntologyTree.getTerm(childId);
 			item.getItemProperty(hw_PROPERTY_NAME).setValue(term.getName());
 			// set parent node
-			if (!hwContainer.containsId(parentItemId) && parentItemId!=0) { // add on because we need to set parenthood here
-				hwContainer.addItem(parentItemId); /* should not fail */
+			if (!dataSource.containsId(parentItemId) && parentItemId!=0) { // add on because we need to set parenthood here
+				dataSource.addItem(parentItemId); /* should not fail */
 			}
-			if (!hwContainer.areChildrenAllowed(parentItemId)) {
-				hwContainer.setChildrenAllowed(parentItemId, true); /* should not fail */
+			if (!dataSource.areChildrenAllowed(parentItemId)) {
+				dataSource.setChildrenAllowed(parentItemId, true); /* should not fail */
 			}
-			hwContainer.setParent(newItemId, parentItemId); /* should not fail */
+			dataSource.setParent(newItemId, parentItemId); /* should not fail */
 		}
 
 		return found;
 	}
 
-	private HierarchicalContainer updateDataSource(int geneId) {
-		// Create new container
-		HierarchicalContainer hwContainer = new HierarchicalContainer();
-		// Create containerproperty for name
-		hwContainer.addContainerProperty(hw_PROPERTY_NAME, String.class, null);
-		// Create containerproperty for icon
-		hwContainer.addContainerProperty(hw_PROPERTY_ICON, ThemeResource.class,
-				new ThemeResource("../runo/icons/16/document.png"));
-
+	public void updateDataSource(Integer goId) {
+		dataSource.removeAllItems();
 		for (int namespaceId : SingleTermView.getNamespaceIds()) {
-			findAndAddChildren(geneId, namespaceId, 0, hwContainer, 1);
+			findAndAddChildren(goId, namespaceId, 0, 1);
 		}
-		return hwContainer;
 	}
 }
