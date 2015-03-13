@@ -250,7 +250,7 @@ public class TTestAnalysisWeb {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			throw new RemoteException( "Coumpute TTest error:" + e.getMessage());
+			throw new RemoteException( "Compute TTest error:" + e.getMessage());
 		}
 	}
 	
