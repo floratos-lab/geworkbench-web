@@ -147,6 +147,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		leftLayout.addComponent( geneFromSelect );
 		leftLayout.addComponent(geneTable);
 		
+		rightLayout.addComponent(new SingleTermView());
+
 		addComponent(mainLayout);
 	}
 	
