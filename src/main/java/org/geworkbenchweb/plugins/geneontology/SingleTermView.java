@@ -47,7 +47,7 @@ public class SingleTermView extends VerticalLayout {
 			return namespaceIds;
 		} else {
 			GeneOntologyTree geneOntologyTree = GeneOntologyTree
-					.getInstanceUntilAvailable();
+					.getInstance();
 			for (int i = 0; i < geneOntologyTree.getNumberOfRoots(); i++)
 				namespaceIds.add(geneOntologyTree.getRoot(i).getId());
 			return namespaceIds;
@@ -70,15 +70,13 @@ public class SingleTermView extends VerticalLayout {
 			return list;
 		}
 
+		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 		for (GOTerm g : geneOntologyTree.getTerm(goTermId).getChildren()) {
 			list.add(g.getId());
 		}
 		return list;
 	}
 	
-	private final static GeneOntologyTree geneOntologyTree = GeneOntologyTree
-			.getInstanceUntilAvailable();
-
 	private boolean findAndAddChildren(Integer targetId, Integer childId,
 			int parentItemId, int serial) {
 		boolean found = false;
@@ -114,6 +112,7 @@ public class SingleTermView extends VerticalLayout {
 				}
 			}
 			// Add name property for item
+			GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 			GOTerm term = geneOntologyTree.getTerm(childId);
 			item.getItemProperty(hw_PROPERTY_NAME).setValue(term.getName());
 			// set parent node

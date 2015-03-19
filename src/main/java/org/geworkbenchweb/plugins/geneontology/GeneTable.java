@@ -120,7 +120,7 @@ public class GeneTable extends Table {
 			return list;
 		}
 
-		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstanceUntilAvailable();
+		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 		for(GOTerm g: geneOntologyTree.getTerm(goTermId).getChildren()) {
 			list.add(g.getId());
 		}
@@ -132,7 +132,7 @@ public class GeneTable extends Table {
 		if(namespaceIds.size()>0) {
 			return namespaceIds;
 		} else {
-			GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstanceUntilAvailable();
+			GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 			for(int i=0; i<geneOntologyTree.getNumberOfRoots(); i++)
 				namespaceIds.add(geneOntologyTree.getRoot(i).getId());
 			return namespaceIds;
