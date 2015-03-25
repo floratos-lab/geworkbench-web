@@ -34,6 +34,7 @@ public class SingleTermView extends VerticalLayout {
 		tree.setItemCaptionPropertyId(hw_PROPERTY_NAME);
 		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 
+		this.setMargin(true);
 		this.addComponent(tree);
 	}
 

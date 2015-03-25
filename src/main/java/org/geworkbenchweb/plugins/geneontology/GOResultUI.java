@@ -17,11 +17,12 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 
 public class GOResultUI  extends VerticalLayout implements Visualizer {
 
@@ -54,7 +55,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		final SingleTermView singleTermView = new SingleTermView();
 
 		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
-		geneTable.setWidth("500px");
+		geneTable.setSizeFull();
 		
 		final Table table= new Table();
 		table.setSelectable(true);
@@ -113,16 +114,11 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 				singleTermView.updateDataSource(goId);
             }
 		});
+		table.setSizeFull();
 		
-		setSizeFull();
+		this.setSizeFull();
 		
-		HorizontalLayout mainLayout = new HorizontalLayout();
-		VerticalLayout leftLayout = new VerticalLayout();
-		VerticalLayout rightLayout = new VerticalLayout();
-		mainLayout.setMargin(true);
-		mainLayout.setSpacing(true);
-		mainLayout.addComponent(leftLayout);
-		mainLayout.addComponent(rightLayout);
+		final VerticalSplitPanel mainLayout = new VerticalSplitPanel();
 		
 		OptionGroup namespaceSelect = new OptionGroup("GO subontology (Namespaces)", Arrays.asList(namespaces ));
 		namespaceSelect.addStyleName("horizontal");
@@ -143,15 +139,22 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			
 		});
 		
+		VerticalLayout topLayout = new VerticalLayout();
+		topLayout.setSpacing(true);
+		topLayout.addComponent(namespaceSelect);
+		topLayout.addComponent(table);
+		
+		VerticalLayout leftLayout = new VerticalLayout();
 		leftLayout.setSpacing(true);
-		leftLayout.addComponent(namespaceSelect);
-		leftLayout.addComponent(table);
 		leftLayout.addComponent( geneForSelect );
 		leftLayout.addComponent( geneFromSelect );
 		leftLayout.addComponent(geneTable);
-		
-		rightLayout.addComponent(singleTermView);
+		final HorizontalSplitPanel bottomLayout = new HorizontalSplitPanel();
+		bottomLayout.addComponent(leftLayout);
+		bottomLayout.addComponent(singleTermView);
 
+		mainLayout.addComponent(topLayout);
+		mainLayout.addComponent(bottomLayout);
 		addComponent(mainLayout);
 	}
 	
