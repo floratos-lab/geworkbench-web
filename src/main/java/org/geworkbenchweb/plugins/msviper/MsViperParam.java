@@ -74,7 +74,7 @@ public class MsViperParam implements Serializable {
 	}
 
 	public void setNetwork(String network) {
-		this.network = network;
+		this.network = network.replace(" ", "");
 	}
 
 	public String getNetwork() {

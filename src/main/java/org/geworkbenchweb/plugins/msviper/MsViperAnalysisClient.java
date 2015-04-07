@@ -94,8 +94,8 @@ public class MsViperAnalysisClient {
 		if (networkFname.length() == 0)
 			throw new RemoteException("Network not loaded");
 
-		if (!networkFname.endsWith("adj"))
-			networkFname = networkFname + "adj";
+		if (!networkFname.endsWith(".adj"))
+			networkFname = networkFname.replace(" ", "") + ".adj";
 
 		/* copy the uploaded (and possibly processed) network file */
 		String source = GeworkbenchRoot.getBackendDataDirectory()

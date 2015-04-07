@@ -189,7 +189,10 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 
 				NetworkCreator networkCreator = new NetworkCreator(MsViperUI.this);
 				try {
-					networkCreator.createNetworkFile(network, (String)(networkTF.getValue()) );
+					String networkFname = networkTF.getValue().toString().trim().replace(" ", "");
+					if (!networkFname.endsWith(".adj"))
+						networkFname = networkFname + ".adj";
+					networkCreator.createNetworkFile(network, networkFname);
 					networkLoaded();				 
 				} catch (IOException e1) {
 					e1.printStackTrace();
