@@ -23,9 +23,11 @@
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
    	
    	<!-- Invient charts JavaScript Libraries -->
-   	<script src="js/jquery-1.4.4.min.js" />
+   	<script src="js/jquery.min.js" />
+   	<script src="js/underscore.js" />
    	<script src="js/highcharts.js" />
-   	<script src="js/exporting.js" />
+   	<script src="js/exporting.js" />  
+   	<script src="js/msviper.js" />   	 	
 	
 	<!-- Invient Charts Addon -->
    	<inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
