@@ -16,13 +16,11 @@ import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
 import org.xml.sax.SAXException;
 
 import com.vaadin.terminal.ThemeResource;
-import com.vaadin.ui.Component;
 
 /**
  * Central control of all Plug-ins. 
  * 
  * @author zji
- * @version $Id$
  *
  */
 public class PluginRegistry {
@@ -34,7 +32,7 @@ public class PluginRegistry {
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
-	private Map<Class<?>, Class<? extends Visualizer>> resultUiMap = new HashMap<Class<?>, Class<? extends Visualizer>>();
+	private Map<Class<?>, List<Class<? extends Visualizer>> > resultUiMap = new HashMap<Class<?>, List<Class<? extends Visualizer>> >();
 	private Map<Class<? extends Visualizer>, PluginEntry> visualizerPluginEntry = new HashMap<Class<? extends Visualizer>, PluginEntry>(); 
 	
 	static private ThemeResource microarrayIcon 	=	new ThemeResource("../custom/icons/chip16x16.gif");
@@ -64,7 +62,7 @@ public class PluginRegistry {
 		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
 		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
 		resultIconMap.put(org.geworkbenchweb.pojos.ConfigResult.class, marinaIcon); // aracne config result
-		resultIconMap.put(org.geworkbenchweb.pojos.MsViperResult.class, marinaIcon); // msviper result
+		resultIconMap.put(org.geworkbenchweb.pojos.MsViperResult.class, msViperIcon); // msviper result
 		
 		iconMap.put(org.geworkbenchweb.pojos.MicroarrayDataset.class, microarrayIcon);
 		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);
@@ -129,11 +127,14 @@ public class PluginRegistry {
 		
 		List<DataTypeEntry> visualizerlist = overall.get(1);
 		for(DataTypeEntry entry : visualizerlist) {
-			PluginInfo info = entry.getPluginList().get(0);
 			Class<?> inputType = Class.forName(entry.inputType);
-			Class<?> uiType = Class.forName(info.uiClass);
-			resultUiMap.put(inputType, (Class<? extends Visualizer>) uiType);
-			visualizerPluginEntry.put((Class<? extends Visualizer>) uiType, new PluginEntry(info.name, info.description));
+			List<Class<? extends Visualizer>> entryList = new ArrayList<Class<? extends Visualizer>>();
+			for(PluginInfo info : entry.getPluginList()) {
+				Class<?> uiType = Class.forName(info.uiClass);
+				visualizerPluginEntry.put((Class<? extends Visualizer>) uiType, new PluginEntry(info.name, info.description));
+				entryList.add((Class<? extends Visualizer>) uiType);
+			}
+			resultUiMap.put(inputType, entryList);
 		}
 	}
 
@@ -175,7 +176,7 @@ public class PluginRegistry {
 		} else if(getResultUI(type)==null) { // the case of no visualizer
 			return new Class[0];
 		} else { // result does not have common interface
-			return new Class[]{getResultUI(type)};
+			return (Class<? extends Visualizer>[]) getResultUI(type).toArray(new Class<?>[0]);
 		}
 	}
 
@@ -190,10 +191,10 @@ public class PluginRegistry {
 	}
 
 	// clazz is a result data type
-	public Class<? extends Component> getResultUI(Class<?> clazz) {
+	public List<Class<? extends Visualizer>> getResultUI(Class<?> clazz) {
 		// TODO this is not ideal - that both perfect match and super class are allowed
 		// get the perfect match first
-		Class<? extends Component> uiClass = resultUiMap.get(clazz);
+		List<Class<? extends Visualizer>> uiClass = resultUiMap.get(clazz);
 		if(uiClass!=null) {
 			return uiClass;
 		}

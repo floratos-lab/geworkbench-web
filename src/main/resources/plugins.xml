@@ -157,6 +157,13 @@
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
 	</plugin>
+	<plugin>
+		<name>Second PDB File Viewer</name>
+		<description>
+			Place holder for the second viewer.
+		</description>
+		<uiClass>org.geworkbenchweb.plugins.proteinstructure.PDBViewer</uiClass>
+	</plugin>
 	</inputType>
 	<inputType className="org.geworkbenchweb.pojos.HierarchicalClusteringResult">
 	<plugin>

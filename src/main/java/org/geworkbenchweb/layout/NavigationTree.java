@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.DataTypeMenuPage;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.WorkspaceUtils;
@@ -123,7 +124,7 @@ public class NavigationTree extends Tree {
 					Class<?> aClass = classLoader.loadClass(className);
 					Class<? extends DataTypeMenuPage> uiComponentClass = GeworkbenchRoot
 							.getPluginRegistry().getDataUI(aClass);
-					Class<? extends Component> resultUiClass = GeworkbenchRoot
+					List<Class<? extends Visualizer>> resultUiClass = GeworkbenchRoot
 							.getPluginRegistry().getResultUI(aClass);
 					if (uiComponentClass != null) {
 						/*
@@ -140,8 +141,15 @@ public class NavigationTree extends Tree {
 						/*
 						 * "is result" - visualizer
 						 */
-						pluginView.setContentUsingCache(resultUiClass,
-								dataSetId);
+						if(resultUiClass.size()==1) {
+							pluginView.setContentUsingCache(resultUiClass.get(0),
+									dataSetId);
+						} else { /* show a menu page similar to the one for input data type */
+							DataTypeMenuPage dataUI = new DataTypeMenuPage("", "Visualizer Menu", aClass, dataSetId);
+							dataUI.setVisualPluginView(pluginView);
+							pluginView.setContent(dataUI, dataUI.getTitle(),
+									dataUI.getDescription());
+						}
 					}
 					success = true;
 				} catch (ClassNotFoundException e) {

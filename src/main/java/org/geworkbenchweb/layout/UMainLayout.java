@@ -1,11 +1,14 @@
 package org.geworkbenchweb.layout;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.DefaultListener;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
+import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.Workspace;
@@ -370,8 +373,8 @@ public class UMainLayout extends VerticalLayout {
 				Class<?> visualizerClass = Class.forName(type);
 				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(visualizerClass);
 				navigationTree.getContainerProperty(res.getId(), "Icon").setValue(icon);
-				Class<? extends Component> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(visualizerClass);
-				pluginView.setContentUpdatingCache(resultUiClass, res.getId());
+				List<Class<? extends Visualizer>> resultUiClass = GeworkbenchRoot.getPluginRegistry().getResultUI(visualizerClass);
+				pluginView.setContentUpdatingCache(resultUiClass.get(0), res.getId()); /* show the first visualizer by default */
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}

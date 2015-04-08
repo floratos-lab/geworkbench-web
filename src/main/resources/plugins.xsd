@@ -32,7 +32,7 @@
               <xs:element name="inputType" maxOccurs="unbounded" minOccurs="0">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="plugin" type="PluginType" />
+                    <xs:element name="plugin" type="PluginType" maxOccurs="unbounded" minOccurs="0" />
                   </xs:sequence>
                   <xs:attribute type="xs:string" name="className" use="required"/>
                 </xs:complexType>
