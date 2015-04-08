@@ -24,9 +24,9 @@ public class SingleTermView extends VerticalLayout {
 	private static Log log = LogFactory.getLog(SingleTermView.class);
 
 	private final HierarchicalContainer dataSource = new HierarchicalContainer();
+	private final Tree tree = new Tree("Single Term View");
 	
 	public SingleTermView() {
-		Tree tree = new Tree("Single Term View");
 		dataSource.addContainerProperty(hw_PROPERTY_NAME, String.class, null);
 		dataSource.addContainerProperty(hw_PROPERTY_ICON, ThemeResource.class,
 				new ThemeResource("../runo/icons/16/document.png"));
@@ -134,5 +134,10 @@ public class SingleTermView extends VerticalLayout {
 		for (int namespaceId : SingleTermView.getNamespaceIds()) {
 			findAndAddChildren(goId, namespaceId, 0, 1);
 		}
+
+		// Expand whole tree
+        for (int i = 0; i < dataSource.size(); i++) {
+            tree.expandItemsRecursively(i);
+        }
 	}
 }
