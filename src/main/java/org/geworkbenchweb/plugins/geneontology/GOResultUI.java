@@ -34,9 +34,6 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 
 	private static final String[] namespaces = {"All", "Molecular Function", "Biological Process", "Cellular Component"};
 	
-	private static final String[] GENE_FOR_OPTIONS = {"Term", "Term and its descendants"};
-	static final String[] GENE_FROM_OPTIONS = {"Changed gene list", "Rerefence list"};
-	
 	public GOResultUI(Long dataSetId) {
 		datasetId = dataSetId;
 		if(dataSetId==null) {
@@ -54,50 +51,11 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 
 		final SingleTermView singleTermView = new SingleTermView();
 
-		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
-		geneTable.setSizeFull();
-		
 		final Table table= new Table();
 		table.setSelectable(true);
 		table.setImmediate(true);
 
-		final OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
-		final OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
-		geneForSelect.setValue(GENE_FOR_OPTIONS[0]);
-		geneForSelect.addStyleName("horizontal");
-		geneForSelect.setImmediate(true);
-		geneForSelect.addListener(new Table.ValueChangeListener() {
-
-			private static final long serialVersionUID = -7615528381968321116L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Integer goId = (Integer) table.getValue();
-				if(goId==null) return;
-				String f = (String)event.getProperty().getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId , d, (String)geneFromSelect.getValue());
-			}
-			
-		});
-		geneFromSelect.setValue(GENE_FROM_OPTIONS[0]);
-		geneFromSelect.addStyleName("horizontal");
-		geneFromSelect.setImmediate(true);
-		geneFromSelect.addListener(new Table.ValueChangeListener() {
-
-			private static final long serialVersionUID = -7615528381968321116L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				String newFrom = (String)event.getProperty().getValue();
-				Integer goId = (Integer) table.getValue();
-				if(goId==null) return;
-				String f = (String)geneForSelect.getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId, d, newFrom);
-			}
-			
-		});
+		final GenePanel genePanel = new GenePanel(table, result, resultSet.getParent());
 		
 		final IndexedContainer c = new IndexedContainer();
 		fillContainer(c, result);
@@ -108,9 +66,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			public void valueChange(ValueChangeEvent event) {
 				Integer goId = (Integer)event.getProperty().getValue();
 				if(goId==null) return; // unselect
-				String f = (String)geneForSelect.getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
+				genePanel.update(goId);
 				singleTermView.updateDataSource(goId);
             }
 		});
@@ -144,13 +100,8 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		topLayout.addComponent(namespaceSelect);
 		topLayout.addComponent(table);
 		
-		VerticalLayout leftLayout = new VerticalLayout();
-		leftLayout.setSpacing(true);
-		leftLayout.addComponent( geneForSelect );
-		leftLayout.addComponent( geneFromSelect );
-		leftLayout.addComponent(geneTable);
 		final HorizontalSplitPanel bottomLayout = new HorizontalSplitPanel();
-		bottomLayout.addComponent(leftLayout);
+		bottomLayout.addComponent(genePanel);
 		bottomLayout.addComponent(singleTermView);
 
 		mainLayout.addComponent(topLayout);

@@ -66,9 +66,9 @@ public class GeneTable extends Table {
 	public void updateData(int goId, boolean includeDescendants, String geneFrom) {
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
-		if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[0])) {
+		if(geneFrom.equals(GenePanel.GENE_FROM_OPTIONS[0])) {
 			genes.retainAll(result.getChangedGenes());
-		} else if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[1])) {
+		} else if(geneFrom.equals(GenePanel.GENE_FROM_OPTIONS[1])) {
 			genes.retainAll(result.getReferenceGenes());
 		}
 		
