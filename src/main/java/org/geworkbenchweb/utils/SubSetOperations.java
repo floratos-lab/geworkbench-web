@@ -288,7 +288,7 @@ public class SubSetOperations {
 	 * @param context   context containing this arrayset
 	 * @return arrays SubSet Id
 	 */
-	public static Long storeArraySetInContext(ArrayList<String> arrayList,
+	public static Long storeArraySetInContext(List<String> arrayList,
 			String name, long datasetId, Context context) {
 		return storeSubSetInContext(arrayList, name, SubSet.SET_TYPE_MICROARRAY, datasetId, context);
 	}
@@ -301,7 +301,7 @@ public class SubSetOperations {
 	 * @param context    context containing this markerset
 	 * @return markers SubSet Id
 	 */
-	public static Long storeMarkerSetInContext(ArrayList<String> markerList,
+	public static Long storeMarkerSetInContext(List<String> markerList,
 			String name, long datasetId, Context context) {
 		return storeSubSetInContext(markerList, name, SubSet.SET_TYPE_MARKER, datasetId, context);
 	}
@@ -313,7 +313,7 @@ public class SubSetOperations {
 	 * @param datasetId parent dataset id
 	 * @return arrays SubSet Id
 	 */
-	public static Long storeArraySetInCurrentContext(ArrayList<String> arrayList,
+	public static Long storeArraySetInCurrentContext(List<String> arrayList,
 			String name, long datasetId) {
 		return storeArraySetInContext(arrayList, name, datasetId, getCurrentArrayContext(datasetId));
 	}
@@ -325,7 +325,7 @@ public class SubSetOperations {
 	 * @param datasetId  parent dataset id
 	 * @return markers SubSet Id
 	 */
-	public static Long storeMarkerSetInCurrentContext(ArrayList<String> markerList,
+	public static Long storeMarkerSetInCurrentContext(List<String> markerList,
 			String name, long datasetId) {
 		return storeMarkerSetInContext(markerList, name, datasetId, getCurrentMarkerContext(datasetId));
 	}

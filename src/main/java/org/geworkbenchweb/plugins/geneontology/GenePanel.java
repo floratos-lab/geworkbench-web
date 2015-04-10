@@ -3,11 +3,17 @@
  */
 package org.geworkbenchweb.plugins.geneontology;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.geworkbenchweb.pojos.GOResult;
+import org.geworkbenchweb.utils.SubsetCommand;
+import org.geworkbenchweb.utils.SubsetCommand.SetType;
 
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
@@ -27,8 +33,10 @@ public class GenePanel extends VerticalLayout {
 	private final OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
 	private final GeneTable geneTable;
 	
-	GenePanel(final Table goResultTable, final GOResult result, final Long parenrId) {
-		geneTable = new GeneTable(result, parenrId);
+	private final MenuBar menuBar =  new MenuBar();
+	
+	GenePanel(final Table goResultTable, final GOResult result, final Long parentId) {
+		geneTable = new GeneTable(result, parentId);
 		
 		geneTable.setSizeFull();
 
@@ -46,6 +54,7 @@ public class GenePanel extends VerticalLayout {
 				String f = (String)event.getProperty().getValue();
 				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 				geneTable.updateData(goId , d, (String)geneFromSelect.getValue());
+				menuBar.setVisible(geneTable.size()>0);
 			}
 			
 		});
@@ -64,19 +73,36 @@ public class GenePanel extends VerticalLayout {
 				String f = (String)geneForSelect.getValue();
 				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 				geneTable.updateData(goId, d, newFrom);
+				menuBar.setVisible(geneTable.size()>0);
 			}
 			
 		});
+
+		menuBar.setStyleName("transparent");
+		menuBar.addItem("Add to marker set", new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId) {
+
+			private static final long serialVersionUID = 8009537721744760805L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			protected List<String> getItems() {
+				return new ArrayList<String>((Collection<? extends String>) geneTable.getItemIds());
+			}
+			
+		}).setStyleName("plugin");
+		menuBar.setVisible(false);
 		
 		setSpacing(true);
+		addComponent( menuBar );
 		addComponent( geneForSelect );
 		addComponent( geneFromSelect );
-		addComponent(geneTable);
+		addComponent( geneTable );
 	}
 
 	public void update(int goId) {
 		String f = (String)geneForSelect.getValue();
 		boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 		geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
+		menuBar.setVisible(geneTable.size()>0);
 	}
 }
