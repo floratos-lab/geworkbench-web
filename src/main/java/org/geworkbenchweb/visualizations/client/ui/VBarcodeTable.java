@@ -58,11 +58,10 @@ public class VBarcodeTable extends Widget implements Paintable {
 		String regulators = uidl.getStringAttribute("regulators");
 		String barcodeMap = uidl.getStringAttribute("barcodeMap");
 		int barHeight = uidl.getIntAttribute("barHeight");
-	  
+		//boolean exportImage = uidl.getBooleanAttribute("exportImage");
 		
 		BarcodeTableJSNI.createTable(placeholder.getId(), columnNames, regulators, barcodeMap, barHeight);
-		//BarcodeTableJSNI.createTable(placeholder.getId(), "col1", "", "");
-		
+		 
 	}
 
 	/**

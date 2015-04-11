@@ -22,17 +22,7 @@ public class BarcodeTable extends AbstractComponent {
 	private List<Regulator>  regulators;
 	private Map<String, List<Barcode>>   barcodeMap;
 	private int barHeight;
-	
-	/*private  String[] genes = null;
-	private  Double[] pValues = null;
-	private  String[] daColors = null;
-	private  String[] deColors = null;
-	private  Integer[] deRanks = null;	 
-	 
-	private  Map<String, int[]> barcodePositionMap = null;
-	private  Map<String, int[]> barcodeColorIndexMap = null;
-	private  Map<String, int[]> barcodeArrayIndexMap = null;*/
-	
+	//private boolean exportImage = false;	 
 	 
 	public BarcodeTable(){};
 	public BarcodeTable(List<Regulator> regulators, Map<String, 
@@ -41,6 +31,7 @@ public class BarcodeTable extends AbstractComponent {
 	       this.regulators =  regulators;
 	       this.barcodeMap = barcodeMap;
 	       this.barHeight = barHeight;
+	       //this.exportImage = exportImage;
 	}
 	 
 
@@ -56,6 +47,7 @@ public class BarcodeTable extends AbstractComponent {
 		target.addAttribute("regulators", jsonSerializer.deepSerialize(regulators));
 		target.addAttribute("barcodeMap", jsonSerializer.deepSerialize(barcodeMap));
 		target.addAttribute("barHeight", barHeight);
+		//target.addAttribute("exportImage", exportImage);
 		
 	}
 

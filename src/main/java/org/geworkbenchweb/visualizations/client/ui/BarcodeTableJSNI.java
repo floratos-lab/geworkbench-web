@@ -12,7 +12,7 @@ public class BarcodeTableJSNI extends JavaScriptObject{
 	public static native void createTable(String containerId, String columnNames, String regulators, String barcodenMap, int barHeight)/*-{
 		 
 		 
-          $wnd.createBarcodeTable(containerId, columnNames, regulators, barcodenMap, barHeight);
+          $wnd.createBarcodeTable_canvas(containerId, columnNames, regulators, barcodenMap, barHeight);
          
 	}-*/;
 	
