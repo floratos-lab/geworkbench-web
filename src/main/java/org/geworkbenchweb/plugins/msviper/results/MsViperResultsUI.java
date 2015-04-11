@@ -562,16 +562,13 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		try {
 			Map<String, List<String>> pairMap = msViperResult.getShadow_pairs();					 
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
-			int k = 0;
+			 
 			for (String key : pairMap.keySet()) {			 
 				List<String> pairList = pairMap.get(key);
 				for (int i = 0; i < pairList.size(); i++) {
 					pw.println(pairList.get(i) + ", "
 							+  key);
-				}
-				
-				k++;
-
+				}		 
 			}
 			pw.close();
 		} catch (IOException e) {
