@@ -33,6 +33,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
@@ -157,7 +158,8 @@ public class MsViperAnalysisClient {
 			throw new RemoteException("Coumpute msViper error: "
 					+ e.getMessage());
 		} finally {
-			// if(!expFile.delete()) expFile.deleteOnExit();
+			if(tempdirPath != null && tempdirPath.contains("msviper"))
+			    FileUtils.deleteDirectory(new File(tempdirPath));			 
 		}
 	}
 
