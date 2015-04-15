@@ -54,7 +54,7 @@ public class GenePanel extends VerticalLayout {
 				String f = (String)event.getProperty().getValue();
 				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 				geneTable.updateData(goId , d, (String)geneFromSelect.getValue());
-				menuBar.setVisible(geneTable.size()>0);
+				menuBar.setEnabled(geneTable.size()>0);
 			}
 			
 		});
@@ -73,7 +73,7 @@ public class GenePanel extends VerticalLayout {
 				String f = (String)geneForSelect.getValue();
 				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 				geneTable.updateData(goId, d, newFrom);
-				menuBar.setVisible(geneTable.size()>0);
+				menuBar.setEnabled(geneTable.size()>0);
 			}
 			
 		});
@@ -90,7 +90,7 @@ public class GenePanel extends VerticalLayout {
 			}
 			
 		}).setStyleName("plugin");
-		menuBar.setVisible(false);
+		menuBar.setEnabled(false);
 		
 		setSpacing(true);
 		addComponent( menuBar );
@@ -103,6 +103,6 @@ public class GenePanel extends VerticalLayout {
 		String f = (String)geneForSelect.getValue();
 		boolean d = f.equals(GENE_FOR_OPTIONS[1]);
 		geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
-		menuBar.setVisible(geneTable.size()>0);
+		menuBar.setEnabled(geneTable.size()>0);
 	}
 }
