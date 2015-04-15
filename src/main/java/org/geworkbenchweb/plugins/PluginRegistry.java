@@ -45,6 +45,7 @@ public class PluginRegistry {
 	static private ThemeResource anovaIcon		=	new ThemeResource("../custom/icons/significance16x16.gif");
 	static private ThemeResource marinaIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
 	static private ThemeResource msViperIcon		=	new ThemeResource("../custom/icons/generic16x16.gif");
+	static private ThemeResource goIcon		=	new ThemeResource("../custom/icons/go-logo-16x16.png");
 	// other icons
 	/*
 	static private ThemeResource pendingIcon	=	new ThemeResource("../custom/icons/pending.gif");
@@ -63,6 +64,7 @@ public class PluginRegistry {
 		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
 		resultIconMap.put(org.geworkbenchweb.pojos.ConfigResult.class, marinaIcon); // aracne config result
 		resultIconMap.put(org.geworkbenchweb.pojos.MsViperResult.class, msViperIcon); // msviper result
+		resultIconMap.put(org.geworkbenchweb.pojos.GOResult.class, goIcon); // msviper result
 		
 		iconMap.put(org.geworkbenchweb.pojos.MicroarrayDataset.class, microarrayIcon);
 		iconMap.put(org.geworkbenchweb.pojos.PdbFileInfo.class, proteinIcon);
