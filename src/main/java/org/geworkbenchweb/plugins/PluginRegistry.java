@@ -174,7 +174,11 @@ public class PluginRegistry {
 	@SuppressWarnings("unchecked")
 	public Class<? extends Visualizer>[] getVisualizers(Class<?> type) {
 		if(type==null) { // return all list id no type is specified
-			return resultUiMap.values().toArray(new Class[0]);
+			List<Class<? extends Visualizer>> list = new ArrayList<Class<? extends Visualizer>>();
+			for(List<Class<? extends Visualizer>> x : resultUiMap.values()) {
+				list.addAll(x);
+			}
+			return list.toArray(new Class[0]);
 		} else if(getResultUI(type)==null) { // the case of no visualizer
 			return new Class[0];
 		} else { // result does not have common interface
