@@ -514,9 +514,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			Collection<?> items = displayTable.getItemIds();
 			for (Object itemId : items) {
 				Item item = displayTable.getItem(itemId);
-				pw.print(item.getItemProperty(p[0]).getValue());
+				if (p[0].equals(Constants.GENE_SYMBOL_HEADER))
+				   pw.print(((PopupView)item.getItemProperty(p[0]).getValue()).getData().toString());
+				else
+				   pw.print(item.getItemProperty(p[0]).getValue());
 				for (int i = 1; i < p.length; i++) {
-					pw.print("\t" + item.getItemProperty(p[i]).getValue());
+					if (p[i].equals(Constants.GENE_SYMBOL_HEADER))
+					    pw.print("\t" + ((PopupView)item.getItemProperty(p[i]).getValue()).getData().toString());
+					else
+						pw.print("\t" + item.getItemProperty(p[i]).getValue());
 				}
 				pw.print("\n");
 			}
