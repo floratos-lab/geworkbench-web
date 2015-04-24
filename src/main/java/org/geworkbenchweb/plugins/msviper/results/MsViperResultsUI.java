@@ -7,7 +7,9 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import java.util.List;
@@ -35,7 +37,8 @@ import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.Property.ValueChangeListener; 
+import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -284,7 +287,42 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		final Map<String, List<String>> shadowPairs = result.getShadow_pairs();
 		final Map<String, List<String>> leadingEdges = result.getLeadingEdges();
 
-		IndexedContainer dataIn = new IndexedContainer();
+		IndexedContainer dataIn = new IndexedContainer() {
+          
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public Collection<?> getSortableContainerPropertyIds() {
+                // Default implementation allows sorting only if the property
+                // type can be cast to Comparable
+                return getContainerPropertyIds();
+            }
+        };
+        
+        dataIn.setItemSorter(new DefaultItemSorter(new Comparator<Object>() {
+
+            public int compare(Object o1, Object o2) {
+                if (o1 instanceof Button && o2 instanceof Button) {
+                    String caption1 = ((Button) o1).getCaption();
+                    String caption2 = ((Button) o2).getCaption();
+                    return caption1.compareTo(caption2);
+
+                } 
+                else if (o1 instanceof String && o2 instanceof String) {
+                    return ((String) o1).compareTo(
+                            ((String) o2));
+                }else if (o1 instanceof Integer && o2 instanceof Integer) {
+                    return ((Integer) o1).compareTo(
+                            (Integer) o2);
+                }
+                else if (o1 instanceof Double && o2 instanceof Double) {
+                    return ((Double) o1).compareTo(
+                            (Double) o2);
+                }
+                else
+                	return 0;
+            }
+        }));
 
 		for (String col : columnNames) {
 			if (col.equals("MR Marker") || col.equals("MR Gene Symbol"))
@@ -299,7 +337,7 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 					dataIn.addContainerProperty(col, Button.class, null);
 			} else
 				dataIn.addContainerProperty(col, Double.class, null);
-		}
+		}		
 
 		// Button[] buttonArray = new Button[rdata.length];
 		for (int i = 0; i < rdata.length; i++) {
