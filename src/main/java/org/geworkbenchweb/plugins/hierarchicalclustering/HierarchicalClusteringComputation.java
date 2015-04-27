@@ -240,7 +240,7 @@ public class HierarchicalClusteringComputation {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				throw new RemoteException( "Coumpute HierarchicalClustering error:" + e.getMessage());
+				throw new RemoteException( "Compute HierarchicalClustering error:" + e.getMessage());
 			}
 			 
 		}
