@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.Tabular; 
+import org.geworkbenchweb.plugins.Tabular;  
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
@@ -35,8 +37,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Resource;
-import com.vaadin.ui.Button;
+import com.vaadin.terminal.Resource; 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar; 
 import com.vaadin.ui.PopupView;
@@ -64,6 +65,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	
 	private final Map<String, AnnotationEntry> annotationMap;
 
+	private static Log log = LogFactory.getLog(TabularViewUI.class);
 	 
 	public TabularViewUI(final Long dataSetId) {
  
@@ -132,12 +134,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
 		annotationMap = new HashMap<String, AnnotationEntry>();
 		if(dataSetAnnotation!=null) {
+			log.info("Started retrieve annotation ...");
 			Long annotationId = dataSetAnnotation.getAnnotationId();
 			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
 			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
 				String probeSetId = entry.getProbeSetId();
 				annotationMap.put(probeSetId, entry);
 			}
+			log.info("Finished retrieve annotation ...");
 		}
 
 		
@@ -145,11 +149,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		addComponent(toolBar);
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);	 
-	
+		log.info("Started get indexedContainer ...");
 		displayTable.setContainerDataSource(getIndexedContainer());
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
+		
+		log.info("Finished get indexedContainer ...");
 	} 
 
 	 
@@ -389,13 +395,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		for (int k = 0; k < displayPrefColHeaders.size(); k++)  
 		{
 			
-			if (displayPrefColHeaders.get(k).equals(Constants.GENE_SYMBOL_HEADER))
+			if (displayPrefColHeaders.get(k).equals(Constants.GENE_SYMBOL_HEADER) && annotationMap != null && annotationMap.size() != 0)
 			{
 				dataIn.addContainerProperty(displayPrefColHeaders.get(k), PopupView.class, null);
 			}
 			else
 				dataIn.addContainerProperty(displayPrefColHeaders.get(k),	String.class, null);
-		}
+		} 
 					
 		 
 		for (int k = 0; k < arrayColHeaders.size(); k++)       
@@ -418,8 +424,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				entrezId = entry.getEntrezId();
 			}			
 		 
-			for (int k = 0; k < displayPrefColHeaders.size(); k++) {				 
-				 
+			for (int k = 0; k < displayPrefColHeaders.size(); k++) {				
 					if (selectedMarkers.size() == 0)
 						continue;
 					if (displayPrefColHeaders.get(k).equalsIgnoreCase(
@@ -428,11 +433,17 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 								probeSetId);
 					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
-					{					 
-						PopupView geneView = new PopupView(new PopupWindow(geneSymbol, entrezId));					 
-						geneView.setData(geneSymbol);
-						item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
-								geneView);					 
+					{	
+						if(geneSymbol != null)
+						{
+							PopupView geneView = new PopupView(new PopupWindow(geneSymbol, entrezId));					 
+						    geneView.setData(geneSymbol);
+						    item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
+								geneView);		
+						}
+						else
+							item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
+									geneSymbol);		
 					}
 					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))

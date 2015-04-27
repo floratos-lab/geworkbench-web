@@ -17,15 +17,13 @@ public class PopupWindow implements PopupView.Content {
         root.setSizeUndefined();
         root.setSpacing(true);
         root.setMargin(true);  
-        if (!geneName.equals("---"))
+        if (!("---").equals(geneName))
         { 
         	Link l1 = new Link("Go to GeneCards",new ExternalResource("http://www.genecards.org/cgi-bin/carddisp.pl?gene="+geneName));
-            l1.setTargetName("_blank");
-            l1.setTargetBorder(Link.TARGET_BORDER_NONE);
+            l1.setTargetName("_blank");            
             root.addComponent(l1);
             Link l2 = new Link("Go to Entrez",new ExternalResource("http://www.ncbi.nlm.nih.gov/gene/"+entrezId));
-            l2.setTargetName("_blank");
-            l2.setTargetBorder(Link.TARGET_BORDER_NONE);
+            l2.setTargetName("_blank");         
             root.addComponent(l2);
         }
         else
