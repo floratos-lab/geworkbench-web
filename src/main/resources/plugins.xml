@@ -91,6 +91,24 @@
 			<uiClass>org.geworkbenchweb.plugins.marina.MarinaUI</uiClass>
 		</plugin>
 		<plugin>
+			<name>MARINa(msVIPER)</name>
+			<description>
+				MARINa (MAster Regulator INference algorithm) 
+				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/19209726" target="_blank"&gt;Lim et al., 2009&lt;/a&gt;, 
+				&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/20531406" target="_blank"&gt;Lefebvre  et al., 2010&lt;/a&gt;)
+				uses gene set enrichment analysis (GSEA) to calculate if the regulon of a transcription factor (TF) is enriched for genes that are differentially
+				expressed between two classes of microarrays. The expression of the regulon genes (targets of the TF) serves as a proxy for the activity of the TF itself.
+				TFs that are found to be differentially active are candidate master regulators of the phenotypic difference represented in the dataset. The user must
+				supply a transcriptional network (e.g. reverse-engineered using
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
+				) and a gene expression dataset.
+				Parameter settings are identical to those used in the desktop version of the analysis (see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa" target="_blank"&gt;MARINa&lt;/a&gt;
+				tutorial).
+			</description>
+			<uiClass>org.geworkbenchweb.plugins.msviper.MsViperUI</uiClass>
+		</plugin>		
+		<plugin>
 			<name>Differential Expression (T-Test)</name>
 			<description>
 				A t-Test
@@ -138,6 +156,13 @@
 			The PDB File Viewer provides a simple text viewer for PDB protein structure files.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
+	</plugin>
+	<plugin>
+		<name>Second PDB File Viewer</name>
+		<description>
+			Place holder for the second viewer.
+		</description>
+		<uiClass>org.geworkbenchweb.plugins.proteinstructure.PDBViewer</uiClass>
 	</plugin>
 	</inputType>
 	<inputType className="org.geworkbenchweb.pojos.HierarchicalClusteringResult">
@@ -200,6 +225,19 @@
 		<uiClass>org.geworkbenchweb.plugins.marina.results.MarinaResultsUI</uiClass>
 	</plugin>
 	</inputType>
+	<inputType className="org.geworkbenchweb.pojos.MsViperResult">
+	<plugin>
+		<name>MARINa(msVIPER) result viewer</name>
+		<description>
+			The results of a MsViper analysis are shown in a table.
+			The table columns are the same as those described for the desktop version of the analysis
+			(see the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa#Results" target="_blank"&gt;Results section of the MARINa&lt;/a&gt;
+			tutorial).
+		</description>
+		<uiClass>org.geworkbenchweb.plugins.msviper.results.MsViperResultsUI</uiClass>
+	</plugin>
+	</inputType>	
 	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet">
 	<plugin>
 		<name>MarkUs Result Viewer</name>

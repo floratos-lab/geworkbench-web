@@ -45,14 +45,13 @@ public class SetViewLayout extends CssLayout {
 
 	SetViewLayout(final Long dataSetId) {
 
-		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
-		HierarchicalContainer markerData = createSetContainer(sets,
-				"MarkerSets", "Marker Sets", dataSetId);
+		// this is used by both the set tree and the label tree of markers, but nothing else
+		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
+
+		HierarchicalContainer markerData = createMarkerSetContainer(dataSetId, map);
 		markerSetTree = createSetTree(markerData);
 
-		List<AbstractPojo> aSets = SubSetOperations.getArraySets(dataSetId);
-		HierarchicalContainer arrayData = createSetContainer(aSets,
-				"arraySets", "Array Sets/Phenotypes", dataSetId);
+		HierarchicalContainer arrayData = createMicroarraySetContainer(dataSetId);
 		arraySetTree = createSetTree(arrayData);
 		
 		markerSetTree.addListener(new SetTreeClickListener(arraySetTree));
@@ -82,7 +81,7 @@ public class SetViewLayout extends CssLayout {
 				ChangeContextListener.ContextType.MARKER));
 
 		Tree markerTree = createItemTree("Markers",
-				createLabelContainer(markerLabels, true, dataSetId),
+				createMarkerLabelContainer(markerLabels, map),
 				new MarkerTreeActionHandler(dataSetId, markerSetTree,
 						mrkcontextSelector));
 
@@ -99,7 +98,7 @@ public class SetViewLayout extends CssLayout {
 				ChangeContextListener.ContextType.MICROARRAY));
 
 		Tree arrayTree = createItemTree("Arrays",
-				createLabelContainer(arrayLabels, false, null),
+				createMicroarrayLabelContainer(arrayLabels),
 				new ArrayTreeActionHandler(dataSetId, arraySetTree,
 						contextSelector));
 
@@ -204,25 +203,24 @@ public class SetViewLayout extends CssLayout {
 		return contextpane;
 	}
 	
-	private static HierarchicalContainer createSetContainer(
-			final List<AbstractPojo> sets, final String topItem,
-			final String setName, final Long dataSetId) {
+	private static HierarchicalContainer createMarkerSetContainer(
+			final Long dataSetId, final Map<String, String> map) {
+
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
 
+		String topItem = "MarkerSets";
 		Item mainItem = dataContainer.addItem(topItem);
-		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue(setName);
- 
-		Map<String, String> map = null;		 
-		map = DataSetOperations.getAnnotationMap(dataSetId);
-		 
+		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue("Marker Sets");
 
-		for (int i = 0; i < sets.size(); i++) {
-			List<String> markers = ((SubSet) sets.get(i)).getPositions();
-			Long subSetId = ((SubSet) sets.get(i)).getId();
+		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
+		for (AbstractPojo obj : sets) {
+			SubSet subset = (SubSet)obj;
+			List<String> markers = subset.getPositions();
+			Long subSetId = subset.getId();
 			dataContainer.addItem(subSetId);
 			dataContainer.getContainerProperty(subSetId, SET_DISPLAY_NAME).setValue(
-					((SubSet) sets.get(i)).getName() + " [" + markers.size()
+					subset.getName() + " [" + markers.size()
 							+ "]");
 			dataContainer.setParent(subSetId, topItem);
 			dataContainer.setChildrenAllowed(subSetId, true);
@@ -245,26 +243,51 @@ public class SetViewLayout extends CssLayout {
 		}
 		return dataContainer;
 	}
+	
+	// this is similar to data container for markers, but no need to process the microarray annotation
+	private static HierarchicalContainer createMicroarraySetContainer (
+			final Long dataSetId) {
+		HierarchicalContainer dataContainer = new HierarchicalContainer();
+		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
 
-	/* When isMarker is false, dataSetId is ignored. */
-	private static HierarchicalContainer createLabelContainer(final String[] labels,
-			final boolean isMarker, final Long dataSetId) {
+		String topItem = "arraySets";
+		Item mainItem = dataContainer.addItem(topItem );
+		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue("Array Sets/Phenotypes");
+ 
+		List<AbstractPojo> sets = SubSetOperations.getArraySets(dataSetId);
+		for (AbstractPojo obj : sets) {
+			SubSet subset = (SubSet)obj;
+			List<String> microarrayLabels = subset.getPositions();
+			Long subSetId = subset.getId();
+			dataContainer.addItem(subSetId);
+			dataContainer.getContainerProperty(subSetId, SET_DISPLAY_NAME).setValue(
+					subset.getName() + " [" + microarrayLabels.size()
+							+ "]");
+			dataContainer.setParent(subSetId, topItem);
+			dataContainer.setChildrenAllowed(subSetId, true);
+			for (int j = 0; j < microarrayLabels.size(); j++) {
+				String label = microarrayLabels.get(j) + subSetId;
+				dataContainer.addItem(label);
+				dataContainer.getContainerProperty(label, SET_DISPLAY_NAME)
+						.setValue(label);
+				dataContainer.setParent(label, subSetId);
+				dataContainer.setChildrenAllowed(label, false);
+			}
+		}
+		return dataContainer;
+	}
+
+	private static HierarchicalContainer createMarkerLabelContainer(
+			final String[] labels, final Map<String, String> map) {
 
 		HierarchicalContainer tableData = new HierarchicalContainer();
 		tableData.addContainerProperty("Labels", String.class, null);
 
-		String topItemLabel = "Arrays";
-		if(isMarker)topItemLabel = "Markers";
+		String topItemLabel = "Markers";
 		
 		Item mainItem = tableData.addItem(topItemLabel);
 		mainItem.getItemProperty("Labels").setValue(
 				topItemLabel + " [" + labels.length + "]");
-
-		/* find annotation information */
-		Map<String, String> map = null;
-		if(isMarker) {
-			map = DataSetOperations.getAnnotationMap(dataSetId);
-		}
 
 		for (int j = 0; j < labels.length; j++) {
 
@@ -280,6 +303,29 @@ public class SetViewLayout extends CssLayout {
 				}
 			}
 			item.getItemProperty("Labels").setValue(label);
+			tableData.setParent(j, topItemLabel);
+		}
+		return tableData;
+	}
+	
+	private static HierarchicalContainer createMicroarrayLabelContainer(
+			final String[] labels) {
+
+		HierarchicalContainer tableData = new HierarchicalContainer();
+		tableData.addContainerProperty("Labels", String.class, null);
+
+		String topItemLabel = "Arrays";
+		
+		Item mainItem = tableData.addItem(topItemLabel);
+		mainItem.getItemProperty("Labels").setValue(
+				topItemLabel + " [" + labels.length + "]");
+
+		for (int j = 0; j < labels.length; j++) {
+
+			Item item = tableData.addItem(j);
+			tableData.setChildrenAllowed(j, false);
+
+			item.getItemProperty("Labels").setValue(labels[j]);
 			tableData.setParent(j, topItemLabel);
 		}
 		return tableData;

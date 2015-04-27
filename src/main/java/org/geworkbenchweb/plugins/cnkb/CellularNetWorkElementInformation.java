@@ -100,7 +100,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		
 		/* get all GO terms */
 		Set<GOTerm> set = null;
-		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();
+		GeneOntologyTree tree = GeneOntologyTree.getInstance();
 		 
 		if (tree != null) {
 			set = new HashSet<GOTerm>();
@@ -157,10 +157,8 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		final int TF_GOTERM_ID = 3700;
 		final int PHOSPATASE_GOTERM_ID = 4721;
 		
-		GeneOntologyTree tree = GeneOntologyTree.getInstanceUntilAvailable();		 
-		 
 		for (int goId : molecularFunctionGoIds) {					 
-				for(GOTerm goterm: tree.getAncestors(goId)) {
+				for(GOTerm goterm: CellularNetWorkElementInformation.getAncestors(goId)) {
 					int gotermId = goterm.getId();
 					if (gotermId==KINASE_GOTERM_ID) {
 						return KINASE;
@@ -175,5 +173,29 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		
 		return ""; // all other cases
 	}
-	
+
+	/* The following two methods are moved from GenOntologyTree to here because no other code uses them. */
+	/**
+	 * Gets all the ancestor terms for the term with the given ID. By
+	 * definition, a term is an ancestor of itself.
+	 */
+	private static Set<GOTerm> getAncestors(int id) {
+		GeneOntologyTree tree = GeneOntologyTree.getInstance();
+		HashSet<GOTerm> set = new HashSet<GOTerm>();
+		getAncestorsHelper(tree.getTerm(id), set);
+		return set;
+	}
+
+	private static void getAncestorsHelper(GOTerm term, Set<GOTerm> set) {
+		if (term != null) {
+			set.add(term);
+			GOTerm[] parents = term.getParents();
+			for (GOTerm parent : parents) {
+				getAncestorsHelper(parent, set);
+			}
+		}else{
+			//System.out.println("EMPTY GOTERM ID:" + term);
+		}
+	}
+
 }

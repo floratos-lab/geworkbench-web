@@ -1,27 +1,43 @@
 package org.geworkbenchweb.plugins.geneontology;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.GOResult;
 import org.geworkbenchweb.pojos.GOResultRow;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.Application;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.Resource;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 
 public class GOResultUI  extends VerticalLayout implements Visualizer {
 
@@ -32,9 +48,6 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 	final private Long datasetId;
 
 	private static final String[] namespaces = {"All", "Molecular Function", "Biological Process", "Cellular Component"};
-	
-	private static final String[] GENE_FOR_OPTIONS = {"Term", "Term and its descendants"};
-	static final String[] GENE_FROM_OPTIONS = {"Changed gene list", "Rerefence list"};
 	
 	public GOResultUI(Long dataSetId) {
 		datasetId = dataSetId;
@@ -51,50 +64,13 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		}
 		GOResult result = FacadeFactory.getFacade().find(GOResult.class, id);
 
-		final GeneTable geneTable = new GeneTable(result, resultSet.getParent());
-		geneTable.setWidth("500px");
-		
+		final SingleTermView singleTermView = new SingleTermView();
+
 		final Table table= new Table();
 		table.setSelectable(true);
 		table.setImmediate(true);
 
-		final OptionGroup geneForSelect = new OptionGroup("Show Genes For", Arrays.asList(GENE_FOR_OPTIONS));
-		final OptionGroup geneFromSelect = new OptionGroup("Show Genes From", Arrays.asList(GENE_FROM_OPTIONS));
-		geneForSelect.setValue(GENE_FOR_OPTIONS[0]);
-		geneForSelect.addStyleName("horizontal");
-		geneForSelect.setImmediate(true);
-		geneForSelect.addListener(new Table.ValueChangeListener() {
-
-			private static final long serialVersionUID = -7615528381968321116L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Integer goId = (Integer) table.getValue();
-				if(goId==null) return;
-				String f = (String)event.getProperty().getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId , d, (String)geneFromSelect.getValue());
-			}
-			
-		});
-		geneFromSelect.setValue(GENE_FROM_OPTIONS[0]);
-		geneFromSelect.addStyleName("horizontal");
-		geneFromSelect.setImmediate(true);
-		geneFromSelect.addListener(new Table.ValueChangeListener() {
-
-			private static final long serialVersionUID = -7615528381968321116L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				String newFrom = (String)event.getProperty().getValue();
-				Integer goId = (Integer) table.getValue();
-				if(goId==null) return;
-				String f = (String)geneForSelect.getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId, d, newFrom);
-			}
-			
-		});
+		final GenePanel genePanel = new GenePanel(table, result, resultSet.getParent());
 		
 		final IndexedContainer c = new IndexedContainer();
 		fillContainer(c, result);
@@ -105,21 +81,15 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			public void valueChange(ValueChangeEvent event) {
 				Integer goId = (Integer)event.getProperty().getValue();
 				if(goId==null) return; // unselect
-				String f = (String)geneForSelect.getValue();
-				boolean d = f.equals(GENE_FOR_OPTIONS[1]);
-				geneTable.updateData(goId, d, (String)geneFromSelect.getValue());
+				genePanel.update(goId);
+				singleTermView.updateDataSource(goId);
             }
 		});
+		table.setSizeFull();
 		
-		setSizeFull();
+		this.setSizeFull();
 		
-		HorizontalLayout mainLayout = new HorizontalLayout();
-		VerticalLayout leftLayout = new VerticalLayout();
-		VerticalLayout rightLayout = new VerticalLayout();
-		mainLayout.setMargin(true);
-		mainLayout.setSpacing(true);
-		mainLayout.addComponent(leftLayout);
-		mainLayout.addComponent(rightLayout);
+		final VerticalSplitPanel mainLayout = new VerticalSplitPanel();
 		
 		OptionGroup namespaceSelect = new OptionGroup("GO subontology (Namespaces)", Arrays.asList(namespaces ));
 		namespaceSelect.addStyleName("horizontal");
@@ -140,23 +110,79 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			
 		});
 		
-		leftLayout.setSpacing(true);
-		leftLayout.addComponent(namespaceSelect);
-		leftLayout.addComponent(table);
-		leftLayout.addComponent( geneForSelect );
-		leftLayout.addComponent( geneFromSelect );
-		leftLayout.addComponent(geneTable);
+		MenuBar menuBar =  new MenuBar();
+		menuBar.setStyleName("transparent");
+		menuBar.addItem("Export", new Command() {
+
+			private static final long serialVersionUID = 4134110157930322533L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				/*
+				 * use the container instead of the original result so the
+				 * export is filtered the same way as on GUI
+				 */
+				List<OutputRow> list = new ArrayList<OutputRow>();
+				for (Object id : c.getItemIds()) {
+					Item item = c.getItem(id);
+					list.add(OutputRow.getInstance(item));
+				}
+				Collections.sort(list);
+				
+				final Application app = getApplication();
+				String dir = GeworkbenchRoot.getBackendDataDirectory()
+						+ System.getProperty("file.separator")
+						+ SessionHandler.get().getUsername()
+						+ System.getProperty("file.separator") + "export";
+				if (!new File(dir).exists())
+					new File(dir).mkdirs();
+
+				final File file = new File(dir, "GO_RESULT_"
+						+ System.currentTimeMillis() + ".csv");
+				PrintWriter pw = null;
+				try {
+					pw = new PrintWriter(new FileWriter(file));
+					pw.println(HEADER_ID + "," + HEADER_NAME + ","
+							+ HEADER_NAMESPACE + "," + HEADER_P_VALUE + ","
+							+ HEADER_ADJUSTED_P_VALUE + ","
+							+ HEADER_POPULATION_COUNT + ","
+							+ HEADER_STUDY_COUNT);
+					for (OutputRow row : list) {
+						pw.println(row);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					if (pw != null)
+						pw.close();
+				}
+				Resource resource = new FileResource(file, app);
+				app.getMainWindow().open(resource);
+			}
+		}).setStyleName("plugin");
 		
+		VerticalLayout topLayout = new VerticalLayout();
+		topLayout.setSpacing(true);
+		topLayout.addComponent(menuBar);
+		topLayout.addComponent(namespaceSelect);
+		topLayout.addComponent(table);
+		
+		final HorizontalSplitPanel bottomLayout = new HorizontalSplitPanel();
+		bottomLayout.addComponent(genePanel);
+		bottomLayout.addComponent(singleTermView);
+
+		mainLayout.addComponent(topLayout);
+		mainLayout.addComponent(bottomLayout);
 		addComponent(mainLayout);
 	}
 	
-	private static final String HEADER_ID = "GO:ID";
-	private static final String HEADER_NAME = "Name";
-	private static final String HEADER_NAMESPACE = "Namespace";
-	private static final String HEADER_P_VALUE = "P-value";
-	private static final String HEADER_ADJUSTED_P_VALUE = "Adjusted P-value";
-	private static final String HEADER_POPULATION_COUNT = "Population count";
-	private static final String HEADER_STUDY_COUNT = "Study count";
+	static final String HEADER_ID = "GO:ID";
+	static final String HEADER_NAME = "Name";
+	static final String HEADER_NAMESPACE = "Namespace";
+	static final String HEADER_P_VALUE = "P-value";
+	static final String HEADER_ADJUSTED_P_VALUE = "Adjusted P-value";
+	static final String HEADER_POPULATION_COUNT = "Population count";
+	static final String HEADER_STUDY_COUNT = "Study count";
 	
 	private static void fillContainer(IndexedContainer container,
 			GOResult result) {

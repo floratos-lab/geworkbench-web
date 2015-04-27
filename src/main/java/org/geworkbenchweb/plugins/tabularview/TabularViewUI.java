@@ -6,19 +6,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.Tabular;
+import org.geworkbenchweb.plugins.Tabular;  
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
-import org.geworkbenchweb.pojos.MicroarrayDataset;
+import org.geworkbenchweb.pojos.MicroarrayDataset; 
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
@@ -31,14 +34,16 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Resource;
+import com.vaadin.terminal.Resource; 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar; 
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
+import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator; 
 import com.vaadin.ui.themes.Reindeer;
 
 /**
@@ -60,6 +65,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	
 	private final Map<String, AnnotationEntry> annotationMap;
 
+	private static Log log = LogFactory.getLog(TabularViewUI.class);
 	 
 	public TabularViewUI(final Long dataSetId) {
  
@@ -128,12 +134,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
 		annotationMap = new HashMap<String, AnnotationEntry>();
 		if(dataSetAnnotation!=null) {
+			log.info("Started retrieve annotation ...");
 			Long annotationId = dataSetAnnotation.getAnnotationId();
 			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
 			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
 				String probeSetId = entry.getProbeSetId();
 				annotationMap.put(probeSetId, entry);
 			}
+			log.info("Finished retrieve annotation ...");
 		}
 
 		
@@ -141,11 +149,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		addComponent(toolBar);
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);	 
-	
+		log.info("Started get indexedContainer ...");
 		displayTable.setContainerDataSource(getIndexedContainer());
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
+		
+		log.info("Finished get indexedContainer ...");
 	} 
 
 	 
@@ -343,29 +353,78 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			float[][] values) {
 
 		loadTabViewPreferences();
-		IndexedContainer dataIn = new IndexedContainer();
+		IndexedContainer dataIn =  new IndexedContainer() {
+		          
+				private static final long serialVersionUID = 1L;
+
+				@Override
+	            public Collection<?> getSortableContainerPropertyIds() {
+	                // Default implementation allows sorting only if the property
+	                // type can be cast to Comparable
+	                return getContainerPropertyIds();
+	            }
+	        };
+	        
+	        dataIn.setItemSorter(new DefaultItemSorter(new Comparator<Object>() {
+
+	            public int compare(Object o1, Object o2) {
+	                if (o1 instanceof PopupView && o2 instanceof PopupView) {
+	                    String caption1 = ((PopupView) o1).getData().toString();
+	                    String caption2 = ((PopupView) o2).getData().toString();
+	                    return caption1.compareTo(caption2);
+
+	                } 
+	                else if (o1 instanceof String && o2 instanceof String) {
+	                    return ((String) o1).compareTo(
+	                            ((String) o2));
+	                } 
+	                else if (o1 instanceof Float && o2 instanceof Float) {
+	                    return ((Float) o1).compareTo(
+	                            (Float) o2);
+	                }
+	                else
+	                	return 0;
+	            }
+	        }));
 		List<String> displayPrefColHeaders = getDisplayPrefColHeaders();
 		List<Integer> arrayColHeaders = getArrayColHeaders(arrayLabels);
 		List<Integer> selectedMarkers = getTabViewMarkers(markerLabels);
 	 
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
- 
+		
+		for (int k = 0; k < displayPrefColHeaders.size(); k++)  
+		{
+			
+			if (displayPrefColHeaders.get(k).equals(Constants.GENE_SYMBOL_HEADER) && annotationMap != null && annotationMap.size() != 0)
+			{
+				dataIn.addContainerProperty(displayPrefColHeaders.get(k), PopupView.class, null);
+			}
+			else
+				dataIn.addContainerProperty(displayPrefColHeaders.get(k),	String.class, null);
+		} 
+					
+		 
+		for (int k = 0; k < arrayColHeaders.size(); k++)       
+		{
+			String arrayName = arrayLabels[arrayColHeaders.get(k)];
+			dataIn.addContainerProperty(arrayName, Float.class,null);
+		}		
+		
 		for (Integer i : selectedMarkers)
 		{		 
 			Item item = dataIn.addItem(i);
 			String probeSetId = markerLabels[i];
 			String geneSymbol = null;
 			String geneDescription = null;
+			String entrezId = null;
 			AnnotationEntry entry = annotationMap.get(probeSetId);
 			if(entry!=null) { // no annotation
 				geneSymbol = entry.getGeneSymbol();
 				geneDescription = entry.getGeneDescription();
+				entrezId = entry.getEntrezId();
 			}			
 		 
-			for (int k = 0; k < displayPrefColHeaders.size(); k++) {
-				 
-					dataIn.addContainerProperty(displayPrefColHeaders.get(k),
-							String.class, null);
+			for (int k = 0; k < displayPrefColHeaders.size(); k++) {				
 					if (selectedMarkers.size() == 0)
 						continue;
 					if (displayPrefColHeaders.get(k).equalsIgnoreCase(
@@ -374,8 +433,18 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 								probeSetId);
 					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.GENE_SYMBOL_HEADER))
-						item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
-								geneSymbol);
+					{	
+						if(geneSymbol != null)
+						{
+							PopupView geneView = new PopupView(new PopupWindow(geneSymbol, entrezId));					 
+						    geneView.setData(geneSymbol);
+						    item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
+								geneView);		
+						}
+						else
+							item.getItemProperty(displayPrefColHeaders.get(k)).setValue(
+									geneSymbol);		
+					}
 					else if (displayPrefColHeaders.get(k).equalsIgnoreCase(
 							Constants.ANNOTATION_HEADER))
 					{
@@ -389,9 +458,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			} 
 			
 			for (int k = 0; k < arrayColHeaders.size(); k++) {
-			        String arrayName = arrayLabels[arrayColHeaders.get(k)];
-					dataIn.addContainerProperty(arrayName, Float.class,
-							null);
+			        String arrayName = arrayLabels[arrayColHeaders.get(k)];				 
 					if (selectedMarkers.size() == 0)
 						continue;					 
 					item.getItemProperty(arrayName).setValue(values[i][arrayColHeaders.get(k)]);
@@ -458,9 +525,15 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			Collection<?> items = displayTable.getItemIds();
 			for (Object itemId : items) {
 				Item item = displayTable.getItem(itemId);
-				pw.print(item.getItemProperty(p[0]).getValue());
+				if (p[0].equals(Constants.GENE_SYMBOL_HEADER))
+				   pw.print(((PopupView)item.getItemProperty(p[0]).getValue()).getData().toString());
+				else
+				   pw.print(item.getItemProperty(p[0]).getValue());
 				for (int i = 1; i < p.length; i++) {
-					pw.print("\t" + item.getItemProperty(p[i]).getValue());
+					if (p[i].equals(Constants.GENE_SYMBOL_HEADER))
+					    pw.print("\t" + ((PopupView)item.getItemProperty(p[i]).getValue()).getData().toString());
+					else
+						pw.print("\t" + item.getItemProperty(p[i]).getValue());
 				}
 				pw.print("\n");
 			}
@@ -471,4 +544,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		Resource resource = new FileResource(file, app);
 		app.getMainWindow().open(resource);
 	}
+	
+	 
 }

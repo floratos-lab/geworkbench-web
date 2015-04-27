@@ -1,89 +1,31 @@
 package org.geworkbenchweb.utils;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
- 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set; 
+import java.util.Set;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.geworkbench.builtin.projects.OboSourcePreference;
-import org.geworkbenchweb.GeworkbenchRoot;
 
 /**
  * Represents the Gene Ontology Tree and provides methods to access it.
  * 
- * @author John Watkinson
- * @author Xiaoqing Zhang
- * @version $Id: GeneOntologyTree.java 10948 2013-10-11 19:22:43Z zji $
  */
 public class GeneOntologyTree {
 	
 	private static Log log = LogFactory.getLog(GeneOntologyTree.class);
 	
-	public final static String DEFAULT_REMOTE_LOCATION = "http://purl.obolibrary.org/obo/go/go-basic.obo";
 	public final static String DEFAULT_OBO_FILE = "/go-basic.obo";
 	
-	private static GeneOntologyTree instance = null;
-	private static String dirName;
-	private static final String	SLASH			=	"/";
-	
-	private String dataVersion;
-	private String date;
-	
+	private static GeneOntologyTree instance = new GeneOntologyTree();
 
-	// at class loading, start creating an instance but do not hold
-	static {
-		 
-			new Thread() {
-				@Override
-				public void run() {
-				    dirName = GeworkbenchRoot.getBackendDataDirectory() + SLASH
-							+ "go";
-					instance = new GeneOntologyTree();
-				}
-			}.start();
-			System.out.println(new java.util.Date());
-	 
-	}
-	
-	// this method may block for up to 200 seconds, but always return non null unless timed out
-	public static GeneOntologyTree getInstanceUntilAvailable() {
-		final long ONE_SECOND = 1000;
-		final long LIMIT = 200;
-		long count = 0;
-		while(instance==null && count<LIMIT) {
-			try {
-				Thread.sleep(ONE_SECOND);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			count++;
-		}
-		return instance;
-	}
-
-	// this method return immediately but may return null
 	public static GeneOntologyTree getInstance() {
 		return instance;
 	}
@@ -187,14 +129,29 @@ public class GeneOntologyTree {
 	private static final String KEY_RELATIONSHIP = "relationship";
 	private static final String KEY_NAMESPACE = "namespace";
 
-	private ListOrderedMap<String, GOTerm> roots;
-	private HashMap<Integer, GOTerm> terms;
+	private final ListOrderedMap<String, GOTerm> roots;
+	private final HashMap<Integer, GOTerm> terms;
 
 	private GeneOntologyTree() {
 		roots = new ListOrderedMap<String, GOTerm>();
 		terms = new HashMap<Integer, GOTerm>();
 
-		readFromUrl(DEFAULT_REMOTE_LOCATION);
+		try {
+			InputStream inputStream = this.getClass().getClassLoader()
+					.getResourceAsStream(DEFAULT_OBO_FILE);
+			if (inputStream != null) {
+				InputStreamReader is = new InputStreamReader(inputStream);
+				BufferedReader in = new BufferedReader(is);
+				parseOBOFile(in);
+			}
+
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			log.error(".obo file failed to be loaded: " + e1);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			log.error(".obo file failed to be loaded: " + e1);
+		}
 	}	 
 
 	private void parseOBOFile(BufferedReader in) throws IOException {
@@ -203,6 +160,7 @@ public class GeneOntologyTree {
 			throw new IOException("This is not a version 1.0 or 1.2 OBO file.");
 		}
 		String line = in.readLine();
+		String dataVersion = null, date = null;
 		if(line.startsWith("data-version:")) {
 			dataVersion = line.substring(line.indexOf(" ")+1);
 		}
@@ -323,166 +281,7 @@ public class GeneOntologyTree {
 		return roots.get(roots.get(index));
 	}
 
-	public GOTerm getRoot(String rootName) {
-		return roots.get(rootName);
-	}
-
 	public GOTerm getTerm(int id) {
 		return terms.get(id);
 	}
-
-	public Collection<GOTerm> getAllTerms() {
-		return terms.values();
-	}
-
-	/**
-	 * Returns the depth of the term for the given ID. The depth is defined as
-	 * the minimum distance from this term to a root term.
-	 */
-	public int getDepth(int id) {
-		GOTerm term = getTerm(id);
-		return getDepthHelper(term);
-	}
-
-	private int getDepthHelper(GOTerm term) {
-		GOTerm[] parents = term.getParents();
-		if (parents.length == 0) {
-			return 0;
-		} else {
-			int min = Integer.MAX_VALUE;
-			for (GOTerm parent : parents) {
-				int depth = getDepthHelper(parent);
-				if (depth < min) {
-					min = depth;
-				}
-			}
-			return min + 1;
-		}
-	}
-
-	/**
-	 * Gets all the ancestor terms for the term with the given ID. By
-	 * definition, a term is an ancestor of itself.
-	 */
-	public Set<GOTerm> getAncestors(int id) {
-		HashSet<GOTerm> set = new HashSet<GOTerm>();
-		getAncestorsHelper(getTerm(id), set);
-		return set;
-	}
-
-	private void getAncestorsHelper(GOTerm term, Set<GOTerm> set) {
-		if (term != null) {
-			set.add(term);
-			GOTerm[] parents = term.getParents();
-			for (GOTerm parent : parents) {
-				getAncestorsHelper(parent, set);
-			}
-		}else{
-			//System.out.println("EMPTY GOTERM ID:" + term);
-		}
-	}
-
-	/**
-	 * Gets all the children terms for the term with the given ID. By
-	 * definition, a term is a child of itself.
-	 */
-	public Set<GOTerm> getChildren(int id) {
-		HashSet<GOTerm> set = new HashSet<GOTerm>();
-		getChildrenHelper(getTerm(id), set);
-		return set;
-	}
-
-	private void getChildrenHelper(GOTerm term, Set<GOTerm> set) {
-		set.add(term);
-		GOTerm[] children = term.getChildren();
-		for (GOTerm child : children) {
-			getChildrenHelper(child, set);
-		}
-	}
-	
-	 
-	/**
-	 * Read ontology file from remote URL
-	 */
-	private void readFromUrl(String url) {
-		long time0 = System.currentTimeMillis();
-		HttpClient client = new HttpClient();
-		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
-				2, true);
-		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-				retryhandler);
-		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-
-		GetMethod method = new GetMethod(url);
-
-		try {
-			int statusCode = client.executeMethod(method);
-
-			if (statusCode == HttpStatus.SC_OK) {
-				InputStream stream = method.getResponseBodyAsStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(
-						stream));
-				// this file is put under default current directory meant to be user transparent
-			    File dir = new File(dirName);			   
-				if(!dir.exists())  
-					  dir.mkdirs();			 
-				PrintWriter pw = new PrintWriter(new FileWriter(dirName + DEFAULT_OBO_FILE));
-				String line = in.readLine();
-				while(line!=null) {
-					pw.println(line);
-					line = in.readLine();
-				}
-				pw.close();
-				BufferedReader in2 = new BufferedReader(new FileReader(dirName + DEFAULT_OBO_FILE));
-				parseOBOFile(in2);
-			 
-			} else {				 
-				log.warn("error in reading remote obo from "+url);
-			}
-		} catch (HttpException e) {
-			//e.printStackTrace();
-			handleRemoteException(e);
-		} catch (IOException e) {
-			//e.printStackTrace();
-			handleRemoteException(e);
-		} finally {
-			method.releaseConnection();
-		}
-		long time1 = System.currentTimeMillis();
-		log.info("Time taken to update OBO file: "+(time1-time0)+" milliseconds");
-	    System.out.println("Time taken to update OBO file: "+(time1-time0)+" milliseconds");
-	}
-	
-	private void handleRemoteException(final Exception e) {
-		try {
-		 
-			log.warn("Remote obo file was not loaded succesfully due to connection problem:\n>> "+e.getMessage()
-						    +"\nAttempting to load local copy.");
-						     
-			 
-			InputStream inputStream = this.getClass().getClassLoader()
-					.getResourceAsStream(DEFAULT_OBO_FILE);
-			if (inputStream != null) {
-			InputStreamReader is = new InputStreamReader(inputStream);
-			   BufferedReader in = new BufferedReader(is);
-			   parseOBOFile(in);
-			}
-		 
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
-
-	public String getVersion() {
-		return dataVersion;
-	}
-
-	public String getDate() {
-		return date;
-	}
-
- 
-	 
 }

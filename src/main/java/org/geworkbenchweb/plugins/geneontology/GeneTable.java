@@ -66,9 +66,9 @@ public class GeneTable extends Table {
 	public void updateData(int goId, boolean includeDescendants, String geneFrom) {
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
-		if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[0])) {
+		if(geneFrom.equals(GenePanel.GENE_FROM_OPTIONS[0])) {
 			genes.retainAll(result.getChangedGenes());
-		} else if(geneFrom.equals(GOResultUI.GENE_FROM_OPTIONS[1])) {
+		} else if(geneFrom.equals(GenePanel.GENE_FROM_OPTIONS[1])) {
 			genes.retainAll(result.getReferenceGenes());
 		}
 		
@@ -120,7 +120,7 @@ public class GeneTable extends Table {
 			return list;
 		}
 
-		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstanceUntilAvailable();
+		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 		for(GOTerm g: geneOntologyTree.getTerm(goTermId).getChildren()) {
 			list.add(g.getId());
 		}
@@ -132,7 +132,7 @@ public class GeneTable extends Table {
 		if(namespaceIds.size()>0) {
 			return namespaceIds;
 		} else {
-			GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstanceUntilAvailable();
+			GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 			for(int i=0; i<geneOntologyTree.getNumberOfRoots(); i++)
 				namespaceIds.add(geneOntologyTree.getRoot(i).getId());
 			return namespaceIds;

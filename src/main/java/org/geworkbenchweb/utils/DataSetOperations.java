@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
@@ -42,11 +41,16 @@ public class DataSetOperations {
 		Map<String, String> annotationMap = new HashMap<String, String>();
 		if (dataSetAnnotation != null) {
 			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(
-					Annotation.class, annotationId);
-			for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry.getGeneSymbol());
+			Map<String, Object> pm = new HashMap<String, Object>();
+			pm.put("id", annotationId);
+			List<?> entries = FacadeFactory
+					.getFacade()
+					.list("SELECT entries.probeSetId, entries.geneSymbol FROM Annotation a JOIN a.annotationEntries entries WHERE a.id=:id",
+							pm);
+			for (Object entry : entries) {
+				Object[] obj = (Object[]) entry;
+				// probeSetId ~ geneSymbol
+				annotationMap.put((String) obj[0], (String) obj[1]);
 			}
 		}
 		return annotationMap;

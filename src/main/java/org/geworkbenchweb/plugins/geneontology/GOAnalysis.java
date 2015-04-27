@@ -191,14 +191,6 @@ public class GOAnalysis {
 					studyCount);
 			result.put(term.getID().id, r);
 		}
-//
-//		int size = ontologizerResult.getSize();
-//			GOResultRow row1 = new GOResultRow("A", "B", 1.2, 2.3, 4, 5);
-//			GOResultRow row2 = new GOResultRow("C", "DDB", 4.2, 5.3, 14, 25);
-//			GOResultRow row3 = new GOResultRow("size="+size, "earth", 4.21, 5.23, 104, 295);
-//			result.put(123, row1);
-//			result.put(987, row2);
-//			result.put(9817, row3);
 	}
 
 }
