@@ -134,14 +134,14 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
 		annotationMap = new HashMap<String, AnnotationEntry>();
 		if(dataSetAnnotation!=null) {
-			log.info("Started retrieve annotation ...");
+			log.debug("Started retrieve annotation ...");
 			Long annotationId = dataSetAnnotation.getAnnotationId();
 			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
 			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
 				String probeSetId = entry.getProbeSetId();
 				annotationMap.put(probeSetId, entry);
 			}
-			log.info("Finished retrieve annotation ...");
+			log.debug("Finished retrieve annotation ...");
 		}
 
 		
@@ -149,13 +149,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		addComponent(toolBar);
 		addComponent(displayTable);
 		setExpandRatio(displayTable, 1);	 
-		log.info("Started get indexedContainer ...");
+		log.debug("Started get indexedContainer ...");
 		displayTable.setContainerDataSource(getIndexedContainer());
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
 		
-		log.info("Finished get indexedContainer ...");
+		log.debug("Finished get indexedContainer ...");
 	} 
 
 	 
@@ -522,15 +522,20 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 				pw.print("\t" + p[i]);
 			}
 			pw.print("\n");
-			Collection<?> items = displayTable.getItemIds();
+			Collection<?> items = displayTable.getItemIds();		 
 			for (Object itemId : items) {
 				Item item = displayTable.getItem(itemId);
 				if (p[0].equals(Constants.GENE_SYMBOL_HEADER))
-				   pw.print(((PopupView)item.getItemProperty(p[0]).getValue()).getData().toString());
+				{
+					if (item.getItemProperty(p[0]).getValue() != null && item.getItemProperty(p[0]).getValue() instanceof PopupView) 
+					    pw.print(((PopupView)item.getItemProperty(p[0]).getValue()).getData().toString());
+					else
+						pw.print(item.getItemProperty(p[0]).getValue());
+				}
 				else
 				   pw.print(item.getItemProperty(p[0]).getValue());
 				for (int i = 1; i < p.length; i++) {
-					if (p[i].equals(Constants.GENE_SYMBOL_HEADER))
+					if (p[i].equals(Constants.GENE_SYMBOL_HEADER) && item.getItemProperty(p[i]).getValue() instanceof PopupView)
 					    pw.print("\t" + ((PopupView)item.getItemProperty(p[i]).getValue()).getData().toString());
 					else
 						pw.print("\t" + item.getItemProperty(p[i]).getValue());
