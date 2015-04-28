@@ -170,7 +170,7 @@
 		<name>Dendrogram plus heat map</name>
 		<description>
 			The Dendrogram Viewer depicts the results from hierarchical clustering using a heatmap and dendrogram.  See the
-			&lt;a href=http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Hierarchical_Clustering#The_Dendrogram_Viewer" target="_blank"&gt;Dendrogram Viewer section&lt;/a&gt; 
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Hierarchical_Clustering#The_Dendrogram_Viewer" target="_blank"&gt;Dendrogram Viewer section&lt;/a&gt; 
 			of the Hierarchical Clustering tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI</uiClass>
