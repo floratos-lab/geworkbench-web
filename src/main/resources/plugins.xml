@@ -24,7 +24,7 @@
 				arrays must be specified.  The ANOVA analysis returns any markers that
 				show a significant expression difference across the array sets. 
 				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA" target="_blank"&gt;ANOVA&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA_web" target="_blank"&gt;ANOVA&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.anova.AnovaUI</uiClass>
@@ -52,7 +52,7 @@
 				include both publicly available databases such as BIND, MINT, and Reactome, as well as reverse-engineered
 				cellular context-specific regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.
 				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase_web" target="_blank"&gt;CNKB&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBUI</uiClass>
@@ -67,7 +67,7 @@
 				at each step building up a branched structure that converges toward a root that contains all points.
 				The resulting graph tends to group similar items together. Several options for clustering method and metric are provided.
 				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering_web" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI</uiClass>
