@@ -23,9 +23,9 @@
 				(MultiExperiment Viewer). At least three sets of
 				arrays must be specified.  The ANOVA analysis returns any markers that
 				show a significant expression difference across the array sets. 
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA_web" target="_blank"&gt;ANOVA&lt;/a&gt;
-				tutorial).
+				For parameter settings see the 
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ANOVA" target="_blank"&gt;ANOVA&lt;/a&gt;
+				tutorial.
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.anova.AnovaUI</uiClass>
 		</plugin>
@@ -51,9 +51,9 @@
 				including ones both computationally and experimentally derived. Sources for interactions
 				include both publicly available databases such as BIND, MINT, and Reactome, as well as reverse-engineered
 				cellular context-specific regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase_web" target="_blank"&gt;CNKB&lt;/a&gt;
-				tutorial).
+				For parameter settings see the 
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
+				tutorial.
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBUI</uiClass>
 		</plugin>
@@ -66,9 +66,9 @@
 				(the leaves of the tree), nearest neighbors are found for individual points, and then for groups of points,
 				at each step building up a branched structure that converges toward a root that contains all points.
 				The resulting graph tends to group similar items together. Several options for clustering method and metric are provided.
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering_web" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;
-				tutorial).
+				For parameter settings see the 
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Hierarchical_Clustering" target="_blank"&gt;Hierarchical Clustering&lt;/a&gt;
+				tutorial.
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI</uiClass>
 		</plugin>
@@ -114,8 +114,8 @@
 				A t-Test
 				analysis can be used to identify markers with statistically
 				significant differential expression between two sets of microarrays (e.g. representing two different treatments or phenotypes).
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression" target="_blank"&gt;t-Test&lt;/a&gt;
+				For parameter settings see the 
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/T-Test" target="_blank"&gt;t-Test&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.ttest.TTestUI</uiClass>
@@ -169,7 +169,9 @@
 	<plugin>
 		<name>Dendrogram plus heat map</name>
 		<description>
-			The Dendrogram Viewer depicts the results from hierarchical clustering using a heatmap and dendrogram.
+			The Dendrogram Viewer depicts the results from hierarchical clustering using a heatmap and dendrogram.  See the
+			&lt;a href=http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Hierarchical_Clustering#The_Dendrogram_Viewer" target="_blank"&gt;Dendrogram Viewer section&lt;/a&gt; 
+			of the Hierarchical Clustering tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringResultsUI</uiClass>
 	</plugin>
@@ -179,10 +181,9 @@
 		<name>ANOVA Result Viewer</name>
 		<description>
 			The ANOVA Result Viewer displays results in a spreadsheet format.
-			The table columns are the same as those described for the desktop version of the analysis
-			(see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA#Tabular_Viewer" target="_blank"&gt;Tabular Viewer section of the ANOVA&lt;/a&gt;
-			tutorial).
+			The table columns are described in the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ANOVA#Tabular_Viewer" target="_blank"&gt;Tabular Viewer section&lt;/a&gt;
+			of the ANOVA tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.anova.results.AnovaResultsUI</uiClass>
 	</plugin>
@@ -205,9 +206,9 @@
 		<name>CNKB Result View</name>
 		<description>
 			The result of a CNKB query is displayed in a table; a "throttle" allows the number of hits to be adjusted by significance.
-			The basic functionality is very similar to that described for the desktop version of the analysis (see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
-			tutorial).
+			See the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Cellular_Networks_KnowledgeBase#The_CNKB_Results_Viewer" target="_blank"&gt;CNKB Results Viewer section&lt;/a&gt;
+			of the CNKB tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBResultsUI</uiClass>
 	</plugin>
@@ -266,9 +267,9 @@
 		<name>T-test result viewer</name>
 		<description>
 			The Volcano Plot graphs for each marker the t-test significance value vs the expression fold-change.
-			The plot is very similar to the desktop version; see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Volcano_Plot" target="_blank"&gt;Volcano Plot&lt;/a&gt;
-			tutorial.
+			See the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/T-Test#t-Test_Results" target="_blank"&gt;t-Test Results&lt;/a&gt;
+			section of the t-Test tutorial.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.ttest.results.TTestResultsUI</uiClass>
 	</plugin>
