@@ -22,8 +22,7 @@ import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset; 
-import org.geworkbenchweb.pojos.Preference;
-import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.pojos.Preference; 
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -137,7 +136,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			log.debug("Started retrieve annotation ...");
 			Long annotationId = dataSetAnnotation.getAnnotationId();
 			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
-			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
+			log.debug("Loaded retrieve annotation ...");
+			List<AnnotationEntry> entries = annotation.getAnnotationEntries();
+			for(AnnotationEntry entry : entries) {
 				String probeSetId = entry.getProbeSetId();
 				annotationMap.put(probeSetId, entry);
 			}
@@ -151,11 +152,12 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		setExpandRatio(displayTable, 1);	 
 		log.debug("Started get indexedContainer ...");
 		displayTable.setContainerDataSource(getIndexedContainer());
+		log.debug("just get indexedContainer ...");
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
 
 		addComponent(displayTable.createControls());
 		
-		log.debug("Finished get indexedContainer ...");
+		log.debug("Finished addComponent for displayTable ...");
 	} 
 
 	 
@@ -262,9 +264,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		FilterInfo markerFilter = tabViewPreferences.getMarkerFilter();
 		if (markerFilter != null)
 			selectedMarkerSet = markerFilter.getSelectedSet();
-
-		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
-		
+ 
 		int markerDisplayControl = tabViewPreferences.getMarkerDisplayControl();
 		if (selectedMarkerSet != null && selectedMarkerSet.length > 0
 				&& (selectedMarkerSet[0]!=0)) {
@@ -282,13 +282,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			}
 			for (int i = 0; i < markerLabels.length; i++) {
 				String marker = markerLabels[i];
-				if (included.contains(marker) && isMatchSearch(marker, markerDisplayControl, map))
+				if (included.contains(marker) && isMatchSearch(marker, markerDisplayControl))
 					selectedMarkers.add(i);
 			}
 		} else {
 			for (int i = 0; i < markerLabels.length; i++) {
 				String marker = markerLabels[i];
-				if (isMatchSearch(marker, markerDisplayControl, map))
+				if (isMatchSearch(marker, markerDisplayControl))
 					selectedMarkers.add(i);
 			}
 		}
@@ -297,8 +297,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	}
 
-	private boolean isMatchSearch(String markerLabel, int markerDisplayControl,
-			Map<String, String> map) {
+	private boolean isMatchSearch(String markerLabel, int markerDisplayControl) {
 		if (searchStr == null || searchStr.trim().length() == 0)
 			return true;
 
@@ -307,7 +306,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 				return true;
 			} else {
-				String geneSymbol = map.get(markerLabel);
+				String geneSymbol = annotationMap.get(markerLabel).getGeneSymbol();
 				if (geneSymbol != null
 						&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase())) {
 					return true;
@@ -319,7 +318,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		}
 		else if ( markerDisplayControl == Constants.MarkerDisplayControl.gene_symbol.ordinal() )  
 		{			
-			String geneSymbol = map.get(markerLabel);
+			String geneSymbol = annotationMap.get(markerLabel).getGeneSymbol();
 			if (geneSymbol != null
 					&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase()))  
 				return true;
@@ -339,20 +338,23 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 
 	private IndexedContainer getIndexedContainer() {
 		IndexedContainer dataIn = null;
+		log.debug("before load dataset ...");
 		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = data.getDataId();
 		MicroarrayDataset dataset = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 		String[] arrayLabels = dataset.getArrayLabels();
 		String[] markerLabels = dataset.getMarkerLabels();
 		float[][] values = dataset.getExpressionValues();
+		log.debug("after load dataset ...");
 		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
 		return dataIn;
 	}
 
 	private IndexedContainer getIndexedContainer(String[] markerLabels, String[] arrayLabels,
 			float[][] values) {
-
+		log.debug("before loadTabViewPreferences()...");
 		loadTabViewPreferences();
+		log.debug("after loadTabViewPreferences()...");
 		IndexedContainer dataIn =  new IndexedContainer() {
 		          
 				private static final long serialVersionUID = 1L;
@@ -386,12 +388,16 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	                	return 0;
 	            }
 	        }));
+	        
+	    
+	     
 		List<String> displayPrefColHeaders = getDisplayPrefColHeaders();
 		List<Integer> arrayColHeaders = getArrayColHeaders(arrayLabels);
 		List<Integer> selectedMarkers = getTabViewMarkers(markerLabels);
-	 
+		 
 		precisonNumber = tabViewPreferences.getNumberPrecisionControl();
 		
+		log.debug("before for loop ...");
 		for (int k = 0; k < displayPrefColHeaders.size(); k++)  
 		{
 			
@@ -410,6 +416,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			dataIn.addContainerProperty(arrayName, Float.class,null);
 		}		
 		
+	 
 		for (Integer i : selectedMarkers)
 		{		 
 			Item item = dataIn.addItem(i);
@@ -457,6 +464,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					}
 			} 
 			
+			 
 			for (int k = 0; k < arrayColHeaders.size(); k++) {
 			        String arrayName = arrayLabels[arrayColHeaders.get(k)];				 
 					if (selectedMarkers.size() == 0)
@@ -466,7 +474,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			 }
 			 
 		}
-
+		log.debug("after for loop ...");
 		return dataIn;
 	}
  
