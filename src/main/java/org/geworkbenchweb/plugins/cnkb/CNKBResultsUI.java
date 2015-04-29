@@ -39,6 +39,7 @@ import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
@@ -164,6 +165,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			}
 			
 		}).setStyleName("plugin");
+		menuBar.addItem("Help", new Command() {
+
+			private static final long serialVersionUID = -1970832620889340547L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				getWindow().open(new ExternalResource("http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase_web"), "_blank");
+			}
+			
+		}).setStyleName("plugin");;
 		
 		addComponent(menuBar);		
 	
