@@ -51,7 +51,6 @@ public class AnnotationTabSheet extends TabSheet {
 		commentsLayout.setImmediate(true);
 		commentsLayout.setMargin(true);
 		commentsLayout.setSpacing(true);
-		commentsLayout.setSizeUndefined();
 		
 		Label cHeading 		=	new Label("User Comments:");
 		cHeading.setStyleName(Reindeer.LABEL_H2);
