@@ -501,7 +501,7 @@ public class UMainToolBar extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				try {
-					String emailURL = "mailto:geworkbench@c2b2.columbia.edu&subject=user inquiry&body=Please feel free to contact us to report any problems encountered when using the application or to offer suggestions for functionality improvements. When reporting problems please describe the sequence of actions that led to the issue you are reporting in as much detail as possible, this will help us replicate it in our environment.";
+					String emailURL = "mailto:geworkbench@c2b2.columbia.edu?subject=user inquiry&body=Please feel free to contact us to report any problems encountered when using the application or to offer suggestions for functionality improvements. When reporting problems please describe the sequence of actions that led to the issue you are reporting in as much detail as possible, this will help us replicate it in our environment.";
 				    URL windowURL = new URL(emailURL);
 					    Window window = getApplication().getMainWindow();
 					    window.open(new ExternalResource(windowURL));
