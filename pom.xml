@@ -396,9 +396,9 @@
 		</dependency>
 		 
 		<dependency>
-            <groupId>nl.captcha</groupId>
-            <artifactId>simplecaptcha</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.liferay</groupId>
+	        <artifactId>nl.captcha.simplecaptcha</artifactId>
+	        <version>1.1.1</version>
         </dependency>
        
 
@@ -441,8 +441,8 @@
           <version>2.1</version>
           
         </dependency>	
-
-		<!-- for local in project rerepository -->
+        
+        <!-- for local in project rerepository -->
 
 		<dependency>
 			<groupId>charite</groupId>
