@@ -673,11 +673,11 @@ public class MsViperAnalysisClient {
 			}
 		});
 	 
-		rankMap.put(genes.get(0), 0);
+		rankMap.put(genes.get(0), 1);
 		//double lastValue = values.get(genes.get(0));
 		//int lastRank = 0;
 		for (int i = 1; i < genes.size(); i++) {
-			int rank = i;
+			int rank = i+1;
 			String gene = genes.get(i);
 			/*double value = values.get(gene);
 			if (value == lastValue) {
