@@ -26,7 +26,10 @@
    	<script src="js/jquery-1.4.4.min.js" />    
    	<script src="js/highcharts.js" />
    	<script src="js/exporting.js" />  
-   	<script src="js/msviper.js" /> 	 	
+   	<script src="js/msviper.js" />
+
+   	<!-- custom javascript stuff --> <!-- js is a sub-directory under visualizations/public; name js is not required -->
+   	<script src="js/molecule_viewer.js" />
 	
 	<!-- Invient Charts Addon -->
    	<inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
