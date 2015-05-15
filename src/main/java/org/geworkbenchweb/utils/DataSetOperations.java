@@ -56,6 +56,39 @@ public class DataSetOperations {
 		return annotationMap;
 	}
 	
+	
+	/* build a probeSetId , geneSymbol, geneDescription map for efficiency */
+	static public Map<String, String[]> getAnnotationInfoMap(Long dataSetId) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory
+				.getFacade()
+				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId",
+						parameter);
+		Map<String, String[]> annotationMap = new HashMap<String, String[]>();
+		if (dataSetAnnotation != null) {			
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Map<String, Object> pm = new HashMap<String, Object>();
+			pm.put("id", annotationId);
+			List<?> entries = FacadeFactory
+					.getFacade()
+					.list("SELECT entries.probeSetId, entries.geneSymbol, entries.geneDescription, entries.entrezId FROM Annotation a JOIN a.annotationEntries entries WHERE a.id=:id",
+							pm);
+			for (Object entry : entries) {
+				Object[] obj = (Object[]) entry;
+				// probeSetId ~ geneSymbol
+				String[] values = new String[3];
+				values[0] = (String) obj[1];
+				values[1] = (String) obj[2];
+				values[2] = (String) obj[3];
+				annotationMap.put((String) obj[0], values);
+			}
+		}
+		return annotationMap;
+	}
+	
+	
+	
 	/* get marker labels or microarray labels of a MicroarrayDataset */
 	static public String[] getStringLabels(String fieldName, Long id) {
 		Map<String, Object> parameter = new HashMap<String, Object>();

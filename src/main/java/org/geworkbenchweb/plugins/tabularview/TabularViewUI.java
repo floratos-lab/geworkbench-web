@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
+ 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +16,11 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.Tabular;  
-import org.geworkbenchweb.pojos.Annotation;
-import org.geworkbenchweb.pojos.AnnotationEntry;
-import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.DataSetAnnotation;
+import org.geworkbenchweb.plugins.Tabular; 
+import org.geworkbenchweb.pojos.DataSet; 
 import org.geworkbenchweb.pojos.MicroarrayDataset; 
 import org.geworkbenchweb.pojos.Preference; 
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
@@ -62,7 +60,8 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
     
 	final private Long datasetId;
 	
-	private final Map<String, AnnotationEntry> annotationMap;
+	//private final Map<String, AnnotationEntry> annotationMap;
+	private final Map<String, String[]> annotationMap;
 
 	private static Log log = LogFactory.getLog(TabularViewUI.class);
 	 
@@ -126,25 +125,10 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 					}
 
 				});
-
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
-				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
-		annotationMap = new HashMap<String, AnnotationEntry>();
-		if(dataSetAnnotation!=null) {
-			log.debug("Started retrieve annotation ...");
-			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
-			log.debug("Loaded retrieve annotation ...");
-			List<AnnotationEntry> entries = annotation.getAnnotationEntries();
-			for(AnnotationEntry entry : entries) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry);
-			}
-			log.debug("Finished retrieve annotation ...");
-		}
-
+ 
+		log.debug("Started retrieve annotation ...");
+		annotationMap = DataSetOperations.getAnnotationInfoMap(dataSetId);
+		log.debug("Ended retrieve annotation ...");
 		
 		final MenuBar toolBar = new TabularMenuSelector(this, "TabularViewUI");
 		addComponent(toolBar);
@@ -306,7 +290,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 				return true;
 			} else {
-				String geneSymbol = annotationMap.get(markerLabel).getGeneSymbol();
+				String geneSymbol = annotationMap.get(markerLabel)[0];
 				if (geneSymbol != null
 						&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase())) {
 					return true;
@@ -318,7 +302,7 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		}
 		else if ( markerDisplayControl == Constants.MarkerDisplayControl.gene_symbol.ordinal() )  
 		{			
-			String geneSymbol = annotationMap.get(markerLabel).getGeneSymbol();
+			String geneSymbol = annotationMap.get(markerLabel)[0];
 			if (geneSymbol != null
 					&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase()))  
 				return true;
@@ -424,11 +408,13 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			String geneSymbol = null;
 			String geneDescription = null;
 			String entrezId = null;
-			AnnotationEntry entry = annotationMap.get(probeSetId);
+			String[] entry = null;
+			if (annotationMap != null)
+			    entry = annotationMap.get(probeSetId);
 			if(entry!=null) { // no annotation
-				geneSymbol = entry.getGeneSymbol();
-				geneDescription = entry.getGeneDescription();
-				entrezId = entry.getEntrezId();
+				geneSymbol = entry[0];
+				geneDescription = entry[1];
+				entrezId = entry[2];
 			}			
 		 
 			for (int k = 0; k < displayPrefColHeaders.size(); k++) {				
