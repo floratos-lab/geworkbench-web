@@ -629,6 +629,11 @@
 			<artifactId>vprotovis</artifactId>
 			<version>0.6</version>
 		</dependency>		
+		<dependency>
+			<groupId>gwtg3d</groupId>
+			<artifactId>gwtg3d</artifactId>
+			<version>0.10</version>
+		</dependency>		
 	</dependencies>	 
 
 </project>

@@ -19,6 +19,7 @@
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
 	<inherits name="com.google.gwt.json.JSON" /> 
+	<inherits name='gwt.g3d.g3d'/>
     
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
    	
@@ -29,6 +30,7 @@
    	<script src="js/msviper.js" />
 
    	<!-- custom javascript stuff --> <!-- js is a sub-directory under visualizations/public; name js is not required -->
+   	<script src="js/ChemDoodleWeb.js" />
    	<script src="js/molecule_viewer.js" />
 	
 	<!-- Invient Charts Addon -->
