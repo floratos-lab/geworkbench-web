@@ -158,9 +158,9 @@
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.SimplePDBViewer</uiClass>
 	</plugin>
 	<plugin>
-		<name>Second PDB File Viewer</name>
+		<name>Molecular Structure Viewer</name>
 		<description>
-			Place holder for the second viewer.
+			Molecular Structure Viewer.
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.PDBViewer</uiClass>
 	</plugin>
