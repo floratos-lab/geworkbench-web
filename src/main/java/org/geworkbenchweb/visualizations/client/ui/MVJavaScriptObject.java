@@ -6,10 +6,15 @@ public class MVJavaScriptObject extends JavaScriptObject {
 	
 	protected MVJavaScriptObject() {}
 
-	public static native void createInstance(String containerId, String filepath)/*-{
+	public static native void createInstance(String containerId, String pdbcontent)/*-{
 
-    $wnd.$molecule_viewer.create(containerId, filepath);
+    $wnd.$molecule_viewer.create(containerId, pdbcontent);
    
-}-*/;
+	}-*/;
 
+	public static native void createInstance(String containerId, String pdbcontent, String representation)/*-{
+
+    $wnd.$molecule_viewer.create(containerId, pdbcontent, representation);
+   
+	}-*/;
 }

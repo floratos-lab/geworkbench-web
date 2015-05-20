@@ -23,8 +23,9 @@ public class VMoleculeViewer extends Widget implements Paintable {
 		}		
 		placeholder.setId(uidl.getId());
 
-		String filepath = uidl.getStringAttribute("filepath");
-		MVJavaScriptObject.createInstance(placeholder.getId(), filepath);
+		String pdbcontent = uidl.getStringAttribute("pdbcontent");
+		String representation = uidl.getStringAttribute("representation");
+		MVJavaScriptObject.createInstance(placeholder.getId(), pdbcontent, representation);
 	}
 
 }
