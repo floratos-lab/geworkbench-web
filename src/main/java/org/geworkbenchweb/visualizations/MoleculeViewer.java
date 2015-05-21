@@ -10,25 +10,47 @@ public class MoleculeViewer extends AbstractComponent {
 	private static final long serialVersionUID = 4600493722698214718L;
 
 	final private String pdbcontent;
-	final private String representation;
+	private String representation = null;
+	private boolean atoms = true;
+	private boolean bonds = true;
+	private boolean ribbon = true;
 	
 	public MoleculeViewer(String pdbcontent) {
 		this.pdbcontent = pdbcontent;
-		this.representation = null;
 	}
 	
-	public MoleculeViewer(String pdbcontent, String representation) {
-		this.pdbcontent = pdbcontent;
+
+	public void set3DRepresentation(String representation) {
 		this.representation = representation;
+		requestRepaint();
 	}
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
 
+        if(representation==null) representation = "van der Waals Spheres";
+
         target.addAttribute("pdbcontent", pdbcontent);
-        if(representation!=null) // both the name and the value must be non-null
-        	target.addAttribute("representation", representation);
+       	target.addAttribute("representation", representation);
+
+        target.addAttribute("displayAtoms", atoms);
+        target.addAttribute("displayBonds", bonds);
+        target.addAttribute("displayRibbon", ribbon);
 	}
 
+	public void setDisplayAtoms(boolean checked) {
+		this.atoms = checked;
+		requestRepaint();
+	}
+
+	public void setDisplayBonds(boolean checked) {
+		this.bonds = checked;
+		requestRepaint();
+	}
+	
+	public void setDisplayRibbon(boolean checked) {
+		this.ribbon = checked;
+		requestRepaint();
+	}
 }

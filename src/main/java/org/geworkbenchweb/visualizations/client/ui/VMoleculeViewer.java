@@ -15,6 +15,8 @@ public class VMoleculeViewer extends Widget implements Paintable {
 		setElement(placeholder);
 	}
 	
+	private String pdbcontent = null;
+
 	@Override
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
 		
@@ -23,8 +25,21 @@ public class VMoleculeViewer extends Widget implements Paintable {
 		}		
 		placeholder.setId(uidl.getId());
 
-		String pdbcontent = uidl.getStringAttribute("pdbcontent");
+		String newcontent = uidl.getStringAttribute("pdbcontent");
 		String representation = uidl.getStringAttribute("representation");
+		boolean displayAtoms = uidl.getBooleanAttribute("displayAtoms");
+		boolean displayBonds = uidl.getBooleanAttribute("displayBonds");
+		boolean displayRibbon = uidl.getBooleanAttribute("displayRibbon");
+
+		if(newcontent.equals(pdbcontent)) {
+			MVJavaScriptObject.set3DRepresentation(representation);
+			MVJavaScriptObject.setDisplayAtoms(displayAtoms);
+			MVJavaScriptObject.setDisplayBonds(displayBonds);
+			MVJavaScriptObject.setDisplayRibbon(displayRibbon);
+			return;
+		}
+		
+		pdbcontent = newcontent;
 		MVJavaScriptObject.createInstance(placeholder.getId(), pdbcontent, representation);
 	}
 

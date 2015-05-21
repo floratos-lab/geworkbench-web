@@ -68,37 +68,54 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		final MenuItem representationType = toolBar.addItem("3D Representation", null);
 		representationType.setStyleName("plugin");
 
-       	Command reloadCommand = new Command() {
+        final MoleculeViewer m = new MoleculeViewer(pdbContent);
+
+       	Command representationCommand = new Command() {
 
 			private static final long serialVersionUID = -6824514348952478474L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				PDBViewer.this.removeAllComponents();
-				PDBViewer.this.addComponent(toolBar);
-		        MoleculeViewer m = new MoleculeViewer(pdbContent, selectedItem.getText());
-		        PDBViewer.this.addComponent(m);
+		        m.set3DRepresentation(selectedItem.getText());
 			}
        		
        	};
-
 		for(String r : representation) {
-			representationType.addItem(r, reloadCommand);
+			representationType.addItem(r, representationCommand);
 		}
-		this.addComponent(toolBar);
-		
-       	/* other menu items to be added */
-       	/*
-       	Command otherCommand = new Command() {
+
+		final MenuItem displaySettings = toolBar.addItem("Display Settings", null);
+       	Command displayCommand = new Command() {
+
+			private static final long serialVersionUID = -6824514348952478474L;
+
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				// TODO
+				String option = selectedItem.getText();
+				boolean checked = selectedItem.isChecked();
+				if(option.equals("Display Atoms")) {
+					m.setDisplayAtoms(checked);
+				} else if(option.equals("Display Bonds")) {
+					m.setDisplayBonds(checked);
+				} else if(option.equals("Display Ribbon")) {
+					m.setDisplayRibbon(checked);
+				} else {
+					getWindow().showNotification("not implemented option: "+option);
+				}
 			}
+       		
        	};
-       	toolBar.addItem("Other", otherCommand); // ignore return value
-       	*/
-
-        MoleculeViewer m = new MoleculeViewer(pdbContent);
+		MenuItem a = displaySettings.addItem("Display Atoms", displayCommand);
+		a.setCheckable(true);
+		a.setChecked(true);
+		MenuItem b = displaySettings.addItem("Display Bonds", displayCommand);
+		b.setCheckable(true);
+		b.setChecked(true);
+		MenuItem r = displaySettings.addItem("Display Ribbon", displayCommand);
+		r.setCheckable(true);
+		r.setChecked(true);
+		
+		this.addComponent(toolBar);
         this.addComponent(m);
 	}
 	
