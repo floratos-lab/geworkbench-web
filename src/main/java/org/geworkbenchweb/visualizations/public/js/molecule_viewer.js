@@ -55,3 +55,13 @@ $molecule_viewer.setDisplayRibbon = function(displayRibbon) {
 	this.display3d.specs.proteins_displayRibbon = displayRibbon;
 	this.display3d.repaint();
 };
+
+$molecule_viewer.setDisplayBackbone = function(displayBackbone) {
+	this.display3d.specs.proteins_displayBackbone = displayBackbone;
+	this.display3d.repaint();
+};
+
+$molecule_viewer.setDisplayPipe = function(displayPipe) {
+	this.display3d.specs.proteins_displayPipePlank = displayPipe;
+	this.display3d.repaint();
+};

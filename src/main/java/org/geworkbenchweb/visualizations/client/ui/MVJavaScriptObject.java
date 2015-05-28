@@ -41,4 +41,17 @@ public class MVJavaScriptObject extends JavaScriptObject {
     $wnd.$molecule_viewer.setDisplayRibbon(displayRibbon);
    
 	}-*/;
+
+	public static native void setDisplayBackbone(boolean displayBackbone)/*-{
+
+    $wnd.$molecule_viewer.setDisplayBackbone(displayBackbone);
+   
+	}-*/;
+
+	public static native void setDisplayPipe(boolean displayPipe)/*-{
+
+    $wnd.$molecule_viewer.setDisplayPipe(displayPipe);
+   
+	}-*/;
+
 }

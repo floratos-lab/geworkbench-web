@@ -14,6 +14,8 @@ public class MoleculeViewer extends AbstractComponent {
 	private boolean atoms = true;
 	private boolean bonds = true;
 	private boolean ribbon = true;
+	private boolean backbone = false;
+	private boolean pipe = false;
 	
 	public MoleculeViewer(String pdbcontent) {
 		this.pdbcontent = pdbcontent;
@@ -37,6 +39,8 @@ public class MoleculeViewer extends AbstractComponent {
         target.addAttribute("displayAtoms", atoms);
         target.addAttribute("displayBonds", bonds);
         target.addAttribute("displayRibbon", ribbon);
+        target.addAttribute("displayBackbone", backbone);
+        target.addAttribute("displayPipe", pipe);
 	}
 
 	public void setDisplayAtoms(boolean checked) {
@@ -51,6 +55,17 @@ public class MoleculeViewer extends AbstractComponent {
 	
 	public void setDisplayRibbon(boolean checked) {
 		this.ribbon = checked;
+		requestRepaint();
+	}
+
+	public void setDisplayBackbone(boolean checked) {
+		this.backbone = checked;
+		requestRepaint();
+	}
+
+
+	public void setDisplayPipe(boolean checked) {
+		this.pipe = checked;
 		requestRepaint();
 	}
 }

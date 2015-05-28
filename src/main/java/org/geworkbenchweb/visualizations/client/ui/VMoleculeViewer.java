@@ -30,12 +30,16 @@ public class VMoleculeViewer extends Widget implements Paintable {
 		boolean displayAtoms = uidl.getBooleanAttribute("displayAtoms");
 		boolean displayBonds = uidl.getBooleanAttribute("displayBonds");
 		boolean displayRibbon = uidl.getBooleanAttribute("displayRibbon");
+		boolean displayBackbone = uidl.getBooleanAttribute("displayBackbone");
+		boolean displayPipe = uidl.getBooleanAttribute("displayPipe");
 
 		if(newcontent.equals(pdbcontent)) {
 			MVJavaScriptObject.set3DRepresentation(representation);
 			MVJavaScriptObject.setDisplayAtoms(displayAtoms);
 			MVJavaScriptObject.setDisplayBonds(displayBonds);
 			MVJavaScriptObject.setDisplayRibbon(displayRibbon);
+			MVJavaScriptObject.setDisplayBackbone(displayBackbone);
+			MVJavaScriptObject.setDisplayPipe(displayPipe);
 			return;
 		}
 		

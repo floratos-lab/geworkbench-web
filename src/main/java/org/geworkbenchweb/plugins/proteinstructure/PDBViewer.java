@@ -99,6 +99,10 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 					m.setDisplayBonds(checked);
 				} else if(option.equals("Display Ribbon")) {
 					m.setDisplayRibbon(checked);
+				} else if(option.equals("Display Backbone")) {
+					m.setDisplayBackbone(checked);
+				} else if(option.equals("Display Pipe/Plank")) {
+					m.setDisplayPipe(checked);
 				} else {
 					getWindow().showNotification("not implemented option: "+option);
 				}
@@ -111,9 +115,17 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		MenuItem b = displaySettings.addItem("Display Bonds", displayCommand);
 		b.setCheckable(true);
 		b.setChecked(true);
-		MenuItem r = displaySettings.addItem("Display Ribbon", displayCommand);
+		
+		final MenuItem proteinOptions = toolBar.addItem("Protein Options", null);
+		MenuItem r = proteinOptions.addItem("Display Ribbon", displayCommand);
 		r.setCheckable(true);
 		r.setChecked(true);
+		MenuItem backbone = proteinOptions.addItem("Display Backbone", displayCommand);
+		backbone.setCheckable(true);
+		backbone.setChecked(false);
+		MenuItem pipe = proteinOptions.addItem("Display Pipe/Plank", displayCommand);
+		pipe.setCheckable(true);
+		pipe.setChecked(false);
 		
 		this.addComponent(toolBar);
         this.addComponent(m);
