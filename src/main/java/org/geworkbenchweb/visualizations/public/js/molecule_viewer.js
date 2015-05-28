@@ -12,11 +12,27 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 
 	div.appendChild(c);
 
-	var pdbStructure = ChemDoodle.readPDB(pdb_content);
 	this.display3d = new ChemDoodle.TransformCanvas3D('display3d', w, h);
+	if(this.display3d['gl']==null) {
+		var x = document.createElement('div');
+		x.innerHTML = 'Your browser is not fully supported for this molecule viewer. Please try other browsers to enjoy better visualization.';
+		div.appendChild(x);
+		
+		this.display3d = new ChemDoodle.TransformCanvas('display3d', w, h-50, true);
+		this.display3d.specs.atoms_circles_2D = true;
+		this.display3d.specs.atoms_useJMOLColors = true;
+		this.display3d.specs.bonds_useJMOLColors = true;
+		this.display3d.specs.bonds_width_2D = 3;
+		this.display3d.specs.bonds_clearOverlaps_2D = true;
+		var pdbStructure = ChemDoodle.readPDB(pdb_content, 10);
+		this.display3d.loadMolecule(pdbStructure);
+		return;
+	}
+
 	this.display3d.specs.set3DRepresentation(representation);
 	this.display3d.specs.macro_displayAtoms = true;
 	this.display3d.specs.macro_displayBonds = true;
+	var pdbStructure = ChemDoodle.readPDB(pdb_content);
 	this.display3d.loadMolecule(pdbStructure);
 };
 
