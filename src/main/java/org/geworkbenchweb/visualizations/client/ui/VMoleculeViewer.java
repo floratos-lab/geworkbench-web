@@ -32,6 +32,9 @@ public class VMoleculeViewer extends Widget implements Paintable {
 		boolean displayRibbon = uidl.getBooleanAttribute("displayRibbon");
 		boolean displayBackbone = uidl.getBooleanAttribute("displayBackbone");
 		boolean displayPipe = uidl.getBooleanAttribute("displayPipe");
+		boolean cartoonize = uidl.getBooleanAttribute("cartoonize");
+		boolean colorByChain = uidl.getBooleanAttribute("colorByChain");
+		boolean colorByResidue = uidl.getBooleanAttribute("colorByResidue");
 
 		if(newcontent.equals(pdbcontent)) {
 			MVJavaScriptObject.set3DRepresentation(representation);
@@ -40,6 +43,9 @@ public class VMoleculeViewer extends Widget implements Paintable {
 			MVJavaScriptObject.setDisplayRibbon(displayRibbon);
 			MVJavaScriptObject.setDisplayBackbone(displayBackbone);
 			MVJavaScriptObject.setDisplayPipe(displayPipe);
+			MVJavaScriptObject.setCartoonize(cartoonize);
+			MVJavaScriptObject.setColorByChain(colorByChain);
+			MVJavaScriptObject.setColorByResidue(colorByResidue);
 			return;
 		}
 		

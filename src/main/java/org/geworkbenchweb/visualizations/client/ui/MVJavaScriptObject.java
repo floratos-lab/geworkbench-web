@@ -54,4 +54,21 @@ public class MVJavaScriptObject extends JavaScriptObject {
    
 	}-*/;
 
+	public static native void setCartoonize(boolean cartoonize)/*-{
+
+    $wnd.$molecule_viewer.setCartoonize(cartoonize);
+   
+	}-*/;
+
+	public static native void setColorByChain(boolean colorByChain)/*-{
+
+    $wnd.$molecule_viewer.setColorByChain(colorByChain);
+   
+	}-*/;
+
+	public static native void setColorByResidue(boolean colorByResidue)/*-{
+
+    $wnd.$molecule_viewer.setColorByResidue(colorByResidue);
+   
+	}-*/;
 }

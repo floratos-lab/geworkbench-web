@@ -36,6 +36,8 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 	this.display3d.loadMolecule(pdbStructure);
 };
 
+$molecule_viewer.colorType = 'amino';
+
 $molecule_viewer.set3DRepresentation = function(representation) {
 	this.display3d.specs.set3DRepresentation(representation);
 	this.display3d.repaint();
@@ -63,5 +65,24 @@ $molecule_viewer.setDisplayBackbone = function(displayBackbone) {
 
 $molecule_viewer.setDisplayPipe = function(displayPipe) {
 	this.display3d.specs.proteins_displayPipePlank = displayPipe;
+	this.display3d.repaint();
+};
+
+$molecule_viewer.setCartoonize = function(cartoonize) {
+	this.display3d.specs.proteins_ribbonCartoonize = cartoonize;
+	this.display3d.repaint();
+};
+
+$molecule_viewer.setColorByChain = function(colorByChain) {
+	this.display3d.specs.macro_colorByChain = colorByChain;
+	this.display3d.repaint();
+};
+
+$molecule_viewer.setColorByResidue = function(colorByResidue) {
+	if(colorByResidue) {
+		this.display3d.specs.proteins_residueColor = $molecule_viewer.colorType;
+	} else {
+		this.display3d.specs.proteins_residueColor = 'none';
+	}
 	this.display3d.repaint();
 };

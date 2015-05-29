@@ -16,6 +16,9 @@ public class MoleculeViewer extends AbstractComponent {
 	private boolean ribbon = true;
 	private boolean backbone = false;
 	private boolean pipe = false;
+	private boolean cartoonize = false;
+	private boolean colorByChain = false;
+	private boolean colorByResidue = false;
 	
 	public MoleculeViewer(String pdbcontent) {
 		this.pdbcontent = pdbcontent;
@@ -41,6 +44,9 @@ public class MoleculeViewer extends AbstractComponent {
         target.addAttribute("displayRibbon", ribbon);
         target.addAttribute("displayBackbone", backbone);
         target.addAttribute("displayPipe", pipe);
+        target.addAttribute("cartoonize", cartoonize);
+        target.addAttribute("colorByChain", colorByChain);
+        target.addAttribute("colorByResidue", colorByResidue);
 	}
 
 	public void setDisplayAtoms(boolean checked) {
@@ -66,6 +72,21 @@ public class MoleculeViewer extends AbstractComponent {
 
 	public void setDisplayPipe(boolean checked) {
 		this.pipe = checked;
+		requestRepaint();
+	}
+
+	public void setCartoonize(boolean checked) {
+		this.cartoonize = checked;
+		requestRepaint();
+	}
+
+	public void setColorByChain(boolean checked) {
+		this.colorByChain = checked;
+		requestRepaint();
+	}
+
+	public void setColorByResidue(boolean checked) {
+		this.colorByResidue = checked;
 		requestRepaint();
 	}
 }

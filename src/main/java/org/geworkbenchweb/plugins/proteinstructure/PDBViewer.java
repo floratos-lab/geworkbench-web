@@ -85,6 +85,8 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		}
 
 		final MenuItem displaySettings = toolBar.addItem("Display Settings", null);
+		final MenuItem proteinOptions = toolBar.addItem("Protein Options", null);
+		
        	Command displayCommand = new Command() {
 
 			private static final long serialVersionUID = -6824514348952478474L;
@@ -93,42 +95,72 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				String option = selectedItem.getText();
 				boolean checked = selectedItem.isChecked();
-				if(option.equals("Display Atoms")) {
-					m.setDisplayAtoms(checked);
-				} else if(option.equals("Display Bonds")) {
-					m.setDisplayBonds(checked);
-				} else if(option.equals("Display Ribbon")) {
-					m.setDisplayRibbon(checked);
-				} else if(option.equals("Display Backbone")) {
-					m.setDisplayBackbone(checked);
-				} else if(option.equals("Display Pipe/Plank")) {
-					m.setDisplayPipe(checked);
-				} else {
-					getWindow().showNotification("not implemented option: "+option);
-				}
+				updateDisplay(m, option, checked);
 			}
        		
        	};
-		MenuItem a = displaySettings.addItem("Display Atoms", displayCommand);
+		MenuItem a = displaySettings.addItem(OPTION_DISPLAY_ATOMS, displayCommand);
 		a.setCheckable(true);
 		a.setChecked(true);
-		MenuItem b = displaySettings.addItem("Display Bonds", displayCommand);
+		MenuItem b = displaySettings.addItem(OPTION_DISPLAY_BONDS, displayCommand);
 		b.setCheckable(true);
 		b.setChecked(true);
 		
-		final MenuItem proteinOptions = toolBar.addItem("Protein Options", null);
-		MenuItem r = proteinOptions.addItem("Display Ribbon", displayCommand);
+		MenuItem r = proteinOptions.addItem(OPTION_DISPLAY_RIBBON, displayCommand);
 		r.setCheckable(true);
 		r.setChecked(true);
-		MenuItem backbone = proteinOptions.addItem("Display Backbone", displayCommand);
+		MenuItem backbone = proteinOptions.addItem(OPTION_DISPLAY_BACKBONE, displayCommand);
 		backbone.setCheckable(true);
 		backbone.setChecked(false);
-		MenuItem pipe = proteinOptions.addItem("Display Pipe/Plank", displayCommand);
+		MenuItem pipe = proteinOptions.addItem(OPTION_DISPLAY_PIPE_PLANK, displayCommand);
 		pipe.setCheckable(true);
 		pipe.setChecked(false);
 		
+		proteinOptions.addSeparator();
+		MenuItem cartoonize = proteinOptions.addItem(OPTION_CARTOONIZE, displayCommand);
+		cartoonize.setCheckable(true);
+		cartoonize.setChecked(false);
+		MenuItem colorByChain = proteinOptions.addItem(OPTION_COLOR_BY_CHAIN, displayCommand);
+		colorByChain.setCheckable(true);
+		colorByChain.setChecked(false);
+		MenuItem colorByResidue = proteinOptions.addItem(OPTION_COLOR_BY_RESIDUE, displayCommand);
+		colorByResidue.setCheckable(true);
+		colorByResidue.setChecked(false);
+		
 		this.addComponent(toolBar);
         this.addComponent(m);
+	}
+	
+	private final String OPTION_DISPLAY_ATOMS = "Display Atoms";
+	private final String OPTION_DISPLAY_BONDS = "Display Bonds";
+	private final String OPTION_DISPLAY_RIBBON = "Display Ribbon";
+	private final String OPTION_DISPLAY_BACKBONE = "Display Backbone";
+	private final String OPTION_DISPLAY_PIPE_PLANK = "Display Pipe/Plank";
+	private final String OPTION_CARTOONIZE = "Cartoonize";
+	private final String OPTION_COLOR_BY_CHAIN = "Color by Chain";
+	private final String OPTION_COLOR_BY_RESIDUE = "Color by Residue";
+	
+	private void updateDisplay(MoleculeViewer m, String option, boolean checked) {
+		switch (option) {
+		case OPTION_DISPLAY_ATOMS:
+			m.setDisplayAtoms(checked); break;
+		case OPTION_DISPLAY_BONDS:
+			m.setDisplayBonds(checked); break;
+		case OPTION_DISPLAY_RIBBON:
+			m.setDisplayRibbon(checked); break;
+		case OPTION_DISPLAY_BACKBONE:
+			m.setDisplayBackbone(checked); break;
+		case OPTION_DISPLAY_PIPE_PLANK:
+			m.setDisplayPipe(checked); break;
+		case OPTION_CARTOONIZE:
+			m.setCartoonize(checked); break;
+		case OPTION_COLOR_BY_CHAIN:
+			m.setColorByChain(checked); break;
+		case OPTION_COLOR_BY_RESIDUE:
+			m.setColorByResidue(checked); break;
+		default:
+			getWindow().showNotification("not implemented option: "+option);
+		}
 	}
 	
 	@Override
