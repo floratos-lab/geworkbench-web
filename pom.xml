@@ -2,15 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>geworkbench</groupId>
   <artifactId>geworkbench</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>geworkbench web application</name>
   
    <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>6.8.16</vaadin.version>
-		<gwt.version>2.6.1</gwt.version>
-		<gwt.plugin.version>2.7.0</gwt.plugin.version>
+		<gwt.version>2.5.1</gwt.version>
+		<gwt.plugin.version>2.5.1</gwt.plugin.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
@@ -28,8 +28,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 
