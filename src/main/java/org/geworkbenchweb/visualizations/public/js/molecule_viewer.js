@@ -53,6 +53,11 @@ $molecule_viewer.setDisplayBonds = function(displayBonds) {
 	this.display3d.repaint();
 };
 
+$molecule_viewer.setDisplayLabels = function(displayLabels) {
+	this.display3d.specs.atoms_displayLabels_3D = displayLabels;
+	this.display3d.repaint();
+};
+
 $molecule_viewer.setDisplayRibbon = function(displayRibbon) {
 	this.display3d.specs.proteins_displayRibbon = displayRibbon;
 	this.display3d.repaint();
@@ -84,5 +89,10 @@ $molecule_viewer.setColorByResidue = function(colorByResidue) {
 	} else {
 		this.display3d.specs.proteins_residueColor = 'none';
 	}
+	this.display3d.repaint();
+};
+
+$molecule_viewer.setColorType = function(colorType) {
+	this.display3d.specs.proteins_residueColor = $molecule_viewer.colorType = colorType;
 	this.display3d.repaint();
 };

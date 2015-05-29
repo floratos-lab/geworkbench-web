@@ -105,6 +105,9 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		MenuItem b = displaySettings.addItem(OPTION_DISPLAY_BONDS, displayCommand);
 		b.setCheckable(true);
 		b.setChecked(true);
+		MenuItem displayLabels = displaySettings.addItem(OPTION_DISPLAY_LABELS, displayCommand);
+		displayLabels.setCheckable(true);
+		displayLabels.setChecked(false);
 		
 		MenuItem r = proteinOptions.addItem(OPTION_DISPLAY_RIBBON, displayCommand);
 		r.setCheckable(true);
@@ -127,12 +130,31 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		colorByResidue.setCheckable(true);
 		colorByResidue.setChecked(false);
 		
+		MenuItem residueColorType = proteinOptions.addItem("Residue Color", null);
+		
+		Command colorTypeCommand = new Command() {
+
+			private static final long serialVersionUID = -6451943828238593502L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				m.setResidueColorType(selectedItem.getText().toLowerCase());
+			}
+			
+		};
+		residueColorType.addItem("Amino", colorTypeCommand);
+		residueColorType.addItem("Shapely", colorTypeCommand);
+		residueColorType.addItem("Polar", colorTypeCommand);
+		residueColorType.addItem("Acidity", colorTypeCommand);
+		residueColorType.addItem("Rainbow", colorTypeCommand);
+		
 		this.addComponent(toolBar);
         this.addComponent(m);
 	}
 	
 	private final String OPTION_DISPLAY_ATOMS = "Display Atoms";
 	private final String OPTION_DISPLAY_BONDS = "Display Bonds";
+	private final String OPTION_DISPLAY_LABELS = "Display Labels";
 	private final String OPTION_DISPLAY_RIBBON = "Display Ribbon";
 	private final String OPTION_DISPLAY_BACKBONE = "Display Backbone";
 	private final String OPTION_DISPLAY_PIPE_PLANK = "Display Pipe/Plank";
@@ -146,6 +168,8 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 			m.setDisplayAtoms(checked); break;
 		case OPTION_DISPLAY_BONDS:
 			m.setDisplayBonds(checked); break;
+		case OPTION_DISPLAY_LABELS:
+			m.setDisplayLabels(checked); break;
 		case OPTION_DISPLAY_RIBBON:
 			m.setDisplayRibbon(checked); break;
 		case OPTION_DISPLAY_BACKBONE:

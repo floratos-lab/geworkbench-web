@@ -36,6 +36,12 @@ public class MVJavaScriptObject extends JavaScriptObject {
    
 	}-*/;
 
+	public static native void setDisplayLabels(boolean displayLabels)/*-{
+
+    $wnd.$molecule_viewer.setDisplayLabels(displayLabels);
+   
+	}-*/;
+	
 	public static native void setDisplayRibbon(boolean displayRibbon)/*-{
 
     $wnd.$molecule_viewer.setDisplayRibbon(displayRibbon);
@@ -69,6 +75,12 @@ public class MVJavaScriptObject extends JavaScriptObject {
 	public static native void setColorByResidue(boolean colorByResidue)/*-{
 
     $wnd.$molecule_viewer.setColorByResidue(colorByResidue);
+   
+	}-*/;
+
+	public static native void setColorType(String colorType)/*-{
+
+    $wnd.$molecule_viewer.setColorType(colorType);
    
 	}-*/;
 }

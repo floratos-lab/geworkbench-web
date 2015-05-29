@@ -13,12 +13,15 @@ public class MoleculeViewer extends AbstractComponent {
 	private String representation = null;
 	private boolean atoms = true;
 	private boolean bonds = true;
+	private boolean labels = false;
 	private boolean ribbon = true;
 	private boolean backbone = false;
 	private boolean pipe = false;
 	private boolean cartoonize = false;
 	private boolean colorByChain = false;
 	private boolean colorByResidue = false;
+	
+	private String colorType = "amino";
 	
 	public MoleculeViewer(String pdbcontent) {
 		this.pdbcontent = pdbcontent;
@@ -41,12 +44,15 @@ public class MoleculeViewer extends AbstractComponent {
 
         target.addAttribute("displayAtoms", atoms);
         target.addAttribute("displayBonds", bonds);
+        target.addAttribute("displayLabels", labels);
         target.addAttribute("displayRibbon", ribbon);
         target.addAttribute("displayBackbone", backbone);
         target.addAttribute("displayPipe", pipe);
         target.addAttribute("cartoonize", cartoonize);
         target.addAttribute("colorByChain", colorByChain);
         target.addAttribute("colorByResidue", colorByResidue);
+        
+        target.addAttribute("colorType", colorType);
 	}
 
 	public void setDisplayAtoms(boolean checked) {
@@ -56,6 +62,11 @@ public class MoleculeViewer extends AbstractComponent {
 
 	public void setDisplayBonds(boolean checked) {
 		this.bonds = checked;
+		requestRepaint();
+	}
+	
+	public void setDisplayLabels(boolean checked) {
+		this.labels = checked;
 		requestRepaint();
 	}
 	
@@ -87,6 +98,11 @@ public class MoleculeViewer extends AbstractComponent {
 
 	public void setColorByResidue(boolean checked) {
 		this.colorByResidue = checked;
+		requestRepaint();
+	}
+
+	public void setResidueColorType(String colorType) {
+		this.colorType = colorType;
 		requestRepaint();
 	}
 }
