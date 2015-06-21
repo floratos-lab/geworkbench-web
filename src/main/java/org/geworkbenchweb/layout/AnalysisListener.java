@@ -13,6 +13,7 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.UserActivityLog;
 import org.geworkbenchweb.utils.OverLimitException;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -41,6 +42,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 	public void SubmitAnalysis(final AnalysisSubmissionEvent event) {
 
 		final Long userId = SessionHandler.get().getId();
+		final String username = SessionHandler.get().getUsername();
 
 		Thread analysisThread = new Thread() {
 			@Override
@@ -113,6 +115,10 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				resultSet.setName(resultName);
 				FacadeFactory.getFacade().store(resultSet);
 				
+				UserActivityLog ual = new UserActivityLog(username,
+						UserActivityLog.ACTIVITY_TYPE.RESULT.toString(), resultName);
+				FacadeFactory.getFacade().store(ual);
+				
 				synchronized(uMainLayout.getApplication()) {
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
 							"Analysis Completed", 
@@ -146,5 +152,9 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 			}
 		};
 		analysisThread.start();
+		UserActivityLog ual = new UserActivityLog(username,
+				UserActivityLog.ACTIVITY_TYPE.ANALYSIS.toString(), event
+						.getAnalaysisUI().getClass().getName());
+		FacadeFactory.getFacade().store(ual);
 	}
 }

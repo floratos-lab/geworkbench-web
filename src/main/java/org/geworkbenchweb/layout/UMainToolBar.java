@@ -20,6 +20,7 @@ import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.UserActivityLog;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -437,7 +438,8 @@ public class UMainToolBar extends MenuBar {
 
 								SessionHandler.logout();
 								getApplication().close();
-
+								UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
+								FacadeFactory.getFacade().store(ual);
 							}
 						}
 					});
@@ -451,7 +453,8 @@ public class UMainToolBar extends MenuBar {
 
 					SessionHandler.logout();
 					getApplication().close();
-
+					UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
+					FacadeFactory.getFacade().store(ual);
 				}
 			}
 		});

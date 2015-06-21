@@ -18,6 +18,7 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.uploaddata.AnnotationUploadLayout.Anno;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.UserActivityLog;
 import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -267,6 +268,9 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		};
 		// start processing in the background thread
 		uploadThread.start();
+		User user = SessionHandler.get();
+		UserActivityLog ual = new UserActivityLog(user.getUsername(), UserActivityLog.ACTIVITY_TYPE.LOAD_DATA.toString(), dataFile2.getName());
+		FacadeFactory.getFacade().store(ual);
 	}
 
 	// TODO this may not be the best design to get reference to the main layout

@@ -10,6 +10,7 @@ import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.wrapper.UserWrapper;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
+import org.geworkbenchweb.pojos.UserActivityLog;
 import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.data.User;
@@ -152,6 +153,9 @@ public class LoginForm extends VerticalLayout {
 						}
 					}
 				}
+				// Unfortunately, the above code has got rather tangled. At this point, the user is logged in.
+				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(), "success");
+				FacadeFactory.getFacade().store(ual);
 			}
 		});
 
