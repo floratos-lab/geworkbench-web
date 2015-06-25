@@ -428,7 +428,7 @@ public class UMainToolBar extends MenuBar {
 						@Override
 						public void buttonClicked(ButtonType buttonType) {
 							if (buttonType.toString() == "YES") {
-								uploadDataUI.cancelUpload();
+								if(uploadDataUI!=null)uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be allowed to be null or not
 								clearTabularView();
 
 								if (chatHandler != null) {
