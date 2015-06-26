@@ -194,7 +194,13 @@ public class GeWorkbenchExpFileParser {
 			}
 
 			ArrayList<Float> valueArray = valueColumns[arrayIndex];
-			valueArray.add(new Float(value));
+			try {
+				valueArray.add(new Float(value));
+			} catch (java.lang.NumberFormatException e) {
+				throw new InputFileFormatException(e.getMessage()
+						+ ", a floating-point number is expected at row "
+						+ markerCounter + ", column " + i);
+			}
 			arrayIndex++;
 		}
 		if(pValueExists) {

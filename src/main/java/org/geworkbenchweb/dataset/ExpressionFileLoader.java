@@ -58,7 +58,7 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			storeContext(setInformation, cleanMicroaraySet.arrayLabels);
 		} catch (InputFileFormatException e1) {
 			e1.printStackTrace();
-			throw new GeWorkbenchLoaderException("input file format "+e1);
+			throw new GeWorkbenchLoaderException(e1.getMessage());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new GeWorkbenchLoaderException("io exception "+e1);
