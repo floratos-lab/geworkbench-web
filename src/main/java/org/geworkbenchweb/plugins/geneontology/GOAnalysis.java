@@ -171,6 +171,7 @@ public class GOAnalysis {
 		while (iter.hasNext()) {
 			AbstractGOTermProperties prop = iter.next();
 			Term term = prop.goTerm;
+			if(term.getID().id==0) continue;
 			int popCount = 0, studyCount = 0;
 			for (int i = 0; i < prop.getNumberOfProperties(); i++) {
 				/*

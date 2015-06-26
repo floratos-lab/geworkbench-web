@@ -186,7 +186,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 	
 	private static void fillContainer(IndexedContainer container,
 			GOResult result) {
-		container.addContainerProperty(HEADER_ID, String.class, null);
+		container.addContainerProperty(HEADER_ID, Integer.class, null);
 		container.addContainerProperty(HEADER_NAME, String.class, null);
 		container.addContainerProperty(HEADER_NAMESPACE, String.class, null);
 		container.addContainerProperty(HEADER_P_VALUE, Double.class, null);
