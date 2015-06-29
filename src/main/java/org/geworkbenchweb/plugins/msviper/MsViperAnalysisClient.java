@@ -5,19 +5,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream; 
+import java.io.OutputStream;
 import java.rmi.RemoteException;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap; 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -37,8 +39,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
+
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.MsViperResult;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -47,9 +51,9 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 /**
  * 
- * ARACne Analysis client.
+ * MsViper Analysis client.
  * 
- * @author Nikhil Reddy
+ * @author Min You
  * 
  */
 public class MsViperAnalysisClient {
@@ -63,14 +67,16 @@ public class MsViperAnalysisClient {
 	private static final String MSVIPER_NAMESPACE = "http://www.geworkbench.org/service/msviper";
 
 	private static final String MSVIPER_ENDPOINT = "MsViperRequest";
-
 	private static final String PHENOTYPE_FILE = "phenotypes.txt";
+	public static final String GENE_NAME = "gene name";
+	public static final String ENTREZ_ID = "entrez id";
 
 	final private Long datasetId;
 	private final Long userId;
 	final MsViperParam params;
 
-	public MsViperAnalysisClient(Long datasetId, Long userId, MsViperParam params) {
+	public MsViperAnalysisClient(Long datasetId, Long userId,
+			MsViperParam params) {
 		this.params = params;
 		this.userId = userId;
 		this.datasetId = datasetId;
@@ -90,7 +96,7 @@ public class MsViperAnalysisClient {
 		String datasetName = dataSet.getName();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(
 				MicroarrayDataset.class, dataSet.getDataId());
-	 
+
 		String networkFname = params.getNetwork();
 		if (networkFname.length() == 0)
 			throw new RemoteException("Network not loaded");
@@ -102,8 +108,10 @@ public class MsViperAnalysisClient {
 		String source = GeworkbenchRoot.getBackendDataDirectory()
 				+ File.separator + "networks" + File.separator + "msViper"
 				+ File.separator + userId + File.separator + networkFname;
-		copyFile(source, tempdirPath + File.separator + networkFname);
-
+		File target = convertNetWork(source, tempdirPath + File.separator + networkFname);
+		if (target == null || !target.exists())
+			throw new RemoteException("msViper convertNetWork error");
+		
 		File expFile = exportExp(microarray, tempdir, datasetName);
 		if (expFile == null || !expFile.exists())
 			throw new RemoteException("msViper exportExp error");
@@ -158,8 +166,8 @@ public class MsViperAnalysisClient {
 			throw new RemoteException("Coumpute msViper error: "
 					+ e.getMessage());
 		} finally {
-			if(tempdirPath != null && tempdirPath.contains("msviper"))
-			    FileUtils.deleteDirectory(new File(tempdirPath));			 
+			if (tempdirPath != null && tempdirPath.contains("msviper"))
+				FileUtils.deleteDirectory(new File(tempdirPath));
 		}
 	}
 
@@ -170,19 +178,19 @@ public class MsViperAnalysisClient {
 		String[] arrayLabels = microarray.getArrayLabels();
 		String[] markerLabels = microarray.getMarkerLabels();
 		float[][] values = microarray.getExpressionValues();
- 
+
 		File dataFile = new File(tempdir, datasetName);
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(dataFile));
 			bw.write("ID");
-			for (int i = 0; i < arrayLabels.length; i++)				 
+			for (int i = 0; i < arrayLabels.length; i++)
 				bw.write("\t" + arrayLabels[i]);
 			bw.newLine();
 
 			for (int i = 0; i < markerLabels.length; i++) {
 				bw.write(markerLabels[i]);
-				for (int j = 0; j < arrayLabels.length; j++)				 
+				for (int j = 0; j < arrayLabels.length; j++)
 					bw.write("\t" + values[i][j]);
 				bw.newLine();
 			}
@@ -210,18 +218,17 @@ public class MsViperAnalysisClient {
 			bw = new BufferedWriter(new FileWriter(dataFile));
 			bw.write("Array" + "\t" + params.getContext() + "\n");
 			Map<String, String> caseMap = params.getClassCase();
-			Map<String, String> controlMap = params.getClassControl();			 
+			Map<String, String> controlMap = params.getClassControl();
 
 			String[] arrayLabels = microarray.getArrayLabels();
 			for (int i = 0; i < arrayLabels.length; i++) {
-				 
-					String s = caseMap.get(arrayLabels[i]);
-					if (s == null)
-						s = controlMap.get(arrayLabels[i]);
-					if (s == null)
-						s = "others";
-					bw.write(arrayLabels[i] + "\t" + s + "\n");
-				 
+
+				String s = caseMap.get(arrayLabels[i]);
+				if (s == null)
+					s = controlMap.get(arrayLabels[i]);
+				if (s == null)
+					s = "others";
+				bw.write(arrayLabels[i] + "\t" + s + "\n");
 
 			}
 
@@ -258,8 +265,7 @@ public class MsViperAnalysisClient {
 				namespace);
 
 		addFileElement("expFile", expFile, omFactory, namespace, request);
-		// addFileElement("expFile", phenotypesFile, omFactory, namespace,
-		// request);
+
 		addFileElement("phenotypesFile", phenotypesFile, omFactory, namespace,
 				request);
 		addFileElement("adjFile", adjFile, omFactory, namespace, request);
@@ -358,7 +364,7 @@ public class MsViperAnalysisClient {
 			result.setRegulons(getGenelistMap(regulonsHandler, mrs));
 			sortMrRanks(result.getMrs_signatures(), result);
 			result.setBarcodes(getBarcodeMap(result, this.datasetId));
-			
+
 		}
 		return result;
 	}
@@ -408,15 +414,15 @@ public class MsViperAnalysisClient {
 			br = new BufferedReader(new InputStreamReader(
 					handler.getInputStream()));
 			String line = null;
-			line = br.readLine();  //skip first line
+			line = br.readLine(); // skip first line
 			while ((line = br.readLine()) != null) {
-				if (line.trim().equals(""))			 
-					continue;			 
+				if (line.trim().equals(""))
+					continue;
 				String[] toks = line.trim().split("\t");
 				String regulon = toks[0].trim();
 				sMap.put(regulon.substring(1, regulon.length() - 1),
 						new Double(toks[1].trim()));
-				 
+
 			}
 
 			return sMap;
@@ -448,14 +454,14 @@ public class MsViperAnalysisClient {
 			br = new BufferedReader(new InputStreamReader(
 					handler.getInputStream()));
 			String line = null;
-			 
+
 			String[] row = null;
-			br.readLine(); //skip first line
+			br.readLine(); // skip first line
 			while ((line = br.readLine()) != null) {
-				if (line.trim().equals(""))				 
-					continue;				 
+				if (line.trim().equals(""))
+					continue;
 				String[] toks = line.trim().split("\t");
-				row = new String[toks.length];	
+				row = new String[toks.length];
 				row[0] = toks[0].trim().substring(1,
 						toks[0].trim().length() - 1);
 				row[1] = annotationMap.get(row[0]);
@@ -464,7 +470,7 @@ public class MsViperAnalysisClient {
 				for (int j = 2; j < toks.length; j++)
 					row[j] = toks[j].trim();
 				resultList.add(row);
-				 
+
 			}
 
 			String[][] results = new String[resultList.size()][row.length];
@@ -540,20 +546,19 @@ public class MsViperAnalysisClient {
 			String ledgeLine = "";
 			int i = 0;
 			while ((line = br.readLine()) != null) {
-				if (line.trim().equals(""))			 
-					continue;				 
+				if (line.trim().equals(""))
+					continue;
 				ledgeLine = ledgeLine + line.trim();
-				if (!line.trim().endsWith(")"))			 
-					continue;			 
-				
+				if (!line.trim().endsWith(")"))
+					continue;
+
 				List<String> genes = new ArrayList<String>();
-				String[] toks = ledgeLine.substring(2, ledgeLine.length() - 1).split(
-						",");
-				 
-				for (int j = 0; j < toks.length; j++)
-				{	 
-			    	String tok = toks[j].trim();
-				    genes.add(tok.substring(1, tok.length() - 1));
+				String[] toks = ledgeLine.substring(2, ledgeLine.length() - 1)
+						.split(",");
+
+				for (int j = 0; j < toks.length; j++) {
+					String tok = toks[j].trim();
+					genes.add(tok.substring(1, tok.length() - 1));
 				}
 				map.put(mrs[i], genes);
 				ledgeLine = "";
@@ -586,10 +591,10 @@ public class MsViperAnalysisClient {
 			br = new BufferedReader(new InputStreamReader(
 					handler.getInputStream()));
 			String line = null;
-			br.readLine();  //skip first line
+			br.readLine(); // skip first line
 			while ((line = br.readLine()) != null) {
-				if (line.trim().equals("") )				 
-					continue;				 
+				if (line.trim().equals(""))
+					continue;
 				String[] toks = line.trim().split("\t");
 				String s1 = toks[1].trim().substring(1,
 						toks[1].trim().length() - 1);
@@ -602,7 +607,7 @@ public class MsViperAnalysisClient {
 					pairList.add(s1);
 					pairMap.put(s2, pairList);
 				}
-				 
+
 			}
 
 		} catch (Exception e) {
@@ -619,8 +624,7 @@ public class MsViperAnalysisClient {
 		}
 		return pairMap;
 	}
-	
-	
+
 	private void sortMrRanks(final Map<String, Double> values,
 			MsViperResult msViperResult) {
 		Map<String, Integer> rankMap = new HashMap<String, Integer>();
@@ -628,8 +632,9 @@ public class MsViperAnalysisClient {
 		genes.addAll(values.keySet());
 		// sort genes by value
 		Collections.sort(genes, new Comparator<String>() {
-			public int compare(String m1, String m2) {				
-				return new Double(Math.abs(values.get(m2))).compareTo(new Double(Math.abs(values.get(m1))));
+			public int compare(String m1, String m2) {
+				return new Double(Math.abs(values.get(m2)))
+						.compareTo(new Double(Math.abs(values.get(m1))));
 			}
 		});
 		msViperResult.setMaxVal(values.get(genes.get(0)));
@@ -651,16 +656,14 @@ public class MsViperAnalysisClient {
 			lastValue = value;
 			lastRank = rank;
 		}
-		
-		
+
 		Map<String, Integer> mrRankMap = new HashMap<String, Integer>();
 		String[][] r = msViperResult.getMrsResult();
-		for(int i=0; i<r.length; i++)
-		   mrRankMap.put(r[i][0], rankMap.get(r[i][0]));
-		
+		for (int i = 0; i < r.length; i++)
+			mrRankMap.put(r[i][0], rankMap.get(r[i][0]));
+
 		msViperResult.setRanks(mrRankMap);
 	}
-
 
 	private Map<String, Integer> getSigRankMap(final Map<String, Double> values) {
 		Map<String, Integer> rankMap = new HashMap<String, Integer>();
@@ -672,64 +675,63 @@ public class MsViperAnalysisClient {
 				return values.get(m1).compareTo(values.get(m2));
 			}
 		});
-	 
+
 		rankMap.put(genes.get(0), 1);
-		//double lastValue = values.get(genes.get(0));
-		//int lastRank = 0;
+		// double lastValue = values.get(genes.get(0));
+		// int lastRank = 0;
 		for (int i = 1; i < genes.size(); i++) {
-			int rank = i+1;
+			int rank = i + 1;
 			String gene = genes.get(i);
-			/*double value = values.get(gene);
-			if (value == lastValue) {
-				rank = lastRank;
-			}*/
+			/*
+			 * double value = values.get(gene); if (value == lastValue) { rank =
+			 * lastRank; }
+			 */
 			rankMap.put(gene, rank);
-			//lastValue = value;
-			//lastRank = rank;
+			// lastValue = value;
+			// lastRank = rank;
 		}
 		return rankMap;
 	}
-	
-	private Map<String, List<Barcode>> getBarcodeMap(MsViperResult msViperResult, long dataSetId) {
+
+	private Map<String, List<Barcode>> getBarcodeMap(
+			MsViperResult msViperResult, long dataSetId) {
 		Map<String, List<Barcode>> barcodeMap = new HashMap<String, List<Barcode>>();
 		Map<String, List<String>> regulons = msViperResult.getRegulons();
-		//Map<String, Double> signatures = msViperResult.getSignatures();
+		// Map<String, Double> signatures = msViperResult.getSignatures();
 		Map<String, Double> mrs_signatures = msViperResult.getMrs_signatures();
 		Map<String, Integer> ranks = getSigRankMap(mrs_signatures);
-		String[][] rdata = msViperResult.getMrsResult();	
-		
-		
-		Map<String, float[]> microarrayMap  = getMicroarrayMap(dataSetId);
-		 
-		for(int i=0; i<rdata.length; i++)
-		{
+		String[][] rdata = msViperResult.getMrsResult();
+
+		Map<String, float[]> microarrayMap = getMicroarrayMap(dataSetId);
+
+		for (int i = 0; i < rdata.length; i++) {
 			List<Barcode> barcodeList = new ArrayList<Barcode>();
 			ArrayList<HashMap<Integer, Integer>> lm = new ArrayList<HashMap<Integer, Integer>>();
 			lm.add(0, new HashMap<Integer, Integer>()); // SC>=0
 			lm.add(1, new HashMap<Integer, Integer>()); // SC<0
 			int[] maxcopy = new int[2];
-			List<String>  targets = regulons.get(rdata[i][0]);
-			for(int j=0; j<targets.size(); j++)	
-		    { 
+			List<String> targets = regulons.get(rdata[i][0]);
+			for (int j = 0; j < targets.size(); j++) {
 				SpearmansCorrelation SC = new SpearmansCorrelation();
 				double spearCor = 0.0;
-			 
+
 				float[] arrayData1 = microarrayMap.get(rdata[i][0]);
 				float[] arrayData2 = microarrayMap.get(targets.get(j));
-				spearCor = SC.correlation(convertToDouble(arrayData1), convertToDouble(arrayData2));
-				
-				Barcode barcode = getBarcode(targets.get(j), spearCor, ranks.get(targets.get(j)).intValue(),
-						mrs_signatures.size(), lm, maxcopy);				
-		    	barcodeList.add(barcode);		    	 
-		    }
-				
+				spearCor = SC.correlation(convertToDouble(arrayData1),
+						convertToDouble(arrayData2));
+
+				Barcode barcode = getBarcode(targets.get(j), spearCor, ranks
+						.get(targets.get(j)).intValue(), mrs_signatures.size(),
+						lm, maxcopy);
+				barcodeList.add(barcode);
+			}
+
 			barcodeMap.put(rdata[i][0], barcodeList);
 		}
 		return barcodeMap;
 	}
-	
-	private Map<String, float[]> getMicroarrayMap(long dataSetId)
-	{
+
+	private Map<String, float[]> getMicroarrayMap(long dataSetId) {
 		Map<String, float[]> microarrayMap = new HashMap<String, float[]>();
 		DataSet dataSet = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
@@ -737,30 +739,28 @@ public class MsViperAnalysisClient {
 				MicroarrayDataset.class, dataSet.getDataId());
 		String[] markers = microarray.getMarkerLabels();
 		float[][] data = microarray.getExpressionValues();
-	  
-	    for(int i=0; i<markers.length; i++)
-	    {
-		      microarrayMap.put(markers[i], data[i]);
-	     }
-		
+
+		for (int i = 0; i < markers.length; i++) {
+			microarrayMap.put(markers[i], data[i]);
+		}
+
 		return microarrayMap;
-		
+
 	}
-	
-	private double[] convertToDouble(float[] inData)
-	{
+
+	private double[] convertToDouble(float[] inData) {
 		double[] outData = new double[inData.length];
-		for(int i=0; i < inData.length; i++)
+		for (int i = 0; i < inData.length; i++)
 			outData[i] = new Double(inData[i]);
-	    return outData;
-	
+		return outData;
+
 	}
 
 	private Barcode getBarcode(String gene, double spearmanCor, int rank,
 			int totalMarkerNumber, ArrayList<HashMap<Integer, Integer>> lm,
-			int[] maxcopy) {		 
-	    int arrayIndex = spearmanCor > 0 ? 0 : 1;	 
-		int position = (int) 400 * rank/ totalMarkerNumber;		 
+			int[] maxcopy) {
+		int arrayIndex = spearmanCor > 0 ? 0 : 1;
+		int position = (int) 400 * rank / totalMarkerNumber;
 		int arrayindex = spearmanCor >= 0 ? 0 : 1;
 		HashMap<Integer, Integer> hm = lm.get(arrayindex);
 		Integer copy = hm.get(position);
@@ -768,12 +768,127 @@ public class MsViperAnalysisClient {
 		hm.put(position, copy);
 		if (maxcopy[arrayindex] < copy)
 			maxcopy[arrayindex] = copy;
-		int ColorIndex = 255
-				* lm.get(arrayIndex).get(position)
+		int ColorIndex = 255 * lm.get(arrayIndex).get(position)
 				/ maxcopy[arrayIndex];
-	 
+
 		return new Barcode(gene, position, ColorIndex, arrayIndex);
-	}	
-	
-	
+	}
+
+	private File convertNetWork(String source, String target) {
+
+		File sourceFile = new File(source);
+		File targetFile = new File(target);
+		BufferedWriter bw = null;
+
+		BufferedReader br = null;
+		try {
+
+			Map<String, String> geneNameMap = getAnnotationMap(GENE_NAME,
+					datasetId);
+			Map<String, String> entezIDMap = getAnnotationMap(GENE_NAME,
+					datasetId);
+
+			br = new BufferedReader(new FileReader(sourceFile));
+			bw = new BufferedWriter(new FileWriter(targetFile));
+			String line = br.readLine();
+			while (line != null) {
+				// skip comments
+				if (line.trim().equals("") || line.startsWith(">")
+						|| line.startsWith("-")) {
+					line = br.readLine();
+					continue;
+				}
+				StringTokenizer tr = new StringTokenizer(line, "\t");
+				String hub = getMarker(tr.nextToken().trim(), geneNameMap,
+						entezIDMap);
+				bw.write(hub);
+				while (tr.hasMoreTokens()) {
+					String strGeneId2 = tr.nextToken().trim();
+					if (strGeneId2.length() == 0)
+						continue;
+					strGeneId2 = getMarker(strGeneId2, geneNameMap, entezIDMap);
+					float value = Float.parseFloat(tr.nextToken().trim());
+					if (strGeneId2.equals("null") || strGeneId2.equals("NULL"))
+						continue;
+					bw.write("\t" + strGeneId2);
+					bw.write("\t" + value);
+
+				} // end of the token loop for one line
+				bw.write("\n");
+				line = br.readLine();
+			} // end of reading while loop
+
+			bw.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+
+			if (bw != null) {
+				try {
+					bw.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			if (br != null) {
+				try {
+					br.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return targetFile;
+	}
+
+	private String getMarker(String nodeLabel, Map<String, String> geneNameMap,
+			Map<String, String> entezIDMap) {
+		if (geneNameMap == null) // no annotation
+			return nodeLabel;
+		nodeLabel = nodeLabel.trim();
+		if (geneNameMap.containsKey(nodeLabel.toUpperCase()))
+			return geneNameMap.get(nodeLabel.toUpperCase());
+		if (entezIDMap.containsKey(nodeLabel))
+			return entezIDMap.get(nodeLabel);
+		return nodeLabel;
+	}
+
+	/* Maps geneSymbol/entezID to marker in original dataset if available */
+	public static Map<String, String> getAnnotationMap(String type,
+			long dataSetId) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("dataSetId", dataSetId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory
+				.getFacade()
+				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId",
+						parameter);
+		Map<String, String> geneToMarkerMap = null;
+		if (dataSetAnnotation != null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Map<String, Object> pm = new HashMap<String, Object>();
+			pm.put("id", annotationId);
+			List<?> entries = FacadeFactory
+					.getFacade()
+					.list("SELECT entries.probeSetId, entries.geneSymbol, entries.entrezId FROM Annotation a JOIN a.annotationEntries entries WHERE a.id=:id",
+							pm);
+			geneToMarkerMap = new HashMap<String, String>();
+			if (GENE_NAME.equals(type)) {
+				for (Object entry : entries) {
+					Object[] obj = (Object[]) entry;
+					geneToMarkerMap.put(((String) obj[1]).trim().toUpperCase(), ((String) obj[0]).trim());
+				}
+			} else if (ENTREZ_ID.equals(type)) {
+				for (Object entry : entries) {
+					Object[] obj = (Object[]) entry;
+					geneToMarkerMap.put(((String) obj[2]).trim(), ((String) obj[0]).trim());
+				}
+			}
+
+		}
+		return geneToMarkerMap;
+	}
+
 }

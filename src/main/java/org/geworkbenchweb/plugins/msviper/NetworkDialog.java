@@ -34,8 +34,7 @@ public class NetworkDialog {
 	private ComboBox presentBox;
 	private int correlationCol = 3;
 	private String selectedRepresentedBy = AdjacencyMatrixDataSet.PROBESET_ID;
-	private HashMap<String, String> interactionTypeMap = null;
-	private boolean isRestrict = true;
+	private HashMap<String, String> interactionTypeMap = null;	 
 	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
 	private String marina5colformat = "marina 5-column format";
 	
@@ -171,16 +170,17 @@ public class NetworkDialog {
 					NetworkCreator networkCreator = new NetworkCreator(ui, indicator);
 					AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
 							interactionTypeMap, selectedFormat,
-							selectedRepresentedBy, isRestrict);
+							selectedRepresentedBy);
+					 
 					if(matrix.getNodeNumber()==0) {
 						ui.networkNotLoaded("zero node in the network");
 					} else {						 
 						ui.networkLoaded();
 					}
 				} catch (InputFileFormatException e1) {
-					log.error(e1.getMessage());
-					e1.printStackTrace();
-				}  
+					log.error(e1.getMessage());					
+					ui.networkNotLoaded(e1.getMessage());
+				}   
 			} else if(!is5colnetwork(uploadedFile)) {
 					ui.networkNotLoaded("The network file is not 5-column format as claimed.");
 			} else { /* the case of 5-columned file */				 				 

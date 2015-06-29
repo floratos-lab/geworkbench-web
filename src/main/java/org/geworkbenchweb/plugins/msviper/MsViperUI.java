@@ -1,38 +1,37 @@
 package org.geworkbenchweb.plugins.msviper;
 
+ 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileOutputStream; 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.Serializable; 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashMap; 
 import java.util.List;
 import java.util.Map;
+ 
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
- 
+import org.apache.commons.logging.LogFactory; 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.plugins.AnalysisUI; 
 import org.geworkbenchweb.pojos.DataHistory;
-import org.geworkbenchweb.pojos.DataSet; 
+import org.geworkbenchweb.pojos.DataSet;  
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.pojos.MsViperResult;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
- 
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
- 
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
- 
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator; 
 import com.vaadin.ui.Button;
@@ -40,7 +39,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;  
- 
 import com.vaadin.ui.FormLayout; 
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -62,7 +60,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
  
 	protected final String CASE = "case";
 	protected final String CONTROL = "control";
-	
+	 
 	private final MicroarrayContext arrayContext;
 	private final MicroarraySetSelect caseSelect;
 	private final MicroarraySetSelect controlSelect;
@@ -99,8 +97,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 	private static final String median = "Median";
 	private static final String mode = "Mode";	 
 	private static final String topMasterRegulators = "Top Master Regulators";
-	private static final String enrichmentPvalueCutoff = "Enrichment P-value Cutoff";
-	 
+	private static final String enrichmentPvalueCutoff = "Enrichment P-value Cutoff";	 
 
 	protected Long dataSetId = null;
 	protected Long userId = null;
@@ -184,6 +181,10 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 					return;
 				} else if (network.getNodeNumber()==0) {
 					networkNotLoaded("Zero node in the network. Network Id="+id);
+					return;
+				} else if( network.getNode1().length == 1)
+				{
+					networkNotLoaded("There is only one hub in the network, MsViper can not process it.");
 					return;
 				}
 
@@ -662,8 +663,8 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 			    mb.show();
 			    return;
-			}
-			
+			}		
+		 
 			param.setNetwork(networkTF.getValue().toString().trim());
 			param.setGesfilter(limitBox.booleanValue());			 
 			param.setMinAllowedRegulonSize(new Integer(minAllowedRegulonTF.getValue().toString().trim()));
@@ -696,4 +697,5 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		return builder.toString();
 	}
 	
+	  
 }
