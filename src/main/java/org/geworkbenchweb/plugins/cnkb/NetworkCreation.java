@@ -102,7 +102,8 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 				}				
 				
 			}
-			networkMap.put(geneName, new NetworkEdges(node2s, weights));			
+			if(node2s.size() > 0)				
+			    networkMap.put(geneName, new NetworkEdges(node2s, weights));			
 			
 			
 		} // end for loop
