@@ -11,13 +11,13 @@ public class MoleculeViewer extends AbstractComponent {
 
 	final private String pdbcontent;
 	private String representation = null;
-	private boolean atoms = true;
-	private boolean bonds = true;
+	private boolean atoms = false;
+	private boolean bonds = false;
 	private boolean labels = false;
 	private boolean ribbon = true;
 	private boolean backbone = false;
 	private boolean pipe = false;
-	private boolean cartoonize = false;
+	private boolean cartoonize = true;
 	private boolean colorByChain = false;
 	private boolean colorByResidue = false;
 	

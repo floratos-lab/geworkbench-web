@@ -101,10 +101,10 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
        	};
 		MenuItem a = displaySettings.addItem(OPTION_DISPLAY_ATOMS, displayCommand);
 		a.setCheckable(true);
-		a.setChecked(true);
+		a.setChecked(false);
 		MenuItem b = displaySettings.addItem(OPTION_DISPLAY_BONDS, displayCommand);
 		b.setCheckable(true);
-		b.setChecked(true);
+		b.setChecked(false);
 		MenuItem displayLabels = displaySettings.addItem(OPTION_DISPLAY_LABELS, displayCommand);
 		displayLabels.setCheckable(true);
 		displayLabels.setChecked(false);
@@ -122,7 +122,7 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 		proteinOptions.addSeparator();
 		MenuItem cartoonize = proteinOptions.addItem(OPTION_CARTOONIZE, displayCommand);
 		cartoonize.setCheckable(true);
-		cartoonize.setChecked(false);
+		cartoonize.setChecked(true);
 		MenuItem colorByChain = proteinOptions.addItem(OPTION_COLOR_BY_CHAIN, displayCommand);
 		colorByChain.setCheckable(true);
 		colorByChain.setChecked(false);

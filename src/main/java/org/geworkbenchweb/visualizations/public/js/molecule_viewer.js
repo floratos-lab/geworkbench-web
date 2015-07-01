@@ -30,8 +30,9 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 	}
 
 	this.display3d.specs.set3DRepresentation(representation);
-	this.display3d.specs.macro_displayAtoms = true;
-	this.display3d.specs.macro_displayBonds = true;
+	this.display3d.specs.macro_displayAtoms = false;
+	this.display3d.specs.macro_displayBonds = false;
+	this.display3d.specs.proteins_ribbonCartoonize = true;
 	var pdbStructure = ChemDoodle.readPDB(pdb_content);
 	this.display3d.loadMolecule(pdbStructure);
 };
