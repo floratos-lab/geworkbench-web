@@ -13,7 +13,6 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
-import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
@@ -38,21 +37,23 @@ public class SetViewLayout extends CssLayout {
 
 	private static Log log = LogFactory.getLog(SetViewLayout.class);
 
-	final private Tree markerSetTree;
-	final private Tree arraySetTree;
+	final private Tree markerSetTree = new Tree();
+	final private Tree arraySetTree = new Tree();
 
 	private Long selectedSubSetId;
 
 	SetViewLayout(final Long dataSetId) {
 
-		// this is used by both the set tree and the label tree of markers, but nothing else
-		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
-
-		HierarchicalContainer markerData = createMarkerSetContainer(dataSetId, map);
-		markerSetTree = createSetTree(markerData);
-
-		HierarchicalContainer arrayData = createMicroarraySetContainer(dataSetId);
-		arraySetTree = createSetTree(arrayData);
+		markerSetTree.setImmediate(true);
+		markerSetTree.setSelectable(true);
+		markerSetTree.setMultiSelect(false);
+		markerSetTree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
+		markerSetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		arraySetTree.setImmediate(true);
+		arraySetTree.setSelectable(true);
+		arraySetTree.setMultiSelect(false);
+		arraySetTree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
+		arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		
 		markerSetTree.addListener(new SetTreeClickListener(arraySetTree));
 		arraySetTree.addListener(new SetTreeClickListener(markerSetTree));
@@ -69,6 +70,9 @@ public class SetViewLayout extends CssLayout {
 		String[] arrayLabels = DataSetOperations.getStringLabels("arrayLabels",
 				id);
 
+		// this is used by both the set tree and the label tree of markers, but nothing else
+		Map<String, String> map = DataSetOperations.getAnnotationMap(dataSetId);
+		
 		// marker context
 		List<Context> mrkcontexts = SubSetOperations
 				.getMarkerContexts(dataSetId);
@@ -78,7 +82,7 @@ public class SetViewLayout extends CssLayout {
 				mrkcurrent);
 		mrkcontextSelector.addListener(new ChangeContextListener(
 				mrkcontextSelector, dataSetId, markerSetTree,
-				ChangeContextListener.ContextType.MARKER));
+				ChangeContextListener.ContextType.MARKER, map));
 
 		Tree markerTree = createItemTree("Markers",
 				createMarkerLabelContainer(markerLabels, map),
@@ -95,7 +99,7 @@ public class SetViewLayout extends CssLayout {
 		final ComboBox contextSelector = createSelector(contexts, current);
 		contextSelector.addListener(new ChangeContextListener(contextSelector,
 				dataSetId, arraySetTree,
-				ChangeContextListener.ContextType.MICROARRAY));
+				ChangeContextListener.ContextType.MICROARRAY, null));
 
 		Tree arrayTree = createItemTree("Arrays",
 				createMicroarrayLabelContainer(arrayLabels),
@@ -106,6 +110,11 @@ public class SetViewLayout extends CssLayout {
 		newContextButton.addListener(new NewContextListener(this, dataSetId,
 				contextSelector, SubSet.SET_TYPE_MICROARRAY));
 
+		HierarchicalContainer markerDataSource = createMarkerSetContainer(mrkcurrent, map);
+		markerSetTree.setContainerDataSource(markerDataSource);
+		HierarchicalContainer arrayDataSource = createMicroarraySetContainer(current);
+		arraySetTree.setContainerDataSource(arrayDataSource);
+		
 		this.addComponent(createContextLayout("Context for Marker Sets", mrkcontextSelector, mrknewContextButton));
 		this.addComponent(markerTree);
 		this.addComponent(markerSetTree);
@@ -161,19 +170,6 @@ public class SetViewLayout extends CssLayout {
 	
 	public final static String SET_DISPLAY_NAME = "set_display_name";
 
-	private static Tree createSetTree(final HierarchicalContainer dataContainer) {
-		Tree tree = new Tree();
-		tree.setImmediate(true);
-		tree.setSelectable(true);
-		tree.setMultiSelect(false);
-
-		tree.setContainerDataSource(dataContainer);
-		tree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
-		tree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
-
-		return tree;
-	}
-	
 	private static Tree createItemTree(final String description,
 			final HierarchicalContainer dataContainer,
 			final TreeActionHandler handler) {
@@ -203,8 +199,7 @@ public class SetViewLayout extends CssLayout {
 		return contextpane;
 	}
 	
-	private static HierarchicalContainer createMarkerSetContainer(
-			final Long dataSetId, final Map<String, String> map) {
+	private static HierarchicalContainer createMarkerSetContainer(final Context context, final Map<String, String> map) {
 
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
@@ -213,9 +208,8 @@ public class SetViewLayout extends CssLayout {
 		Item mainItem = dataContainer.addItem(topItem);
 		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue("Marker Sets");
 
-		List<AbstractPojo> sets = SubSetOperations.getMarkerSets(dataSetId);
-		for (AbstractPojo obj : sets) {
-			SubSet subset = (SubSet)obj;
+		List<SubSet> sets = SubSetOperations.getSubSetsForContext(context);
+		for (SubSet subset : sets) {
 			List<String> markers = subset.getPositions();
 			Long subSetId = subset.getId();
 			dataContainer.addItem(subSetId);
@@ -245,8 +239,7 @@ public class SetViewLayout extends CssLayout {
 	}
 	
 	// this is similar to data container for markers, but no need to process the microarray annotation
-	private static HierarchicalContainer createMicroarraySetContainer (
-			final Long dataSetId) {
+	private static HierarchicalContainer createMicroarraySetContainer (final Context context) {
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
 
@@ -254,9 +247,8 @@ public class SetViewLayout extends CssLayout {
 		Item mainItem = dataContainer.addItem(topItem );
 		mainItem.getItemProperty(SET_DISPLAY_NAME).setValue("Array Sets/Phenotypes");
  
-		List<AbstractPojo> sets = SubSetOperations.getArraySets(dataSetId);
-		for (AbstractPojo obj : sets) {
-			SubSet subset = (SubSet)obj;
+		List<SubSet> sets = SubSetOperations.getSubSetsForContext(context);
+		for (SubSet subset : sets) {
 			List<String> microarrayLabels = subset.getPositions();
 			Long subSetId = subset.getId();
 			dataContainer.addItem(subSetId);

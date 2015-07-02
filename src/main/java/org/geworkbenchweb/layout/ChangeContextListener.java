@@ -4,6 +4,7 @@
 package org.geworkbenchweb.layout;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,17 +33,19 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 	final private Long dataSetId;
 	final private Tree setTree;
 	final private ContextType contextType;
+	final Map<String, String> map;
 
 	enum ContextType {
 		MARKER, MICROARRAY
 	};
 
 	ChangeContextListener(final ComboBox contextSelector, final Long dataSetId,
-			final Tree setTree, final ContextType contextType) {
+			final Tree setTree, final ContextType contextType, final Map<String, String> map) {
 		this.contextSelector = contextSelector;
 		this.dataSetId = dataSetId;
 		this.setTree = setTree;
 		this.contextType = contextType;
+		this.map = map;
 	}
 
 	@Override
@@ -88,8 +91,15 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 			for (int j = 0; j < list.size(); j++) {
 				String item = list.get(j);
 				dataContainer.addItem(item + id);
+				String label = item; 
+				if(map!=null) {
+					String geneSymbol = map.get(item);
+					if (geneSymbol != null) {
+						label += " (" + geneSymbol + ")";
+					}
+				}
 				dataContainer.getContainerProperty(item + id, SetViewLayout.SET_DISPLAY_NAME)
-						.setValue(item);
+						.setValue(label);
 				dataContainer.setParent(item + id, id);
 				dataContainer.setChildrenAllowed(item + id, false);
 			}
