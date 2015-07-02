@@ -293,6 +293,8 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
+		if(dataSetId==0) return;
+		
 		this.dataSetId = dataSetId;
 		params.put(PARAM_REFERENCE_GENE_LIST, getAllGenes(dataSetId));
 		populateSetsForChangedGenes(dataSetId);
