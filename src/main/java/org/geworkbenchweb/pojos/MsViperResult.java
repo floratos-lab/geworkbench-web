@@ -1,9 +1,9 @@
 package org.geworkbenchweb.pojos;
 
-import java.util.HashMap;
+ 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+ 
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -21,6 +21,7 @@ public class MsViperResult extends AbstractPojo {
 
 	private String[] mrs;
 	private String[][] mrsResult;
+	private String[][] shadowResult;
 	private Map<String, List<String>> shadow_pairs;  	 
 	private Map<String, List<String>> leadingEdges;  
 	private Map<String, List<String>> regulons; 	 
@@ -55,6 +56,14 @@ public class MsViperResult extends AbstractPojo {
 
 	public void setMrsResult(String[][] mrsResult) {
 		this.mrsResult = mrsResult;
+	}
+	
+	public String[][] getShadowResult() {
+		return shadowResult;
+	}
+
+	public void setShadowResult(String[][] shadowResult) {
+		this.shadowResult = shadowResult;
 	}
 	
 	public Map<String, List<String>> getShadow_pairs() {

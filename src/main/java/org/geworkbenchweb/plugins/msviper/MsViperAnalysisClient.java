@@ -342,6 +342,13 @@ public class MsViperAnalysisClient {
 		DataHandler mrsSighandler = mrsSigfileElement == null ? null
 				: (DataHandler) ((OMText) mrsSigfileElement.getFirstOMChild())
 						.getDataHandler();
+		
+		OMElement shadowResultElement = (OMElement) response
+				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE,
+						"shadowResultFile"));
+		DataHandler shadowResulthandler = shadowResultElement == null ? null
+				: (DataHandler) ((OMText) shadowResultElement.getFirstOMChild())
+						.getDataHandler();
 
 		OMElement shadowPairElement = (OMElement) response
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE,
@@ -355,17 +362,18 @@ public class MsViperAnalysisClient {
 		String[] mrs = getMrs(mrsHandler);
 
 		result.setMrsResult(getMrsResult(resultHandler));
+		result.setMrs_signatures(getSignatureMap(mrsSighandler));
+		result.setMrs(mrs);
+		result.setLeadingEdges(getGenelistMap(ledgesHandler, mrs));
+		result.setRegulons(getGenelistMap(regulonsHandler, mrs));
+		sortMrRanks(result.getMrs_signatures(), result);
+		result.setBarcodes(getBarcodeMap(result, this.datasetId));
 		if (params.getShadow())
+		{
 			result.setShadow_pairs(getShadowPairMap(shadowPairhandler));
-		else {
-			result.setMrs_signatures(getSignatureMap(mrsSighandler));
-			result.setMrs(mrs);
-			result.setLeadingEdges(getGenelistMap(ledgesHandler, mrs));
-			result.setRegulons(getGenelistMap(regulonsHandler, mrs));
-			sortMrRanks(result.getMrs_signatures(), result);
-			result.setBarcodes(getBarcodeMap(result, this.datasetId));
-
+			result.setShadowResult(getMrsResult(shadowResulthandler));
 		}
+		 
 		return result;
 	}
 
