@@ -231,4 +231,17 @@ public class DataSetOperations {
 		}
 		FacadeFactory.getFacade().delete(workspace);
 	}
+	
+	public static int getSubDatasetNum(Long parentId, String type) {
+		Map<String, Object> cParam = new HashMap<String, Object>();
+		cParam.put("parent", parentId);	 
+		cParam.put("type", type);
+
+		List<ResultSet> results = FacadeFactory.getFacade().list(
+				"Select p from ResultSet as p where p.parent =:parent and p.type = :type", cParam);
+		 
+		return results.size();
+	}
+	
+	
 }

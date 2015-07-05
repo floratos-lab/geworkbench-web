@@ -115,6 +115,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		networkResult.setDataId(network.getId());
 		FacadeFactory.getFacade().store(networkResult);
 
-		return "Network";
+		int num = DataSetOperations.getSubDatasetNum(datasetId, getResultType().getName());
+		return "Network" + " - " + num;
 	}
 }
