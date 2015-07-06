@@ -290,9 +290,9 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())) {
 				return true;
 			} else {
-				String geneSymbol = annotationMap.get(markerLabel)[0];
+				String[] geneSymbol = annotationMap.get(markerLabel);
 				if (geneSymbol != null
-						&& geneSymbol.toUpperCase().contains(searchStr.toUpperCase())) {
+						&& geneSymbol[0].toUpperCase().contains(searchStr.toUpperCase())) {
 					return true;
 				}
 			}

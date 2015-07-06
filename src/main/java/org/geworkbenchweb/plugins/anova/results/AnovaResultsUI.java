@@ -224,7 +224,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			boolean isMatch = false;	 
 			if (anovaTablePref.selectMarker() &&  anovaTablePref.selectGeneSymbol()) {
 				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())
-						|| geneSymbol.toUpperCase().contains(searchStr.toUpperCase()))
+						|| (geneSymbol != null && geneSymbol.toUpperCase().contains(searchStr.toUpperCase())))
 					isMatch = true;
 			} else if (anovaTablePref.selectMarker()) {
 				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase()))
