@@ -6,6 +6,7 @@ CREATE TABLE msviperresult (
   LABEL VARCHAR(64),
   MRS longblob,
   MRSRESULT longblob,
+  SHADOWRESULT longblob,
   SHADOW_PAIRS longblob,
   LEADINGEDGES longblob,
   REGULONS longblob,   
