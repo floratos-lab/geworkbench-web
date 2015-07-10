@@ -148,7 +148,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				if (valueChangeEvent.getProperty().getValue().toString()
 						.equalsIgnoreCase(fixedBandwidth)) {
 					kernelWidth.setEnabled(true);
-					widthValue.setEnabled(true);
+					if (kernelWidth.getValue().toString().equalsIgnoreCase("Specify"))
+					    widthValue.setEnabled(true);
 				} else if (valueChangeEvent.getProperty().getValue().toString()
 						.equalsIgnoreCase(adaptivePartitioning)) {
 					kernelWidth.setEnabled(false);
