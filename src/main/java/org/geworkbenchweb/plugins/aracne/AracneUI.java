@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.plugins.AnalysisUI; 
 import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.Network;
@@ -31,6 +31,9 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+ 
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
@@ -62,6 +65,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private static final String fixedBandwidth = "Fixed Bandwidth";
 	
 	private static String QUESTION_MARK = " \uFFFD";
+	
+	 
 
 	public AracneUI() {
 		this(0L);
@@ -168,7 +173,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			public void buttonClick(ClickEvent event) {
 				try {
 
-					List<String> hubGeneList = null;
+					final List<String> hubGeneList;
 					Long subSetId;
 
 					if (hubGeneMarkerSetBox.getValue() != null) {
@@ -176,32 +181,45 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 								.getValue().toString().trim());
 						hubGeneList = SubSetOperations.getMarkerData(subSetId);
 					}
+					else
+						hubGeneList = null;
+					
 					if (validInputData(hubGeneList)) {
-
-						ResultSet resultSet = new ResultSet();
-						java.sql.Timestamp timestamp = new java.sql.Timestamp(
-								System.currentTimeMillis());
-						resultSet.setTimestamp(timestamp);
-						String dataSetName = "Aracne - Pending";
-						resultSet.setName(dataSetName);
-						resultSet.setType(getResultType().getName());
-						resultSet.setParent(dataSetId);
-						resultSet.setOwner(SessionHandler.get().getId());
-						FacadeFactory.getFacade().store(resultSet);
-
-						generateHistoryString(resultSet.getId(), hubGeneList);
-
-						GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
-								.getApplication();
-						app.addNode(resultSet);
-
+						
 						params.put(AracneParameters.MARKER_SET,
 								markerArraySelector.getSelectedMarkerSet());
 						params.put(AracneParameters.ARRAY_SET,
 								markerArraySelector.getSelectedArraySet());
-						AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-								resultSet, params, AracneUI.this);
-						GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+						String[] selectedArraySet = (String[])params.get(AracneParameters.ARRAY_SET);
+					    
+						if (getTotalArrayNum(selectedArraySet) < 100)
+						{	   
+						    String theMessage = "ARACNe should not in general be run on less than 100 arrays. Do you want to continue?";
+
+						    MessageBox mb = new MessageBox(getWindow(), "Warning", null,
+								theMessage, new MessageBox.ButtonConfig(
+										MessageBox.ButtonType.CUSTOM1, "Cancel"),
+								new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
+										"Continue"));
+						   
+						    mb.show(new MessageBox.EventListener() {
+
+							    private static final long serialVersionUID = 1L;
+
+							  
+						     	@Override
+							    public void buttonClicked(ButtonType buttonType) {
+								   if (buttonType == ButtonType.CUSTOM1)
+									  return;
+								   else
+									  addPendingNode(hubGeneList);
+							    }
+						    });						   
+						}
+						else  
+						{ 
+							 addPendingNode(hubGeneList);
+						}
 					}
 
 				} catch (Exception e) {
@@ -220,6 +238,40 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		addComponent(gridLayout);
 
 	}
+	
+	private int getTotalArrayNum(String[] setIds)
+	{
+		int count = 0;
+		for(String setId : setIds)
+		   count += SubSetOperations.getArrayData(new Integer(setId.trim())).size();
+		return count;
+	}
+	
+	private void addPendingNode(List<String> hubGeneList)
+	{
+		  ResultSet resultSet = new ResultSet();
+		   java.sql.Timestamp timestamp = new java.sql.Timestamp(
+				System.currentTimeMillis());
+		   resultSet.setTimestamp(timestamp);
+		   String dataSetName = "Aracne - Pending";
+		   resultSet.setName(dataSetName);
+		   resultSet.setType(getResultType().getName());
+		   resultSet.setParent(dataSetId);
+		   resultSet.setOwner(SessionHandler.get().getId());
+		   FacadeFactory.getFacade().store(resultSet);
+
+		   generateHistoryString(resultSet.getId(), hubGeneList);
+
+		   GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
+				.getApplication();
+		   app.addNode(resultSet);
+
+		   AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+				resultSet, params, AracneUI.this);
+		   GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+	}
+	
+	
 	
 	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {
 		/**
