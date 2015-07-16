@@ -775,14 +775,13 @@ public class MsViperAnalysisClient {
 			int totalMarkerNumber, ArrayList<HashMap<Integer, Integer>> lm,
 			int[] maxcopy) {
 		int arrayIndex = spearmanCor > 0 ? 0 : 1;
-		int position = (int) 400 * rank / totalMarkerNumber;
-		int arrayindex = spearmanCor >= 0 ? 0 : 1;
-		HashMap<Integer, Integer> hm = lm.get(arrayindex);
+		int position = (int) 400 * rank / totalMarkerNumber;	 
+		HashMap<Integer, Integer> hm = lm.get(arrayIndex);
 		Integer copy = hm.get(position);
 		copy = copy == null ? 1 : (copy + 1);
 		hm.put(position, copy);
-		if (maxcopy[arrayindex] < copy)
-			maxcopy[arrayindex] = copy;
+		if (maxcopy[arrayIndex] < copy)
+			maxcopy[arrayIndex] = copy;
 		int ColorIndex = 255 * lm.get(arrayIndex).get(position)
 				/ maxcopy[arrayIndex];
 
