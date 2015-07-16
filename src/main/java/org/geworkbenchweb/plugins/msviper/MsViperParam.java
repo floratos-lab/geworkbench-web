@@ -34,7 +34,7 @@ public class MsViperParam implements Serializable {
 	}
 
 	public String getContext() {
-		return context;
+		return  context.trim().replaceAll("[^A-Za-z0-9]", "_") ;
 	}
 
 	public void setClassCase(Map<String, String> classCase) {

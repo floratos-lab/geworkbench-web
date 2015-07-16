@@ -270,15 +270,15 @@ public class MsViperAnalysisClient {
 				request);
 		addFileElement("adjFile", adjFile, omFactory, namespace, request);
 		omFactory.createOMElement("datasetName", namespace, request).setText(
-				datasetName);
+				convertToAlphaNumeric(datasetName));
 		omFactory.createOMElement("context", namespace, request).setText(
-				param.getContext());
+				convertToAlphaNumeric(param.getContext()));
 		omFactory.createOMElement("caseGroups", namespace, request).setText(
 				param.getCaseGroups());
 		omFactory.createOMElement("controlGroups", namespace, request).setText(
 				param.getControlGroups());
 		omFactory.createOMElement("networkFileName", namespace, request)
-				.setText(networkFname);
+				.setText(convertToAlphaNumeric(networkFname.substring(0, networkFname.length()-4))+".adj");
 		omFactory.createOMElement("gesFilter", namespace, request).setText(
 				param.getGesFilter().toString().toUpperCase());
 		omFactory.createOMElement("minAllowedRegulonSize", namespace, request)
@@ -388,6 +388,13 @@ public class MsViperAnalysisClient {
 		fileElement.addChild(textData);
 		;
 	}
+	
+	private String convertToAlphaNumeric(String value)
+	{
+		return value.trim().replaceAll("[^A-Za-z0-9]", "_");
+	}
+	
+	
 
 	// TODO there will be easier ways to copy files in Java 7
 	static int copyFile(String source, String dest) throws IOException {
