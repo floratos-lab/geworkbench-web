@@ -164,7 +164,7 @@ public class NetworkCreator {
 			throws IOException {
 		String dirName = GeworkbenchRoot.getBackendDataDirectory()
 				+ File.separator + "networks" + File.separator + "msViper"
-				+ File.separator + ui.userId;
+				+ File.separator + ui.userId + File.separator + ui.dataSetId;
 		File dir = new File(dirName);
 		if (!dir.exists())
 			dir.mkdirs();

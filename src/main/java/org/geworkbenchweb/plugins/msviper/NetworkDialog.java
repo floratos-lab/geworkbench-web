@@ -164,7 +164,7 @@ public class NetworkDialog {
 			}
 			
 			String uploadedFile = GeworkbenchRoot.getBackendDataDirectory()
-					+ File.separator + "networks" + File.separator + "msViper" + File.separator + ui.userId + File.separator + networkName;
+					+ File.separator + "networks" + File.separator + "msViper" + File.separator + ui.userId  + File.separator + ui.dataSetId + File.separator + networkName;
 			if (!selectedFormat.equals(marina5colformat)){
 				try {
 					NetworkCreator networkCreator = new NetworkCreator(ui, indicator);

@@ -452,7 +452,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		 * we have to upload first then copy it later. */
 		/* temporary file location */
 		String dirName = GeworkbenchRoot.getBackendDataDirectory() + File.separator
-				+ "networks" + File.separator + "msViper" + File.separator +userId;
+				+ "networks" + File.separator + "msViper" + File.separator +userId + File.separator +dataSetId;
 		File dir = new File(dirName);
 		if (!dir.exists())
 			dir.mkdirs();

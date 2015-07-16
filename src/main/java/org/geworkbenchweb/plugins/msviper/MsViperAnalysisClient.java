@@ -107,7 +107,7 @@ public class MsViperAnalysisClient {
 		/* copy the uploaded (and possibly processed) network file */
 		String source = GeworkbenchRoot.getBackendDataDirectory()
 				+ File.separator + "networks" + File.separator + "msViper"
-				+ File.separator + userId + File.separator + networkFname;
+				+ File.separator + userId + File.separator + datasetId + File.separator + networkFname;
 		File target = convertNetWork(source, tempdirPath + File.separator + networkFname);
 		if (target == null || !target.exists())
 			throw new RemoteException("msViper convertNetWork error");
@@ -488,6 +488,8 @@ public class MsViperAnalysisClient {
 
 			}
 
+			if ( resultList == null || resultList.size() == 0)
+				return null;
 			String[][] results = new String[resultList.size()][row.length];
 			for (int i = 0; i < resultList.size(); i++)
 				for (int j = 0; j < resultList.get(i).length; j++)
