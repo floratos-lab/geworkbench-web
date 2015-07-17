@@ -108,7 +108,7 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		TabSheet tabs = new TabSheet();	
 		tabs.setHeight("100%");
 		 
-		tabs.addTab(getMsViperResultTab(dataSetId, resultSet, msViperResult), "Mrs Result", null);
+		tabs.addTab(getMsViperResultTab(dataSetId, resultSet, msViperResult), "Activity", null);
 	 
 		if (msViperResult.getShadowResult() != null)		 
 			tabs.addTab(getShadowResultTab(dataSetId, resultSet, msViperResult), "Shadow", null);

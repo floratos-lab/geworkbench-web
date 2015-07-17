@@ -18,7 +18,7 @@ public class BarcodeTable extends AbstractComponent {
 	 
 	private static final long serialVersionUID = -2119963715440692055L;
 	 
-	private String[] columnNames = {"Regulator", "Borcode", "PValue","Act", "Exp", "Rank"};
+	private String[] columnNames = {"Regulator", "Bar Graph", "PValue","Activity", "Expression", "Exp. Rank"};
 	private List<Regulator>  regulators;
 	private Map<String, List<Barcode>>   barcodeMap;
 	private int barHeight;
