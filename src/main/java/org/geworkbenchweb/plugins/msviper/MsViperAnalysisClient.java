@@ -163,7 +163,7 @@ public class MsViperAnalysisClient {
 					+ e.getReason());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RemoteException("Coumpute msViper error: "
+			throw new RemoteException("Compute msViper error: "
 					+ e.getMessage());
 		} finally {
 			if (tempdirPath != null && tempdirPath.contains("msviper"))
@@ -300,7 +300,12 @@ public class MsViperAnalysisClient {
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE, "log"));
 		String errlog = logElement.getText();
 		if (errlog != null && errlog.length() > 0)
-			throw new Exception("Coumpute MsViper error: " + errlog);
+		{
+			if (errlog.contains("was killed"))
+				throw new Exception(errlog + ". A possible reason could be that one or more hub genes in the network have too few regulon genes. ");
+			else
+				throw new Exception(errlog);
+		}
 		OMElement nameElement = (OMElement) response
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE,
 						"resultName"));
@@ -728,6 +733,8 @@ public class MsViperAnalysisClient {
 			lm.add(1, new HashMap<Integer, Integer>()); // SC<0
 			int[] maxcopy = new int[2];
 			List<String> targets = regulons.get(rdata[i][0]);
+			if (targets == null || targets.size() == 0)
+				continue;
 			for (int j = 0; j < targets.size(); j++) {
 				SpearmansCorrelation SC = new SpearmansCorrelation();
 				double spearCor = 0.0;
