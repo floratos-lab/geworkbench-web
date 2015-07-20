@@ -416,17 +416,17 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		
 		builder.append("Marina(msviper) Parameters : \n");
 	  
-			builder.append(networkTF.getCaption()+" - " + networkTF.getValue() + "\n");
-			builder.append(minAllowedRegulonTF.getCaption()+" - " + minAllowedRegulonTF.getValue() + "\n");
+			builder.append("Network - " + networkTF.getValue() + "\n");
+			builder.append("Minimum allowed regulon size - " + minAllowedRegulonTF.getValue() + "\n");
 		 
 	    int n1 = param.getClassCase().keySet().size();
 		int n2 = param.getClassControl().size();
 		String casestr = getClassString(param.getClassCase());
 		String controlstr = getClassString(param.getClassControl());
 		builder.append("\nArrays used (" + (n1+n2) + ") - \n" );
-		builder.append("Cases (" + n1 + ") - \n\t");
+		builder.append("Cases (" + n1 + ") - \n");
 		if(n1>0) builder.append(casestr);
-		builder.append("\nControls (" + n2 + ") - \n\t");
+		builder.append("\nControls (" + n2 + ") - \n");
 		if(n2>0) builder.append(controlstr);
 		
 		Long masetId = null;
