@@ -9,7 +9,9 @@
 		<plugin>
 			<name>Gene Ontology</name>
 			<description>
-				Gene Ontologizer ...
+				 The Gene Ontology Enrichment component allows a list of e.g. differentially expressed genes to be characterized using the Gene Ontology terms annotated to them. It asks, whether for any particular GO term, the fraction of genes assigned to it in the "changed-gene" list is higher than expected by chance (is over-represented), relative to the fraction of genes assigned to that term in the reference set. The Gene Ontology analysis component in geWorkbench is built around the Ontologizer 2.0 software product from Peter Robinson's group at the Charite Medical Institute of the Humboldt University in Berlin. Please see the 
+				 &lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Gene_Ontology" target="_blank"&gt;Gene Ontology&lt;/a&gt;
+				 tutorial for further details.
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.geneontology.GOUI</uiClass>
 		</plugin>
@@ -38,8 +40,8 @@
 				is an information-theoretic algorithm used
 				to identify transcriptional interactions between gene products using
 				microarray gene expression profile data.
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
+				Parameter settings see the
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.aracne.AracneUI</uiClass>
@@ -49,7 +51,7 @@
 			<description>
 				The Cellular Networks Knowledge Base (CNKB) is a repository of molecular interactions,
 				including ones both computationally and experimentally derived. Sources for interactions
-				include both publicly available databases such as BIND, MINT, and Reactome, as well as reverse-engineered
+				include both publicly available databases as well as reverse-engineered
 				cellular context-specific regulatory interactomes developed in the lab of Dr. Andrea Califano at Columbia University.
 				For parameter settings see the 
 				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
@@ -93,17 +95,17 @@
 		<plugin>
 			<name>MARINa(msVIPER)</name>
 			<description>
-				MARINa (MAster Regulator INference algorithm) 
+				The msViper implementation of MARINa (MAster Regulator INference algorithm) 
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/19209726" target="_blank"&gt;Lim et al., 2009&lt;/a&gt;, 
 				&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/20531406" target="_blank"&gt;Lefebvre  et al., 2010&lt;/a&gt;)
-				uses gene set enrichment analysis (GSEA) to calculate if the regulon of a transcription factor (TF) is enriched for genes that are differentially
+				calculates whether the regulon of a transcription factor (TF) is enriched for genes that are differentially
 				expressed between two classes of microarrays. The expression of the regulon genes (targets of the TF) serves as a proxy for the activity of the TF itself.
 				TFs that are found to be differentially active are candidate master regulators of the phenotypic difference represented in the dataset. The user must
 				supply a transcriptional network (e.g. reverse-engineered using
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
 				) and a gene expression dataset.
-				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa" target="_blank"&gt;MARINa&lt;/a&gt;
+				Please see the 
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;msViper&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.msviper.MsViperUI</uiClass>
@@ -131,7 +133,7 @@
 				MarkUs identifies related protein structures and sequences, detects protein cavities, and calculates the surface electrostatic
 				potentials and amino acid conservation profile.
 				Parameter settings are identical to those used in the desktop version of the analysis (see the
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs" target="_blank"&gt;MarkUs&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/MarkUs" target="_blank"&gt;MarkUs&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.markus.MarkUsUI</uiClass>
@@ -233,7 +235,7 @@
 			The results of a MsViper analysis are shown in a table.
 			The table columns are the same as those described for the desktop version of the analysis
 			(see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa#Results" target="_blank"&gt;Results section of the MARINa&lt;/a&gt;
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;MARINa (msViper)&lt;/a&gt;
 			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.msviper.results.MsViperResultsUI</uiClass>
@@ -244,9 +246,8 @@
 		<name>MarkUs Result Viewer</name>
 		<description>
 			Displays the web page generated by the MarkUs service for functional protein structure analysis.
-			The display is the same as that described for the desktop version of the analysis
-			(see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs#Results" target="_blank"&gt;Results section of the MarkUs&lt;/a&gt;
+			See the
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/MarkUs" target="_blank"&gt;MarkUs&lt;/a&gt;
 			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.markus.results.MarkusResultsUI</uiClass>
