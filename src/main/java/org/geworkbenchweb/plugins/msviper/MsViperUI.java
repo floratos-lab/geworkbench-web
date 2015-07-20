@@ -116,7 +116,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		
 		final Upload upload = new Upload("", this);
 		upload.setButtonCaption("Upload");
-		upload.setDescription("Available network formats are ARACNe adjacency matrix (.adj), SIF (.sif), and 5-column (.txt)");
+		upload.setDescription("Available network format is ARACNe adjacency matrix (.adj)");
 		upload.addListener((Upload.SucceededListener)this);
         upload.addListener((Upload.FailedListener)this);
         
@@ -180,11 +180,11 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 					networkNotLoaded("Failed to load the network selected. Network Id="+id);
 					return;
 				} else if (network.getNodeNumber()==0) {
-					networkNotLoaded("Zero node in the network. Network Id="+id);
+					networkNotLoaded("Zero nodes in the network. Network Id="+id);
 					return;
 				} else if( network.getNode1().length == 1)
 				{
-					networkNotLoaded("There is only one hub in the network, MsViper can not process it.");
+					networkNotLoaded("There is only one hub in the network, msViper cannot process it.");
 					return;
 				}
 
@@ -217,9 +217,9 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		final Button networkRequirements = new Button("Network Requirements");
 		networkRequirements.setStyleName(Reindeer.BUTTON_LINK);
  
-		String desc = "For 2-tailed GSEA with an adjacency matrix network, the expression node should be the complete dataset from "
-				+ "which the network (adjacency matrix) was originally calculated.<p>If it is not, a 5-column-format "
-				+ "network file (with regulon correlation values from the original dataset) should be loaded instead.";
+		String desc = "For best results, the expression node should be the complete dataset from "
+				+ "which the network (adjacency matrix) was originally calculated.<p>This module does not yet support the 5-column-format "
+				+ "network file (with regulon correlation values from the original dataset).";
 		networkRequirements.setDescription(desc);	
 		f1.addComponent(networkRequirements);
 		
@@ -485,7 +485,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 		String networkName = event.getFilename();
 		if (!networkName.toLowerCase().endsWith(".adj"))
 		{
-			networkNotLoaded("The upload network should be adj file.");
+			networkNotLoaded("The upload network should be a .adj file.");
 			return;
 		}
 		
