@@ -136,7 +136,7 @@ public class AracneAnalysisClient {
 					+ "\nreason: " + e.getReason());			
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RemoteException( "Coumpute Aracne error: " + e.getMessage());
+			throw new RemoteException( "Compute Aracne error: " + e.getMessage());
 		} finally {
 			if(!expFile.delete()) expFile.deleteOnExit();
 		}

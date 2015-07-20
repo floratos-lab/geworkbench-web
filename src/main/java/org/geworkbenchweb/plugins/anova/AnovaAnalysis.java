@@ -133,7 +133,7 @@ public class AnovaAnalysis {
 			 
 		}
 		catch (Exception e) {
-			throw new RemoteException( "Coumpute Anova error:" + e.getMessage());
+			throw new RemoteException( "Compute Anova error:" + e.getMessage());
 		}
 
 		 
