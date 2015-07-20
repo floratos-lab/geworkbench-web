@@ -269,7 +269,7 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 					Item item= mraTable.getItem(mraTable.getValue());
 					String mr = item.getItemProperty(columnNames[0]).getValue()
 							.toString();
-					addMarkerSet("Add Markers to Set", resultSet.getParent(), msViperResult.getLeadingEdges().get(mr));
+					addMarkerSet("Add Markers to Set", resultSet.getParent(), msViperResult.getRegulons().get(mr));
 				}
 
 			}).setStyleName("plugin");
@@ -547,6 +547,8 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 			MsViperResult msViperResult, final Table mraTable, final String present, int n) {
 
 		Map<String, List<Barcode>> allBarcodeMap = msViperResult.getBarcodes();
+		if (allBarcodeMap == null || allBarcodeMap.size() == 0)
+			return null;
 		Map<String, List<Barcode>> showBarcodeMap = new HashMap<String, List<Barcode>>();
 		//String present = genePresent.getValue().toString();
 
@@ -617,7 +619,14 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 				graphForTopStr));
 		Map<String, List<Barcode>> barcodeMap = getBarcodeMap(msViperResult, mraTable, genePresentStr,
 				new Integer(graphForTopStr));
-
+		
+		if (splitPanel.getSecondComponent() != null)
+			splitPanel.removeComponent(splitPanel.getSecondComponent());
+ 
+		if ( barcodeMap == null )
+		{	
+			return;
+		}
 		BarcodeTable barcodeTable = new BarcodeTable(regulators, barcodeMap,
 				new Integer(barHeighStr));
 		barcodeTable.setImmediate(true);
@@ -666,8 +675,8 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		final File file = new File(dir, "allTargets_"
 				+ System.currentTimeMillis() + ".csv");
 		try {
-			Map<String, List<String>> leadingEdges = msViperResult
-					.getLeadingEdges();
+			Map<String, List<String>> regulons = msViperResult
+					.getRegulons();
 			Map<String, Double> mrs_signatures = msViperResult
 					.getMrs_signatures();
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
@@ -679,7 +688,9 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 				if( k > 0)
 				   pw.println("");
 				pw.println(mrMarker);
-				List<String> targetList = leadingEdges.get(mrMarker);
+				List<String> targetList = regulons.get(mrMarker);
+				if (targetList == null || targetList.size() == 0)
+					continue;
 				for (int i = 0; i < targetList.size(); i++) {
 					pw.println(targetList.get(i) + ", "
 							+ mrs_signatures.get(targetList.get(i)));
