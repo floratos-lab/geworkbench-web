@@ -7,8 +7,6 @@ public class FriendStatusChangeEvent implements Event{
 
 	private int friendID;
 	private int myID;
-	private String myName;
-	private String friendName;
 	private int optType;
 	
 	public static final int RM_FRIEND = 0;
@@ -19,7 +17,7 @@ public class FriendStatusChangeEvent implements Event{
 	public FriendStatusChangeEvent(int myID, int friendID) {
 		this.myID = myID;
 		this.friendID = friendID;
-		this.optType = this.STATUS_REFRESH;
+		this.optType = FriendStatusChangeEvent.STATUS_REFRESH;
 	}
 	
 	public int getMyID() {

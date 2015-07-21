@@ -13,9 +13,6 @@ import java.util.Enumeration;
  
 import java.io.IOException;
 
-import org.geworkbenchweb.pojos.ActiveWorkspace;
-import org.geworkbenchweb.pojos.Workspace;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

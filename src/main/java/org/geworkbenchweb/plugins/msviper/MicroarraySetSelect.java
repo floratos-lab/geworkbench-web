@@ -8,7 +8,6 @@ import org.geworkbenchweb.pojos.SubSet;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
@@ -27,9 +26,6 @@ public class MicroarraySetSelect extends HorizontalLayout {
 	
 	private final String type;
  
-	private final static ThemeResource infoIcon = new ThemeResource(
-			"../custom/icons/icon_info.gif");
-
 	void reset(List<SubSet> arraySubSets) {
 		arraySetSelect.removeAllItems();
 		viperUI.arraymap.clear();

@@ -10,7 +10,6 @@ import org.geworkbenchweb.utils.PreferenceOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
 import com.vaadin.data.Property;
-import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.ComboBox;
 
 public class MicroarrayContext extends ComboBox {
@@ -30,9 +29,6 @@ public class MicroarrayContext extends ComboBox {
 
 	private final MicroarraySetSelect caseSelect;
 	private final MicroarraySetSelect controlSelect;
-
-	private final static ThemeResource infoIcon = new ThemeResource(
-			"../custom/icons/icon_info.gif");
 
 	public MicroarrayContext(Long dataSetId, Long userId, String parentName,
 			MsViperUI parent, MicroarraySetSelect caseSetSelect,
