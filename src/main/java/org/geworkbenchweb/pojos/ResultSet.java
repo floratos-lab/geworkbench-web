@@ -15,7 +15,10 @@ public class ResultSet extends AbstractPojo {
 	private Long parent;
 	private String type;
 	private Long owner;
-	private Long dataId; /* ID for the JPA representation of the actual data, for now microarray expression data MicroarrayDataset. */
+	private Long dataId;
+
+	/* a short description. used in places like tool tip. */
+	private String description = "";
 	private java.sql.Timestamp timestamp;
 	
 	public String getName() {
@@ -65,6 +68,14 @@ public class ResultSet extends AbstractPojo {
 
 	public void setDataId(Long dataId) {
 		this.dataId = dataId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

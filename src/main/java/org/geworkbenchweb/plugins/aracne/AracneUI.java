@@ -858,6 +858,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
 				resultId);
 		result.setDataId(output.getId());
+		if(output instanceof Network) { // FIXME binding two different types together horrible idea
+			Network n = (Network)output;
+			result.setDescription("# of nodes: "+n.getNodeNumber()+", # of edges: "+n.getEdgeNumber());
+		}
 		FacadeFactory.getFacade().store(result);
 
 		String resultName = analyze.resultName;

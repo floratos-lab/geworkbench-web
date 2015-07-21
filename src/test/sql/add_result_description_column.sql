@@ -1,0 +1,2 @@
+ALTER TABLE `resultset`
+ADD `DESCRIPTION` varchar(255) DEFAULT NULL

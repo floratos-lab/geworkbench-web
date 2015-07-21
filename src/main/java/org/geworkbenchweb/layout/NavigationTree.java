@@ -243,9 +243,10 @@ public class NavigationTree extends Tree {
 			}
 
 			for (int j = 0; j < results.size(); j++) {
-				String subId = ((ResultSet) results.get(j)).getName();
-				Long subSetId = ((ResultSet) results.get(j)).getId();
-				String type = ((ResultSet) results.get(j)).getType();
+				ResultSet resultSet = ((ResultSet) results.get(j)); 
+				String subId = resultSet.getName();
+				Long subSetId = resultSet.getId();
+				String type = resultSet.getType();
 
 				Item res = dataSets.addItem(subSetId);
 				res.getItemProperty("Name").setValue(subId);
@@ -262,6 +263,7 @@ public class NavigationTree extends Tree {
 						e.printStackTrace();
 					}
 				}
+				res.getItemProperty("description").setValue(resultSet.getDescription());
 				dataSets.setChildrenAllowed(subSetId, false);
 				dataSets.setParent(subSetId, dataId);
 			}

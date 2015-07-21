@@ -362,7 +362,12 @@ public class UMainLayout extends VerticalLayout {
 	// this may need to be public if we don't use event listener to trigger it.
 	private void addResultSetNode(ResultSet res) {
 		navigationTree.setChildrenAllowed(res.getParent(), true);
-		navigationTree.addItem(res.getId());
+		Item item = navigationTree.addItem(res.getId());
+		if(item==null) {
+			// this happens because pending node has the same ID as the ultimate node
+			item = navigationTree.getItem(res.getId());
+		}
+		item.getItemProperty("description").setValue(res.getDescription());
 		navigationTree.getContainerProperty(res.getId(), "Name").setValue(res.getName());
 		navigationTree.getContainerProperty(res.getId(), "Type").setValue(res.getType());
 		if(res.getName().contains("Pending")) {
