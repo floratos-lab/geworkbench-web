@@ -29,6 +29,7 @@ public class PdbFileLoader implements Loader {
 		dataset.setName(fileName);
 		dataset.setType("org.geworkbenchweb.pojos.PdbFileInfo");
 		dataset.setDescription("# of chains: " + pdbFileInfo.getChains().size());
+		dataset.setTimestamp(new java.sql.Timestamp(System.currentTimeMillis()));
 		dataset.setDataId(id);
 		FacadeFactory.getFacade().store(dataset);
 

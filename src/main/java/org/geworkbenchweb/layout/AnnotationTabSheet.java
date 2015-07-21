@@ -13,6 +13,7 @@ import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ExperimentInfo;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -149,6 +150,15 @@ public class AnnotationTabSheet extends TabSheet {
 			d.setWidth("500px");
 			dataHistory.addComponent(d);
 		}
+		ResultSet resultset = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+		if (resultset != null) {
+			Timestamp timestamp = resultset.getTimestamp();
+			if (timestamp != null) {
+				dataHistory.addComponent(new Label("Timestamp: " + DateFormat.getDateTimeInstance().format(timestamp),
+						Label.CONTENT_PREFORMATTED));
+			}
+		}
+		/* note this odd design: dataSetId may refer to DataSet or ResultSet, but those two does not have common interface or parent */
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class,
 				dataSetId);
 		if (dataset != null) {
@@ -156,7 +166,7 @@ public class AnnotationTabSheet extends TabSheet {
 					+ dataset.getName(), Label.CONTENT_PREFORMATTED));
 			Timestamp timestamp = dataset.getTimestamp();
 			if (timestamp != null) {
-				dataHistory.addComponent(new Label("Time Stamp: "
+				dataHistory.addComponent(new Label("Timestamp: "
 						+ DateFormat.getDateTimeInstance().format(timestamp),
 						Label.CONTENT_PREFORMATTED));
 			}
