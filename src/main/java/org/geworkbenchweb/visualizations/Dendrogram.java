@@ -52,29 +52,44 @@ public class Dendrogram extends AbstractComponent {
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
-		super.paintContent(target);
+		super.paintContent(target);      
+		
 		
 		if(requestExportImage) {
 			target.addVariable(this, "exportImage", true);			 
 			target.addAttribute("exportImageCellWidth", exportImageCellWidth);
 			target.addAttribute("exportImageCellHeight", exportImageCellHeight);
-			requestExportImage = false;
-			//return;
-		}	 
-		
-		/* get a subset of color values */
-        if(firstMarker+paintableMarkers>markerNumber) { // handle the last 'page'
-        	firstMarker = markerNumber - paintableMarkers; 
-        }
-
-		Integer[] colorSubset = new Integer[paintableMarkers*arrayNumber];
-		int i = firstMarker*arrayNumber; // numbers of color values to skip
-		int iSubset = 0;
-		for(int y=0; y<paintableMarkers; y++) {
-			for(int x=0; x<arrayNumber; x++) {
-				colorSubset[iSubset++] = colors[i++];
+			//target.addVariable(this, "firstMarker", firstMarker);
+			Integer[] colorSubset = new Integer[markerNumber*arrayNumber];
+			int i = 0; // numbers of color values to skip
+			int iSubset = 0;
+			for(int y=0; y<markerNumber; y++) {
+				for(int x=0; x<arrayNumber; x++) {
+					colorSubset[iSubset++] = colors[i++];
+				}
 			}
+			target.addAttribute("colors", colorSubset);
+			requestExportImage = false;		 
+			//return;
+		}	
+		else
+		{
+			 if(firstMarker+paintableMarkers>markerNumber) { // handle the last 'page'
+		        	firstMarker = markerNumber - paintableMarkers; 
+		     }    
+		   // target.addVariable(this, "firstMarker", firstMarker);
+			Integer[] colorSubset = new Integer[paintableMarkers*arrayNumber];
+			int i = firstMarker*arrayNumber; // numbers of color values to skip
+			int iSubset = 0;
+			for(int y=0; y<paintableMarkers; y++) {
+				for(int x=0; x<arrayNumber; x++) {
+					colorSubset[iSubset++] = colors[i++];
+				}
+			}
+		
+			target.addAttribute("colors", colorSubset);
 		}
+        
 		
 		// Paint any component specific content by setting attributes
 		// These attributes can be read in updateFromUIDL in the widget.
@@ -90,19 +105,16 @@ public class Dendrogram extends AbstractComponent {
 		} else {
 			target.addAttribute("markerCluster", selectedMarkerClusters);
 		}
-		target.addAttribute("colors", colorSubset);
-		target.addAttribute("arrayLabels", arrayLabels);
-		target.addAttribute("markerLabels", markerLabels);
-		
-		target.addAttribute("cellWidth", cellWidth);
-		target.addAttribute("cellHeight", cellHeight);
-		
+	
 		target.addVariable(this, "firstMarker", firstMarker);
+		target.addAttribute("arrayLabels", arrayLabels);
+		target.addAttribute("markerLabels", markerLabels);		
+		target.addAttribute("cellWidth", cellWidth);
+		target.addAttribute("cellHeight", cellHeight);		
 		target.addVariable(this, "arrayIndex1", arrayIndex1);
 		target.addVariable(this, "arrayIndex2", arrayIndex2);
 		target.addVariable(this, "markerIndex1", markerIndex1);
-		target.addVariable(this, "markerIndex2", markerIndex2);
-	}
+		target.addVariable(this, "markerIndex2", markerIndex2);	}
 
 	private int firstMarker = 0;
 	private int paintableMarkers;
