@@ -11,6 +11,8 @@ import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI; 
 import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataHistory;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
@@ -241,6 +243,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	
 	private int getTotalArrayNum(String[] setIds)
 	{
+		if (setIds == null) {
+			DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+			MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, dataset.getDataId());
+			return microarray.getArrayNumber();
+		}
 		int count = 0;
 		for(String setId : setIds)
 		   count += SubSetOperations.getArrayData(new Integer(setId.trim())).size();
