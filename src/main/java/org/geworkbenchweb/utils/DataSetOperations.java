@@ -87,6 +87,19 @@ public class DataSetOperations {
 		return annotationMap;
 	}
 	
+
+	/* get number of marker labels or microarray labels in a MicroarrayDataset */
+	static public Integer getNumber(String fieldName, Long id) {
+		Map<String, Object> parameter = new HashMap<String, Object>();
+		parameter.put("id", id);
+		List<?> list = FacadeFactory.getFacade().getFieldValues(
+				MicroarrayDataset.class, fieldName, "p.id=:id", parameter);
+		if (list.size() != 1) {
+			log.error("incorrect count of query results returned");
+			return 0;
+		}
+		return (Integer) list.get(0);
+	}	
 	
 	
 	/* get marker labels or microarray labels of a MicroarrayDataset */

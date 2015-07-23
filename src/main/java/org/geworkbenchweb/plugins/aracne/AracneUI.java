@@ -12,10 +12,10 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
-import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -245,9 +245,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	{
 		if (setIds == null) {
 			DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-			MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, dataset.getDataId());
-			return microarray.getArrayNumber();
+			int arrayNum = DataSetOperations.getNumber("arrayNumber", dataset.getDataId());
+			return 	arrayNum;		 
 		}
+		
 		int count = 0;
 		for(String setId : setIds)
 		   count += SubSetOperations.getArrayData(new Integer(setId.trim())).size();
