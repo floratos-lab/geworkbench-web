@@ -205,8 +205,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 			item.getItemProperty(HEADER_POPULATION_COUNT).setValue(row.getPopCount());
 			item.getItemProperty(HEADER_STUDY_COUNT).setValue(row.getStudyCount());
 		}
-		// container.sort(new Object[] { "... proper name ..." },
-		// new boolean[] { true });
+		container.sort(new Object[] { HEADER_ADJUSTED_P_VALUE }, new boolean[] { true });
 	}
 	
 	@Override
