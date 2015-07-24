@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.GeWorkbenchLoaderException;
@@ -200,7 +199,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		DataSet dataset = new DataSet();
 		dataset.setName(fileName + " - Pending");
 		dataset.setDescription("pending");
-		dataset.setType(DSDataSet.class.getName());
+		//dataset.setType(className); /* leave type as null for pending node */
 		dataset.setOwner(userId);
 		dataset.setWorkspace(WorkspaceUtils.getActiveWorkSpace());
 		FacadeFactory.getFacade().store(dataset);

@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -54,7 +55,7 @@ class DataFileReceiver implements Receiver {
 		return fos;
 	}
 
-	private String getUniqueFileName(String filename){
+	static private String getUniqueFileName(String filename){
 		int suffixId = filename.lastIndexOf('.');
 		String mainpart = filename, suffix = "";
 		if(suffixId >= 0){
@@ -65,8 +66,9 @@ class DataFileReceiver implements Receiver {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("owner", SessionHandler.get().getId());
 		params.put("name", mainpart+"%"+suffix);
+		params.put("workspace", WorkspaceUtils.getActiveWorkSpace());
 		List<DataSet> datasets = FacadeFactory.getFacade().list(
-				"select d from DataSet as d where d.owner=:owner and d.name like :name", params);
+				"select d from DataSet as d where d.owner=:owner and d.workspace=:workspace and d.name like :name", params);
 		if(datasets.size()==0) return filename;
 
 		int maxseq = 0;
