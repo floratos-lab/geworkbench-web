@@ -138,6 +138,11 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		displayTable.setContainerDataSource(getIndexedContainer());
 		log.debug("just get indexedContainer ...");
 		displayTable.setColumnWidth(Constants.MARKER_HEADER, 150); 
+		List<String> displayPrefColHeaders = getDisplayPrefColHeaders();
+		for (String header : displayTable.getColumnHeaders()) {
+			if(displayPrefColHeaders.contains(header)) continue;
+			displayTable.setColumnAlignment(header, Table.ALIGN_RIGHT);
+		}
 
 		addComponent(displayTable.createControls());
 		
@@ -321,7 +326,6 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 	}
 
 	private IndexedContainer getIndexedContainer() {
-		IndexedContainer dataIn = null;
 		log.debug("before load dataset ...");
 		DataSet data = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = data.getDataId();
@@ -330,15 +334,11 @@ public class TabularViewUI extends VerticalLayout implements Tabular {
 		String[] markerLabels = dataset.getMarkerLabels();
 		float[][] values = dataset.getExpressionValues();
 		log.debug("after load dataset ...");
-		dataIn = getIndexedContainer(markerLabels, arrayLabels, values);
-		return dataIn;
-	}
 
-	private IndexedContainer getIndexedContainer(String[] markerLabels, String[] arrayLabels,
-			float[][] values) {
 		log.debug("before loadTabViewPreferences()...");
 		loadTabViewPreferences();
 		log.debug("after loadTabViewPreferences()...");
+		
 		IndexedContainer dataIn =  new IndexedContainer() {
 		          
 				private static final long serialVersionUID = 1L;
