@@ -1,6 +1,10 @@
 package org.geworkbenchweb.plugins;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +50,9 @@ public class DataTypeMenuPage extends VerticalLayout {
 		VerticalLayout analysisGroup = new VerticalLayout();
 		analysisGroup.setMargin(true);
 		// loop through all analysis plug-ins
-		for(final PluginEntry analysis : GeworkbenchRoot.getPluginRegistry().getAnalysisList(dataType)) {
+		List<PluginEntry> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(dataType);
+		Collections.sort(analysisList);
+		for(final PluginEntry analysis : analysisList) {
 		
 			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
 			buildOneItem(analysisGroup, analysis, analysisUI);
@@ -57,6 +63,17 @@ public class DataTypeMenuPage extends VerticalLayout {
 		// second part: visualizations
 		Class<? extends Visualizer>[] visualizers = GeworkbenchRoot.getPluginRegistry().getVisualizers(dataType);
 		if(visualizers.length==0) return;
+		Arrays.sort(visualizers, new Comparator<Class<? extends Visualizer>>() {
+
+			@Override
+			public int compare(Class<? extends Visualizer> o1, Class<? extends Visualizer> o2) {
+				PluginEntry v1 = GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(o1);
+				PluginEntry v2 = GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(o2);
+
+				return v1.getName().compareTo(v2.getName());
+			}
+			
+		});
 		
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);

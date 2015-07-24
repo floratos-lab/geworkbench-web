@@ -9,7 +9,7 @@ package org.geworkbenchweb.plugins;
  * @author zji
  *
  */
-public class PluginEntry {
+public class PluginEntry implements Comparable<PluginEntry> {
     
 	final private String name, description;
 	
@@ -20,5 +20,10 @@ public class PluginEntry {
 	
 	public String getName() {return name;}
     public String getDescription() {return description;}
+
+	@Override
+	public int compareTo(PluginEntry o) {
+		return name.compareTo(o.name);
+	}
 
 }
