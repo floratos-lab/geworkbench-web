@@ -173,10 +173,6 @@ public class LoginForm extends VerticalLayout {
 		
 		this.addComponent(image);
 		this.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
-		Label betaLabel = new Label("(beta)");
-		betaLabel.setWidth("35px");
-		this.addComponent(betaLabel);
-		this.setComponentAlignment(betaLabel, Alignment.MIDDLE_CENTER);
 		this.addComponent(usernameField);
 		this.setComponentAlignment(usernameField, Alignment.MIDDLE_CENTER);
 		this.addComponent(passwordField);
