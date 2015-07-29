@@ -29,11 +29,7 @@ public class VCytoscape extends Widget implements Paintable {
 	/** DIV place holder which will be replaced by cytoscape flash object */
 	private Element placeholder;
 	
-	private String networkPNG;
-	
 	private Visualization vis;
-	
-	private String networkSVG;
 	
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -63,31 +59,13 @@ public class VCytoscape extends Widget implements Paintable {
 		String[] nodes = new String[uidl.getStringArrayVariable("nodes").length];
 		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
 		
-		networkPNG 	= uidl.getStringVariable("networkPNG"); 
-		networkSVG 	= uidl.getStringVariable("networkSVG"); 
-		
 		nodes = uidl.getStringArrayVariable("nodes");
 		edges = uidl.getStringArrayVariable("edges");
 		
 		String layoutName = uidl.getStringAttribute("layoutName");
 		
-		if(networkPNG == "true") {
-			
-			String dataPNG = null;
-			client.updateVariable(paintableId, "networkPNG", "false", false);
-			client.updateVariable(paintableId, "networkPNGData", vis.export(dataPNG), true);
-			
-		} else if(networkSVG == "true") {
-			
-			String dataSVG = null;
-			client.updateVariable(paintableId, "networkSVG", "false", false);
-			client.updateVariable(paintableId, "networkSVGData", vis.exportSVG(dataSVG), true);
-		
-		}else {	
-			
-			vis = Visualization.create(placeholder.getId());
-			vis.constructNetwork(wrapArray(nodes), wrapArray(edges), layoutName);
-		}
+		vis = Visualization.create(placeholder.getId());
+		vis.constructNetwork(wrapArray(nodes), wrapArray(edges), layoutName);
 	}
 
 	/**
