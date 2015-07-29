@@ -1,12 +1,8 @@
 package org.geworkbenchweb.plugins.msviper.results;
 
- 
- 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.msviper.ExcelExport;
 
 import com.vaadin.data.Item;
@@ -14,15 +10,12 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.ui.VerticalLayout;
- 
 import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Reindeer;
 
 public class DetailDialog {
-	private Log log = LogFactory.getLog(DetailDialog.class);
-	private MsViperResultsUI ui;
 
 	private Window mainWindow;
 	private Window loadDialog;
@@ -31,14 +24,12 @@ public class DetailDialog {
 	private String mr;
 	 
 	public DetailDialog(MsViperResultsUI ui, Map<String, Double> ledgeMap, final String mr){
-		this.ui = ui;
 		this.mainWindow = ui.getApplication().getMainWindow();
 		this.ledgeMap = ledgeMap;
 		this.mr = mr;
 	}
 	
 	public DetailDialog(MsViperResultsUI ui, List<String> shadowPairList, String mr){
-		this.ui = ui;
 		this.mainWindow = ui.getApplication().getMainWindow();
 		this.shadowPairList = shadowPairList;
 		this.mr = mr;
@@ -152,8 +143,6 @@ public class DetailDialog {
 		return dataIn;
 
 	}
-	
-	
-	 
+
 }
 
