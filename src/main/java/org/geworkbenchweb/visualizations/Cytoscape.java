@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
-import sun.misc.BASE64Decoder;
+import javax.xml.bind.DatatypeConverter;
 
 import com.vaadin.addon.tableexport.TemporaryFileDownloadResource;
 import com.vaadin.terminal.PaintException;
@@ -134,8 +134,7 @@ public class Cytoscape extends AbstractComponent {
             tempFile = File.createTempFile("tmp", ".png");
             fos = new FileOutputStream(tempFile);
            
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] decodedBytes = decoder.decodeBuffer(base64);
+            byte[] decodedBytes = DatatypeConverter.parseBase64Binary(base64);
             
             fos.write(decodedBytes);
             fos.flush();  
