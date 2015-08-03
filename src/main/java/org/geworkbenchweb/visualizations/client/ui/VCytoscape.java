@@ -1,7 +1,5 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import org.geworkbenchweb.visualizations.client.ui.Visualization;
-
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
@@ -20,16 +18,11 @@ public class VCytoscape extends Widget implements Paintable {
 	/** Set the CSS class name to allow styling. */
 	public static final String CLASSNAME = "v-cytoscape";
 
-	/** The client side widget identifier */
-	protected String paintableId;
-
 	/** Reference to the server connection object. */
 	protected ApplicationConnection client;
 	
 	/** DIV place holder which will be replaced by cytoscape flash object */
 	private Element placeholder;
-	
-	private Visualization vis;
 	
 	/**
 	 * The constructor should first call super() to initialize the component and
@@ -38,6 +31,7 @@ public class VCytoscape extends Widget implements Paintable {
 	public VCytoscape() {   
 		
 		placeholder = DOM.createDiv();
+		placeholder.setId("cy");
 		setElement(placeholder);
 		setStyleName(CLASSNAME);
 	}
@@ -53,9 +47,6 @@ public class VCytoscape extends Widget implements Paintable {
 
 		this.client = client;
 
-		paintableId = uidl.getId();
-		placeholder.setId(paintableId + "-swupph");
-		
 		String[] nodes = new String[uidl.getStringArrayVariable("nodes").length];
 		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
 		
@@ -64,10 +55,13 @@ public class VCytoscape extends Widget implements Paintable {
 		
 		String layoutName = uidl.getStringAttribute("layoutName");
 		
-		vis = Visualization.create(placeholder.getId());
-		vis.constructNetwork(wrapArray(nodes), wrapArray(edges), layoutName);
+		createCytoscapeView(placeholder.getId(), wrapArray(nodes), wrapArray(edges), layoutName);
 	}
 
+	public static final native void createCytoscapeView(String containerId, JsArrayString nodeArray, JsArrayString edgeArray, String layoutName)/*-{
+		$wnd.$network_viewer.create(containerId, nodeArray, edgeArray, layoutName);
+	}-*/;
+	
 	/**
 	 * Wraps a Java String Array to a JsArrayString for dev mode.
 	 * 

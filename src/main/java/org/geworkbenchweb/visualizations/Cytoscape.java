@@ -15,7 +15,7 @@ public class Cytoscape extends AbstractComponent {
 	private String[] nodes;
 	private String[] edges;
 	
-	private String layoutName = "ForceDirected"; // default
+	private String layoutName = "concentric"; // default
 	
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {

@@ -36,10 +36,9 @@
 	<!-- Invient Charts Addon -->
    	<inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
     
-    <!-- Cytoscape-Web Javascript libraries -->
-	<script src="js/src/json2.js" />
-	<script src="js/src/AC_OETags.js" />
-	<script src="js/src/cytoscapeweb.js" />
+    <!-- Cytoscape.js and the network viewer based on it -->
+	<script src="js/cytoscape.min.js" />
+	<script src="js/network_viewer.js" />
 	
     <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 

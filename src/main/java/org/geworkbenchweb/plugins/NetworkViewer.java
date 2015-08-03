@@ -220,11 +220,11 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 		MenuItem layoutNames = toolBar.addItem("Layout managers", null);
-		layoutNames.addItem("ForceDirected", layoutCommand);
-       	layoutNames.addItem("Circle", layoutCommand);
-       	layoutNames.addItem("Radial", layoutCommand);
-       	layoutNames.addItem("Tree", layoutCommand);
-       	layoutNames.addItem("CompoundSpringEmbedder", layoutCommand);
+		layoutNames.addItem("concentric", layoutCommand);
+       	layoutNames.addItem("grid", layoutCommand);
+       	layoutNames.addItem("circle", layoutCommand);
+       	layoutNames.addItem("breadthfirst", layoutCommand);
+       	layoutNames.addItem("cose", layoutCommand);
 
        	Command exportCommand = new Command() {
 
