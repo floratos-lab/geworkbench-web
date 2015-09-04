@@ -1,9 +1,19 @@
 package org.geworkbenchweb.plugins.tools;
 
-import org.geworkbenchweb.layout.VisualPluginView;
-import org.geworkbenchweb.plugins.DataTypeMenuPage;
-import org.geworkbenchweb.plugins.ItemLayout;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.layout.VisualPluginView;
+import org.geworkbenchweb.plugins.AnalysisUI;
+import org.geworkbenchweb.plugins.ItemLayout;
+import org.geworkbenchweb.plugins.PluginEntry;
+import org.geworkbenchweb.plugins.Visualizer;
+
+import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
@@ -14,17 +24,95 @@ import com.vaadin.ui.themes.Reindeer;
 /**
  * List of all plug-ins regardless of data type. 
 */
-public class ToolsUI extends DataTypeMenuPage {
+public class ToolsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 	
+	/* For so-called 'stand-alone' tools only. 
+	 * ATTENTION: They are not really stand-alone, just do not take any datasets as input. */
+	public ToolsUI() {
+		title = "Standalone Tools";
+		addComponent(new Label("this view is under development ..."));
+	}
+	
+	private String title;
+	public String getTitle() { return title; }
+	
 	public ToolsUI(final VisualPluginView pluginView) {
-		super("The list of all the available tools.", "Tools", null, null);
+		setDescription("The list of all the available tools.");
+		title = "All Tools";
+
+		setSpacing(true);
 		
-		Label analysisLabel = new Label("Other Tools");
+		// first part: analysis
+		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
 		addComponent(analysisLabel);
+
+		VerticalLayout analysisGroup = new VerticalLayout();
+		analysisGroup.setMargin(true);
+		// loop through all analysis plug-ins
+		List<PluginEntry> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(null);
+		Collections.sort(analysisList);
+		for(final PluginEntry analysis : analysisList) {
+		
+			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
+			buildOneItem(analysisGroup, analysis, analysisUI);
+
+		}
+		addComponent(analysisGroup);
+		
+		// second part: visualizations
+		Class<? extends Visualizer>[] visualizers = GeworkbenchRoot.getPluginRegistry().getVisualizers(null);
+		if(visualizers.length==0) return;
+		Arrays.sort(visualizers, new Comparator<Class<? extends Visualizer>>() {
+
+			@Override
+			public int compare(Class<? extends Visualizer> o1, Class<? extends Visualizer> o2) {
+				PluginEntry v1 = GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(o1);
+				PluginEntry v2 = GeworkbenchRoot.getPluginRegistry().getVisualizerPluginEntry(o2);
+
+				return v1.getName().compareTo(v2.getName());
+			}
+			
+		});
+		
+		Label vis = new Label("Visualizations Available");
+		vis.setStyleName(Reindeer.LABEL_H2);
+		vis.setContentMode(Label.CONTENT_PREFORMATTED);
+		addComponent(vis);
+		
+		VerticalLayout visualizerGroup = new VerticalLayout();
+		visualizerGroup.setMargin(true);
+		// loop through all visualizer plug-ins
+		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
+
+			try {
+				final Visualizer visualizer = visualizerClass.getConstructor(
+						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
+				buildOneItem(visualizerGroup, null,
+						visualizer);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
+		addComponent(visualizerGroup);
+		
+		Label label2 = new Label("Stand-alone Tools");
+		label2.setStyleName(Reindeer.LABEL_H2);
+		label2.setContentMode(Label.CONTENT_PREFORMATTED);
+		addComponent(label2);
 
 		VerticalLayout group = new VerticalLayout();
 		group.setMargin(true);
@@ -92,6 +180,73 @@ public class ToolsUI extends DataTypeMenuPage {
 
 		group.addComponent(itemLayout);
 		
+		final ItemLayout cnkbItem = new ItemLayout();
+		cnkbItem.setCaption("CNKB");
+		group.addComponent(cnkbItem);
+		
 		addComponent(group);
+	}
+	
+	private final ThemeResource ICON = new ThemeResource(
+			"../custom/icons/icon_info.gif");
+	private final ThemeResource CancelIcon = new ThemeResource(
+			"../runo/icons/16/cancel.png");
+
+	// copied from DataTypeMenuPage and modified to break off the inheritance
+	private void buildOneItem(VerticalLayout group,
+			final PluginEntry analysis,
+			final Object container) { //ComponentContainer
+
+		final ItemLayout itemLayout = new ItemLayout();
+		final Button infoButton = new Button();
+		final Button cancelButton = new Button();
+
+		final String pluginName, pluginDescription;
+		if (analysis != null) {
+			pluginName = analysis.getName();
+			pluginDescription = analysis.getDescription();
+		} else {
+			Visualizer v = (Visualizer) container;
+			PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
+					.getVisualizerPluginEntry(v.getClass());
+			pluginName = plugin.getName();
+			pluginDescription = plugin.getDescription();
+		}
+		Button toolButton = new Button(pluginName);
+		toolButton.setStyleName(Reindeer.BUTTON_LINK);
+		toolButton.addStyleName("nolink");
+
+		infoButton.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				itemLayout.removeComponent(infoButton);
+				itemLayout.addComponent(cancelButton, 1, 0);
+				itemLayout.addDescription(pluginDescription);
+			}
+		});
+		cancelButton.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				itemLayout.removeComponent(cancelButton);
+				itemLayout.addComponent(infoButton, 1, 0);
+				itemLayout.clearDescription();
+			}
+		});
+
+		infoButton.setStyleName(BaseTheme.BUTTON_LINK);
+		infoButton.setIcon(ICON);
+		cancelButton.setStyleName(BaseTheme.BUTTON_LINK);
+		cancelButton.setIcon(CancelIcon);
+		itemLayout.setSpacing(true);
+		itemLayout.addComponent(toolButton);
+		itemLayout.addComponent(infoButton);
+
+		group.addComponent(itemLayout);
 	}
 }

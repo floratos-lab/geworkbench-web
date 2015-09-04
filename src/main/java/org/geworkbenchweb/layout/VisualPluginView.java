@@ -134,6 +134,11 @@ public class VisualPluginView extends HorizontalLayout {
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
 
+	public void showStandaloneTools() {
+		ToolsUI toolList = new ToolsUI();
+		setContent(toolList, toolList.getTitle(), toolList.getDescription());
+	}
+	
 	public void showWeclomeScreen() {
 		removeAllComponents();
 		setSizeUndefined();

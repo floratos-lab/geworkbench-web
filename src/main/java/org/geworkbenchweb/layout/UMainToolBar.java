@@ -97,12 +97,22 @@ public class UMainToolBar extends MenuBar {
 					}
 
 				});
-		this.addItem("Tools", new Command() {
+		MenuItem tools = this.addItem("Tools", null);
+		tools.addItem("All Tools", new Command() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				UMainToolBar.this.pluginView.showToolList();
+			}
+
+		});
+		tools.addItem("Standalone Tools", new Command() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				UMainToolBar.this.pluginView.showStandaloneTools();
 			}
 
 		});
