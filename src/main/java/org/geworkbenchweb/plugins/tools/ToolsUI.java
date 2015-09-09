@@ -12,10 +12,14 @@ import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.ItemLayout;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
+import org.geworkbenchweb.plugins.cnkb.CNKB2;
+import org.geworkbenchweb.plugins.lincs.LINCS;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
@@ -30,25 +34,22 @@ public class ToolsUI extends VerticalLayout {
 	
 	/* For so-called 'stand-alone' tools only. 
 	 * ATTENTION: They are not really stand-alone, just do not take any datasets as input. */
-	public ToolsUI() {
-		title = "Standalone Tools";
-		addComponent(new Label("this view is under development ..."));
+	static public ToolsUI createStandaloneInstance(final VisualPluginView pluginView) {
+		ToolsUI inst = new ToolsUI("Standalone Tools", "The list of 'standalone' tools.", pluginView);
+		inst.addStandaloneSection();
+		return inst;
 	}
 	
-	private String title;
-	public String getTitle() { return title; }
-	
-	public ToolsUI(final VisualPluginView pluginView) {
-		setDescription("The list of all the available tools.");
-		title = "All Tools";
+	static public ToolsUI createInstance(final VisualPluginView pluginView) {
+		ToolsUI inst = new ToolsUI("All Tools", "The list of all the available tools.", pluginView);
 
-		setSpacing(true);
+		inst.setSpacing(true);
 		
 		// first part: analysis
 		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
 		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(analysisLabel);
+		inst.addComponent(analysisLabel);
 
 		VerticalLayout analysisGroup = new VerticalLayout();
 		analysisGroup.setMargin(true);
@@ -58,14 +59,13 @@ public class ToolsUI extends VerticalLayout {
 		for(final PluginEntry analysis : analysisList) {
 		
 			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
-			buildOneItem(analysisGroup, analysis, analysisUI);
+			inst.buildOneItem(analysisGroup, analysis, analysisUI);
 
 		}
-		addComponent(analysisGroup);
+		inst.addComponent(analysisGroup);
 		
 		// second part: visualizations
 		Class<? extends Visualizer>[] visualizers = GeworkbenchRoot.getPluginRegistry().getVisualizers(null);
-		if(visualizers.length==0) return;
 		Arrays.sort(visualizers, new Comparator<Class<? extends Visualizer>>() {
 
 			@Override
@@ -81,7 +81,7 @@ public class ToolsUI extends VerticalLayout {
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
 		vis.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(vis);
+		inst.addComponent(vis);
 		
 		VerticalLayout visualizerGroup = new VerticalLayout();
 		visualizerGroup.setMargin(true);
@@ -91,7 +91,7 @@ public class ToolsUI extends VerticalLayout {
 			try {
 				final Visualizer visualizer = visualizerClass.getConstructor(
 						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
-				buildOneItem(visualizerGroup, null,
+				inst.buildOneItem(visualizerGroup, null,
 						visualizer);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
@@ -107,44 +107,65 @@ public class ToolsUI extends VerticalLayout {
 				e.printStackTrace();
 			}
 		}
-		addComponent(visualizerGroup);
+		inst.addComponent(visualizerGroup);
 		
+		inst.addStandaloneSection();
+		
+		return inst;
+	}
+	
+	public String getTitle() { return title; }
+
+	private void addStandaloneSection() {
 		Label label2 = new Label("Stand-alone Tools");
 		label2.setStyleName(Reindeer.LABEL_H2);
 		label2.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(label2);
-
-		VerticalLayout group = new VerticalLayout();
-		group.setMargin(true);
+		this.addComponent(label2);
 		
+		/* This should be designed in a more general way, but for now LINCS and CNKB are the only things here and they are not even similar. */
+		VerticalLayout standaloneGroup = new VerticalLayout();
+		standaloneGroup.setMargin(true);
+		List<PluginEntry> plugins = GeworkbenchRoot.getPluginRegistry().getStandalonePlugins();
+		for(PluginEntry entry : plugins) {
+			Component content = null;
+			if( "LINCS".equals(entry.getName()) ) {
+				content = new LINCS();
+			} else {
+				content = new CNKB2(); // TODO this should be written in a more general way, but for now CNKB is the only thing.
+			}
+			Component item = buildStandaloneItem(entry, content, entry.getName(), entry.getDescription());
+			standaloneGroup.addComponent(item );
+		}
+		this.addComponent(standaloneGroup);
+	}
+	
+	private final ThemeResource ICON = new ThemeResource(
+			"../custom/icons/icon_info.gif");
+	private final ThemeResource CancelIcon = new ThemeResource(
+			"../runo/icons/16/cancel.png");
+
+	private ItemLayout buildStandaloneItem(final PluginEntry analysis, final Component content, final String title, final String description) {
+
 		final ItemLayout itemLayout = new ItemLayout();
 		final Button infoButton = new Button();
 		final Button cancelButton = new Button();
 
-		final String pluginName = "LINCS";
-		final String pluginDescription = "The LINCS tool provides for query and display of data generated by the "
-+"Columbia LINCS Technology U01 and Computation U01 Centers, both under "
-+"the direction of Dr. Andrea Califano. It provides experimental drug-drug "
-+"synergy results, as well as computationally-derived similarity scores "
-+"for drug mode of action.  The NIH LINCS (Library of Integrated "
-+"Network-based Cellular Signatures) Program supports a "
-+"cellular-network-based investigation into biology at a number of centers "
-+"across the country. It catalogs changes to gene expression and other "
-+"cellular processes resulting from perturbation experiments.<br/>"
-+"Data is preliminary, please see "
-+"<a href='http://wiki.c2b2.columbia.edu/workbench/index.php/LINCS_Query#Currently_Available_Data' target='_blank'>"
-+"here</a> "
-+"for currently available data.";
-		Button toolButton = new Button(pluginName,
-				new Button.ClickListener() {
+		final String pluginName, pluginDescription;
+		pluginName = analysis.getName();
+		pluginDescription = analysis.getDescription();
 
-					private static final long serialVersionUID = 1L;
+		Button toolButton = new Button(pluginName, new Button.ClickListener() {
 
-					@Override
-					public void buttonClick(ClickEvent event) {
-						pluginView.showLincs();
-					}
-				});
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(content instanceof ComponentContainer && title!=null)
+					pluginView.setContent((ComponentContainer)content, title, description);
+				else
+					pluginView.setContent(content);
+			}
+		});
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
 
 		infoButton.addListener(new Button.ClickListener() {
@@ -178,19 +199,8 @@ public class ToolsUI extends VerticalLayout {
 		itemLayout.addComponent(toolButton);
 		itemLayout.addComponent(infoButton);
 
-		group.addComponent(itemLayout);
-		
-		final ItemLayout cnkbItem = new ItemLayout();
-		cnkbItem.setCaption("CNKB");
-		group.addComponent(cnkbItem);
-		
-		addComponent(group);
+		return itemLayout;
 	}
-	
-	private final ThemeResource ICON = new ThemeResource(
-			"../custom/icons/icon_info.gif");
-	private final ThemeResource CancelIcon = new ThemeResource(
-			"../runo/icons/16/cancel.png");
 
 	// copied from DataTypeMenuPage and modified to break off the inheritance
 	private void buildOneItem(VerticalLayout group,
@@ -249,4 +259,13 @@ public class ToolsUI extends VerticalLayout {
 
 		group.addComponent(itemLayout);
 	}
+	
+	private ToolsUI(String title, String description, final VisualPluginView pluginView) {
+		this.title = title;
+		this.setDescription( description );
+		this.pluginView = pluginView;
+	}
+	
+	private final VisualPluginView pluginView;
+	private final String title;
 }

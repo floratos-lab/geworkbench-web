@@ -6,10 +6,8 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 
-import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -130,12 +128,12 @@ public class VisualPluginView extends HorizontalLayout {
 	}
 	
 	public void showToolList() {
-		ToolsUI toolList = new ToolsUI(this);
+		ToolsUI toolList = ToolsUI.createInstance(this);
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
 
 	public void showStandaloneTools() {
-		ToolsUI toolList = new ToolsUI();
+		ToolsUI toolList = ToolsUI.createStandaloneInstance(this);
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
 	
@@ -184,18 +182,6 @@ public class VisualPluginView extends HorizontalLayout {
 		left.setExpandRatio(panel, 1);
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
-	}
-
-	public void showLincs() {
-		removeAllComponents();
-		setWidth("100%");
-
-		Embedded e = new Embedded(null, new ExternalResource(
-				"http://geworkbench.c2b2.columbia.edu/lincsweb/"));
-		e.setType(Embedded.TYPE_BROWSER);
-		e.setSizeFull();
-		addComponent(e);
-		this.setSizeFull();
 	}
 
 	public void showAboutInfo() {

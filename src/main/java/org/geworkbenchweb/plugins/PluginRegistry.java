@@ -29,6 +29,7 @@ public class PluginRegistry {
 	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
 	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<?>, List<PluginEntry>> analysisMap = new HashMap<Class<?>, List<PluginEntry>>();
+	private List<PluginEntry> standalonePlugins = new ArrayList<PluginEntry>(); /* only manage name and description. */
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
@@ -117,6 +118,15 @@ public class PluginRegistry {
 	private void convert(List<List<DataTypeEntry>> overall) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		List<DataTypeEntry> list = overall.get(0);
 		for(DataTypeEntry entry : list) {
+			String inputType = entry.getInputType();
+			
+			if("".equals(inputType)) { // 'standalone' analysis plugins
+				for(PluginInfo info : entry.getPluginList()) {
+					standalonePlugins.add(new PluginEntry(info.name, info.description));
+				}
+				continue;
+			}
+			
 			List<PluginEntry> entryList = new ArrayList<PluginEntry>();
 			for(PluginInfo info : entry.getPluginList()) {
 				PluginEntry pluginEntry = new PluginEntry(info.name, info.description);
@@ -124,7 +134,7 @@ public class PluginRegistry {
 				Class<?> uiClass = Class.forName(info.uiClass);
 				analysisUIMap.put(pluginEntry, (AnalysisUI) uiClass.newInstance());
 			}
-			analysisMap.put(Class.forName(entry.getInputType()), entryList);
+			analysisMap.put(Class.forName(inputType), entryList);
 		}
 		
 		List<DataTypeEntry> visualizerlist = overall.get(1);
@@ -282,5 +292,9 @@ public class PluginRegistry {
 
 	public PluginEntry getVisualizerPluginEntry(Class<? extends Visualizer> visualizerClass) {
 		return visualizerPluginEntry.get(visualizerClass);
+	}
+
+	public List<PluginEntry> getStandalonePlugins() {
+		return standalonePlugins;
 	}
 }
