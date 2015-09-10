@@ -1,6 +1,5 @@
 package org.geworkbenchweb.plugins.tools;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,7 +7,6 @@ import java.util.List;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
-import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.plugins.ItemLayout;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
@@ -57,10 +55,7 @@ public class ToolsUI extends VerticalLayout {
 		List<PluginEntry> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(null);
 		Collections.sort(analysisList);
 		for(final PluginEntry analysis : analysisList) {
-		
-			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
-			inst.buildOneItem(analysisGroup, analysis, analysisUI);
-
+			analysisGroup.addComponent( inst.buildToolItem(analysis, null) );
 		}
 		inst.addComponent(analysisGroup);
 		
@@ -89,21 +84,12 @@ public class ToolsUI extends VerticalLayout {
 		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
 
 			try {
-				final Visualizer visualizer = visualizerClass.getConstructor(
-						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
-				inst.buildOneItem(visualizerGroup, null,
-						visualizer);
+				PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
+						.getVisualizerPluginEntry(visualizerClass);
+				visualizerGroup.addComponent( inst.buildToolItem(plugin, null) );
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			}
 		}
@@ -133,7 +119,7 @@ public class ToolsUI extends VerticalLayout {
 			} else {
 				content = new CNKB2(); // TODO this should be written in a more general way, but for now CNKB is the only thing.
 			}
-			Component item = buildStandaloneItem(entry, content, entry.getName(), entry.getDescription());
+			Component item = buildToolItem(entry, content);
 			standaloneGroup.addComponent(item );
 		}
 		this.addComponent(standaloneGroup);
@@ -144,7 +130,7 @@ public class ToolsUI extends VerticalLayout {
 	private final ThemeResource CancelIcon = new ThemeResource(
 			"../runo/icons/16/cancel.png");
 
-	private ItemLayout buildStandaloneItem(final PluginEntry analysis, final Component content, final String title, final String description) {
+	private ItemLayout buildToolItem(final PluginEntry analysis, final Component content) {
 
 		final ItemLayout itemLayout = new ItemLayout();
 		final Button infoButton = new Button();
@@ -154,19 +140,25 @@ public class ToolsUI extends VerticalLayout {
 		pluginName = analysis.getName();
 		pluginDescription = analysis.getDescription();
 
-		Button toolButton = new Button(pluginName, new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(content instanceof ComponentContainer && title!=null)
-					pluginView.setContent((ComponentContainer)content, title, description);
-				else
-					pluginView.setContent(content);
-			}
-		});
+		Button toolButton = new Button(pluginName);
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
+		if (content != null) {
+			toolButton.addListener(new Button.ClickListener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					if (content instanceof ComponentContainer && title != null)
+						pluginView.setContent((ComponentContainer) content, analysis.getName(),
+								analysis.getDescription());
+					else
+						pluginView.setContent(content);
+				}
+			});
+		} else {
+			toolButton.addStyleName("nolink");
+		}
 
 		infoButton.addListener(new Button.ClickListener() {
 
@@ -202,64 +194,6 @@ public class ToolsUI extends VerticalLayout {
 		return itemLayout;
 	}
 
-	// copied from DataTypeMenuPage and modified to break off the inheritance
-	private void buildOneItem(VerticalLayout group,
-			final PluginEntry analysis,
-			final Object container) { //ComponentContainer
-
-		final ItemLayout itemLayout = new ItemLayout();
-		final Button infoButton = new Button();
-		final Button cancelButton = new Button();
-
-		final String pluginName, pluginDescription;
-		if (analysis != null) {
-			pluginName = analysis.getName();
-			pluginDescription = analysis.getDescription();
-		} else {
-			Visualizer v = (Visualizer) container;
-			PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
-					.getVisualizerPluginEntry(v.getClass());
-			pluginName = plugin.getName();
-			pluginDescription = plugin.getDescription();
-		}
-		Button toolButton = new Button(pluginName);
-		toolButton.setStyleName(Reindeer.BUTTON_LINK);
-		toolButton.addStyleName("nolink");
-
-		infoButton.addListener(new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				itemLayout.removeComponent(infoButton);
-				itemLayout.addComponent(cancelButton, 1, 0);
-				itemLayout.addDescription(pluginDescription);
-			}
-		});
-		cancelButton.addListener(new Button.ClickListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				itemLayout.removeComponent(cancelButton);
-				itemLayout.addComponent(infoButton, 1, 0);
-				itemLayout.clearDescription();
-			}
-		});
-
-		infoButton.setStyleName(BaseTheme.BUTTON_LINK);
-		infoButton.setIcon(ICON);
-		cancelButton.setStyleName(BaseTheme.BUTTON_LINK);
-		cancelButton.setIcon(CancelIcon);
-		itemLayout.setSpacing(true);
-		itemLayout.addComponent(toolButton);
-		itemLayout.addComponent(infoButton);
-
-		group.addComponent(itemLayout);
-	}
-	
 	private ToolsUI(String title, String description, final VisualPluginView pluginView) {
 		this.title = title;
 		this.setDescription( description );
