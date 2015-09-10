@@ -16,6 +16,7 @@ import org.geworkbenchweb.plugins.proteinstructure.ProteinStructureUI;
 import org.xml.sax.SAXException;
 
 import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.Component;
 
 /**
  * Central control of all Plug-ins. 
@@ -29,7 +30,7 @@ public class PluginRegistry {
 	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
 	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<?>, List<PluginEntry>> analysisMap = new HashMap<Class<?>, List<PluginEntry>>();
-	private List<PluginEntry> standalonePlugins = new ArrayList<PluginEntry>(); /* only manage name and description. */
+	private Map<PluginEntry, Class<? extends Component> > standalonePlugins = new HashMap<PluginEntry, Class<? extends Component> >();
 	
 	// TODO for now, let's maintain a separate list for result type. this may not necessary eventually
 	private Map<Class<?>, ThemeResource> resultIconMap = new HashMap<Class<?>, ThemeResource>();
@@ -122,7 +123,8 @@ public class PluginRegistry {
 			
 			if("".equals(inputType)) { // 'standalone' analysis plugins
 				for(PluginInfo info : entry.getPluginList()) {
-					standalonePlugins.add(new PluginEntry(info.name, info.description));
+					Class<? extends Component> clazz = (Class<? extends Component>) Class.forName(info.getUiClass());
+					standalonePlugins.put(new PluginEntry(info.name, info.description), clazz );
 				}
 				continue;
 			}
@@ -294,7 +296,7 @@ public class PluginRegistry {
 		return visualizerPluginEntry.get(visualizerClass);
 	}
 
-	public List<PluginEntry> getStandalonePlugins() {
+	public Map<PluginEntry, Class<? extends Component> > getStandalonePlugins() {
 		return standalonePlugins;
 	}
 }

@@ -4,14 +4,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
 import org.geworkbenchweb.plugins.ItemLayout;
 import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.plugins.cnkb.CNKB2;
-import org.geworkbenchweb.plugins.lincs.LINCS;
 
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
@@ -111,13 +110,14 @@ public class ToolsUI extends VerticalLayout {
 		/* This should be designed in a more general way, but for now LINCS and CNKB are the only things here and they are not even similar. */
 		VerticalLayout standaloneGroup = new VerticalLayout();
 		standaloneGroup.setMargin(true);
-		List<PluginEntry> plugins = GeworkbenchRoot.getPluginRegistry().getStandalonePlugins();
-		for(PluginEntry entry : plugins) {
-			Component content = null;
-			if( "LINCS".equals(entry.getName()) ) {
-				content = new LINCS();
-			} else {
-				content = new CNKB2(); // TODO this should be written in a more general way, but for now CNKB is the only thing.
+		Map<PluginEntry, Class<? extends Component> > plugins = GeworkbenchRoot.getPluginRegistry().getStandalonePlugins();
+		for(PluginEntry entry : plugins.keySet()) {
+			Component content;
+			try {
+				content = plugins.get(entry).newInstance();
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+				continue;
 			}
 			Component item = buildToolItem(entry, content);
 			standaloneGroup.addComponent(item );

@@ -23,9 +23,9 @@ import sun.misc.BASE64Encoder;
  * The class to query CNKB database via servlet.
  * 
  */
-public class CNKB {
+public class CNKBServletClient {
 
-	private static final Log logger = LogFactory.getLog(CNKB.class);
+	private static final Log logger = LogFactory.getLog(CNKBServletClient.class);
 
 	private static final String ENTREZ_GENE = "Entrez Gene";
 
@@ -38,7 +38,7 @@ public class CNKB {
 	
 	private final String cnkbServletUrl;
 
-	public CNKB() {
+	public CNKBServletClient() {
 		cnkbServletUrl = CNKB_SERVLET_URL;
 	}
 	

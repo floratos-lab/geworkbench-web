@@ -543,7 +543,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			ResultSetlUtil.setTimeout(3000);
 		}
 		
-		CNKB interactionsConnection = new CNKB();
+		CNKBServletClient interactionsConnection = new CNKBServletClient();
 		try{
 		   confidentTypeMap =  interactionsConnection.getConfidenceTypeMap();
 		}

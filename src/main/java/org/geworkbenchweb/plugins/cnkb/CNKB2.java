@@ -38,7 +38,7 @@ public class CNKB2 extends VerticalLayout {
 		super.attach();
 
 		/* Create a connection with the server. */
-		final CNKB interactionsConnection = new CNKB();
+		final CNKBServletClient interactionsConnection = new CNKBServletClient();
 
 		List<String> interactomeList = null;
 		try {

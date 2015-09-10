@@ -92,7 +92,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		super.attach();
 
 		/* Create a connection with the server. */
-		final CNKB interactionsConnection = new CNKB();
+		final CNKBServletClient interactionsConnection = new CNKBServletClient();
 
 		try {
 			contextList = interactionsConnection.getDatasetAndInteractioCount();
@@ -355,7 +355,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		}
 		log.debug("hist size " + selectedMarkers.size());
 
-		CNKB cnkb = new CNKB();
+		CNKBServletClient cnkb = new CNKBServletClient();
 
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference(
 				"Throttle Graph(" + context + version + ")");
