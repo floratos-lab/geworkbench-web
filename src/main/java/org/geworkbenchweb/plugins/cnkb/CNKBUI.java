@@ -14,17 +14,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
+import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.utils.MarkerSelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
@@ -60,9 +58,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	
 	private static final long serialVersionUID = -1221913812891134388L;
 
-	private static final String CNKB_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-	private static final int TIMEOUT = 3000;
-
 	private ResultSet resultSet;
 
 	private List<String> contextList = new ArrayList<String>();
@@ -97,9 +92,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		super.attach();
 
 		/* Create a connection with the server. */
-		ResultSetlUtil.setUrl(CNKB_SERVLET_URL);
-		ResultSetlUtil.setTimeout(TIMEOUT);
-
 		final CNKB interactionsConnection = new CNKB();
 
 		try {

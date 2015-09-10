@@ -6,9 +6,6 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.UnAuthenticatedException;
-
 import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -29,9 +26,6 @@ public class CNKB2 extends VerticalLayout {
 
 	private static final long serialVersionUID = 6992822172488124700L;
 
-	private static final String CNKB_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
-	private static final int TIMEOUT = 3000;
-
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 
 	/*
@@ -44,9 +38,6 @@ public class CNKB2 extends VerticalLayout {
 		super.attach();
 
 		/* Create a connection with the server. */
-		ResultSetlUtil.setUrl(CNKB_SERVLET_URL);
-		ResultSetlUtil.setTimeout(TIMEOUT);
-
 		final CNKB interactionsConnection = new CNKB();
 
 		List<String> interactomeList = null;

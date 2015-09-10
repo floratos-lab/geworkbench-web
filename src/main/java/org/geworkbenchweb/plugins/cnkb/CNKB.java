@@ -3,15 +3,19 @@ package org.geworkbenchweb.plugins.cnkb;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.geworkbench.util.ResultSetlUtil;
-import org.geworkbench.util.UnAuthenticatedException;
+import sun.misc.BASE64Encoder;
 
 /* This is based on InteractionsConnectionImpl in CNKB (interactions) component
  * to fix the issue of dependency on 'current dataset' */
@@ -28,7 +32,16 @@ public class CNKB {
 	private static class Constants {
 		static String DEL = "|";
 	};
+	
+	private static final String CNKB_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+	private static final int TIMEOUT = 3000;
+	
+	private final String cnkbServletUrl;
 
+	public CNKB() {
+		cnkbServletUrl = CNKB_SERVLET_URL;
+	}
+	
 	/**
 	 * This was originally developed to retain all the 'edges' of the
 	 * interactions that include the queried marker even if the edges are not
@@ -49,8 +62,7 @@ public class CNKB {
 				+ Constants.DEL + marker_msid + Constants.DEL + marker_geneName
 				+ Constants.DEL + context + Constants.DEL + version;
 
-		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(
-				methodAndParams, ResultSetlUtil.getUrl(), userInfo);
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl, userInfo);
 
 		String previousInteractionId = null;
 		boolean firstHitOnQueryGene = true;
@@ -148,116 +160,13 @@ public class CNKB {
 		return arrayList;
 	}
 
-	public List<String> getInteractionsSifFormat(String context,
-			String version, String interactionType, String presentBy)
-			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException {
-
-		List<String> arrayList = new ArrayList<String>();
-
-		String methodAndParams = "getInteractionsSifFormat" + Constants.DEL
-				+ context + Constants.DEL + version + Constants.DEL
-				+ interactionType + Constants.DEL + presentBy;
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
-
-		String sifLine = null;
-		while (rs.next()) {
-			try {
-				sifLine = rs.getString("sif format data");
-				arrayList.add(sifLine);
-			} catch (NullPointerException npe) {
-				if (logger.isErrorEnabled()) {
-					logger.error("db row is dropped because a NullPointerException");
-				}
-			}
-		}
-		rs.close();
-
-		return arrayList;
-	}
-
-	public List<String> getInteractionsAdjFormat(String context,
-			String version, String interactionType, String presentBy)
-			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException {
-
-		List<String> arrayList = new ArrayList<String>();
-
-		String methodAndParams = "getInteractionsAdjFormat" + Constants.DEL
-				+ context + Constants.DEL + version + Constants.DEL
-				+ interactionType + Constants.DEL + presentBy;
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
-
-		String adjLine = null;
-		while (rs.next()) {
-			try {
-				adjLine = rs.getString("adj format data");
-				arrayList.add(adjLine);
-			} catch (NullPointerException npe) {
-				if (logger.isErrorEnabled()) {
-					logger.error("db row is dropped because a NullPointerException");
-				}
-			}
-		}
-		rs.close();
-
-		return arrayList;
-	}
-
-	public HashMap<String, String> getInteractionTypeMap()
-			throws ConnectException, SocketTimeoutException, IOException,
-			UnAuthenticatedException {
-		HashMap<String, String> map = new HashMap<String, String>();
-
-		String methodAndParams = "getInteractionTypes";
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
-
-		while (rs.next()) {
-
-			String interactionType = rs.getString("interaction_type").trim();
-			String short_name = rs.getString("short_name").trim();
-
-			map.put(interactionType, short_name);
-			map.put(short_name, interactionType);
-		}
-		rs.close();
-
-		return map;
-	}
-
-	public HashMap<String, String> getInteractionEvidenceMap()
-			throws ConnectException, SocketTimeoutException, IOException,
-			UnAuthenticatedException {
-		HashMap<String, String> map = new HashMap<String, String>();
-
-		String methodAndParams = "getInteractionEvidences";
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
-
-		while (rs.next()) {
-
-			String evidenceDesc = rs.getString("description");
-			String evidenceId = rs.getString("id");
-
-			map.put(evidenceId, evidenceDesc);
-			map.put(evidenceDesc, evidenceId);
-		}
-		rs.close();
-
-		return map;
-	}
-
 	public HashMap<String, String> getConfidenceTypeMap()
 			throws ConnectException, SocketTimeoutException, IOException,
 			UnAuthenticatedException {
 		HashMap<String, String> map = new HashMap<String, String>();
 
 		String methodAndParams = "getConfidenceTypes";
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
 
 		while (rs.next()) {
 
@@ -272,25 +181,6 @@ public class CNKB {
 		return map;
 	}
 
-	public List<String> getInteractionTypes() throws ConnectException,
-			SocketTimeoutException, IOException, UnAuthenticatedException {
-		List<String> arrayList = new ArrayList<String>();
-
-		String methodAndParams = "getInteractionTypes";
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
-
-		while (rs.next()) {
-
-			String interactionType = rs.getString("interaction_type").trim();
-
-			arrayList.add(interactionType);
-		}
-		rs.close();
-
-		return arrayList;
-	}
-
 	public List<String> getInteractionTypesByInteractomeVersion(String context,
 			String version) throws ConnectException, SocketTimeoutException,
 			IOException, UnAuthenticatedException {
@@ -298,8 +188,7 @@ public class CNKB {
 
 		String methodAndParams = "getInteractionTypesByInteractomeVersion"
 				+ Constants.DEL + context + Constants.DEL + version;
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
 
 		while (rs.next()) {
 
@@ -320,8 +209,7 @@ public class CNKB {
 
 		String methodAndParams = "getInteractomeDescription" + Constants.DEL
 				+ interactomeName;
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
 		while (rs.next()) {
 			interactomeDesc = rs.getString("description").trim();
 			break;
@@ -340,8 +228,7 @@ public class CNKB {
 		int interactionCount = 0;
 
 		String methodAndParams = "getDatasetNames";
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
 
 		while (rs.next()) {
 
@@ -362,8 +249,7 @@ public class CNKB {
 
 		String methodAndParams = "getVersionDescriptor" + Constants.DEL
 				+ interactomeName;
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
 		while (rs.next()) {
 			String version = rs.getString("version").trim();
 			if (version.equalsIgnoreCase("DEL"))
@@ -382,25 +268,42 @@ public class CNKB {
 
 		return arrayList;
 	}
-
-	/**
-	 * Test the connection. The actual query result is ignored.
-	 */
-	public static boolean isValidUrl(String urlStr) {
-
-		try {
-			ResultSetlUtil rs = ResultSetlUtil.executeQuery("getDatasetNames",
-					urlStr);
-			rs.close();
-			return true;
-		} catch (java.net.ConnectException ce) {
-			logger.error(ce.getMessage());
-			return false;
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			return false;
-		}
-
+	
+	private static ResultSetlUtil executeQuery(String methodAndParams,
+			String urlStr) throws IOException, UnAuthenticatedException {
+	    return executeQuery(methodAndParams, urlStr, null);
 	}
 
+	private static ResultSetlUtil executeQuery(String methodAndParams,
+			String urlStr, String userInfo) throws IOException, UnAuthenticatedException {
+		URL aURL = new URL(urlStr);
+		HttpURLConnection aConnection = (HttpURLConnection) (aURL
+				.openConnection());
+		aConnection.setDoOutput(true);
+		aConnection.setConnectTimeout(TIMEOUT);
+
+		if (userInfo != null && userInfo.trim().length() != 0) {
+			BASE64Encoder encoder = new BASE64Encoder();
+			aConnection.setRequestProperty("Authorization", "Basic " + encoder.encode(userInfo.getBytes()));
+		}
+		OutputStreamWriter out = new OutputStreamWriter(aConnection.getOutputStream());
+
+		out.write(methodAndParams);
+		out.close();
+
+		int respCode = aConnection.getResponseCode();
+
+		if (respCode == HttpURLConnection.HTTP_UNAUTHORIZED)
+			throw new UnAuthenticatedException("server response code = " + respCode);
+
+		if ((respCode == HttpURLConnection.HTTP_BAD_REQUEST) || (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR)) {
+			throw new IOException("server response code = " + respCode + ", see server logs");
+		}
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(aConnection.getInputStream()));
+
+		ResultSetlUtil rs = new ResultSetlUtil(in);
+
+		return rs;
+	}
 }
