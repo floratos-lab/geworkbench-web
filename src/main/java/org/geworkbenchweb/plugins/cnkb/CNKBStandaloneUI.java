@@ -38,15 +38,15 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
- * Parameter panel for 'standalone' CNKB
+ * User interface for 'standalone' CNKB.
  * 
  */
-public class CNKB2 extends VerticalLayout {
-	private static Log log = LogFactory.getLog(CNKB2.class);
+public class CNKBStandaloneUI extends VerticalLayout {
+	private static Log log = LogFactory.getLog(CNKBStandaloneUI.class);
 
 	private static final long serialVersionUID = 6992822172488124700L;
 
-	private static final String MARKER_NAMES = "Marker Names";
+	private static final String GENE_SYMBOLS = "Gene Symbols";
 
 	final ListSelect geneEntry = new ListSelect("Direct Gene Entry");
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
@@ -161,7 +161,7 @@ public class CNKB2 extends VerticalLayout {
 
 			public void buttonClick(ClickEvent event) {
 				String warningMesaage = null;
-				String[] selectedMarkers = getItemAsArray( geneEntry );
+				String[] selectedMarkers = getItemAsArray(geneEntry);
 				if (selectedMarkers == null || selectedMarkers.length == 0)
 					warningMesaage = "Please select at least one marker set.";
 				if (interactomeBox.getValue() == null)
@@ -176,7 +176,7 @@ public class CNKB2 extends VerticalLayout {
 				}
 
 				HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
-				params.put(MARKER_NAMES, selectedMarkers);
+				params.put(GENE_SYMBOLS, selectedMarkers);
 				params.put(CNKBParameters.INTERACTOME, interactomeBox.getValue().toString());
 				params.put(CNKBParameters.VERSION, versionBox.getValue().toString());
 				queryCNKB(params);
@@ -204,12 +204,12 @@ public class CNKB2 extends VerticalLayout {
 		addComponent(versionDes);
 		addComponent(submitButton);
 	}
-	
+
 	private Button createAddGeneButton() {
 		final String title = "Add Gene";
-		Button b =  new Button(title);
+		Button b = new Button(title);
 		b.addListener(new Button.ClickListener() {
-			
+
 			private static final long serialVersionUID = -4929628014095090196L;
 
 			@Override
@@ -235,19 +235,19 @@ public class CNKB2 extends VerticalLayout {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						geneEntry.addItem( geneSymbol.getValue().toString() );
+						geneEntry.addItem(geneSymbol.getValue().toString());
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
 				geneDialog.addComponent(geneSymbol);
 				geneDialog.addComponent(submit);
-				Window mainWindow = CNKB2.this.getApplication().getMainWindow();
+				Window mainWindow = CNKBStandaloneUI.this.getApplication().getMainWindow();
 				mainWindow.addWindow(geneDialog);
 			}
 		});
 		return b;
 	}
-	
+
 	private static String[] getItemAsArray(ListSelect listSelect) {
 		String[] a = null;
 		String selectStr = listSelect.getValue().toString();
@@ -256,13 +256,12 @@ public class CNKB2 extends VerticalLayout {
 		}
 		return a;
 	}
-	
+
 	// TODO review both input and output
 	private void queryCNKB(final Map<Serializable, Serializable> params) {
 		// this part about session must be called from front end
 		Application app = getApplication();
-		if (app == null) { // this should not happens after the code was moved
-							// to the front end
+		if (app == null) { // this should never happens
 			log.error("getApplication() returns null");
 			return;
 		}
@@ -276,10 +275,8 @@ public class CNKB2 extends VerticalLayout {
 		String userInfo = null;
 		if (session.getAttribute(CNKBParameters.CNKB_USERINFO) != null) {
 			userInfo = session.getAttribute(CNKBParameters.CNKB_USERINFO).toString();
-			log.debug("getting userInfo from session: " + userInfo);
 		}
-		log.debug("userInfo " + userInfo);
-				
+
 		try {
 			CNKBResultSet result = getInteractions(params, userInfo);
 			System.out.println(result);
@@ -306,7 +303,8 @@ public class CNKB2 extends VerticalLayout {
 
 	/**
 	 * Main function of this class: query the CNKB db for the interactions.
-	 * Difference from the original version: no session part; no annotation part; no entrez ID option
+	 * Difference from the original version: no session part; no annotation
+	 * part; no entrez ID option
 	 */
 	private static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, final String userInfo)
 			throws UnAuthenticatedException, ConnectException, SocketTimeoutException, IOException {
@@ -314,7 +312,7 @@ public class CNKB2 extends VerticalLayout {
 		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
 		String version = (String) params.get(CNKBParameters.VERSION);
 
-		String[] selectedMarkers = (String[]) params.get(MARKER_NAMES);
+		String[] geneSymbols = (String[]) params.get(GENE_SYMBOLS);
 
 		CNKBServletClient cnkb = new CNKBServletClient();
 
@@ -323,7 +321,7 @@ public class CNKB2 extends VerticalLayout {
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
 		Vector<CellularNetWorkElementInformation> hits = new Vector<CellularNetWorkElementInformation>();
-		for (String geneSymbol : selectedMarkers) {
+		for (String geneSymbol : geneSymbols) {
 
 			// GO stuff
 			int[] mf = new int[0];

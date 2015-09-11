@@ -37,7 +37,7 @@
 				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Cellular_Networks_KnowledgeBase" target="_blank"&gt;CNKB&lt;/a&gt;
 				tutorial.
 			</description>
-			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKB2</uiClass>
+			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBStandaloneUI</uiClass>
 		</plugin>
 	</inputType>
 	
