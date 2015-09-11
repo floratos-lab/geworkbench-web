@@ -24,4 +24,10 @@ public class InteractionParticipant implements Serializable{
         return geneName;
     }
     
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(geneId).append("|").append(geneName);
+		return sb.toString();
+	}
 }

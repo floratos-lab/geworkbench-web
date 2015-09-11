@@ -24,7 +24,8 @@ import sun.misc.BASE64Encoder;
  * 
  */
 public class CNKBServletClient {
-
+	private static Log log = LogFactory.getLog(CNKBServletClient.class);
+	
 	private static final Log logger = LogFactory.getLog(CNKBServletClient.class);
 
 	private static final String ENTREZ_GENE = "Entrez Gene";
@@ -159,6 +160,96 @@ public class CNKBServletClient {
 
 		return arrayList;
 	}
+	
+	public List<InteractionDetail> getInteractionsByGeneSymbol(String geneSymbol, String context, String version,
+			String userInfo) throws UnAuthenticatedException, ConnectException, SocketTimeoutException, IOException {
+
+		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+
+		String marker_geneName = geneSymbol;
+
+		String methodAndParams = "getInteractionsByGeneSymbol" + Constants.DEL + marker_geneName + Constants.DEL
+				+ context + Constants.DEL + version;
+
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl, userInfo);
+
+		String previousInteractionId = null;
+		boolean firstHitOnQueryGene = true;
+		InteractionDetail interactionDetail = null;
+		while (rs.next()) {
+			try {
+				String msid2 = rs.getString("primary_accession");
+				String geneName2 = rs.getString("gene_symbol");
+
+				String interactionType = rs.getString("interaction_type").trim();
+				String interactionId = rs.getString("interaction_id");
+				Short evidenceId = 0;
+				if (rs.getString("evidence_id") != null && !rs.getString("evidence_id").trim().equals("null")) {
+					evidenceId = new Short(rs.getString("evidence_id"));
+				}
+
+				if (previousInteractionId == null || !previousInteractionId.equals(interactionId)) {
+					if (interactionDetail != null) {
+						arrayList.add(interactionDetail);
+						interactionDetail = null;
+					}
+					previousInteractionId = interactionId;
+					firstHitOnQueryGene = true;
+
+				}
+				if ((geneName2 != null && marker_geneName.equalsIgnoreCase(geneName2))) {
+					if (firstHitOnQueryGene == true) {
+						firstHitOnQueryGene = false;
+						continue;
+					}
+				}
+
+				if (interactionDetail == null) {
+					interactionDetail = new InteractionDetail(new InteractionParticipant(msid2, geneName2),
+							interactionType, evidenceId);
+					double confidenceValue = 1.0;
+					try {
+						confidenceValue = rs.getDouble("confidence_value");
+					} catch (NumberFormatException nfe) {
+						logger.info("there is no confidence value for this row. Default it to 1.");
+					}
+					short confidenceType = 0;
+					try {
+						confidenceType = new Short(rs.getString("confidence_type").trim());
+					} catch (NumberFormatException nfe) {
+						logger.info("there is no confidence value for this row. Default it to 0.");
+					}
+					interactionDetail.addConfidence(confidenceValue, confidenceType);
+					String otherConfidenceValues = rs.getString("other_confidence_values");
+					String otherConfidenceTypes = rs.getString("other_confidence_types");
+					if (!otherConfidenceValues.equals("null")) {
+						String[] values = otherConfidenceValues.split(";");
+						String[] types = otherConfidenceTypes.split(";");
+
+						for (int i = 0; i < values.length; i++)
+							interactionDetail.addConfidence(new Double(values[i]), new Short(types[i]));
+
+					}
+				} else {
+					interactionDetail.addParticipant(new InteractionParticipant(msid2, geneName2));
+				}
+
+			} catch (NullPointerException npe) {
+				logger.error("db row is dropped because a NullPointerException");
+
+			} catch (NumberFormatException nfe) {
+				logger.error("db row is dropped because a NumberFormatExceptio");
+			}
+		}
+
+		if (interactionDetail != null) {
+			arrayList.add(interactionDetail);
+			interactionDetail = null;
+		}
+		rs.close();
+
+		return arrayList;
+	}
 
 	public HashMap<String, String> getConfidenceTypeMap()
 			throws ConnectException, SocketTimeoutException, IOException,
@@ -276,6 +367,10 @@ public class CNKBServletClient {
 
 	private static ResultSetlUtil executeQuery(String methodAndParams,
 			String urlStr, String userInfo) throws IOException, UnAuthenticatedException {
+		log.debug(methodAndParams);
+		log.debug(urlStr);
+		log.debug(userInfo);
+		
 		URL aURL = new URL(urlStr);
 		HttpURLConnection aConnection = (HttpURLConnection) (aURL
 				.openConnection());

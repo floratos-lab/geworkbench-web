@@ -65,5 +65,15 @@ public class InteractionDetail implements Serializable {
 		return this.evidenceId;
 	}
 
-	 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("InteractionDetail[");
+		if(participantList!=null) {
+			for(InteractionParticipant p : participantList) {
+				sb.append(p).append(',');
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

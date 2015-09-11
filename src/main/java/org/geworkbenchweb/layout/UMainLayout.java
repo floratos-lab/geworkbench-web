@@ -391,6 +391,11 @@ public class UMainLayout extends VerticalLayout {
 		log.debug("result node is added");
 	}
 	
+	/* this method is to show new content not linked to the navigation tree */
+	public void setPluginViewContent(Component content) {
+		pluginView.setContent(content);
+	}
+
 	// this may need to be public if we don't use event listener to trigger it.
 	private void addDataSet(final DataSet dS) {
 		Long id = dS.getId();

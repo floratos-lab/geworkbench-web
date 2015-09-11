@@ -198,4 +198,16 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("CellularNetWorkElementInformation of ");
+		sb.append(markerLabel);
+		if(interactionDetails!=null) {
+			sb.append(" with ").append(interactionDetails.length).append(" InteractionDetail's: ");
+			for(InteractionDetail detail : interactionDetails) {
+				sb.append('|').append(detail);
+			}
+		}
+		return sb.toString();
+	}
 }

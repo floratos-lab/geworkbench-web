@@ -40,4 +40,15 @@ public class CNKBResultSet extends AbstractPojo {
 	public Long getDatasetId() {
 		return datasetId;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("CNKBResultSet for ");
+		sb.append("Dataset ID ").append(datasetId).append("\nCellularNetWorkElementInformation vector:");
+		int h = 0;
+		for(CellularNetWorkElementInformation element : hits) {
+			sb.append('\n').append(h++).append(':').append(element);
+		}
+		return sb.toString();
+	}
 }

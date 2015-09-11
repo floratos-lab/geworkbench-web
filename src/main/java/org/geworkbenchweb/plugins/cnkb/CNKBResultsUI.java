@@ -94,15 +94,19 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		}
 		CNKBResultSet cnkbResult = FacadeFactory.getFacade().find(org.geworkbenchweb.pojos.CNKBResultSet.class, id);
 
-		if (confidentTypeMap == null)
-			loadConfidentTypeMap();
-		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("id", dataSetId);
 		List<ResultSet> data = FacadeFactory.getFacade().list(
 				"Select p from ResultSet as p where p.id=:id", parameters);
 		Long parentId = data.get(0).getParent();
-
+		
+		init(cnkbResult, parentId);
+	}
+	
+	private void init(CNKBResultSet cnkbResult, Long parentId) {
+		if (confidentTypeMap == null)
+			loadConfidentTypeMap();
+		
 		setSizeFull();
 		setImmediate(true);
 		setStyleName(Reindeer.TABSHEET_SMALL);
@@ -130,13 +134,11 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			private static final long serialVersionUID = 1L;
 
 			public String generateDescription(Component source, Object itemId, Object propertyId) {
-			    if(propertyId == null) 
-			        return null;
-			     else 
-			     {
-			    	 Item item = ((Table)source).getItem(itemId);
-			    	 return item.getItemProperty(propertyId).getValue().toString();
-			     }
+				try { /* there are multiple expected possibilities to get null pointers here */
+					return ((Table)source).getItem(itemId).getItemProperty(propertyId).getValue().toString();
+				} catch (NullPointerException e) {
+					return "";
+				}
 			}                                                          
 			 
 		});
@@ -194,6 +196,12 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		addComponent(tabPanel);
 		setExpandRatio(tabPanel, 1);
 
+	}
+	
+	/* this version for 'orphan' result */
+	public CNKBResultsUI(CNKBResultSet cnkbResult) {
+		datasetId = null;
+		init(cnkbResult, null);
 	}
 
 	/**
@@ -412,6 +420,13 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				MessageBox mb = new MessageBox(getWindow(), "Warning",
 						MessageBox.Icon.INFO,
 						"There is no interaction to create a network. ",
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+				return;
+			}
+			if (datasetId == null) {
+				MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
+						"Feature not supported for 'orphan' result for now.",
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();
 				return;
