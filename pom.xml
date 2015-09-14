@@ -153,8 +153,11 @@
 		<repository>
 			<id>maven2-public</id>
 			<url>https://maven.onehippo.com/content/groups/maven2</url>
-		</repository>		 
-		
+		</repository>
+		<repository>
+			<id>maven-jahia</id>
+			<url>http://maven.jahia.org/maven2/</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -633,7 +636,12 @@
 			<groupId>gwtg3d</groupId>
 			<artifactId>gwtg3d</artifactId>
 			<version>0.10</version>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>com.jhlabs</groupId>
+			<artifactId>imaging</artifactId>
+			<version>01012005</version>
+		</dependency>
 	</dependencies>	 
 
 </project>
