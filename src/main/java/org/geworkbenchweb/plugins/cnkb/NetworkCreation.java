@@ -49,6 +49,20 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 	public String execute(Long resultId,
 			HashMap<Serializable, Serializable> params, Long userId)
 			throws IOException {
+		
+		Network network = createNetwork(params);
+		FacadeFactory.getFacade().store(network);
+		ResultSet networkResult = FacadeFactory.getFacade().find(
+				ResultSet.class, resultId);
+		networkResult.setDataId(network.getId());
+		FacadeFactory.getFacade().store(networkResult);
+
+		int num = DataSetOperations.getSubDatasetNum(datasetId, getResultType().getName());
+		return "Network" + " - " + num;
+	}
+
+	/* this method works in case the datasetId is null or otherwise there is no annotation information */
+	public Network createNetwork(HashMap<Serializable, Serializable> params) {
 		Vector<CellularNetWorkElementInformation> hits = null;
 		CNKBResultSet resultSet = null;
 		Short confidentType = null;
@@ -109,13 +123,6 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		} // end for loop
 
 		Network network = new Network(networkMap);
-		FacadeFactory.getFacade().store(network);
-		ResultSet networkResult = FacadeFactory.getFacade().find(
-				ResultSet.class, resultId);
-		networkResult.setDataId(network.getId());
-		FacadeFactory.getFacade().store(networkResult);
-
-		int num = DataSetOperations.getSubDatasetNum(datasetId, getResultType().getName());
-		return "Network" + " - " + num;
+		return network;
 	}
 }

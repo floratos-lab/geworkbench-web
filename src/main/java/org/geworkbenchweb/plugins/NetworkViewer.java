@@ -70,6 +70,14 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		getLimitCytoscapeObjectsNum();
 	}
 	
+	public NetworkViewer(Network network) {
+		datasetId = null;
+		networkResult = network;
+		setImmediate(true);
+		setSizeFull();		 
+		getLimitCytoscapeObjectsNum();
+	}
+
 	private static enum DisplayOption {UNDECIDED, TEXT, CYTOSCAPE};
 	private volatile DisplayOption option = DisplayOption.UNDECIDED;
 	

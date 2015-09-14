@@ -13,6 +13,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.plugins.NetworkViewer;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.pojos.DataHistory;
@@ -43,6 +45,7 @@ import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
@@ -50,6 +53,7 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.vaadin.MessageBox;
@@ -424,15 +428,24 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				mb.show();
 				return;
 			}
-			if (datasetId == null) {
-				MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
-						"Feature not supported for 'orphan' result for now.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-				return;
-			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 			params.put(CNKBParameters.CNKB_RESULTSET, cnkbResultSet);
+			
+			if (datasetId == null) { /* 'orphan' result of CNKB */
+				Network network = new NetworkCreation(parentId).createNetwork(params);
+				System.out.println(network);
+
+				// direct show the orphan result
+				Window w = getApplication().getMainWindow();
+				ComponentContainer content = w.getContent();
+				if (content instanceof UMainLayout) {
+					UMainLayout m = (UMainLayout) content;
+					m.setPluginViewContent(new NetworkViewer(network));
+				} else {
+					log.error("wrong type of plugin view content: " + content);
+				}
+				return;
+			}
 			 
 			ResultSet resultSet = new ResultSet();
 			java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
