@@ -244,6 +244,25 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 			}
        	};
        	toolBar.addItem("Export", exportCommand); /* ignore return value */
+       	MenuItem displayMenuItem = toolBar.addItem("Display", null);
+       	Command ttestCommand = new Command() {
+
+			private static final long serialVersionUID = 3164110221403962033L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				displayTTestresult();
+			}};
+       	Command resetCommand = new Command() {
+
+			private static final long serialVersionUID = -6800631047305236790L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				resetDisplay();
+			}};
+		displayMenuItem.addItem("t-test", ttestCommand);
+		displayMenuItem.addItem("reset", resetCommand);
 
        	layoutNames.setStyleName("plugin");
 		
@@ -253,6 +272,16 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		this.setExpandRatio(cy, 1);
 	}
 	
+	private void resetDisplay() {
+		MessageBox mb = new MessageBox(getWindow(), "Under development", MessageBox.Icon.INFO,
+				"This feature is not available yet.", new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+		mb.show();
+	}
+
+	private void displayTTestresult() {
+		new ChooseTTestResultDialog().display(this);
+	}
+
 	private void downloadNetwork() {
 		final Application app = getApplication();
 		String dir = GeworkbenchRoot.getBackendDataDirectory()
@@ -292,6 +321,11 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	@Override
 	public Long getDatasetId() {
 		return datasetId;
+	}
+
+	public void displayWithTTestResult(String choice) {
+		// TODO
+		System.out.println("Choice is made: "+choice);
 	}
 
 }
