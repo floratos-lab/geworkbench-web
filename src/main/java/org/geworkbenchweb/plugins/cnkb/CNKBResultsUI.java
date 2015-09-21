@@ -41,6 +41,8 @@ import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
@@ -145,6 +147,17 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				}
 			}                                                          
 			 
+		});
+		dataTable.addListener(new ItemClickListener() {
+
+			private static final long serialVersionUID = 3329109033365762704L;
+
+			@Override
+			public void itemClick(ItemClickEvent event) {
+				System.out.println("clicked item ID " + event.getItemId().toString());
+				new DetailedInteractionsView().display(CNKBResultsUI.this);
+			}
+
 		});
 		
 		Short confidenceType = cnkbResult.getCellularNetworkPreference().getSelectedConfidenceType();
