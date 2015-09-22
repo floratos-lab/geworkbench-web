@@ -65,7 +65,7 @@ public class DetailedInteractionsView extends Window {
 		OptionGroup viewSelect = new OptionGroup("Views", views);
 		viewSelect.setImmediate(true);
 		this.addComponent(viewSelect);
-		final Component tableview = new Label("Table View to be implemented");
+		final Component tableview = new InteractionDetailTableView();
 		final Component colormosaicview = new Label("Color Mosaic View to be implemented");
 		final VerticalLayout detailedView = new VerticalLayout();
 		this.addComponent(detailedView);
