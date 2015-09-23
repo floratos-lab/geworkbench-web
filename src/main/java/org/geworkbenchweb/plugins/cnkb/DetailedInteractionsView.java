@@ -6,6 +6,8 @@ package org.geworkbenchweb.plugins.cnkb;
 import java.util.Arrays;
 import java.util.List;
 
+import org.geworkbenchweb.visualizations.InteractionColorMosaic;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -66,7 +68,7 @@ public class DetailedInteractionsView extends Window {
 		viewSelect.setImmediate(true);
 		this.addComponent(viewSelect);
 		final Component tableview = new InteractionDetailTableView();
-		final Component colormosaicview = new Label("Color Mosaic View to be implemented");
+		final Component colormosaicview = new InteractionColorMosaic("SOME ATTRIBUTE");
 		final VerticalLayout detailedView = new VerticalLayout();
 		this.addComponent(detailedView);
 		
