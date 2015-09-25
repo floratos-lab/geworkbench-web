@@ -1,5 +1,9 @@
 package org.geworkbenchweb.plugins.cnkb;
 
+import org.vaadin.easyuploads.UploadField;
+import org.vaadin.easyuploads.UploadField.FieldType;
+import org.vaadin.easyuploads.UploadField.StorageMode;
+
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
@@ -31,7 +35,7 @@ public class DirectGeneEntry extends VerticalLayout {
 		buttons.addComponent(createAddGeneButton());
 		buttons.addComponent(createDeleteGeneButton());
 		buttons.addComponent(createClearListButton());
-		buttons.addComponent(new Button("Load Genes from File"));
+		buttons.addComponent(createLoadFileButton());
 		addComponent(buttons);
 	}
 
@@ -112,7 +116,7 @@ public class DirectGeneEntry extends VerticalLayout {
 		});
 		return b;
 	}
-	
+
 	private Button createClearListButton() {
 		final String title = "Clear List";
 		Button b = new Button(title);
@@ -125,6 +129,28 @@ public class DirectGeneEntry extends VerticalLayout {
 				geneEntry.removeAllItems();
 			}
 		});
+		return b;
+	}
+
+	private UploadField createLoadFileButton() {
+		UploadField b = new UploadField(StorageMode.MEMORY) {
+			private static final long serialVersionUID = -212174451849906591L;
+
+			@Override
+			protected void updateDisplay() {
+				String value = (String) this.getValue();
+				String[] genes = value.split("\\s");
+				for (String g : genes) {
+					if(g.length()>0) {
+						geneEntry.addItem(g);
+					}
+				}
+			}
+		};
+		b.setButtonCaption("Load Genes from File");
+		b.setImmediate(true);
+		b.setFieldType(FieldType.UTF8_STRING);
+
 		return b;
 	}
 }
