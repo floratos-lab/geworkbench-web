@@ -154,7 +154,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 				String warningMesaage = null;
 				String[] selectedMarkers = geneEntry.getItemAsArray();
 				if (selectedMarkers == null || selectedMarkers.length == 0)
-					warningMesaage = "Please select at least one marker set.";
+					warningMesaage = "Please select at least one gene.";
 				if (interactomeBox.getValue() == null)
 					warningMesaage = "Please select interactome.";
 				if (versionBox.getValue() == null)
