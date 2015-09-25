@@ -3,12 +3,12 @@ package org.geworkbenchweb.plugins.cnkb;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class DirectGeneEntry extends VerticalLayout {
 
@@ -25,12 +25,12 @@ public class DirectGeneEntry extends VerticalLayout {
 
 		setSpacing(true);
 		addComponent(geneEntry);
-		
+
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setSpacing(true);
 		buttons.addComponent(createAddGeneButton());
-		buttons.addComponent(new Button("Delete Gene"));
-		buttons.addComponent(new Button("Clear List"));
+		buttons.addComponent(createDeleteGeneButton());
+		buttons.addComponent(createClearListButton());
 		buttons.addComponent(new Button("Load Genes from File"));
 		addComponent(buttons);
 	}
@@ -40,7 +40,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	}
 
 	private static String[] getItemAsArray(ListSelect listSelect) {
-		String[] a = null;
+		String[] a = new String[0];
 		String selectStr = listSelect.getValue().toString();
 		if (!selectStr.equals("[]")) {
 			a = selectStr.substring(1, selectStr.length() - 1).split(",");
@@ -72,20 +72,57 @@ public class DirectGeneEntry extends VerticalLayout {
 				geneSymbol.setInputPrompt("Please enter gene symbol");
 				geneSymbol.setImmediate(true);
 
+				final Window mainWindow = DirectGeneEntry.this.getApplication().getMainWindow();
 				Button submit = new Button(title, new Button.ClickListener() {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						geneEntry.addItem(geneSymbol.getValue().toString());
+						mainWindow.removeWindow(geneDialog);
+						String[] genes = geneSymbol.getValue().toString().split(",");
+						for (String g : genes) {
+							geneEntry.addItem(g.trim());
+						}
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
 				geneDialog.addComponent(geneSymbol);
 				geneDialog.addComponent(submit);
-				Window mainWindow = DirectGeneEntry.this.getApplication().getMainWindow();
 				mainWindow.addWindow(geneDialog);
+			}
+		});
+		return b;
+	}
+
+	private Button createDeleteGeneButton() {
+		final String title = "Delete Gene";
+		Button b = new Button(title);
+		b.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = -4929628014095090196L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				String[] genes = getItemAsArray(geneEntry);
+				for (String g : genes) {
+					geneEntry.removeItem(g.trim());
+				}
+			}
+		});
+		return b;
+	}
+	
+	private Button createClearListButton() {
+		final String title = "Clear List";
+		Button b = new Button(title);
+		b.addListener(new Button.ClickListener() {
+
+			private static final long serialVersionUID = -4929628014095090196L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				geneEntry.removeAllItems();
 			}
 		});
 		return b;
