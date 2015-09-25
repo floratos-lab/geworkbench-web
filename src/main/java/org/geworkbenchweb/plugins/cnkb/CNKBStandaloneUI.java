@@ -19,17 +19,13 @@ import org.geworkbenchweb.pojos.CNKBResultSet;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
@@ -48,7 +44,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 	private static final String GENE_SYMBOLS = "Gene Symbols";
 
-	final ListSelect geneEntry = new ListSelect("Direct Gene Entry");
+	final DirectGeneEntry geneEntry = new DirectGeneEntry();
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 
 	/*
@@ -75,11 +71,6 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
-		geneEntry.setMultiSelect(true);
-		geneEntry.setRows(4);
-		geneEntry.setColumns(15);
-		geneEntry.setImmediate(true);
 
 		final ListSelect interactomeBox;
 		final ListSelect versionBox;
@@ -161,7 +152,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 			public void buttonClick(ClickEvent event) {
 				String warningMesaage = null;
-				String[] selectedMarkers = getItemAsArray(geneEntry);
+				String[] selectedMarkers = geneEntry.getItemAsArray();
 				if (selectedMarkers == null || selectedMarkers.length == 0)
 					warningMesaage = "Please select at least one marker set.";
 				if (interactomeBox.getValue() == null)
@@ -191,70 +182,11 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 		setSpacing(true);
 		addComponent(geneEntry);
-		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
-		buttons.addComponent(createAddGeneButton());
-		buttons.addComponent(new Button("Delete Gene"));
-		buttons.addComponent(new Button("Clear List"));
-		buttons.addComponent(new Button("Load Genes from File"));
-		addComponent(buttons);
 		addComponent(interactomeBox);
 		addComponent(interactomeDes);
 		addComponent(versionBox);
 		addComponent(versionDes);
 		addComponent(submitButton);
-	}
-
-	private Button createAddGeneButton() {
-		final String title = "Add Gene";
-		Button b = new Button(title);
-		b.addListener(new Button.ClickListener() {
-
-			private static final long serialVersionUID = -4929628014095090196L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-
-				final Window geneDialog = new Window();
-				geneDialog.setModal(true);
-				geneDialog.setClosable(true);
-				((AbstractOrderedLayout) geneDialog.getContent()).setSpacing(true);
-				geneDialog.setWidth("300px");
-				geneDialog.setHeight("150px");
-				geneDialog.setResizable(false);
-				geneDialog.setCaption(title);
-				geneDialog.setImmediate(true);
-
-				final TextField geneSymbol = new TextField();
-				geneSymbol.setInputPrompt("Please enter gene symbol");
-				geneSymbol.setImmediate(true);
-
-				Button submit = new Button(title, new Button.ClickListener() {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						geneEntry.addItem(geneSymbol.getValue().toString());
-					}
-				});
-				submit.setClickShortcut(KeyCode.ENTER);
-				geneDialog.addComponent(geneSymbol);
-				geneDialog.addComponent(submit);
-				Window mainWindow = CNKBStandaloneUI.this.getApplication().getMainWindow();
-				mainWindow.addWindow(geneDialog);
-			}
-		});
-		return b;
-	}
-
-	private static String[] getItemAsArray(ListSelect listSelect) {
-		String[] a = null;
-		String selectStr = listSelect.getValue().toString();
-		if (!selectStr.equals("[]")) {
-			a = selectStr.substring(1, selectStr.length() - 1).split(",");
-		}
-		return a;
 	}
 
 	// TODO review both input and output
