@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,13 +32,17 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -195,6 +200,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
  
 		});
 		
+		final DirectGeneEntry directEntry = new DirectGeneEntry();
 
 		final Button submitButton = new Button("Submit",
 				new Button.ClickListener() {
@@ -204,11 +210,19 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 					public void buttonClick(ClickEvent event) {
 						try {
 							String warningMesaage = null;
-							String[] selectedMarkerSets = markerSelector
-									.getSelectedMarkerSet();
-							if (selectedMarkerSets == null
-									|| selectedMarkerSets.length == 0)
-								warningMesaage = "Please select at least one marker set.";
+							if (markerSelector.isEnabled()) {
+								String[] selectedMarkerSets = markerSelector.getSelectedMarkerSet();
+								params.put(CNKBParameters.MARKER_SET_ID, selectedMarkerSets);
+								if (selectedMarkerSets == null || selectedMarkerSets.length == 0)
+									warningMesaage = "Please select at least one marker set.";
+							} else if (directEntry.isEnabled()) {
+								String[] selectedMarkers = directEntry.getItemAsArray();
+								params.put(CNKBStandaloneUI.GENE_SYMBOLS, selectedMarkers);
+								if (selectedMarkers == null || selectedMarkers.length == 0)
+									warningMesaage = "Please select at least one gene.";
+							} else {
+								return;
+							}
 							if (interactomeBox.getValue() == null)
 								warningMesaage = "Please select interactome.";
 							if (versionBox.getValue() == null)
@@ -222,8 +236,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 								mb.show();
 								return;
 							}
-							params.put(CNKBParameters.MARKER_SET_ID,
-									selectedMarkerSets);
 							params.put(CNKBParameters.INTERACTOME,
 									interactomeBox.getValue().toString());
 							params.put(CNKBParameters.VERSION, versionBox
@@ -241,7 +253,40 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		versionDes.setStyleName(Reindeer.LABEL_SMALL);
 		versionDes.setImmediate(true);
 
-		addComponent(markerSelector);
+		HorizontalLayout geneSelector = new HorizontalLayout();
+		geneSelector.setSpacing(true);
+		geneSelector.addComponent(markerSelector);
+		geneSelector.setComponentAlignment(markerSelector, Alignment.BOTTOM_CENTER);
+		final String USE_MARKER_SETS = "Use Marker Sets";
+		final String USE_DIRECT_ENTRY = "User Direct_Entry";
+		List<String> geneSource = Arrays.asList( new String[]{USE_MARKER_SETS, USE_DIRECT_ENTRY} );
+		OptionGroup sourceSelector = new OptionGroup("", geneSource);
+		sourceSelector.setImmediate(true);
+		geneSelector.addComponent(sourceSelector);
+		geneSelector.setComponentAlignment(sourceSelector, Alignment.BOTTOM_CENTER);
+		geneSelector.addComponent(directEntry);
+		geneSelector.setComponentAlignment(directEntry, Alignment.BOTTOM_CENTER);
+		directEntry.setEnabled(false);
+
+		sourceSelector.addListener(new Property.ValueChangeListener() {
+
+			private static final long serialVersionUID = -7598659974346923939L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Property p = event.getProperty();
+				Object v = p.getValue();
+				if(USE_MARKER_SETS.equals(v)) {
+					markerSelector.setEnabled(true);
+					directEntry.setEnabled(false);
+				} else if(USE_DIRECT_ENTRY.equals(v)) {
+					markerSelector.setEnabled(false);
+					directEntry.setEnabled(true);
+				}
+			}
+		});
+
+		addComponent(geneSelector);
 		addComponent(interactomeBox);
 		addComponent(interactomeDes);
 		addComponent(versionBox);
@@ -272,16 +317,23 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
-		 
-		for (int i = 0; i < selectedMarkerSet.length; i++) {
-			List<String> markers = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
-			
-			for(int m=0; m<markers.size(); m++) {
-				mark.append("\t" + markers.get(i) + "\n");
+		
+		if(selectedMarkerSet==null) {
+			String[] selectedGenes = (String[])params.get(CNKBStandaloneUI.GENE_SYMBOLS);
+			for(String gene : selectedGenes) {
+				mark.append(gene).append(", ");
 			}
-			 
-		} 
-		 
+			mark.append('\n');
+		} else {
+			for (int i = 0; i < selectedMarkerSet.length; i++) {
+				List<String> markers = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
+				
+				for(int m=0; m<markers.size(); m++) {
+					mark.append("\t" + markers.get(i) + "\n");
+				}
+				 
+			} 
+		}
 
 		DataHistory his = new DataHistory();
 		his.setParent(resultSet.getId());
@@ -341,6 +393,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		
 		String[] selectedMarkerSet = (String[]) params
 				.get(CNKBParameters.MARKER_SET_ID);
+		if(selectedMarkerSet==null) {
+			return CNKBStandaloneUI.getInteractions(params, userInfo, dataSetId);
+		}
 		List<String> selectedMarkers = new ArrayList<String>();
 		for (int i = 0; i < selectedMarkerSet.length; i++) {
 			List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));

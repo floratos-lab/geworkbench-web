@@ -42,7 +42,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 6992822172488124700L;
 
-	private static final String GENE_SYMBOLS = "Gene Symbols";
+	static final String GENE_SYMBOLS = "Gene Symbols";
 
 	final DirectGeneEntry geneEntry = new DirectGeneEntry();
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
@@ -238,7 +238,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 	 * Difference from the original version: no session part; no annotation
 	 * part; no entrez ID option
 	 */
-	private static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, final String userInfo)
+	static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, final String userInfo, final Long parentId)
 			throws UnAuthenticatedException, ConnectException, SocketTimeoutException, IOException {
 
 		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
@@ -299,6 +299,11 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		} /* end of the loop of all markers */
 
 		// null ID for orphan result without parent
-		return new CNKBResultSet(hits, cnkbPref, null);
+		return new CNKBResultSet(hits, cnkbPref, parentId);
+	}
+
+	private static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, String userInfo)
+			throws UnAuthenticatedException, ConnectException, SocketTimeoutException, IOException {
+		return getInteractions(params, userInfo, null);
 	}
 }
