@@ -92,6 +92,7 @@ public class RenameHandler implements Handler {
 		dialog.setImmediate(true);
 
 		final Item item = navigationTree.getItem(itemId);
+		
 		String oldName = item.getItemProperty("Name").getValue().toString();
 		if (oldName.contains("Pending")) {
 			MessageBox mb = new MessageBox(navigationTree.getWindow(),
@@ -102,7 +103,15 @@ public class RenameHandler implements Handler {
 			return;
 		}
 		final TextField newName = new TextField();
-		newName.setInputPrompt(oldName);
+		
+		//Changes made by Shakun on 08.Oct.2015
+		//Commented the following line
+		//newName.setInputPrompt(oldName);
+		
+		//Instead, added these 2 lines
+		newName.setValue(oldName);
+		newName.setCursorPosition(oldName.length());
+		
 		newName.setImmediate(true);
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
