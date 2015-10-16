@@ -234,7 +234,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
        	layoutNames.addItem("breadthfirst", layoutCommand);
        	layoutNames.addItem("cose", layoutCommand);
 
-       	Command exportCommand = new Command() {
+       	Command adjCommand = new Command() {
 
 			private static final long serialVersionUID = -5284315483966959132L;
 
@@ -243,7 +243,18 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 				downloadNetwork();
 			}
        	};
-       	toolBar.addItem("Export", exportCommand); /* ignore return value */
+       	Command sifCommand = new Command() {
+
+			private static final long serialVersionUID = -5284315483966959132L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				downloadNetworkAsSIF();
+			}
+       	};
+       	MenuItem exportMenu = toolBar.addItem("Export", null);
+       	exportMenu.addItem("Save as ADJ", adjCommand);
+       	exportMenu.addItem("Save as SIF", sifCommand);
        	MenuItem displayMenuItem = toolBar.addItem("Display", null);
        	Command ttestCommand = new Command() {
 
@@ -296,6 +307,28 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
 			pw.print(networkResult.toString());
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Resource resource = new FileResource(file, app);
+		app.getMainWindow().open(resource);
+	}
+	
+	private void downloadNetworkAsSIF() {
+		final Application app = getApplication();
+		String dir = GeworkbenchRoot.getBackendDataDirectory()
+				+ System.getProperty("file.separator")
+				+ SessionHandler.get().getUsername()
+				+ System.getProperty("file.separator") + "export";
+		if (!new File(dir).exists())
+			new File(dir).mkdirs();
+		
+		final File file = new File(dir, "network_" + System.currentTimeMillis()
+				+ ".sif");
+		try {
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
+			pw.print(networkResult.toSIF());
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();

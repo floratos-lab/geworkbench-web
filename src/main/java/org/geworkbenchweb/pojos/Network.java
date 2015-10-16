@@ -84,6 +84,24 @@ public class Network extends AbstractPojo {
 		return sb.toString();
 	}
 	
+	public String toSIF() {
+		// FIXME: this is not actual SIF format, just a place holder for now.
+		StringBuffer sb = new StringBuffer();
+		for (int index = 0; index < node1.length; index++) {
+			String n1 = node1[index];
+
+			sb.append(n1 + "\t");
+
+			NetworkEdges edge = edges[index];
+			for (int j = 0; j < edge.getCount(); j++) {
+				sb.append(edge.getNode2s()[j] + "\t" + edge.getWeights()[j]
+						+ "\t");
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
 	/* Map cannot work probably due to an eclipselink bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=364922 */
 	/*
 	@OneToMany(cascade = CascadeType.PERSIST)
