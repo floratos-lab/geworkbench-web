@@ -17,6 +17,7 @@ public class NetworkEdges extends AbstractPojo {
 	
 	private String[] node2s = null;
 	private double[] weights = null;
+	private String[] interactionTypes = null;
 	
 	public double[] getWeights() {
 		return weights;
@@ -33,7 +34,7 @@ public class NetworkEdges extends AbstractPojo {
 
 	public NetworkEdges() {}
 	
-	public NetworkEdges(List<String> node2s, List<Double> weights) {
+	public NetworkEdges(List<String> node2s, List<Double> weights, String[] interactionTypes) {
 		if(node2s.size()!=weights.size()) {
 			log.error("The numbers of node2s and weights do not match.");
 			return;
@@ -43,9 +44,16 @@ public class NetworkEdges extends AbstractPojo {
 		for(int i=0; i<weights.size(); i++) {
 			this.weights[i] = weights.get(i);
 		}
+		this.interactionTypes = interactionTypes;
 	}
 	
 	public int getCount() {
 		return node2s.length;
+	}
+	public String[] getInteractionTypes() {
+		return interactionTypes;
+	}
+	public void setInteractionTypes(String[] interactionTypes) {
+		this.interactionTypes = interactionTypes;
 	}
 }

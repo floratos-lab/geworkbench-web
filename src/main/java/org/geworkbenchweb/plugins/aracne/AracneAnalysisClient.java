@@ -502,7 +502,9 @@ public class AracneAnalysisClient {
 		for(String node1 : node2s.keySet()) {
 			List<String> n2 = node2s.get(node1);
 			List<Double> w = weights.get(node1);
-			NetworkEdges edges = new NetworkEdges(n2, w); 
+			String[] types = new String[w.size()];
+			for(int i=0; i<types.length; i++) { types[i] = "pd"; }
+			NetworkEdges edges = new NetworkEdges(n2, w, types); 
 			network.put(node1, edges);
 		}
 		log.debug("edge count " + nEdge);

@@ -85,17 +85,38 @@ public class Network extends AbstractPojo {
 	}
 	
 	public String toSIF() {
-		// FIXME: this is not actual SIF format, just a place holder for now.
 		StringBuffer sb = new StringBuffer();
 		for (int index = 0; index < node1.length; index++) {
-			String n1 = node1[index];
-
-			sb.append(n1 + "\t");
 
 			NetworkEdges edge = edges[index];
+			if(edge.getCount()==0) {
+				continue;
+			}
+			
+			String n1 = node1[index];
+			sb.append(n1);
+
+			String[] types = edge.getInteractionTypes();
+			/* We will allow types to be null to support old database that does not have this field. */
+			if(types==null) {
+				types = new String[edge.getCount()];
+				for(int i=0; i<types.length; i++) {
+					types[i] = "na";
+				}
+			}
+			String[] node2s = edge.getNode2s();
+			String previousType = null;
 			for (int j = 0; j < edge.getCount(); j++) {
-				sb.append(edge.getNode2s()[j] + "\t" + edge.getWeights()[j]
-						+ "\t");
+				String type = types[j];
+				String node2 = node2s[j];
+				if (previousType == null) {
+					sb.append('\t').append(type).append('\t').append(node2);
+				} else if (previousType == type) {
+					sb.append('\t').append(node2);
+				} else { // different type, create new line
+					sb.append('\n').append(n1).append('\t').append(type).append('\t').append(node2);
+				}
+				previousType = types[j];
 			}
 			sb.append("\n");
 		}

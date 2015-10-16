@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -359,7 +360,27 @@ public class CNKBServletClient {
 
 		return arrayList;
 	}
-	
+
+	/** Get the map from the long name of interaction type to the short name. */
+	public Map<String, String> getInteractionTypeMap()
+			throws ConnectException, SocketTimeoutException, IOException, UnAuthenticatedException {
+		Map<String, String> map = new HashMap<String, String>();
+
+		String methodAndParams = "getInteractionTypes";
+		ResultSetlUtil rs = executeQuery(methodAndParams, cnkbServletUrl);
+
+		while (rs.next()) {
+
+			String interactionType = rs.getString("interaction_type").trim();
+			String short_name = rs.getString("short_name").trim();
+
+			map.put(interactionType, short_name);
+		}
+		rs.close();
+
+		return map;
+	}
+
 	private static ResultSetlUtil executeQuery(String methodAndParams,
 			String urlStr) throws IOException, UnAuthenticatedException {
 	    return executeQuery(methodAndParams, urlStr, null);

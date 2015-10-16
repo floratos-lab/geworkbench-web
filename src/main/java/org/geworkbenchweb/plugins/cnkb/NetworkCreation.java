@@ -2,6 +2,8 @@ package org.geworkbenchweb.plugins.cnkb;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +63,25 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		return "Network" + " - " + num;
 	}
 
+	private Map<String, String> interactionTypeMap = null;
+
+	private Map<String, String> getInteractionTypeMap() {
+		if (interactionTypeMap == null) {
+			try {
+				interactionTypeMap = new CNKBServletClient().getInteractionTypeMap();
+			} catch (ConnectException e) {
+				e.printStackTrace();
+			} catch (SocketTimeoutException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (UnAuthenticatedException e) {
+				e.printStackTrace();
+			}
+		}
+		return interactionTypeMap;
+	}
+
 	/* this method works in case the datasetId is null or otherwise there is no annotation information */
 	public Network createNetwork(HashMap<Serializable, Serializable> params) {
 		Vector<CellularNetWorkElementInformation> hits = null;
@@ -78,6 +99,8 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		List<String> selectedTypes = resultSet.getCellularNetworkPreference()
 				.getDisplaySelectedInteractionTypes();
 
+		Map<String, String> shortNameMap = getInteractionTypeMap();
+
 		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 
@@ -93,8 +116,10 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 
 			List<String> node2s = new ArrayList<String>();
 			List<Double> weights = new ArrayList<Double>();
+			List<String> interactionTypes = new ArrayList<String>();
 
 			for (InteractionDetail interactionDetail : arrayList) {
+				String interactionType = interactionDetail.getInteractionType();
 				List<InteractionParticipant> participants = interactionDetail
 						.getParticipantList();
 				for (InteractionParticipant p : participants) {
@@ -113,11 +138,16 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 							.getConfidenceValue(confidentType);
 					node2s.add(node2);
 					weights.add(weight);
+					String shortName = interactionType;
+					if (shortNameMap != null && shortNameMap.get(interactionType) != null) {
+						shortName = shortNameMap.get(interactionType);
+					}
+					interactionTypes.add(shortName);
 				}				
 				
 			}
 			if(node2s.size() > 0)				
-			    networkMap.put(geneName, new NetworkEdges(node2s, weights));			
+			    networkMap.put(geneName, new NetworkEdges(node2s, weights, interactionTypes.toArray(new String[0])));			
 			
 			
 		} // end for loop
