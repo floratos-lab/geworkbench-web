@@ -1,5 +1,7 @@
 package org.geworkbenchweb.layout;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -471,5 +473,25 @@ public class UMainLayout extends VerticalLayout {
 	
 	public GenspaceLogger getGenSpaceLogger() {
 		return this.genspaceLogger;
+	}
+
+	public List<ResultSet> getTtestResult() {
+		List<ResultSet> list = new ArrayList<ResultSet>();
+		Long microarraySetId = navigationTree.getMicroarraySetId();
+		if (microarraySetId != null) {
+			Collection<?> children = navigationTree.getChildren(microarraySetId);
+			if (children == null)
+				return list;
+
+			for (Object c : children) {
+				Long id = (Long) c; // only this is unique, not the name or the type
+				ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, id);
+				String type = resultSet.getType();
+				if (!"org.geworkbenchweb.pojos.TTestResult".equals(type))
+					continue;
+				list.add(resultSet);
+			}
+		}
+		return list;
 	}
 }

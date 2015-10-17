@@ -3,7 +3,12 @@
  */
 package org.geworkbenchweb.plugins;
 
-import java.util.Arrays;
+import java.util.List;
+
+import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.TTestResult;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -24,6 +29,7 @@ public class ChooseTTestResultDialog extends Window {
 	private static final long serialVersionUID = -4712749272144439069L;
 
 	private NetworkViewer networkViewer;
+	final private ListSelect tTestResultSelect = new ListSelect("t-test result node:");
 
 	public void display(NetworkViewer networkViewer) {
 		this.networkViewer = networkViewer;
@@ -35,6 +41,14 @@ public class ChooseTTestResultDialog extends Window {
 			return;
 		}
 		mainWindow.addWindow(this);
+		
+		UMainLayout uMainLayout = (UMainLayout)mainWindow.getContent();
+		List<ResultSet> resultSets = uMainLayout.getTtestResult();
+		tTestResultSelect.removeAllItems();
+		for(ResultSet r : resultSets) {
+			tTestResultSelect.addItem(r);
+			tTestResultSelect.setItemCaption(r, r.getName());
+		}
 	}
 
 	public ChooseTTestResultDialog() {
@@ -44,16 +58,14 @@ public class ChooseTTestResultDialog extends Window {
 		((AbstractOrderedLayout) this.getContent()).setSpacing(true);
 		this.setWidth("250px");
 		this.setHeight("200px");
-		this.setResizable(false);
+		this.setResizable(true);
 		this.setCaption("Select t-test result");
 		this.setImmediate(true);
-
-		String[] nodes = { "RESULT 1", "RESULT 2", "RESULT 3" };
-		final ListSelect tTestResult = new ListSelect("t-test result node:", Arrays.asList(nodes));
-		tTestResult.setImmediate(true);
-		tTestResult.setNullSelectionAllowed(false);
-		tTestResult.setRows(5);
-		tTestResult.setColumns(15);
+		
+		tTestResultSelect.setImmediate(true);
+		tTestResultSelect.setNullSelectionAllowed(false);
+		tTestResultSelect.setRows(5);
+		tTestResultSelect.setWidth("100%");
 
 		Button submit = new Button("Display", new Button.ClickListener() {
 
@@ -63,14 +75,22 @@ public class ChooseTTestResultDialog extends Window {
 			public void buttonClick(ClickEvent event) {
 				Window mainWindow = ChooseTTestResultDialog.this.getApplication().getMainWindow();
 				mainWindow.removeWindow(ChooseTTestResultDialog.this);
-				Object choice = tTestResult.getValue();
+				Object choice = tTestResultSelect.getValue();
 				if (networkViewer != null && choice != null) {
-					networkViewer.displayWithTTestResult(choice.toString());
+					ResultSet resultSet = (ResultSet)choice;
+					Long dataId = resultSet.getDataId();
+					TTestResult tTestResult = FacadeFactory.getFacade().find(org.geworkbenchweb.pojos.TTestResult.class, dataId);
+					double[] t = tTestResult.gettValue();
+					StringBuilder sb = new StringBuilder("t-values: ");
+					for(double v : t) {
+						sb.append(v).append(',');
+					}
+					networkViewer.displayWithTTestResult(sb.toString());
 				}
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		this.addComponent(tTestResult);
+		this.addComponent(tTestResultSelect);
 		this.addComponent(submit);
 	}
 };
