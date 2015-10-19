@@ -75,9 +75,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private long dataSetId;
-	//Shakun added this attribute so it is initialized once when clicked on submit
-		//and used later when checking for results
-	private DataSetAnnotation dataSetAnnotation;
+	private Long dataSetAnnotationId = null;
 
 	public CNKBUI() {
 		this(0L);
@@ -215,18 +213,17 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							// find annotation information and if it is null, cannot process query 
 							Map<String, Object> parameter = new HashMap<String, Object>();
 							parameter.put("dataSetId", dataSetId);
-							dataSetAnnotation = FacadeFactory.getFacade().find(
-									"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
-							if (dataSetAnnotation==null)
-							{	
-								MessageBox mb = new MessageBox(getWindow(),
-										"Warning", MessageBox.Icon.WARN,
+							DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade()
+									.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
+							if (dataSetAnnotation == null) {
+								MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.WARN,
 										"No annotation file was loaded, cannot query CNKB.",
-										new MessageBox.ButtonConfig(
-												ButtonType.OK, "Ok"));
+										new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 								mb.show();
 								return;
-							}							
+							}
+							dataSetAnnotationId = dataSetAnnotation.getAnnotationId();
+							
 							//If annotation info is not null then proceed to verify other things
 							//Define an array of 4 Warning messages based on priorities for each situation below
 							String[] priorityWarningMessages={null,null,null,null};
@@ -411,24 +408,15 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			log.debug("getting userInfo from session: "+userInfo);
 		}
 		log.debug("userInfo "+userInfo);
-		/* find annotation information */ // TODO review the efficient of this implementation
-		//Shakun commented the code below because dataSetAnnotation is already set when clicked on Submit
-		/*
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade().find(
-				"SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameter);
-		*/
+		if(dataSetAnnotationId==null) { /* this should never happen. */
+			log.error("null annotation ID");
+			return null;
+		}
 		Map<String, AnnotationEntry> annotationMap = new HashMap<String, AnnotationEntry>(); // TODO this may be more efficient by using JPA directly
-		//No need to check if annotation is null because this would have been checked at
-		//the time of clicking on Submit
-		//if(dataSetAnnotation!=null) {
-			Long annotationId = dataSetAnnotation.getAnnotationId();
-			Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, annotationId);
-			for(AnnotationEntry entry : annotation.getAnnotationEntries()) {
-				String probeSetId = entry.getProbeSetId();
-				annotationMap.put(probeSetId, entry);
-		//}
+		Annotation annotation = FacadeFactory.getFacade().find(Annotation.class, dataSetAnnotationId);
+		for (AnnotationEntry entry : annotation.getAnnotationEntries()) {
+			String probeSetId = entry.getProbeSetId();
+			annotationMap.put(probeSetId, entry);
 		}
 		
 		String[] selectedMarkerSet = (String[]) params
