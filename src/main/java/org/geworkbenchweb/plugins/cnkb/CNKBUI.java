@@ -228,25 +228,40 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 								return;
 							}							
 							//If annotation info is not null then proceed to verify other things
+							//Define an array of 4 Warning messages based on priorities for each situation below
+							String[] priorityWarningMessages={null,null,null,null};
+							//index 0 represents warning message for not choosing markerSet
+							//index 1 represents warning message for not choosing directEntry
+							//index 2 represents warning message for not choosing interactome
+							//index 3 represents warning message for not choosing version
 							
 							String warningMesaage = null;
 							if (markerSelector.isEnabled()) {
 								String[] selectedMarkerSets = markerSelector.getSelectedMarkerSet();
 								params.put(CNKBParameters.MARKER_SET_ID, selectedMarkerSets);
 								if (selectedMarkerSets == null || selectedMarkerSets.length == 0)
-									warningMesaage = "Please select at least one marker set.";
+									priorityWarningMessages[0]="Please select at least one marker set.";
 							} else if (directEntry.isEnabled()) {
 								String[] selectedMarkers = directEntry.getItemAsArray();
 								params.put(CNKBStandaloneUI.GENE_SYMBOLS, selectedMarkers);
 								if (selectedMarkers == null || selectedMarkers.length == 0)
-									warningMesaage = "Please select at least one gene.";
+									priorityWarningMessages[1]="Please select at least one gene.";
 							} else {
 								return;
 							}
 							if (interactomeBox.getValue() == null)
-								warningMesaage = "Please select interactome.";
+								priorityWarningMessages[2]="Please select interactome.";
 							if (versionBox.getValue() == null)
-								warningMesaage = "Please select version.";
+								priorityWarningMessages[3]="Please select version.";
+							
+							//Now assign a value to warningMesaage based on priority
+							for(int i=0;i<4;i++){
+								if(priorityWarningMessages[i]!=null){
+									warningMesaage=priorityWarningMessages[i];
+									break;
+								}
+							}
+							
 							if (warningMesaage != null) {
 								MessageBox mb = new MessageBox(getWindow(),
 										"Warning", MessageBox.Icon.WARN,
