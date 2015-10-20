@@ -138,9 +138,37 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	private void viewAsText()
 	{
 		Label area = new Label();
+		
+		//Added by Shakun on 20.Oct.2015
+		MenuBar toolBar =  new MenuBar();
+		toolBar.setStyleName("transparent");
+		Command adjCommand = new Command() {
+
+				private static final long serialVersionUID = -5284315483966959132L;
+
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					downloadNetwork();
+				}
+	       	};
+	     Command sifCommand = new Command() {
+
+				private static final long serialVersionUID = -5284315483966959132L;
+
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					downloadNetworkAsSIF();
+				}
+	       	};
+		 MenuItem exportMenu = toolBar.addItem("Export", null,null);
+	     exportMenu.addItem("Save as SIF", null,sifCommand);
+		 exportMenu.addItem("Save as ADJ", null,adjCommand);
+		//End Shakun on 20.Oct.2015
+		
+		
 		int edgeNumber = networkResult.getEdgeNumber();
 		int nodeNumber = networkResult.getNodeNumber();
-		StringBuffer sb = new StringBuffer("This network has "
+		StringBuffer sb = new StringBuffer("\nThis network has "
 				+ nodeNumber + " nodes and " + edgeNumber
 				+ " edges: \n\n");
 
@@ -152,7 +180,14 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		Panel panel = new Panel();
 		panel.setSizeFull();
         panel.setStyleName(Reindeer.PANEL_LIGHT);
-		panel.getContent().setSizeUndefined();
+		
+		//Commented by Shakun on 20.Oct.2015
+        //panel.getContent().setSizeUndefined();
+        
+        //Added by Shakun on 20.Oct.2015
+		panel.addComponent(toolBar);
+		//End Shakun on 20.Oct.2015
+		
 		panel.addComponent(area);
 		 
 		addComponent(panel);
