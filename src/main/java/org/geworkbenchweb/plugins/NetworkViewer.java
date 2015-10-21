@@ -193,6 +193,8 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		addComponent(panel);
 	}
 
+	final Cytoscape cy = new Cytoscape();
+
 	private void viewAsCytoscape()
 	{
 		 
@@ -236,7 +238,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 			}
 		}
 
-		final Cytoscape cy = new Cytoscape();
 		cy.setImmediate(true);
 		cy.setSizeFull();
 
@@ -247,7 +248,8 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		edgeArray = edges.toArray(edgeArray);
 
 		cy.setNodes(nodeArray);
-		cy.setEdges(edgeArray);		 
+		cy.setEdges(edgeArray);
+		cy.setColor(null);
 	 
        	Command layoutCommand = new Command() {
 
@@ -393,7 +395,12 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 	public void displayWithTTestResult(String choice) {
 		// TODO
-		System.out.println("Choice is made: "+choice);
+		System.out.println("Choice is made: " + choice);
+		int nodeCount = cy.getNodes().length; // TODO this does not match networkResult.getNodeNumber();
+		String colors[] = new String[nodeCount];
+		for (int i = 0; i < nodeCount; i++)
+			colors[i] = String.format("#%06X", (int) (Math.random() * 16777215));
+		cy.setColor(colors);
 	}
 
 }

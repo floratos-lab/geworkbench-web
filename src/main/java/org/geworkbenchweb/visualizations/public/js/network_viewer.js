@@ -2,7 +2,7 @@ var $network_viewer = {}; /* module namespace */
 
 $network_viewer.create = function(id, nodeArray, edgeArray, layout) {
 	
-	var cy = cytoscape({
+	cy = cytoscape({
 		container: document.getElementById(id),
   
 		style: cytoscape.stylesheet()
@@ -84,3 +84,14 @@ $network_viewer.create = function(id, nodeArray, edgeArray, layout) {
 	
 	console.log('debug');
 };
+
+$network_viewer.set_color = function(id, nodeArray, colors) {
+	var colorMap = {};
+	for (var i = 0; i < colors.length; i++) {
+		var tmp = nodeArray[i].split(",");
+		var gene_symbol = tmp[1];
+		colorMap[gene_symbol] = colors[i];
+	}
+	
+	cy.nodes().style({'background-color':function( ele ){ return colorMap[ele.data('id')]; } });
+}

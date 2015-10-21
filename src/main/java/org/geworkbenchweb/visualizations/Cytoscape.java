@@ -25,6 +25,8 @@ public class Cytoscape extends AbstractComponent {
 
 		target.addVariable(this, "nodes", getNodes());
 		target.addVariable(this, "edges", getEdges());
+
+		if(colors!=null) target.addVariable(this, "colors", colors);
 	}
 
 	public void setNodes(String[] nodes) {
@@ -51,6 +53,12 @@ public class Cytoscape extends AbstractComponent {
 
 	public void setLayout(String layoutName) {
 		this.layoutName = layoutName;
+	}
+
+	private String[] colors = null;
+	public void setColor(String[] colors) {
+		this.colors = colors;
+		requestRepaint();
 	}
 	
 }

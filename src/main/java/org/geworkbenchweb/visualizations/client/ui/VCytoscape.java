@@ -56,10 +56,19 @@ public class VCytoscape extends Widget implements Paintable {
 		String layoutName = uidl.getStringAttribute("layoutName");
 		
 		createCytoscapeView(placeholder.getId(), wrapArray(nodes), wrapArray(edges), layoutName);
+
+		String[] colors = uidl.getStringArrayVariable("colors");
+		if(colors!=null) {
+			setColor(placeholder.getId(), wrapArray(nodes), wrapArray(colors));
+		}
 	}
 
 	public static final native void createCytoscapeView(String containerId, JsArrayString nodeArray, JsArrayString edgeArray, String layoutName)/*-{
 		$wnd.$network_viewer.create(containerId, nodeArray, edgeArray, layoutName);
+	}-*/;
+	
+	public static final native void setColor(String containerId, JsArrayString nodeArray, JsArrayString colors)/*-{
+		$wnd.$network_viewer.set_color(containerId, nodeArray, colors);
 	}-*/;
 	
 	/**
