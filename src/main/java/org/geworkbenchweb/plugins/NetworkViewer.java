@@ -139,7 +139,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 	{
 		Label area = new Label();
 		
-		//Added by Shakun on 20.Oct.2015
 		MenuBar toolBar =  new MenuBar();
 		toolBar.setStyleName("transparent");
 		Command adjCommand = new Command() {
@@ -163,12 +162,11 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		 MenuItem exportMenu = toolBar.addItem("Export", null,null);
 	     exportMenu.addItem("Save as SIF", null,sifCommand);
 		 exportMenu.addItem("Save as ADJ", null,adjCommand);
-		//End Shakun on 20.Oct.2015
 		
 		
 		int edgeNumber = networkResult.getEdgeNumber();
 		int nodeNumber = networkResult.getNodeNumber();
-		StringBuffer sb = new StringBuffer("\nThis network has "
+		StringBuffer sb = new StringBuffer("This network has "
 				+ nodeNumber + " nodes and " + edgeNumber
 				+ " edges: \n\n");
 
@@ -181,16 +179,14 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		panel.setSizeFull();
         panel.setStyleName(Reindeer.PANEL_LIGHT);
 		
-		//Commented by Shakun on 20.Oct.2015
-        //panel.getContent().setSizeUndefined();
+        panel.getContent().setSizeUndefined();
         
-        //Added by Shakun on 20.Oct.2015
-		panel.addComponent(toolBar);
-		//End Shakun on 20.Oct.2015
+		addComponent(toolBar);
 		
 		panel.addComponent(area);
 		 
 		addComponent(panel);
+		setExpandRatio(panel, 1);
 	}
 
 	final Cytoscape cy = new Cytoscape();
