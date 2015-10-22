@@ -86,12 +86,23 @@ $network_viewer.create = function(id, nodeArray, edgeArray, layout) {
 };
 
 $network_viewer.set_color = function(id, nodeArray, colors) {
+	console.log("color map size=" + colors.length);
 	var colorMap = {};
 	for (var i = 0; i < colors.length; i++) {
-		var tmp = nodeArray[i].split(",");
-		var gene_symbol = tmp[1];
-		colorMap[gene_symbol] = colors[i];
+		console.log(i+"--"+colors[i]);
+		var tmp = colors[i].split(":");
+		var gene_symbol = tmp[0];
+		colorMap[gene_symbol] = tmp[1];
+		console.log(gene_symbol + ":" + tmp[1]);
 	}
-	
-	cy.nodes().style({'background-color':function( ele ){ return colorMap[ele.data('id')]; } });
+
+	cy.nodes().style({
+		'background-color' : function(ele) {
+			var node_color = colorMap[ele.data('id')];
+			if (node_color)
+				return node_color;
+			else
+				return 'white';
+		}
+	});
 }

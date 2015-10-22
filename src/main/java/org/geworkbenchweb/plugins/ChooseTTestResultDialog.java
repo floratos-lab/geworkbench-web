@@ -4,8 +4,11 @@
 package org.geworkbenchweb.plugins;
 
 import java.util.List;
+import java.util.Map;
 
 import org.geworkbenchweb.layout.UMainLayout;
+import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -77,15 +80,19 @@ public class ChooseTTestResultDialog extends Window {
 				mainWindow.removeWindow(ChooseTTestResultDialog.this);
 				Object choice = tTestResultSelect.getValue();
 				if (networkViewer != null && choice != null) {
-					ResultSet resultSet = (ResultSet)choice;
+					ResultSet resultSet = (ResultSet) choice;
 					Long dataId = resultSet.getDataId();
-					TTestResult tTestResult = FacadeFactory.getFacade().find(org.geworkbenchweb.pojos.TTestResult.class, dataId);
-					double[] t = tTestResult.gettValue();
-					StringBuilder sb = new StringBuilder("t-values: ");
-					for(double v : t) {
-						sb.append(v).append(',');
-					}
-					networkViewer.displayWithTTestResult(sb.toString());
+					TTestResult tTestResult = FacadeFactory.getFacade().find(org.geworkbenchweb.pojos.TTestResult.class,
+							dataId);
+					Long parentId = resultSet
+							.getParent(); /* this must be microarray dataset */
+					DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentId);
+					Long id = dataset.getDataId();
+					MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
+					String[] markerLabels = microarray.getMarkerLabels();
+					Map<String, String> colorMap = NetworkColorUtil.getTTestResultSetColorMap(tTestResult,
+							markerLabels);
+					networkViewer.displayWithTTestResult(colorMap);
 				}
 			}
 		});
