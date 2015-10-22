@@ -65,10 +65,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	private ResultSet resultSet;
 
-	private List<String> contextList = new ArrayList<String>();
-
-	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
-
 	User user = null;
 	Application app = null;
 
@@ -88,6 +84,21 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
+	private static class InteractomeAndVersion {
+		String interactome;
+		VersionDescriptor version;
+
+		public InteractomeAndVersion(String interactome, VersionDescriptor version) {
+			this.interactome = interactome;
+			this.version = version;
+		}
+		
+		@Override
+		public String toString() {
+			return interactome + " version " + version.getVersion();
+		}
+	}
+
 	/*
 	 * Initialization in this method instead of constructors is done in the main
 	 * GUI thread instead of a background thread.
@@ -100,8 +111,17 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		/* Create a connection with the server. */
 		final CNKBServletClient interactionsConnection = new CNKBServletClient();
 
+		List<InteractomeAndVersion> contextList = new ArrayList<InteractomeAndVersion>();
+
 		try {
-			contextList = interactionsConnection.getDatasetAndInteractioCount();
+			List<String> interactonList = interactionsConnection.getDatasetAndInteractioCount();
+			for (String interactome : interactonList) {
+				List<VersionDescriptor> versionList = interactionsConnection
+						.getVersionDescriptor(interactome.split(" \\(")[0].trim());
+				for (VersionDescriptor v : versionList) {
+					contextList.add(new InteractomeAndVersion(interactome, v));
+				}
+			}
 		} catch (UnAuthenticatedException uae) {
 			uae.printStackTrace();
 		} catch (ConnectException e1) {
@@ -116,7 +136,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		final MarkerSelector markerSelector = new MarkerSelector(dataSetId,
 				user.getId(), "CNKBUI");
 		final ListSelect interactomeBox;
-		final ListSelect versionBox;
+
 		final Label interactomeDes = new Label();
 		final Label versionDes = new Label();
 		 
@@ -126,81 +146,42 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		interactomeBox.setImmediate(true);
 		interactomeBox.setNullSelectionAllowed(false);
 		for (int j = 0; j < contextList.size(); j++) {
-			interactomeBox.addItem(contextList.get(j));
+			InteractomeAndVersion a = contextList.get(j);
+			interactomeBox.addItem(a);
 		}
 
-		versionBox = new ListSelect("Select Version:");
-
-		versionBox.setRows(4);
-		versionBox.setColumns(15);
-		versionBox.setImmediate(true);
-		versionBox.setNullSelectionAllowed(false);
-		versionBox.setEnabled(false);
 		interactomeBox.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
 
 				try {
-					interactomeDes.setValue(interactionsConnection
-							.getInteractomeDescription(valueChangeEvent
-									.getProperty().getValue().toString()
-									.split(" \\(")[0].trim()));
-					versionBox.setEnabled(true);
-					versionBox.removeAllItems();
-					versionList = interactionsConnection
-							.getVersionDescriptor(valueChangeEvent
-									.getProperty().getValue().toString()
-									.split(" \\(")[0].trim());
-					for (int k = 0; k < versionList.size(); k++) {
-						versionBox.addItem(versionList.get(k).getVersion());
-					}
+					Object object = valueChangeEvent.getProperty().getValue();
+					if (!(object instanceof InteractomeAndVersion))
+						return;
+					InteractomeAndVersion a = (InteractomeAndVersion) object;
+					interactomeDes.setValue(
+							interactionsConnection.getInteractomeDescription(a.interactome.split(" \\(")[0].trim()));
 
+					VersionDescriptor vd = a.version;
+					if (vd.getVersionDesc() != null && vd.getVersionDesc().trim().length() > 0
+							&& !vd.getVersionDesc().trim().equals("null"))
+						versionDes.setValue(vd.getVersionDesc());
+					else
+						versionDes.setValue("NO DESCRIPTION");
 				} catch (ConnectException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (SocketTimeoutException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (UnAuthenticatedException uae) {
-					// TODO Auto-generated catch block
 					uae.printStackTrace();
 				}
 
 			}
 		});
-		
-		versionBox.addListener(new Property.ValueChangeListener() {		 
-		 
-			private static final long serialVersionUID = 1L;
 
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-
-				    versionDes.setValue("");
-					Object version = valueChangeEvent
-							.getProperty().getValue();
-					if (version == null || version.toString().trim().length() == 0 )
-						return;
-					String versionValue =  version.toString().trim();
-						
-					for(VersionDescriptor vd : versionList)
-					{					 
-						if (vd.getVersion().trim().equals(versionValue))
-						{
-							if (vd.getVersionDesc() != null && vd.getVersionDesc().trim().length() > 0 && !vd.getVersionDesc().trim().equals("null"))
-							    versionDes.setValue(vd.getVersionDesc());
-							else
-								versionDes.setValue("NO DESCRIPTION");
-							break;
-						}
-					}
-			}
- 
-		});
-		
 		final DirectGeneEntry directEntry = new DirectGeneEntry();
 
 		final Button submitButton = new Button("Submit",
@@ -226,11 +207,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							
 							//If annotation info is not null then proceed to verify other things
 							//Define an array of 4 Warning messages based on priorities for each situation below
-							String[] priorityWarningMessages={null,null,null,null};
+							String[] priorityWarningMessages={null,null,null};
 							//index 0 represents warning message for not choosing markerSet
 							//index 1 represents warning message for not choosing directEntry
 							//index 2 represents warning message for not choosing interactome
-							//index 3 represents warning message for not choosing version
 							
 							String warningMesaage = null;
 							if (markerSelector.isEnabled()) {
@@ -248,11 +228,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							}
 							if (interactomeBox.getValue() == null)
 								priorityWarningMessages[2]="Please select interactome.";
-							if (versionBox.getValue() == null)
-								priorityWarningMessages[3]="Please select version.";
 							
 							//Now assign a value to warningMesaage based on priority
-							for(int i=0;i<4;i++){
+							for(int i=0;i<3;i++){
 								if(priorityWarningMessages[i]!=null){
 									warningMesaage=priorityWarningMessages[i];
 									break;
@@ -268,10 +246,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 								mb.show();
 								return;
 							}
-							params.put(CNKBParameters.INTERACTOME,
-									interactomeBox.getValue().toString());
-							params.put(CNKBParameters.VERSION, versionBox
-									.getValue().toString());
+							Object object = interactomeBox.getValue();
+							if (!(object instanceof InteractomeAndVersion))
+								return;
+							InteractomeAndVersion a = (InteractomeAndVersion) object;
+							params.put(CNKBParameters.INTERACTOME, a.interactome);
+							params.put(CNKBParameters.VERSION, a.version.getVersion());
 							submitCnkbEvent(dataSetId);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -321,7 +301,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(geneSelector);
 		addComponent(interactomeBox);
 		addComponent(interactomeDes);
-		addComponent(versionBox);
 		addComponent(versionDes);
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
