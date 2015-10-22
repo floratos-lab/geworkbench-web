@@ -4,7 +4,6 @@
 package org.geworkbenchweb.plugins;
 
 import java.util.List;
-import java.util.Map;
 
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.DataSet;
@@ -90,7 +89,7 @@ public class ChooseTTestResultDialog extends Window {
 					Long id = dataset.getDataId();
 					MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 					String[] markerLabels = microarray.getMarkerLabels();
-					Map<String, String> colorMap = NetworkColorUtil.getTTestResultSetColorMap(tTestResult,
+					List<String> colorMap = NetworkColorUtil.getTTestResultSetColorMap(tTestResult,
 							markerLabels);
 					networkViewer.displayWithTTestResult(colorMap);
 				}

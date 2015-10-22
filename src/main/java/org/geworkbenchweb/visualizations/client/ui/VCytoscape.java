@@ -47,11 +47,8 @@ public class VCytoscape extends Widget implements Paintable {
 
 		this.client = client;
 
-		String[] nodes = new String[uidl.getStringArrayVariable("nodes").length];
-		String[] edges = new String[uidl.getStringArrayVariable("edges").length];
-		
-		nodes = uidl.getStringArrayVariable("nodes");
-		edges = uidl.getStringArrayVariable("edges");
+		String[] nodes = uidl.getStringArrayVariable("nodes");
+		String[] edges = uidl.getStringArrayVariable("edges");
 		
 		String layoutName = uidl.getStringAttribute("layoutName");
 		
@@ -59,7 +56,7 @@ public class VCytoscape extends Widget implements Paintable {
 
 		String[] colors = uidl.getStringArrayVariable("colors");
 		if(colors!=null) {
-			setColor(placeholder.getId(), wrapArray(nodes), wrapArray(colors));
+			setColor(wrapArray(colors));
 		}
 	}
 
@@ -67,8 +64,8 @@ public class VCytoscape extends Widget implements Paintable {
 		$wnd.$network_viewer.create(containerId, nodeArray, edgeArray, layoutName);
 	}-*/;
 	
-	public static final native void setColor(String containerId, JsArrayString nodeArray, JsArrayString colors)/*-{
-		$wnd.$network_viewer.set_color(containerId, nodeArray, colors);
+	public static final native void setColor(JsArrayString colors)/*-{
+		$wnd.$network_viewer.set_color(colors);
 	}-*/;
 	
 	/**

@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -390,13 +390,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		return datasetId;
 	}
 
-	public void displayWithTTestResult(Map<String, String> colorMap) {
-		String colors[] = new String[colorMap.size()];
-		int i = 0;
-		for(String geneSymbol: colorMap.keySet()) {
-			colors[i++] = geneSymbol+":"+colorMap.get(geneSymbol);
-		}
-		cy.setColor(colors);
+	public void displayWithTTestResult(List<String> colorMap) {
+		cy.setColor(colorMap.toArray(new String[0]));
 	}
-
 }
