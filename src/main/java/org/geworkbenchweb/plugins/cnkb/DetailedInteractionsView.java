@@ -29,8 +29,10 @@ public class DetailedInteractionsView extends Window {
 	private static final long serialVersionUID = -4712749272144439069L;
 
 	private CNKBResultsUI parent;
+	private Label geneLabel = new Label("", Label.CONTENT_XHTML);
 
-	public void display(CNKBResultsUI parent) {
+	public void display(String gene, CNKBResultsUI parent) {
+		geneLabel.setValue("<b>Query Gene Symbol</b>: "+gene);
 		this.parent = parent;
 		this.setWidth("50%");;
 		this.setHeight("50%");;
@@ -58,7 +60,7 @@ public class DetailedInteractionsView extends Window {
 		this.setCaption("Interaction Details");
 		this.setImmediate(true);
 
-		this.addComponent(new Label("Query Gene Symbol: [to be implemented]"));
+		this.addComponent(geneLabel);
 		this.addComponent(new Label("Description: [to be implemented]"));
 		this.addComponent(new Label("Entrez Gene: linkout   Gene Cards: linkout"));
 

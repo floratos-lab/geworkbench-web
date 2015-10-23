@@ -20,7 +20,7 @@ import org.geworkbenchweb.pojos.CNKBResultSet;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
-import org.geworkbenchweb.utils.DataSetOperations; 
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -83,7 +83,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	protected InvientCharts plot;
 
-	protected Table dataTable;
+	Table dataTable;
 	private Map<String, String> confidentTypeMap = null;
 
 	final private Long datasetId;
@@ -154,8 +154,9 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void itemClick(ItemClickEvent event) {
-				System.out.println("clicked item ID " + event.getItemId().toString());
-				new DetailedInteractionsView().display(CNKBResultsUI.this);
+				Item item = dataTable.getItem(event.getItemId());
+				String gene = (String) item.getItemProperty("Gene").getValue();
+				new DetailedInteractionsView().display(gene, CNKBResultsUI.this);
 			}
 
 		});
