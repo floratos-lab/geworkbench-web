@@ -109,7 +109,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		init(cnkbResult, parentId);
 	}
 	
-	private void init(CNKBResultSet cnkbResult, Long parentId) {
+	private void init(final CNKBResultSet cnkbResult, Long parentId) {
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
 		
@@ -156,7 +156,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void itemClick(ItemClickEvent event) {
 				Item item = dataTable.getItem(event.getItemId());
 				String gene = (String) item.getItemProperty("Gene").getValue();
-				new DetailedInteractionsView().display(gene, CNKBResultsUI.this);
+				String markerLabel = (String) item.getItemProperty("Marker").getValue();
+				new DetailedInteractionsView(cnkbResult).display(gene, markerLabel, CNKBResultsUI.this);
 			}
 
 		});
