@@ -280,6 +280,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		geneSelector.setComponentAlignment(directEntry, Alignment.BOTTOM_CENTER);
 		directEntry.setEnabled(false);
 
+		sourceSelector.select(USE_MARKER_SETS);
 		sourceSelector.addListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -7598659974346923939L;
