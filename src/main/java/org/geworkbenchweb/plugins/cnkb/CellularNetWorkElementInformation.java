@@ -9,7 +9,7 @@ import org.geworkbenchweb.utils.GOTerm;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 
 /**
- * All CNKB results for ONE queried marker. It is uniquely identified by the markerLabel.
+ * All CNKB results for ONE queried marker. It is uniquely identified by the markerLabel AND interactome+version.
  * 
  * This is based on the class from geWorkbench core that has the same name.
  * Dependency on bison types is removed; name is kept to avoid too much immediate change of other code.
@@ -19,6 +19,7 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	private static final long serialVersionUID = -4163326138016520667L;
 
 	private final String markerLabel;
+	private final String interactome;
 	
 	private final InteractionDetail[] interactionDetails;
 	private double threshold;
@@ -26,9 +27,10 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 	private final int[] molecularFunctionGoIds;
 	private final int[] biologicalProcessGoIds;
 	
-	public CellularNetWorkElementInformation(String markerLabel, int[] molecularFunctionGoIds, int[] biologicalProcessGoIds,
+	public CellularNetWorkElementInformation(String markerLabel, String interactome, int[] molecularFunctionGoIds, int[] biologicalProcessGoIds,
 			List<InteractionDetail> arrayList) {
-		this.markerLabel = markerLabel;	 
+		this.markerLabel = markerLabel;
+		this.interactome = interactome;
 
 		this.biologicalProcessGoIds = biologicalProcessGoIds;
 		this.molecularFunctionGoIds = molecularFunctionGoIds;
@@ -88,6 +90,10 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 
 	public String getMarkerLabel() {
 		return markerLabel;
+	}
+
+	public String getInteractome() {
+		return interactome;
 	}
 
 	String getGoInfoStr() {

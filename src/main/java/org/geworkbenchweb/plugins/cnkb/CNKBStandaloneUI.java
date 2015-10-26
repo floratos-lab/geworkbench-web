@@ -261,7 +261,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 			List<InteractionDetail> interactionDetails = cnkb.getInteractionsByGeneSymbol(geneSymbol, context, version,
 					userInfo);
-			CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(geneSymbol, mf, bp,
+			CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(geneSymbol, context+" "+version, mf, bp,
 					interactionDetails);
 			hits.addElement(element);
 

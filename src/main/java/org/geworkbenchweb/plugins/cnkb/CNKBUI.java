@@ -455,7 +455,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			}
 			
 			CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(
-					marker, mf, bp, interactionDetails);
+					marker, context+" "+version, mf, bp, interactionDetails);
 			hits.addElement(element);
 			
 			/* FIXME update preference. this is inherited from the earlier code. I don't think it does the correct thing

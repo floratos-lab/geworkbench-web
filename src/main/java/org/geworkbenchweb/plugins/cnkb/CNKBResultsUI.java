@@ -550,6 +550,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			dataIn.addContainerProperty("Marker", String.class, null);
 			dataIn.addContainerProperty("Gene", String.class, null);
 			dataIn.addContainerProperty("Gene Type", String.class, null);
+			dataIn.addContainerProperty("Interactome", String.class, null);
 			dataIn.addContainerProperty(COLUMN_GO_ANNOTATIONS, String.class, null);
 			for (String selectedType : selectedTypes)
 				dataIn.addContainerProperty(selectedType + " #", Integer.class,
@@ -563,6 +564,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			item.getItemProperty("Gene Type").setValue(
 					hits.get(j).getGeneType());
+			item.getItemProperty("Interactome").setValue(
+					hits.get(j).getInteractome());
 			item.getItemProperty(COLUMN_GO_ANNOTATIONS).setValue(
 					hits.get(j).getGoInfoStr());
 
