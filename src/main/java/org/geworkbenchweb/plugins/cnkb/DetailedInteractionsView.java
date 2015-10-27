@@ -5,9 +5,9 @@ package org.geworkbenchweb.plugins.cnkb;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbenchweb.pojos.CNKBResultSet;
@@ -39,7 +39,7 @@ public class DetailedInteractionsView extends Window {
 
 	public void display(String gene, String markerLabel, CNKBResultsUI parent) {
 		geneLabel.setValue("<b>Query Gene Symbol</b>: "+gene);
-		tableview.setData(getTargetGenes(markerLabel));
+		tableview.setTargetGeneData(getTargetGenes(markerLabel));
 		tableview.setSizeFull();
 
 		this.setWidth("50%");;
@@ -100,27 +100,32 @@ public class DetailedInteractionsView extends Window {
 		});
 	}
 	
-	private List<String> getTargetGenes(String markerLabel) {
+	/* detailed information of target genes to be shown in the detail table view */
+	private Map<String, String> getTargetGenes(String markerLabel) {
 		Vector<CellularNetWorkElementInformation> hits = cnkbResult.getCellularNetWorkElementInformations();
 		List<String> selectedTypes = getInteractionTypes(cnkbResult);
 		final Short confidentType = cnkbResult.getCellularNetworkPreference().getSelectedConfidenceType();
 
-		Set<String> target = new HashSet<String>();
+		Map<String, String> target = new HashMap<String, String>();
 		for (CellularNetWorkElementInformation c : hits) {
 			String label = c.getMarkerLabel();
 			if (markerLabel.equals(label)) {
 				ArrayList<InteractionDetail> interactionDetail = c.getSelectedInteractions(selectedTypes,
 						confidentType);
+				String interactome = c.getInteractome();
+				// let's take care of the possible empty cases of the existing results
+				if(interactome==null) interactome = "NULL";
+				else if(interactome.trim().length()==00) interactome = "EMPTY";
 				for (InteractionDetail interaction : interactionDetail) {
 					for (InteractionParticipant p : interaction.getParticipantList()) {
 						String g = p.getGeneName();
-						if(!target.contains(g))target.add(g);
+						target.put(g, interactome);
 					}
 				}
 				break;
 			}
 		}
-		return new ArrayList<String>(target);
+		return target;
 	}
 
 	// copied from CNKBResultsUI. It seems many duplicated queries to be cleaned up. TODO
