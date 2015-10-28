@@ -46,6 +46,10 @@ public class CellularNetWorkElementInformation implements java.io.Serializable {
 		}
 	}
 
+	public InteractionDetail[] getAllInteractionDetails() {
+		return interactionDetails;
+	}
+
 	public ArrayList<InteractionDetail> getSelectedInteractions(
 			List<String> interactionIncludedList, short selectedConfidenceType) {
 		ArrayList<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();

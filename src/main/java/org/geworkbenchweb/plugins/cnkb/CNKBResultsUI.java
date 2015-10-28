@@ -157,7 +157,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				Item item = dataTable.getItem(event.getItemId());
 				String gene = (String) item.getItemProperty("Gene").getValue();
 				String markerLabel = (String) item.getItemProperty("Marker").getValue();
-				new DetailedInteractionsView(cnkbResult).display(gene, markerLabel, CNKBResultsUI.this);
+				new DetailedInteractionsView(cnkbResult).display(gene, markerLabel, CNKBResultsUI.this, confidentTypeMap);
 			}
 
 		});

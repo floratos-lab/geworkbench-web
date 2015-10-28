@@ -3,7 +3,6 @@
  */
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,9 +37,9 @@ public class DetailedInteractionsView extends Window {
 
 	final InteractionDetailTableView tableview = new InteractionDetailTableView();
 
-	public void display(String gene, String markerLabel, CNKBResultsUI parent) {
+	public void display(String gene, String markerLabel, CNKBResultsUI parent, final Map<String, String> confidentTypeMap) {
 		geneLabel.setValue("<b>Query Gene Symbol</b>: "+gene);
-		tableview.setTargetGeneData(getTargetGenes(markerLabel));
+		tableview.setTargetGeneData(getTargetGenes(markerLabel), confidentTypeMap);
 		tableview.setSizeFull();
 
 		linkoutLabel.setValue("Entrez Gene: <a href='http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term=" + gene
@@ -105,26 +104,34 @@ public class DetailedInteractionsView extends Window {
 		});
 	}
 	
+	static class InteractomeAndDetail {
+		String interactome;
+		InteractionDetail detail;
+		
+		InteractomeAndDetail(String interactome, InteractionDetail detail) {
+			this.interactome = interactome;
+			this.detail = detail;
+		}
+	}
+	
 	/* detailed information of target genes to be shown in the detail table view */
-	private Map<String, String> getTargetGenes(String markerLabel) {
+	private Map<String, InteractomeAndDetail> getTargetGenes(String markerLabel) {
 		Vector<CellularNetWorkElementInformation> hits = cnkbResult.getCellularNetWorkElementInformations();
-		List<String> selectedTypes = getInteractionTypes(cnkbResult);
-		final Short confidentType = cnkbResult.getCellularNetworkPreference().getSelectedConfidenceType();
 
-		Map<String, String> target = new HashMap<String, String>();
+		Map<String, InteractomeAndDetail> target = new HashMap<String, InteractomeAndDetail>();
 		for (CellularNetWorkElementInformation c : hits) {
 			String label = c.getMarkerLabel();
 			if (markerLabel.equals(label)) {
-				ArrayList<InteractionDetail> interactionDetail = c.getSelectedInteractions(selectedTypes,
-						confidentType);
 				String interactome = c.getInteractome();
 				// let's take care of the possible empty cases of the existing results
 				if(interactome==null) interactome = "NULL";
 				else if(interactome.trim().length()==00) interactome = "EMPTY";
+				InteractionDetail[] interactionDetail = c.getAllInteractionDetails();
+				if(interactionDetail==null) break; 
 				for (InteractionDetail interaction : interactionDetail) {
 					for (InteractionParticipant p : interaction.getParticipantList()) {
 						String g = p.getGeneName();
-						target.put(g, interactome);
+						target.put(g, new InteractomeAndDetail(interactome, interaction));
 					}
 				}
 				break;
@@ -132,29 +139,4 @@ public class DetailedInteractionsView extends Window {
 		}
 		return target;
 	}
-
-	// copied from CNKBResultsUI. It seems many duplicated queries to be cleaned up. TODO
-	static private List<String> getInteractionTypes(CNKBResultSet resultSet) {
-		Vector<CellularNetWorkElementInformation> hits = resultSet.getCellularNetWorkElementInformations();
-		short confidentType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
-		List<String> interactionTypes = resultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
-
-		List<String> selectedTypes = new ArrayList<String>();
-		for (int j = 0; j < hits.size(); j++) {
-
-			ArrayList<InteractionDetail> interactionDetail = hits.get(j).getSelectedInteractions(interactionTypes,
-					confidentType);
-			if (interactionDetail != null) {
-				for (InteractionDetail interaction : interactionDetail) {
-					String interactionType = interaction.getInteractionType();
-					if (selectedTypes.contains(interactionType))
-						continue;
-					else
-						selectedTypes.add(interactionType);
-
-				}
-			}
-		}
-		return selectedTypes;
-	}
-};
+}
