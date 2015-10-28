@@ -33,7 +33,8 @@ public class DetailedInteractionsView extends Window {
 	private static final long serialVersionUID = -4712749272144439069L;
 
 	final private CNKBResultSet cnkbResult;
-	private Label geneLabel = new Label("", Label.CONTENT_XHTML);
+	final private Label geneLabel = new Label("", Label.CONTENT_XHTML);
+	final private Label linkoutLabel = new Label("", Label.CONTENT_XHTML);
 
 	final InteractionDetailTableView tableview = new InteractionDetailTableView();
 
@@ -42,6 +43,10 @@ public class DetailedInteractionsView extends Window {
 		tableview.setTargetGeneData(getTargetGenes(markerLabel));
 		tableview.setSizeFull();
 
+		linkoutLabel.setValue("Entrez Gene: <a href='http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term=" + gene
+				+ "' target='_blank'>linkout</a>   Gene Cards: <a href='http://www.genecards.org/cgi-bin/carddisp.pl?gene="
+				+ gene + "&alias=yes' target='_blank'>linkout</a>");
+		
 		this.setWidth("50%");;
 		this.setHeight("50%");;
 		Window mainWindow = parent.getApplication().getMainWindow();
@@ -69,7 +74,7 @@ public class DetailedInteractionsView extends Window {
 
 		this.addComponent(geneLabel);
 		this.addComponent(new Label("Description: [to be implemented]"));
-		this.addComponent(new Label("Entrez Gene: linkout   Gene Cards: linkout"));
+		this.addComponent(linkoutLabel);
 
 		List<String> views = Arrays.asList(new String[] { TABLE_VIEW, COLOR_MOSAIC_VIEW });
 
