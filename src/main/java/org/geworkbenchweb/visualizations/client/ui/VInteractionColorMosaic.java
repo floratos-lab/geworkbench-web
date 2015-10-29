@@ -1,5 +1,7 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
@@ -14,8 +16,6 @@ public class VInteractionColorMosaic extends Widget implements Paintable {
 	public VInteractionColorMosaic() {
 		setElement(placeholder);
 	}
-	
-	private String param1 = null;
 
 	@Override
 	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
@@ -25,16 +25,23 @@ public class VInteractionColorMosaic extends Widget implements Paintable {
 		}		
 		placeholder.setId(uidl.getId());
 
-		String newcontent = uidl.getStringAttribute("param1");
-		String param2 = uidl.getStringAttribute("param2");
+		String interactome = uidl.getStringAttribute("interactome");
+		String[] geneSymbol = uidl.getStringArrayAttribute("geneSymbol");
+		String[] pValue = uidl.getStringArrayAttribute("pValue");
+		String[] color = uidl.getStringArrayAttribute("color");
 
-		if(newcontent.equals(param1)) {
-			// TODO ICMJavaScriptObject.setParameter2(param2);
-			return;
-		}
-		
-		param1 = newcontent;
-		ICMJavaScriptObject.createInstance(placeholder.getId());
+		createInstance(placeholder.getId(), interactome, wrapArray(geneSymbol), wrapArray(pValue), wrapArray(color));
 	}
 
+	public static native void createInstance(String containerId, String interactome, JsArrayString geneSymbol, JsArrayString pValue, JsArrayString color)/*-{
+    	$wnd.$interaction_color_mosaic.create(containerId, interactome, geneSymbol, pValue, color);
+	}-*/;
+	
+	public static JsArrayString wrapArray(String[] srcArray) {
+		JsArrayString result = JavaScriptObject.createArray().cast();
+		for (int i = 0; i < srcArray.length; i++) {
+			result.set(i, srcArray[i]);
+		}
+		return result;
+	}
 }

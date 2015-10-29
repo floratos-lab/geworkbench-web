@@ -59,7 +59,8 @@ public class DetailedInteractionsView extends Window {
 		viewSelect.setImmediate(true);
 		viewSelect.select(TABLE_VIEW);
 		this.addComponent(viewSelect);
-		final Component colormosaicview = new InteractionColorMosaic("SOME ATTRIBUTE");
+		Map<String, InteractomeAndDetail> targetGeneInfo = getTargetGenes(markerLabel, hits);
+		final Component colormosaicview = new InteractionColorMosaic(targetGeneInfo);
 		this.addComponent(tableview);
 		
 		viewSelect.addListener(new Property.ValueChangeListener() {
@@ -81,21 +82,11 @@ public class DetailedInteractionsView extends Window {
 			
 		});
 
-		tableview.setTargetGeneData(getTargetGenes(markerLabel, hits), confidentTypeMap, map);
+		tableview.setTargetGeneData(targetGeneInfo , confidentTypeMap, map);
 		tableview.setSizeFull();
 
 		this.setWidth("50%");;
 		this.setHeight("50%");;
-	}
-	
-	static class InteractomeAndDetail {
-		String interactome;
-		InteractionDetail detail;
-		
-		InteractomeAndDetail(String interactome, InteractionDetail detail) {
-			this.interactome = interactome;
-			this.detail = detail;
-		}
 	}
 	
 	/* detailed information of target genes to be shown in the detail table view */

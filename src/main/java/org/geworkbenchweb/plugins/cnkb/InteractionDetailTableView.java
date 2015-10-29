@@ -3,8 +3,6 @@ package org.geworkbenchweb.plugins.cnkb;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.geworkbenchweb.plugins.cnkb.DetailedInteractionsView.InteractomeAndDetail;
-
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Table;
