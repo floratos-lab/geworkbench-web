@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.geworkbenchweb.pojos.CNKBResultSet;
+import org.geworkbenchweb.pojos.DataSetAnnotation;
+import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.visualizations.InteractionColorMosaic;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -34,14 +37,18 @@ public class DetailedInteractionsView extends Window {
 	final private CNKBResultSet cnkbResult;
 	final private Label geneLabel = new Label("", Label.CONTENT_XHTML);
 	final private Label linkoutLabel = new Label("", Label.CONTENT_XHTML);
+	final private Label descriptionLabel = new Label("", Label.CONTENT_XHTML);
 
 	final InteractionDetailTableView tableview = new InteractionDetailTableView();
 
 	public void display(String gene, String markerLabel, CNKBResultsUI parent, final Map<String, String> confidentTypeMap) {
+		Map<String, String> map = getGeneSymbolToDescriptionMap(parent.getDatasetId());
+		
 		geneLabel.setValue("<b>Query Gene Symbol</b>: "+gene);
-		tableview.setTargetGeneData(getTargetGenes(markerLabel), confidentTypeMap);
+		tableview.setTargetGeneData(getTargetGenes(markerLabel), confidentTypeMap, map);
 		tableview.setSizeFull();
 
+		descriptionLabel.setValue("<b>Description</b>: " + map.get(gene));
 		linkoutLabel.setValue("Entrez Gene: <a href='http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term=" + gene
 				+ "' target='_blank'>linkout</a>   Gene Cards: <a href='http://www.genecards.org/cgi-bin/carddisp.pl?gene="
 				+ gene + "&alias=yes' target='_blank'>linkout</a>");
@@ -72,7 +79,7 @@ public class DetailedInteractionsView extends Window {
 		this.setImmediate(true);
 
 		this.addComponent(geneLabel);
-		this.addComponent(new Label("Description: [to be implemented]"));
+		this.addComponent(descriptionLabel);
 		this.addComponent(linkoutLabel);
 
 		List<String> views = Arrays.asList(new String[] { TABLE_VIEW, COLOR_MOSAIC_VIEW });
@@ -139,4 +146,34 @@ public class DetailedInteractionsView extends Window {
 		}
 		return target;
 	}
+
+	static private Map<String, String> getGeneSymbolToDescriptionMap(Long resultDataSetId) {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("id", resultDataSetId);
+		List<ResultSet> data = FacadeFactory.getFacade().list("Select p from ResultSet as p where p.id=:id",
+				parameters);
+		Long parentId = data.get(0).getParent();
+
+		parameters.clear();
+		parameters.put("dataSetId", parentId);
+		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade()
+				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameters);
+		Map<String, String> map = new HashMap<String, String>();
+		if (dataSetAnnotation != null) {
+			Long annotationId = dataSetAnnotation.getAnnotationId();
+			Map<String, Object> pm = new HashMap<String, Object>();
+			pm.put("id", annotationId);
+			List<?> entries = FacadeFactory.getFacade().list(
+					"SELECT entries.geneSymbol, entries.geneDescription FROM Annotation a JOIN a.annotationEntries entries WHERE a.id=:id",
+					pm);
+			for (Object entry : entries) {
+				Object[] obj = (Object[]) entry;
+				// geneSymbol ~ description
+				map.put((String) obj[0], (String) obj[1]);
+				System.out.println((String) obj[0] + "~" + (String) obj[1]);
+			}
+		}
+		return map;
+	}
+
 }

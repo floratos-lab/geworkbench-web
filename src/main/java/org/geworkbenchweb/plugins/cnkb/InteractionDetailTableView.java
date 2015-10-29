@@ -13,7 +13,7 @@ public class InteractionDetailTableView extends Table {
 
 	private static final long serialVersionUID = 8979430961160562312L;
 
-	public void setTargetGeneData(final Map<String, InteractomeAndDetail> targetGenes, final Map<String, String> confidentTypeMap) {
+	public void setTargetGeneData(final Map<String, InteractomeAndDetail> targetGenes, final Map<String, String> confidentTypeMap, Map<String, String> map) {
 		IndexedContainer container = new IndexedContainer();
 		container.addContainerProperty("Gene Symbol", String.class, null);
 		container.addContainerProperty("Functionality", String.class, null);
@@ -35,7 +35,7 @@ public class InteractionDetailTableView extends Table {
 		for(String targetGene: targetGenes.keySet()) {
 			Item item = container.addItem(targetGene);
 			item.getItemProperty("Gene Symbol").setValue(targetGene);
-			item.getItemProperty("Functionality").setValue("GO func");
+			item.getItemProperty("Functionality").setValue(map.get(targetGene));
 			item.getItemProperty(interactome).setValue(attributes);
 		}
 
