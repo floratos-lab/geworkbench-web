@@ -17,24 +17,22 @@ public class InteractionDetailTableView extends Table {
 		container.addContainerProperty("Functionality", String.class, null);
 		Iterator<InteractomeAndDetail> iter = targetGenes.values().iterator();
 		String interactome = "UNKNOWN"; // this may be necessary for the existing results
-		String attributes = "";
 		if(iter.hasNext()) {
 			InteractomeAndDetail info = iter.next();
 			interactome = info.interactome; // TODO interactomes will be multiple eventually, even for each target gene
-			InteractionDetail detail = info.detail;
-			StringBuilder sb = new StringBuilder();
-			for( Short t : detail.getConfidenceTypes() ) {
-				double v = detail.getConfidenceValue(t);
-				sb.append(confidentTypeMap.get(t.toString())+":"+v+", ");
-			}
-			attributes = sb.toString();
 		}
 		container.addContainerProperty(interactome , String.class, null);
-		for(String targetGene: targetGenes.keySet()) {
+		for (String targetGene : targetGenes.keySet()) {
 			Item item = container.addItem(targetGene);
 			item.getItemProperty("Gene Symbol").setValue(targetGene);
 			item.getItemProperty("Functionality").setValue(map.get(targetGene));
-			item.getItemProperty(interactome).setValue(attributes);
+			InteractionDetail detail = targetGenes.get(targetGene).detail;
+			StringBuilder sb = new StringBuilder();
+			for (Short t : detail.getConfidenceTypes()) {
+				double v = detail.getConfidenceValue(t);
+				sb.append(confidentTypeMap.get(t.toString()) + ":" + v + ", ");
+			}
+			item.getItemProperty(interactome).setValue(sb.toString());
 		}
 
 		this.setContainerDataSource(container);
