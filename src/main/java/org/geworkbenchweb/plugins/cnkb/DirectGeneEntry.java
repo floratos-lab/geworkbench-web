@@ -40,7 +40,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	}
 
 	public String[] getItemAsArray() {
-		return getItemAsArray(geneEntry);
+		return geneEntry.getItemIds().toArray(new String[0]);
 	}
 
 	private static String[] getItemAsArray(ListSelect listSelect) {
