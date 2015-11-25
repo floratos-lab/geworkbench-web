@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.http.HttpSession;
@@ -84,7 +85,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	private static class InteractomeAndVersion {
+	static class InteractomeAndVersion {
 		String interactome;
 		VersionDescriptor version;
 
@@ -145,6 +146,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		interactomeBox.setColumns(25);
 		interactomeBox.setImmediate(true);
 		interactomeBox.setNullSelectionAllowed(false);
+		interactomeBox.setMultiSelect(true);
 		for (int j = 0; j < contextList.size(); j++) {
 			InteractomeAndVersion a = contextList.get(j);
 			interactomeBox.addItem(a);
@@ -189,6 +191,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 					private static final long serialVersionUID = 1L;
 
+					@SuppressWarnings("unchecked")
 					public void buttonClick(ClickEvent event) {
 						try {
 							// find annotation information and if it is null, cannot process query 
@@ -226,8 +229,22 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 							} else {
 								return;
 							}
-							if (interactomeBox.getValue() == null)
+							Set<InteractomeAndVersion> interactomes = null;
+							Object obj = interactomeBox.getValue();
+							if (obj == null || !(obj instanceof Set<?>) ) { // this never happens for multi-select
 								priorityWarningMessages[2]="Please select interactome.";
+							} else {
+								interactomes = (Set<InteractomeAndVersion>) obj;
+								if(interactomes.size()==0) {
+									priorityWarningMessages[2]="Please select interactome.";
+								} else if (interactomes.size()>1) {
+									for(InteractomeAndVersion a : interactomes) {
+										if(!a.interactome.startsWith("aracne_") && !a.interactome.startsWith("cindy_")) {
+											priorityWarningMessages[2]=a.interactome+" cannot be part of the multiple selection of interactomes.";
+										}
+									}
+								}
+							}
 							
 							//Now assign a value to warningMesaage based on priority
 							for(int i=0;i<3;i++){
@@ -246,12 +263,17 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 								mb.show();
 								return;
 							}
-							Object object = interactomeBox.getValue();
-							if (!(object instanceof InteractomeAndVersion))
-								return;
-							InteractomeAndVersion a = (InteractomeAndVersion) object;
-							params.put(CNKBParameters.INTERACTOME, a.interactome);
-							params.put(CNKBParameters.VERSION, a.version.getVersion());
+							String version = null; /* only one version is allowed even if multiple interactome is selected. */
+							StringBuilder sb = new StringBuilder();
+							int i = 0;
+							for(InteractomeAndVersion a : interactomes) {
+								if(i>0) sb.append("|");
+								sb.append(a.interactome);
+								if(version==null) version = a.version.getVersion();
+								i++;
+							}
+							params.put(CNKBParameters.INTERACTOME, sb.toString());
+							params.put(CNKBParameters.VERSION, version);
 							submitCnkbEvent(dataSetId);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -374,7 +396,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
 
-		String context = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\(")[0].trim();
+		String[] allInteractiomesSelected = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\|");
+		for(int i=0; i<allInteractiomesSelected.length; i++) {
+			allInteractiomesSelected[i] = allInteractiomesSelected[i].split("\\(")[0].trim();	
+		}
 		String version = (String) params.get(CNKBParameters.VERSION);
 
 		if(session==null) {
@@ -421,12 +446,13 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		CNKBServletClient cnkb = new CNKBServletClient();
 
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference(
-				"Throttle Graph(" + context + version + ")");
+				"Throttle Graph(" + allInteractiomesSelected[0] + version + ")");
 		List<String> interactionTypes = cnkb
-				.getInteractionTypesByInteractomeVersion(context, version);
+				.getInteractionTypesByInteractomeVersion(allInteractiomesSelected[0], version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
 		Vector<CellularNetWorkElementInformation> hits = new Vector<CellularNetWorkElementInformation>(); 
+		for (String context : allInteractiomesSelected) {
 		for(String marker: selectedMarkers) {
 	
 			int[] mf = new int[0];
@@ -488,6 +514,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 					cnkbPref.setSelectedConfidenceType(cnkbPref.getConfidenceTypeList().get(0)); //use first one as default value.
 			}
 		} /* end of the loop of all markers */
+		} /* end of the loop of all interactomes */
 
 		return new CNKBResultSet(hits, cnkbPref, dataSetId);
 	}
