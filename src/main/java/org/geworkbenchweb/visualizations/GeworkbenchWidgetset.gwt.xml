@@ -38,6 +38,8 @@
     
     <!-- Cytoscape.js and the network viewer based on it -->
 	<script src="js/cytoscape.min.js" />
+	<script src="js/jquery.min.js" />
+	<script src="js/jquery.contextMenu.min.js" />
 	<script src="js/network_viewer.js" />
 	
 	<!--  interaction color mosaic -->

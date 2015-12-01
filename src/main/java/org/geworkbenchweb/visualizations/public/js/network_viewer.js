@@ -30,11 +30,55 @@ $network_viewer.create = function(id, nodeArray, edgeArray, layout) {
 	});
 
 	cy.on('cxttap', 'node', function() {
-		try { // your browser may block popups
-			window.open(this.data('href'));
-		} catch (e) { // fall back on url change
-			window.location.href = this.data('href');
-		}
+		$.contextMenu( 'destroy', '#'+id );
+		var sym = this.data('id');
+		$.contextMenu({
+			selector: '#'+id,
+			callback: function(key, options) {
+				switch(key) {
+	            case 'gene': 
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term="+sym;                                    	  
+	          	  break;
+	            case 'protein':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/protein?cmd=Search&term=" + sym + "&doptcmdl=GenPept";                                    	  
+	          	  break;
+	            case 'pubmed':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/pubmed?cmd=Search&term=" + sym + "&doptcmdl=Abstract";                                    	  
+	          	  break;
+	            case 'nucleotide':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/nucleotide?cmd=Search&term=" + sym + "&doptcmdl=GenBank";                                    	  
+	          	  break;
+	            case 'alldatabases':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/gquery/?term="+sym;                                    	  
+	          	  break;
+	            case 'structure':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/structure?cmd=Search&term=" + sym + "&doptcmdl=Brief";                                    	  
+	          	  break;
+	            case 'omim':
+	          	  linkUrl = "http://www.ncbi.nlm.nih.gov/omim?cmd=Search&term=" + sym + "&doptcmdl=Synopsis";                                    	  
+	          	  break;
+	            case 'genecards':
+	          	  linkUrl = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + sym + "&alias=yes";                                    	  
+	          	  break;
+				}
+				window.open(linkUrl);
+			},
+			items: {
+				"entrez": {
+                    "name": "Entrez", 
+                    "items": {
+                        "gene": {"name": "Gene"},
+                        "protein": {"name": "Protein"},
+                        "pubmed": {"name": "PubMed"},
+                        "nucleotide": {"name": "Nucleotide"},
+                        "alldatabases": {"name": "All Databases"},
+                        "structure": {"name": "Structure"},
+                        "omim": {"name": "OMIM"}
+                    }
+                },
+                "genecards": {name: "GeneCards"},
+			}
+		});
 	});
 
 	var node_array = [];
