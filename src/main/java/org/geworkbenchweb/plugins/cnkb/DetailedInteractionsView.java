@@ -115,6 +115,8 @@ public class DetailedInteractionsView extends Window {
 	}
 
 	static private Map<String, String> getGeneSymbolToDescriptionMap(Long resultDataSetId) {
+		if(resultDataSetId==null) return new HashMap<String, String>();
+
 		ResultSet resultDataset = FacadeFactory.getFacade().find(ResultSet.class, resultDataSetId);
 		Long parentId = resultDataset.getParent();
 
