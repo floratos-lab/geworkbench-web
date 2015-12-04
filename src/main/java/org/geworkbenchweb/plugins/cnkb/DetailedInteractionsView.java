@@ -108,7 +108,6 @@ public class DetailedInteractionsView extends Window {
 						target.put(g, new InteractomeAndDetail(interactome, interaction));
 					}
 				}
-				break;
 			}
 		}
 		return target;

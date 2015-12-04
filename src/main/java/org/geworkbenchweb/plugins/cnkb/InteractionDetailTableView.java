@@ -1,6 +1,7 @@
 package org.geworkbenchweb.plugins.cnkb;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.vaadin.data.Item;
@@ -15,13 +16,16 @@ public class InteractionDetailTableView extends Table {
 		IndexedContainer container = new IndexedContainer();
 		container.addContainerProperty("Gene Symbol", String.class, null);
 		container.addContainerProperty("Functionality", String.class, null);
-		Iterator<InteractomeAndDetail> iter = targetGenes.values().iterator();
-		String interactome = "UNKNOWN"; // this may be necessary for the existing results
-		if(iter.hasNext()) {
-			InteractomeAndDetail info = iter.next();
-			interactome = info.interactome; // TODO interactomes will be multiple eventually, even for each target gene
+		List<String> interactome = new ArrayList<String>();
+		for (String targetGene : targetGenes.keySet()) {
+			InteractomeAndDetail info = targetGenes.get(targetGene);
+			if(!interactome.contains(info.interactome)) {
+				interactome.add(info.interactome);
+			}
 		}
-		container.addContainerProperty(interactome , String.class, null);
+		for(String i: interactome) {
+			container.addContainerProperty(i, String.class, null);
+		}
 		for (String targetGene : targetGenes.keySet()) {
 			Item item = container.addItem(targetGene);
 			item.getItemProperty("Gene Symbol").setValue(targetGene);
@@ -32,11 +36,17 @@ public class InteractionDetailTableView extends Table {
 				double v = detail.getConfidenceValue(t);
 				sb.append(confidentTypeMap.get(t.toString()) + ":" + v + ", ");
 			}
-			item.getItemProperty(interactome).setValue(sb.toString());
+			String ip = targetGenes.get(targetGene).interactome;
+			item.getItemProperty(ip).setValue(sb.toString());
 		}
 
 		this.setContainerDataSource(container);
-		this.setColumnHeaders(
-				new String[] { "Gene Symbol", "Functionality", interactome });
+		List<String> headers = new ArrayList<String>();
+		headers.add("Gene Symbol");
+		headers.add("Functionality");
+		for(String i: interactome) {
+			headers.add(i);
+		}
+		this.setColumnHeaders( headers.toArray(new String[0]) );
 	}
 }
