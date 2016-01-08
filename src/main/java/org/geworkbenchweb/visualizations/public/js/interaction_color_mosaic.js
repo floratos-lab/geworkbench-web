@@ -15,9 +15,10 @@ $interaction_color_mosaic.create = function(id, interactome, gene_symbol,
 			'<tr><th>Gene Symbol</th><th>' + interactome + '</th></tr>');
 	for (var i = 0; i < gene_symbol.length; i++) {
 		$('#color-mosaic').append('<tr></tr>');
+		var p_formatted = parseFloat(p_value[i]).toFixed(3);
 		$('#color-mosaic').find('tr').eq(i + 1).append(
 				'<td width=100 height=10>' + gene_symbol[i] + '</td>').append(
 				'<td width=100 height=10 bgcolor=' + color[i] + '>'
-						+ p_value[i] + '</td>');
+						+ p_formatted + '</td>');
 	}
 };

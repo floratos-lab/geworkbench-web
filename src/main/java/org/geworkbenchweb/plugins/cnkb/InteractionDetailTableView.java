@@ -33,7 +33,7 @@ public class InteractionDetailTableView extends Table {
 			InteractionDetail detail = targetGenes.get(targetGene).detail;
 			StringBuilder sb = new StringBuilder();
 			for (Short t : detail.getConfidenceTypes()) {
-				double v = detail.getConfidenceValue(t);
+				String v = String.format("%.3f", detail.getConfidenceValue(t));
 				sb.append(confidentTypeMap.get(t.toString()) + ":" + v + ", ");
 			}
 			String ip = targetGenes.get(targetGene).interactome;
