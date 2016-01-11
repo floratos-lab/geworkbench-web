@@ -1,11 +1,13 @@
 package org.geworkbenchweb.plugins.cnkb;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 
 public class InteractionDetailTableView extends Table {
@@ -16,7 +18,7 @@ public class InteractionDetailTableView extends Table {
 		IndexedContainer container = new IndexedContainer();
 		container.addContainerProperty("Gene Symbol", String.class, null);
 		container.addContainerProperty("Functionality", String.class, null);
-		List<String> interactome = new ArrayList<String>();
+		final List<String> interactome = new ArrayList<String>();
 		for (String targetGene : targetGenes.keySet()) {
 			InteractomeAndDetail info = targetGenes.get(targetGene);
 			if(!interactome.contains(info.interactome)) {
@@ -34,7 +36,10 @@ public class InteractionDetailTableView extends Table {
 			StringBuilder sb = new StringBuilder();
 			for (Short t : detail.getConfidenceTypes()) {
 				String v = String.format("%.3f", detail.getConfidenceValue(t));
-				sb.append(confidentTypeMap.get(t.toString()) + ":" + v + ", ");
+				String d = confidentTypeMap.get(t.toString());
+				String b = abrev.get(d.trim().toLowerCase());
+				if(b==null) b = d;
+				sb.append(b + ":" + v + ", ");
 			}
 			String ip = targetGenes.get(targetGene).interactome;
 			item.getItemProperty(ip).setValue(sb.toString());
@@ -48,5 +53,31 @@ public class InteractionDetailTableView extends Table {
 			headers.add(i);
 		}
 		this.setColumnHeaders( headers.toArray(new String[0]) );
+		this.setItemDescriptionGenerator(new ItemDescriptionGenerator() {                          
+
+			private static final long serialVersionUID = -7998816630835089530L;
+
+			public String generateDescription(Component source, Object itemId, Object propertyId) {
+				//((Table)source).getItem(itemId).getItemProperty(propertyId).getValue().toString();
+				String c = (String)propertyId;
+				if(c==null) return null;
+				for(String i: interactome) {
+					if(c.equalsIgnoreCase(i)) {
+						return abrev.toString();
+					}
+				}
+				return null;
+			}
+		});
+	}
+	
+	static private Map<String, String> abrev;
+	static {
+		abrev = new HashMap<String, String>();
+		abrev.put("likelihood ratio", "LR");
+		abrev.put("mutual information", "MI");
+		abrev.put("mode of action", "MoA");
+		abrev.put("p-value", "PV");
+		abrev.put("-log10(p-value)", "LOG-PV");
 	}
 }
