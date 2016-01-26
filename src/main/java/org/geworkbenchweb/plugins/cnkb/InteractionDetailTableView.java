@@ -79,5 +79,6 @@ public class InteractionDetailTableView extends Table {
 		abrev.put("mode of action", "MoA");
 		abrev.put("p-value", "PV");
 		abrev.put("-log10(p-value)", "LOG-PV");
+		abrev.put("probability", "PB");
 	}
 }
