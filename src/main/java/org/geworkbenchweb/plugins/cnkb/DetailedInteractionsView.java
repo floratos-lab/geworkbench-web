@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.visualizations.InteractionColorMosaic;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -114,7 +117,15 @@ public class DetailedInteractionsView extends Window {
 	}
 
 	static private Map<String, String> getGeneSymbolToDescriptionMap(Long resultDataSetId) {
-		if(resultDataSetId==null) return new HashMap<String, String>();
+		Map<String, String> map = new HashMap<String, String>();
+		if(resultDataSetId==null) {  // using default annotation
+			Annotation a = DataSetOperations.getDefaultAnnotation();
+			for (AnnotationEntry entry : a.getAnnotationEntries()) {
+				// geneSymbol ~ description
+				map.put(entry.getGeneSymbol(), entry.getGeneDescription());
+			}
+			return map;
+		}
 
 		ResultSet resultDataset = FacadeFactory.getFacade().find(ResultSet.class, resultDataSetId);
 		Long parentId = resultDataset.getParent();
@@ -123,7 +134,6 @@ public class DetailedInteractionsView extends Window {
 		parameters.put("dataSetId", parentId);
 		DataSetAnnotation dataSetAnnotation = FacadeFactory.getFacade()
 				.find("SELECT d FROM DataSetAnnotation AS d WHERE d.datasetid=:dataSetId", parameters);
-		Map<String, String> map = new HashMap<String, String>();
 		if (dataSetAnnotation != null) {
 			Long annotationId = dataSetAnnotation.getAnnotationId();
 			Map<String, Object> pm = new HashMap<String, Object>();

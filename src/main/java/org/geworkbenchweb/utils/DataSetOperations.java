@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
@@ -29,6 +30,19 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 public class DataSetOperations {
 	private static Log log = LogFactory.getLog(DataSetOperations.class);
+	
+	/* Get a 'default' annotation that is independent from microarray dataset. */
+	static public Annotation getDefaultAnnotation() {
+		String annotationName = GeworkbenchRoot.getAppProperty("default.annotation");
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("name", annotationName);
+		List<Annotation> annots = FacadeFactory.getFacade().list("Select a from Annotation as a where a.name=:name",
+				params);
+		if (annots.size() > 0) // assume the first one is always what we want
+			return annots.get(0);
+		else
+			return null;
+	}
 	
 	/* build a probeSetId-geneSymbol map for efficiency */
 	static public Map<String, String> getAnnotationMap(Long dataSetId) {
