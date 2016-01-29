@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.pojos.Annotation;
+import org.geworkbenchweb.pojos.AnnotationEntry;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
@@ -44,8 +45,21 @@ public class DataSetOperations {
 			return null;
 	}
 	
+	/* get the map from probeset ID to gene symbol, using the 'default' annotation */
+	static public Map<String, String> getDefaultAnnotationMap() {
+		Map<String, String> annotationMap = new HashMap<String, String>();
+		Annotation a = DataSetOperations.getDefaultAnnotation();
+		for (AnnotationEntry entry : a.getAnnotationEntries()) {
+			annotationMap.put(entry.getProbeSetId(), entry.getGeneSymbol());
+		}
+		return annotationMap;
+	}
+
 	/* build a probeSetId-geneSymbol map for efficiency */
 	static public Map<String, String> getAnnotationMap(Long dataSetId) {
+		if(dataSetId==null) {
+			return getDefaultAnnotationMap();
+		}
 		Map<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("dataSetId", dataSetId);
 		DataSetAnnotation dataSetAnnotation = FacadeFactory
