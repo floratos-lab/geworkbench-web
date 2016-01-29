@@ -410,8 +410,11 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				final ChatReceiver chatHandler = genSpaceLogger
-						.getGenSpaceLogin().getChatHandler();
+				ChatReceiver tmp = null;
+				if (GeworkbenchRoot.genespaceEnabled()) {
+					tmp = genSpaceLogger.getGenSpaceLogin().getChatHandler();
+				}
+				final ChatReceiver chatHandler = tmp;
 				if (uploadPending()) {
 					MessageBox mb = new MessageBox(
 							getWindow(),
@@ -468,7 +471,8 @@ public class UMainToolBar extends MenuBar {
 		currentWorkspace = list.get(0).getWorkspace();
 		log.debug("current workspace ID " + currentWorkspace);
 
-		genSpaceLogger.getGenSpaceLogin().setUMainToolBar(this);
+		if(GeworkbenchRoot.genespaceEnabled())
+			genSpaceLogger.getGenSpaceLogin().setUMainToolBar(this);
 	}
 
 	private void buildAboutMenuItem(MenuItem aboutItem) {
