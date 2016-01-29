@@ -329,6 +329,7 @@ public class UMainToolBar extends MenuBar {
 		});
 
 		/* Add an entry to genSpace */
+		if(GeworkbenchRoot.genespaceEnabled()) {
 		this.addItem("genSpace", new Command() {
 			private static final long serialVersionUID = 1L;
 
@@ -400,6 +401,7 @@ public class UMainToolBar extends MenuBar {
 				}
 			}
 		});
+		}
 		
 		final MenuBar.MenuItem aboutItem = this.addItem("About", null);
 		buildAboutMenuItem(aboutItem);
