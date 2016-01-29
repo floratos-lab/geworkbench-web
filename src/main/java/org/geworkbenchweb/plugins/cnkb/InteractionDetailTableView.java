@@ -27,6 +27,7 @@ public class InteractionDetailTableView extends Table {
 		}
 		for(String i: interactome) {
 			container.addContainerProperty(i, String.class, null);
+			this.setColumnExpandRatio(i, 0.1f);
 		}
 		for (String targetGene : targetGenes.keySet()) {
 			Item item = container.addItem(targetGene);
