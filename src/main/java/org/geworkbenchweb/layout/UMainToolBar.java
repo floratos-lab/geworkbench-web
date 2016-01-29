@@ -10,11 +10,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.ChatStatusChangeEvent;
 import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.geworkbenchweb.genspace.GenspaceLogger;
 import org.geworkbenchweb.genspace.chat.ChatReceiver;
-import org.geworkbenchweb.genspace.ui.GenSpaceWindow;
 import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
@@ -339,6 +337,7 @@ public class UMainToolBar extends MenuBar {
 		});
 
 		/* Add an entry to genSpace */
+		if(GeworkbenchRoot.genespaceEnabled()) {
 		this.addItem("genSpace", new Command() {
 			private static final long serialVersionUID = 1L;
 
@@ -410,6 +409,7 @@ public class UMainToolBar extends MenuBar {
 				}
 			}
 		});
+		}
 		
 		final MenuBar.MenuItem aboutItem = this.addItem("About", null);
 		buildAboutMenuItem(aboutItem);
@@ -572,17 +572,7 @@ public class UMainToolBar extends MenuBar {
 	public String getPassword() {
 		return this.password;
 	}
-	
-	public void initGenspaceLayout(GenspaceLogger genSpaceLogger) {
-		ICEPush pusher = new ICEPush();	
-		this.layout = new GenspaceLayout(genSpaceLogger, pusher);	
-		if (!this.layout.getGenSpaceLogin_1().autoLogin(username, password)) {
-			this.layout.getGenSpaceLogin_1().authorizeLayout();
-		}
-		
-		GenSpaceWindow.getGenSpaceBlackboard().fire(new ChatStatusChangeEvent(username));
-	}
-	
+
 	public void initGenspaceLogin(GenspaceLogger genSpaceLogger) {
 		
 		if (!genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().userLogin(username, password)) {
@@ -592,11 +582,6 @@ public class UMainToolBar extends MenuBar {
 		ChatReceiver chatHandler = new ChatReceiver(genSpaceLogger.getGenSpaceLogin());
 		chatHandler.login(username, password);
 		genSpaceLogger.getGenSpaceLogin().setChatHandler(chatHandler);
-		
-		//Temporary leave it here. connect() will broadcast availibility of user. No need to send packet
-		/*Presence pr = new Presence(Presence.Type.available);
-		pr.setStatus("On genspace...");
-		chatHandler.getConnection().sendPacket(pr);*/
 	}
 	
 	private void handleChatMain() {
