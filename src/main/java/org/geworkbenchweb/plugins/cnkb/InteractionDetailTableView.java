@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
@@ -59,17 +60,30 @@ public class InteractionDetailTableView extends Table {
 			private static final long serialVersionUID = -7998816630835089530L;
 
 			public String generateDescription(Component source, Object itemId, Object propertyId) {
-				//((Table)source).getItem(itemId).getItemProperty(propertyId).getValue().toString();
 				String c = (String)propertyId;
 				if(c==null) return null;
 				for(String i: interactome) {
 					if(c.equalsIgnoreCase(i)) {
-						return abrev.toString();
+						Property p = ((Table)source).getItem(itemId).getItemProperty(propertyId);
+						Object v = p.getValue();
+						if(v!=null)return createTooltip(v.toString());
+						else return null;
 					}
 				}
 				return null;
 			}
 		});
+	}
+	
+	static private String createTooltip(String confidenceText) {
+		StringBuilder sb = new StringBuilder();
+		for(String key : abrev.keySet()) {
+			String value = abrev.get(key);
+			if(confidenceText.toLowerCase().contains(value.toLowerCase())) {
+				sb.append(value+"="+key+";");
+			}
+		}
+		return sb.deleteCharAt(sb.length()-1).toString();
 	}
 	
 	static private Map<String, String> abrev;
