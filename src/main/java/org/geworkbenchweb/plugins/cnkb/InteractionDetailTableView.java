@@ -15,15 +15,17 @@ public class InteractionDetailTableView extends Table {
 
 	private static final long serialVersionUID = 8979430961160562312L;
 
-	public void setTargetGeneData(final Map<String, InteractomeAndDetail> targetGenes, final Map<String, String> confidentTypeMap, Map<String, String> map) {
+	public void setTargetGeneData(final Map<String, Map<String, InteractionDetail>> targetGenes, final Map<String, String> confidentTypeMap, Map<String, String> map) {
 		IndexedContainer container = new IndexedContainer();
 		container.addContainerProperty("Gene Symbol", String.class, null);
 		container.addContainerProperty("Functionality", String.class, null);
 		final List<String> interactome = new ArrayList<String>();
 		for (String targetGene : targetGenes.keySet()) {
-			InteractomeAndDetail info = targetGenes.get(targetGene);
-			if(!interactome.contains(info.interactome)) {
-				interactome.add(info.interactome);
+			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
+			for(String itcm : info.keySet()) {
+				if(!interactome.contains(itcm)) {
+					interactome.add(itcm);
+				}
 			}
 		}
 		for(String i: interactome) {
@@ -34,17 +36,19 @@ public class InteractionDetailTableView extends Table {
 			Item item = container.addItem(targetGene);
 			item.getItemProperty("Gene Symbol").setValue(targetGene);
 			item.getItemProperty("Functionality").setValue(map.get(targetGene));
-			InteractionDetail detail = targetGenes.get(targetGene).detail;
-			StringBuilder sb = new StringBuilder();
-			for (Short t : detail.getConfidenceTypes()) {
-				String v = String.format("%.3f", detail.getConfidenceValue(t));
-				String d = confidentTypeMap.get(t.toString());
-				String b = abrev.get(d.trim().toLowerCase());
-				if(b==null) b = d;
-				sb.append(b + ":" + v + ", ");
+			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
+			for(String itcm : info.keySet()) {
+				InteractionDetail detail = info.get(itcm);
+				StringBuilder sb = new StringBuilder();
+				for (Short t : detail.getConfidenceTypes()) {
+					String v = String.format("%.3f", detail.getConfidenceValue(t));
+					String d = confidentTypeMap.get(t.toString());
+					String b = abrev.get(d.trim().toLowerCase());
+					if(b==null) b = d;
+					sb.append(b + ":" + v + ", ");
+				}
+				item.getItemProperty(itcm).setValue(sb.toString());
 			}
-			String ip = targetGenes.get(targetGene).interactome;
-			item.getItemProperty(ip).setValue(sb.toString());
 		}
 
 		this.setContainerDataSource(container);
