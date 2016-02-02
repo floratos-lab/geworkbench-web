@@ -1,11 +1,8 @@
 package org.geworkbenchweb.visualizations;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.geworkbenchweb.plugins.cnkb.InteractionDetail;
 
@@ -18,18 +15,19 @@ public class InteractionColorMosaic extends AbstractComponent {
 
 	private static final long serialVersionUID = 4600493722698214718L;
 
-	final private String interactome;
+	final private String[] interactome;
 	final private String[] geneSymbol;
 	final private String[] pValue;
 	final private String[] color;
 	
 	public InteractionColorMosaic(final Map<String, Map<String, InteractionDetail>> targetGenes) {
-		Iterator<Map<String, InteractionDetail>> iter = targetGenes.values().iterator();
-		Set<String> interactome = new HashSet<String>();
+		List<String> interactome = new ArrayList<String>();
 		for(String gene  : targetGenes.keySet()) {
 			Map<String, InteractionDetail> info = targetGenes.get(gene);
 			for(String itcm : info.keySet()) {
-				interactome.add(itcm);
+				if(!interactome.contains(itcm)) {
+					interactome.add(itcm);
+				}
 			}
 		}
 		if(interactome.size()==0) {
@@ -41,9 +39,10 @@ public class InteractionColorMosaic extends AbstractComponent {
 		for (String targetGene : targetGenes.keySet()) {
 			geneList.add(targetGene);
 			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
-			for(String itcm  : info.keySet()) {
+			for(String itcm  : interactome) {
 				InteractionDetail detail = info.get(itcm);
-				List<Short> types = detail.getConfidenceTypes();
+				List<Short> types = null;
+				if(detail!=null) types = detail.getConfidenceTypes();
 				String pValueString = "";
 				String colorString = "#AAAAAA";
 				if (types != null && types.size() > 0) {
@@ -55,7 +54,7 @@ public class InteractionColorMosaic extends AbstractComponent {
 				colorList.add(colorString);
 			}
 		}
-		this.interactome = interactome.iterator().next(); // FIXME interactomes will be multiple eventually, even for each target gene
+		this.interactome = interactome.toArray(new String[0]);
 		this.geneSymbol = geneList.toArray(new String[0]);
 		this.pValue = pValueList.toArray(new String[0]);
 		this.color = colorList.toArray(new String[0]);

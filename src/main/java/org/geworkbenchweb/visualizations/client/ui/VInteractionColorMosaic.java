@@ -25,15 +25,15 @@ public class VInteractionColorMosaic extends Widget implements Paintable {
 		}		
 		placeholder.setId(uidl.getId());
 
-		String interactome = uidl.getStringAttribute("interactome");
+		String[] interactome = uidl.getStringArrayAttribute("interactome");
 		String[] geneSymbol = uidl.getStringArrayAttribute("geneSymbol");
 		String[] pValue = uidl.getStringArrayAttribute("pValue");
 		String[] color = uidl.getStringArrayAttribute("color");
 
-		createInstance(placeholder.getId(), interactome, wrapArray(geneSymbol), wrapArray(pValue), wrapArray(color));
+		createInstance(placeholder.getId(), wrapArray(interactome), wrapArray(geneSymbol), wrapArray(pValue), wrapArray(color));
 	}
 
-	public static native void createInstance(String containerId, String interactome, JsArrayString geneSymbol, JsArrayString pValue, JsArrayString color)/*-{
+	public static native void createInstance(String containerId, JsArrayString interactome, JsArrayString geneSymbol, JsArrayString pValue, JsArrayString color)/*-{
     	$wnd.$interaction_color_mosaic.create(containerId, interactome, geneSymbol, pValue, color);
 	}-*/;
 	
