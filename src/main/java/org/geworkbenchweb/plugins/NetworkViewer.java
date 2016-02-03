@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +14,7 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
 import org.geworkbenchweb.pojos.ResultSet;
+import org.geworkbenchweb.pojos.TTestResult;
 import org.geworkbenchweb.visualizations.Cytoscape;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -390,7 +392,15 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		return datasetId;
 	}
 
-	public void displayWithTTestResult(List<String> colorMap) {
+	public void displayWithTTestResult(TTestResult tTestResult, String[] markerLabels, Long parentId) {
+		List<String> nodes = new ArrayList<String>();
+		nodes.addAll( Arrays.asList(networkResult.getNode1()) );
+		NetworkEdges[] edges = networkResult.getEdges();
+		for(NetworkEdges e: edges) {
+			nodes.addAll( Arrays.asList(e.getNode2s()) );
+		}
+		List<String> colorMap = NetworkColorUtil.getTTestResultSetColorMap(tTestResult,
+				markerLabels, nodes, parentId);
 		cy.setColor(colorMap.toArray(new String[0]));
 	}
 }

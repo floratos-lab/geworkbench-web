@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.pojos.TTestResult;
+import org.geworkbenchweb.utils.DataSetOperations;
 
 /* this class is loosely based on the classes called TTestResultSelectionPanel and CytoscapeUtil in geWorkbench desktop, cytoscape component. */
 public class NetworkColorUtil {
@@ -32,12 +33,14 @@ public class NetworkColorUtil {
 	}
 
 	// create map from gene symbol to color
-	public static List<String> getTTestResultSetColorMap(TTestResult tTestResult, String[] markerLabels) {
+	public static List<String> getTTestResultSetColorMap(TTestResult tTestResult, String[] markerLabels, List<String> nodeLabels, Long datasetId) {
 		double minTValue = Double.POSITIVE_INFINITY;
 		double maxTValue = Double.NEGATIVE_INFINITY;
 
 		int[] significantIndex = tTestResult.getSignificantIndex();
 		double[] tValues = tTestResult.gettValue();
+
+		Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 
 		Map<String, Double> tvalueMap = new HashMap<String, Double>();
 		for (int m : significantIndex) {
@@ -48,8 +51,15 @@ public class NetworkColorUtil {
 			if (maxTValue < tValue)
 				maxTValue = tValue;
 
-			if (tvalueMap.containsKey(name) && tvalueMap.get(name) >= tValue)
-				continue;
+			if(!nodeLabels.contains(name)) {
+				String geneSymbol = map.get(name);
+				if(nodeLabels.contains(geneSymbol)) {
+					name = geneSymbol;
+				} else {
+					continue; // a marker we do not need
+				}
+			}
+
 			tvalueMap.put(name, tValue);
 		}
 

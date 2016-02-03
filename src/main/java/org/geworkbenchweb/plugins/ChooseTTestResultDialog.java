@@ -89,9 +89,7 @@ public class ChooseTTestResultDialog extends Window {
 					Long id = dataset.getDataId();
 					MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 					String[] markerLabels = microarray.getMarkerLabels();
-					List<String> colorMap = NetworkColorUtil.getTTestResultSetColorMap(tTestResult,
-							markerLabels);
-					networkViewer.displayWithTTestResult(colorMap);
+					networkViewer.displayWithTTestResult(tTestResult, markerLabels, parentId);
 				}
 			}
 		});
