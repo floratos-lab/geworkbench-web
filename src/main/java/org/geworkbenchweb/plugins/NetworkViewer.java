@@ -298,7 +298,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				displayTTestresult();
+				new ChooseTTestResultDialog().display(NetworkViewer.this);
 			}};
        	Command resetCommand = new Command() {
 
@@ -306,7 +306,7 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				resetDisplay();
+				cy.setColor(null);
 			}};
 		displayMenuItem.addItem("t-test", ttestCommand);
 		displayMenuItem.addItem("reset", resetCommand);
@@ -317,16 +317,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 		this.addComponent(toolBar);
 		this.addComponent(cy);
 		this.setExpandRatio(cy, 1);
-	}
-	
-	private void resetDisplay() {
-		MessageBox mb = new MessageBox(getWindow(), "Under development", MessageBox.Icon.INFO,
-				"This feature is not available yet.", new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-		mb.show();
-	}
-
-	private void displayTTestresult() {
-		new ChooseTTestResultDialog().display(this);
 	}
 
 	private void downloadNetwork() {
