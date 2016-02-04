@@ -1,5 +1,9 @@
 package org.geworkbenchweb.plugins.cnkb;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,12 +42,15 @@ import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.Application;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.terminal.ExternalResource;
+import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
@@ -185,7 +192,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		menuBar.setStyleName("transparent");
 		menuBar.addItem("Create Network", new CreateNetworkCommand(parentId,
 				cnkbResult)).setStyleName("plugin");
-		menuBar.addItem("Export", new Command() {
+		MenuItem export = menuBar.addItem("Export", null);
+		export.addItem("Export table to Excel", new Command() {
 
 			private static final long serialVersionUID = -4510368918141762449L;
 
@@ -199,6 +207,42 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			}
 			
 		}).setStyleName("plugin");
+		export.addItem("Export interactions to SIF", new Command() {
+
+			private static final long serialVersionUID = 3617735646709100783L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				Network network = createInMemoryNetwork(datasetId, cnkbResult);
+				if(network==null) {
+					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
+							"There is no interaction to create a network. ",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+					return;
+				}
+				final Application app = getApplication();
+				String filename = "network_" + System.currentTimeMillis() + ".sif";
+				downloadFile(network.toSIF(), filename, app);
+			}}).setStyleName("plugin");
+		export.addItem("Export interactions to ADJ", new Command() {
+
+			private static final long serialVersionUID = 8434363860293572785L;
+
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				Network network = createInMemoryNetwork(datasetId, cnkbResult);
+				if(network==null) {
+					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
+							"There is no interaction to create a network. ",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+					mb.show();
+					return;
+				}
+				final Application app = getApplication();
+				String filename = "network_" + System.currentTimeMillis() + ".adj";
+				downloadFile(network.toString(), filename, app);
+			}}).setStyleName("plugin");
 		menuBar.addItem("Help", new Command() {
 
 			private static final long serialVersionUID = -1970832620889340547L;
@@ -229,7 +273,25 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		setExpandRatio(tabPanel, 1);
 
 	}
-	
+
+	private static void downloadFile(final String content, final String filename, final Application app) {
+		String dir = GeworkbenchRoot.getBackendDataDirectory() + System.getProperty("file.separator")
+				+ SessionHandler.get().getUsername() + System.getProperty("file.separator") + "export";
+		if (!new File(dir).exists())
+			new File(dir).mkdirs();
+
+		final File file = new File(dir, filename);
+		try {
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
+			pw.print(content);
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Resource resource = new FileResource(file, app);
+		app.getMainWindow().open(resource);
+	}
+
 	/* this version for 'orphan' result */
 	public CNKBResultsUI(CNKBResultSet cnkbResult) {
 		datasetId = null;
@@ -409,7 +471,28 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	 
+	private static Network createInMemoryNetwork(final Long parentId, final CNKBResultSet cnkbResultSet) {
+
+		Short confidentType = cnkbResultSet.getCellularNetworkPreference().getSelectedConfidenceType();
+		int interactionNum = 0;
+		Vector<CellularNetWorkElementInformation> hits = cnkbResultSet.getCellularNetWorkElementInformations();
+		List<String> selectedTypes = cnkbResultSet.getCellularNetworkPreference().getDisplaySelectedInteractionTypes();
+		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
+					.getSelectedInteractions(selectedTypes, confidentType);
+			interactionNum = interactionNum + arrayList.size();
+		}
+
+		if (hits == null || interactionNum == 0) {
+			log.warn("There is no interaction to create a network. ");
+			return null;
+		}
+		HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
+		params.put(CNKBParameters.CNKB_RESULTSET, cnkbResultSet);
+
+		Network network = new NetworkCreation(parentId).createNetwork(params);
+		return network;
+	}
 
 	private class CreateNetworkCommand implements Command {
 
