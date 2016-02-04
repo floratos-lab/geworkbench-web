@@ -445,8 +445,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		CNKBServletClient cnkb = new CNKBServletClient();
 
+		String interactomeName = "multiple interactomes";
+		if(allInteractiomesSelected.length==1) interactomeName = allInteractiomesSelected[0] + version;
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference(
-				"Throttle Graph(" + allInteractiomesSelected[0] + version + ")");
+				"Throttle Graph (" + interactomeName + ")");
 		List<String> interactionTypes = cnkb
 				.getInteractionTypesByInteractomeVersion(allInteractiomesSelected[0], version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);

@@ -310,7 +310,9 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 		CNKBServletClient cnkb = new CNKBServletClient();
 
-		CellularNetworkPreference cnkbPref = new CellularNetworkPreference("Throttle Graph(" + allInteractiomesSelected[0] + version + ")");
+		String interactomeName = "multiple interactomes";
+		if(allInteractiomesSelected.length==1) interactomeName = allInteractiomesSelected[0] + version;
+		CellularNetworkPreference cnkbPref = new CellularNetworkPreference("Throttle Graph (" + interactomeName + ")");
 		List<String> interactionTypes = cnkb.getInteractionTypesByInteractomeVersion(allInteractiomesSelected[0], version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
