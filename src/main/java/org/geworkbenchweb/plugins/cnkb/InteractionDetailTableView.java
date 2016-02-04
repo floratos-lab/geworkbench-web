@@ -47,7 +47,7 @@ public class InteractionDetailTableView extends Table {
 					if(b==null) b = d;
 					sb.append(b + ":" + v + ", ");
 				}
-				item.getItemProperty(itcm).setValue(sb.toString());
+				item.getItemProperty(itcm).setValue(sb.deleteCharAt(sb.length()-2).toString());
 			}
 		}
 
