@@ -92,6 +92,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		final VerticalSplitPanel mainLayout = new VerticalSplitPanel();
 		
 		OptionGroup namespaceSelect = new OptionGroup("GO subontology (Namespaces)", Arrays.asList(namespaces ));
+		namespaceSelect.setValue(namespaces[0]);
 		namespaceSelect.addStyleName("horizontal");
 		namespaceSelect.setImmediate(true);
 		namespaceSelect.addListener(new Property.ValueChangeListener() {
