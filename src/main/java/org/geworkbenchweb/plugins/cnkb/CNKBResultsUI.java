@@ -116,7 +116,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		init(cnkbResult, parentId);
 	}
 	
-	private void init(final CNKBResultSet cnkbResult, Long parentId) {
+	private void init(final CNKBResultSet cnkbResult, final Long parentId) {
 		if (confidentTypeMap == null)
 			loadConfidentTypeMap();
 		
@@ -213,7 +213,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				Network network = createInMemoryNetwork(datasetId, cnkbResult);
+				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if(network==null) {
 					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
 							"There is no interaction to create a network. ",
@@ -231,7 +231,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				Network network = createInMemoryNetwork(datasetId, cnkbResult);
+				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if(network==null) {
 					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
 							"There is no interaction to create a network. ",
