@@ -57,6 +57,7 @@ public class NetworkCreation extends AbstractOrderedLayout implements
 		ResultSet networkResult = FacadeFactory.getFacade().find(
 				ResultSet.class, resultId);
 		networkResult.setDataId(network.getId());
+		networkResult.setDescription("# of nodes: "+network.getNodeNumber()+", # of edges: "+network.getEdgeNumber());
 		FacadeFactory.getFacade().store(networkResult);
 
 		int num = DataSetOperations.getSubDatasetNum(datasetId, getResultType().getName());
