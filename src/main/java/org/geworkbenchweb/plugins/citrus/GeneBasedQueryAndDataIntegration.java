@@ -5,6 +5,7 @@ package org.geworkbenchweb.plugins.citrus;
 
 import org.geworkbenchweb.visualizations.CitrusDiagram;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -34,13 +35,14 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		final CitrusDiagram citrusDiagram = new CitrusDiagram();
 		diagramPanel.addComponent(citrusDiagram);
 
-		final ComboBox cancerTypeComboBox = new ComboBox("Choose a TCGA cancer type");
+		final ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 		String[] cancerTypes = new String[] { "Bladder carcinoma", "other cancers" };
 		for (String s : cancerTypes)
 			cancerTypeComboBox.addItem(s);
 		cancerTypeComboBox.setNullSelectionAllowed(false);
 
-		final TextField geneSymbolTextField = new TextField("Enter a gene symbol");
+		final TextField geneSymbolTextField = new TextField("Gene symbol");
+		final TextField pValueTextField = new TextField("p-value");
 		Button runButton = new Button("Run Citrus");
 		runButton.addListener(new ClickListener() {
 
@@ -48,14 +50,16 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				getWindow().showNotification(
-						"center type=" + cancerTypeComboBox.getValue() + "; gene=" + geneSymbolTextField.getValue());
+				getWindow().showNotification("cancer type=" + cancerTypeComboBox.getValue() + "<br>gene="
+						+ geneSymbolTextField.getValue() + "<br>p-value=" + pValueTextField.getValue());
 			}
 
 		});
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);
 		commandPanel.addComponent(geneSymbolTextField);
+		commandPanel.addComponent(pValueTextField);
 		commandPanel.addComponent(runButton);
+		commandPanel.setComponentAlignment(runButton, Alignment.BOTTOM_CENTER);
 	}
 }
