@@ -11,6 +11,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -27,13 +28,14 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		super.attach();
 
 		HorizontalLayout commandPanel = new HorizontalLayout();
-		HorizontalLayout diagramPanel = new HorizontalLayout();
+		Panel diagramPanel = new Panel();
 		this.setSpacing(true);
 		this.addComponent(commandPanel);
 		this.addComponent(diagramPanel);
 
 		final CitrusDiagram citrusDiagram = new CitrusDiagram();
 		diagramPanel.addComponent(citrusDiagram);
+		diagramPanel.getContent().setSizeUndefined();
 
 		final ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 		String[] cancerTypes = new String[] { "Bladder carcinoma", "other cancers" };
