@@ -1,6 +1,6 @@
 var $citrus_diagram = {}; /* module namespace */
 
-$citrus_diagram.create = function(id, presence, nes) {
+$citrus_diagram.create = function(id, alteration, samples, presence, preppi, cindy, pvalue, nes) {
 	var div = document.getElementById(id);
 	$(div).empty();
 
@@ -20,65 +20,11 @@ $citrus_diagram.create = function(id, presence, nes) {
      pvalue[n], float point
 	 nes[m], float in string
 	 */
-	/* create random test data */
-	var n = 30, m = 100;
-	var alteration = new Array(n);
-	for(var i=0; i<n; i++) {
-		var colorKeys = Object.keys($citrus_diagram.color_map);
-		var randomIndex = Math.floor( Math.random() * colorKeys.length );
-        var geneSymbol = '';
-        for(var j=0; j<4; j++) {
-            var c = String.fromCharCode(65 + Math.floor(Math.random()*26) );
-            geneSymbol += c;
-        } 
-		alteration[i] = colorKeys[randomIndex]+"_"+geneSymbol;
-	}
 
-	var presence = new Array(n);
-	for(var i=0; i<n; i++) {
-		var p = new Array(m);
-		var r = Math.random();
-		for(var j=0; j<m; j++) {
-			var x = Math.random();
-			if(x>r)
-				p[j] = '1';
-			else
-				p[j] = '0';
-		}
-		presence[i] = p.join('');
-	}
-    
-    var samples = new Array(m);
-    for(var j=0; j<m; j++) {
-        samples[j] = '';
-        for(var k=0; k<10; k++) {
-            var c = String.fromCharCode(65 + Math.floor(Math.random()*26) );
-            samples[j] += c;
-        } 
-    }
-    
-    var preppi = new Array(n);
-    for(var i=0; i<n; i++) {
-        preppi[i] = Math.floor(Math.random()*2);
-    }
+	var n = alteration.length;
+	var m = samples.length;
 
-    var cindy = new Array(n);
-    for(var i=0; i<n; i++) {
-        cindy[i] = Math.floor(Math.random()*2);
-    }
-    
-    var pvalue = new Array(n);
-    for(var i=0; i<n; i++) {
-        pvalue[i] = Math.random();
-    }
-
-    var nes = new Array(m);
-    for(var i=0; i<m; i++) {
-        nes[i] = Math.random()*2.-1.;
-    }
-	/* end of creating random test data */
-    
-    var maxAbsValue = 0;
+	var maxAbsValue = 0;
     for(var i=0; i<m; i++) {
         if( Math.abs(nes[i])>maxAbsValue ) maxAbsValue = Math.abs(nes[i]);
     }
@@ -110,9 +56,6 @@ $citrus_diagram.create = function(id, presence, nes) {
 			.data(d)
 			.enter()
 			.append("rect")
-			.text(function(d){
-				return d;
-			})
 			.attr("x", function(d, i) {
 				return x0 + dx*i;
 			})
@@ -201,7 +144,6 @@ $citrus_diagram.color_map = {'UMT':'green', 'DMT':'darkgreen', 'AMP':'red', 'DEL
 $citrus_diagram.colorscale = function(maxAbsValue, value) {
     var i = 0;
     if(maxAbsValue!=0) i = Math.floor(255*value/maxAbsValue);
-    console.log(i);
     if(i<0) {
         var r = 255 + i;
         var g = 255 + i;
@@ -211,6 +153,5 @@ $citrus_diagram.colorscale = function(maxAbsValue, value) {
         var g = 255 - i;
         var b = 255 - i;
     }
-    console.log("rgb("+r+","+g+","+b+")");
     return "rgb("+r+","+g+","+b+")";
 }
