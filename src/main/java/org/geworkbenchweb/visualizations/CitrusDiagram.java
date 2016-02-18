@@ -8,7 +8,7 @@ import com.vaadin.ui.AbstractComponent;
 public class CitrusDiagram extends AbstractComponent {
 
 	private static final long serialVersionUID = 2073659992756579843L;
-	final private String[] alteration, samples, presence;
+	private String[] alteration, samples, presence;
 	final private Integer[] preppi, cindy;
 	final private String[] pvalue;
 	final private String[] nes;
@@ -85,5 +85,10 @@ public class CitrusDiagram extends AbstractComponent {
 		target.addAttribute("cindy", cindy);
 		target.addAttribute("pvalue", pvalue);
 		target.addAttribute("nes", nes);
+	}
+
+	public void setCitrusData(String[] alteration) {
+		this.alteration = alteration;
+		requestRepaint();
 	}
 }
