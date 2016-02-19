@@ -3,24 +3,66 @@
  */
 package org.geworkbenchweb.plugins.citrus;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.geworkbenchweb.GeworkbenchRoot;
+
 /**
  * @author zji
  *
  */
 public class CitrusDatabase {
-	// TODO all fake test data for now
+
+	final private String DB_URL = "jdbc:mysql://" + GeworkbenchRoot.getAppProperty("citrus.db.url") + "/"
+			+ GeworkbenchRoot.getAppProperty("citrus.db.database");
+	final private String USER = GeworkbenchRoot.getAppProperty("citrus.db.username");
+	final private String PASS = GeworkbenchRoot.getAppProperty("citrus.db.password");
 
 	public String[] getCancerTypes() {
-		String[] ct = new String[20];
-		for (int i = 0; i < ct.length; i++) {
-			ct[i] = "";
-			for (int j = 0; j < 4; j++) {
-				char c = (char) ((Math.random() * 26) + 'a');
-				ct[i] += c;
+		List<String> list = new ArrayList<String>();
+
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+
+			String sql = "SELECT type FROM tumortypes";
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				String tumortype = rs.getString("type");
+				list.add(tumortype);
 			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			} // no-op
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+			} // no-op
 		}
-		return ct;
+		return list.toArray(new String[list.size()]);
 	}
+
+	// TODO all the following are fake test data for now
 
 	public String[] getTF(String cancerType) {
 		String[] tf = new String[1800];
@@ -30,7 +72,7 @@ public class CitrusDatabase {
 				char c = (char) ((Math.random() * 26) + 'A');
 				tf[i] += c;
 			}
-			tf[i] += cancerType.charAt(3);
+			tf[i] += cancerType;
 		}
 		return tf;
 	}
