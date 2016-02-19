@@ -98,6 +98,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
                 "stroke" : "#005500",
                 "fill" : function(d, i) { if(d==0) return "#FFFFFF"; else return "orange"; }
         });
+    if(n>0)
     svg.append('text').text('PrePPI').attr({"text-anchor": "end", "x": x0+dx*m+20, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
 	svg.selectAll("circle#cindy")
@@ -110,6 +111,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
                 "stroke" : "#005500",
                 "fill" : function(d, i) { if(d==0) return "#FFFFFF"; else return "red"; }
         });
+    if(n>0)
     svg.append('text').text('CINDy').attr({"text-anchor": "end", "x": x0+dx*m+40, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
 
@@ -125,6 +127,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 				"font-family": "sans-serif",
 				"font-size": "12px"
         });
+    if(n>0)
     svg.append('text').text('p-value').attr({"text-anchor": "end", "x": x0+dx*m+60, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
 
@@ -136,6 +139,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
                 "y" : y0+ n*dy + 10,
                 "fill": function(d) { return $citrus_diagram.colorscale(maxAbsValue, d); }
         });
+    if(m>0)
     svg.append('text').text('NES').attr({"text-anchor": "end", "x": x0-20, "y":y0+n*dy+25, "font-family": "sans-serif", "font-size": "12px"});
 };
 

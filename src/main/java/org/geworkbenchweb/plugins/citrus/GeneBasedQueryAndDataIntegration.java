@@ -38,9 +38,16 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 		@Override
 		public void buttonClick(ClickEvent event) {
-			String[] alteration = db.getAlterations((String) cancerTypeComboBox.getValue(),
-					(String) geneSymbolComboBox.getValue());
-			citrusDiagram.setCitrusData(alteration);
+			String cancerType = (String) cancerTypeComboBox.getValue();
+			String geneSymbol = (String) geneSymbolComboBox.getValue();
+			String[] alteration = db.getAlterations(cancerType, geneSymbol);
+			String[] samples = db.getSamples(cancerType);
+			String[] presence = db.getPresence(cancerType, geneSymbol);
+			Integer[] preppi = db.getPrePPI(cancerType, geneSymbol);
+			Integer[] cindy = db.getCINDy(cancerType, geneSymbol);
+			String[] pvalue = db.getPValue(cancerType, geneSymbol);
+			String[] nes = db.getNES(cancerType, geneSymbol);
+			citrusDiagram.setCitrusData(alteration, samples, presence, preppi, cindy, pvalue, nes);
 		}
 	};
 	

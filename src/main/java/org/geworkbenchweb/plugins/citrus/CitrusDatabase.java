@@ -45,4 +45,72 @@ public class CitrusDatabase {
 		}
 		return alteration;
 	}
+
+	public String[] getSamples(String cancerType) {
+		int m = 100;
+		String[] samples = new String[m];
+		for (int j = 0; j < m; j++) {
+			samples[j] = "";
+			for (int k = 0; k < 10; k++) {
+				char c = (char) ('A' + Math.random() * 26);
+				samples[j] += c;
+			}
+		}
+		return samples;
+	}
+
+	public String[] getPresence(String cancerType, String geneSymbol) {
+		int n = 30, m = 100;
+		String[] presence = new String[n];
+		for (int i = 0; i < n; i++) {
+			presence[i] = "";
+			double r = Math.random();
+			for (int j = 0; j < m; j++) {
+				char p = '_';
+				double x = Math.random();
+				if (x > r)
+					p = '1';
+				else
+					p = '0';
+				presence[i] += p;
+			}
+		}
+		return presence;
+	}
+
+	public Integer[] getPrePPI(String cancerType, String geneSymbol) {
+		int n = 30;
+		Integer[] preppi = new Integer[n];
+		for (int i = 0; i < n; i++) {
+			preppi[i] = (int) (Math.random() * 2);
+		}
+		return preppi;
+	}
+
+	public Integer[] getCINDy(String cancerType, String geneSymbol) {
+		int n = 30;
+		Integer[] cindy = new Integer[n];
+		for (int i = 0; i < n; i++) {
+			cindy[i] = (int) (Math.random() * 2);
+		}
+		return cindy;
+	}
+
+	public String[] getPValue(String cancerType, String geneSymbol) {
+		int n = 30;
+		String[] pvalue = new String[n];
+		for (int i = 0; i < n; i++) {
+			pvalue[i] = String.valueOf(Math.random());
+		}
+		return pvalue;
+	}
+
+	public String[] getNES(String cancerType, String geneSymbol) {
+		int m = 100;
+		String[] nes = new String[m];
+		for (int i = 0; i < m; i++) {
+			nes[i] = String.valueOf(Math.random() * 2. - 1.);
+		}
+		return nes;
+	}
 }
