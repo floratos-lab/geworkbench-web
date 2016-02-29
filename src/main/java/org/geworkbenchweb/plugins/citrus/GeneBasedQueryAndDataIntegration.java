@@ -30,7 +30,15 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 
-	final private CitrusDatabase db = new CitrusDatabase(); 
+	private CitrusDatabase db = null;
+	
+	public GeneBasedQueryAndDataIntegration() {
+		try {
+			db = new CitrusDatabase();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	final private ClickListener clickListener = new ClickListener() {
 

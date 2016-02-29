@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 
@@ -23,30 +25,73 @@ public class CitrusDatabase {
 			+ GeworkbenchRoot.getAppProperty("citrus.db.database");
 	final private String USER = GeworkbenchRoot.getAppProperty("citrus.db.username");
 	final private String PASS = GeworkbenchRoot.getAppProperty("citrus.db.password");
-
-	public String[] getCancerTypes() {
-		List<String> list = new ArrayList<String>();
-
+	
+	private Map<String, Integer> cancerIds = new HashMap<String, Integer>();
+	
+	public CitrusDatabase() throws Exception {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new Exception("Failure loading MySQL driver");
+		}
+		
 		Connection conn = null;
 		Statement stmt = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
 
-			String sql = "SELECT type FROM tumortypes";
+			String sql = "SELECT id, type FROM tumortypes";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				String tumortype = rs.getString("type");
-				list.add(tumortype);
+				Integer id = rs.getInt("id");
+				cancerIds.put(tumortype, id);
 			}
 			rs.close();
 			stmt.close();
 			conn.close();
 		} catch (SQLException se) {
 			se.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			} // no-op
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+			} // no-op
+		}
+	}
+
+	public String[] getCancerTypes() {
+		return cancerIds.keySet().toArray(new String[cancerIds.size()]);
+	}
+
+	public String[] getTF(String cancerType) {
+		List<String> list = new ArrayList<String>();
+
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+
+			String sql = "SELECT symbol FROM genes JOIN cancergene ON cancergene.gene_id=genes.entrez_id WHERE cancergene.cancer_type="
+					+ cancerIds.get(cancerType);
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				list.add(rs.getString("symbol"));
+			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
 		} finally {
 			try {
 				if (stmt != null)
@@ -61,21 +106,8 @@ public class CitrusDatabase {
 		}
 		return list.toArray(new String[list.size()]);
 	}
-
+	
 	// TODO all the following are fake test data for now
-
-	public String[] getTF(String cancerType) {
-		String[] tf = new String[1800];
-		for (int i = 0; i < tf.length; i++) {
-			tf[i] = "";
-			for (int j = 0; j < 3; j++) {
-				char c = (char) ((Math.random() * 26) + 'A');
-				tf[i] += c;
-			}
-			tf[i] += cancerType;
-		}
-		return tf;
-	}
 
 	public String[] getAlterations(String cancerType, String tf) {
 		int n = 30;
