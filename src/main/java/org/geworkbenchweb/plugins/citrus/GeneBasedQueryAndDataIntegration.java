@@ -3,6 +3,11 @@
  */
 package org.geworkbenchweb.plugins.citrus;
 
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.plugins.citrus.CitrusDatabase.Alteration;
 import org.geworkbenchweb.visualizations.CitrusDiagram;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -24,11 +29,15 @@ import com.vaadin.ui.VerticalLayout;
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 	private static final long serialVersionUID = -713233350568178L;
+	private static Log log = LogFactory.getLog(GeneBasedQueryAndDataIntegration.class);
 	
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol");
+	final private TextField pValueTextField = new TextField("p-value");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
+	
+	private Map<String, Integer> geneSymbols = null;
 
 	private CitrusDatabase db = null;
 	
@@ -48,20 +57,41 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		public void buttonClick(ClickEvent event) {
 			String cancerType = (String) cancerTypeComboBox.getValue();
 			String geneSymbol = (String) geneSymbolComboBox.getValue();
-			String[] alteration = db.getAlterations(cancerType, geneSymbol);
+			Float p = Float.parseFloat( (String) pValueTextField.getValue() );
+			Integer geneId = geneSymbols.get(geneSymbol);
+			if(geneId==null) {
+				log.debug("null gene ID");
+				return;
+			}
+			Alteration[] alteration = db.getAlterations(cancerType, geneId, p);
 			String[] samples = db.getSamples(cancerType);
-			String[] presence = db.getPresence(cancerType, geneSymbol);
-			Integer[] preppi = db.getPrePPI(cancerType, geneSymbol);
-			Integer[] cindy = db.getCINDy(cancerType, geneSymbol);
-			String[] pvalue = db.getPValue(cancerType, geneSymbol);
+			String[] presence = db.getPresence(cancerType, geneSymbol, alteration.length);
 			String[] nes = db.getNES(cancerType, geneSymbol);
-			citrusDiagram.setCitrusData(alteration, samples, presence, preppi, cindy, pvalue, nes);
+			
+			int n = alteration.length;
+			String[] labels = new String[n];
+			Integer[] preppi = new Integer[n];
+			Integer[] cindy = new Integer[n];
+			String[] pvalue = new String[n];
+			for(int i=0; i<n; i++) {
+				labels[i] = alteration[i].label;
+				preppi[i] = alteration[i].preppi;
+				cindy[i] = alteration[i].cindy;
+				pvalue[i] = String.valueOf( alteration[i].pvalue );
+			}
+
+			citrusDiagram.setCitrusData(labels, samples, presence, preppi, cindy, pvalue, nes);
 		}
 	};
 	
 	private void setTFComboBox(String cancerType) {
 		geneSymbolComboBox.removeAllItems();
-		for (String tf : db.getTF(cancerType)) {
+		geneSymbols = db.getTF(cancerType);
+		if(geneSymbols==null) {
+			log.debug("null gene symbol list");
+			return;
+		}
+		for (String tf : geneSymbols.keySet()) {
 			geneSymbolComboBox.addItem(tf);
 		}
 	}
@@ -93,9 +123,9 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			}
 
 		});
-
-		final TextField pValueTextField = new TextField("p-value");
 		
+		pValueTextField.setValue("0.05");
+
 		runButton.addListener(clickListener);
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);

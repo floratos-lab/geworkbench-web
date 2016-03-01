@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 
 /**
@@ -21,12 +23,15 @@ import org.geworkbenchweb.GeworkbenchRoot;
  */
 public class CitrusDatabase {
 
+	private static Log log = LogFactory.getLog(CitrusDatabase.class);
+	
 	final private String DB_URL = "jdbc:mysql://" + GeworkbenchRoot.getAppProperty("citrus.db.url") + "/"
 			+ GeworkbenchRoot.getAppProperty("citrus.db.database");
 	final private String USER = GeworkbenchRoot.getAppProperty("citrus.db.username");
 	final private String PASS = GeworkbenchRoot.getAppProperty("citrus.db.password");
 	
 	private Map<String, Integer> cancerIds = new HashMap<String, Integer>();
+	private Map<String, String> cancerTypes = new HashMap<String, String>();
 	
 	public CitrusDatabase() throws Exception {
 		try {
@@ -42,12 +47,14 @@ public class CitrusDatabase {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
 
-			String sql = "SELECT id, type FROM tumortypes";
+			String sql = "SELECT id, type, name FROM tumortypes";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				String tumortype = rs.getString("type");
+				String name = rs.getString("name");
 				Integer id = rs.getInt("id");
-				cancerIds.put(tumortype, id);
+				cancerIds.put(name, id);
+				cancerTypes.put(name, tumortype);
 			}
 			rs.close();
 			stmt.close();
@@ -72,8 +79,8 @@ public class CitrusDatabase {
 		return cancerIds.keySet().toArray(new String[cancerIds.size()]);
 	}
 
-	public String[] getTF(String cancerType) {
-		List<String> list = new ArrayList<String>();
+	public Map<String, Integer> getTF(String cancerType) {
+		Map<String, Integer> list = new HashMap<String, Integer>();
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -81,11 +88,11 @@ public class CitrusDatabase {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
 
-			String sql = "SELECT symbol FROM genes JOIN cancergene ON cancergene.gene_id=genes.entrez_id WHERE cancergene.cancer_type="
+			String sql = "SELECT entrez_id, symbol FROM genes JOIN cancergene ON cancergene.gene_id=genes.entrez_id WHERE cancergene.cancer_type="
 					+ cancerIds.get(cancerType);
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				list.add(rs.getString("symbol"));
+				list.put(rs.getString("symbol"), rs.getInt("entrez_id"));
 			}
 			rs.close();
 			stmt.close();
@@ -104,21 +111,61 @@ public class CitrusDatabase {
 			} catch (SQLException se) {
 			} // no-op
 		}
-		return list.toArray(new String[list.size()]);
+		return list;
+	}
+	
+	public static class Alteration {
+		public String label;
+		public int preppi;
+		public int cindy;
+		public float pvalue;
+	}
+	
+	public Alteration[] getAlterations(String cancerTypeName, int tf, float pvalue) {
+		List<Alteration> list = new ArrayList<Alteration>();
+
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+
+			String cancerType = cancerTypes.get(cancerTypeName);
+			String tableA = "association_" + cancerType;
+			String sql = "SELECT type, " + tableA + ".modulator_id, preppi, cindy, pvalue FROM " + tableA
+					+ " JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf + " AND "
+					+ tableA + ".pvalue<=" + pvalue;
+			log.debug(sql);
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				Alteration a = new Alteration();
+				a.label = rs.getString("type").toUpperCase() + "_" + rs.getString("modulator_id");
+				a.preppi = rs.getFloat("preppi")<pvalue?1:0;
+				a.cindy = rs.getFloat("cindy")<pvalue?1:0;
+				a.pvalue = rs.getFloat("pvalue");
+				list.add(a);
+			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			} // no-op
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+			} // no-op
+		}
+		return list.toArray(new Alteration[list.size()]);
 	}
 	
 	// TODO all the following are fake test data for now
-
-	public String[] getAlterations(String cancerType, String tf) {
-		int n = 30;
-		String[] colorKeys = { "UMT", "DMT", "AMP", "DEL", "SNV", "GFU" };
-		String[] alteration = new String[n];
-		for (int i = 0; i < n; i++) {
-			int randomIndex = (int) (Math.random() * colorKeys.length);
-			alteration[i] = colorKeys[randomIndex] + "_m_" + tf;
-		}
-		return alteration;
-	}
 
 	public String[] getSamples(String cancerType) {
 		int m = 100;
@@ -133,8 +180,8 @@ public class CitrusDatabase {
 		return samples;
 	}
 
-	public String[] getPresence(String cancerType, String geneSymbol) {
-		int n = 30, m = 100;
+	public String[] getPresence(String cancerType, String geneSymbol, int n) {
+		int m = 100;
 		String[] presence = new String[n];
 		for (int i = 0; i < n; i++) {
 			presence[i] = "";
@@ -150,33 +197,6 @@ public class CitrusDatabase {
 			}
 		}
 		return presence;
-	}
-
-	public Integer[] getPrePPI(String cancerType, String geneSymbol) {
-		int n = 30;
-		Integer[] preppi = new Integer[n];
-		for (int i = 0; i < n; i++) {
-			preppi[i] = (int) (Math.random() * 2);
-		}
-		return preppi;
-	}
-
-	public Integer[] getCINDy(String cancerType, String geneSymbol) {
-		int n = 30;
-		Integer[] cindy = new Integer[n];
-		for (int i = 0; i < n; i++) {
-			cindy[i] = (int) (Math.random() * 2);
-		}
-		return cindy;
-	}
-
-	public String[] getPValue(String cancerType, String geneSymbol) {
-		int n = 30;
-		String[] pvalue = new String[n];
-		for (int i = 0; i < n; i++) {
-			pvalue[i] = String.valueOf(Math.random());
-		}
-		return pvalue;
 	}
 
 	public String[] getNES(String cancerType, String geneSymbol) {
