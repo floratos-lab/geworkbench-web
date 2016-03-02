@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase.Alteration;
+import org.geworkbenchweb.plugins.citrus.CitrusDatabase.Viper;
 import org.geworkbenchweb.visualizations.CitrusDiagram;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -64,10 +65,9 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				return;
 			}
 			Alteration[] alteration = db.getAlterations(cancerType, geneId, p);
-			String[] samples = db.getSamples(cancerType);
-			String[] presence = db.getPresence(cancerType, geneSymbol, alteration.length);
-			String[] nes = db.getNES(cancerType, geneSymbol);
-			
+			Viper[] viper = db.getViperValues(cancerType, geneId);
+			String[] presence = db.getPresence(cancerType, alteration, viper);
+
 			int n = alteration.length;
 			String[] labels = new String[n];
 			Integer[] preppi = new Integer[n];
@@ -80,6 +80,13 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				pvalue[i] = String.valueOf( alteration[i].pvalue );
 			}
 
+			int m = viper.length;
+			String[] samples = new String[m];
+			String[] nes = new String[m];
+			for(int i=0; i<m; i++) {
+				samples[i] = viper[i].sample;
+				nes[i] = String.valueOf( viper[i].value );
+			}
 			citrusDiagram.setCitrusData(labels, samples, presence, preppi, cindy, pvalue, nes);
 		}
 	};

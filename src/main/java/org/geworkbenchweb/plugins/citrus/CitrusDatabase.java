@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins.citrus;
 
 import java.sql.Connection;
@@ -10,17 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 
-/**
- * @author zji
- *
- */
 public class CitrusDatabase {
 
 	private static Log log = LogFactory.getLog(CitrusDatabase.class);
@@ -116,13 +111,28 @@ public class CitrusDatabase {
 	
 	public static class Alteration {
 		public String label;
+		public int eventTypeId;
+		public int modulatorId;
 		public int preppi;
 		public int cindy;
 		public float pvalue;
 	}
-	
+
+	public static class Viper {
+		public String sample;
+		public int id;
+		public float value;
+	}
+
 	public Alteration[] getAlterations(String cancerTypeName, int tf, float pvalue) {
 		List<Alteration> list = new ArrayList<Alteration>();
+
+		String cancerType = cancerTypes.get(cancerTypeName);
+		String tableA = "association_" + cancerType;
+		String sql = "SELECT type, eventtypes.id, " + tableA + ".modulator_id, preppi, cindy, pvalue FROM " + tableA
+				+ " JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf + " AND "
+				+ tableA + ".pvalue<=" + pvalue;
+		log.debug(sql);
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -130,18 +140,14 @@ public class CitrusDatabase {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
 
-			String cancerType = cancerTypes.get(cancerTypeName);
-			String tableA = "association_" + cancerType;
-			String sql = "SELECT type, " + tableA + ".modulator_id, preppi, cindy, pvalue FROM " + tableA
-					+ " JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf + " AND "
-					+ tableA + ".pvalue<=" + pvalue;
-			log.debug(sql);
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				Alteration a = new Alteration();
-				a.label = rs.getString("type").toUpperCase() + "_" + rs.getString("modulator_id");
-				a.preppi = rs.getFloat("preppi")<pvalue?1:0;
-				a.cindy = rs.getFloat("cindy")<pvalue?1:0;
+				a.label = rs.getString("type").toUpperCase() + "_" + rs.getInt("modulator_id");
+				a.eventTypeId = rs.getInt("eventtypes.id");
+				a.modulatorId = rs.getInt("modulator_id");
+				a.preppi = rs.getFloat("preppi") < pvalue ? 1 : 0;
+				a.cindy = rs.getFloat("cindy") < pvalue ? 1 : 0;
 				a.pvalue = rs.getFloat("pvalue");
 				list.add(a);
 			}
@@ -165,46 +171,105 @@ public class CitrusDatabase {
 		return list.toArray(new Alteration[list.size()]);
 	}
 	
-	// TODO all the following are fake test data for now
+	public Viper[] getViperValues(String cancerTypeName, int tf) {
+		List<Viper> list = new ArrayList<Viper>();
 
-	public String[] getSamples(String cancerType) {
-		int m = 100;
-		String[] samples = new String[m];
-		for (int j = 0; j < m; j++) {
-			samples[j] = "";
-			for (int k = 0; k < 10; k++) {
-				char c = (char) ('A' + Math.random() * 26);
-				samples[j] += c;
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+
+			String cancerType = cancerTypes.get(cancerTypeName);
+			String tableName = "viper_" + cancerType;
+			String sql = "SELECT sample_name, sample.sample_id, " + tableName + ".value FROM " + tableName
+					+ " JOIN sample on sample.sample_id=" + tableName + ".sample_id WHERE gene_id=" + tf;
+			log.debug(sql);
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				Viper v = new Viper();
+				v.sample = rs.getString("sample_name");
+				v.id = rs.getInt("sample_id");
+				v.value = rs.getFloat(tableName + ".value");
+				list.add(v);
 			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			} // no-op
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+			} // no-op
 		}
-		return samples;
+		return list.toArray(new Viper[list.size()]);
 	}
 
-	public String[] getPresence(String cancerType, String geneSymbol, int n) {
-		int m = 100;
-		String[] presence = new String[n];
-		for (int i = 0; i < n; i++) {
-			presence[i] = "";
-			double r = Math.random();
-			for (int j = 0; j < m; j++) {
-				char p = '_';
-				double x = Math.random();
-				if (x > r)
-					p = '1';
-				else
-					p = '0';
-				presence[i] += p;
+	// get presence for one genomic event
+	private Set<Integer> getPresence(String cancerTypeName, int eventTypeId, int modulatorId) {
+		Set<Integer> presence = new HashSet<Integer>();
+
+		String cancerType = cancerTypes.get(cancerTypeName);
+		String tableName = "event_" + cancerType;
+		String sql = "SELECT sample_id FROM " + tableName + " WHERE event_type_id=" + eventTypeId + " AND modulator_id="
+				+ modulatorId;
+		log.debug(sql);
+
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			stmt = conn.createStatement();
+
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				presence.add(rs.getInt("sample_id"));
 			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			} // no-op
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+			} // no-op
 		}
 		return presence;
 	}
 
-	public String[] getNES(String cancerType, String geneSymbol) {
-		int m = 100;
-		String[] nes = new String[m];
-		for (int i = 0; i < m; i++) {
-			nes[i] = String.valueOf(Math.random() * 2. - 1.);
+	public String[] getPresence(String cancerTypeName, Alteration[] alterations, Viper[] viper) {
+		int n = alterations.length;
+		int m = viper.length;
+		String[] presence = new String[n];
+		for (int i = 0; i < n; i++) {
+			int eventTypeId = alterations[i].eventTypeId;
+			int modulatorId = alterations[i].modulatorId;
+			Set<Integer> p = getPresence(cancerTypeName, eventTypeId, modulatorId);
+			presence[i] = "";
+			for (int j = 0; j < m; j++) {
+				int sampleId = viper[j].id;
+				if (p.contains(sampleId))
+					presence[i] += '1';
+				else
+					presence[i] += '0';
+			}
 		}
-		return nes;
+		return presence;
 	}
 }
