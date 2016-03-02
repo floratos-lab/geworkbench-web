@@ -110,7 +110,8 @@ public class CitrusDatabase {
 	}
 	
 	public static class Alteration {
-		public String label;
+		public String eventType;
+		public String modulatorSymbol;
 		public int eventTypeId;
 		public int modulatorId;
 		public int preppi;
@@ -129,9 +130,10 @@ public class CitrusDatabase {
 
 		String cancerType = cancerTypes.get(cancerTypeName);
 		String tableA = "association_" + cancerType;
-		String sql = "SELECT type, eventtypes.id, " + tableA + ".modulator_id, preppi, cindy, pvalue FROM " + tableA
-				+ " JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf + " AND "
-				+ tableA + ".pvalue<=" + pvalue;
+		String sql = "SELECT type, eventtypes.id, genes.symbol, " + tableA
+				+ ".modulator_id, preppi, cindy, pvalue FROM " + tableA + " JOIN genes on genes.entrez_id=" + tableA
+				+ ".modulator_id JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf
+				+ " AND " + tableA + ".pvalue<=" + pvalue;
 		log.debug(sql);
 
 		Connection conn = null;
@@ -143,7 +145,8 @@ public class CitrusDatabase {
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				Alteration a = new Alteration();
-				a.label = rs.getString("type").toUpperCase() + "_" + rs.getInt("modulator_id");
+				a.eventType = rs.getString("type");
+				a.modulatorSymbol = rs.getString("genes.symbol");
 				a.eventTypeId = rs.getInt("eventtypes.id");
 				a.modulatorId = rs.getInt("modulator_id");
 				a.preppi = rs.getFloat("preppi") < pvalue ? 1 : 0;

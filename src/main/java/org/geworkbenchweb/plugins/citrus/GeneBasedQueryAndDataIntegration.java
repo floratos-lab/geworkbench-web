@@ -73,11 +73,11 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			Integer[] preppi = new Integer[n];
 			Integer[] cindy = new Integer[n];
 			String[] pvalue = new String[n];
-			for(int i=0; i<n; i++) {
-				labels[i] = alteration[i].label;
+			for (int i = 0; i < n; i++) {
+				labels[i] = alteration[i].eventType.toUpperCase() + "_" + alteration[i].modulatorSymbol;
 				preppi[i] = alteration[i].preppi;
 				cindy[i] = alteration[i].cindy;
-				pvalue[i] = String.valueOf( alteration[i].pvalue );
+				pvalue[i] = String.valueOf(alteration[i].pvalue);
 			}
 
 			int m = viper.length;
