@@ -220,10 +220,9 @@ public class CitrusDatabase {
 	private Set<Integer> getPresence(String cancerTypeName, int eventTypeId, int modulatorId) {
 		Set<Integer> presence = new HashSet<Integer>();
 
-		String cancerType = cancerTypes.get(cancerTypeName);
-		String tableName = "event_" + cancerType;
-		String sql = "SELECT sample_id FROM " + tableName + " WHERE event_type_id=" + eventTypeId + " AND modulator_id="
-				+ modulatorId;
+		int cancerTypeId = cancerIds.get(cancerTypeName);
+		String sql = "SELECT sample_id FROM genomic_events WHERE cancer_type_id=" + cancerTypeId + " AND event_type_id="
+				+ eventTypeId + " AND modulator_id=" + modulatorId;
 		log.debug(sql);
 
 		Connection conn = null;
