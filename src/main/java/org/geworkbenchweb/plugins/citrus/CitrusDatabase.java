@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -119,10 +120,15 @@ public class CitrusDatabase {
 		public float pvalue;
 	}
 
-	public static class Viper {
+	public static class Viper implements Comparable<Viper> {
 		public String sample;
 		public int id;
 		public float value;
+
+		@Override
+		public int compareTo(Viper o) {
+			return (int) Math.signum(o.value-value); // sort descending on purpose
+		}
 	}
 
 	public Alteration[] getAlterations(String cancerTypeName, int tf, float pvalue) {
@@ -212,6 +218,7 @@ public class CitrusDatabase {
 			} catch (SQLException se) {
 			} // no-op
 		}
+		Collections.sort(list);
 		return list.toArray(new Viper[list.size()]);
 	}
 
