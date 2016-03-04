@@ -128,12 +128,11 @@ public class CitrusDatabase {
 	public Alteration[] getAlterations(String cancerTypeName, int tf, float pvalue) {
 		List<Alteration> list = new ArrayList<Alteration>();
 
-		String cancerType = cancerTypes.get(cancerTypeName);
-		String tableA = "association_" + cancerType;
-		String sql = "SELECT type, eventtypes.id, genes.symbol, " + tableA
-				+ ".modulator_id, preppi, cindy, pvalue FROM " + tableA + " JOIN genes on genes.entrez_id=" + tableA
-				+ ".modulator_id JOIN eventtypes on eventtypes.id=" + tableA + ".event_type_id WHERE gene_id=" + tf
-				+ " AND " + tableA + ".pvalue<=" + pvalue;
+		int cancerTypeId = cancerIds.get(cancerTypeName);
+		String sql = "SELECT type, eventtypes.id, genes.symbol, associations.modulator_id, preppi, cindy, pvalue"
+				+ " FROM associations JOIN genes on genes.entrez_id=associations.modulator_id"
+				+ " JOIN eventtypes on eventtypes.id=associations.event_type_id WHERE cancer_type_id=" + cancerTypeId
+				+ " AND gene_id=" + tf + " AND associations.pvalue<=" + pvalue;
 		log.debug(sql);
 
 		Connection conn = null;
