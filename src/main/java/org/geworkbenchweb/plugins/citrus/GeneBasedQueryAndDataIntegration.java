@@ -34,7 +34,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol");
-	final private TextField pValueTextField = new TextField("p-value");
+	final private TextField pValueTextField = new TextField("p-value threshold");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 	
@@ -101,6 +101,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		for (String tf : geneSymbols.keySet()) {
 			geneSymbolComboBox.addItem(tf);
 		}
+		geneSymbolComboBox.select(geneSymbols.keySet().iterator().next());
 	}
 
 	@Override
@@ -130,7 +131,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			}
 
 		});
-		
+		cancerTypeComboBox.setImmediate(true);
 		pValueTextField.setValue("0.05");
 
 		runButton.addListener(clickListener);
