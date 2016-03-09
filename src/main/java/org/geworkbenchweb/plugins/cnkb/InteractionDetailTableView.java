@@ -76,7 +76,7 @@ public class InteractionDetailTableView extends Table {
 					if(c.equalsIgnoreCase(i)) {
 						Property p = ((Table)source).getItem(itemId).getItemProperty(propertyId);
 						Object v = p.getValue();
-						if(v!=null)return createTooltip(v.toString());
+						if(v!=null)return v.toString();
 						else return null;
 					}
 				}
@@ -84,18 +84,7 @@ public class InteractionDetailTableView extends Table {
 			}
 		});
 	}
-	
-	static private String createTooltip(String confidenceText) {
-		StringBuilder sb = new StringBuilder();
-		for(String key : abrev.keySet()) {
-			String value = abrev.get(key);
-			if(confidenceText.toLowerCase().contains(value.toLowerCase())) {
-				sb.append(value+"="+key+";");
-			}
-		}
-		return sb.deleteCharAt(sb.length()-1).toString();
-	}
-	
+
 	static private Map<String, String> abrev;
 	static {
 		abrev = new HashMap<String, String>();
