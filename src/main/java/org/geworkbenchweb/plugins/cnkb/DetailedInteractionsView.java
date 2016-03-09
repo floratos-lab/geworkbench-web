@@ -62,7 +62,7 @@ public class DetailedInteractionsView extends Window {
 		viewSelect.setImmediate(true);
 		viewSelect.select(TABLE_VIEW);
 		this.addComponent(viewSelect);
-		Map<String, Map<String, InteractionDetail>> targetGeneInfo = getTargetGenes(markerLabel, hits);
+		Map<InteractionParticipant, Map<String, InteractionDetail>> targetGeneInfo = getTargetGenes(markerLabel, hits);
 		final Component colormosaicview = new InteractionColorMosaic(targetGeneInfo);
 		this.addComponent(tableview);
 		
@@ -93,9 +93,9 @@ public class DetailedInteractionsView extends Window {
 	}
 	
 	/* detailed information of target genes to be shown in the detail table view */
-	static private Map<String, Map<String, InteractionDetail>> getTargetGenes(String markerLabel,
+	static private Map<InteractionParticipant, Map<String, InteractionDetail>> getTargetGenes(String markerLabel,
 			final Vector<CellularNetWorkElementInformation> hits) {
-		Map<String, Map<String, InteractionDetail>> target = new HashMap<String, Map<String, InteractionDetail>>();
+		Map<InteractionParticipant, Map<String, InteractionDetail>> target = new HashMap<InteractionParticipant, Map<String, InteractionDetail>>();
 		for (CellularNetWorkElementInformation c : hits) {
 			String label = c.getMarkerLabel();
 			if (markerLabel.equals(label)) {
@@ -107,11 +107,10 @@ public class DetailedInteractionsView extends Window {
 				if(interactionDetail==null) break; 
 				for (InteractionDetail interaction : interactionDetail) {
 					for (InteractionParticipant p : interaction.getParticipantList()) {
-						String g = p.getGeneName();
-						Map<String, InteractionDetail> map = target.get(g);
+						Map<String, InteractionDetail> map = target.get(p);
 						if(map==null) {
 							map = new HashMap<String, InteractionDetail>();
-							target.put(g, map);
+							target.put(p, map);
 						}
 						map.put(interactome, interaction);
 					}

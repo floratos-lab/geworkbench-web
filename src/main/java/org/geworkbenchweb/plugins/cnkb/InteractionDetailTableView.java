@@ -5,22 +5,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geworkbenchweb.plugins.tabularview.PopupWindow;
+
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.Table;
 
 public class InteractionDetailTableView extends Table {
 
 	private static final long serialVersionUID = 8979430961160562312L;
 
-	public void setTargetGeneData(final Map<String, Map<String, InteractionDetail>> targetGenes, final Map<String, String> confidentTypeMap, Map<String, String> map) {
+	public void setTargetGeneData(final Map<InteractionParticipant, Map<String, InteractionDetail>> targetGenes, final Map<String, String> confidentTypeMap, Map<String, String> map) {
 		IndexedContainer container = new IndexedContainer();
-		container.addContainerProperty("Gene Symbol", String.class, null);
+		container.addContainerProperty("Gene Symbol", PopupView.class, null);
 		container.addContainerProperty("Functionality", String.class, null);
 		final List<String> interactome = new ArrayList<String>();
-		for (String targetGene : targetGenes.keySet()) {
+		for (InteractionParticipant targetGene : targetGenes.keySet()) {
 			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
 			for(String itcm : info.keySet()) {
 				if(!interactome.contains(itcm)) {
@@ -32,9 +35,12 @@ public class InteractionDetailTableView extends Table {
 			container.addContainerProperty(i, String.class, null);
 			this.setColumnExpandRatio(i, 0.1f);
 		}
-		for (String targetGene : targetGenes.keySet()) {
+		for (InteractionParticipant targetGene : targetGenes.keySet()) {
 			Item item = container.addItem(targetGene);
-			item.getItemProperty("Gene Symbol").setValue(targetGene);
+			
+			PopupView geneView = new PopupView(new PopupWindow(targetGene.getGeneName(), targetGene.getGeneId()));					 
+		    geneView.setData(targetGene);
+			item.getItemProperty("Gene Symbol").setValue(geneView);
 			item.getItemProperty("Functionality").setValue(map.get(targetGene));
 			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
 			for(String itcm : info.keySet()) {

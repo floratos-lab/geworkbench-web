@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.geworkbenchweb.plugins.cnkb.InteractionDetail;
+import org.geworkbenchweb.plugins.cnkb.InteractionParticipant;
 
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
@@ -20,9 +21,9 @@ public class InteractionColorMosaic extends AbstractComponent {
 	final private String[] pValue;
 	final private String[] color;
 	
-	public InteractionColorMosaic(final Map<String, Map<String, InteractionDetail>> targetGenes) {
+	public InteractionColorMosaic(final Map<InteractionParticipant, Map<String, InteractionDetail>> targetGenes) {
 		List<String> interactome = new ArrayList<String>();
-		for(String gene  : targetGenes.keySet()) {
+		for(InteractionParticipant gene  : targetGenes.keySet()) {
 			Map<String, InteractionDetail> info = targetGenes.get(gene);
 			for(String itcm : info.keySet()) {
 				if(!interactome.contains(itcm)) {
@@ -36,8 +37,8 @@ public class InteractionColorMosaic extends AbstractComponent {
 		List<String> geneList = new ArrayList<String>();
 		List<String> pValueList = new ArrayList<String>();
 		List<String> colorList = new ArrayList<String>();
-		for (String targetGene : targetGenes.keySet()) {
-			geneList.add(targetGene);
+		for (InteractionParticipant targetGene : targetGenes.keySet()) {
+			geneList.add(targetGene.getGeneName());
 			Map<String, InteractionDetail> info = targetGenes.get(targetGene);
 			for(String itcm  : interactome) {
 				InteractionDetail detail = info.get(itcm);
