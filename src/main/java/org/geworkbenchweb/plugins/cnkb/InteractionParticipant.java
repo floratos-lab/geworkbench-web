@@ -24,6 +24,23 @@ public class InteractionParticipant implements Serializable{
         return geneName;
     }
     
+    @Override
+    public int hashCode() {
+    	return geneName.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if(!(obj instanceof InteractionParticipant)) return false;
+    	
+    	InteractionParticipant ip = (InteractionParticipant)obj;
+    	if(ip.geneName.equals(geneName)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
