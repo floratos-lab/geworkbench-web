@@ -40,9 +40,9 @@
 			<uiClass>org.geworkbenchweb.plugins.cnkb.CNKBStandaloneUI</uiClass>
 		</plugin>
 		<plugin>
-			<name>Gene-Based Query and Data Integration</name>
+			<name>TCGA Driver-Gene Inference</name>
 			<description>
-				Gene-Based Query and Data Integration is a graphical interface to view results from DIGGIT algorithm integrated with PrePPI and CINDy, and provide an easily navigable display of the summarized data.
+				TCGA Driver-Gene Inference is a graphical interface to view results from DIGGIT algorithm integrated with PrePPI and CINDy, and provide an easily navigable display of the summarized data.
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.citrus.GeneBasedQueryAndDataIntegration</uiClass>
 		</plugin>

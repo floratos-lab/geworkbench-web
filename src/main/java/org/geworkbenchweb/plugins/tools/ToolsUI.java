@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.VisualPluginView;
@@ -111,7 +112,7 @@ public class ToolsUI extends VerticalLayout {
 		VerticalLayout standaloneGroup = new VerticalLayout();
 		standaloneGroup.setMargin(true);
 		Map<PluginEntry, Class<? extends Component> > plugins = GeworkbenchRoot.getPluginRegistry().getStandalonePlugins();
-		for(PluginEntry entry : plugins.keySet()) {
+		for(PluginEntry entry : new TreeSet<>(plugins.keySet()) ) {
 			Component content;
 			try {
 				content = plugins.get(entry).newInstance();
