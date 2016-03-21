@@ -91,6 +91,8 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	svg.selectAll("circle#preppi")
 		.data(preppi)
 		.enter()
+		.append("a")
+		.attr("xlink:href", "https://bhapp.c2b2.columbia.edu/PrePPI/cgi-bin/search.cgi?query=NRAS&protein=P01111")
 		.append("circle")
 		.attr( {"cx" : x0 + dx*m + 20,
                 "cy" : function(d, i) { return y0+ dy*i + 10; },
