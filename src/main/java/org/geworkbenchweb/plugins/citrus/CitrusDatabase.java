@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +27,7 @@ public class CitrusDatabase {
 	final private String USER = GeworkbenchRoot.getAppProperty("citrus.db.username");
 	final private String PASS = GeworkbenchRoot.getAppProperty("citrus.db.password");
 	
-	private Map<String, Integer> cancerIds = new HashMap<String, Integer>();
+	private Map<String, Integer> cancerIds = new TreeMap<String, Integer>();
 	private Map<String, String> cancerTypes = new HashMap<String, String>();
 	
 	public CitrusDatabase() throws Exception {
@@ -76,7 +77,7 @@ public class CitrusDatabase {
 	}
 
 	public Map<String, Integer> getTF(String cancerType) {
-		Map<String, Integer> list = new HashMap<String, Integer>();
+		Map<String, Integer> list = new TreeMap<String, Integer>();
 
 		Connection conn = null;
 		Statement stmt = null;
