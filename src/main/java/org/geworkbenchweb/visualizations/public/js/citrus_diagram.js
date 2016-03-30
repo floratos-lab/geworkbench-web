@@ -50,9 +50,19 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 				"font-size": "12px"
 		});
 	
+    var zoom = d3.behavior.zoom()
+        .scaleExtent([1, 10])
+        .on("zoom", function() {
+            container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        });
+
+    svg.call(zoom);
+
+    var container = svg.append("g");
+
 	for(var ii=0; ii<presence.length; ii++) {
 		var d = presence[ii].split('');
-		svg.selectAll("rect#row")
+		container.selectAll("rect#row")
 			.data(d)
 			.enter()
 			.append("rect")
