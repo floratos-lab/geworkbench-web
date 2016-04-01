@@ -40,6 +40,33 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     // size of 'presence window'
     var p_width = $citrus_diagram.width - 200;
     var p_height = $citrus_diagram.height - 150;
+
+    var x_scale = 1, y_scale = 1;
+    var zoom = function() {
+        container.attr("transform", "translate(" + [p_x, p_y] + ")scale(" + [x_scale, y_scale] + ")");
+        hf_group.attr("transform", "translate(" + [p_x, 0] + ")scale(" + [x_scale, y_scale] + ")");
+    }
+
+    var x_zoombar = svg.append("g").attr("transform", "translate(10 80)");
+    x_zoombar.append("rect").attr({"x":0, "y":0, "width":70, "height":15, "fill": "grey", "rx":7, "ry":7});
+    x_zoombar.append("text").text("-")
+        .attr({"x":5, "y":10, "fill":"white"})
+        .on("click", function() {
+            x_scale /= 1.1;
+            zoom();
+        } );
+    x_zoombar.append("text").text("0")
+        .attr({"x":30, "y":12, "fill":"white"})
+        .on("click", function() {
+            x_scale = 1;
+            zoom();
+        } );
+    x_zoombar.append("text").text("+")
+        .attr({"x":55, "y":12, "fill":"white"})
+        .on("click", function() {
+            x_scale *= 1.1;
+            zoom();
+        } );
 	
     var lr_window = svg.append("svg").attr({"y":y0, "height":p_height});
     var lr_group = lr_window.append("g");
@@ -61,11 +88,10 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	
     var drag = d3.behavior.drag()
         .on("drag", function() {
-            p_x = Math.min(0, Math.max(p_width-m*dx, p_x+d3.event.dx));
+            p_x = Math.min(0, Math.max(p_width-m*dx*x_scale, p_x+d3.event.dx));
             p_y = Math.min(0, Math.max(p_height-n*dy, p_y+d3.event.dy));
-            container.attr("transform", "translate(" + [p_x, p_y] + ")");
+            zoom();
             lr_group.attr("transform", "translate(" + [0, p_y] + ")");
-            hf_group.attr("transform", "translate(" + [p_x, 0] + ")");
         });
 
     var presence_window = svg.append("svg") // presence window
