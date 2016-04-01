@@ -1,5 +1,9 @@
 var $citrus_diagram = {}; /* module namespace */
 
+// external size
+$citrus_diagram.width = 900;
+$citrus_diagram.height = 600;
+
 $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cindy, pvalue, nes) {
 	var div = document.getElementById(id);
 	$(div).empty();
@@ -7,8 +11,8 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	var svg = d3.select("div#"+id)
 		.style("background-color", "#F2F2F2")
 		.append("svg")
-		.attr("width", 800)
-		.attr("height", 600);
+		.attr("width", $citrus_diagram.width)
+		.attr("height", $citrus_diagram.height);
 
 	/* 
 	 n: number of rows; m: number of columns.
@@ -33,10 +37,13 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	var dx = 10; // height of each row
 	var dy = 20; // height of each row
 
-    svg.attr('width', m*dx+200);
-    svg.attr('height', n*dy+150);
+    // size of 'presence window'
+    var p_width = $citrus_diagram.width - 200;
+    var p_height = $citrus_diagram.height - 150;
 	
-	svg.selectAll("text")
+    var lr_window = svg.append("svg").attr({"y":y0, "height":p_height});
+    var lr_group = lr_window.append("g");
+	var alteration_labels = lr_group.selectAll("text")
 		.data(alteration)
 		.enter()
 		.append("text")
@@ -44,21 +51,26 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 			return d;
 		})
 		.attr( {"x": x0-10,
-				"y": function(d, i) { return y0 + dy*i+ 0.7*dy; },
+				"y": function(d, i) { return dy*i+ 0.7*dy; },
 				"text-anchor": "end",
 				"font-family": "sans-serif",
 				"font-size": "12px"
 		});
+
+    var p_x = 0, p_y = 0; // presence window translation
 	
-    var zoom = d3.behavior.zoom()
-        .scaleExtent([1, 10])
-        .on("zoom", function() {
-            container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    var drag = d3.behavior.drag()
+        .on("drag", function() {
+            p_x = Math.min(0, Math.max(p_width-m*dx, p_x+d3.event.dx));
+            p_y = Math.min(0, Math.max(p_height-n*dy, p_y+d3.event.dy));
+            container.attr("transform", "translate(" + [p_x, p_y] + ")");
+            lr_group.attr("transform", "translate(" + [0, p_y] + ")");
+            hf_group.attr("transform", "translate(" + [p_x, 0] + ")");
         });
 
-    svg.call(zoom);
-
-    var container = svg.append("g");
+    var presence_window = svg.append("svg") // presence window
+        .attr({"x":x0, "y":y0, "width":p_width, "height":p_height});
+    var container = presence_window.append("g");
 
 	for(var ii=0; ii<presence.length; ii++) {
 		var d = presence[ii].split('');
@@ -67,10 +79,10 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 			.enter()
 			.append("rect")
 			.attr("x", function(d, i) {
-				return x0 + dx*i;
+				return dx*i;
 			})
 			.attr("y", function(d) {
-				return y0 + dy*ii;
+				return dy*ii;
 			})
 			.attr( {"width": dx,
 					"height": dy,
@@ -82,8 +94,12 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 					} 
 			} );
 	}
+    container.call(drag);
 
-	svg.selectAll("text#col")
+    var hf_window = svg.append("svg")
+        .attr({"x":x0, "width": p_width});
+    var hf_group = hf_window.append("g");
+	hf_group.selectAll("text#col")
 		.data(samples)
 		.enter()
 		.append("text")
@@ -91,68 +107,68 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 			return d;
 		})
         .style( "writing-mode", "tb")
-		.attr( {"x": function(d, i) { return x0 + dx*i+3; },
+		.attr( {"x": function(d, i) { return dx*i+3; },
 				"y": y0-5,
 				"text-anchor": "end",
 				"font-family": "sans-serif",
 				"font-size": "10px"
 		});
 
-	svg.selectAll("circle#preppi")
+	lr_group.selectAll("circle#preppi")
 		.data(preppi)
 		.enter()
 		.append("a")
 		.attr("xlink:href", "https://bhapp.c2b2.columbia.edu/PrePPI/cgi-bin/search.cgi?query=NRAS&protein=P01111")
 		.append("circle")
-		.attr( {"cx" : x0 + dx*m + 20,
-                "cy" : function(d, i) { return y0+ dy*i + 10; },
+		.attr( {"cx" : x0 + p_width + 20,
+                "cy" : function(d, i) { return dy*i + 10; },
                 "r" : 5,
                 "stroke" : "#005500",
                 "fill" : function(d, i) { if(d==0) return "#FFFFFF"; else return "orange"; }
         });
     if(n>0)
-    svg.append('text').text('PrePPI').attr({"text-anchor": "end", "x": x0+dx*m+20, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
+    svg.append('text').text('PrePPI').attr({"text-anchor": "end", "x": x0+p_width+20, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
-	svg.selectAll("circle#cindy")
+	lr_group.selectAll("circle#cindy")
 		.data(cindy)
 		.enter()
 		.append("circle")
-		.attr( {"cx" : x0 + dx*m + 40,
-                "cy" : function(d, i) { return y0+ dy*i + 10; },
+		.attr( {"cx" : x0 + p_width + 40,
+                "cy" : function(d, i) { return dy*i + 10; },
                 "r" : 5,
                 "stroke" : "#005500",
                 "fill" : function(d, i) { if(d==0) return "#FFFFFF"; else return "red"; }
         });
     if(n>0)
-    svg.append('text').text('CINDy').attr({"text-anchor": "end", "x": x0+dx*m+40, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
+    svg.append('text').text('CINDy').attr({"text-anchor": "end", "x": x0+p_width+40, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
 
-	svg.selectAll("text#value")
+	lr_group.selectAll("text#value")
 		.data(pvalue)
 		.enter()
 		.append("text")
 		.text(function(d) {
 			return d.toPrecision(3);
 		})
-		.attr( {"x" : x0 + dx*m + 60,
-                "y" : function(d, i) { return y0+ dy*i + 10; },
+		.attr( {"x" : x0 + p_width + 60,
+                "y" : function(d, i) { return dy*i + 15; },
 				"font-family": "sans-serif",
 				"font-size": "12px"
         });
     if(n>0)
-    svg.append('text').text('p-value').attr({"text-anchor": "end", "x": x0+dx*m+60, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
+    svg.append('text').text('p-value').attr({"text-anchor": "end", "x": x0+p_width+60, "y":y0-5, "font-family": "sans-serif", "font-size": "12px"})
         .style( "writing-mode", "tb");
 
-    svg.selectAll("rect#nes")
+    hf_group.selectAll("rect#nes")
 		.data(nes)
 		.enter()
 		.append("rect")
-		.attr( {"width":dx, "height":dy, "x" : function(d, i) { return x0+ dx*i; },
-                "y" : y0+ n*dy + 10,
+		.attr( {"width":dx, "height":dy, "x" : function(d, i) { return dx*i; },
+                "y" : y0+ p_height + 10,
                 "fill": function(d) { return $citrus_diagram.colorscale(maxAbsValue, d); }
         });
     if(m>0)
-    svg.append('text').text('NES').attr({"text-anchor": "end", "x": x0-20, "y":y0+n*dy+25, "font-family": "sans-serif", "font-size": "12px"});
+    svg.append('text').text('NES').attr({"text-anchor": "end", "x": x0-20, "y":y0+p_height+25, "font-family": "sans-serif", "font-size": "12px"});
 };
 
 $citrus_diagram.color_map = {'UMT':'green', 'DMT':'darkgreen', 'AMP':'red', 'DEL':'blue', 'SNV':'black', 'GFU':'orange'};
