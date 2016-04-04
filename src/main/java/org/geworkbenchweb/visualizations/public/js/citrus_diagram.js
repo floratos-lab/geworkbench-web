@@ -44,7 +44,8 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     var x_scale = 1, y_scale = 1;
     var zoom = function() {
         container.attr("transform", "translate(" + [p_x, p_y] + ")scale(" + [x_scale, y_scale] + ")");
-        hf_group.attr("transform", "translate(" + [p_x, 0] + ")scale(" + [x_scale, y_scale] + ")");
+        hf_group.attr("transform", "translate(" + [p_x, 0] + ")scale(" + [x_scale, 1] + ")");
+        lr_group.attr("transform", "translate(" + [0, p_y] + ")scale(" + [1, y_scale] + ")");
     }
 
     var x_zoombar = svg.append("g").attr("transform", "translate(10 80)");
@@ -67,7 +68,28 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
             x_scale *= 1.1;
             zoom();
         } );
-	
+
+    var y_zoombar = svg.append("g").attr("transform", "translate(80 10)");
+    y_zoombar.append("rect").attr({"x":0, "y":0, "width":15, "height":70, "fill": "grey", "rx":7, "ry":7});
+    y_zoombar.append("text").text("-")
+        .attr({"x":5, "y":10, "fill":"white"})
+        .on("click", function() {
+            y_scale /= 1.1;
+            zoom();
+        } );
+    y_zoombar.append("text").text("0")
+        .attr({"x":3, "y":38, "fill":"white"})
+        .on("click", function() {
+            y_scale = 1;
+            zoom();
+        } );
+    y_zoombar.append("text").text("+")
+        .attr({"x":3, "y":65, "fill":"white"})
+        .on("click", function() {
+            y_scale *= 1.1;
+            zoom();
+        } );
+
     var lr_window = svg.append("svg").attr({"y":y0, "height":p_height});
     var lr_group = lr_window.append("g");
 	var alteration_labels = lr_group.selectAll("text")
@@ -89,9 +111,8 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     var drag = d3.behavior.drag()
         .on("drag", function() {
             p_x = Math.min(0, Math.max(p_width-m*dx*x_scale, p_x+d3.event.dx));
-            p_y = Math.min(0, Math.max(p_height-n*dy, p_y+d3.event.dy));
+            p_y = Math.min(0, Math.max(p_height-n*dy*y_scale, p_y+d3.event.dy));
             zoom();
-            lr_group.attr("transform", "translate(" + [0, p_y] + ")");
         });
 
     var presence_window = svg.append("svg") // presence window
