@@ -95,6 +95,11 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	var alteration_labels = lr_group.selectAll("text")
 		.data(alteration)
 		.enter()
+        .append("a")
+        .attr({"xlink:href": function(d) {
+                var gene_symbol = d.substring(d.indexOf('_')+1);
+                return "http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term="+gene_symbol;
+            }, "target": "_blank"})
 		.append("text")
 		.text(function(d) {
 			return d;
