@@ -113,7 +113,13 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 				"text-anchor": "end",
 				"font-family": "sans-serif",
 				"font-size": "12px"
-		});
+		})
+        .on("mouseover", function() {
+            d3.select(this).attr('fill', 'blue');
+        })
+        .on("mouseout", function() {
+            d3.select(this).attr('fill', 'black');
+        });
 
     var p_x = 0, p_y = 0; // presence window translation
 	
