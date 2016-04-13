@@ -109,13 +109,11 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		super.attach();
 
 		HorizontalLayout commandPanel = new HorizontalLayout();
-		Panel diagramPanel = new Panel();
 		this.setSpacing(true);
 		this.addComponent(commandPanel);
-		this.addComponent(diagramPanel);
+		this.addComponent(citrusDiagram);
 
-		diagramPanel.addComponent(citrusDiagram);
-		diagramPanel.getContent().setSizeUndefined();
+		citrusDiagram.setSizeFull();
 
 		String[] cancerTypes = db.getCancerTypes();
 		for (String s : cancerTypes)

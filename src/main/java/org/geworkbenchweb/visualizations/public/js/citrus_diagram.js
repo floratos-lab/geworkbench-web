@@ -11,8 +11,8 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	var svg = d3.select("div#"+id)
 		.style("background-color", "#F2F2F2")
 		.append("svg")
-		.attr("width", $citrus_diagram.width)
-		.attr("height", $citrus_diagram.height);
+        .attr({"viewBox":"0 0 "+$citrus_diagram.width+" "+$citrus_diagram.height),
+         "preserveAspectRatio":"none"});
 
 	/* 
 	 n: number of rows; m: number of columns.
@@ -49,6 +49,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     }
 
     var x_zoombar = svg.append("g").attr("transform", "translate(10 80)");
+    if(m>0) {
     x_zoombar.append("rect").attr({"x":0, "y":0, "width":70, "height":15, "fill": "grey", "rx":7, "ry":7});
     x_zoombar.append("text").text("-")
         .attr({"x":5, "y":10, "fill":"white"})
@@ -68,8 +69,10 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
             x_scale *= 1.1;
             zoom();
         } );
+    }
 
     var y_zoombar = svg.append("g").attr("transform", "translate(80 10)");
+    if(n>0) {
     y_zoombar.append("rect").attr({"x":0, "y":0, "width":15, "height":70, "fill": "grey", "rx":7, "ry":7});
     y_zoombar.append("text").text("-")
         .attr({"x":5, "y":10, "fill":"white"})
@@ -89,6 +92,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
             y_scale *= 1.1;
             zoom();
         } );
+    }
 
     var lr_window = svg.append("svg").attr({"y":y0, "height":p_height});
     var lr_group = lr_window.append("g");
