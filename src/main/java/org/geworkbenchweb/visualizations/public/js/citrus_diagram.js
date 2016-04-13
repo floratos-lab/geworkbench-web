@@ -11,7 +11,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	var svg = d3.select("div#"+id)
 		.style("background-color", "#F2F2F2")
 		.append("svg")
-        .attr({"viewBox":"0 0 "+$citrus_diagram.width+" "+$citrus_diagram.height),
+        .attr({"viewBox":"0 0 "+$citrus_diagram.width+" "+$citrus_diagram.height,
          "preserveAspectRatio":"none"});
 
 	/* 
@@ -102,7 +102,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
         .append("a")
         .attr({"xlink:href": function(d) {
                 var gene_symbol = d.substring(d.indexOf('_')+1);
-                return "http://www.ncbi.nlm.nih.gov/gene?cmd=Search&term="+gene_symbol;
+                return "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" +gene_symbol + "&alias=yes";
             }, "target": "_blank"})
 		.append("text")
 		.text(function(d) {
@@ -173,8 +173,6 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 	lr_group.selectAll("circle#preppi")
 		.data(preppi)
 		.enter()
-		.append("a")
-		.attr("xlink:href", "https://bhapp.c2b2.columbia.edu/PrePPI/cgi-bin/search.cgi?query=NRAS&protein=P01111")
 		.append("circle")
 		.attr( {"cx" : x0 + p_width + 20,
                 "cy" : function(d, i) { return dy*i + 10; },
