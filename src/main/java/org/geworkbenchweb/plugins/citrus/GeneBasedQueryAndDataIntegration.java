@@ -3,7 +3,7 @@
  */
 package org.geworkbenchweb.plugins.citrus;
 
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,7 +19,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -38,7 +37,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 	
-	private Map<String, Integer> geneSymbols = null;
+	private Set<GeneChoice> geneSymbols = null;
 
 	private CitrusDatabase db = null;
 	
@@ -57,13 +56,13 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			String cancerType = (String) cancerTypeComboBox.getValue();
-			String geneSymbol = (String) geneSymbolComboBox.getValue();
+			GeneChoice geneSymbol = (GeneChoice) geneSymbolComboBox.getValue();
 			Float p = Float.parseFloat( (String) pValueTextField.getValue() );
-			Integer geneId = geneSymbols.get(geneSymbol);
-			if(geneId==null) {
+			if(geneSymbol==null) {
 				log.debug("null gene ID");
 				return;
 			}
+			int geneId = geneSymbol.id;
 			Alteration[] alteration = db.getAlterations(cancerType, geneId, p);
 			Viper[] viper = db.getViperValues(cancerType, geneId);
 			String[] presence = db.getPresence(cancerType, alteration, viper);
@@ -98,10 +97,10 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			log.debug("null gene symbol list");
 			return;
 		}
-		for (String tf : geneSymbols.keySet()) {
+		for (GeneChoice tf : geneSymbols) {
 			geneSymbolComboBox.addItem(tf);
 		}
-		geneSymbolComboBox.select(geneSymbols.keySet().iterator().next());
+		geneSymbolComboBox.select(geneSymbols.iterator().next());
 	}
 
 	@Override

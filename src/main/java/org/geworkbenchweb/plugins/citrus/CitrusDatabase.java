@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,8 +77,8 @@ public class CitrusDatabase {
 		return cancerIds.keySet().toArray(new String[cancerIds.size()]);
 	}
 
-	public Map<String, Integer> getTF(String cancerType) {
-		Map<String, Integer> list = new TreeMap<String, Integer>();
+	public Set<GeneChoice> getTF(String cancerType) {
+		Set<GeneChoice> list = new TreeSet<GeneChoice>();
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -85,11 +86,16 @@ public class CitrusDatabase {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
 
-			String sql = "SELECT entrez_id, symbol FROM genes JOIN cancergene ON cancergene.gene_id=genes.entrez_id WHERE cancergene.cancer_type="
-					+ cancerIds.get(cancerType);
+			String sql = "SELECT count(*), genes.symbol, genes.entrez_id, min(pvalue)"
+					+ " FROM associations JOIN genes on genes.entrez_id=associations.gene_id WHERE cancer_type_id="
+					+ cancerIds.get(cancerType) + " group by gene_id";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				list.put(rs.getString("symbol"), rs.getInt("entrez_id"));
+				String symbol = rs.getString("symbol");
+				int n = rs.getInt("count(*)");
+				double p = rs.getDouble("min(pvalue)");
+				int id = rs.getInt("entrez_id");
+				list.add(new GeneChoice(symbol, n, p, id));
 			}
 			rs.close();
 			stmt.close();
