@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins.citrus;
 
 import java.util.Set;
@@ -19,13 +16,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-/**
- * @author zji
- *
- */
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 	private static final long serialVersionUID = -713233350568178L;
@@ -33,7 +25,6 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol");
-	final private TextField pValueTextField = new TextField("p-value threshold");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 	
@@ -57,13 +48,12 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		public void buttonClick(ClickEvent event) {
 			String cancerType = (String) cancerTypeComboBox.getValue();
 			GeneChoice geneSymbol = (GeneChoice) geneSymbolComboBox.getValue();
-			Float p = Float.parseFloat( (String) pValueTextField.getValue() );
 			if(geneSymbol==null) {
 				log.debug("null gene ID");
 				return;
 			}
 			int geneId = geneSymbol.id;
-			Alteration[] alteration = db.getAlterations(cancerType, geneId, p);
+			Alteration[] alteration = db.getAlterations(cancerType, geneId);
 			Viper[] viper = db.getViperValues(cancerType, geneId);
 			String[] presence = db.getPresence(cancerType, alteration, viper);
 
@@ -129,13 +119,11 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 		});
 		cancerTypeComboBox.setImmediate(true);
-		pValueTextField.setValue("0.05");
 
 		runButton.addListener(clickListener);
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);
 		commandPanel.addComponent(geneSymbolComboBox);
-		commandPanel.addComponent(pValueTextField);
 		commandPanel.addComponent(runButton);
 		commandPanel.setComponentAlignment(runButton, Alignment.BOTTOM_CENTER);
 	}

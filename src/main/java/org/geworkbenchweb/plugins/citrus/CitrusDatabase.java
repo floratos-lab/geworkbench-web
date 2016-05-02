@@ -138,14 +138,16 @@ public class CitrusDatabase {
 		}
 	}
 
-	public Alteration[] getAlterations(String cancerTypeName, int tf, float pvalue) {
+	final static double PREPPI_CINDY_THRESHOLD = 0.05;
+
+	public Alteration[] getAlterations(String cancerTypeName, int tf) {
 		List<Alteration> list = new ArrayList<Alteration>();
 
 		int cancerTypeId = cancerIds.get(cancerTypeName);
 		String sql = "SELECT type, eventtypes.id, genes.symbol, associations.modulator_id, preppi, cindy, pvalue"
 				+ " FROM associations JOIN genes on genes.entrez_id=associations.modulator_id"
 				+ " JOIN eventtypes on eventtypes.id=associations.event_type_id WHERE cancer_type_id=" + cancerTypeId
-				+ " AND gene_id=" + tf + " AND associations.pvalue<=" + pvalue;
+				+ " AND gene_id=" + tf;
 		log.debug(sql);
 
 		Connection conn = null;
@@ -161,8 +163,8 @@ public class CitrusDatabase {
 				a.modulatorSymbol = rs.getString("genes.symbol");
 				a.eventTypeId = rs.getInt("eventtypes.id");
 				a.modulatorId = rs.getInt("modulator_id");
-				a.preppi = rs.getFloat("preppi") < pvalue ? 1 : 0;
-				a.cindy = rs.getFloat("cindy") < pvalue ? 1 : 0;
+				a.preppi = rs.getFloat("preppi") < PREPPI_CINDY_THRESHOLD ? 1 : 0;
+				a.cindy = rs.getFloat("cindy") < PREPPI_CINDY_THRESHOLD ? 1 : 0;
 				a.pvalue = rs.getFloat("pvalue");
 				list.add(a);
 			}
