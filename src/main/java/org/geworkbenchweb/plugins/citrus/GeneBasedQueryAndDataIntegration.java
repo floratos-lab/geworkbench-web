@@ -24,7 +24,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	private static Log log = LogFactory.getLog(GeneBasedQueryAndDataIntegration.class);
 	
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
-	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol");
+	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol (N / P_min)");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 	

@@ -210,9 +210,9 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 		.enter()
 		.append("text")
 		.text(function(d) {
-			return d.toPrecision(3);
+			return d.toPrecision(2);
 		})
-		.attr( {"x" : x0 + p_width + 60,
+		.attr( {"x" : x0 + p_width + 55,
                 "y" : function(d, i) { return dy*i + 15; },
 				"font-family": "sans-serif",
 				"font-size": "12px"
