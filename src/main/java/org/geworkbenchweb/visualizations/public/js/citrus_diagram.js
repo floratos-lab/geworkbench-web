@@ -112,13 +112,15 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
 				"y": function(d, i) { return dy*i+ 0.7*dy; },
 				"text-anchor": "end",
 				"font-family": "sans-serif",
-				"font-size": "12px"
+				"font-size": "12px",
+				"text-decoration": "underline",
+				"fill": "blue"
 		})
         .on("mouseover", function() {
-            d3.select(this).attr('fill', 'blue');
+            d3.select(this).attr('fill', 'black');
         })
         .on("mouseout", function() {
-            d3.select(this).attr('fill', 'black');
+            d3.select(this).attr('fill', 'blue');
         });
 
     var p_x = 0, p_y = 0; // presence window translation
