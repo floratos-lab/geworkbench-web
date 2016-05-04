@@ -147,7 +147,7 @@ public class CitrusDatabase {
 		String sql = "SELECT type, eventtypes.id, genes.symbol, associations.modulator_id, preppi, cindy, pvalue"
 				+ " FROM associations JOIN genes on genes.entrez_id=associations.modulator_id"
 				+ " JOIN eventtypes on eventtypes.id=associations.event_type_id WHERE cancer_type_id=" + cancerTypeId
-				+ " AND gene_id=" + tf;
+				+ " AND gene_id=" + tf + " ORDER BY pvalue";
 		log.debug(sql);
 
 		Connection conn = null;
