@@ -14,8 +14,13 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
@@ -25,6 +30,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 	
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol (N / P_min)");
+	final private TextField throttle = new TextField("Number of events to return");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
 	
@@ -53,11 +59,23 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				return;
 			}
 			int geneId = geneSymbol.id;
-			Alteration[] alteration = db.getAlterations(cancerType, geneId);
+			String str = (String)throttle.getValue();
+			int n = geneSymbol.count;
+			try {
+				n = Integer.parseInt(str);
+			} catch(NumberFormatException e) {
+				String msg = "You need to enter an integer number for the number of genomic events.";
+				MessageBox mb = new MessageBox(GeneBasedQueryAndDataIntegration.this.getWindow(), 
+						"Invalid number", MessageBox.Icon.ERROR, msg,
+						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+				mb.show();
+				return;
+			}
+			Alteration[] alteration = db.getAlterations(cancerType, geneId, n);
 			Viper[] viper = db.getViperValues(cancerType, geneId);
 			String[] presence = db.getPresence(cancerType, alteration, viper);
 
-			int n = alteration.length;
+			n = alteration.length; // this may be less than what the user enters
 			String[] labels = new String[n];
 			Integer[] preppi = new Integer[n];
 			Integer[] cindy = new Integer[n];
@@ -120,10 +138,24 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		});
 		cancerTypeComboBox.setImmediate(true);
 
+		geneSymbolComboBox.addListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = -9162948770952403543L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				GeneChoice geneChoice = (GeneChoice) geneSymbolComboBox.getValue();
+				throttle.setValue(""+geneChoice.count);
+			}
+
+		});
+		geneSymbolComboBox.setImmediate(true);
+		
 		runButton.addListener(clickListener);
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);
 		commandPanel.addComponent(geneSymbolComboBox);
+		commandPanel.addComponent(throttle);
 		commandPanel.addComponent(runButton);
 		commandPanel.setComponentAlignment(runButton, Alignment.BOTTOM_CENTER);
 	}
