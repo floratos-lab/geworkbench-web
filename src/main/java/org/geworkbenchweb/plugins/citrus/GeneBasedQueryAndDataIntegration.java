@@ -20,6 +20,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -144,8 +145,10 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				GeneChoice geneChoice = (GeneChoice) geneSymbolComboBox.getValue();
-				throttle.setValue(""+geneChoice.count);
+				Object geneChoice = geneSymbolComboBox.getValue();
+				if(geneChoice!=null) {
+					throttle.setValue(""+((GeneChoice)geneChoice).count);
+				}
 			}
 
 		});
@@ -158,5 +161,21 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		commandPanel.addComponent(throttle);
 		commandPanel.addComponent(runButton);
 		commandPanel.setComponentAlignment(runButton, Alignment.BOTTOM_CENTER);
+
+		final Slider slider = new Slider("Horizontal zooming");
+        slider.setWidth("40%");
+        slider.setMin(0);
+        slider.setMax(100);
+        slider.setImmediate(true);
+        slider.addListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = 1207635009715936238L;
+
+			public void valueChange(ValueChangeEvent event) {
+				Double x = (Double)event.getProperty().getValue();
+				citrusDiagram.zoomX(x);
+            }
+        });
+		this.addComponent(slider);
 	}
 }

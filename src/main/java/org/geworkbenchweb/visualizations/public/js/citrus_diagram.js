@@ -249,3 +249,7 @@ $citrus_diagram.colorscale = function(maxAbsValue, value) {
     }
     return "rgb("+r+","+g+","+b+")";
 }
+
+$citrus_diagram.zoom_x = function(xzoom) {
+	console.log('zoom_x '+xzoom);
+}

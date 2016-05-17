@@ -15,6 +15,8 @@ public class CitrusDiagram extends AbstractComponent {
 	private Integer[] cindy = new Integer[0];
 	private String[] pvalue = new String[0];
 	private String[] nes = new String[0];
+	
+	private double xzoom = 1, yzoom = 1;
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -27,6 +29,9 @@ public class CitrusDiagram extends AbstractComponent {
 		target.addAttribute("cindy", cindy);
 		target.addAttribute("pvalue", pvalue);
 		target.addAttribute("nes", nes);
+		
+		target.addAttribute("xzoom", xzoom);
+		target.addAttribute("yzoom", yzoom);
 	}
 
 	public void setCitrusData(String[] alteration, String[] samples, String[] presence,
@@ -40,6 +45,11 @@ public class CitrusDiagram extends AbstractComponent {
 		this.pvalue = pvalue;
 		this.nes = nes;
 
+		requestRepaint();
+	}
+
+	public void zoomX(double x) {
+		this.xzoom = x;
 		requestRepaint();
 	}
 }
