@@ -187,7 +187,7 @@
 	<plugin>
 		<name>Molecular Structure Viewer</name>
 		<description>
-			Molecular Structure Viewer.
+			Viewer for molecular structures .
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.proteinstructure.PDBViewer</uiClass>
 	</plugin>
