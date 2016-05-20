@@ -97,7 +97,6 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		});
 		
 		cmbAnnotationFile.setImmediate(true);
-		populateAnnotationFiles(cmbAnnotationFile);
 		params.put(PARAM_ASSOCIATION_FILE, (String)cmbAnnotationFile.getValue());
 		cmbAnnotationFile.addListener(new Property.ValueChangeListener() {
 
@@ -182,12 +181,19 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		addComponent(correctionName);
 		addComponent(submitButton);
 	}
+	
+	@Override
+	public void attach() {
+		super.attach();
+		String username = SessionHandler.get().getUsername();
+		populateAnnotationFiles(cmbAnnotationFile, username);
+	}
 
-	private static void populateAnnotationFiles(ComboBox cmbAnnotationFile) {
+	private static void populateAnnotationFiles(ComboBox cmbAnnotationFile, String username) {
 		cmbAnnotationFile.removeAllItems();		
 		String dirName = GeworkbenchRoot.getBackendDataDirectory()
 				+ System.getProperty("file.separator")
-				+ SessionHandler.get().getUsername()
+				+ username
 				+ System.getProperty("file.separator") + "annotation";
 		File dir = new File(dirName);
 		if (!dir.isDirectory()) {
