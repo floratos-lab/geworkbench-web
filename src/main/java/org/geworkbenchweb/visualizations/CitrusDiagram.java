@@ -16,6 +16,7 @@ public class CitrusDiagram extends AbstractComponent {
 	private String[] pvalue = new String[0];
 	private String[] nes = new String[0];
 	
+	private boolean zoom = false;
 	private double xzoom = 1, yzoom = 1;
 
 	@Override
@@ -30,6 +31,7 @@ public class CitrusDiagram extends AbstractComponent {
 		target.addAttribute("pvalue", pvalue);
 		target.addAttribute("nes", nes);
 		
+		target.addAttribute("zoom", zoom);
 		target.addAttribute("xzoom", xzoom);
 		target.addAttribute("yzoom", yzoom);
 	}
@@ -44,11 +46,13 @@ public class CitrusDiagram extends AbstractComponent {
 		this.cindy = cindy;
 		this.pvalue = pvalue;
 		this.nes = nes;
+		this.zoom = false;
 
 		requestRepaint();
 	}
 
 	public void zoomX(double x) {
+		this.zoom = true;
 		this.xzoom = x;
 		requestRepaint();
 	}

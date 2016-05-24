@@ -27,6 +27,13 @@ public class VCitrusDiagram extends Widget implements Paintable {
 		}		
 		placeholder.setId(uidl.getId());
 
+		boolean zoom = uidl.getBooleanAttribute("zoom");
+		if(zoom) {
+			double xzoom = uidl.getDoubleAttribute("xzoom");
+			zoomX(xzoom);
+			return;
+		}
+
 		String[] alteration = uidl.getStringArrayAttribute("alteration");
 		String[] samples = uidl.getStringArrayAttribute("samples");
 		String[] presence = uidl.getStringArrayAttribute("presence");
@@ -35,10 +42,6 @@ public class VCitrusDiagram extends Widget implements Paintable {
 		String[] pvalue = uidl.getStringArrayAttribute("pvalue");
 		String[] nes = uidl.getStringArrayAttribute("nes");
 
-		double xzoom = uidl.getDoubleAttribute("xzoom");
-		// ideally, if the diagram exits, bypass creation for zooming only
-		zoomX(xzoom); // test only
-		
 		createInstance(placeholder.getId(), wrapArray(alteration), wrapArray(samples),
 				wrapArray(presence), wrapArray(preppi), wrapArray(cindy), wrapArrayNumber(pvalue),
 				wrapArrayNumber(nes));
@@ -51,7 +54,6 @@ public class VCitrusDiagram extends Widget implements Paintable {
 	}-*/;
 
 	public static final native void zoomX(double xzoom)/*-{
-		console.log("zooming to be implemented... "+xzoom);
 		$wnd.$citrus_diagram.zoom_x(xzoom);
 	}-*/;
 	
