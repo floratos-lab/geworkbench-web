@@ -162,12 +162,12 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		commandPanel.addComponent(runButton);
 		commandPanel.setComponentAlignment(runButton, Alignment.BOTTOM_CENTER);
 
-		final Slider slider = new Slider("Horizontal zooming");
-        slider.setWidth("40%");
-        slider.setMin(0);
-        slider.setMax(100);
-        slider.setImmediate(true);
-        slider.addListener(new ValueChangeListener() {
+		final Slider sliderX = new Slider("Horizontal zooming");
+		sliderX.setWidth("90%");
+        sliderX.setMin(0);
+        sliderX.setMax(100);
+        sliderX.setImmediate(true);
+        sliderX.addListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = 1207635009715936238L;
 
@@ -176,6 +176,26 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				citrusDiagram.zoomX(x);
             }
         });
+		final Slider sliderY = new Slider("Vertical zooming");
+		sliderY.setWidth("90%");
+		sliderY.setMin(0);
+		sliderY.setMax(100);
+		sliderY.setImmediate(true);
+		sliderY.addListener(new ValueChangeListener() {
+
+			private static final long serialVersionUID = 5944261985038099756L;
+
+			public void valueChange(ValueChangeEvent event) {
+				Double y = (Double)event.getProperty().getValue();
+				citrusDiagram.zoomY(y);
+            }
+        });
+        HorizontalLayout slider = new HorizontalLayout();
+		slider.setWidth("90%");
+		slider.setMargin(true);
+		slider.setSpacing(true);
+        slider.addComponent(sliderX);
+        slider.addComponent(sliderY);
 		this.addComponent(slider);
 	}
 }

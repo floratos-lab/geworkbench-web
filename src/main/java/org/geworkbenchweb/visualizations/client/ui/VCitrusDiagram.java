@@ -30,7 +30,8 @@ public class VCitrusDiagram extends Widget implements Paintable {
 		boolean zoom = uidl.getBooleanAttribute("zoom");
 		if(zoom) {
 			double xzoom = uidl.getDoubleAttribute("xzoom");
-			zoomX(xzoom);
+			double yzoom = uidl.getDoubleAttribute("yzoom");
+			rescale(xzoom, yzoom);
 			return;
 		}
 
@@ -53,8 +54,8 @@ public class VCitrusDiagram extends Widget implements Paintable {
 		$wnd.$citrus_diagram.create(containerId, alteration, samples, presence, preppi, cindy, pvalue, nes);
 	}-*/;
 
-	public static final native void zoomX(double xzoom)/*-{
-		$wnd.$citrus_diagram.zoom_x(xzoom);
+	public static final native void rescale(double xzoom, double yzoom)/*-{
+		$wnd.$citrus_diagram.rescale(xzoom, yzoom);
 	}-*/;
 	
 	public static JsArrayNumber wrapArrayNumber(String[] srcArray) {

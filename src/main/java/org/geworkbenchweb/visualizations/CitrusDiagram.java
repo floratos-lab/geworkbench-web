@@ -17,7 +17,7 @@ public class CitrusDiagram extends AbstractComponent {
 	private String[] nes = new String[0];
 	
 	private boolean zoom = false;
-	private double xzoom = 1, yzoom = 1;
+	private double xzoom = 0, yzoom = 0;
 
 	@Override
 	public void paintContent(PaintTarget target) throws PaintException {
@@ -54,6 +54,12 @@ public class CitrusDiagram extends AbstractComponent {
 	public void zoomX(double x) {
 		this.zoom = true;
 		this.xzoom = x;
+		requestRepaint();
+	}
+
+	public void zoomY(double y) {
+		this.zoom = true;
+		this.yzoom = y;
 		requestRepaint();
 	}
 }

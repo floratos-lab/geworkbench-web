@@ -4,8 +4,10 @@ var $citrus_diagram = {}; /* module namespace */
 $citrus_diagram.width = 900;
 $citrus_diagram.height = 600;
 
-$citrus_diagram.scale_coef = 0;
+$citrus_diagram.x_scale_coef = 0;
 $citrus_diagram.x_scale = 1;
+$citrus_diagram.y_scale_coef = 0;
+$citrus_diagram.y_scale = 1;
 
 $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cindy, pvalue, nes) {
 	var div = document.getElementById(id);
@@ -44,41 +46,11 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     var p_width = $citrus_diagram.width - 200;
     var p_height = $citrus_diagram.height - 150;
     
-    $citrus_diagram.scale_coef = (p_width/(m*dx)-1)*0.01;
-
-    var y_scale = 1;
-    var zoom = function() {
-	    var x_scale = $citrus_diagram.x_scale;
-        container.attr("transform", "translate(" + [p_x, p_y] + ")scale(" + [x_scale, y_scale] + ")");
-        hf_group.attr("transform", "translate(" + [p_x, 0] + ")scale(" + [x_scale, 1] + ")");
-        lr_group.attr("transform", "translate(" + [0, p_y] + ")scale(" + [1, y_scale] + ")");
-    }
-
-    var y_zoombar = svg.append("g").attr("transform", "translate(80 10)");
-    if(n>0) {
-    y_zoombar.append("rect").attr({"x":0, "y":0, "width":15, "height":70, "fill": "grey", "rx":7, "ry":7});
-    y_zoombar.append("text").text("-")
-        .attr({"x":5, "y":10, "fill":"white"})
-        .on("click", function() {
-            y_scale /= 1.1;
-            zoom();
-        } );
-    y_zoombar.append("text").text("0")
-        .attr({"x":3, "y":38, "fill":"white"})
-        .on("click", function() {
-            y_scale = 1;
-            zoom();
-        } );
-    y_zoombar.append("text").text("+")
-        .attr({"x":3, "y":65, "fill":"white"})
-        .on("click", function() {
-            y_scale *= 1.1;
-            zoom();
-        } );
-    }
+    $citrus_diagram.x_scale_coef = (p_width/(m*dx)-1)*0.01;
+    $citrus_diagram.y_scale_coef = (p_height/(n*dy)-1)*0.01;
 
     var lr_window = svg.append("svg").attr({"y":y0, "height":p_height});
-    var lr_group = lr_window.append("g");
+    var lr_group = lr_window.append("g").attr("id", "lr_group");
 	var alteration_labels = lr_group.selectAll("text")
 		.data(alteration)
 		.enter()
@@ -111,9 +83,13 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
     var drag = d3.behavior.drag()
         .on("drag", function() {
             var x_scale = $citrus_diagram.x_scale;
+            var y_scale = $citrus_diagram.y_scale;
             p_x = Math.min(0, Math.max(p_width-m*dx*x_scale, p_x+d3.event.dx));
             p_y = Math.min(0, Math.max(p_height-n*dy*y_scale, p_y+d3.event.dy));
-            zoom();
+
+            container.attr("transform", "translate(" + [p_x, p_y] + ")scale(" + [x_scale, y_scale] + ")");
+            hf_group.attr("transform", "translate(" + [p_x, 0] + ")scale(" + [x_scale, 1] + ")");
+            lr_group.attr("transform", "translate(" + [0, p_y] + ")scale(" + [1, y_scale] + ")");
         });
 
     var presence_window = svg.append("svg") // presence window
@@ -215,6 +191,7 @@ $citrus_diagram.create = function(id, alteration, samples, presence, preppi, cin
         });
     if(m>0)
     svg.append('text').text('NES').attr({"text-anchor": "end", "x": x0-20, "y":y0+p_height+25, "font-family": "sans-serif", "font-size": "12px"});
+    $citrus_diagram.zoom(); // retain the scale even if it is a new query
 };
 
 $citrus_diagram.color_map = {'UMT':'green', 'DMT':'darkgreen', 'AMP':'red', 'DEL':'blue', 'SNV':'black', 'GFU':'orange'};
@@ -232,13 +209,21 @@ $citrus_diagram.colorscale = function(maxAbsValue, value) {
         var b = 255 - i;
     }
     return "rgb("+r+","+g+","+b+")";
-}
+};
 
-$citrus_diagram.zoom_x = function(xzoom) {
-	$citrus_diagram.x_scale = 1 + $citrus_diagram.scale_coef*xzoom;
+$citrus_diagram.rescale = function(xzoom, yzoom) {
+	$citrus_diagram.x_scale = 1 + $citrus_diagram.x_scale_coef*xzoom;
+	$citrus_diagram.y_scale = 1 + $citrus_diagram.y_scale_coef*yzoom;
+	$citrus_diagram.zoom();
+};
+
+$citrus_diagram.zoom = function() {
 	var x_scale = $citrus_diagram.x_scale;
+	var y_scale = $citrus_diagram.y_scale;
 	var ctnr = d3.select("g#main_container");
-	ctnr.attr("transform", "translate(" + [0, 0] + ")scale(" + [x_scale, 1] + ")");
+	ctnr.attr("transform", "translate(" + [0, 0] + ")scale(" + [x_scale, y_scale] + ")");
 	var hf = d3.select("g#hf_group");
 	hf.attr("transform", "scale(" + [x_scale, 1] + ")");
-}
+	var lr = d3.select("g#lr_group");
+	lr.attr("transform", "scale(" + [1, y_scale] + ")");
+};
