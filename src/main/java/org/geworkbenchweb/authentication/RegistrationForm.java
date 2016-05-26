@@ -3,35 +3,19 @@
  */
 package org.geworkbenchweb.authentication;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Properties;
-import java.util.regex.Pattern;
 import java.util.Random;
+import java.util.regex.Pattern;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-
-import nl.captcha.Captcha;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
- 
 import org.vaadin.appfoundation.authentication.data.User;
- 
 import org.vaadin.appfoundation.authentication.exceptions.PasswordRequirementException;
 import org.vaadin.appfoundation.authentication.exceptions.PasswordsDoNotMatchException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortPasswordException;
 import org.vaadin.appfoundation.authentication.exceptions.TooShortUsernameException;
 import org.vaadin.appfoundation.authentication.exceptions.UsernameExistsException;
- 
 import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -53,6 +37,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
+
+import nl.captcha.Captcha;
  
 
 /**
@@ -63,8 +49,6 @@ public class RegistrationForm extends VerticalLayout {
 
 	private static final long serialVersionUID = 6837549393946888607L;
 
-	private static final String fromEmail = GeworkbenchRoot.getAppProperty("from.email");
-	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
 	private static final String EMAIL_PATTERN = 
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
@@ -288,31 +272,7 @@ public class RegistrationForm extends VerticalLayout {
 				+ "<br>to activate your geWorkbench-web account."
 				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
-		Properties props = new Properties() {
-			private static final long serialVersionUID = -3842038014435217159L;
-			{
-				put("mail.smtp.auth", "true");
-				put("mail.smtp.host", "smtp.gmail.com");
-				put("mail.smtp.port", "587");
-				put("mail.smtp.starttls.enable", "true");
-			}
-		};
-		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(fromEmail, fromPassword);
-	        }
-	    });
-		MimeMessage mailMessage = new MimeMessage(mailSession);
-		try{
-			title = MimeUtility.encodeText(title, "utf-8", null);
-			mailMessage.setSubject(title);
-			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
-			mailMessage.setContent(content, "text/html");
-			Transport.send(mailMessage);
-		}catch(MessagingException e){
-			e.printStackTrace();
-		}catch(UnsupportedEncodingException e){
-			e.printStackTrace();
-		}
+		Emailer emailer = new Emailer();
+		emailer.send(user.getEmail(), title, content);
 	}
 }

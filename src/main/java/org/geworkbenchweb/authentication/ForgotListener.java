@@ -1,25 +1,11 @@
 package org.geworkbenchweb.authentication;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.util.PasswordUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -39,14 +25,11 @@ public class ForgotListener implements ClickListener{
 	private Button forgotBtn, closeBtn;
 	private Label message;
 	private VerticalLayout layout;
-	private static final String fromEmail = GeworkbenchRoot.getAppProperty("from.email");
-	private static final String fromPassword = GeworkbenchRoot.getAppProperty("from.password");
+
 	private static final String EMAIL_PATTERN = 
 			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	private Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
-	
-	private Log log = LogFactory.getLog(ForgotListener.class);
 	
 	public ForgotListener(Button btn){
 		forgotBtn = btn;
@@ -146,7 +129,7 @@ public class ForgotListener implements ClickListener{
 		return users;
 	}
 		
-	private void sendMail(String forgotType, User user){
+	private static void sendMail(String forgotType, User user){
 		String title = "";
 		String realName = user.getName();
 		if(realName.length() == 0) realName = "Guest";
@@ -170,38 +153,12 @@ public class ForgotListener implements ClickListener{
 		}
 		content += "<p>Thank you,<br>The geWorkbench Team</font>";
 
-		Properties props = new Properties() {
-			private static final long serialVersionUID = -3842038014435217159L;
-			{
-				put("mail.smtp.auth", "true");
-				put("mail.smtp.host", "smtp.gmail.com");
-				put("mail.smtp.port", "587");
-				put("mail.smtp.starttls.enable", "true");
-			}
-		};
-		
-		log.debug("fromEmail is " + fromEmail + ", fromPassword is " +  fromPassword);
-		Session mailSession = Session.getInstance(props, new javax.mail.Authenticator() {
-	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(fromEmail, fromPassword);
-	        }
-	    });
-		MimeMessage mailMessage = new MimeMessage(mailSession);
-		try{
-			title = MimeUtility.encodeText(title, "utf-8", null);
-			mailMessage.setSubject(title);
-			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
-			mailMessage.setContent(content, "text/html");
-			Transport.send(mailMessage);
-		}catch(MessagingException e){
-			e.printStackTrace();
-		}catch(UnsupportedEncodingException e){
-			e.printStackTrace();
-		}
+		Emailer emailer = new Emailer();
+		emailer.send(user.getEmail(), title, content);
 	}
 	
 	//Send mail for user who has multiple account
-	private void sendMail(String forgotType, List<User> users){
+	private static void sendMail(String forgotType, List<User> users){
 		String title = "";
 		String realName = users.get(0).getName();
 		if(realName.length() == 0) realName = "Guest";
@@ -226,37 +183,11 @@ public class ForgotListener implements ClickListener{
 	 
 		content += "<p>Thank you,<br>The geWorkbench Team</font>";
 
-		Properties props = new Properties() {
-			private static final long serialVersionUID = -3842038014435217159L;
-			{
-				put("mail.smtp.auth", "true");
-				put("mail.smtp.host", "smtp.gmail.com");
-				put("mail.smtp.port", "587");
-				put("mail.smtp.starttls.enable", "true");
-			}
-		};
-		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(fromEmail, fromPassword);
-	        }
-	    });
-		MimeMessage mailMessage = new MimeMessage(mailSession);
-		try{
-			title = MimeUtility.encodeText(title, "utf-8", null);
-			mailMessage.setSubject(title);
-			mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(users.get(0)
-					.getEmail()));
-			mailMessage.setContent(content, "text/html");
-			Transport.send(mailMessage);
-		}catch(MessagingException e){
-			e.printStackTrace();
-		}catch(UnsupportedEncodingException e){
-			e.printStackTrace();
-		}
+		Emailer emailer = new Emailer();
+		emailer.send(users.get(0).getEmail(), title, content);
 	}
-	 
-	
-	private String generatePassword(){
+
+	private static String generatePassword(){
 		ArrayList<Character> chars = new ArrayList<Character>();
 		for(char i = '0'; i <= '9'; i++) chars.add(i);
 		for(char i = '@'; i <= 'Z'; i++) chars.add(i);
@@ -272,6 +203,4 @@ public class ForgotListener implements ClickListener{
 		
 		return new String(passwd);
 	}
-
-
 }
