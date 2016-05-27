@@ -67,6 +67,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		try {
 			List<String> interactonList = interactionsConnection.getDatasetAndInteractioCount();
 			for (String interactome : interactonList) {
+				if(CNKBUI.isCPTACInteractome(interactome)) continue;
 				List<VersionDescriptor> versionList = interactionsConnection
 						.getVersionDescriptor(interactome.split(" \\(")[0].trim());
 				for (VersionDescriptor v : versionList) {

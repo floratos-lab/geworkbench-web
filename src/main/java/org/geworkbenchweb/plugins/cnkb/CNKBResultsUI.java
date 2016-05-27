@@ -155,33 +155,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			}                                                          
 			 
 		});
-		dataTable.addListener(new ItemClickListener() {
 
-			private static final long serialVersionUID = 3329109033365762704L;
-
-			@Override
-			public void itemClick(ItemClickEvent event) {
-				Window mainWindow = CNKBResultsUI.this.getApplication().getMainWindow();
-				if (mainWindow == null) {
-					MessageBox mb = new MessageBox(getWindow(), "No main window", MessageBox.Icon.ERROR,
-							"Unexpected case of no main window.", new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
-					return;
-				}
-				Item item = dataTable.getItem(event.getItemId());
-				String gene = (String) item.getItemProperty("Gene").getValue();
-				String markerLabel = (String) item.getItemProperty("Marker").getValue();
-				if(gene==null) {
-					gene = markerLabel; 
-				}
-				Vector<CellularNetWorkElementInformation> hits = cnkbResult.getCellularNetWorkElementInformations();
-				DetailedInteractionsView v = new DetailedInteractionsView(hits, gene, markerLabel, datasetId,
-						confidentTypeMap);
-				mainWindow.addWindow(v);
-			}
-
-		});
-		
 		Short confidenceType = cnkbResult.getCellularNetworkPreference().getSelectedConfidenceType();
 		double maxValue = getMaxValue(cnkbResult.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType));
 		

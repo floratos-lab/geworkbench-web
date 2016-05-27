@@ -100,6 +100,10 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		}
 	}
 
+	static boolean isCPTACInteractome(String interactome) {
+		return interactome.startsWith("aracne_") || interactome.startsWith("cindy_");
+	}
+
 	/*
 	 * Initialization in this method instead of constructors is done in the main
 	 * GUI thread instead of a background thread.
@@ -117,6 +121,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		try {
 			List<String> interactonList = interactionsConnection.getDatasetAndInteractioCount();
 			for (String interactome : interactonList) {
+				if(isCPTACInteractome(interactome)) continue;
 				List<VersionDescriptor> versionList = interactionsConnection
 						.getVersionDescriptor(interactome.split(" \\(")[0].trim());
 				for (VersionDescriptor v : versionList) {
