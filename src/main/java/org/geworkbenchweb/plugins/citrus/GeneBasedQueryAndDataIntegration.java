@@ -117,8 +117,11 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		super.attach();
 
 		HorizontalLayout commandPanel = new HorizontalLayout();
+        HorizontalLayout slider = new HorizontalLayout();
+
 		this.setSpacing(true);
 		this.addComponent(commandPanel);
+		this.addComponent(slider);
 		this.addComponent(citrusDiagram);
 
 		citrusDiagram.setSizeFull();
@@ -190,12 +193,11 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				citrusDiagram.zoomY(y);
             }
         });
-        HorizontalLayout slider = new HorizontalLayout();
+
 		slider.setWidth("90%");
 		slider.setMargin(true);
 		slider.setSpacing(true);
         slider.addComponent(sliderX);
         slider.addComponent(sliderY);
-		this.addComponent(slider);
 	}
 }
