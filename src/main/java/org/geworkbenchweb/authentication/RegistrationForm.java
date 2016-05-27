@@ -6,6 +6,8 @@ package org.geworkbenchweb.authentication;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -227,7 +229,12 @@ public class RegistrationForm extends VerticalLayout {
 		Random random = new Random();
 		user.setReasonForLockedAccount(new Integer(random.nextInt()).toString() + "(waiting for confirmation from user)");
 		if(emailPattern.matcher(user.getEmail()).matches()){
-			sendMail(user);
+			try {
+				sendMail(user);
+			} catch (MessagingException e) {
+		    	feedbackLabel.setValue("System error in sending email. Please contact geWorkbench support team.");	
+				return;
+			}
 		}		
 
 		FacadeFactory.getFacade().store(user);
@@ -253,7 +260,7 @@ public class RegistrationForm extends VerticalLayout {
 		 
 	}
 	
-	private void sendMail(User user){
+	private void sendMail(User user) throws MessagingException{
 		String title = "Registration Confirmation for Your geWorkbench Account";
 		String realName = user.getName();
 		if(realName.length() == 0) realName = "Guest";

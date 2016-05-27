@@ -34,15 +34,15 @@ public class Emailer {
 		props = new Properties() {
 			private static final long serialVersionUID = -4425069165161665144L;
 			{
-				put("mail.smtp.auth", auth);
+				if(auth!=null) put("mail.smtp.auth", auth);
 				put("mail.smtp.host", host);
-				put("mail.smtp.port", port);
-				put("mail.smtp.starttls.enable", starttls);
+				if(port!=null) put("mail.smtp.port", port);
+				if(starttls!=null) put("mail.smtp.starttls.enable", starttls);
 			}
 		};
 	}
 
-	public void send(String toEmail, String title, String content) {
+	public void send(String toEmail, String title, String content) throws MessagingException {
 		Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -64,6 +64,7 @@ public class Emailer {
 		} catch (MessagingException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
+			throw e;
 		}
 	}
 }

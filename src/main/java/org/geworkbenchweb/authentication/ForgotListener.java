@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.mail.MessagingException;
+
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.util.PasswordUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -84,12 +86,17 @@ public class ForgotListener implements ClickListener{
 					}
 				}
 				if(users != null){
-					if ( users.size() == 1 )
-					    sendMail(forgotBtn.getCaption(), users.get(0));
-					else
-						sendMail(forgotBtn.getCaption(), users);
-					layout.removeAllComponents();
-					message.setValue("An email has been sent to you.<br>Please follow the instructions in the email.");
+					try {
+						if ( users.size() == 1 )
+						    sendMail(forgotBtn.getCaption(), users.get(0));
+						else
+							sendMail(forgotBtn.getCaption(), users);
+						layout.removeAllComponents();
+						message.setValue("An email has been sent to you.<br>Please follow the instructions in the email.");
+					} catch (MessagingException e) {
+						layout.removeAllComponents();
+						message.setValue("System error in sending email.<br>Please contact geWorkbench support team.");
+					}
 					layout.addComponent(message);
 					layout.addComponent(closeBtn);
 				}
@@ -129,7 +136,7 @@ public class ForgotListener implements ClickListener{
 		return users;
 	}
 		
-	private static void sendMail(String forgotType, User user){
+	private static void sendMail(String forgotType, User user) throws MessagingException{
 		String title = "";
 		String realName = user.getName();
 		if(realName.length() == 0) realName = "Guest";
@@ -158,7 +165,7 @@ public class ForgotListener implements ClickListener{
 	}
 	
 	//Send mail for user who has multiple account
-	private static void sendMail(String forgotType, List<User> users){
+	private static void sendMail(String forgotType, List<User> users) throws MessagingException{
 		String title = "";
 		String realName = users.get(0).getName();
 		if(realName.length() == 0) realName = "Guest";
