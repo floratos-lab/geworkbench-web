@@ -1,0 +1,42 @@
+anova.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService
+ttest.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/TTestService 
+hierClusterService.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/HierClusterService  
+aracne.clusterService.url=http://afdev.c2b2.columbia.edu:9090/aracne-server/services
+msviper.clusterService.url=http://afdev.c2b2.columbia.edu:9090/msviper-server/services
+ 
+# Soft Limit on Cytoscape Objects (nodes + edges)
+limit.cytoscape.objects=2000
+ 
+#geWorkbench data directory. this is under the user (app owner) home directory
+data.directory = geworkbench
+
+#public annotation file directory. this is under the user (app owner) home directory
+public.annotation.directory = public_annotations
+
+#genspace switch. set to "on" to turn genspace on
+genspace = off
+
+#send email from this email account to users who needs to confirm registration or forgot password/username
+mail.smtp.auth=true
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.starttls.enable=true
+from.username=SENDER_USERNAME
+from.password=SENDER_PASSWORD
+
+# size limit for hierarchical clustering
+hierarchical.clustering.limit = 2000
+
+# default annotation name
+default.annotation=HG_U95Av2.na33.annot.csv
+
+# citrus db
+citrus.db.url=localhost
+citrus.db.database=citrus
+citrus.db.username=DB_USERNAME
+citrus.db.password=DB_PASSWORD
+
+release.number=1.1.0
+release.date=7/27/2015
+build.timestamp=${timestamp}
+build.version=${pom.version}
