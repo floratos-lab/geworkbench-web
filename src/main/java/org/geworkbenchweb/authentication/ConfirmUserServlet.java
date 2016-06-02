@@ -96,7 +96,7 @@ public class ConfirmUserServlet extends HttpServlet {
 				    session.removeAttribute("com.vaadin.terminal.gwt.server.WebApplicationContext");
 				    
 				}			 
-				return "/";
+				return "/VAADIN/pages/confirmed.html";
 			}
 
 		}
