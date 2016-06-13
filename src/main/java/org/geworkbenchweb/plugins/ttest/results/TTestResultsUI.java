@@ -133,10 +133,12 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		String[] markerLabels = microarray.getMarkerLabels();
 
 		log.debug("t-test result ID "+tTestResultSet.getId());
+		int[] significantIndex = tTestResultSet.getSignificantIndex();
+		if(significantIndex==null) significantIndex = new int[0]; // prevent the null pointer exception
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
-		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
+		for (int i = 0; i < significantIndex.length; i++) {
 			
-			int index = tTestResultSet.getSignificantIndex()[i];
+			int index = significantIndex[i];
 			String mark 	= 	markerLabels[index];
 			double sigValue 	= 	tTestResultSet.getpValue()[index];
 		
