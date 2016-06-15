@@ -290,7 +290,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		});
 		
 		b.addComponent(correctionMethod);
-		b.addComponent(stepMethod);
+		//b.addComponent(stepMethod);
 		return b;
 	}
 
