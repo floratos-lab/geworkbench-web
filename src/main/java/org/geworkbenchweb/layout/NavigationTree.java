@@ -219,6 +219,10 @@ public class NavigationTree extends Tree {
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
 			String className = ((DataSet) data.get(i)).getType();
+			if(className==null) { // this may happen for corrupted data node/workspace
+				log.error("error in showing data node: name '"+id+"' description '"+description+"'");
+				continue;
+			}
 			subItem.getItemProperty("Type").setValue(className);
 			try {
 				ThemeResource icon = GeworkbenchRoot.getPluginRegistry()
