@@ -279,7 +279,7 @@
 			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/T-Test#t-Test_Results" target="_blank"&gt;t-Test Results&lt;/a&gt;
 			section of the t-Test tutorial.
 		</description>
-		<uiClass>org.geworkbenchweb.plugins.ttest.results.TTestResultsUI</uiClass>
+		<uiClass>org.geworkbenchweb.plugins.ttest.TTestResultsUI</uiClass>
 	</plugin>
 	</inputType>
 	<inputType className="org.geworkbenchweb.pojos.ConfigResult">
