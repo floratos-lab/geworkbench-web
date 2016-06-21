@@ -258,12 +258,13 @@ public class SetViewLayout extends CssLayout {
 			dataContainer.setParent(subSetId, topItem);
 			dataContainer.setChildrenAllowed(subSetId, true);
 			for (int j = 0; j < microarrayLabels.size(); j++) {
-				String label = microarrayLabels.get(j) + subSetId;
-				dataContainer.addItem(label);
-				dataContainer.getContainerProperty(label, SET_DISPLAY_NAME)
+				String label = microarrayLabels.get(j);
+				String item = label + subSetId;
+				dataContainer.addItem(item);
+				dataContainer.getContainerProperty(item, SET_DISPLAY_NAME)
 						.setValue(label);
-				dataContainer.setParent(label, subSetId);
-				dataContainer.setChildrenAllowed(label, false);
+				dataContainer.setParent(item, subSetId);
+				dataContainer.setChildrenAllowed(item, false);
 			}
 		}
 		return dataContainer;
