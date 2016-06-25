@@ -122,6 +122,7 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 											if (newarrays.size()>0) {
 												arrayset.setPositions(arrays);
 												FacadeFactory.getFacade().store(arrayset);
+												arraySetTree.getContainerProperty(arrayset.getId(), SetViewLayout.SUBSET_NAME).setValue(name1);
 												arraySetTree.getContainerProperty(arrayset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(name1 + " [" + arrays.size() + "]");
 												for(int j=0; j<newarrays.size(); j++) {
 													arraySetTree.addItem(newarrays.get(j)+arrayset.getId());
@@ -144,6 +145,7 @@ public class ArrayTreeActionHandler extends  TreeActionHandler {
 						String subSetName =  (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeArraySetInContext(arrays, subSetName, dataSetId, context);
 						arraySetTree.addItem(subSetId);
+						arraySetTree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(subSetName);
 						arraySetTree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(subSetName + " [" + arrays.size() + "]");
 						arraySetTree.setParent(subSetId, "arraySets");
 						arraySetTree.setChildrenAllowed(subSetId, true);

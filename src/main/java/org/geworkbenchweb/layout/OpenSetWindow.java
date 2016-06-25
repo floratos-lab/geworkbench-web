@@ -235,6 +235,7 @@ public class OpenSetWindow extends Window {
 		}
 
 		tree.addItem(subSetId);
+		tree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(setname);
 		tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(setname + " [" + panel.size() + "]");
 		tree.setParent(subSetId, parentSet);
 		tree.setChildrenAllowed(subSetId, true);

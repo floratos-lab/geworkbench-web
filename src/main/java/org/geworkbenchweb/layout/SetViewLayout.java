@@ -46,12 +46,12 @@ public class SetViewLayout extends CssLayout {
 
 		markerSetTree.setImmediate(true);
 		markerSetTree.setSelectable(true);
-		markerSetTree.setMultiSelect(false);
+		markerSetTree.setMultiSelect(true);
 		markerSetTree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
 		markerSetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		arraySetTree.setImmediate(true);
 		arraySetTree.setSelectable(true);
-		arraySetTree.setMultiSelect(false);
+		arraySetTree.setMultiSelect(true);
 		arraySetTree.setItemCaptionPropertyId(SET_DISPLAY_NAME);
 		arraySetTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
 		
@@ -169,6 +169,8 @@ public class SetViewLayout extends CssLayout {
 	}
 	
 	public final static String SET_DISPLAY_NAME = "set_display_name";
+	public final static String SUBSET_NAME = "subset_name";
+	public final static String ELEMENT_NAME = "element_name"; // internal name of SubSet 'positions'
 
 	private static Tree createItemTree(final String description,
 			final HierarchicalContainer dataContainer,
@@ -202,7 +204,9 @@ public class SetViewLayout extends CssLayout {
 	private static HierarchicalContainer createMarkerSetContainer(final Context context, final Map<String, String> map) {
 
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
+		dataContainer.addContainerProperty(SUBSET_NAME, String.class, null);
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
+		dataContainer.addContainerProperty(ELEMENT_NAME, String.class, null);
 
 		String topItem = "MarkerSets";
 		Item mainItem = dataContainer.addItem(topItem);
@@ -213,6 +217,8 @@ public class SetViewLayout extends CssLayout {
 			List<String> markers = subset.getPositions();
 			Long subSetId = subset.getId();
 			dataContainer.addItem(subSetId);
+			dataContainer.getContainerProperty(subSetId, SUBSET_NAME).setValue(
+					subset.getName() );
 			dataContainer.getContainerProperty(subSetId, SET_DISPLAY_NAME).setValue(
 					subset.getName() + " [" + markers.size()
 							+ "]");
@@ -229,6 +235,8 @@ public class SetViewLayout extends CssLayout {
 					}
 				}
 				dataContainer.getContainerProperty(markers.get(j) + subSetId,
+						ELEMENT_NAME).setValue(markers.get(j));
+				dataContainer.getContainerProperty(markers.get(j) + subSetId,
 						SET_DISPLAY_NAME).setValue(markerWithGeneName);
 				dataContainer.setParent(markers.get(j) + subSetId, subSetId);
 				dataContainer.setChildrenAllowed(markers.get(j) + subSetId,
@@ -241,7 +249,9 @@ public class SetViewLayout extends CssLayout {
 	// this is similar to data container for markers, but no need to process the microarray annotation
 	private static HierarchicalContainer createMicroarraySetContainer (final Context context) {
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
+		dataContainer.addContainerProperty(SUBSET_NAME, String.class, null);
 		dataContainer.addContainerProperty(SET_DISPLAY_NAME, String.class, null);
+		dataContainer.addContainerProperty(ELEMENT_NAME, String.class, null);
 
 		String topItem = "arraySets";
 		Item mainItem = dataContainer.addItem(topItem );
@@ -252,6 +262,8 @@ public class SetViewLayout extends CssLayout {
 			List<String> microarrayLabels = subset.getPositions();
 			Long subSetId = subset.getId();
 			dataContainer.addItem(subSetId);
+			dataContainer.getContainerProperty(subSetId, SUBSET_NAME).setValue(
+					subset.getName() );
 			dataContainer.getContainerProperty(subSetId, SET_DISPLAY_NAME).setValue(
 					subset.getName() + " [" + microarrayLabels.size()
 							+ "]");
@@ -261,6 +273,8 @@ public class SetViewLayout extends CssLayout {
 				String label = microarrayLabels.get(j);
 				String item = label + subSetId;
 				dataContainer.addItem(item);
+				dataContainer.getContainerProperty(item,
+						ELEMENT_NAME).setValue(label);
 				dataContainer.getContainerProperty(item, SET_DISPLAY_NAME)
 						.setValue(label);
 				dataContainer.setParent(item, subSetId);

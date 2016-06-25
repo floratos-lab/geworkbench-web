@@ -120,6 +120,7 @@ public class SubsetCommand implements Command {
 					
 					if(tree!=null) { /* set view instead of workspace view */
 						tree.addItem(subSetId);
+						tree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(newSetName);
 						tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(newSetName + " [" + items.size() + "]");
 						tree.setParent(subSetId, parentSet);
 						tree.setChildrenAllowed(subSetId, true);
