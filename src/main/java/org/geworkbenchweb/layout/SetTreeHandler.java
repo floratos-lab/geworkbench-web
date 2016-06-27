@@ -1,6 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -80,14 +81,20 @@ public class SetTreeHandler implements Handler {
 				setTree.removeItem(itemId);
 			}
 			Item subsetItem = setTree.getItem(subsetId);
-			String subsetName = (String) subsetItem.getItemProperty(SetViewLayout.SUBSET_NAME).getValue();
-			subsetItem.getItemProperty(SetViewLayout.SET_DISPLAY_NAME)
-					.setValue(subsetName + " [" + setTree.getChildren(subsetId).size() + "]");
-
-			// there is no JPA object for each item. They are a list in SubSet.
-			SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subsetId);
-			subset.getPositions().removeAll(namesToBeDeleted);
-			FacadeFactory.getFacade().store(subset);
+			Collection<?> children = setTree.getChildren(subsetId);
+			if(children!=null && children.size()>0) {
+				String subsetName = (String) subsetItem.getItemProperty(SetViewLayout.SUBSET_NAME).getValue();
+				subsetItem.getItemProperty(SetViewLayout.SET_DISPLAY_NAME)
+						.setValue(subsetName + " [" + setTree.getChildren(subsetId).size() + "]");
+				// there is no JPA object for each item. They are a list in SubSet.
+				SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subsetId);
+				subset.getPositions().removeAll(namesToBeDeleted);
+				FacadeFactory.getFacade().store(subset);
+			} else { // all children deleted, let's delete the set itself
+				setTree.removeItem(subsetId);
+				SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subsetId);
+				FacadeFactory.getFacade().delete(subset);
+			}
 		} else {
 			log.error("unexpected target of action " + target+" "+target.getClass().getName());
 			return;
