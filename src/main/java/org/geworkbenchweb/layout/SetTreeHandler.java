@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.layout;
 
 import java.util.ArrayList;
@@ -22,22 +19,18 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 
-/**
- * TODO rename to SetTreeHandler because it does deletion now
- * 
- */
-public class SetRenameHandler implements Handler {
+public class SetTreeHandler implements Handler {
 
 	private static final long serialVersionUID = -7195634300959844209L;
 
-	private static Log log = LogFactory.getLog(SetRenameHandler.class);
+	private static Log log = LogFactory.getLog(SetTreeHandler.class);
 
 	private final Action[] actions = new Action[] { new Action("Rename") };
 	private final Action DELETE = new Action("Delete");
 
 	private final Tree setTree;
 
-	SetRenameHandler(final Tree setTree) {
+	SetTreeHandler(final Tree setTree) {
 		this.setTree = setTree;
 		setTree.addActionHandler(this);
 	}

@@ -122,8 +122,8 @@ public class SetViewLayout extends CssLayout {
 		this.addComponent(arrayTree);
 		this.addComponent(arraySetTree);
 		
-		new SetRenameHandler(markerSetTree);
-		new SetRenameHandler(arraySetTree);
+		new SetTreeHandler(markerSetTree);
+		new SetTreeHandler(arraySetTree);
 	} /* end of constructor */ 
 
 	Long getSelectedSetId() {
