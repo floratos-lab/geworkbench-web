@@ -92,6 +92,9 @@ public class NavigationTree extends Tree {
 				Item selectedItem = NavigationTree.this.getItem(itemId);
 				String className = (String) selectedItem
 						.getItemProperty("Type").getValue();
+				if(className==null) { /* This is intended for pending data node only. */
+					return; /* No action if a pending data node is clicked on. */
+				}
 				Object parentId = NavigationTree.this.getParent(itemId);
 				String parentItemClassName = null;
 				Item parentItem = NavigationTree.this.getItem(parentId);
