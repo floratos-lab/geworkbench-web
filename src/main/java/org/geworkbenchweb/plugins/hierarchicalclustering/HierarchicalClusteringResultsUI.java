@@ -157,6 +157,17 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 			}
 		});
 
+		Long parentId = resultSet.getParent();
+		
+		//20.07.2016
+		MenuBar.MenuItem dispPref		=	toolBar.addItem("Display Preferences", null,null);
+		MenuBar.MenuItem dispArrayM =dispPref.addItem("Array positioning", 
+				new SubsetCommand("Array Positioning", this, SetType.MICROARRAY, parentId, dendrogram,"display"));
+		MenuBar.MenuItem dispMarkerM=dispPref.addItem("Marker positioning", 
+				new SubsetCommand("Marker Positioning", this, SetType.MARKER, parentId, dendrogram,"display"));
+		///
+
+		
 		MenuBar.MenuItem resetI		=	toolBar.addItem("Reset", new Command(){
 
 			private static final long serialVersionUID = 1L;
@@ -167,12 +178,11 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 			}
 		});
 
-		Long parentId = resultSet.getParent();
 		MenuBar.MenuItem saveM		=	toolBar.addItem("Save Markers", 
-				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId, dendrogram));
+				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId, dendrogram,"save"));
 		
 		MenuBar.MenuItem saveP 		=	toolBar.addItem("Save Phenotypes",
-				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId, dendrogram));
+				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId, dendrogram,"save"));
 		
 		MenuBar.MenuItem export 	= 	toolBar.addItem("Export Image", new Command(){
 
@@ -188,6 +198,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		saveM.setStyleName("plugin");
 		saveP.setStyleName("plugin");
 		export.setStyleName("plugin");
+		//20.07.2016
+		dispPref.setStyleName("plugin");
+		///
 
 		setFirstComponent(toolBar);
 

@@ -28,6 +28,10 @@ public class Dendrogram extends AbstractComponent {
 	private int cellWidth = 10, cellHeight = 5;
 	private int exportImageCellWidth = 30, exportImageCellHeight = 15;
 	
+	//20.07.2016
+	private String arrayPos; //Can be Bottom or Top
+	private String markerPos; //Can be Right or Left
+	///
 	public Dendrogram(int arrayNumber, int markerNumber, String arrayCluster, String markerCluster, String[] arrayLabels, String[] markerLabels, int[] colors) {
 		this.arrayNumber = arrayNumber;
 		this.markerNumber = markerNumber;
@@ -44,6 +48,11 @@ public class Dendrogram extends AbstractComponent {
 		markerIndex1 = 0;
 		markerIndex2 = markerNumber - 1;
 		
+		//20.07.2016
+		arrayPos="Bottom";
+		markerPos="Right";
+		////
+				
 		// this is the upper limit because on the client side the space is smaller by excluding microarray dendrogram and microarray labels
 		paintableMarkers =  Math.min(markerNumber, MAX_HEIGHT/cellHeight);
 	}
@@ -107,6 +116,8 @@ public class Dendrogram extends AbstractComponent {
 		}
 	
 		target.addVariable(this, "firstMarker", firstMarker);
+		
+		
 		target.addAttribute("arrayLabels", arrayLabels);
 		target.addAttribute("markerLabels", markerLabels);		
 		target.addAttribute("cellWidth", cellWidth);
@@ -114,7 +125,13 @@ public class Dendrogram extends AbstractComponent {
 		target.addVariable(this, "arrayIndex1", arrayIndex1);
 		target.addVariable(this, "arrayIndex2", arrayIndex2);
 		target.addVariable(this, "markerIndex1", markerIndex1);
-		target.addVariable(this, "markerIndex2", markerIndex2);	}
+		target.addVariable(this, "markerIndex2", markerIndex2);	
+		
+		//20.07.2016
+		target.addVariable(this,"arrayPos",arrayPos);
+		target.addVariable(this,"markerPos",markerPos);
+		////
+		}
 
 	private int firstMarker = 0;
 	private int paintableMarkers;
@@ -181,6 +198,13 @@ public class Dendrogram extends AbstractComponent {
 		markerIndex1 = 0;
 		markerIndex2 = markerNumber - 1;
 		
+		requestRepaint();
+	}
+	
+	//20.07.2016 - New function for refreshing dendrogram when user wishes to change display options
+	public void refresh(String array_pos, String marker_pos){
+		arrayPos=array_pos;
+		markerPos=marker_pos;
 		requestRepaint();
 	}
 
