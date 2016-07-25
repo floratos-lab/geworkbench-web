@@ -35,7 +35,8 @@ public class FileUploadLayout extends VerticalLayout {
 
 	private File dataFile = null;
 	
-	final Upload upload;
+	private final Upload upload;
+	private final Label statusLabel = new Label("Please select a file to upload");
 
 	/** @param category is either 'data' or 'annotation' */
 	FileUploadLayout(final UploadDataUI uploadDataUI, final String category) {
@@ -46,7 +47,6 @@ public class FileUploadLayout extends VerticalLayout {
 		cancelButton.setStyleName("small");
 		
 		/* three top level components */
-		final Label statusLabel = new Label("Please select a file to upload");
 		final HorizontalLayout progressLayout = new HorizontalLayout();
 		upload = new Upload();
 		
@@ -159,5 +159,7 @@ public class FileUploadLayout extends VerticalLayout {
 	/* this complicates the code */
 	public void interruptUpload() {
 		upload.interruptUpload();
+		dataFile = null;
+		statusLabel.setValue("Please select a file to upload");
 	}
 }

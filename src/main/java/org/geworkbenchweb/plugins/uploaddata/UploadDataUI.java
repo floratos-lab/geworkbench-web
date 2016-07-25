@@ -28,6 +28,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractSelect.Filtering;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
@@ -47,7 +48,8 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 	final private FileUploadLayout dataUploadLayout = new FileUploadLayout(this, "data");
 	final private AnnotationUploadLayout annoLayout = new AnnotationUploadLayout(this);
 	final private Button addButton = new Button("Add to workspace");
-	
+	final private Button cancelButton = new Button("Cancel");
+
 	private Loader selectedLoader = null;
 
 	public UploadDataUI() {
@@ -77,6 +79,20 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 			}
 		});
 
+		cancelButton.addListener(new ClickListener() {
+
+			private static final long serialVersionUID = -2844610389998064829L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				addButton.setEnabled(false);
+				cancelUpload();
+				fileCombo.select(null);
+				getMainLayout().unlockGuiForUpload();
+			}
+			
+		});
+
 		fileCombo.setFilteringMode(Filtering.FILTERINGMODE_OFF);
 		fileCombo.setImmediate(true);
 		fileCombo.setRequired(true);
@@ -95,6 +111,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		HorizontalLayout btnLayout = new HorizontalLayout();
 		btnLayout.setSpacing(true);
 		btnLayout.addComponent(addButton);
+		btnLayout.addComponent(cancelButton);
 		addComponent(btnLayout);
 	}
 	
