@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbenchweb.pojos.Context;
 import org.geworkbenchweb.pojos.CurrentContext;
 import org.geworkbenchweb.pojos.DataHistory;
@@ -58,10 +57,10 @@ public class ExpressionFileLoader extends LoaderUsingAnnotation {
 			storeContext(setInformation, cleanMicroaraySet.arrayLabels);
 		} catch (InputFileFormatException e1) {
 			e1.printStackTrace();
-			throw new GeWorkbenchLoaderException(e1.getMessage());
+			throw new GeWorkbenchLoaderException(e1.toString());
 		} catch (IOException e1) {
 			e1.printStackTrace();
-			throw new GeWorkbenchLoaderException("io exception "+e1);
+			throw new GeWorkbenchLoaderException(e1.toString());
 		}
 
 		DataHistory dataHistory = new DataHistory();

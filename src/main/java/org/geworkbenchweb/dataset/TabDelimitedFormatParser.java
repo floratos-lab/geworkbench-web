@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.parsers.InputFileFormatException;
 
 public class TabDelimitedFormatParser {
 
@@ -76,8 +75,12 @@ public class TabDelimitedFormatParser {
 		String[] f = line.split("\t");
 		float[] oneRow = new float[arrayNumber];
 		markerLabelTmp.add(f[0]);
-		for (int i = 0; i < arrayNumber; i++) {
-			oneRow[i] = Float.parseFloat(f[i + 1]);
+		try {
+			for (int i = 0; i < arrayNumber; i++) {
+				oneRow[i] = Float.parseFloat(f[i + 1]);
+			}
+		} catch(NumberFormatException e) {
+			throw new InputFileFormatException(e.getMessage());
 		}
 		valueTmp.add(oneRow);
 	}

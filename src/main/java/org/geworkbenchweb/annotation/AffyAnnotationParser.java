@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import org.geworkbench.parsers.InputFileFormatException; 
+import org.geworkbenchweb.dataset.InputFileFormatException; 
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
  
 import com.Ostermiller.util.CSVParser;
