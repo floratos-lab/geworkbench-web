@@ -77,9 +77,11 @@ public class DetailedInteractionsView extends Window {
 				if(value.equals(TABLE_VIEW)) {
 					DetailedInteractionsView.this.removeComponent(colormosaicview);
 					DetailedInteractionsView.this.addComponent(tableview);
+					DetailedInteractionsView.this.setSizeUndefined();
 				} else if(value.equals(COLOR_MOSAIC_VIEW)) {
 					DetailedInteractionsView.this.removeComponent(tableview);
 					DetailedInteractionsView.this.addComponent(colormosaicview);
+					DetailedInteractionsView.this.setHeight("50%");
 				}
 			}
 			
@@ -88,8 +90,8 @@ public class DetailedInteractionsView extends Window {
 		tableview.setTargetGeneData(targetGeneInfo , confidentTypeMap, map);
 		tableview.setSizeFull();
 
-		this.setWidth("50%");;
-		this.setHeight("50%");;
+		this.setSizeUndefined();
+		this.setWidth("50%");
 	}
 	
 	/* detailed information of target genes to be shown in the detail table view */
