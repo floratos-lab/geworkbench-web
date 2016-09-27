@@ -88,12 +88,9 @@ public class AracneAnalysisClient {
 		
 		String algorithm = (String) params.get(AracneParameters.ALGORITHM);
 
-		List<String> markers = getSelectedMarkerNames(microarrays, hubGeneList);
-		String[] selectedArraySet = null;
-		if (params.get(AracneParameters.ARRAY_SET) !=  null)
-			selectedArraySet = (String[])params.get(AracneParameters.ARRAY_SET);	
+		List<String> markers = Arrays.asList( microarrays.markerLabels );
 
-		File expFile = exportExp(microarrays, hubGeneList, markers, selectedArraySet);
+		File expFile = exportExp(microarrays, hubGeneList, markers);
 		if(expFile == null || !expFile.exists())
 			throw new RemoteException("Aracne exportExp error");
 		
@@ -141,56 +138,14 @@ public class AracneAnalysisClient {
 			if(!expFile.delete()) expFile.deleteOnExit();
 		}
 	} 
-	
-	private List<String> getSelectedMarkerNames(final MicroarraySet microarrays, final List<String> hubGeneList) {
-		List<String> selectedMarkerNames = new ArrayList<String>();
-		String[] selectedMarkerSet = null;
-		if (params.get(AracneParameters.MARKER_SET) !=  null)
-			selectedMarkerSet = (String[])params.get(AracneParameters.MARKER_SET);	 
 
-		if (selectedMarkerSet == null) {
-			selectedMarkerNames = Arrays.asList( microarrays.markerLabels );
-		} else {
-			for (int i = 0; i < selectedMarkerSet.length; i++) {
-				List<String> temp = SubSetOperations.getMarkerData(Long
-						.parseLong(selectedMarkerSet[i].trim()));
-
-				for (int m = 0; m < temp.size(); m++) {
-					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
-					selectedMarkerNames.add(temp1);
-				}
-
-			}
-			if(hubGeneList!=null){
-				for(String hubmarker : hubGeneList) {
-					if(!selectedMarkerNames.contains(hubmarker)) {
-						selectedMarkerNames.add(hubmarker);
-					}
-				}
-			}
-		}
-		return selectedMarkerNames;
-	}
-	
 	/* export the microarray data as a (temporary) .exp file */
 	private static File exportExp(final MicroarraySet microarrays,
 			final List<String> hubGeneList,
-			final List<String> selectedMarkerNames,
-			final String[] selectedArraySet) {
+			final List<String> selectedMarkerNames) {
 		
 		// get total SelectedArray Num
-		int totalSelectedArrayNum = 0;
-		if (selectedArraySet == null) {
-			totalSelectedArrayNum = microarrays.arrayNumber;
-		} else {
-			for (int i = 0; i < selectedArraySet.length; i++) {
-
-				List<String> arrays = SubSetOperations.getArrayData(Long
-						.parseLong(selectedArraySet[i].trim()));
-				totalSelectedArrayNum = totalSelectedArrayNum + arrays.size();
-
-			}
-		}
+		int totalSelectedArrayNum = microarrays.arrayNumber;
 
 		int[] selectedMarkerIndex = new int[selectedMarkerNames.size()];
 		int index = 0;
@@ -207,39 +162,11 @@ public class AracneAnalysisClient {
 		String[] selectedArrayNames = new String[totalSelectedArrayNum];
 		int arrayIndex = 0;
 
-		if (selectedArraySet == null) {
-			for (int i = 0; i < microarrays.arrayNumber; i++) {
-				for (int j = 0; j < selectedMarkersNum; j++) {
-					A[i][j] = microarrays.values[selectedMarkerIndex[j]][i];
-
-				}
-				selectedArrayNames[arrayIndex++] = microarrays.arrayLabels[i];
-
+		for (int i = 0; i < microarrays.arrayNumber; i++) {
+			for (int j = 0; j < selectedMarkersNum; j++) {
+				A[i][j] = microarrays.values[selectedMarkerIndex[j]][i];
 			}
-
-		} else {
-			for (int i = 0; i < selectedArraySet.length; i++) {
-				List<String> arrayPositions = SubSetOperations.getArrayData(Long
-						.parseLong(selectedArraySet[i].trim()));
-				
-				int[] selectedArrayIndex = new int[arrayPositions.size()];
-				int c = 0;
-				for(int x=0; x<microarrays.arrayNumber; x++) {
-					if(arrayPositions.contains( microarrays.arrayLabels[x]) ) {
-						selectedArrayIndex[c] = x;
-						c++;
-					}
-				}
-
-				for (int j = 0; j < arrayPositions.size(); j++) {
-					int aIndex = selectedArrayIndex[j];
-					for (int k = 0; k < selectedMarkersNum; k++) {
-						int mIndex = selectedMarkerIndex[k];
-						A[arrayIndex][k] = microarrays.values[mIndex][aIndex];
-					}
-					selectedArrayNames[arrayIndex++] = microarrays.arrayLabels[aIndex];
-				}
-			}
+			selectedArrayNames[arrayIndex++] = microarrays.arrayLabels[i];
 		}
 
 		File tempdir = new File(GeworkbenchRoot.getBackendDataDirectory() + "/temp/");
