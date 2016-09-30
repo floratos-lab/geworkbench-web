@@ -63,6 +63,9 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	private static Log log = LogFactory.getLog(CNKBUI.class);
 	
 	private static final long serialVersionUID = -1221913812891134388L;
+	private static boolean multiSelectAllowed = GeworkbenchRoot.getAppProperty("cnkb.multi.select").equalsIgnoreCase("yes");
+	private static List<String> excludedInteractomes = Arrays.asList(GeworkbenchRoot.getAppProperty("cnkb.interactome.excluded").split(","));
+	private static String[] excludedPrefixes = GeworkbenchRoot.getAppProperty("cnkb.interactome.prefix.excluded").split(",");
 
 	private ResultSet resultSet;
 
@@ -100,8 +103,13 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		}
 	}
 
-	static boolean isCPTACInteractome(String interactome) {
-		return interactome.startsWith("aracne_") || interactome.startsWith("cindy_");
+	static boolean isExcludedInteractome(String interactomeAndCount) {
+		String interactome = interactomeAndCount.split(" \\(")[0].trim();
+		if(excludedInteractomes.contains(interactome)) return true;
+		for(String prefix : excludedPrefixes) {
+			if(interactome.startsWith(prefix)) return true;
+		}
+		return false;
 	}
 
 	/*
@@ -121,7 +129,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		try {
 			List<String> interactonList = interactionsConnection.getDatasetAndInteractioCount();
 			for (String interactome : interactonList) {
-				if(isCPTACInteractome(interactome)) continue;
+				if(isExcludedInteractome(interactome)) continue;
 				List<VersionDescriptor> versionList = interactionsConnection
 						.getVersionDescriptor(interactome.split(" \\(")[0].trim());
 				for (VersionDescriptor v : versionList) {
@@ -147,11 +155,11 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		final Label versionDes = new Label();
 		 
 		interactomeBox = new ListSelect("Select Interactome:");
-		interactomeBox.setRows(4);
+		interactomeBox.setRows(8);
 		interactomeBox.setColumns(25);
 		interactomeBox.setImmediate(true);
 		interactomeBox.setNullSelectionAllowed(false);
-		interactomeBox.setMultiSelect(true);
+		interactomeBox.setMultiSelect(multiSelectAllowed);
 		for (int j = 0; j < contextList.size(); j++) {
 			InteractomeAndVersion a = contextList.get(j);
 			interactomeBox.addItem(a);
@@ -164,9 +172,16 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 				try {
 					Object object = valueChangeEvent.getProperty().getValue();
-					if (!(object instanceof InteractomeAndVersion))
-						return;
-					InteractomeAndVersion a = (InteractomeAndVersion) object;
+					InteractomeAndVersion a = null;
+					if (object instanceof InteractomeAndVersion) {
+						a = (InteractomeAndVersion) object;
+					} else if(object instanceof Set && ((Set<?>)object).size()>0) {
+						Object obj = ((Set<?>)object).iterator().next();
+						if(obj instanceof InteractomeAndVersion) a = (InteractomeAndVersion)obj;
+					} else { // FIXME for debug only, remove later
+						System.out.println("CLASS NAME:"+object.getClass().getName());
+					}
+					if(a==null) return;
 					interactomeDes.setValue(
 							interactionsConnection.getInteractomeDescription(a.interactome.split(" \\(")[0].trim()));
 

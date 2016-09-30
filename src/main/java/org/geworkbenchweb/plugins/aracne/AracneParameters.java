@@ -2,8 +2,6 @@ package org.geworkbenchweb.plugins.aracne;
 
 public class AracneParameters {
 	/* these are the texts of parameter keys */
-	public static String MARKER_SET 	= 	"markerSet";
-	public static String ARRAY_SET 	= 	"arraySet";
 	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
 	public static String MODE		 	= 	"mode";
 	public static String CONFIG		 	= 	"config";
