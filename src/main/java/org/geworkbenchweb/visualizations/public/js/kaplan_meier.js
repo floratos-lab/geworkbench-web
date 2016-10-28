@@ -37,9 +37,6 @@ $kaplan_meier.create = function(id, title, xtitle, ytitle, subtypes, months, y,
             showline : true,
             gridcolor : "#ddd",
         },
-        margin : {
-            t : 50
-        },
         hovermode : 'closest',
         showlegend : true,
         legend : {

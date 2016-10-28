@@ -77,7 +77,7 @@ public class KaplanMeier extends AbstractComponent {
         }
     }
 
-    public static KaplanMeier createInstance() { // test data
+    public static KaplanMeier createInstance(String tumorType) { // test data
         KaplanMeier chart = new KaplanMeier();
         chart.setWidth("100%");
         chart.setHeight("100%");
@@ -93,7 +93,7 @@ public class KaplanMeier extends AbstractComponent {
             }
         }
 
-        KaplanMeierData data = new KaplanMeierData("TODO - tumor type here", "Month", "Percent Survival", points,
+        KaplanMeierData data = new KaplanMeierData(tumorType, "Month", "Percent Survival", points,
                 new String[] { "subtype1", "subtype2", "subtype3", "subtype4" });
         chart.setData(data);
         return chart;

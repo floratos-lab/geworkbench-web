@@ -1,33 +1,31 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
-import org.geworkbenchweb.visualizations.KaplanMeier;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
-    private static final String COLUMN_SAMPLE_NAME = "Sample Name";
-    private static final String COLUMN_SUBTYPE = "Subtype";
-    private static final String COLUMN_DRUG_PREDICTION = "Drug Prediction";
-    private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
 
     Log log = LogFactory.getLog(PatientBasedQueryAndDataIntegration.class);
 
@@ -35,11 +33,20 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
     final private Upload upload = new Upload();
+    final private SampleFoundPanel sampleFound = new SampleFoundPanel();
     final private Button analyzeButton = new Button("Analyze");
-    final private Table resultTable = new Table();
-    final private Table samplePerSubtype = new Table();
+    final ProgressIndicator indicator = new ProgressIndicator(new Float(0.0));
 
     private CitrusDatabase db = null;
+
+    private final String R_PATH = GeworkbenchRoot.getAppProperty("r.path");
+    private final String OUTPUT_PATH = GeworkbenchRoot.getAppProperty("pbqdi.output.path");
+    private final String WORKING_IDRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
+    private final String ERROR_FILE = GeworkbenchRoot.getAppProperty("pbqdi.error.file");
+    private String sampleFile = null;
+
+    private String[] sampleNames;
+    private String tumorType = null;
 
     public PatientBasedQueryAndDataIntegration() {
         try {
@@ -55,8 +62,9 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             @Override
             public OutputStream receiveUpload(String filename, String mimeType) {
                 log.debug("receiveUpload " + filename + " " + mimeType);
+                sampleFile = OUTPUT_PATH + filename;
                 FileOutputStream fos = null;
-                File file = new File("C:/tmp/uploads/" + filename);
+                File file = new File(sampleFile);
                 try {
                     fos = new FileOutputStream(file);
                 } catch (final java.io.FileNotFoundException e) {
@@ -68,41 +76,75 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
 
         });
+        upload.addListener(new Upload.SucceededListener() {
+
+            private static final long serialVersionUID = 1492448712654675230L;
+
+            @Override
+            public void uploadSucceeded(Upload.SucceededEvent event) {
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(sampleFile));
+                    String firstLine = br.readLine();
+                    sampleNames = firstLine.split("\t");
+                    br.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                sampleFound.setData(sampleNames);
+                sampleFound.setVisible(true);
+            }
+        });
         analyzeButton.addListener(new ClickListener() {
 
             private static final long serialVersionUID = 3057721104002229089L;
 
             @Override
             public void buttonClick(ClickEvent event) {
-                Container container = new IndexedContainer();
-                container.addContainerProperty(COLUMN_SAMPLE_NAME, String.class, null);
-                container.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
-                container.addContainerProperty(COLUMN_DRUG_PREDICTION, String.class, null);
-                // FIXME test data
-                String[] sampleNames = { "CUMC-ONC-13457", "CUMC-ONC-12786", "CUMC-ONC-12787" };
-                for (String sampleName : sampleNames) {
-                    Item item = container.addItem(sampleName);
-                    item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
-                    item.getItemProperty(COLUMN_SUBTYPE).setValue(new Random().nextInt());
-                    item.getItemProperty(COLUMN_DRUG_PREDICTION).setValue(sampleName + " report links");
+                tumorType = db.getCancerType((String) cancerTypeComboBox.getValue());
+                if (tumorType == null || sampleNames == null) {
+                    log.error("invalid input");
+                    return;
                 }
 
-                resultTable.setContainerDataSource(container);
-
-                Container container2 = new IndexedContainer();
-                container2.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
-                container2.addContainerProperty(COLUMN_SAMPLE_PER_SUBTYPE, String.class, null);
-                // FIXME test data
-                for (int subtype = 0; subtype <= 4; subtype++) {
-                    Item item = container2.addItem(subtype);
-                    item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
-                    item.getItemProperty(COLUMN_SAMPLE_PER_SUBTYPE).setValue(subtype + " report links");
-                }
-
-                samplePerSubtype.setContainerDataSource(container2);
+                indicator.setVisible(true);
+                final WorkThread thread = new WorkThread();
+                thread.start();
+                analyzeButton.setEnabled(false);
             }
 
         });
+    }
+
+    private class WorkThread extends Thread {
+        @Override
+        public void run() {
+            String command = R_PATH+"rscript --vanilla rununsupervised.r " + tumorType + " " + sampleFile + " "
+                    + WORKING_IDRECTORY + " " + ERROR_FILE;
+            log.debug("DRY RUN:\n" + command);
+            try {
+                Thread.sleep(20000); // 20 second to simulate the computational
+                                     // duration
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            int[] subtypes = new int[sampleNames.length];
+            String[] drugReports = new String[sampleNames.length];
+            for (int i = 0; i < sampleNames.length; i++) {
+                subtypes[i] = new Random().nextInt();
+                drugReports[i] = "REPORT" + new Random().nextInt();
+            }
+            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+            ResultView v = new ResultView(sampleNames, tumorType, subtypes, drugReports, null);
+            mainWindow.addWindow(v);
+            synchronized (getApplication()) {
+                indicator.setVisible(false);
+                analyzeButton.setEnabled(true);
+            }
+        }
     }
 
     @Override
@@ -116,10 +158,12 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 "A drug report is also prepared showing drugs that target the most active regulatory proteins in the sample, as determined using VIPER."));
         this.addComponent(cancerTypeComboBox);
         this.addComponent(upload);
+        this.addComponent(sampleFound);
         this.addComponent(analyzeButton);
-        this.addComponent(resultTable);
-        this.addComponent(KaplanMeier.createInstance());
-        this.addComponent(samplePerSubtype);
+        indicator.setIndeterminate(true);
+        indicator.setPollingInterval(500);
+        indicator.setVisible(false);
+        this.addComponent(indicator);
 
         String[] cancerTypes = db.getCancerTypes();
         for (String s : cancerTypes)

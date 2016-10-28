@@ -40,3 +40,9 @@ release.number=1.1.0
 release.date=7/27/2015
 build.timestamp=${timestamp}
 build.version=${pom.version}
+
+#pbqdi
+r.path=F:/Program Files/R/R-3.3.1/bin/
+pbqdi.output.path=F:/cptac_project/test/
+pbqdi.working.directory=F:/cptac_project/test/
+pbqdi.error.file=F:/cptac_project/test/error.txt

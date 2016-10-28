@@ -46,6 +46,11 @@
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.citrus.GeneBasedQueryAndDataIntegration</uiClass>
 		</plugin>
+		<plugin>
+			<name>Patient-based Query and Data Integration</name>
+			<description>Patient-based Query and Data Integration</description>
+			<uiClass>org.geworkbenchweb.plugins.pbqdi.PatientBasedQueryAndDataIntegration</uiClass>
+		</plugin>
 	</inputType>
 	
 	<inputType className="org.geworkbenchweb.pojos.MicroarrayDataset">

@@ -77,7 +77,11 @@ public class CitrusDatabase {
 		return cancerIds.keySet().toArray(new String[cancerIds.size()]);
 	}
 
-	public Set<GeneChoice> getTF(String cancerType) {
+    public String getCancerType(String cancerTypeName) {
+        return cancerTypes.get(cancerTypeName);
+    }
+
+    public Set<GeneChoice> getTF(String cancerType) {
 		Set<GeneChoice> list = new TreeSet<GeneChoice>();
 
 		Connection conn = null;
