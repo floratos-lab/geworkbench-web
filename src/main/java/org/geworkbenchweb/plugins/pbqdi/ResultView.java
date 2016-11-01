@@ -28,7 +28,7 @@ public class ResultView extends Window {
     private static final String COLUMN_DRUG_PREDICTION = "Drug Prediction";
     private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
 
-    public ResultView(String[] sampleNames, final String tumorType, int[] subtypes, final String[] drugReports,
+    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String[] drugReports,
             final Map<String, String> confidentTypeMap) {
         this.setModal(true);
         this.setClosable(true);
@@ -45,9 +45,10 @@ public class ResultView extends Window {
         Map<Integer, List<String>> summary = new HashMap<Integer, List<String>>();
         for (int i = 0; i < sampleNames.length; i++) {
             final String sampleName = sampleNames[i];
+            Integer subtype = subtypes.get(sampleName);
             Item item = container.addItem(sampleName);
             item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
-            item.getItemProperty(COLUMN_SUBTYPE).setValue(subtypes[i]);
+            item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
             Button b = new Button("View Report");
             b.setStyleName(BaseTheme.BUTTON_LINK);
             final String report = drugReports[i];
@@ -65,10 +66,10 @@ public class ResultView extends Window {
             });
             item.getItemProperty(COLUMN_DRUG_PREDICTION).setValue(b);
 
-            List<String> s = summary.get(subtypes[i]);
+            List<String> s = summary.get(subtype);
             if (s == null) {
                 s = new ArrayList<String>();
-                summary.put(subtypes[i], s);
+                summary.put(subtype, s);
             }
             s.add(sampleName);
         }

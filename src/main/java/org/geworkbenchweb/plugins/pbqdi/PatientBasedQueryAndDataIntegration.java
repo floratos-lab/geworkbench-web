@@ -7,7 +7,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +23,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
+
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -125,25 +130,71 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             String command = R_PATH+"rscript --vanilla rununsupervised.r " + tumorType + " " + sampleFile + " "
                     + WORKING_IDRECTORY + " " + ERROR_FILE;
             log.debug("DRY RUN:\n" + command);
+            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "classifySamples.sh", "--vanilla", "rununsupervised.r",
+                    tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
+            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
             try {
-                Thread.sleep(20000); // 20 second to simulate the computational
-                                     // duration
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Process process = pb1.start();
+                int exit = process.waitFor();
+                if (exit == 0) {
+                    BufferedReader br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
+                    String line = br.readLine();
+                    while (line != null && line.trim().length() > 0) {
+                        String[] f = line.split("\t");
+                        classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
+                    }
+                    br.close();
+                } else {
+                    log.error("something went wrong with classification script");
+                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script");
+                    return;
+                }
+            } catch (IOException | InterruptedException e1) {
+                e1.printStackTrace();
+                PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
+                return;
             }
-            int[] subtypes = new int[sampleNames.length];
+            ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", "rununsupervised.r", tumorType,
+                    sampleFile, WORKING_IDRECTORY, ERROR_FILE);
+            String reportFilename = WORKING_IDRECTORY + sampleFile.substring(sampleFile.indexOf(".txt"))
+            + "OncotargetReoirt.pddf";
+            try {
+                Process process = pb2.start();
+                int exit = process.waitFor();
+                if (exit == 0 && new File(reportFilename).exists()) {
+                    log.debug("report created");
+                } else {
+                    log.error("something went wrong with drug report script");
+                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with drug report script");
+                    return;
+                }
+            } catch (IOException | InterruptedException e1) {
+                e1.printStackTrace();
+                PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
+                return;
+            }
             String[] drugReports = new String[sampleNames.length];
             for (int i = 0; i < sampleNames.length; i++) {
-                subtypes[i] = new Random().nextInt();
-                drugReports[i] = "REPORT" + new Random().nextInt();
+                drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
             }
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
-            ResultView v = new ResultView(sampleNames, tumorType, subtypes, drugReports, null);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, null);
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
                 indicator.setVisible(false);
                 analyzeButton.setEnabled(true);
             }
+        }
+    }
+
+    private void processError(String message) {
+        Window mainWindow = getApplication().getMainWindow();
+        MessageBox mb = new MessageBox(mainWindow, "Analysis Problem", MessageBox.Icon.ERROR, message,
+                new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+        mb.show();
+        synchronized (getApplication()) {
+            indicator.setVisible(false);
+            analyzeButton.setEnabled(true);
         }
     }
 
