@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -127,14 +128,20 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
-            String command = R_PATH+"rscript --vanilla rununsupervised.r " + tumorType + " " + sampleFile + " "
-                    + WORKING_IDRECTORY + " " + ERROR_FILE;
-            log.debug("DRY RUN:\n" + command);
-            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "classifySamples.sh", "--vanilla", "rununsupervised.r",
+            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
+            pb1.directory(new File(WORKING_IDRECTORY));
             Map<String, Integer> classAssignments = new HashMap<String, Integer>();
             try {
                 Process process = pb1.start();
+                if (log.isDebugEnabled()) {
+                    InputStream stream = process.getErrorStream();
+                    byte[] b = new byte[1024];
+                    int n = -1;
+                    while ((n = stream.read(b)) >= 0) {
+                        System.out.println(":::" + new String(b, 0, n));
+                    }
+                }
                 int exit = process.waitFor();
                 if (exit == 0) {
                     BufferedReader br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
@@ -142,11 +149,12 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     while (line != null && line.trim().length() > 0) {
                         String[] f = line.split("\t");
                         classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
+                        line = br.readLine();
                     }
                     br.close();
                 } else {
-                    log.error("something went wrong with classification script");
-                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script");
+                    log.error("something went wrong with classification script: exit value "+exit);
+                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script: exit value "+exit);
                     return;
                 }
             } catch (IOException | InterruptedException e1) {
@@ -154,18 +162,30 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", "rununsupervised.r", tumorType,
+            String command = R_PATH+"rscript --vanilla rununsupervised.r " + tumorType + " " + sampleFile + " "
+                    + WORKING_IDRECTORY + " " + ERROR_FILE;
+            log.debug("command to run:\n" + command);
+            ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"rununsupervised.r", tumorType,
                     sampleFile, WORKING_IDRECTORY, ERROR_FILE);
-            String reportFilename = WORKING_IDRECTORY + sampleFile.substring(sampleFile.indexOf(".txt"))
-            + "OncotargetReoirt.pddf";
+            pb2.directory(new File(WORKING_IDRECTORY));
+            String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
+            log.debug("expected report name: "+reportFilename);
             try {
                 Process process = pb2.start();
+                if (log.isDebugEnabled()) {
+                    InputStream stream = process.getErrorStream();
+                    byte[] b = new byte[1024];
+                    int n = -1;
+                    while ((n = stream.read(b)) >= 0) {
+                        System.out.println(":::" + new String(b, 0, n));
+                    }
+                }
                 int exit = process.waitFor();
                 if (exit == 0 && new File(reportFilename).exists()) {
                     log.debug("report created");
                 } else {
-                    log.error("something went wrong with drug report script");
-                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with drug report script");
+                    log.error("something went wrong with drug report script: exit value "+exit);
+                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with drug report script: exit value "+exit);
                     return;
                 }
             } catch (IOException | InterruptedException e1) {
