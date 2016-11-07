@@ -1,6 +1,8 @@
 package org.geworkbenchweb.visualizations;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,9 +16,10 @@ public class KaplanMeier extends AbstractComponent {
     private static Log log = LogFactory.getLog(KaplanMeier.class);
 
     private static final long serialVersionUID = 2073659992756579843L;
-    private int subtypes = 0, months = 0;
+    private int subtypes = 0;
     private String[] y = new String[0];
-    private String seriesName[] = new String[0];
+    private Integer[] seriesName = new Integer[0];
+    private Integer[] seriesCount = new Integer[0];
 
     private String title = "", xtitle = "", ytitle = "";
 
@@ -25,9 +28,9 @@ public class KaplanMeier extends AbstractComponent {
         super.paintContent(target);
 
         target.addAttribute("subtypes", subtypes);
-        target.addAttribute("months", months);
         target.addAttribute("y", y);
         target.addAttribute("series_name", seriesName);
+        target.addAttribute("series_count", seriesCount);
         target.addAttribute("title", title);
         target.addAttribute("xtitle", xtitle);
         target.addAttribute("ytitle", ytitle);
@@ -43,14 +46,17 @@ public class KaplanMeier extends AbstractComponent {
 
         KaplanMeierData d = (KaplanMeierData) data;
         subtypes = d.subtypeNumber;
-        months = d.monthNumber;
-        y = new String[subtypes*months];
-        int index = 0;
-        for (int i = 0; i < subtypes; i++) {
-            for (int j = 0; j < months; j++) {
-                y[index++] = "" + d.points[i][j];
+        seriesCount = new Integer[subtypes];
+        List<String> allCoordinates = new ArrayList<String>();
+        for (int i=0; i<d.points.length; i++) {
+            List<int[]> list =  d.points[i];
+            for (int[] coor : list) {
+                allCoordinates.add( "" + coor[0] );
+                allCoordinates.add( "" + coor[1] );
             }
+            seriesCount[i] = list.size();
         }
+        y = allCoordinates.toArray(new String[0]);
 
         this.seriesName = d.seriesName;
 
@@ -60,12 +66,12 @@ public class KaplanMeier extends AbstractComponent {
     }
 
     public static class KaplanMeierData {
-        final int subtypeNumber, monthNumber;
-        final double[][] points;
+        final int subtypeNumber;
+        final List<int[]>[] points;
         final String title, xtitle, ytitle;
-        final String[] seriesName;
+        final Integer[] seriesName;
 
-        public KaplanMeierData(String title, String xtitle, String ytitle, double[][] points, String seriesName[]) {
+        public KaplanMeierData(String title, String xtitle, String ytitle, List<int[]>[] points, Integer[] seriesName) {
             this.title = title;
             this.xtitle = xtitle;
             this.ytitle = ytitle;
@@ -73,28 +79,16 @@ public class KaplanMeier extends AbstractComponent {
             this.seriesName = seriesName;
 
             subtypeNumber = points.length;
-            monthNumber = points[0].length;
         }
     }
 
-    public static KaplanMeier createInstance(String tumorType) { // test data
+    public static KaplanMeier createInstance(String tumorType, List<int[]>[] points, Set<Integer> subtypes) {
         KaplanMeier chart = new KaplanMeier();
         chart.setWidth("100%");
         chart.setHeight("100%");
 
-        Random random = new Random();
-
-        int subtypeNumber = 4;
-        int monthNumber = 5;
-        double[][] points = new double[subtypeNumber][monthNumber];
-        for (int i = 0; i < subtypeNumber; i++) {
-            for (int j = 0; j < monthNumber; j++) {
-                points[i][j] = random.nextDouble();
-            }
-        }
-
         KaplanMeierData data = new KaplanMeierData(tumorType, "Month", "Percent Survival", points,
-                new String[] { "subtype1", "subtype2", "subtype3", "subtype4" });
+                subtypes.toArray(new Integer[0]));
         chart.setData(data);
         return chart;
     }

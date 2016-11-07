@@ -28,21 +28,21 @@ public class VKaplanMeier extends Widget implements Paintable {
         placeholder.setId(uidl.getId());
 
         int subtypes = uidl.getIntAttribute("subtypes");
-        int months = uidl.getIntAttribute("months");
         String[] y = uidl.getStringArrayAttribute("y");
-        String[] series_name = uidl.getStringArrayAttribute("series_name");
+        int[] series_name = uidl.getIntArrayAttribute("series_name");
+        int[] series_count = uidl.getIntArrayAttribute("series_count");
         String title = uidl.getStringAttribute("title");
         String xtitle = uidl.getStringAttribute("xtitle");
         String ytitle = uidl.getStringAttribute("ytitle");
 
-        createInstance(placeholder.getId(), title, xtitle, ytitle, subtypes, months, wrapArrayNumber(y),
-                wrapArray(series_name));
+        createInstance(placeholder.getId(), title, xtitle, ytitle, subtypes, wrapArrayNumber(y),
+                wrapArray(series_name), wrapArray(series_count));
     }
 
     public static native void createInstance(String containerId, String title, String xtitle, String ytitle,
-            int subtypes, int months, JsArrayNumber y, JsArrayString series_name)
+            int subtypes, JsArrayNumber y, JsArrayInteger series_name, JsArrayInteger series_count)
     /*-{
-        $wnd.$kaplan_meier.create(containerId, title, xtitle, ytitle, subtypes, months, y, series_name);
+        $wnd.$kaplan_meier.create(containerId, title, xtitle, ytitle, subtypes, y, series_name, series_count);
     }-*/;
 
     public static JsArrayNumber wrapArrayNumber(String[] srcArray) {

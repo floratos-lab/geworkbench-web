@@ -1,25 +1,23 @@
 var $kaplan_meier = {}; /* module namespace */
 
-$kaplan_meier.create = function(id, title, xtitle, ytitle, subtypes, months, y,
-        series_name) {
+$kaplan_meier.create = function(id, title, xtitle, ytitle, subtypes, p,
+        series_name, series_count) {
     var div = document.getElementById(id);
     $(div).empty();
 
-    var x = [];
-    for (var i = 0; i < months; i++) {
-        x.push(i);
-    }
-    var index = 0; // index of y
+    var index = 0; // index of p, which are all the x and y coordinate values
     var data = [];
     for (var i = 0; i < subtypes; i++) {
-        var s = [];
-        for (var j = 0; j < months; j++) {
-            s.push(y[index++]);
+        var x = [];
+        var y = [];
+        for (var j = 0; j < series_count[i]; j++) {
+            x.push(p[index++]);
+            y.push(p[index++]);
         }
         var trace = {
-            'name' : series_name[i],
+            'name' : "Subtype "+series_name[i],
             'x' : x,
-            'y' : s,
+            'y' : y,
         };
         data.push(trace);
     }

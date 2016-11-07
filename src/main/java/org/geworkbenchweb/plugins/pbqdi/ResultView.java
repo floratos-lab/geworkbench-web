@@ -1,5 +1,6 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,10 +93,24 @@ public class ResultView extends Window {
         samplePerSubtype.setPageLength(summary.size());
         samplePerSubtype.setSizeFull();
 
+        SurvivalData s = null;
+        try {
+            s = new SurvivalData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        @SuppressWarnings("unchecked")
+        List<int[]>[] points = new List[summary.size()];
+        int index = 0;
+        for (Integer subtype : summary.keySet()) {
+            points[index++] = s.getOneSubtype(tumorType, subtype);
+        }
+
         this.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
         this.addComponent(resultTable);
         this.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(KaplanMeier.createInstance(tumorType.toUpperCase()));
+        this.addComponent(KaplanMeier.createInstance(tumorType.toUpperCase(), points, summary.keySet()));
         this.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
         this.addComponent(samplePerSubtype);
 
