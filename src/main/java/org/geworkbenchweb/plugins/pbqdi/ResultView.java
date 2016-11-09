@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbenchweb.visualizations.KaplanMeier;
-
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
@@ -30,7 +30,7 @@ public class ResultView extends Window {
     private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
 
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String[] drugReports,
-            final Map<String, String> confidentTypeMap) {
+            FileResource kaplanImage) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -107,10 +107,12 @@ public class ResultView extends Window {
             points[index++] = s.getOneSubtype(tumorType, subtype);
         }
 
+        Embedded image = new Embedded(null, kaplanImage);
+
         this.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
         this.addComponent(resultTable);
         this.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(KaplanMeier.createInstance(tumorType.toUpperCase(), points, summary.keySet()));
+        this.addComponent(image);
         this.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
         this.addComponent(samplePerSubtype);
 

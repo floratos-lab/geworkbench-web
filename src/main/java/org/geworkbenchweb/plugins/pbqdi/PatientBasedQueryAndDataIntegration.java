@@ -16,6 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
 
+import com.vaadin.Application;
+import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -131,6 +133,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb1.directory(new File(WORKING_IDRECTORY));
+            String kaplan = "test1.png";
             Map<String, Integer> classAssignments = new HashMap<String, Integer>();
             try {
                 Process process = pb1.start();
@@ -157,14 +160,18 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script: exit value "+exit);
                     return;
                 }
+                if (new File(WORKING_IDRECTORY+kaplan).exists()) {
+                    log.debug("Kanpan-Merier curve image created");
+                } else {
+                    log.error("something went wrong creating Kaplan-Meirer curve image");
+                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong creating Kaplan-Meirer curve image");
+                    return;
+                }
             } catch (IOException | InterruptedException e1) {
                 e1.printStackTrace();
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            String command = R_PATH+"rscript --vanilla rununsupervised.r " + tumorType + " " + sampleFile + " "
-                    + WORKING_IDRECTORY + " " + ERROR_FILE;
-            log.debug("command to run:\n" + command);
             ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"rununsupervised.r", tumorType,
                     sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb2.directory(new File(WORKING_IDRECTORY));
@@ -198,7 +205,9 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
             }
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, null);
+            Application a = PatientBasedQueryAndDataIntegration.this.getApplication();
+            FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), a);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource);
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
                 indicator.setVisible(false);
