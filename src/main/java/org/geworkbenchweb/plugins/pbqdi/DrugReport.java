@@ -1,15 +1,19 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
+import java.io.File;
+
+import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
 
-    public DrugReport(String sampleName, String tumorType, final String report) {
+    public DrugReport(String sampleName, String tumorType, final String report, final String qualitySection) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -19,21 +23,78 @@ public class DrugReport extends Window {
 
         this.addComponent(new Label("<b>Drug Report for " + sampleName + " using " + tumorType + " data</b>",
                 Label.CONTENT_XHTML));
-        Button pdfButton = new Button("Download Full Report as PDF");
+        Button pdfButton = new Button("Download");
         pdfButton.addListener(new ClickListener() {
 
             private static final long serialVersionUID = -6270828819674891537L;
 
             @Override
             public void buttonClick(ClickEvent event) {
-                System.out.println("... open PDF report " + report);
+                DrugReport.this.open(new FileResource(new File(report), DrugReport.this.getApplication()), "_blank");
             }
 
         });
-        this.addComponent(pdfButton);
-        this.addComponent(new Label("Data Quality"));
-        this.addComponent(new Button("View"));
+        HorizontalLayout panel1 = new HorizontalLayout(); 
+        this.addComponent(panel1);
+        panel1.addComponent(new Label("Download Full Report as PDF"));
+        panel1.addComponent(pdfButton);
 
+        final Label reportSection = new Label();
+        Button qualityButton = new Button("View");
+        Button fdaButton = new Button("View");
+        Button investigatinalButton = new Button("View");
+
+        qualityButton.addListener(new ClickListener() {
+
+            private static final long serialVersionUID = 7927755510025754346L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                reportSection.setValue(qualitySection);
+            }
+            
+        });
+        fdaButton.addListener(new ClickListener() {
+
+            private static final long serialVersionUID = -1007067588809145876L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                reportSection.setValue("PLACEHOLDER: here goes the section for FDA approved drugs");
+            }
+            
+        });
+        investigatinalButton.addListener(new ClickListener() {
+
+            private static final long serialVersionUID = 675066106800226190L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                reportSection.setValue("PLACEHOLDER: here goes the section for investational drugs"); 
+            }
+            
+        });
+
+        HorizontalLayout panel2 = new HorizontalLayout(); 
+        this.addComponent(panel2);
+        panel2.addComponent(new Label("Data Quality"));
+        panel2.addComponent(qualityButton);
+
+        this.addComponent(new Label("Actionable Oncoproteins"));
+
+        HorizontalLayout panel3 = new HorizontalLayout(); 
+        this.addComponent(panel3);
+        panel3.addComponent(new Label("FDA approved drugs"));
+        panel3.addComponent(fdaButton);
+
+        HorizontalLayout panel4 = new HorizontalLayout(); 
+        this.addComponent(panel4);
+        panel4.addComponent(new Label("Investigational drugs"));
+        panel4.addComponent(investigatinalButton);
+
+        this.addComponent(reportSection);
+        this.setSizeUndefined();
+        this.setWidth("50%");
     }
 
     private static final long serialVersionUID = -761592910851078204L;

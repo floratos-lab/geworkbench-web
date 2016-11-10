@@ -29,7 +29,7 @@ public class ResultView extends Window {
     private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
 
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String[] drugReports,
-            FileResource kaplanImage) {
+            FileResource kaplanImage, final String qualitySection) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -59,7 +59,7 @@ public class ResultView extends Window {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                    DrugReport v = new DrugReport(sampleName, tumorType, report);
+                    DrugReport v = new DrugReport(sampleName, tumorType, report, qualitySection);
                     mainWindow.addWindow(v);
                 }
 

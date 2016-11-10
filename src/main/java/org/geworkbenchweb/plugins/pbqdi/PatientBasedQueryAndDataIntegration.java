@@ -204,16 +204,43 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             for (int i = 0; i < sampleNames.length; i++) {
                 drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
             }
+            String qualitySection = readQualitySection();
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             Application a = PatientBasedQueryAndDataIntegration.this.getApplication();
             FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), a);
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection);
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
                 indicator.setVisible(false);
                 analyzeButton.setEnabled(true);
             }
         }
+    }
+
+    private String readQualitySection() {
+        String texFile = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.tex"; // this is absolute path
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(texFile));
+            String line = br.readLine();
+            boolean in = false;
+            while(line!=null) {
+                if(line.equals("\\subsection*{Data Quality}")) {
+                    in = true;
+                } else if(line.equals("\\section*{Actionable Oncoproteins}")) {
+                    in = false;
+                } else if(in) {
+                    sb.append(line);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     private void processError(String message) {
