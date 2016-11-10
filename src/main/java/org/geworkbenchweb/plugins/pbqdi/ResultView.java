@@ -1,6 +1,5 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,20 +91,6 @@ public class ResultView extends Window {
         samplePerSubtype.setContainerDataSource(container2);
         samplePerSubtype.setPageLength(summary.size());
         samplePerSubtype.setSizeFull();
-
-        SurvivalData s = null;
-        try {
-            s = new SurvivalData();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        @SuppressWarnings("unchecked")
-        List<int[]>[] points = new List[summary.size()];
-        int index = 0;
-        for (Integer subtype : summary.keySet()) {
-            points[index++] = s.getOneSubtype(tumorType, subtype);
-        }
 
         Embedded image = new Embedded(null, kaplanImage);
 

@@ -49,10 +49,6 @@
 	<script src="js/d3.v3.min.js" />
 	<script src="js/citrus_diagram.js" />
 
-   <!-- Kaplan-Meier Curve -->
-   <script src="js/plotly-1.13.0.min.js" />
-   <script src="js/kaplan_meier.js" />
-
     <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
