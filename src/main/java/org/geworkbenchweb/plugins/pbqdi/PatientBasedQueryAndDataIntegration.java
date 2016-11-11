@@ -8,8 +8,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -205,16 +209,74 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
             }
             String qualitySection = readQualitySection();
+            String pdaSection = readPDASection();
+            String investigationalSection = readInvestigationalSection();
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             Application a = PatientBasedQueryAndDataIntegration.this.getApplication();
             FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), a);
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection, pdaSection, investigationalSection);
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
                 indicator.setVisible(false);
                 analyzeButton.setEnabled(true);
             }
         }
+    }
+
+    private String readInvestigationalSection() {
+        String texFile = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.tex"; // this is absolute path
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(texFile));
+            String line = br.readLine();
+            boolean in = false;
+            while(line!=null) {
+                if(line.equals("\\subsection*{Investigational drugs}")) {
+                    in = true;
+                } else if(line.startsWith("\\end")||line.startsWith("\\begin")) {
+                } else if(in && line.trim().startsWith("\\input")) {
+                    sb.append("[INPUT:"+line+"]");
+                } else if(in) {
+                    sb.append(line);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    private String readPDASection() {
+        String texFile = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.tex"; // this is absolute path
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(texFile));
+            String line = br.readLine();
+            boolean in = false;
+            while(line!=null) {
+                if(line.equals("\\addcontentsline{toc}{subsection}{FDA approved drugs}")) {
+                    in = true;
+                } else if(line.equals("\\subsection*{Investigational drugs}")) {
+                    in = false;
+                } else if(line.startsWith("\\end")||line.startsWith("\\begin")) {
+                } else if(in && line.trim().startsWith("\\input")) {
+                    sb.append("[INPUT:"+line+"]");
+                } else if(in) {
+                    sb.append(line);
+                }
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     private String readQualitySection() {
@@ -230,6 +292,11 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     in = true;
                 } else if(line.equals("\\section*{Actionable Oncoproteins}")) {
                     in = false;
+                } else if(line.startsWith("%")||line.startsWith("\\begin")) {
+                } else if(line.trim().startsWith("\\includegraphics")) {
+                    for(String s : extraImageNames(line)) {
+                        sb.append("["+s+"]");
+                    }
                 } else if(in) {
                     sb.append(line);
                 }
@@ -241,6 +308,18 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+
+    private static String[] extraImageNames(String line) {
+        Pattern pattern = Pattern.compile("\\\\includegraphics\\[[.*?]\\]\\{(.+?)\\}");
+        Matcher matcher = pattern.matcher(line);
+        List<String> names = new ArrayList<String>();
+        while(matcher.find()) {
+            String imageName = matcher.group();
+            System.out.println("MATCH:"+imageName);
+            names.add(imageName);
+        }
+        return names.toArray(new String[0]);
     }
 
     private void processError(String message) {

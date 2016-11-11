@@ -13,7 +13,7 @@ import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
 
-    public DrugReport(String sampleName, String tumorType, final String report, final String qualitySection) {
+    public DrugReport(String sampleName, String tumorType, final String report, final String qualitySection, final String pdaSection, final String investigationalSection) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -34,7 +34,8 @@ public class DrugReport extends Window {
             }
 
         });
-        HorizontalLayout panel1 = new HorizontalLayout(); 
+        HorizontalLayout panel1 = new HorizontalLayout();
+        panel1.setSpacing(true);
         this.addComponent(panel1);
         panel1.addComponent(new Label("Download Full Report as PDF"));
         panel1.addComponent(pdfButton);
@@ -60,7 +61,7 @@ public class DrugReport extends Window {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                reportSection.setValue("PLACEHOLDER: here goes the section for FDA approved drugs");
+                reportSection.setValue(pdaSection);
             }
             
         });
@@ -70,24 +71,27 @@ public class DrugReport extends Window {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                reportSection.setValue("PLACEHOLDER: here goes the section for investational drugs"); 
+                reportSection.setValue(investigationalSection); 
             }
             
         });
 
-        HorizontalLayout panel2 = new HorizontalLayout(); 
+        HorizontalLayout panel2 = new HorizontalLayout();
+        panel2.setSpacing(true);
         this.addComponent(panel2);
         panel2.addComponent(new Label("Data Quality"));
         panel2.addComponent(qualityButton);
 
         this.addComponent(new Label("Actionable Oncoproteins"));
 
-        HorizontalLayout panel3 = new HorizontalLayout(); 
+        HorizontalLayout panel3 = new HorizontalLayout();
+        panel3.setSpacing(true);
         this.addComponent(panel3);
         panel3.addComponent(new Label("FDA approved drugs"));
         panel3.addComponent(fdaButton);
 
-        HorizontalLayout panel4 = new HorizontalLayout(); 
+        HorizontalLayout panel4 = new HorizontalLayout();
+        panel4.setSpacing(true);
         this.addComponent(panel4);
         panel4.addComponent(new Label("Investigational drugs"));
         panel4.addComponent(investigatinalButton);
