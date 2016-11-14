@@ -294,7 +294,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     in = false;
                 } else if(line.startsWith("%")||line.startsWith("\\begin")) {
                 } else if(line.trim().startsWith("\\includegraphics")) {
-                    for(String s : extraImageNames(line)) {
+                    for(String s : extractImageNames(line)) {
                         sb.append("["+s+"]");
                     }
                 } else if(in) {
@@ -310,13 +310,12 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return sb.toString();
     }
 
-    private static String[] extraImageNames(String line) {
-        Pattern pattern = Pattern.compile("\\\\includegraphics\\[[.*?]\\]\\{(.+?)\\}");
+    private static String[] extractImageNames(String line) {
+        Pattern pattern = Pattern.compile("\\\\includegraphics\\[.*?\\]\\{(.+?)\\}");
         Matcher matcher = pattern.matcher(line);
         List<String> names = new ArrayList<String>();
         while(matcher.find()) {
-            String imageName = matcher.group();
-            System.out.println("MATCH:"+imageName);
+            String imageName = matcher.group(1);
             names.add(imageName);
         }
         return names.toArray(new String[0]);
