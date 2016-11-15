@@ -40,7 +40,7 @@ public class DrugReport extends Window {
         panel1.addComponent(new Label("Download Full Report as PDF"));
         panel1.addComponent(pdfButton);
 
-        final Label reportSection = new Label();
+        final Label reportSection = new Label("", Label.CONTENT_XHTML);
         Button qualityButton = new Button("View");
         Button fdaButton = new Button("View");
         Button investigatinalButton = new Button("View");

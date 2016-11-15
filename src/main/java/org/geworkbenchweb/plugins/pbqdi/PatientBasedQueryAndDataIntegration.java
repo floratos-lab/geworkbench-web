@@ -265,8 +265,12 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     in = false;
                 } else if(line.startsWith("\\end")||line.startsWith("\\begin")) {
                 } else if(in && line.trim().startsWith("\\input")) {
-                    sb.append("[INPUT:"+line+"]");
+                    String tabFile = extractTabFileName(line);
+                    String tabFileFullPath = texFile.substring(0, texFile.lastIndexOf("/")+1)+tabFile;
+                    sb.append( parseTabFile(tabFileFullPath) );
                 } else if(in) {
+                    if(line.startsWith("{\\small")) line = line.substring(line.indexOf(" "));
+                    if(line.endsWith("}")) line = line.substring(0, line.length()-1);
                     sb.append(line);
                 }
                 line = br.readLine();
@@ -308,6 +312,73 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+
+    private static String parseIndex(String s) {
+        Pattern pattern = Pattern.compile("\\\\scriptsize\\{(.+?)\\}");
+        Matcher matcher = pattern.matcher(s);
+        if(matcher.find()) return matcher.group(1);
+        else return "[]";
+    }
+    private static String parseImage(String s) {
+        Pattern pattern = Pattern.compile("\\\\includegraphics\\[.*?\\]\\{(.+?)\\}");
+        Matcher matcher = pattern.matcher(s);
+        if(matcher.find()) return matcher.group(1);
+        else return "[]";
+    }
+    private static String parseDescription(String s) {
+        Pattern pattern = Pattern.compile("\\\\textbf\\{(.+?)\\}|\\\\scriptsize\\{(.+)\\}");
+        Matcher matcher = pattern.matcher(s);
+        StringBuilder sb = new StringBuilder();
+        while(matcher.find()) {
+            String name = matcher.group(1);
+            String description = matcher.group(2);
+            if(name!=null) sb.append(name);
+            if(description!=null) sb.append(description);
+        }
+        return sb.toString();
+    }
+    
+    private static String parseTabFile(String filename) throws IOException {
+        BufferedReader tabReader = new BufferedReader(new FileReader(filename ));
+        String tabLine = tabReader.readLine();
+        List<String> rows = new ArrayList<String>();
+        StringBuilder sb = new StringBuilder();
+        while(tabLine!=null) {
+            sb.append(tabLine);
+            if(tabLine.endsWith("\\\\")) {
+                String[] td = sb.toString().split("&");
+                assert td.length==3;
+                StringBuilder content = new StringBuilder();
+                content.append("<td>").append(parseIndex(td[0])).append("</td>");
+                content.append("<td>").append("IMG:"+parseImage(td[1])).append("</td>");
+                content.append("<td>").append(parseDescription(td[2])).append("</td>");
+                rows.add( content.toString() );
+                sb = new StringBuilder();
+            }
+            tabLine = tabReader.readLine();
+        }
+        tabReader.close();
+
+        sb = new StringBuilder("<table>");
+        for(String s: rows) {
+            sb.append("<tr>").append(s).append("</tr>");
+        }
+        return sb.append("</table>").toString();
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(parseTabFile("F:/cptac_project/test1/oncoTarget-FDA-oncology-CUAC1468.tab"));
+    }
+
+    private static String extractTabFileName(String line) {
+        Pattern pattern = Pattern.compile("\\\\input\\{(.+?)\\}");
+        Matcher matcher = pattern.matcher(line);
+        if(matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
     }
 
     private static String[] extractImageNames(String line) {
