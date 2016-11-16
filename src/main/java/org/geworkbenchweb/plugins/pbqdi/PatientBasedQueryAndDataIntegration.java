@@ -134,7 +134,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
-            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
+            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb1.directory(new File(WORKING_IDRECTORY));
             String kaplan = "test1.png";
