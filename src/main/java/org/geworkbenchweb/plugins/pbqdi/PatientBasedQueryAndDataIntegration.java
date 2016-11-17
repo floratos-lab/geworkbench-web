@@ -134,6 +134,17 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
+            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+            if (log.isDebugEnabled()) { // completely bypass the R computation for testing
+                ResultView v = new ResultView();
+                mainWindow.addWindow(v);
+                synchronized (getApplication()) {
+                    indicator.setVisible(false);
+                    analyzeButton.setEnabled(true);
+                }
+                return;
+            }
+
             ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb1.directory(new File(WORKING_IDRECTORY));
@@ -211,7 +222,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             String qualitySection = readQualitySection();
             String pdaSection = readPDASection();
             String investigationalSection = readInvestigationalSection();
-            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             Application a = PatientBasedQueryAndDataIntegration.this.getApplication();
             FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), a);
             ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection, pdaSection, investigationalSection);
