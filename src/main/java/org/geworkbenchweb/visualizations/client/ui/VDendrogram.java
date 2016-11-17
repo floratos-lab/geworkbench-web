@@ -294,7 +294,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		int heatmapWidth = offlineCellWidth*(xIndex2 - xIndex1 +1);
 		int markerNumberToPaint = yIndex2 - yIndex1 +1;
         int heatmapHeight = markerNumberToPaint*offlineCellHeight;
-		int width = markerClusterHeight + heatmapWidth + 300;
+		int width = markerClusterHeight + heatmapWidth + 300;		
 		int height = arrayClusterHeight+heatmapHeight + 150;
 		
 		Canvas offline = Canvas.createIfSupported();
@@ -305,7 +305,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		
 		
 		//20.07.2016
-		// place things in place based  array label position 
+		// place things in place based array label position 
 		int arrayLabelHeight=arrayHeightMarkerWidth[0];
 		int markerLabelWidth=arrayHeightMarkerWidth[1];
 		if((arrayPos.equals("Bottom")) && (markerPos.equals("Right"))) {
@@ -359,7 +359,9 @@ public final class VDendrogram extends Composite implements Paintable {
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
-		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+		//17 Nov 2016
+		//int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1, xIndex2);
         
 		// [2] canvas for microarray dendrogram
 		arrayClusterHeight = (int)microarrayDendrogramSelected.y + deltaH; // add some extra space on top
@@ -394,12 +396,17 @@ public final class VDendrogram extends Composite implements Paintable {
 			context4.setFont((cellHeight-1)+"px sans-serif");
 		}
 		
+		// 17 Nov 2016
+		/*
 		int markerLabelWidth=0;
 		
 		if (firstMarker > 0)
 			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
 		else
-			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			//markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			 *
+		*/
+		int markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1, yIndex2);
 		
 		//20.07.2016
 		// place things in place
@@ -460,7 +467,10 @@ public final class VDendrogram extends Composite implements Paintable {
 				if(cellWidth<10) {
 					context3.setFont((cellWidth-1)+"px sans-serif");
 				}
-				int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+				//17 Nov 2016
+				//int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+				int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1, xIndex2);
+				
 				//20.07.2016
 				retVals[0]=arrayLabelHeight;
 				///
@@ -496,9 +506,13 @@ public final class VDendrogram extends Composite implements Paintable {
 				if(cellHeight<10) {
 					context4.setFont((cellHeight-1)+"px sans-serif");
 				}
-				
-				int markerLabelWidth=0;					 
-			    markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+				//17 Nov 2016
+				/*
+				 int markerLabelWidth=0;					 
+			    	markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			    */
+				int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1, yIndex2);
+			    
 			    retVals[1]=markerLabelWidth;
 				//20.07.2016
 				// place things in place
@@ -649,11 +663,31 @@ public final class VDendrogram extends Composite implements Paintable {
 		}
 	}
 	
+	// 20 Nov 2016
+	/*
 	private int drawLabels(final Canvas canvas, String[] labels, int interval, int first) {
 		Context2d context = canvas.getContext2d();
 		String longestArrayName = "";
 		int y = interval;
 		for(int i=first; i<labels.length; i++) {
+			context.fillText(labels[i], 5, y);
+			y += interval;
+			if(labels[i].length()>longestArrayName.length()) {
+				longestArrayName = labels[i]; 
+			}
+		}
+		int height = (int)(context.measureText(longestArrayName).getWidth() + 10);
+		CanvasElement element3 = canvas.getCanvasElement();
+		Style style = element3.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		return height;
+	}
+	*/
+	private int drawLabels(final Canvas canvas, String[] labels, int interval, int first, int last) {
+		Context2d context = canvas.getContext2d();
+		String longestArrayName = "";
+		int y = interval;
+		for(int i=first; i<=last; i++) {
 			context.fillText(labels[i], 5, y);
 			y += interval;
 			if(labels[i].length()>longestArrayName.length()) {
