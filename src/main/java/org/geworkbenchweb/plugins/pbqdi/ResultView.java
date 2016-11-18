@@ -17,7 +17,6 @@ import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.BaseTheme;
 
 public class ResultView extends Window {
 
@@ -25,7 +24,7 @@ public class ResultView extends Window {
 
     private static final String COLUMN_SAMPLE_NAME = "Sample Name";
     private static final String COLUMN_SUBTYPE = "Subtype";
-    private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
+    private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples";
 
     private Table resultTable = new Table();
     private Embedded image = new Embedded();
@@ -78,13 +77,11 @@ public class ResultView extends Window {
 
         Container container2 = new IndexedContainer();
         container2.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
-        container2.addContainerProperty(COLUMN_SAMPLE_PER_SUBTYPE, Button.class, null);
+        container2.addContainerProperty(COLUMN_SAMPLE_PER_SUBTYPE, Integer.class, null);
         for (Integer subtype : summary.keySet()) {
             Item item = container2.addItem(subtype);
             item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
-            Button b = new Button("" + summary.get(subtype).size());
-            b.setStyleName(BaseTheme.BUTTON_LINK);
-            item.getItemProperty(COLUMN_SAMPLE_PER_SUBTYPE).setValue(b);
+            item.getItemProperty(COLUMN_SAMPLE_PER_SUBTYPE).setValue(summary.get(subtype).size());
         }
         samplePerSubtype.setContainerDataSource(container2);
         samplePerSubtype.setPageLength(summary.size());
