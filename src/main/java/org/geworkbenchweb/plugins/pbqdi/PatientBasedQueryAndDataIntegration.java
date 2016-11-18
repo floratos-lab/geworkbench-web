@@ -137,7 +137,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
 
             Map<String, Integer> classAssignments = new HashMap<String, Integer>();
-            String[] drugReports = new String[0];
             String qualitySection = "";
             String pdaSection = "";
             String investigationalSection = "";
@@ -156,10 +155,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     br.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-                drugReports = new String[sampleNames.length];
-                for (int i = 0; i < sampleNames.length; i++) {
-                    drugReports[i] = reportFilename;
                 }
 
                 final ResultData result = ResultData.randomTestData();
@@ -235,10 +230,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            drugReports = new String[sampleNames.length];
-            for (int i = 0; i < sampleNames.length; i++) {
-                drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
-            }
+
             qualitySection = readQualitySection();
             pdaSection = readPDASection();
             investigationalSection = readInvestigationalSection();
@@ -246,7 +238,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             } // end of real R execution
 
             FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection, pdaSection, investigationalSection);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, reportFilename, resource, qualitySection, pdaSection, investigationalSection);
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {

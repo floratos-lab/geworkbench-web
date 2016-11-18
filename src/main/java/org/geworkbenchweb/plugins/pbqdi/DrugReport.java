@@ -13,7 +13,7 @@ import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
 
-    public DrugReport(String sampleName, String tumorType, final String report, final String qualitySection, final String pdaSection, final String investigationalSection) {
+    public DrugReport(String tumorType, final String report, final String qualitySection, final String pdaSection, final String investigationalSection) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -21,7 +21,7 @@ public class DrugReport extends Window {
         this.setCaption("Columbia/CPTAC Patient Sample Drug Report");
         this.setImmediate(true);
 
-        this.addComponent(new Label("<b>Drug Report for " + sampleName + " using " + tumorType + " data</b>",
+        this.addComponent(new Label("<b>Drug Report using " + tumorType + " data</b>",
                 Label.CONTENT_XHTML));
         Button pdfButton = new Button("Download");
         pdfButton.addListener(new ClickListener() {

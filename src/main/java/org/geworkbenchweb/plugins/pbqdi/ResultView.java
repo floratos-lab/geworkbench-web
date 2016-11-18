@@ -25,14 +25,13 @@ public class ResultView extends Window {
 
     private static final String COLUMN_SAMPLE_NAME = "Sample Name";
     private static final String COLUMN_SUBTYPE = "Subtype";
-    private static final String COLUMN_DRUG_PREDICTION = "Drug Prediction";
     private static final String COLUMN_SAMPLE_PER_SUBTYPE = "samples (click to view)";
 
     private Table resultTable = new Table();
     private Embedded image = new Embedded();
     private Table samplePerSubtype = new Table();
 
-    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String[] drugReports,
+    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String drugReport,
             FileResource kaplanImage, final String qualitySection, final String pdaSection, final String investigationalSection) {
         this.setModal(true);
         this.setClosable(true);
@@ -44,7 +43,6 @@ public class ResultView extends Window {
         Container container = new IndexedContainer();
         container.addContainerProperty(COLUMN_SAMPLE_NAME, String.class, null);
         container.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
-        container.addContainerProperty(COLUMN_DRUG_PREDICTION, Button.class, null);
         Map<Integer, List<String>> summary = new HashMap<Integer, List<String>>();
         for (int i = 0; i < sampleNames.length; i++) {
             final String sampleName = sampleNames[i];
@@ -52,22 +50,6 @@ public class ResultView extends Window {
             Item item = container.addItem(sampleName);
             item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
             item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
-            Button b = new Button("View Report");
-            b.setStyleName(BaseTheme.BUTTON_LINK);
-            final String report = drugReports[i];
-            b.addListener(new ClickListener() {
-
-                private static final long serialVersionUID = 345938285589568581L;
-
-                @Override
-                public void buttonClick(ClickEvent event) {
-                    Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                    DrugReport v = new DrugReport(sampleName, tumorType, report, qualitySection, pdaSection, investigationalSection);
-                    mainWindow.addWindow(v);
-                }
-
-            });
-            item.getItemProperty(COLUMN_DRUG_PREDICTION).setValue(b);
 
             List<String> s = summary.get(subtype);
             if (s == null) {
@@ -79,6 +61,20 @@ public class ResultView extends Window {
         resultTable.setContainerDataSource(container);
         resultTable.setPageLength(sampleNames.length);
         resultTable.setSizeFull();
+
+        Button reportButton = new Button("Drug Prediction Report");
+        reportButton.addListener(new ClickListener() {
+
+            private static final long serialVersionUID = 345938285589568581L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                Window mainWindow = ResultView.this.getApplication().getMainWindow();
+                DrugReport v = new DrugReport(tumorType, drugReport, qualitySection, pdaSection, investigationalSection);
+                mainWindow.addWindow(v);
+            }
+
+        });
 
         Container container2 = new IndexedContainer();
         container2.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
@@ -98,6 +94,7 @@ public class ResultView extends Window {
 
         this.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
         this.addComponent(resultTable);
+        this.addComponent(reportButton);
         this.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
         this.addComponent(image);
         this.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
