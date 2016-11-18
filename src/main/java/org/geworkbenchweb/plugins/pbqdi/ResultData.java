@@ -13,7 +13,7 @@ public class ResultData {
 
         String[] dataQualityImages = new String[1 + random.nextInt(5)];
         for (int i = 0; i < dataQualityImages.length; i++) {
-            dataQualityImages[i] = IndividualDrugInfo.randomString(10);
+            dataQualityImages[i] = IndividualDrugInfo.randomWord();
         }
 
         ResultData x = new ResultData();

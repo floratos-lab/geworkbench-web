@@ -14,16 +14,16 @@ public class DrugResult {
 
         List<List<String>> images = new ArrayList<List<String>>();
         List<List<IndividualDrugInfo>> drugs = new ArrayList<List<IndividualDrugInfo>>();
-        int numberOfCards = random.nextInt(10);
+        int numberOfCards = 1+random.nextInt(10);
         for (int i = 0; i < numberOfCards; i++) {
             List<String> img = new ArrayList<String>();
-            for (int j = 0; j < random.nextInt(3); j++) {
-                img.add(IndividualDrugInfo.randomString(10));
+            for (int j = 0; j < 1+random.nextInt(3); j++) {
+                img.add(IndividualDrugInfo.randomWord());
             }
             images.add(img);
 
             List<IndividualDrugInfo> drg = new ArrayList<IndividualDrugInfo>();
-            for (int j = 0; j < random.nextInt(3); j++) {
+            for (int j = 0; j < 1+random.nextInt(3); j++) {
                 drg.add(IndividualDrugInfo.randomTestData());
             }
             drugs.add(drg);

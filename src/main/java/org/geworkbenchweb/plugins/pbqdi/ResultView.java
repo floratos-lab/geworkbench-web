@@ -32,61 +32,6 @@ public class ResultView extends Window {
     private Embedded image = new Embedded();
     private Table samplePerSubtype = new Table();
 
-    public ResultView() { // TODO this is testing code for now
-        this.setModal(true);
-        this.setClosable(true);
-        ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
-        this.setResizable(true);
-        this.setCaption("Columbia/CPTAC Patient Tumor Subtype Results");
-        this.setImmediate(true);
-
-        Container container = new IndexedContainer();
-        container.addContainerProperty(COLUMN_SAMPLE_NAME, String.class, null);
-        container.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
-        container.addContainerProperty(COLUMN_DRUG_PREDICTION, Button.class, null);
-        Map<Integer, List<String>> summary = new HashMap<Integer, List<String>>();
-        final String sampleName = "TEST SAMPLE NAME";
-        Integer subtype = 1;
-        Item item = container.addItem(sampleName);
-        item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
-        item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
-        Button b = new Button("View Report");
-        b.setStyleName(BaseTheme.BUTTON_LINK);
-        b.addListener(new ClickListener() {
-
-            private static final long serialVersionUID = 345938285589568581L;
-
-            @Override
-            public void buttonClick(ClickEvent event) {
-                Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                DrugReport v = new DrugReport();
-                mainWindow.addWindow(v);
-            }
-
-        });
-        item.getItemProperty(COLUMN_DRUG_PREDICTION).setValue(b);
-
-        List<String> s = summary.get(subtype);
-        if (s == null) {
-            s = new ArrayList<String>();
-            summary.put(subtype, s);
-        }
-        s.add(sampleName);
-        resultTable.setContainerDataSource(container);
-        resultTable.setPageLength(1);
-        resultTable.setSizeFull();
-
-        this.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
-        this.addComponent(resultTable);
-        this.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(image);
-        this.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(samplePerSubtype);
-
-        this.setSizeUndefined();
-        this.setWidth("75%");
-    }
-
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String[] drugReports,
             FileResource kaplanImage, final String qualitySection, final String pdaSection, final String investigationalSection) {
         this.setModal(true);

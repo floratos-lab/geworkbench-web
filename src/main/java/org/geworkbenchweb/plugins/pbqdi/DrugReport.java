@@ -13,34 +13,6 @@ import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
 
-    public DrugReport() { // TODO this is testing code
-        final ResultData x = ResultData.randomTestData();
-        final DataQualitySection reportSection = new DataQualitySection();
-        Button qualityButton = new Button("View");
-
-        qualityButton.addListener(new ClickListener() {
-
-            private static final long serialVersionUID = 7927755510025754346L;
-
-            @Override
-            public void buttonClick(ClickEvent event) {
-                reportSection.setResultData(x);
-            }
-            
-        });
-
-        HorizontalLayout panel2 = new HorizontalLayout();
-        panel2.setSpacing(true);
-        this.addComponent(panel2);
-        panel2.addComponent(new Label("Data Quality"));
-        panel2.addComponent(qualityButton);
-
-        this.addComponent(reportSection);
-        this.addComponent(new InvestigationalSection());
-        this.setSizeUndefined();
-        this.setWidth("75%");
-    }
-
     public DrugReport(String sampleName, String tumorType, final String report, final String qualitySection, final String pdaSection, final String investigationalSection) {
         this.setModal(true);
         this.setClosable(true);

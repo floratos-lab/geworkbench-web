@@ -17,19 +17,29 @@ public class IndividualDrugInfo {
 
     private static Random random = new Random();
 
-    static public String randomString(int length) {
+    static public String randomWord() {
+        int length = 5 + random.nextInt(5);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            sb.append('A' + random.nextInt(54));
+            sb.append((char) ('A' + random.nextInt(26)));
+        }
+        return sb.toString();
+    }
+
+    static public String randomParagraph() {
+        int length = 10 + random.nextInt(10);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append(randomWord()).append(" ");
         }
         return sb.toString();
     }
 
     static IndividualDrugInfo randomTestData() {
         IndividualDrugInfo x = new IndividualDrugInfo();
-        x.name = randomString(10);
+        x.name = randomWord();
         x.accession = "" + random.nextInt();
-        x.description = randomString(100);
+        x.description = randomParagraph();
         return x;
     }
 }

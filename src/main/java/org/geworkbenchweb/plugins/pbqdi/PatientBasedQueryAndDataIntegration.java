@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
 
-import com.vaadin.Application;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,12 +29,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
@@ -134,22 +132,45 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
-            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+            String kaplan = "test1.png";
+
+            String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
+
+            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
+            String[] drugReports = new String[0];
+            String qualitySection = "";
+            String pdaSection = "";
+            String investigationalSection = "";
+
             if (log.isDebugEnabled()) { // completely bypass the R computation for testing
-                ResultView v = new ResultView();
-                mainWindow.addWindow(v);
-                synchronized (getApplication()) {
-                    indicator.setVisible(false);
-                    analyzeButton.setEnabled(true);
+
+                /* test data */
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
+                    String line = br.readLine();
+                    while (line != null && line.trim().length() > 0) {
+                        String[] f = line.split("\t");
+                        classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
+                        line = br.readLine();
+                    }
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                return;
-            }
+                drugReports = new String[sampleNames.length];
+                for (int i = 0; i < sampleNames.length; i++) {
+                    drugReports[i] = reportFilename;
+                }
+
+                final ResultData result = ResultData.randomTestData();
+                qualitySection = testQualitySection(result);
+                pdaSection = testFDASection(result);
+                investigationalSection = testInvestigationalSection(result);
+            } else { // real R execution
 
             ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb1.directory(new File(WORKING_IDRECTORY));
-            String kaplan = "test1.png";
-            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
             try {
                 Process process = pb1.start();
                 if (log.isDebugEnabled()) {
@@ -190,8 +211,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_IDRECTORY+"rununsupervised.r", tumorType,
                     sampleFile, WORKING_IDRECTORY, ERROR_FILE);
             pb2.directory(new File(WORKING_IDRECTORY));
-            String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
-            log.debug("expected report name: "+reportFilename);
+
             try {
                 Process process = pb2.start();
                 if (log.isDebugEnabled()) {
@@ -215,16 +235,19 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            String[] drugReports = new String[sampleNames.length];
+            drugReports = new String[sampleNames.length];
             for (int i = 0; i < sampleNames.length; i++) {
                 drugReports[i] = reportFilename; // FIXME it should be multiple reports that match the sample numbers
             }
-            String qualitySection = readQualitySection();
-            String pdaSection = readPDASection();
-            String investigationalSection = readInvestigationalSection();
-            Application a = PatientBasedQueryAndDataIntegration.this.getApplication();
-            FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), a);
+            qualitySection = readQualitySection();
+            pdaSection = readPDASection();
+            investigationalSection = readInvestigationalSection();
+
+            } // end of real R execution
+
+            FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
             ResultView v = new ResultView(sampleNames, tumorType, classAssignments, drugReports, resource, qualitySection, pdaSection, investigationalSection);
+            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
                 indicator.setVisible(false);
@@ -289,6 +312,64 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    private String testFDASection(final ResultData result) {
+        DrugResult fda = result.fdaApproved;
+        List<List<String>> images = fda.images;
+        List<List<IndividualDrugInfo>> drugs = fda.drugs;
+
+        StringBuilder sb = new StringBuilder("<h1>FDA Approed drugs</h1><table>");
+        for (int i = 0; i < images.size(); i++) {
+            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
+            for (String img : images.get(i)) {
+                sb.append("<img src='").append(img).append(" '/>");
+            }
+            sb.append("</td><td><ul>");
+            for (IndividualDrugInfo d : drugs.get(i)) {
+                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                        .append(d.description).append("</li>");
+            }
+            sb.append("</ul></td></tr>");
+        }
+        sb.append("</table>");
+        return sb.toString();
+    }
+
+    private String testInvestigationalSection(final ResultData result) {
+        DrugResult investigational = result.investigational;
+        List<List<String>> images = investigational.images;
+        List<List<IndividualDrugInfo>> drugs = investigational.drugs;
+
+        StringBuilder sb = new StringBuilder("<h1>Investigational drugs</h1><table>");
+        for (int i = 0; i < images.size(); i++) {
+            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
+            for (String img : images.get(i)) {
+                sb.append("<img src='").append(img).append("' />");
+            }
+            sb.append("</td><td><ul>");
+            for (IndividualDrugInfo d : drugs.get(i)) {
+                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                        .append(d.description).append("</li>");
+            }
+            sb.append("</ul></td></tr>");
+        }
+        sb.append("</table>");
+        return sb.toString();
+    }
+
+    private String testQualitySection(final ResultData result) {
+
+        StringBuilder sb = new StringBuilder("<h1>Data Quality</h1>"
+                + "<p>The figure below portrays indicators of data quality for the sample:</p>"
+                + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li><ul>");
+
+        for (int i = 0; i < result.dataQualityImages.length; i++) {
+            sb.append("<img src='")
+            .append(result.dataQualityImages[i])
+            .append("' />");
         }
         return sb.toString();
     }
