@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +55,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private final String OUTPUT_PATH = GeworkbenchRoot.getAppProperty("pbqdi.output.path");
     private final String WORKING_IDRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
     private final String ERROR_FILE = GeworkbenchRoot.getAppProperty("pbqdi.error.file");
+    private final String HTML_LOCATION = GeworkbenchRoot.getAppProperty("html.location");
     private String sampleFile = null;
 
     private String[] sampleNames;
@@ -136,7 +139,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
             String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
 
-            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
             String qualitySection = "";
             String pdaSection = "";
             String investigationalSection = "";
@@ -144,23 +146,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             if (log.isDebugEnabled()) { // completely bypass the R computation for testing
 
                 /* test data */
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
-                    String line = br.readLine();
-                    while (line != null && line.trim().length() > 0) {
-                        String[] f = line.split("\t");
-                        classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
-                        line = br.readLine();
-                    }
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 final ResultData result = ResultData.randomTestData();
                 qualitySection = testQualitySection(result);
                 pdaSection = testFDASection(result);
                 investigationalSection = testInvestigationalSection(result);
+                writeHtmlReport(result);
+                writeHtmlReportFDA(result);
+                writeHtmlReportInvestigational(result);
             } else { // real R execution
 
             ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_IDRECTORY+"classifySamples.r",
@@ -177,16 +169,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     }
                 }
                 int exit = process.waitFor();
-                if (exit == 0) {
-                    BufferedReader br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
-                    String line = br.readLine();
-                    while (line != null && line.trim().length() > 0) {
-                        String[] f = line.split("\t");
-                        classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
-                        line = br.readLine();
-                    }
-                    br.close();
-                } else {
+                if (exit != 0) {
                     log.error("something went wrong with classification script: exit value "+exit);
                     PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script: exit value "+exit);
                     return;
@@ -236,6 +219,26 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             investigationalSection = readInvestigationalSection();
 
             } // end of real R execution
+
+            if(! new File(WORKING_IDRECTORY + "classAssignments.txt").exists()) { // debug
+                log.debug(new File(WORKING_IDRECTORY + "classAssignments.txt").getAbsolutePath()+" does not exists");
+            }
+            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
+            BufferedReader br;
+            try {
+                br = new BufferedReader(new FileReader(WORKING_IDRECTORY + "classAssignments.txt"));
+                String line = br.readLine();
+                while (line != null && line.trim().length() > 0) {
+                    String[] f = line.split("\t");
+                    classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
+                    line = br.readLine();
+                }
+                br.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             FileResource resource =  new FileResource(new File(WORKING_IDRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
             ResultView v = new ResultView(sampleNames, tumorType, classAssignments, reportFilename, resource, qualitySection, pdaSection, investigationalSection);
@@ -308,6 +311,84 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return sb.toString();
     }
 
+    private void writeHtmlReport(final ResultData result) {
+        try {
+            PrintWriter pw = new PrintWriter(new FileWriter(HTML_LOCATION + "cptac/1/dataquality.html"));
+            pw.print("<html><body>");
+            StringBuilder sb = new StringBuilder("<h1>Data Quality</h1>"
+                    + "<p>The figure below portrays indicators of data quality for the sample:</p>"
+                    + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
+
+            for (int i = 0; i < result.dataQualityImages.length; i++) {
+                sb.append("<img src='").append(result.dataQualityImages[i]).append("' />");
+            }
+            pw.print(sb);
+            pw.print("<p id='bottom'></body></html>");
+            pw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeHtmlReportFDA(final ResultData result) {
+        DrugResult fda = result.fdaApproved;
+        List<List<String>> images = fda.images;
+        List<List<IndividualDrugInfo>> drugs = fda.drugs;
+
+        try {
+            PrintWriter pw = new PrintWriter(new FileWriter(HTML_LOCATION + "cptac/1/drugreport.html"));
+            pw.print("<html><body>");
+            StringBuilder sb = new StringBuilder("<h1>FDA Approed drugs</h1><table>");
+            for (int i = 0; i < images.size(); i++) {
+                sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
+                for (String img : images.get(i)) {
+                    sb.append("<img src='").append(img).append(" '/>");
+                }
+                sb.append("</td><td><ul>");
+                for (IndividualDrugInfo d : drugs.get(i)) {
+                    sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                            .append(d.description).append("</li>");
+                }
+                sb.append("</ul></td></tr>");
+            }
+            sb.append("</table>");
+            pw.print(sb);
+            pw.print("<p id='bottom'></body></html>");
+            pw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeHtmlReportInvestigational(final ResultData result) {
+        DrugResult investigational = result.investigational;
+        List<List<String>> images = investigational.images;
+        List<List<IndividualDrugInfo>> drugs = investigational.drugs;
+
+        try {
+            PrintWriter pw = new PrintWriter(new FileWriter(HTML_LOCATION + "cptac/1/investigational.html"));
+            pw.print("<html><body>");
+            StringBuilder sb = new StringBuilder("<h1>Investigational drugs</h1><table>");
+            for (int i = 0; i < images.size(); i++) {
+                sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
+                for (String img : images.get(i)) {
+                    sb.append("<img src='").append(img).append(" '/>");
+                }
+                sb.append("</td><td><ul>");
+                for (IndividualDrugInfo d : drugs.get(i)) {
+                    sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                            .append(d.description).append("</li>");
+                }
+                sb.append("</ul></td></tr>");
+            }
+            sb.append("</table>");
+            pw.print(sb);
+            pw.print("<p id='bottom'></body></html>");
+            pw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private String testFDASection(final ResultData result) {
         DrugResult fda = result.fdaApproved;
         List<List<String>> images = fda.images;
@@ -356,7 +437,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
         StringBuilder sb = new StringBuilder("<h1>Data Quality</h1>"
                 + "<p>The figure below portrays indicators of data quality for the sample:</p>"
-                + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li><ul>");
+                + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
 
         for (int i = 0; i < result.dataQualityImages.length; i++) {
             sb.append("<img src='")
