@@ -6,6 +6,7 @@ public class ResultData {
     String[] dataQualityImages;
 
     DrugResult fdaApproved;
+    DrugResult nononcology;
     DrugResult investigational;
 
     static ResultData randomTestData() {
@@ -19,6 +20,7 @@ public class ResultData {
         ResultData x = new ResultData();
         x.dataQualityImages = dataQualityImages;
         x.fdaApproved = DrugResult.randomTestData();
+        x.nononcology = DrugResult.randomTestData();
         x.investigational = DrugResult.randomTestData();
 
         return x;

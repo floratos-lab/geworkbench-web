@@ -148,7 +148,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 /* test data */
                 final ResultData result = ResultData.randomTestData();
                 qualitySection = testQualitySection(result);
-                pdaSection = testFDASection(result);
+                pdaSection = createFDASection(result);
                 investigationalSection = testInvestigationalSection(result);
                 writeHtmlReport(result);
                 writeHtmlReportFDA(result);
@@ -389,12 +389,30 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             e.printStackTrace();
         }
     }
-    private String testFDASection(final ResultData result) {
+
+    private String createFDASection(final ResultData result) {
         DrugResult fda = result.fdaApproved;
         List<List<String>> images = fda.images;
         List<List<IndividualDrugInfo>> drugs = fda.drugs;
 
-        StringBuilder sb = new StringBuilder("<h1>FDA Approed drugs</h1><table>");
+        StringBuilder sb = new StringBuilder("<h1>FDA Approed Drugs</h1><h2>Oncology Drugs</h2><table>");
+        for (int i = 0; i < images.size(); i++) {
+            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
+            for (String img : images.get(i)) {
+                sb.append("<img src='").append(img).append(" '/>");
+            }
+            sb.append("</td><td><ul>");
+            for (IndividualDrugInfo d : drugs.get(i)) {
+                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                        .append(d.description).append("</li>");
+            }
+            sb.append("</ul></td></tr>");
+        }
+        sb.append("</table><h2>Non-oncology Drugs</h2><table>");
+
+        DrugResult nononcology = result.nononcology;
+        images = nononcology.images;
+        drugs = nononcology.drugs;
         for (int i = 0; i < images.size(); i++) {
             sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
             for (String img : images.get(i)) {
