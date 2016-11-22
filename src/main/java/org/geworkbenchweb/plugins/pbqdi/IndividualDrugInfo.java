@@ -7,12 +7,16 @@ public class IndividualDrugInfo {
     String description;
     String accession;
 
+    public IndividualDrugInfo(String name, String description, String accession) {
+        this.name = name;
+        this.description = description;
+        this.accession = accession;
+    }
+
     static IndividualDrugInfo testData() {
-        IndividualDrugInfo x = new IndividualDrugInfo();
-        x.name = "Teniposide";
-        x.accession = "12345";
-        x.description = "Type II topoisomerase inhibitor that causes dose-dependent single- and double-stranded breaks in DNA and DNA-protein cross-links.";
-        return x;
+        return new IndividualDrugInfo("Teniposide",
+                "Type II topoisomerase inhibitor that causes dose-dependent single- and double-stranded breaks in DNA and DNA-protein cross-links.",
+                "12345");
     }
 
     private static Random random = new Random();
@@ -36,10 +40,6 @@ public class IndividualDrugInfo {
     }
 
     static IndividualDrugInfo randomTestData() {
-        IndividualDrugInfo x = new IndividualDrugInfo();
-        x.name = randomWord();
-        x.accession = "" + random.nextInt();
-        x.description = randomParagraph();
-        return x;
+        return new IndividualDrugInfo(randomWord(), randomParagraph(), "" + random.nextInt());
     }
 }

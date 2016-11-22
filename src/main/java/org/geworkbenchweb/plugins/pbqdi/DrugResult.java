@@ -9,6 +9,11 @@ public class DrugResult {
     List<List<String>> images;
     List<List<IndividualDrugInfo>> drugs;
 
+    public DrugResult(List<List<String>> images, List<List<IndividualDrugInfo>> drugs) {
+        this.images = images;
+        this.drugs = drugs;
+    }
+
     static DrugResult randomTestData() {
         Random random = new Random();
 
@@ -28,9 +33,7 @@ public class DrugResult {
             }
             drugs.add(drg);
         }
-        DrugResult x = new DrugResult();
-        x.images = images;
-        x.drugs = drugs;
+        DrugResult x = new DrugResult(images, drugs);
         return x;
     }
 }

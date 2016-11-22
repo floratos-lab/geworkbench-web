@@ -5,9 +5,17 @@ import java.util.Random;
 public class ResultData {
     String[] dataQualityImages;
 
-    DrugResult fdaApproved;
+    DrugResult oncology;
     DrugResult nononcology;
     DrugResult investigational;
+
+    public ResultData(String[] dataQualityImages, DrugResult oncology, DrugResult nononcology,
+            DrugResult investigational) {
+        this.dataQualityImages = dataQualityImages;
+        this.oncology = oncology;
+        this.nononcology = nononcology;
+        this.investigational = investigational;
+    }
 
     static ResultData randomTestData() {
         Random random = new Random();
@@ -17,11 +25,8 @@ public class ResultData {
             dataQualityImages[i] = IndividualDrugInfo.randomWord();
         }
 
-        ResultData x = new ResultData();
-        x.dataQualityImages = dataQualityImages;
-        x.fdaApproved = DrugResult.randomTestData();
-        x.nononcology = DrugResult.randomTestData();
-        x.investigational = DrugResult.randomTestData();
+        ResultData x = new ResultData(dataQualityImages, DrugResult.randomTestData(), DrugResult.randomTestData(),
+                DrugResult.randomTestData());
 
         return x;
     }
