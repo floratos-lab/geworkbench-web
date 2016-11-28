@@ -324,7 +324,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
             sb.append("</td><td><ul>");
             for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
                         .append(d.description).append("</li>");
             }
             sb.append("</ul></td></tr>");
@@ -341,7 +341,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
             sb.append("</td><td><ul>");
             for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
                         .append(d.description).append("</li>");
             }
             sb.append("</ul></td></tr>");
@@ -363,7 +363,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
             sb.append("</td><td><ul>");
             for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='").append(d.accession).append("'>").append(d.name).append("</a> ")
+                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
                         .append(d.description).append("</li>");
             }
             sb.append("</ul></td></tr>");
