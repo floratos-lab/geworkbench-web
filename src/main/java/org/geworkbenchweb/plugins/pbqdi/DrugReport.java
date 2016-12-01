@@ -2,11 +2,13 @@ package org.geworkbenchweb.plugins.pbqdi;
 
 import java.io.File;
 
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -26,8 +28,8 @@ public class DrugReport extends Window {
         this.setCaption("Columbia/CPTAC Patient Sample Drug Report");
         this.setImmediate(true);
 
-        this.addComponent(new Label("<b>Drug Prediction Report</b>",
-                Label.CONTENT_XHTML));
+//        this.addComponent(new Label("<b>Drug Prediction Report</b>",
+//                Label.CONTENT_XHTML));
         Button pdfButton = new Button("Download Full Report as PDF");
         pdfButton.setStyleName(BaseTheme.BUTTON_LINK);
         pdfButton.addListener(new ClickListener() {
@@ -110,7 +112,13 @@ public class DrugReport extends Window {
         VerticalLayout layout = new VerticalLayout(); 
         layout.addComponent(reportSection);
         panel.setContent(layout);
-        this.addComponent(panel);
+//        this.addComponent(panel);
+
+        Embedded e = new Embedded(null, new ExternalResource("/cptac/reports/" + pdaSection));
+        e.setType(Embedded.TYPE_BROWSER);
+        e.setWidth("100%");
+        e.setHeight("400px");
+        this.addComponent(e);
 
         this.setSizeUndefined();
         this.setWidth("75%");

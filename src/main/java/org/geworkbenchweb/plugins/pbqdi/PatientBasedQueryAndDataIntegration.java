@@ -5,9 +5,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -211,8 +217,19 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
             } // end of real R execution
 
+            String reportPdf = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt"))
+                    + "OncotargetReport.pdf";
+            Path source = FileSystems.getDefault().getPath(reportFilename);
+            Path target = FileSystems.getDefault().getPath(HTML_LOCATION + "cptac/reports/" + reportPdf);
+            try {
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
             qualitySection = createQualitySection(result);
-            pdaSection = createFDASection(result);
+            pdaSection = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
+            createFDASection(result, reportPdf, pdaSection);
             investigationalSection = createInvestigationalSection(result);
 
             if(! new File(WORKING_DIRECTORY + "classAssignments.txt").exists()) { // debug
@@ -276,7 +293,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 } else if (line.equals("%%")) {
                     // another card
                     fieldId = 0;
-                    System.out.println(img+":"+(img==null?line+","+filename:img.size()));
+//                    System.out.println(img+":"+(img==null?line+","+filename:img.size()));
                     images.add(img);
                     List<IndividualDrugInfo> drugsForOneRow = new ArrayList<IndividualDrugInfo>();
                     for (int i = 0; i < drugNames.size(); i++) {
@@ -311,43 +328,75 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return new DrugResult(images, drugs);
     }
 
-    private String createFDASection(final ResultData result) {
+    private void createFDASection(final ResultData result, final String reportPdf, final String htmlFile) {
         DrugResult oncology = result.oncology;
         List<List<String>> images = oncology.images;
         List<List<IndividualDrugInfo>> drugs = oncology.drugs;
 
-        StringBuilder sb = new StringBuilder("<h1>FDA Approved Drugs</h1><h2>Oncology Drugs</h2><table>");
-        for (int i = 0; i < images.size(); i++) {
-            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
-            for (String img : images.get(i)) {
-                sb.append("<img src='").append(img).append(" '/>");
-            }
-            sb.append("</td><td><ul>");
-            for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
-                        .append(d.description).append("</li>");
-            }
-            sb.append("</ul></td></tr>");
-        }
-        sb.append("</table><h2>Non-oncology Drugs</h2><table>");
+        String openingHtmlContent = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'>"
+                + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>"
+                + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>"
+                // <link href="../commons/dashboard.css" rel="stylesheet">
+                // <script
+                // src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
-        DrugResult nononcology = result.nononcology;
-        images = nononcology.images;
-        drugs = nononcology.drugs;
-        for (int i = 0; i < images.size(); i++) {
-            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
-            for (String img : images.get(i)) {
-                sb.append("<img src='").append(img).append(" '/>");
+                + "</head><body>";
+
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(new FileWriter(HTML_LOCATION + "cptac/reports/" + htmlFile));
+            pw.print(openingHtmlContent);
+
+            pw.print("<div style='position:fixed;background:white;width:100%;z-index:999'><h1>Drug Prediction Report</h1><a href='/cptac/reports/" + reportPdf
+                    + "' target=_blank>Download Full Report as PDF</a> <a href='#dataquality'>Data Quality</a> <a href='#ontology'>Ontology drugs</a> <a href='#nonontology'>Nonontology drugs</a> <a href='#investigational'>Investigational drugs</a></div>");
+
+            pw.print("<div style='position:absolute;top:100px' id='dataquality'>");
+            pw.print("<h2>Data Quality</h2>"
+                    + "<p>The figure below portrays indicators of data quality for the sample:</p>"
+                    + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
+
+            for (int i = 0; i < result.dataQualityImages.length; i++) {
+                pw.print("<img src='"+result.dataQualityImages[i]+"' />");
             }
-            sb.append("</td><td><ul>");
-            for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
-                        .append(d.description).append("</li>");
+
+            pw.print("<h2>FDA Approved Drugs</h2><h3 id='ontology'>Oncology Drugs</h3><hr><table>");
+            for (int i = 0; i < images.size(); i++) {
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
+                for (String img : images.get(i)) {
+                    pw.print("<img src='" + img + " '/>");
+                }
+                pw.print("</td><td><ul>");
+                for (IndividualDrugInfo d : drugs.get(i)) {
+                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
+                            + "</a> " + d.description + "</li>");
+                }
+                pw.print("</ul></td></tr>");
             }
-            sb.append("</ul></td></tr>");
+            pw.print("</table><h3 id='nonontology'>Non-oncology Drugs</h3><table>");
+
+            DrugResult nononcology = result.nononcology;
+            images = nononcology.images;
+            drugs = nononcology.drugs;
+            for (int i = 0; i < images.size(); i++) {
+                pw.print("<tr><td>" + (i + 1) + "</td><td>");
+                for (String img : images.get(i)) {
+                    pw.print("<img src='" + img + " '/>");
+                }
+                pw.print("</td><td><ul>");
+                for (IndividualDrugInfo d : drugs.get(i)) {
+                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
+                            + "</a> " + d.description + "</li>");
+                }
+                pw.print("</ul></td></tr>");
+            }
+            pw.print("</table>");
+
+            pw.print("</div></body></html>");
+            pw.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        sb.append("</table>");
-        return sb.toString();
     }
 
     private String createInvestigationalSection(final ResultData result) {
