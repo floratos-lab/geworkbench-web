@@ -31,7 +31,7 @@ public class ResultView extends Window {
     private Table samplePerSubtype = new Table();
 
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String drugReport,
-            FileResource kaplanImage, final String qualitySection, final String pdaSection, final String investigationalSection) {
+            FileResource kaplanImage, final String htmlReport) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -69,7 +69,7 @@ public class ResultView extends Window {
             @Override
             public void buttonClick(ClickEvent event) {
                 Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                DrugReport v = new DrugReport(tumorType, drugReport, qualitySection, pdaSection, investigationalSection);
+                DrugReport v = new DrugReport(tumorType, drugReport, htmlReport);
                 mainWindow.addWindow(v);
             }
 

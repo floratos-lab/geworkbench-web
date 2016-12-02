@@ -141,10 +141,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
             String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
 
-            String qualitySection = "";
-            String pdaSection = "";
-            String investigationalSection = "";
-
             ResultData result = null;
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
             if (RESULT_OPTION.equalsIgnoreCase("random")) { // // random data in place of result
@@ -227,10 +223,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 e1.printStackTrace();
             }
 
-            qualitySection = createQualitySection(result);
-            pdaSection = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
-            createFDASection(result, reportPdf, pdaSection);
-            investigationalSection = createInvestigationalSection(result);
+            String htmlReport = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
+            createHtmlReport(result, reportPdf, htmlReport);
 
             if(! new File(WORKING_DIRECTORY + "classAssignments.txt").exists()) { // debug
                 log.debug(new File(WORKING_DIRECTORY + "classAssignments.txt").getAbsolutePath()+" does not exists");
@@ -253,7 +247,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
 
             FileResource resource =  new FileResource(new File(WORKING_DIRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, reportFilename, resource, qualitySection, pdaSection, investigationalSection);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, reportFilename, resource, htmlReport);
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
@@ -293,7 +287,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 } else if (line.equals("%%")) {
                     // another card
                     fieldId = 0;
-//                    System.out.println(img+":"+(img==null?line+","+filename:img.size()));
                     images.add(img);
                     List<IndividualDrugInfo> drugsForOneRow = new ArrayList<IndividualDrugInfo>();
                     for (int i = 0; i < drugNames.size(); i++) {
@@ -328,7 +321,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return new DrugResult(images, drugs);
     }
 
-    private void createFDASection(final ResultData result, final String reportPdf, final String htmlFile) {
+    private void createHtmlReport(final ResultData result, final String reportPdf, final String htmlFile) {
         DrugResult oncology = result.oncology;
         List<List<String>> images = oncology.images;
         List<List<IndividualDrugInfo>> drugs = oncology.drugs;
@@ -336,10 +329,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         String openingHtmlContent = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'>"
                 + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>"
                 + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>"
-                // <link href="../commons/dashboard.css" rel="stylesheet">
-                // <script
-                // src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-
                 + "</head><body>";
 
         PrintWriter pw = null;
@@ -350,8 +339,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             pw.print("<div style='position:fixed;background:white;width:100%;z-index:999'><h1>Drug Prediction Report</h1><a href='/cptac/reports/" + reportPdf
                     + "' target=_blank>Download Full Report as PDF</a> <a href='#dataquality'>Data Quality</a> <a href='#ontology'>Ontology drugs</a> <a href='#nonontology'>Nonontology drugs</a> <a href='#investigational'>Investigational drugs</a></div>");
 
-            pw.print("<div style='position:absolute;top:100px' id='dataquality'>");
-            pw.print("<h2>Data Quality</h2>"
+            pw.print("<div style='position:absolute;top:100px'>");
+            pw.print("<a id='dataquality' style='display:block;position:relative;top:-100px'></a><h2>Data Quality</h2>"
                     + "<p>The figure below portrays indicators of data quality for the sample:</p>"
                     + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
 
@@ -359,7 +348,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 pw.print("<img src='"+result.dataQualityImages[i]+"' />");
             }
 
-            pw.print("<h2>FDA Approved Drugs</h2><h3 id='ontology'>Oncology Drugs</h3><hr><table>");
+            pw.print("<h2>FDA Approved Drugs</h2><a id='ontology' style='display:block;position:relative;top:-100px'></a><h3>Oncology Drugs</h3><hr><table>");
             for (int i = 0; i < images.size(); i++) {
                 pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
                 for (String img : images.get(i)) {
@@ -372,15 +361,34 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 }
                 pw.print("</ul></td></tr>");
             }
-            pw.print("</table><h3 id='nonontology'>Non-oncology Drugs</h3><table>");
+            pw.print("</table><a id='nonontology' style='display:block;position:relative;top:-100px'></a><h3>Non-oncology Drugs</h3><table>");
 
             DrugResult nononcology = result.nononcology;
             images = nononcology.images;
             drugs = nononcology.drugs;
             for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr><td>" + (i + 1) + "</td><td>");
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
                 for (String img : images.get(i)) {
                     pw.print("<img src='" + img + " '/>");
+                }
+                pw.print("</td><td><ul>");
+                for (IndividualDrugInfo d : drugs.get(i)) {
+                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
+                            + "</a> " + d.description + "</li>");
+                }
+                pw.print("</ul></td></tr>");
+            }
+            pw.print("</table>");
+
+            DrugResult investigational = result.investigational;
+            images = investigational.images;
+            drugs = investigational.drugs;
+
+            pw.print("<a id='investigational' style='display:block;position:relative;top:-100px'></a><h2>Investigational drugs</h1><table>");
+            for (int i = 0; i < images.size(); i++) {
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
+                for (String img : images.get(i)) {
+                    pw.print("<img src='" + img + "' />");
                 }
                 pw.print("</td><td><ul>");
                 for (IndividualDrugInfo d : drugs.get(i)) {
@@ -397,42 +405,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    private String createInvestigationalSection(final ResultData result) {
-        DrugResult investigational = result.investigational;
-        List<List<String>> images = investigational.images;
-        List<List<IndividualDrugInfo>> drugs = investigational.drugs;
-
-        StringBuilder sb = new StringBuilder("<h1>Investigational drugs</h1><table>");
-        for (int i = 0; i < images.size(); i++) {
-            sb.append("<tr><td>").append(i + 1).append("</td>").append("<td>");
-            for (String img : images.get(i)) {
-                sb.append("<img src='").append(img).append("' />");
-            }
-            sb.append("</td><td><ul>");
-            for (IndividualDrugInfo d : drugs.get(i)) {
-                sb.append("<li><a href='http://www.drugbank.ca/drugs/").append(d.accession).append("' target=_blank>").append(d.name).append("</a> ")
-                        .append(d.description).append("</li>");
-            }
-            sb.append("</ul></td></tr>");
-        }
-        sb.append("</table>");
-        return sb.toString();
-    }
-
-    private String createQualitySection(final ResultData result) {
-
-        StringBuilder sb = new StringBuilder("<h1>Data Quality</h1>"
-                + "<p>The figure below portrays indicators of data quality for the sample:</p>"
-                + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
-
-        for (int i = 0; i < result.dataQualityImages.length; i++) {
-            sb.append("<img src='")
-            .append(result.dataQualityImages[i])
-            .append("' />");
-        }
-        return sb.toString();
     }
 
     private String[] readQualitySection() {
