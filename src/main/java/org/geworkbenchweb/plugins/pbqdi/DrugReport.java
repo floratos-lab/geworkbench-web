@@ -18,10 +18,9 @@ public class DrugReport extends Window {
         Embedded e = new Embedded(null, new ExternalResource("/cptac/reports/" + htmlReport));
         e.setType(Embedded.TYPE_BROWSER);
         e.setWidth("100%");
-        e.setHeight("400px");
+        e.setHeight("600px");
         this.addComponent(e);
 
-        this.setSizeUndefined();
         this.setWidth("75%");
     }
 

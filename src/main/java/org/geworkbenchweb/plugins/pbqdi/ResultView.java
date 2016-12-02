@@ -14,8 +14,10 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Embedded;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class ResultView extends Window {
@@ -89,16 +91,23 @@ public class ResultView extends Window {
 
         image = new Embedded(null, kaplanImage);
 
-        this.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
-        this.addComponent(resultTable);
-        this.addComponent(reportButton);
-        this.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(image);
-        this.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
-        this.addComponent(samplePerSubtype);
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(true);
+        VerticalLayout leftSide = new VerticalLayout();
+        leftSide.setSpacing(true);
+        VerticalLayout rightSide = new VerticalLayout();
+        leftSide.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
+        leftSide.addComponent(resultTable);
+        leftSide.addComponent(reportButton);
+        leftSide.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
+        leftSide.addComponent(samplePerSubtype);
+        rightSide.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
+        rightSide.addComponent(image);
+        layout.addComponent(leftSide);
+        layout.addComponent(rightSide);
+        this.addComponent(layout);
 
-        this.setSizeUndefined();
-        this.setWidth("75%");
+        this.setWidth("65%");
     }
 
 }
