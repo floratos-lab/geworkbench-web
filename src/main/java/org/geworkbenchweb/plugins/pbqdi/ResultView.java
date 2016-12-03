@@ -90,17 +90,23 @@ public class ResultView extends Window {
         samplePerSubtype.setSizeFull();
 
         image = new Embedded(null, kaplanImage);
+        image.setSizeFull();
 
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
+        layout.setSizeFull();
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.setSpacing(true);
+        leftSide.setWidth("50%");
         VerticalLayout rightSide = new VerticalLayout();
+        rightSide.setWidth("50%");
         leftSide.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
         leftSide.addComponent(resultTable);
-        leftSide.addComponent(reportButton);
+        resultTable.setHeight("45%");
         leftSide.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
         leftSide.addComponent(samplePerSubtype);
+        samplePerSubtype.setHeight("45%");
+        leftSide.addComponent(reportButton);
         rightSide.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
         rightSide.addComponent(image);
         layout.addComponent(leftSide);
@@ -108,6 +114,7 @@ public class ResultView extends Window {
         this.addComponent(layout);
 
         this.setWidth("65%");
+        this.setHeight("65%");
     }
 
 }

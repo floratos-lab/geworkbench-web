@@ -139,13 +139,14 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         public void run() {
             String kaplan = "test1.png";
 
-            String reportFilename = sampleFile.substring(0, sampleFile.indexOf(".txt")) + "OncotargetReport.pdf";
-
+            String reportFilename = null;
             ResultData result = null;
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
             if (RESULT_OPTION.equalsIgnoreCase("random")) { // // random data in place of result
+                reportFilename = IndividualDrugInfo.randomWord()+".pdf";
                 result = ResultData.randomTestData();
             } else if (RESULT_OPTION.equalsIgnoreCase("existing")) { // we may want to bypass the R computation for testing
+                reportFilename = readPdfFileName("pdfreport.txt");
                 result = new ResultData(readQualitySection(), readDrugSection("oncology.txt"),
                         readDrugSection("non-oncology.txt"), readDrugSection("investigational.txt"));
             } else { // real R execution
@@ -208,13 +209,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
+            reportFilename = readPdfFileName("pdfreport.txt");
             result = new ResultData(readQualitySection(), readDrugSection("oncology.txt"),
                         readDrugSection("non-oncology.txt"), readDrugSection("investigational.txt"));
 
             } // end of real R execution
 
-            String reportPdf = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt"))
-                    + "OncotargetReport.pdf";
+            String reportPdf = reportFilename.substring(reportFilename.lastIndexOf("/"));
             Path source = FileSystems.getDefault().getPath(reportFilename);
             Path target = FileSystems.getDefault().getPath(HTML_LOCATION + "cptac/reports/" + reportPdf);
             try {
@@ -255,6 +256,21 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 analyzeButton.setEnabled(true);
             }
         }
+    }
+
+    private String readPdfFileName(String filename) {
+        BufferedReader br;
+        String pdf = "";
+        try {
+            br = new BufferedReader(new FileReader(WORKING_DIRECTORY + filename));
+            pdf = br.readLine();
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pdf;
     }
 
     private DrugResult readDrugSection(String filename) {
@@ -321,6 +337,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return new DrugResult(images, drugs);
     }
 
+    private static String accessionLink(String drugName, String accession) {
+        if (accession == null || accession.equals("NA"))
+            return drugName;
+        else
+            return "<a href='http://www.drugbank.ca/drugs/" + accession + "' target=_blank>" + drugName + "</a> ";
+    }
+
     private void createHtmlReport(final ResultData result, final String reportPdf, final String htmlFile) {
         DrugResult oncology = result.oncology;
         List<List<String>> images = oncology.images;
@@ -350,14 +373,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
             pw.print("<h2>FDA Approved Drugs</h2><a id='ontology' style='display:block;position:relative;top:-100px'></a><h3>Oncology Drugs</h3><hr><table>");
             for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
                 for (String img : images.get(i)) {
                     pw.print("<img src='" + img + " '/>");
                 }
-                pw.print("</td><td><ul>");
+                pw.print("</td><td valign=top width='70%'><ul>");
                 for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
-                            + "</a> " + d.description + "</li>");
+                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
                 }
                 pw.print("</ul></td></tr>");
             }
@@ -367,14 +389,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             images = nononcology.images;
             drugs = nononcology.drugs;
             for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
                 for (String img : images.get(i)) {
                     pw.print("<img src='" + img + " '/>");
                 }
-                pw.print("</td><td><ul>");
+                pw.print("</td><td valign=top width='70%'><ul>");
                 for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
-                            + "</a> " + d.description + "</li>");
+                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
                 }
                 pw.print("</ul></td></tr>");
             }
@@ -386,14 +407,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
             pw.print("<a id='investigational' style='display:block;position:relative;top:-100px'></a><h2>Investigational drugs</h1><table>");
             for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td>");
+                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
                 for (String img : images.get(i)) {
                     pw.print("<img src='" + img + "' />");
                 }
-                pw.print("</td><td><ul>");
+                pw.print("</td><td valign=top width='70%'><ul>");
                 for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li><a href='http://www.drugbank.ca/drugs/" + d.accession + "' target=_blank>" + d.name
-                            + "</a> " + d.description + "</li>");
+                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
                 }
                 pw.print("</ul></td></tr>");
             }
