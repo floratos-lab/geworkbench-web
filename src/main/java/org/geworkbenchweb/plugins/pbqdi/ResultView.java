@@ -97,24 +97,31 @@ public class ResultView extends Window {
         layout.setSizeFull();
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.setSpacing(true);
-        leftSide.setWidth("50%");
         VerticalLayout rightSide = new VerticalLayout();
-        rightSide.setWidth("50%");
-        leftSide.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
-        leftSide.addComponent(resultTable);
-        resultTable.setHeight("45%");
-        leftSide.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
-        leftSide.addComponent(samplePerSubtype);
-        samplePerSubtype.setHeight("45%");
-        leftSide.addComponent(reportButton);
+
+        VerticalLayout top = new VerticalLayout();
+        top.setSpacing(true);
+        top.setMargin(true);
+        VerticalLayout bottom = new VerticalLayout();
+        bottom.setSpacing(true);
+        bottom.setMargin(true);
+        leftSide.addComponent(top);
+        leftSide.addComponent(bottom);
+
+        top.addComponent(new Label("<b>Subtypes</b>", Label.CONTENT_XHTML));
+        top.addComponent(resultTable);
+        bottom.addComponent(new Label("<b>Summary of TCGA Samples per Subtype</b>", Label.CONTENT_XHTML));
+        bottom.addComponent(samplePerSubtype);
+        bottom.addComponent(new Label("<br/><br/><br/><br/><br/>", Label.CONTENT_XHTML)); // add some artificial space
+        bottom.addComponent(reportButton);
+
         rightSide.addComponent(new Label("<b>Survival Curves per Subtype</b>", Label.CONTENT_XHTML));
         rightSide.addComponent(image);
         layout.addComponent(leftSide);
         layout.addComponent(rightSide);
         this.addComponent(layout);
 
-        this.setWidth("65%");
-        this.setHeight("65%");
+        this.setWidth("75%");
     }
 
 }
