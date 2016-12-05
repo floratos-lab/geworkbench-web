@@ -339,7 +339,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     private static String accessionLink(String drugName, String accession) {
         if (accession == null || accession.equals("NA"))
-            return drugName;
+            return "<b>"+drugName+"</b>. ";
         else
             return "<a href='http://www.drugbank.ca/drugs/" + accession + "' target=_blank>" + drugName + "</a> ";
     }
