@@ -137,7 +137,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
-            String kaplan = "test1.png";
+            String kaplan = tumorType+"_km.png";
 
             String reportFilename = null;
             ResultData result = null;
@@ -341,7 +341,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         if (accession == null || accession.equals("NA"))
             return "<b>"+drugName+"</b>. ";
         else
-            return "<a href='http://www.drugbank.ca/drugs/" + accession + "' target=_blank>" + drugName + "</a> ";
+            return "<a href='http://www.drugbank.ca/drugs/" + accession + "' target=_blank><b>" + drugName + "</a></b>. ";
     }
 
     private void createHtmlReport(final ResultData result, final String reportPdf, final String htmlFile) {
