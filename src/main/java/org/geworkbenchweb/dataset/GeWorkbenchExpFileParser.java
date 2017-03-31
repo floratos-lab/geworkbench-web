@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.parsers.InputFileFormatException;
 
 /**
  * 
@@ -20,8 +19,6 @@ import org.geworkbench.parsers.InputFileFormatException;
  * The ultimate authoritative description of this format is at
  * http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats#Affymetrix_File_Matrix_Format_.28geWorkbench_.22.exp.22_format.29
  * 
- * @author zji
- * @version $Id$
  */
 public class GeWorkbenchExpFileParser {
 

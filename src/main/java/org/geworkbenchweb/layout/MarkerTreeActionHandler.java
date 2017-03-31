@@ -138,6 +138,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 											if (newmarkers.size()>0) {
 												markerset.setPositions(markers);
 												FacadeFactory.getFacade().store(markerset);
+												markerSetTree.getContainerProperty(markerset.getId(), SetViewLayout.SUBSET_NAME).setValue(name1);
 												markerSetTree.getContainerProperty(markerset.getId(), SetViewLayout.SET_DISPLAY_NAME).setValue(name1 +" [" + markers.size() + "]");
 												for(int j=0; j<newmarkers.size(); j++) {
 													markerSetTree.addItem(newmarkers.get(j)+markerset.getId());
@@ -166,6 +167,7 @@ public class MarkerTreeActionHandler extends  TreeActionHandler {
 						String subSetName = (String) setName.getValue();
 						Long subSetId = SubSetOperations.storeMarkerSetInContext(markers, subSetName , dataSetId, context);
 						markerSetTree.addItem(subSetId);
+						markerSetTree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(subSetName);
 						markerSetTree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(subSetName + " [" + markers.size()+ "]");
 						markerSetTree.setParent(subSetId, "MarkerSets");
 						markerSetTree.setChildrenAllowed(subSetId, true);

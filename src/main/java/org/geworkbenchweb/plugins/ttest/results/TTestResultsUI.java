@@ -121,7 +121,6 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		ScatterConfig sCfg = new ScatterConfig();
 		XYSeries series = new XYSeries("Significant Markers", sCfg);
 		
-		double validMinSigValue 	= 	Double.MAX_VALUE;
 		double minPlotValue 		= 	Double.MAX_VALUE;
 		double maxPlotValue 		= 	Double.MIN_VALUE;
 
@@ -133,10 +132,14 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		String[] markerLabels = microarray.getMarkerLabels();
 
 		log.debug("t-test result ID "+tTestResultSet.getId());
+		int[] significantIndex = tTestResultSet.getSignificantIndex();
+		if(significantIndex==null) significantIndex = new int[0]; // prevent the null pointer exception
+		double minX = Double.MAX_VALUE;
+		double maxX = -Double.MAX_VALUE;
 		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
-		for (int i = 0; i < tTestResultSet.getSignificantIndex().length; i++) {
+		for (int i = 0; i < significantIndex.length; i++) {
 			
-			int index = tTestResultSet.getSignificantIndex()[i];
+			int index = significantIndex[i];
 			String mark 	= 	markerLabels[index];
 			double sigValue 	= 	tTestResultSet.getpValue()[index];
 		
@@ -148,12 +151,9 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 				sigValue = 1;
 			}
 
-			if (sigValue < validMinSigValue) {
-				validMinSigValue = sigValue;
-			}
-
-
 			double xVal = tTestResultSet.getFoldChange()[index];
+			if(xVal>maxX)maxX = xVal;
+			if(xVal<minX)minX = xVal;
 
 			if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 				double yVal = -Math.log10(sigValue);
@@ -172,6 +172,8 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 			}
 
 		}
+		xAxis.setMin(minX-0.1);
+		xAxis.setMax(maxX+0.1);
 		
 		GMTColorPalette.ColorRange[] range = {new GMTColorPalette.ColorRange(minPlotValue, Color.BLUE.brighter(), maxPlotValue - (maxPlotValue / 3), Color.BLUE),
                 new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue, Color.RED)};

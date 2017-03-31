@@ -80,9 +80,12 @@ public class ForgotListener implements ClickListener{
 					message.setValue("Invalid email.");
 				}else{
 					users = findUser(option, value);
-					if(users != null && !emailPattern.matcher(users.get(0).getEmail()).matches()){
-						message.setValue("Invalid email.");
-						users = null;
+					if(users != null) {
+						String email = users.get(0).getEmail();
+						if(email==null || !emailPattern.matcher(email).matches()){
+							message.setValue("Invalid email.");
+							users = null;
+						}
 					}
 				}
 				if(users != null){

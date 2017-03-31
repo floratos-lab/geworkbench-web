@@ -24,6 +24,11 @@ mail.smtp.starttls.enable=true
 from.username=SENDER_USERNAME
 from.password=SENDER_PASSWORD
 
+# cnkb UI
+cnkb.interactome.excluded=aracne_blca,aracne_read
+cnkb.interactome.prefix.excluded=cindy_,aracne_
+cnkb.multi.select=yes
+
 # size limit for hierarchical clustering
 hierarchical.clustering.limit = 2000
 

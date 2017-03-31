@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.plugins.AnalysisUI; 
+import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -16,10 +16,8 @@ import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.SubSet;
 import org.geworkbenchweb.utils.DataSetOperations;
-import org.geworkbenchweb.utils.MarkerArraySelector;
 import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -41,10 +39,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private static final long serialVersionUID = 1L;
 
 	private Long dataSetId;
-	private Long userId = null;
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	private MarkerArraySelector markerArraySelector;
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox modeBox = new ComboBox();
 	private ComboBox algoBox = new ComboBox();
@@ -77,9 +73,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	public AracneUI(Long dataId) {
 
 		this.dataSetId = dataId;
-		User user = SessionHandler.get();
-		if (user != null)
-			userId = user.getId();
 
 		setSpacing(true);
 		setImmediate(true);
@@ -90,9 +83,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		gridLayout.setImmediate(true);
 
 		setDefaultParameters(params);
-
-		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
-				"AracneUI");
 
 		final GridLayout extraParameterLayout = initializeExtraParameterPanel();
 		extraParameterLayout.setVisible(false);
@@ -187,14 +177,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						hubGeneList = null;
 					
 					if (validInputData(hubGeneList)) {
-						
-						params.put(AracneParameters.MARKER_SET,
-								markerArraySelector.getSelectedMarkerSet());
-						params.put(AracneParameters.ARRAY_SET,
-								markerArraySelector.getSelectedArraySet());
-						String[] selectedArraySet = (String[])params.get(AracneParameters.ARRAY_SET);
-					    
-						if (getTotalArrayNum(selectedArraySet) < 100)
+
+						DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
+						int arrayNum = DataSetOperations.getNumber("arrayNumber", dataset.getDataId());
+						if (arrayNum < 100)
 						{	   
 						    String theMessage = "ARACNe should not in general be run on less than 100 arrays. Do you want to continue?";
 
@@ -235,26 +221,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		gridLayout.addComponent(configBox, 2, 0);
 		gridLayout.addComponent(extraParameterLayout, 0, 2, 2, 6);
 		gridLayout.addComponent(submitButton, 0, 7);
-		
-		addComponent(markerArraySelector);
+
 		addComponent(gridLayout);
 
 	}
-	
-	private int getTotalArrayNum(String[] setIds)
-	{
-		if (setIds == null) {
-			DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
-			int arrayNum = DataSetOperations.getNumber("arrayNumber", dataset.getDataId());
-			return 	arrayNum;		 
-		}
-		
-		int count = 0;
-		for(String setId : setIds)
-		   count += SubSetOperations.getArrayData(new Integer(setId.trim())).size();
-		return count;
-	}
-	
+
 	private void addPendingNode(List<String> hubGeneList)
 	{
 		  ResultSet resultSet = new ResultSet();
@@ -285,8 +256,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		/**
 		 * Params default values
 		 */
-		params.put(AracneParameters.MARKER_SET, "All Markers");
-		params.put(AracneParameters.ARRAY_SET, "All Arrays");
 		params.put(AracneParameters.MODE, AracneParameters.PREPROCESSING);
 		params.put(AracneParameters.CONFIG, "Default");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
@@ -794,8 +763,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			builder.append("Algorithm - "
 					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
 
-		builder.append(markerArraySelector.generateHistoryString());
-
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);
 		his.setData(builder.toString());
@@ -804,13 +771,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public void setDataSetId(Long dataSetId) {
-		User user = SessionHandler.get();
-		if (user != null) {
-			userId = user.getId();
-		}
-
 		this.dataSetId = dataSetId;
-		markerArraySelector.setData(dataSetId, userId);
 
 		List<?> markerSubSets = SubSetOperations.getMarkerSets(dataSetId);
 		hubGeneMarkerSetBox.removeAllItems();

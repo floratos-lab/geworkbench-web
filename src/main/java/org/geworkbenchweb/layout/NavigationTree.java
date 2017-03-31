@@ -92,6 +92,7 @@ public class NavigationTree extends Tree {
 				Item selectedItem = NavigationTree.this.getItem(itemId);
 				String className = (String) selectedItem
 						.getItemProperty("Type").getValue();
+
 				Object parentId = NavigationTree.this.getParent(itemId);
 				String parentItemClassName = null;
 				Item parentItem = NavigationTree.this.getItem(parentId);
@@ -103,6 +104,10 @@ public class NavigationTree extends Tree {
 				/* this is the only place that dataset ID may change */
 				dataSetId = (Long) itemId;
 				annotationPanel.setDatasetId(dataSetId);
+
+				if(className==null) { /* This is intended for pending data node only. */
+					return; /* No action if a pending data node is clicked on. */
+				}
 
 				final String specialClassName = "org.geworkbenchweb.pojos.MicroarrayDataset";
 				if (specialClassName.equals(className)) {
@@ -219,6 +224,10 @@ public class NavigationTree extends Tree {
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
 			String className = ((DataSet) data.get(i)).getType();
+			if(className==null) { // this may happen for corrupted data node/workspace
+				log.error("error in showing data node: name '"+id+"' description '"+description+"'");
+				continue;
+			}
 			subItem.getItemProperty("Type").setValue(className);
 			try {
 				ThemeResource icon = GeworkbenchRoot.getPluginRegistry()

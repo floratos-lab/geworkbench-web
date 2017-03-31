@@ -16,7 +16,7 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 	if(this.display3d['gl']==null) {
 		var x = document.createElement('div');
 		x.innerHTML = 'Your browser is not fully supported for this molecule viewer. Please try other browsers to enjoy better visualization.';
-		div.appendChild(x);
+		div.insertBefore(x, c);
 		
 		this.display3d = new ChemDoodle.TransformCanvas('display3d', w, h-50, true);
 		this.display3d.specs.atoms_circles_2D = true;

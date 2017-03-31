@@ -157,6 +157,15 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 			}
 		});
 
+		//20.07.2016
+		MenuBar.MenuItem dispPref		=	toolBar.addItem("Display Preferences", null,null);
+		dispPref.addItem("Array positioning", 
+				new DisplayOptionCommand("Array Positioning", this, DisplayOptionCommand.SetType.MICROARRAY, dendrogram));
+		dispPref.addItem("Marker positioning", 
+				new DisplayOptionCommand("Marker Positioning", this, DisplayOptionCommand.SetType.MARKER, dendrogram));
+		///
+
+		
 		MenuBar.MenuItem resetI		=	toolBar.addItem("Reset", new Command(){
 
 			private static final long serialVersionUID = 1L;
@@ -188,6 +197,9 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 		saveM.setStyleName("plugin");
 		saveP.setStyleName("plugin");
 		export.setStyleName("plugin");
+		//20.07.2016
+		dispPref.setStyleName("plugin");
+		///
 
 		setFirstComponent(toolBar);
 

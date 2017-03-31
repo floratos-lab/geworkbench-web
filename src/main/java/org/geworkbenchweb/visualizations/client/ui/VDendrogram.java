@@ -75,6 +75,11 @@ public final class VDendrogram extends Composite implements Paintable {
 	private int yIndex1;
 	private int yIndex2;
 	
+	//20.07.2016
+	private String arrayPos; //Can be Bottom or Top also
+	private String markerPos; //Can be Right or Left also
+	///
+	
     private ClusterHandler microarrayClusterHandler = new ClusterHandler() {
 
 		@Override
@@ -131,7 +136,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		panel.add(markerDendrogramCanvas);
 		panel.add(arrayLabelCanvas);
 		panel.add(markerLabelCanvas);
-
+		
 		downArrowCanvas = createRetrievingButton(true, new PagingHandler(true));
 		upArrowCanvas = createRetrievingButton(false, new PagingHandler(false));
 		panel.add(downArrowCanvas);
@@ -180,6 +185,11 @@ public final class VDendrogram extends Composite implements Paintable {
 		xIndex2 = uidl.getIntVariable("arrayIndex2");
 		yIndex1 = uidl.getIntVariable("markerIndex1");
 		yIndex2 = uidl.getIntVariable("markerIndex2");	 
+		
+		//20.07.2016
+		arrayPos = uidl.getStringVariable("arrayPos");
+		markerPos = uidl.getStringVariable("markerPos");
+		///
 
 		if(uidl.getBooleanVariable("exportImage")) {
 			// this does not show in eclipse workspace browser somehow		 
@@ -193,7 +203,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		        Window.open(dataUrl, "dendrogram_snapshot", "");
 		     
 		    
-//			client.updateVariable(paintableId, "imageUrl", heatmapCanvas.toDataUrl("image/png"), true);
+			//	client.updateVariable(paintableId, "imageUrl", heatmapCanvas.toDataUrl("image/png"), true);
 		}
 		else
 			createOnlineImage(markerNumber, arrayCluster, markerCluster);
@@ -277,13 +287,14 @@ public final class VDendrogram extends Composite implements Paintable {
 			yIndex2 = markerNumber - 1;
 		}
 		
-		paintOffLine(offlineCellWidth, offlineCellHeight, heatmapCanvas,
+		//Receive ayyarLabelHeight and markerLabelWidth values from painOffLine
+		int[] arrayHeightMarkerWidth =paintOffLine(offlineCellWidth, offlineCellHeight, heatmapCanvas,
 				   arrayDendrogramCanvas, markerDendrogramCanvas, arrayLabelCanvas, markerLabelCanvas, microarrayDendrogramRoot, markerDendrogramRoot);
 		
 		int heatmapWidth = offlineCellWidth*(xIndex2 - xIndex1 +1);
 		int markerNumberToPaint = yIndex2 - yIndex1 +1;
         int heatmapHeight = markerNumberToPaint*offlineCellHeight;
-		int width = markerClusterHeight + heatmapWidth + 300;
+		int width = markerClusterHeight + heatmapWidth + 300;		
 		int height = arrayClusterHeight+heatmapHeight + 150;
 		
 		Canvas offline = Canvas.createIfSupported();
@@ -292,12 +303,40 @@ public final class VDendrogram extends Composite implements Paintable {
 		offline.setCoordinateSpaceHeight(height);
 		Context2d context = offline.getContext2d();
 		
-		context.drawImage(arrayDendrogramCanvas.getCanvasElement(), markerClusterHeight, 0);
-		context.drawImage(markerDendrogramCanvas.getCanvasElement(), 0, arrayClusterHeight);
-		context.drawImage(heatmapCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight);
-		context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight+heatmapHeight);
-		context.drawImage(markerLabelCanvas.getCanvasElement(), markerClusterHeight+heatmapWidth, arrayClusterHeight);
-
+		
+		//20.07.2016
+		// place things in place based array label position 
+		int arrayLabelHeight=arrayHeightMarkerWidth[0];
+		int markerLabelWidth=arrayHeightMarkerWidth[1];
+		if((arrayPos.equals("Bottom")) && (markerPos.equals("Right"))) {
+			context.drawImage(arrayDendrogramCanvas.getCanvasElement(), markerClusterHeight, 0);
+			context.drawImage(markerDendrogramCanvas.getCanvasElement(), 0, arrayClusterHeight);
+			context.drawImage(heatmapCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight);
+			context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight+heatmapHeight);
+			context.drawImage(markerLabelCanvas.getCanvasElement(), markerClusterHeight+heatmapWidth, arrayClusterHeight);
+		}
+		else if((arrayPos.equals("Bottom")) && (markerPos.equals("Left"))) {
+			context.drawImage(arrayDendrogramCanvas.getCanvasElement(),markerClusterHeight+markerLabelWidth,0);
+			context.drawImage(markerDendrogramCanvas.getCanvasElement(),0,arrayClusterHeight);
+			context.drawImage(markerLabelCanvas.getCanvasElement(),markerClusterHeight,arrayClusterHeight);
+			context.drawImage(heatmapCanvas.getCanvasElement(),markerClusterHeight+markerLabelWidth,arrayClusterHeight);
+			context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight+markerLabelWidth,arrayClusterHeight+heatmapHeight);
+		}
+		else if((arrayPos.equals("Top")) && (markerPos.equals("Right"))) {
+			context.drawImage(arrayDendrogramCanvas.getCanvasElement(), markerClusterHeight, 0);
+			context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight);
+			context.drawImage(markerDendrogramCanvas.getCanvasElement(), 0, arrayClusterHeight+arrayLabelHeight);
+			context.drawImage(heatmapCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight+arrayLabelHeight);
+			context.drawImage(markerLabelCanvas.getCanvasElement(), markerClusterHeight+heatmapWidth, arrayClusterHeight+arrayLabelHeight);
+		}
+		else{ // arrayPos="Top" and markerPos="Left"
+			context.drawImage(arrayDendrogramCanvas.getCanvasElement(), markerClusterHeight+markerLabelWidth, 0);
+			context.drawImage(arrayLabelCanvas.getCanvasElement(), markerClusterHeight+markerLabelWidth, arrayClusterHeight);
+			context.drawImage(markerDendrogramCanvas.getCanvasElement(), 0, arrayClusterHeight+arrayLabelHeight);		
+			context.drawImage(markerLabelCanvas.getCanvasElement(), markerClusterHeight, arrayClusterHeight+arrayLabelHeight);
+			context.drawImage(heatmapCanvas.getCanvasElement(), markerClusterHeight+markerLabelWidth, arrayClusterHeight+arrayLabelHeight);
+		}
+		///
 		return offline;
 	}
 		 
@@ -320,7 +359,9 @@ public final class VDendrogram extends Composite implements Paintable {
 		if(cellWidth<10) {
 			context3.setFont((cellWidth-1)+"px sans-serif");
 		}
-		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+		//17 Nov 2016
+		//int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+		int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1, xIndex2);
         
 		// [2] canvas for microarray dendrogram
 		arrayClusterHeight = (int)microarrayDendrogramSelected.y + deltaH; // add some extra space on top
@@ -355,18 +396,49 @@ public final class VDendrogram extends Composite implements Paintable {
 			context4.setFont((cellHeight-1)+"px sans-serif");
 		}
 		
+		// 17 Nov 2016
+		/*
 		int markerLabelWidth=0;
 		
 		if (firstMarker > 0)
 			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, firstMarker);
 		else
-			markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			//markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			 *
+		*/
+		int markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1, yIndex2);
+		
+		//20.07.2016
 		// place things in place
-		positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
-		positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
-		positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight);
-		positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
-		positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
+		if((arrayPos.equals("Bottom")) && (markerPos.equals("Right"))) {
+			positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
+			positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
+			positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight);
+			positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
+			positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
+		}
+		else if((arrayPos.equals("Bottom")) && (markerPos.equals("Left"))) {
+			positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight+markerLabelWidth);
+			positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
+			positionCanvas(markerLabelCanvas, arrayClusterHeight,markerClusterHeight);
+			positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight+markerLabelWidth);
+			positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight+markerLabelWidth);
+		}
+		else if((arrayPos.equals("Top")) && (markerPos.equals("Right"))) {
+			positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
+			positionCanvas(arrayLabelCanvas, arrayClusterHeight, markerClusterHeight);
+			positionCanvas(markerDendrogramCanvas, arrayClusterHeight+arrayLabelHeight, 0);
+			positionCanvas(heatmapCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight);
+			positionCanvas(markerLabelCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight+heatmapWidth);
+		}
+		else{ // arrayPos="Top" and markerPos="Left"
+			positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight+markerLabelWidth);
+			positionCanvas(arrayLabelCanvas, arrayClusterHeight, markerClusterHeight+markerLabelWidth);
+			positionCanvas(markerDendrogramCanvas, arrayClusterHeight+arrayLabelHeight, 0);		
+			positionCanvas(markerLabelCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight);
+			positionCanvas(heatmapCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight+markerLabelWidth);
+		}
+		///
 		
 		//calculate the proper panel size
 		int width0 = heatmapWidth + markerClusterHeight +  markerLabelWidth;
@@ -375,12 +447,13 @@ public final class VDendrogram extends Composite implements Paintable {
 		panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px"); 
 	}
 	
-	
-	private void paintOffLine(int cellWidth, int cellHeight, Canvas heatmapCanvas,
+	//Changed return type from void to an array of two values representing arrayLabelHeight and markerLabelWidth
+	private int[] paintOffLine(int cellWidth, int cellHeight, Canvas heatmapCanvas,
 			Canvas arrayDendrogramCanvas, Canvas markerDendrogramCanvas, Canvas arrayLabelCanvas, Canvas markerLabelCanvas,
 			ClusterNode microarrayDendrogramSelected, ClusterNode markerDendrogramSelected) {
-				
-					
+			//20.07.2016	
+			int[] retVals=new int[2];
+			///
 				int arrayNumberToPaint = xIndex2 - xIndex1 +1;
 				int markerNumberToPaint = yIndex2 - yIndex1 +1;
 				
@@ -394,7 +467,13 @@ public final class VDendrogram extends Composite implements Paintable {
 				if(cellWidth<10) {
 					context3.setFont((cellWidth-1)+"px sans-serif");
 				}
-				int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+				//17 Nov 2016
+				//int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1); // TODO I need to add the ending index as well
+				int arrayLabelHeight = drawLabels(arrayLabelCanvas, arrayLabels, cellWidth, xIndex1, xIndex2);
+				
+				//20.07.2016
+				retVals[0]=arrayLabelHeight;
+				///
 		        
 				// [2] canvas for microarray dendrogram
 				arrayClusterHeight = (int)microarrayDendrogramSelected.y + deltaH; // add some extra space on top
@@ -427,21 +506,53 @@ public final class VDendrogram extends Composite implements Paintable {
 				if(cellHeight<10) {
 					context4.setFont((cellHeight-1)+"px sans-serif");
 				}
-				
-				int markerLabelWidth=0;					 
-			    markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+				//17 Nov 2016
+				/*
+				 int markerLabelWidth=0;					 
+			    	markerLabelWidth  = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1);
+			    */
+				int markerLabelWidth = drawLabels(markerLabelCanvas, markerLabels, cellHeight, yIndex1, yIndex2);
+			    
+			    retVals[1]=markerLabelWidth;
+				//20.07.2016
 				// place things in place
-				positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
-				positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
-				positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight);
-				positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
-				positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
+				if((arrayPos.equals("Bottom")) && (markerPos.equals("Right"))) {
+					positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
+					positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
+					positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight);
+					positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight);
+					positionCanvas(markerLabelCanvas, arrayClusterHeight, markerClusterHeight+heatmapWidth);
+				}
+				else if((arrayPos.equals("Bottom")) && (markerPos.equals("Left"))) {
+					positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight+markerLabelWidth);
+					positionCanvas(markerDendrogramCanvas, arrayClusterHeight, 0);
+					positionCanvas(markerLabelCanvas, arrayClusterHeight,markerClusterHeight);
+					positionCanvas(heatmapCanvas, arrayClusterHeight, markerClusterHeight+markerLabelWidth);
+					positionCanvas(arrayLabelCanvas, arrayClusterHeight+heatmapHeight, markerClusterHeight+markerLabelWidth);
+				}
+				else if((arrayPos.equals("Top")) && (markerPos.equals("Right"))) {
+					positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight);
+					positionCanvas(arrayLabelCanvas, arrayClusterHeight, markerClusterHeight);
+					positionCanvas(markerDendrogramCanvas, arrayClusterHeight+arrayLabelHeight, 0);
+					positionCanvas(heatmapCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight);
+					positionCanvas(markerLabelCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight+heatmapWidth);
+				}
+				else{ // arrayPos="Top" and markerPos="Left"
+					positionCanvas(arrayDendrogramCanvas, 0, markerClusterHeight+markerLabelWidth);
+					positionCanvas(arrayLabelCanvas, arrayClusterHeight, markerClusterHeight+markerLabelWidth);
+					positionCanvas(markerDendrogramCanvas, arrayClusterHeight+arrayLabelHeight, 0);		
+					positionCanvas(markerLabelCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight);
+					positionCanvas(heatmapCanvas, arrayClusterHeight+arrayLabelHeight, markerClusterHeight+markerLabelWidth);
+				}
+				///
 				
 				//calculate the proper panel size
 				int width0 = heatmapWidth + markerClusterHeight +  markerLabelWidth;
 				int height0 = heatmapHeight + arrayClusterHeight +  arrayLabelHeight;
 				panel.setWidth(Math.min(width0, MAX_WIDTH) + "px");
 				panel.setHeight(Math.min(height0, MAX_HEIGHT) + "px"); 
+				
+				return retVals;
 			}
 	
 	private void updateArrowCanvas(final int heatmapHeight,
@@ -552,11 +663,31 @@ public final class VDendrogram extends Composite implements Paintable {
 		}
 	}
 	
+	// 20 Nov 2016
+	/*
 	private int drawLabels(final Canvas canvas, String[] labels, int interval, int first) {
 		Context2d context = canvas.getContext2d();
 		String longestArrayName = "";
 		int y = interval;
 		for(int i=first; i<labels.length; i++) {
+			context.fillText(labels[i], 5, y);
+			y += interval;
+			if(labels[i].length()>longestArrayName.length()) {
+				longestArrayName = labels[i]; 
+			}
+		}
+		int height = (int)(context.measureText(longestArrayName).getWidth() + 10);
+		CanvasElement element3 = canvas.getCanvasElement();
+		Style style = element3.getStyle();
+		style.setPosition(Position.ABSOLUTE);
+		return height;
+	}
+	*/
+	private int drawLabels(final Canvas canvas, String[] labels, int interval, int first, int last) {
+		Context2d context = canvas.getContext2d();
+		String longestArrayName = "";
+		int y = interval;
+		for(int i=first; i<=last; i++) {
 			context.fillText(labels[i], 5, y);
 			y += interval;
 			if(labels[i].length()>longestArrayName.length()) {

@@ -275,8 +275,9 @@ public class RegistrationForm extends VerticalLayout {
 				+ "<br>Email: " + user.getEmail()
 				+ "<p>Please click on the following link<br>"
 				+ "<a href=\"" + hrefStr + "\" >"
-				+ hrefStr + "<a>"
+				+ hrefStr + "</a>"
 				+ "<br>to activate your geWorkbench-web account."
+				+ "<p>If the above link is not clickable in your email, please copy and paste it to the browser address bar to finish the confirmation process."
 				+ "<p>Thank you,<br>The geWorkbench Team</font>";
 
 		Emailer emailer = new Emailer();

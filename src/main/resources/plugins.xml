@@ -57,7 +57,7 @@
 		<plugin>
 			<name>Gene Ontology</name>
 			<description>
-				 The Gene Ontology Enrichment component allows a list of e.g. differentially expressed genes to be characterized using the Gene Ontology terms annotated to them. It asks, whether for any particular GO term, the fraction of genes assigned to it in the "changed-gene" list is higher than expected by chance (is over-represented), relative to the fraction of genes assigned to that term in the reference set. The Gene Ontology analysis component in geWorkbench is built around the Ontologizer 2.0 software product from Peter Robinson's group at the Charite Medical Institute of the Humboldt University in Berlin. Please see the 
+				 The Gene Ontology Enrichment component allows a list of genes (e.g., identified through differential expression analysis) to be characterized using the Gene Ontology terms annotated to them. It asks, whether for any particular GO term, the fraction of genes assigned to it in the "changed-gene" list is higher than expected by chance (is over-represented), relative to the fraction of genes assigned to that term in the reference set. The Gene Ontology analysis component in geWorkbench is built around the Ontologizer 2.0 software product from Peter Robinson's group at the Charite Medical Institute of the Humboldt University in Berlin. Please see the 
 				 &lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/Gene_Ontology" target="_blank"&gt;Gene Ontology&lt;/a&gt;
 				 tutorial for further details.
 			</description>
@@ -85,10 +85,9 @@
 			<description>
 				ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks)
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/15778709" target="_blank"&gt;Basso et al. 2005&lt;/a&gt;)
-				is an information-theoretic algorithm used
-				to identify transcriptional interactions between gene products using
-				microarray gene expression profile data.
-				Parameter settings see the
+				is an information-theoretic algorithm that uses gene expression profile data
+				to infer the transcriptional targets of regulatory proteins.
+				For parameter settings see the
 				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
 				tutorial).
 			</description>
@@ -123,9 +122,9 @@
 			<uiClass>org.geworkbenchweb.plugins.hierarchicalclustering.HierarchicalClusteringUI</uiClass>
 		</plugin>
 		<plugin>
-			<name>MARINa(msVIPER)</name>
+			<name>MARINa</name>
 			<description>
-				The msViper implementation of MARINa (MAster Regulator INference algorithm) 
+				The MARINa algorithm (MAster Regulator INference analysis) 
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/19209726" target="_blank"&gt;Lim et al., 2009&lt;/a&gt;, 
 				&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed/20531406" target="_blank"&gt;Lefebvre  et al., 2010&lt;/a&gt;)
 				calculates whether the regulon of a transcription factor (TF) is enriched for genes that are differentially
@@ -135,7 +134,7 @@
 				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/ARACNe" target="_blank"&gt;ARACNe&lt;/a&gt;
 				) and a gene expression dataset.
 				Please see the 
-				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;msViper&lt;/a&gt;
+				&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;MARINa&lt;/a&gt;
 				tutorial).
 			</description>
 			<uiClass>org.geworkbenchweb.plugins.msviper.MsViperUI</uiClass>
@@ -159,7 +158,7 @@
 			<description>
 				MarkUs
 				(&lt;a href="http://www.ncbi.nlm.nih.gov/pubmed?term=21672961" target="_blank"&gt;Fischer et al., 2011&lt;/a&gt;)
-				is a web server which runs a variety of analyses to characterize the biochemical function of a provided protein structure.
+				is a computational pipeline which runs a variety of analyses to characterize the biochemical function of a provided protein structure.
 				MarkUs identifies related protein structures and sequences, detects protein cavities, and calculates the surface electrostatic
 				potentials and amino acid conservation profile.
 				Parameter settings are identical to those used in the desktop version of the analysis (see the
@@ -249,12 +248,12 @@
 	</inputType>
 	<inputType className="org.geworkbenchweb.pojos.MsViperResult">
 	<plugin>
-		<name>MARINa(msVIPER) result viewer</name>
+		<name>MARINa result viewer</name>
 		<description>
-			The results of a MsViper analysis are shown in a table.
+			The results of a MARINa analysis are shown in a table.
 			The table columns are the same as those described for the desktop version of the analysis
 			(see the
-			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;MARINa (msViper)&lt;/a&gt;
+			&lt;a href="http://wiki.c2b2.columbia.edu/workbench/index.php/GeWorkbench-web/msViper" target="_blank"&gt;MARINa&lt;/a&gt;
 			tutorial).
 		</description>
 		<uiClass>org.geworkbenchweb.plugins.msviper.results.MsViperResultsUI</uiClass>

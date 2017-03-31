@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
 import org.geworkbenchweb.annotation.Affy3ExpressionAnnotationParser;
 import org.geworkbenchweb.annotation.AffyAnnotationParser;

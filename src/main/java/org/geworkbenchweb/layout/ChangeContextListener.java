@@ -74,6 +74,7 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 		}
 
 		HierarchicalContainer dataContainer = new HierarchicalContainer();
+		dataContainer.addContainerProperty(SetViewLayout.SUBSET_NAME, String.class, null);
 		dataContainer.addContainerProperty(SetViewLayout.SET_DISPLAY_NAME, String.class, null);
 		Item mainItem1 = dataContainer.addItem(topItem);
 		mainItem1.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(setName);
@@ -84,6 +85,8 @@ public class ChangeContextListener implements Property.ValueChangeListener {
 			List<String> list = subset.getPositions();
 			Long id = subset.getId();
 			dataContainer.addItem(id);
+			dataContainer.getContainerProperty(id, SetViewLayout.SUBSET_NAME).setValue(
+					subset.getName() );
 			dataContainer.getContainerProperty(id, SetViewLayout.SET_DISPLAY_NAME).setValue(
 					subset.getName() + " [" + list.size() + "]");
 			dataContainer.setParent(id, topItem);

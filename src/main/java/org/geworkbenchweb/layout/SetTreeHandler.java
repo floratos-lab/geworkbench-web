@@ -1,7 +1,9 @@
-/**
- * 
- */
 package org.geworkbenchweb.layout;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,21 +20,18 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 
-/**
- * @author zji
- * 
- */
-public class SetRenameHandler implements Handler {
+public class SetTreeHandler implements Handler {
 
 	private static final long serialVersionUID = -7195634300959844209L;
 
-	private static Log log = LogFactory.getLog(SetRenameHandler.class);
+	private static Log log = LogFactory.getLog(SetTreeHandler.class);
 
 	private final Action[] actions = new Action[] { new Action("Rename") };
+	private final Action DELETE = new Action("Delete");
 
 	private final Tree setTree;
 
-	SetRenameHandler(final Tree setTree) {
+	SetTreeHandler(final Tree setTree) {
 		this.setTree = setTree;
 		setTree.addActionHandler(this);
 	}
@@ -44,11 +43,19 @@ public class SetRenameHandler implements Handler {
 			return null;
 		}
 		if(target==null) return null;
-		if (!(target instanceof Long)) {
-			log.debug("unexpected target type: " + target);
+		if (target instanceof Long) {
+			return actions;
+		} else if (target instanceof String ) {
+			if(setTree.hasChildren(target)) {
+				// System.out.println(setTree.getChildren(target).size());
+				return null;
+			}
+			// only if it is string and has no child, it is the leaf node that we can delete
+			return new Action[] { DELETE };
+		} else {
+			log.debug("unexpected target type: " + target+" "+target.getClass().getName());
 			return null;
 		}
-		return actions;
 	}
 
 	@Override
@@ -57,12 +64,41 @@ public class SetRenameHandler implements Handler {
 			log.warn("unexpected sender: " + sender);
 			return;
 		}
-		if (!(target instanceof Long)) {
-			log.error("unexpected target of action " + target);
+		if (target instanceof Long) {
+			Long itemId = (Long) target;
+			rename(itemId);
+		} else if(target instanceof String && !setTree.hasChildren(target)) {
+			Long subsetId = (Long) setTree.getParent(target);
+			// target is where you right-click, not what we want to delete
+			// instead, the selection is what we want to delete (because we want to support multi-selection
+			@SuppressWarnings("unchecked")
+			Set<String> selected = (Set<String>) setTree.getValue();
+			List<String> namesToBeDeleted = new ArrayList<String>();
+			for (String itemId : selected) {
+				Item item = setTree.getItem(itemId);
+				String name = (String) item.getItemProperty(SetViewLayout.ELEMENT_NAME).getValue();
+				namesToBeDeleted.add(name);
+				setTree.removeItem(itemId);
+			}
+			Item subsetItem = setTree.getItem(subsetId);
+			Collection<?> children = setTree.getChildren(subsetId);
+			if(children!=null && children.size()>0) {
+				String subsetName = (String) subsetItem.getItemProperty(SetViewLayout.SUBSET_NAME).getValue();
+				subsetItem.getItemProperty(SetViewLayout.SET_DISPLAY_NAME)
+						.setValue(subsetName + " [" + setTree.getChildren(subsetId).size() + "]");
+				// there is no JPA object for each item. They are a list in SubSet.
+				SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subsetId);
+				subset.getPositions().removeAll(namesToBeDeleted);
+				FacadeFactory.getFacade().store(subset);
+			} else { // all children deleted, let's delete the set itself
+				setTree.removeItem(subsetId);
+				SubSet subset = FacadeFactory.getFacade().find(SubSet.class, subsetId);
+				FacadeFactory.getFacade().delete(subset);
+			}
+		} else {
+			log.error("unexpected target of action " + target+" "+target.getClass().getName());
 			return;
 		}
-		Long itemId = (Long) target;
-		rename(itemId);
 	}
 
 	private void rename(final Long itemId) {
@@ -100,6 +136,7 @@ public class SetRenameHandler implements Handler {
 				FacadeFactory.getFacade().store(labelSet);
 
 				int size = labelSet.getPositions().size();
+				item.getItemProperty(SetViewLayout.SUBSET_NAME).setValue(newName);
 				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName+" ["+size+"]");
 
 				setTree.getApplication().getMainWindow()

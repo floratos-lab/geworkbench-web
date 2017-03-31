@@ -8,7 +8,7 @@ import java.util.Map;
 import java.io.File;
 
  
-import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbenchweb.dataset.InputFileFormatException;
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
  
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
