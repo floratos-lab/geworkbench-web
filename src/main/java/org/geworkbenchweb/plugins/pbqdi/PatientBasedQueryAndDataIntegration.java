@@ -248,7 +248,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
 
             FileResource resource =  new FileResource(new File(WORKING_DIRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, reportFilename, resource, htmlReport);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, resource, htmlReport);
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {

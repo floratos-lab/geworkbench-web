@@ -7,7 +7,7 @@ import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
 
-    public DrugReport(String tumorType, final String report, final String htmlReport) {
+    public DrugReport(String tumorType, final String htmlReport) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);

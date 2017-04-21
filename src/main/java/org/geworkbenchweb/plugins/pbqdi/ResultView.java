@@ -32,7 +32,7 @@ public class ResultView extends Window {
     private Embedded image = new Embedded();
     private Table samplePerSubtype = new Table();
 
-    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes, final String drugReport,
+    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes,
             FileResource kaplanImage, final String htmlReport) {
         this.setModal(true);
         this.setClosable(true);
@@ -71,7 +71,7 @@ public class ResultView extends Window {
             @Override
             public void buttonClick(ClickEvent event) {
                 Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                DrugReport v = new DrugReport(tumorType, drugReport, htmlReport);
+                DrugReport v = new DrugReport(tumorType, htmlReport);
                 mainWindow.addWindow(v);
             }
 
