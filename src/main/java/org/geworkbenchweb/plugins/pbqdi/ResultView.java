@@ -8,7 +8,7 @@ import java.util.Map;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.FileResource;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -33,7 +33,7 @@ public class ResultView extends Window {
     private Table samplePerSubtype = new Table();
 
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes,
-            FileResource kaplanImage, final String htmlReport) {
+            final String htmlReport) {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -89,7 +89,7 @@ public class ResultView extends Window {
         samplePerSubtype.setPageLength(summary.size());
         samplePerSubtype.setSizeFull();
 
-        image = new Embedded(null, kaplanImage);
+        image = new Embedded(null, new ExternalResource("/kaplan_images/"+tumorType+"_km.png"));
         image.setSizeFull();
 
         HorizontalLayout layout = new HorizontalLayout();

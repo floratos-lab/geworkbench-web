@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
 
-import com.vaadin.terminal.FileResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -55,7 +54,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     private final String R_PATH = GeworkbenchRoot.getAppProperty("r.path");
     private final String OUTPUT_PATH = GeworkbenchRoot.getAppProperty("pbqdi.output.path");
-    private final String WORKING_DIRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
+    private final String BASE_WORKING_DIRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
+    private final String SOURCE_SCRIPT_DIRECTORY = GeworkbenchRoot.getAppProperty("source.script.directory");
     private final String ERROR_FILE = GeworkbenchRoot.getAppProperty("pbqdi.error.file");
     private final String HTML_LOCATION = GeworkbenchRoot.getAppProperty("html.location");
     private String sampleFile = null;
@@ -137,19 +137,28 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private class WorkThread extends Thread {
         @Override
         public void run() {
-            String kaplan = tumorType+"_km.png";
+
+            int jobId = new java.util.Random().nextInt(Integer.MAX_VALUE);
+            String WORKING_DIRECTORY = BASE_WORKING_DIRECTORY+jobId+"/";
 
             String reportFilename = null;
             ResultData result = null;
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
-            if (RESULT_OPTION.equalsIgnoreCase("random")) { // // random data in place of result
+            if ("random".equalsIgnoreCase(RESULT_OPTION)) { // // random data in place of result
                 reportFilename = IndividualDrugInfo.randomWord()+".pdf";
                 result = ResultData.randomTestData();
-            } else if (RESULT_OPTION.equalsIgnoreCase("existing")) { // we may want to bypass the R computation for testing
-                reportFilename = readPdfFileName("pdfreport.txt");
-                result = new ResultData(readQualitySection(), readDrugSection("oncology.txt"),
-                        readDrugSection("non-oncology.txt"), readDrugSection("investigational.txt"));
+            } else if ("existing".equalsIgnoreCase(RESULT_OPTION)) { // we may want to bypass the R computation for testing
+                reportFilename = readPdfFileName(WORKING_DIRECTORY);
+                result = new ResultData(readQualitySection(WORKING_DIRECTORY), readDrugSection(WORKING_DIRECTORY+"oncology.txt"),
+                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt"), readDrugSection(WORKING_DIRECTORY+"investigational.txt"));
             } else { // real R execution
+
+            try {
+                prepareSourceFiles(SOURCE_SCRIPT_DIRECTORY, WORKING_DIRECTORY, sampleFile);
+            } catch(IOException e) {
+                e.printStackTrace();
+                return;
+            }
 
             ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_DIRECTORY+"classifySamples.r",
                     tumorType, sampleFile, WORKING_DIRECTORY, ERROR_FILE);
@@ -168,13 +177,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 if (exit != 0) {
                     log.error("something went wrong with classification script: exit value "+exit);
                     PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script: exit value "+exit);
-                    return;
-                }
-                if (new File(WORKING_DIRECTORY+kaplan).exists()) {
-                    log.debug("Kanpan-Merier curve image created");
-                } else {
-                    log.error("something went wrong creating Kaplan-Meirer curve image");
-                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong creating Kaplan-Meirer curve image");
                     return;
                 }
             } catch (IOException | InterruptedException e1) {
@@ -197,11 +199,16 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     }
                 }
                 int exit = process.waitFor();
-                if (exit == 0 && new File(reportFilename).exists()) {
-                    log.debug("report created");
-                } else {
+                reportFilename = readPdfFileName(WORKING_DIRECTORY);
+                if (exit != 0 ) {
                     log.error("something went wrong with drug report script: exit value "+exit);
                     PatientBasedQueryAndDataIntegration.this.processError("something went wrong with drug report script: exit value "+exit);
+                    return;
+                } else if (new File(reportFilename).exists()) {
+                    log.debug("report created");
+                } else {
+                    log.error("this report file does not exist: "+reportFilename);
+                    PatientBasedQueryAndDataIntegration.this.processError("this report file does not exist: "+reportFilename);
                     return;
                 }
             } catch (IOException | InterruptedException e1) {
@@ -209,9 +216,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            reportFilename = readPdfFileName("pdfreport.txt");
-            result = new ResultData(readQualitySection(), readDrugSection("oncology.txt"),
-                        readDrugSection("non-oncology.txt"), readDrugSection("investigational.txt"));
+            result = new ResultData(readQualitySection(WORKING_DIRECTORY), readDrugSection(WORKING_DIRECTORY+"oncology.txt"),
+                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt"), readDrugSection(WORKING_DIRECTORY+"investigational.txt"));
 
             } // end of real R execution
 
@@ -247,8 +253,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 e.printStackTrace();
             }
 
-            FileResource resource =  new FileResource(new File(WORKING_DIRECTORY+kaplan), PatientBasedQueryAndDataIntegration.this.getApplication());
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, resource, htmlReport);
+            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, htmlReport);
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
@@ -258,11 +263,26 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         }
     }
 
-    private String readPdfFileName(String filename) {
+    // copy source scripts
+    private static void prepareSourceFiles(String sourceDir, String targetDir, String sampleFile) throws IOException {
+        String s = sampleFile.substring(sampleFile.lastIndexOf("/"));
+        String[] files = {"classifySamples.r", "tumorSubtypes.txt", "rununsupervised.r", "properties.r",
+            "unsupervised.Rnw", "data-load-qc.r", "norm-viper.r", "oncoTarget-analysis.r",
+            s};
+        Path dir = FileSystems.getDefault().getPath(targetDir);
+        Files.createDirectories(dir);
+        for(String f : files) {
+            Path source = FileSystems.getDefault().getPath(sourceDir + f);
+            Path target = FileSystems.getDefault().getPath(targetDir + f);
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private String readPdfFileName(String workingDirectory) {
         BufferedReader br;
         String pdf = "";
         try {
-            br = new BufferedReader(new FileReader(WORKING_DIRECTORY + filename));
+            br = new BufferedReader(new FileReader(workingDirectory + "pdfreport.txt"));
             pdf = br.readLine();
             br.close();
         } catch (FileNotFoundException e) {
@@ -285,7 +305,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         List<String> accessions = null;
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(WORKING_DIRECTORY + filename));
+            br = new BufferedReader(new FileReader(filename));
             String line = br.readLine();
             while (line != null) {
                 if (line.equals("images")) {
@@ -427,11 +447,11 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         }
     }
 
-    private String[] readQualitySection() {
+    private String[] readQualitySection(String workingDirectory) {
         List<String> list = new ArrayList<String>();
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(WORKING_DIRECTORY + "qc.txt"));
+            br = new BufferedReader(new FileReader(workingDirectory + "qc.txt"));
             String line = br.readLine();
             while (line != null) {
                 list.add("/cptac/images/" + line.substring(line.lastIndexOf("/") + 1, line.lastIndexOf(".pdf"))
