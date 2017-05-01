@@ -149,12 +149,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 result = ResultData.randomTestData();
             } else if ("existing".equalsIgnoreCase(RESULT_OPTION)) { // we may want to bypass the R computation for testing
                 reportFilename = readPdfFileName(WORKING_DIRECTORY);
-                result = new ResultData(readQualitySection(WORKING_DIRECTORY), readDrugSection(WORKING_DIRECTORY+"oncology.txt"),
-                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt"), readDrugSection(WORKING_DIRECTORY+"investigational.txt"));
+                result = new ResultData(readQualitySection(WORKING_DIRECTORY, jobId), readDrugSection(WORKING_DIRECTORY+"oncology.txt", jobId),
+                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt", jobId), readDrugSection(WORKING_DIRECTORY+"investigational.txt", jobId));
             } else { // real R execution
 
             try {
                 prepareSourceFiles(SOURCE_SCRIPT_DIRECTORY, WORKING_DIRECTORY, sampleFile);
+                Files.createDirectories( FileSystems.getDefault().getPath(HTML_LOCATION+"pbqdi_run/"+jobId+"/") );
             } catch(IOException e) {
                 e.printStackTrace();
                 return;
@@ -216,8 +217,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
                 return;
             }
-            result = new ResultData(readQualitySection(WORKING_DIRECTORY), readDrugSection(WORKING_DIRECTORY+"oncology.txt"),
-                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt"), readDrugSection(WORKING_DIRECTORY+"investigational.txt"));
+            result = new ResultData(readQualitySection(WORKING_DIRECTORY, jobId), readDrugSection(WORKING_DIRECTORY+"oncology.txt", jobId),
+                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt", jobId), readDrugSection(WORKING_DIRECTORY+"investigational.txt", jobId));
 
             } // end of real R execution
 
@@ -293,7 +294,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         return pdf;
     }
 
-    private DrugResult readDrugSection(String filename) {
+    private DrugResult readDrugSection(String filename, final int jobId) {
         List<List<String>> images = new ArrayList<List<String>>();
         List<List<IndividualDrugInfo>> drugs = new ArrayList<List<IndividualDrugInfo>>();
 
@@ -333,8 +334,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 } else {
                     switch (fieldId) {
                     case 'I':
-                        img.add("/cptac/images/" + line.substring(line.lastIndexOf("/") + 1, line.lastIndexOf(".pdf"))
-                                + ".png");
+                        img.add(convertImage(line, jobId));
                         break;
                     case 'N':
                         drugNames.add(line);
@@ -447,15 +447,38 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         }
     }
 
-    private String[] readQualitySection(String workingDirectory) {
+    private String convertImage(String pdfFile, final int jobId) {
+        String shortName = pdfFile.substring(pdfFile.lastIndexOf("/") + 1, pdfFile.lastIndexOf(".pdf"));
+        String imageFile = "pbqdi_run/"+jobId+"/"+shortName+".png";
+        String os = System.getProperty("os.name").toLowerCase();
+        String command = null;
+        if(os.contains("win")) {
+            command = "C:\\Program Files\\ImageMagick-7.0.5-Q16\\magick";
+        } else {
+            command = "/usr/bin/convert";
+        }
+        ProcessBuilder pb = new ProcessBuilder(command, pdfFile, HTML_LOCATION+imageFile);
+        int exit = -1;
+        try {
+            Process process = pb.start();
+            exit = process.waitFor();
+        } catch(IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (exit != 0) {
+            log.error("converting image failed: exit value "+exit);
+        }
+        return "/"+imageFile;
+    }
+
+    private String[] readQualitySection(String workingDirectory, final int jobId) {
         List<String> list = new ArrayList<String>();
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(workingDirectory + "qc.txt"));
             String line = br.readLine();
             while (line != null) {
-                list.add("/cptac/images/" + line.substring(line.lastIndexOf("/") + 1, line.lastIndexOf(".pdf"))
-                        + ".png");
+                list.add(convertImage(line, jobId));
                 line = br.readLine();
             }
         } catch (FileNotFoundException e) {
