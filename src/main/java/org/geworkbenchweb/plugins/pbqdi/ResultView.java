@@ -1,5 +1,7 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +35,7 @@ public class ResultView extends Window {
     private Table samplePerSubtype = new Table();
 
     public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes,
-            final String htmlReport) {
+            final String htmlReport, final int jobId) throws IOException {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -48,6 +50,7 @@ public class ResultView extends Window {
         for (int i = 0; i < sampleNames.length; i++) {
             final String sampleName = sampleNames[i];
             Integer subtype = subtypes.get(sampleName);
+            if(subtype==null) throw new IOException("Null subtype for sample name "+sampleName);
             Item item = container.addItem(sampleName);
             item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
             item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
@@ -71,7 +74,7 @@ public class ResultView extends Window {
             @Override
             public void buttonClick(ClickEvent event) {
                 Window mainWindow = ResultView.this.getApplication().getMainWindow();
-                DrugReport v = new DrugReport(tumorType, htmlReport);
+                DrugReport v = new DrugReport(tumorType, jobId, htmlReport);
                 mainWindow.addWindow(v);
             }
 

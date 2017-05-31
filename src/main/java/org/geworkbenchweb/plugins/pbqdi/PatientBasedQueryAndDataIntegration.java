@@ -5,24 +5,32 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
 
+import javax.activation.DataHandler;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.ws.client.core.WebServiceTemplate;
+import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
+
+import org.geworkbench.service.pbqdi.schema.PbqdiRequest;
+import org.geworkbench.service.pbqdi.schema.PbqdiResponse;
+import org.geworkbench.service.PbqdiEndpoint;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -40,7 +48,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
-    Log log = LogFactory.getLog(PatientBasedQueryAndDataIntegration.class);
+    private static Log log = LogFactory.getLog(PatientBasedQueryAndDataIntegration.class);
 
     private static final long serialVersionUID = -713233350568178L;
 
@@ -52,11 +60,9 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     private CitrusDatabase db = null;
 
-    private final String R_PATH = GeworkbenchRoot.getAppProperty("r.path");
+    private final String SERVICE_URL = GeworkbenchRoot.getAppProperty("pbdqi.service.url");
     private final String OUTPUT_PATH = GeworkbenchRoot.getAppProperty("pbqdi.output.path");
     private final String BASE_WORKING_DIRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
-    private final String SOURCE_SCRIPT_DIRECTORY = GeworkbenchRoot.getAppProperty("source.script.directory");
-    private final String ERROR_FILE = GeworkbenchRoot.getAppProperty("pbqdi.error.file");
     private final String HTML_LOCATION = GeworkbenchRoot.getAppProperty("html.location");
     private String sampleFile = null;
 
@@ -138,123 +144,93 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         @Override
         public void run() {
 
+            ResultView v = null;
+
             int jobId = new java.util.Random().nextInt(Integer.MAX_VALUE);
             String WORKING_DIRECTORY = BASE_WORKING_DIRECTORY+jobId+"/";
 
-            String reportFilename = null;
-            ResultData result = null;
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
             if ("random".equalsIgnoreCase(RESULT_OPTION)) { // // random data in place of result
-                reportFilename = IndividualDrugInfo.randomWord()+".pdf";
-                result = ResultData.randomTestData();
+                log.warn("'random result' test feature disabled");
             } else if ("existing".equalsIgnoreCase(RESULT_OPTION)) { // we may want to bypass the R computation for testing
-                reportFilename = readPdfFileName(WORKING_DIRECTORY);
-                result = new ResultData(readQualitySection(WORKING_DIRECTORY, jobId), readDrugSection(WORKING_DIRECTORY+"oncology.txt", jobId),
-                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt", jobId), readDrugSection(WORKING_DIRECTORY+"investigational.txt", jobId));
-            } else { // real R execution
+                log.warn("'existing result' test feature disabled");
+            } else { // submit PBQDI web service request
+                PbqdiRequest request = new PbqdiRequest();
+                request.setTumorType(tumorType);
+                request.setSampleFile(new java.io.File(sampleFile).getName());
 
-            try {
-                prepareSourceFiles(SOURCE_SCRIPT_DIRECTORY, WORKING_DIRECTORY, sampleFile);
-                Files.createDirectories( FileSystems.getDefault().getPath(HTML_LOCATION+"pbqdi_run/"+jobId+"/") );
-            } catch(IOException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            ProcessBuilder pb1 = new ProcessBuilder(R_PATH + "Rscript", "--vanilla", WORKING_DIRECTORY+"classifySamples.r",
-                    tumorType, sampleFile, WORKING_DIRECTORY, ERROR_FILE);
-            pb1.directory(new File(WORKING_DIRECTORY));
-            try {
-                Process process = pb1.start();
-                if (log.isDebugEnabled()) {
-                    InputStream stream = process.getErrorStream();
-                    byte[] b = new byte[1024];
-                    int n = -1;
-                    while ((n = stream.read(b)) >= 0) {
-                        System.out.println(":::" + new String(b, 0, n));
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(sampleFile));
+                    StringBuffer sb = new StringBuffer();
+                    String line = br.readLine();
+                    while(line!=null) {
+                        sb.append(line).append('\n');
+                        line = br.readLine();
                     }
-                }
-                int exit = process.waitFor();
-                if (exit != 0) {
-                    log.error("something went wrong with classification script: exit value "+exit);
-                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with classification script: exit value "+exit);
+                    br.close();
+                    request.setFileContent(sb.toString());
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
                 }
-            } catch (IOException | InterruptedException e1) {
-                e1.printStackTrace();
-                PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
-                return;
-            }
-            ProcessBuilder pb2 = new ProcessBuilder(R_PATH + "rscript", "--vanilla", WORKING_DIRECTORY+"rununsupervised.r", tumorType,
-                    sampleFile, WORKING_DIRECTORY, ERROR_FILE);
-            pb2.directory(new File(WORKING_DIRECTORY));
 
-            try {
-                Process process = pb2.start();
-                if (log.isDebugEnabled()) {
-                    InputStream stream = process.getErrorStream();
-                    byte[] b = new byte[1024];
-                    int n = -1;
-                    while ((n = stream.read(b)) >= 0) {
-                        System.out.println(":::" + new String(b, 0, n));
+                QName qname = new QName(PbqdiEndpoint.NAMESPACE_URI, PbqdiEndpoint.REQUEST_LOCAL_NAME);
+                JAXBElement<PbqdiRequest> requestElement = new JAXBElement<PbqdiRequest>(qname, PbqdiRequest.class, request);
+
+                Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+                marshaller.setContextPath("org.geworkbench.service.pbqdi.schema");
+                marshaller.setMtomEnabled(true);
+                try {
+                    MessageFactory mf = MessageFactory.newInstance();
+                    WebServiceTemplate template = new WebServiceTemplate(new SaajSoapMessageFactory(mf));
+                    template.setMarshaller(marshaller);
+                    template.setUnmarshaller(marshaller);
+
+                    PbqdiResponse response = (PbqdiResponse)template.marshalSendAndReceive(SERVICE_URL, requestElement);
+                    String classAssignmentsResult = response.getClassAssignment();
+                    Map<String, Integer> classAssignments = parseClassAssignments(classAssignmentsResult);
+
+                    String resultPath = HTML_LOCATION + DrugReport.RESULT_PATH + jobId +"/";
+                    Files.createDirectories(FileSystems.getDefault().getPath(resultPath));
+
+                    DataHandler resultPackage = response.getResultPackage();
+                    ZipEntry entry;
+                    byte[] buffer = new byte[8 * 1024];
+
+                    InputStream inputStream = resultPackage.getInputStream();
+                    ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+                    while( (entry = zipInputStream.getNextEntry())!=null ) {
+                        String s = String.format("Entry: %s len %d added %TD",
+                                    entry.getName(), entry.getSize(),
+                                    new java.util.Date(entry.getTime()));
+                        System.out.println(s);
+
+                        String outpath = resultPath + entry.getName();
+                        FileOutputStream outputFileStream = new FileOutputStream(outpath);
+                        int len = 0;
+                        while ((len = zipInputStream.read(buffer)) > 0)
+                        {
+                            outputFileStream.write(buffer, 0, len);
+                        }
+                        outputFileStream.close();
                     }
-                }
-                int exit = process.waitFor();
-                reportFilename = readPdfFileName(WORKING_DIRECTORY);
-                if (exit != 0 ) {
-                    log.error("something went wrong with drug report script: exit value "+exit);
-                    PatientBasedQueryAndDataIntegration.this.processError("something went wrong with drug report script: exit value "+exit);
+                    zipInputStream.close();
+                    inputStream.close();
+
+                    String htmlReport = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
+                    v = new ResultView(sampleNames, tumorType, classAssignments, htmlReport, jobId);
+                } catch(SOAPException e) {
+                    e.printStackTrace();
+                    PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
-                } else if (new File(reportFilename).exists()) {
-                    log.debug("report created");
-                } else {
-                    log.error("this report file does not exist: "+reportFilename);
-                    PatientBasedQueryAndDataIntegration.this.processError("this report file does not exist: "+reportFilename);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
                 }
-            } catch (IOException | InterruptedException e1) {
-                e1.printStackTrace();
-                PatientBasedQueryAndDataIntegration.this.processError(e1.getMessage());
-                return;
-            }
-            result = new ResultData(readQualitySection(WORKING_DIRECTORY, jobId), readDrugSection(WORKING_DIRECTORY+"oncology.txt", jobId),
-                        readDrugSection(WORKING_DIRECTORY+"non-oncology.txt", jobId), readDrugSection(WORKING_DIRECTORY+"investigational.txt", jobId));
+            } // end of web servive request
 
-            } // end of real R execution
-
-            String reportPdf = reportFilename.substring(reportFilename.lastIndexOf("/"));
-            Path source = FileSystems.getDefault().getPath(reportFilename);
-            Path target = FileSystems.getDefault().getPath(HTML_LOCATION + "cptac/reports/" + reportPdf);
-            try {
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-            String htmlReport = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
-            createHtmlReport(result, reportPdf, htmlReport);
-
-            if(! new File(WORKING_DIRECTORY + "classAssignments.txt").exists()) { // debug
-                log.debug(new File(WORKING_DIRECTORY + "classAssignments.txt").getAbsolutePath()+" does not exists");
-            }
-            Map<String, Integer> classAssignments = new HashMap<String, Integer>();
-            BufferedReader br;
-            try {
-                br = new BufferedReader(new FileReader(WORKING_DIRECTORY + "classAssignments.txt"));
-                String line = br.readLine();
-                while (line != null && line.trim().length() > 0) {
-                    String[] f = line.split("\t");
-                    classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
-                    line = br.readLine();
-                }
-                br.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            ResultView v = new ResultView(sampleNames, tumorType, classAssignments, htmlReport);
             Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
             mainWindow.addWindow(v);
             synchronized (getApplication()) {
@@ -264,229 +240,14 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         }
     }
 
-    // copy source scripts
-    private static void prepareSourceFiles(String sourceDir, String targetDir, String sampleFile) throws IOException {
-        String s = sampleFile.substring(sampleFile.lastIndexOf("/"));
-        String[] files = {"classifySamples.r", "tumorSubtypes.txt", "rununsupervised.r", "properties.r",
-            "unsupervised.Rnw", "data-load-qc.r", "norm-viper.r", "oncoTarget-analysis.r",
-            s};
-        Path dir = FileSystems.getDefault().getPath(targetDir);
-        Files.createDirectories(dir);
-        for(String f : files) {
-            Path source = FileSystems.getDefault().getPath(sourceDir + f);
-            Path target = FileSystems.getDefault().getPath(targetDir + f);
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    private static Map<String, Integer> parseClassAssignments(String classAssignmentsResult) {
+        Map<String, Integer> classAssignments = new HashMap<String, Integer>();
+        String[] s = classAssignmentsResult.split("\n");
+        for(String x : s) {
+            String[] f = x.split("\t");
+            classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
         }
-    }
-
-    private String readPdfFileName(String workingDirectory) {
-        BufferedReader br;
-        String pdf = "";
-        try {
-            br = new BufferedReader(new FileReader(workingDirectory + "pdfreport.txt"));
-            pdf = br.readLine();
-            br.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return pdf;
-    }
-
-    private DrugResult readDrugSection(String filename, final int jobId) {
-        List<List<String>> images = new ArrayList<List<String>>();
-        List<List<IndividualDrugInfo>> drugs = new ArrayList<List<IndividualDrugInfo>>();
-
-        char fieldId = 0; // I for image, N for drug names, D for drug
-                          // description, A for accessions
-        List<String> img = null;
-        List<String> drugNames = null;
-        List<String> descriptions = null;
-        List<String> accessions = null;
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(filename));
-            String line = br.readLine();
-            while (line != null) {
-                if (line.equals("images")) {
-                    fieldId = 'I';
-                    img = new ArrayList<String>();
-                } else if (line.equals("drugNames")) {
-                    fieldId = 'N';
-                    drugNames = new ArrayList<String>();
-                } else if (line.equals("drugDescriptions")) {
-                    fieldId = 'D';
-                    descriptions = new ArrayList<String>();
-                } else if (line.equals("drugAccessions")) {
-                    fieldId = 'A';
-                    accessions = new ArrayList<String>();
-                } else if (line.equals("%%")) {
-                    // another card
-                    fieldId = 0;
-                    images.add(img);
-                    List<IndividualDrugInfo> drugsForOneRow = new ArrayList<IndividualDrugInfo>();
-                    for (int i = 0; i < drugNames.size(); i++) {
-                        drugsForOneRow
-                                .add(new IndividualDrugInfo(drugNames.get(i), descriptions.get(i), accessions.get(i)));
-                    }
-                    drugs.add(drugsForOneRow);
-                } else {
-                    switch (fieldId) {
-                    case 'I':
-                        img.add(convertImage(line, jobId));
-                        break;
-                    case 'N':
-                        drugNames.add(line);
-                        break;
-                    case 'D':
-                        descriptions.add(line);
-                        break;
-                    case 'A':
-                        accessions.add(line);
-                        break;
-                    }
-                }
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new DrugResult(images, drugs);
-    }
-
-    private static String accessionLink(String drugName, String accession) {
-        if (accession == null || accession.equals("NA"))
-            return "<b>"+drugName+"</b>. ";
-        else
-            return "<a href='http://www.drugbank.ca/drugs/" + accession + "' target=_blank><b>" + drugName + "</a></b>. ";
-    }
-
-    private void createHtmlReport(final ResultData result, final String reportPdf, final String htmlFile) {
-        DrugResult oncology = result.oncology;
-        List<List<String>> images = oncology.images;
-        List<List<IndividualDrugInfo>> drugs = oncology.drugs;
-
-        String openingHtmlContent = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-                + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>"
-                + "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>"
-                + "</head><body>";
-
-        PrintWriter pw = null;
-        try {
-            pw = new PrintWriter(new FileWriter(HTML_LOCATION + "cptac/reports/" + htmlFile));
-            pw.print(openingHtmlContent);
-
-            pw.print("<div style='position:fixed;background:white;width:100%;z-index:999'><h1>Drug Prediction Report</h1><a href='/cptac/reports/" + reportPdf
-                    + "' target=_blank>Download Full Report as PDF</a> <a href='#dataquality'>Data Quality</a> <a href='#ontology'>Ontology drugs</a> <a href='#nonontology'>Nonontology drugs</a> <a href='#investigational'>Investigational drugs</a></div>");
-
-            pw.print("<div style='position:absolute;top:100px'>");
-            pw.print("<a id='dataquality' style='display:block;position:relative;top:-100px'></a><h2>Data Quality</h2>"
-                    + "<p>The figure below portrays indicators of data quality for the sample:</p>"
-                    + "<ul><li>Mapped Reads: the total number of mapped reads</li><li>Detected genes: the number of detected genes with at least 1 mapped read</li><li>Expressed genes: the number of expressed genes inferred from the distribution of the digital expression data</li></ul>");
-
-            for (int i = 0; i < result.dataQualityImages.length; i++) {
-                pw.print("<img src='"+result.dataQualityImages[i]+"' />");
-            }
-
-            pw.print("<h2>FDA Approved Drugs</h2><a id='ontology' style='display:block;position:relative;top:-100px'></a><h3>Oncology Drugs</h3><hr><table>");
-            for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
-                for (String img : images.get(i)) {
-                    pw.print("<img src='" + img + " '/>");
-                }
-                pw.print("</td><td valign=top width='70%'><ul>");
-                for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
-                }
-                pw.print("</ul></td></tr>");
-            }
-            pw.print("</table><a id='nonontology' style='display:block;position:relative;top:-100px'></a><h3>Non-oncology Drugs</h3><table>");
-
-            DrugResult nononcology = result.nononcology;
-            images = nononcology.images;
-            drugs = nononcology.drugs;
-            for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
-                for (String img : images.get(i)) {
-                    pw.print("<img src='" + img + " '/>");
-                }
-                pw.print("</td><td valign=top width='70%'><ul>");
-                for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
-                }
-                pw.print("</ul></td></tr>");
-            }
-            pw.print("</table>");
-
-            DrugResult investigational = result.investigational;
-            images = investigational.images;
-            drugs = investigational.drugs;
-
-            pw.print("<a id='investigational' style='display:block;position:relative;top:-100px'></a><h2>Investigational drugs</h1><table>");
-            for (int i = 0; i < images.size(); i++) {
-                pw.print("<tr style='border-top:1px solid black; border-bottom:1px solid black'><td>" + (i + 1) + "</td><td width='30%'>");
-                for (String img : images.get(i)) {
-                    pw.print("<img src='" + img + "' />");
-                }
-                pw.print("</td><td valign=top width='70%'><ul>");
-                for (IndividualDrugInfo d : drugs.get(i)) {
-                    pw.print("<li>" + accessionLink(d.name, d.accession) + d.description + "</li>");
-                }
-                pw.print("</ul></td></tr>");
-            }
-            pw.print("</table>");
-
-            pw.print("</div></body></html>");
-            pw.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    private String convertImage(String pdfFile, final int jobId) {
-        String shortName = pdfFile.substring(pdfFile.lastIndexOf("/") + 1, pdfFile.lastIndexOf(".pdf"));
-        String imageFile = "pbqdi_run/"+jobId+"/"+shortName+".png";
-        String os = System.getProperty("os.name").toLowerCase();
-        String command = null;
-        if(os.contains("win")) {
-            command = "C:\\Program Files\\ImageMagick-7.0.5-Q16\\magick";
-        } else {
-            command = "/usr/bin/convert";
-        }
-        ProcessBuilder pb = new ProcessBuilder(command, pdfFile, HTML_LOCATION+imageFile);
-        int exit = -1;
-        try {
-            Process process = pb.start();
-            exit = process.waitFor();
-        } catch(IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (exit != 0) {
-            log.error("converting image failed: exit value "+exit);
-        }
-        return "/"+imageFile;
-    }
-
-    private String[] readQualitySection(String workingDirectory, final int jobId) {
-        List<String> list = new ArrayList<String>();
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(workingDirectory + "qc.txt"));
-            String line = br.readLine();
-            while (line != null) {
-                list.add(convertImage(line, jobId));
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return list.toArray(new String[list.size()]);
+        return classAssignments;
     }
 
     private void processError(String message) {
