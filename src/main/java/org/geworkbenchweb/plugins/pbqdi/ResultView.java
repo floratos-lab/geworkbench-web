@@ -22,6 +22,8 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import org.geworkbenchweb.pojos.PbqdiResult;
+
 public class ResultView extends Window {
 
     private static final long serialVersionUID = -273679922042872864L;
@@ -34,8 +36,7 @@ public class ResultView extends Window {
     private Embedded image = new Embedded();
     private Table samplePerSubtype = new Table();
 
-    public ResultView(String[] sampleNames, final String tumorType, Map<String, Integer> subtypes,
-            final String htmlReport, final int jobId) throws IOException {
+    public ResultView(final PbqdiResult result) throws IOException {
         this.setModal(true);
         this.setClosable(true);
         ((AbstractOrderedLayout) this.getContent()).setSpacing(true);
@@ -43,12 +44,16 @@ public class ResultView extends Window {
         this.setCaption("Columbia/CPTAC Patient Tumor Subtype Results");
         this.setImmediate(true);
 
+        final String tumorType = result.getTumorType();
+        final Map<String, Integer> subtypes = result.getSubtypes();
+        final String htmlReport = result.getSampleFileName() + ".html";
+        final int jobId = result.getJobId();
+
         Container container = new IndexedContainer();
         container.addContainerProperty(COLUMN_SAMPLE_NAME, String.class, null);
         container.addContainerProperty(COLUMN_SUBTYPE, Integer.class, 0);
         Map<Integer, List<String>> summary = new HashMap<Integer, List<String>>();
-        for (int i = 0; i < sampleNames.length; i++) {
-            final String sampleName = sampleNames[i];
+        for (String sampleName : subtypes.keySet()) {
             Integer subtype = subtypes.get(sampleName);
             if(subtype==null) throw new IOException("Null subtype for sample name "+sampleName);
             Item item = container.addItem(sampleName);
@@ -63,7 +68,7 @@ public class ResultView extends Window {
             s.add(sampleName);
         }
         resultTable.setContainerDataSource(container);
-        resultTable.setPageLength(sampleNames.length);
+        resultTable.setPageLength(subtypes.size());
         resultTable.setSizeFull();
 
         Button reportButton = new Button("Drug Prediction Report");

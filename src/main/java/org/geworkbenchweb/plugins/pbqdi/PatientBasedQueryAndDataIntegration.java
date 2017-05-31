@@ -32,6 +32,8 @@ import org.geworkbench.service.pbqdi.schema.PbqdiRequest;
 import org.geworkbench.service.pbqdi.schema.PbqdiResponse;
 import org.geworkbench.service.PbqdiEndpoint;
 
+import org.geworkbenchweb.pojos.PbqdiResult;
+
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -42,6 +44,8 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+import org.vaadin.appfoundation.authentication.SessionHandler;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -69,12 +73,16 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private String[] sampleNames;
     private String tumorType = null;
 
+    private final Long owner;
+
     public PatientBasedQueryAndDataIntegration() {
         try {
             db = new CitrusDatabase();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        owner = SessionHandler.get().getId();
 
         upload.setReceiver(new Receiver() {
 
@@ -218,8 +226,11 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     zipInputStream.close();
                     inputStream.close();
 
-                    String htmlReport = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt")) + ".html";
-                    v = new ResultView(sampleNames, tumorType, classAssignments, htmlReport, jobId);
+                    String sampleFileName = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt"));
+                    PbqdiResult result = new PbqdiResult(owner, tumorType, sampleFileName, jobId, classAssignments);
+                    FacadeFactory.getFacade().store(result);
+
+                    v = new ResultView(result);
                 } catch(SOAPException e) {
                     e.printStackTrace();
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
