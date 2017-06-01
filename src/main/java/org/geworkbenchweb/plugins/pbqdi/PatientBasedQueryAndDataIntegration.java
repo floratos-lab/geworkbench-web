@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
@@ -34,12 +35,18 @@ import org.geworkbench.service.PbqdiEndpoint;
 
 import org.geworkbenchweb.pojos.PbqdiResult;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
+
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.Select;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
@@ -155,7 +162,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             ResultView v = null;
 
             int jobId = new java.util.Random().nextInt(Integer.MAX_VALUE);
-            String WORKING_DIRECTORY = BASE_WORKING_DIRECTORY+jobId+"/";
 
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
             if ("random".equalsIgnoreCase(RESULT_OPTION)) { // // random data in place of result
@@ -226,9 +232,11 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     zipInputStream.close();
                     inputStream.close();
 
-                    String sampleFileName = sampleFile.substring(sampleFile.lastIndexOf("/"), sampleFile.lastIndexOf(".txt"));
+                    String sampleFileName = sampleFile.substring(sampleFile.lastIndexOf("/")+1, sampleFile.lastIndexOf(".txt"));
                     PbqdiResult result = new PbqdiResult(owner, tumorType, sampleFileName, jobId, classAssignments);
                     FacadeFactory.getFacade().store(result);
+                    storedResults.addItem(result);
+                    storedResults.setItemCaption(result, result.getSampleFileName()+": Job ID "+result.getJobId());
 
                     v = new ResultView(result);
                 } catch(SOAPException e) {
@@ -272,6 +280,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         }
     }
 
+    final private ListSelect storedResults = new ListSelect();
+
     @Override
     public void attach() {
         super.attach();
@@ -295,6 +305,48 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             cancerTypeComboBox.addItem(s);
         cancerTypeComboBox.setNullSelectionAllowed(false);
         cancerTypeComboBox.setImmediate(true);
+
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("owner", owner);
+        List<PbqdiResult> results = FacadeFactory.getFacade()
+            .list("Select p from PbqdiResult as p where p.owner=:owner", param);
+        //if(results.size()<=0) return;
+
+        storedResults.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
+        storedResults.removeAllItems();
+        for(PbqdiResult x : results) {
+            storedResults.addItem(x);
+            storedResults.setItemCaption(x, x.getSampleFileName()+": Job ID "+x.getJobId());
+        }
+        storedResults.setRows(7);
+        storedResults.setNullSelectionAllowed(false);
+        storedResults.setImmediate(true);
+        storedResults.addListener(new Property.ValueChangeListener() {
+            static final long serialVersionUID = 1L;
+            public void valueChange(ValueChangeEvent event) {
+                PbqdiResult selection = (PbqdiResult)event.getProperty().getValue();
+                Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+                try {
+                    mainWindow.addWindow(new ResultView(selection));
+                    synchronized (getApplication()) {
+                        indicator.setVisible(false);
+                        analyzeButton.setEnabled(true);
+                    }
+                } catch(IOException e) {
+                    PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
+                }
+            }
+        });
+
+        HorizontalLayout titlePanel = new HorizontalLayout();
+        titlePanel.setWidth("100%");
+        titlePanel.setStyleName("feature-controls");
+        Label title = new Label("<span>Results of previous runs</span>", Label.CONTENT_XHTML);
+        title.setStyleName("title");
+        titlePanel.addComponent(title);
+        titlePanel.setExpandRatio(title, 1);
+        this.addComponent(titlePanel);
+        this.addComponent(storedResults);
     }
 
 }
