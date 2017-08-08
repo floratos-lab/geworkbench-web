@@ -203,6 +203,10 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
                     PbqdiResponse response = (PbqdiResponse)template.marshalSendAndReceive(SERVICE_URL, requestElement);
                     String classAssignmentsResult = response.getClassAssignment();
+                    if(classAssignmentsResult==null) {
+                        PatientBasedQueryAndDataIntegration.this.processError("PBQDI web service failed: classAssignmentsResult==null");
+                        return;
+                    }
                     Map<String, Integer> classAssignments = parseClassAssignments(classAssignmentsResult);
 
                     String resultPath = HTML_LOCATION + DrugReport.RESULT_PATH + jobId +"/";
