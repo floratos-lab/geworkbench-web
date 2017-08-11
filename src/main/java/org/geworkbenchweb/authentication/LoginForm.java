@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.authentication;
 
 import org.apache.commons.logging.Log;
@@ -34,16 +31,45 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
-/**
- * @author zji
- */
 public class LoginForm extends VerticalLayout {
 
 	private static final long serialVersionUID = -469128068617789982L;
 	private static Log log = LogFactory.getLog(LoginForm.class);
 			
 	private GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
-	
+
+	/* try to log in geWorkbench. throw exceptions when it fails. */
+	private void login(final String username, final String password) 
+			throws InvalidCredentialsException, AccountLockedException, Exception {
+		User user = AuthenticationUtil.authenticate(username, password);
+		UMainLayout uMainLayout = new UMainLayout();
+		uMainLayout.getMainToolBar().setUsername(user.getUsername());
+		uMainLayout.getMainToolBar().setPassword(user.getPassword());
+		if (GeworkbenchRoot.genespaceEnabled()) {
+			uMainLayout.getMainToolBar().initGenspaceLogin(uMainLayout.getGenSpaceLogger());
+		}
+
+		getApplication().getMainWindow().setContent(uMainLayout);
+		new PendingNodeProcessor(uMainLayout).start();
+
+		if (GeworkbenchRoot.genespaceEnabled() && !genSpaceServerFactory.userLogin(username, password)) {
+			UserWrapper u = new UserWrapper(
+				new org.geworkbench.components.genspace.server.stubs.User(), 
+				null);
+			u.setUsername(username);
+			u.setPasswordClearText(password);
+			u.setFirstName("");
+			u.setLastName("");
+			if(!genSpaceServerFactory.userRegister(u.getDelegate())) {
+				log.warn("genSpaceServerFactory.userRegister returns false");
+			}	
+			else {
+				genSpaceServerFactory.getUser().setLogData(1);
+				genSpaceServerFactory.userUpdate();
+			}
+		}
+	}
+
 	public LoginForm(Button switchToRegisterButton) {
 
 		final Label feedbackLabel = new Label();
@@ -68,93 +94,69 @@ public class LoginForm extends VerticalLayout {
 
 				String username = (String) usernameField.getValue();
 				String password = (String) passwordField.getValue();
+				String status = "unknown";
 
-				boolean needToLogin = true;
-				while(needToLogin) {
-					needToLogin = false;
-					try {	
-					    // Try logging in geWorkbench 
-						AuthenticationUtil.authenticate(username, password);
-						UMainLayout uMainLayout = new UMainLayout();
-						uMainLayout.getMainToolBar().setUsername(username);
-						uMainLayout.getMainToolBar().setPassword(password);
-						if (GeworkbenchRoot.genespaceEnabled()) {
-							uMainLayout.getMainToolBar().initGenspaceLogin(uMainLayout.getGenSpaceLogger());
-						}
-						
-						getApplication().getMainWindow().setContent(uMainLayout);
-						new PendingNodeProcessor(uMainLayout).start();
+				try {	
+					login(username, password);
+					status = "success";
+				} catch (InvalidCredentialsException e) {
+					status = "fail_2";
+					feedbackLabel.setValue("Either username or password was wrong");
+					/* give genSpace user a second chance */
+					if (GeworkbenchRoot.genespaceEnabled() 
+						&& genSpaceServerFactory.userLogin(username, password)) {
 
-						if (GeworkbenchRoot.genespaceEnabled() && !genSpaceServerFactory.userLogin(username, password)) {
-							UserWrapper u = new UserWrapper(
-									new org.geworkbench.components.genspace.server.stubs.User(), 
-									null);
-							u.setUsername(username);
-							u.setPasswordClearText(password);
-							u.setFirstName("");
-							u.setLastName("");
-							if(!genSpaceServerFactory.userRegister(u.getDelegate())) {
-								log.warn("genSpaceServerFactory.userRegister returns false");
-							}	
-							else {
-								genSpaceServerFactory.getUser().setLogData(1);
-								genSpaceServerFactory.userUpdate();
-							}
-						}
-					} catch (InvalidCredentialsException e) {
-						String err_msg = "Either username or password was wrong";
-						if (genSpaceServerFactory.userLogin(username, password)) {
-							
-							User user;
-							try {
-								/* Create user object */
-								user = UserUtil.registerUser(username,password,password);
-								
-								user.setName("");
-								user.setEmail("");
-	
-								FacadeFactory.getFacade().store(user);
-	
-								/* Creating default workspace */
-								Workspace workspace = new Workspace();
-								workspace.setOwner(user.getId());
-								workspace.setName("Default Workspace");
-								FacadeFactory.getFacade().store(workspace);
-	
-								/* Setting active workspace */
-								ActiveWorkspace active = new ActiveWorkspace();
-								active.setOwner(user.getId());
-								active.setWorkspace(workspace.getId());
-								FacadeFactory.getFacade().store(active);
+						User user;
+						try {
+							/* Create user object */
+							user = UserUtil.registerUser(username,password,password);
 
-								needToLogin = true;
-								
-							} 
-							catch (UsernameExistsException e1) {
-								// TODO Auto-generateds catch block
-								// User try to log with genSpace's password, and than avoid registering an existing user
-							} 
-							catch (Exception e1) {
-								e1.printStackTrace();
-							}
-		
-						}
-						
-						feedbackLabel.setValue(err_msg);
-							
-					} catch (AccountLockedException e) {						 
-						feedbackLabel.setValue("The given account has been locked.");
-					} catch (Exception e) {
-						if(e.getMessage()==null) { /* this may happen due to library code */
-							feedbackLabel.setValue("Undocumened exception happened.");
-							e.printStackTrace();
-						} else {
-							feedbackLabel.setValue(e.getMessage());
+							user.setName("");
+							user.setEmail("");
+
+							FacadeFactory.getFacade().store(user);
+
+							/* Creating default workspace */
+							Workspace workspace = new Workspace();
+							workspace.setOwner(user.getId());
+							workspace.setName("Default Workspace");
+							FacadeFactory.getFacade().store(workspace);
+
+							/* Setting active workspace */
+							ActiveWorkspace active = new ActiveWorkspace();
+							active.setOwner(user.getId());
+							active.setWorkspace(workspace.getId());
+							FacadeFactory.getFacade().store(active);
+
+							login(username, password);
+							status = "success_2";
+							feedbackLabel.setValue("success with genSpace account");
+						} catch (InvalidCredentialsException e1) {
+							log.info("log-in failed. no third chance for genSpace account. "+e);
+							status = "fail_2_a";
+						} catch (UsernameExistsException e1) {
+							// trying to log with genSpace's password but unable to register the new account due to an existing user
+							log.info("log-in failed. no new account created for genSpace account. "+e);
+							status = "fail_2_b";
+						} catch (Exception e1) {
+							e1.printStackTrace();
+							status = "fail_2_c";
 						}
 					}
+				} catch (AccountLockedException e) {						 
+					feedbackLabel.setValue("The given account has been locked.");
+					status = "fail_3";
+				} catch (Exception e) {
+					if(e.getMessage()==null) { /* this may happen due to library code */
+						feedbackLabel.setValue("Undocumened exception happened.");
+						e.printStackTrace();
+					} else {
+						feedbackLabel.setValue(e.getMessage());
+					}
+					status = "fail_4";
 				}
-				// Unfortunately, the above code has got rather tangled. At this point, the user is logged in.
-				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(), "success");
+
+				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(), status);
 				FacadeFactory.getFacade().store(ual);
 			}
 		});
