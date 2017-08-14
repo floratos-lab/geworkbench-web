@@ -1,12 +1,11 @@
-/**
- * 
- */
 package org.geworkbenchweb.layout;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.Comment;
 import org.geworkbenchweb.pojos.Context;
@@ -27,14 +26,10 @@ import com.vaadin.ui.Button.ClickListener;
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
-/**
- * @author zji
- * @version $Id$
- *
- */
 public class RemoveButtonListener implements ClickListener {
 
 	private static final long serialVersionUID = -6293811142891534701L;
+	private static Log log = LogFactory.getLog(RemoveButtonListener.class);
 
 	final private UMainLayout mainLayout;
 	RemoveButtonListener(UMainLayout mainLayout) {
@@ -60,7 +55,7 @@ public class RemoveButtonListener implements ClickListener {
 			private static final long serialVersionUID = 1L;
 			
 			@Override
-			public void buttonClicked(ButtonType buttonType) {    	
+			public void buttonClicked(ButtonType buttonType) {
 				if(buttonType == ButtonType.OK) {
 					Long dataId = mainLayout.getCurrentDatasetId();
 
@@ -152,6 +147,16 @@ public class RemoveButtonListener implements ClickListener {
 						}
 						ResultSet result =  FacadeFactory.getFacade().find(ResultSet.class, dataId);
 						FacadeFactory.getFacade().delete(result);
+						Long resultDataId = result.getDataId();
+						String dataType = result.getType();
+						try {
+							Class<? extends AbstractPojo> resultClazz = (Class<? extends AbstractPojo>)Class.forName(dataType);
+							AbstractPojo resultData =  FacadeFactory.getFacade().find(resultClazz, resultDataId);
+							FacadeFactory.getFacade().delete(resultData);
+						} catch(ClassNotFoundException e) {
+							e.printStackTrace();
+							log.error("result data not removed due to ClassNotFoundException "+e);
+						}
 					} 
 					
 					// delete dataset preference
