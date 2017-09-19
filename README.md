@@ -8,7 +8,7 @@ This is a standard Java web application with backend database. To build, you nee
     + backup the webapps subdirectoy and the war file (this will help diagnose any issues following the deployment or an emergency rollback if anything goes wrong during the deployment).
     + backup the backend database as a sql dump
 1. check out the code to be deployed, for a certain tag (a branch if we expect active development continues separatly for the deployed code from the master branch)
-2. update the properties files that are not in the github, typically by copying from a specified location. This should include `src/main/resources/appliaction.properties` and `src/main/resources/META-INF/persistence.xml`
+2. update the properties files that are not in the github, typically by copying from a specified location. This should include `src/main/resources/application.properties` and `src/main/resources/META-INF/persistence.xml`
 3. build the war file by execute `mvn package`
 4. copy the war file to the destination machine, at `$CATALINA_HOME/webapps/`
 5. restart tomcat if necessary
