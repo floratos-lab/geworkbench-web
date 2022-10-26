@@ -412,7 +412,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.8</version>
+			<version>X</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
