@@ -24,7 +24,7 @@
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
    	
    	<!-- Invient charts JavaScript Libraries -->
-   	<script src="js/jquery-1.4.4.min.js" />    
+   	<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
    	<script src="js/highcharts.js" />
    	<script src="js/exporting.js" />  
    	<script src="js/msviper.js" />
