@@ -410,9 +410,9 @@
 			<version>1.5.9</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
+			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>X</version>
+			<version>2.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
