@@ -212,6 +212,10 @@
 			<id>maven-jahia</id>
 			<url>http://maven.jahia.org/maven2/</url>
 		</repository>
+<repository> <!-- this is for jhlabs -->
+			<id>dev.lutece.paris.fr</id>
+			<url>https://dev.lutece.paris.fr/nexus/content/repositories/maven_repository</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -636,11 +640,12 @@
 			<artifactId>MultiButton</artifactId>
 			<version>2.0.1</version>
 		</dependency>
-		<dependency>
-			<groupId>mysql-connector-java</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.18-bin</version>
-		</dependency>
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.46</version>
+</dependency>
 		<dependency>
 			<groupId>ostermillerutils</groupId>
 			<artifactId>ostermillerutils</artifactId>
