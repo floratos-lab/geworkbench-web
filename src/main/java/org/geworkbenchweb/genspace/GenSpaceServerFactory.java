@@ -16,7 +16,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import org.apache.log4j.Logger;
 import org.geworkbench.components.genspace.server.stubs.FriendFacade;
 import org.geworkbench.components.genspace.server.stubs.FriendFacadeService;
 import org.geworkbench.components.genspace.server.stubs.NetworkFacade;
@@ -47,7 +46,6 @@ public class GenSpaceServerFactory {
 	private String password = null;
 	private String SERVER_ADDR = "http://" + RuntimeEnvironmentSettings.SERVER + ":8080";
 	
-	public Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
 	private GenSpaceLogin_1 login;
 		
 	private static Object lock = new Object();
