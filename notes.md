@@ -29,7 +29,7 @@ JVM Vendor:     Oracle Corporation
 Linux develop-machine-java8-1 5.10.0-23-cloud-amd64 #1 SMP Debian 5.10.179-1 (2023-05-12) x86_64 GNU/Linux
 ```
 
-2. java 8, tomcat 8, ubuntu 23 in VirtualBox
+2. java 8, tomcat 8, ubuntu 23 in VirtualBox, mysql 8
 
 ```sh
 :~/git/geworkbench-web$ java -version
@@ -60,3 +60,17 @@ Release:	23.04
 Codename:	lunar
 ```
 
+database MySQL `Server version: 8.0.33-0ubuntu0.23.04.2 (Ubuntu)`
+
+### also tested on ubuntu 22 in VirtualBox
+
+database MySQL `Server version: 8.0.33-0ubuntu0.22.04.2 (Ubuntu)`
+
+## basic steps to rebuild and test
+
+```sh
+mvn clean
+mvn package
+sudo cp ~/git/geworkbench-web/target/geworkbench.war /opt/tomcat/webapps/
+sudo tail -f /opt/tomcat/logs/catalina.out
+```
