@@ -8,7 +8,7 @@
   
    <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.8.16</vaadin.version>
+		<vaadin.version>6.8.18</vaadin.version>
 		<gwt.version>2.5.1</gwt.version>
 		<gwt.plugin.version>2.5.1</gwt.plugin.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
