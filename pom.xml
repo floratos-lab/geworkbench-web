@@ -1,12 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>geworkbench</groupId>
-  <artifactId>geworkbench</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>geworkbench web application</name>
-  
-   <properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>geworkbench</groupId>
+	<artifactId>geworkbench</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>geworkbench web application</name>
+
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>6.8.18</vaadin.version>
 		<gwt.version>2.5.1</gwt.version>
@@ -34,14 +35,14 @@
 			</plugin>
 
 			<plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                 <version>2.2</version>
-                 <configuration>
-                 <url>${tomcatUrl}</url>
-                 <server>${serverName}</server>
-                 </configuration>
-             </plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<url>${tomcatUrl}</url>
+					<server>${serverName}</server>
+				</configuration>
+			</plugin>
 
 			<!-- Compiles your custom GWT components with the GWT compiler -->
 			<!-- A hosted mode browser for client-side widget debugging can be run 
@@ -181,69 +182,19 @@
 	</build>
 
 	<repositories>
-		<repository>
-			<id>mvnrepository</id>
-			<url>https://mvnrepository.com/artifact/</url>
-		</repository>
-		<repository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>vaadin-central</id>
-			<url>http://oss.sonatype.org/content/repositories/central</url>
-		</repository>
-
-		<repository>
+		<repository>			<!-- for icepush and appfoundation -->
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 		<repository>
 			<id>in-project</id>
 			<url>file://${project.basedir}/repo/lib</url>
-		</repository>		
-		<repository>
-			<id>maven2-public</id>
-			<url>https://maven.onehippo.com/content/groups/maven2</url>
 		</repository>
-		<repository>
-			<id>maven-jahia</id>
-			<url>http://maven.jahia.org/maven2/</url>
-		</repository>
-<repository> <!-- this is for jhlabs -->
+		<repository>			<!-- this is for jhlabs (a stealthy dependency of captcha )-->
 			<id>dev.lutece.paris.fr</id>
 			<url>https://dev.lutece.paris.fr/nexus/content/repositories/maven_repository</url>
 		</repository>
 	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>codehaus-snapshots</id>
-			<url>http://nexus.codehaus.org/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-		<pluginRepository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
@@ -272,10 +223,6 @@
 					<groupId>org.apache.geronimo.specs</groupId>
 					<artifactId>geronimo-stax-api_1.0_spec</artifactId>
 				</exclusion>
-				<!--exclusion>
-					<groupId>org.apache.james</groupId>
-					<artifactId>apache-mime4j-core</artifactId>
-				</exclusion-->
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -460,13 +407,13 @@
 			<artifactId>XmlSchema</artifactId>
 			<version>1.4.7</version>
 		</dependency>
-		 
+
 		<dependency>
-            <groupId>com.liferay</groupId>
-	        <artifactId>nl.captcha.simplecaptcha</artifactId>
-	        <version>1.1.1</version>
-        </dependency>
-       
+			<groupId>com.liferay</groupId>
+			<artifactId>nl.captcha.simplecaptcha</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
 		<dependency>
@@ -501,26 +448,26 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-			 <dependency>
-          <groupId>net.sf.flexjson</groupId>
-          <artifactId>flexjson</artifactId>
-          <version>2.1</version>
-          
-        </dependency>	
-        <dependency>
-	        <groupId>javax.transaction</groupId>
-	        <artifactId>jta</artifactId>
-	        <version>1.1</version>
-        </dependency>
-        	
-        <!-- for local in project rerepository -->
+		<dependency>
+			<groupId>net.sf.flexjson</groupId>
+			<artifactId>flexjson</artifactId>
+			<version>2.1</version>
+
+		</dependency>
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<!-- for local in-project repositories -->
 
 		<dependency>
 			<groupId>charite</groupId>
 			<artifactId>ontologizer</artifactId>
 			<version>1.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>anova</groupId>
 			<artifactId>anova</artifactId>
@@ -694,7 +641,7 @@
 			<groupId>vprotovis</groupId>
 			<artifactId>vprotovis</artifactId>
 			<version>0.6</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>gwtg3d</groupId>
 			<artifactId>gwtg3d</artifactId>
