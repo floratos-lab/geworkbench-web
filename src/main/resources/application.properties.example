@@ -46,6 +46,9 @@ release.date=7/27/2015
 build.timestamp=${timestamp}
 build.version=${pom.version}
 
+# cnkb
+cnkb.url=http://34.74.237.111:8080/cnkb/InteractionsServlet
+
 #pbqdi
 r.path=F:/Program Files/R/R-3.3.1/bin/
 pbqdi.output.path=F:/cptac_project/test/
