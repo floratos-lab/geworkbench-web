@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import sun.misc.BASE64Encoder;
+import java.util.Base64;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 
@@ -401,8 +401,7 @@ public class CNKBServletClient {
 		aConnection.setConnectTimeout(TIMEOUT);
 
 		if (userInfo != null && userInfo.trim().length() != 0) {
-			BASE64Encoder encoder = new BASE64Encoder();
-			aConnection.setRequestProperty("Authorization", "Basic " + encoder.encode(userInfo.getBytes()));
+			aConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encode(userInfo.getBytes()));
 		}
 		OutputStreamWriter out = new OutputStreamWriter(aConnection.getOutputStream());
 
