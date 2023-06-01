@@ -21,7 +21,7 @@
                 
                   <properties>
                         <property name="eclipselink.logging.level" value="OFF" />
-                        <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver" />
+                        <property name="eclipselink.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
                         <property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/gework_web?serverTimezone=UTC" />
                         <property name="eclipselink.jdbc.user" value="DB_USER" />
                         <property name="eclipselink.jdbc.password" value="DB_PASSWORD" />
