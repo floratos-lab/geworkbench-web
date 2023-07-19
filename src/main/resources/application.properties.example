@@ -46,8 +46,14 @@ release.date=7/27/2015
 build.timestamp=${timestamp}
 build.version=${pom.version}
 
+# cnkb
+cnkb.url=http://34.74.237.111:8080/cnkb/InteractionsServlet
+
 #pbqdi
-r.path=F:/Program Files/R/R-3.3.1/bin/
-pbqdi.output.path=F:/cptac_project/test/
-pbqdi.working.directory=F:/cptac_project/test/
-pbqdi.error.file=F:/cptac_project/test/error.txt
+pbdqi.service.url=http://localhost:8080/pbqdi
+#r.path=F:/Program Files/R/R-3.3.1/bin/
+pbqdi.output.path=/opt/tomcat/cptac_project/test1/
+#pbqdi.working.directory=F:/cptac_project/pbqdi/runs/
+#source.script.directory=F:/cptac_project/test1/
+#pbqdi.error.file=F:/cptac_project/test1/error.txt
+html.location=C:/apache-tomcat-7.0.41/webapps/ROOT/

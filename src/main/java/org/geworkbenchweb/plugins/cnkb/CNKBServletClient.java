@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import sun.misc.BASE64Encoder;
+import java.util.Base64;
+
+import org.geworkbenchweb.GeworkbenchRoot;
 
 /* This is based on InteractionsConnectionImpl in CNKB (interactions) component
  * to fix the issue of dependency on 'current dataset' */
@@ -35,7 +37,7 @@ public class CNKBServletClient {
 		static String DEL = "|";
 	};
 	
-	private static final String CNKB_SERVLET_URL = "http://cagridnode.c2b2.columbia.edu:8080/cknb/InteractionsServlet_new/InteractionsServlet";
+	private static final String CNKB_SERVLET_URL = GeworkbenchRoot.getAppProperty("cnkb.url");
 	private static final int TIMEOUT = 3000;
 	
 	private final String cnkbServletUrl;
@@ -399,8 +401,7 @@ public class CNKBServletClient {
 		aConnection.setConnectTimeout(TIMEOUT);
 
 		if (userInfo != null && userInfo.trim().length() != 0) {
-			BASE64Encoder encoder = new BASE64Encoder();
-			aConnection.setRequestProperty("Authorization", "Basic " + encoder.encode(userInfo.getBytes()));
+			aConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encode(userInfo.getBytes()));
 		}
 		OutputStreamWriter out = new OutputStreamWriter(aConnection.getOutputStream());
 

@@ -19,12 +19,11 @@
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
 	<inherits name="com.google.gwt.json.JSON" /> 
-	<inherits name='gwt.g3d.g3d'/>
     
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
    	
    	<!-- Invient charts JavaScript Libraries -->
-   	<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+	<script src="js/jquery-1.4.4.min.js" />
    	<script src="js/highcharts.js" />
    	<script src="js/exporting.js" />  
    	<script src="js/msviper.js" />

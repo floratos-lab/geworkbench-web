@@ -32,12 +32,6 @@ public class CitrusDatabase {
 	private Map<String, String> cancerTypes = new HashMap<String, String>();
 	
 	public CitrusDatabase() throws Exception {
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			throw new Exception("Failure loading MySQL driver");
-		}
 		
 		Connection conn = null;
 		Statement stmt = null;

@@ -1,14 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>geworkbench</groupId>
-  <artifactId>geworkbench</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>geworkbench web application</name>
-  
-   <properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>geworkbench</groupId>
+	<artifactId>geworkbench</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>geworkbench web application</name>
+
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.8.16</vaadin.version>
+		<vaadin.version>6.8.18</vaadin.version>
 		<gwt.version>2.5.1</gwt.version>
 		<gwt.plugin.version>2.5.1</gwt.plugin.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
@@ -28,20 +29,20 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
 			<plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                 <version>2.2</version>
-                 <configuration>
-                 <url>${tomcatUrl}</url>
-                 <server>${serverName}</server>
-                 </configuration>
-             </plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<url>${tomcatUrl}</url>
+					<server>${serverName}</server>
+				</configuration>
+			</plugin>
 
 			<!-- Compiles your custom GWT components with the GWT compiler -->
 			<!-- A hosted mode browser for client-side widget debugging can be run 
@@ -71,32 +72,15 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>resources</goal>
 							<goal>compile</goal>
 						</goals>
 					</execution>
 				</executions>
-				<!-- <dependencies> <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-dev</artifactId> 
-					<version>${gwt.version}</version> </dependency> <dependency> <groupId>com.google.gwt</groupId> 
-					<artifactId>gwt-user</artifactId> <version>${gwt.version}</version> </dependency> 
-					</dependencies> -->
 			</plugin>
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
 				<version>1.0.2</version>
-				<executions>
-					<execution>
-						<configuration>
-							<!-- if you don't specify any modules, the plugin will find them -->
-							<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
-								</modules> -->
-						</configuration>
-						<goals>
-							<goal>update-widgetset</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 			<!-- A simple Jetty test server at http://localhost:8080/geworkbenchweb 
@@ -124,118 +108,22 @@
 			</plugin>
 		</plugins>
 		<finalName>geworkbench</finalName>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.vaadin</groupId>
-										<artifactId>
-											vaadin-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.0.2,)
-										</versionRange>
-										<goals>
-											<goal>
-												update-widgetset
-											</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											gwt-maven-plugin
-										</artifactId>
-										<versionRange>
-											[2.5.1,)
-										</versionRange>
-										<goals>
-											<goal>resources</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 	<repositories>
-		<repository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>vaadin-central</id>
-			<url>http://oss.sonatype.org/content/repositories/central</url>
-		</repository>
-
-		<repository>
+		<repository>			<!-- for icepush, appfoundation, and easyuploads -->
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 		<repository>
 			<id>in-project</id>
 			<url>file://${project.basedir}/repo/lib</url>
-		</repository>		
-		<repository>
-			<id>maven2-public</id>
-			<url>https://maven.onehippo.com/content/groups/maven2</url>
 		</repository>
-		<repository>
-			<id>maven-jahia</id>
-			<url>http://maven.jahia.org/maven2/</url>
+		<repository>			<!-- this is for jhlabs (a stealthy dependency of captcha )-->
+			<id>dev.lutece.paris.fr</id>
+			<url>https://dev.lutece.paris.fr/nexus/content/repositories/maven_repository</url>
 		</repository>
 	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>codehaus-snapshots</id>
-			<url>http://nexus.codehaus.org/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-		<pluginRepository>
-			<id>vaadin-snapshots</id>
-			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
@@ -246,7 +134,7 @@
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-api</artifactId>
-			<version>1.2.13</version>
+			<version>1.4.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.geronimo.specs</groupId>
@@ -264,16 +152,12 @@
 					<groupId>org.apache.geronimo.specs</groupId>
 					<artifactId>geronimo-stax-api_1.0_spec</artifactId>
 				</exclusion>
-				<!--exclusion>
-					<groupId>org.apache.james</groupId>
-					<artifactId>apache-mime4j-core</artifactId>
-				</exclusion-->
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-impl</artifactId>
-			<version>1.2.13</version>
+			<version>1.4.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.codehaus.woodstox</groupId>
@@ -296,7 +180,7 @@
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>axis2-adb</artifactId>
-			<version>1.6.2</version>
+			<version>1.8.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.geronimo.specs</groupId>
@@ -307,7 +191,7 @@
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>axis2-kernel</artifactId>
-			<version>1.6.2</version>
+			<version>1.8.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.geronimo.specs</groupId>
@@ -340,18 +224,12 @@
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>axis2-transport-http</artifactId>
-			<version>1.6.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>1.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>axis2-transport-local</artifactId>
-			<version>1.6.2</version>
+			<version>1.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.collections</groupId>
@@ -366,7 +244,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.3</version>
+			<version>1.15</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>
@@ -377,7 +255,7 @@
 		<dependency>
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
+			<version>20020423</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -412,7 +290,8 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>2.13.2</version>
+			<version>2.20.0</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
@@ -451,13 +330,13 @@
 			<artifactId>XmlSchema</artifactId>
 			<version>1.4.7</version>
 		</dependency>
-		 
+
 		<dependency>
-            <groupId>com.liferay</groupId>
-	        <artifactId>nl.captcha.simplecaptcha</artifactId>
-	        <version>1.1.1</version>
-        </dependency>
-       
+			<groupId>com.liferay</groupId>
+			<artifactId>nl.captcha.simplecaptcha</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 
 		<!-- This is also used by gwt-maven-plugin to deduce GWT version number. -->
 		<dependency>
@@ -489,29 +368,29 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
+			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-			 <dependency>
-          <groupId>net.sf.flexjson</groupId>
-          <artifactId>flexjson</artifactId>
-          <version>2.1</version>
-          
-        </dependency>	
-        <dependency>
-	        <groupId>javax.transaction</groupId>
-	        <artifactId>jta</artifactId>
-	        <version>1.1</version>
-        </dependency>
-        	
-        <!-- for local in project rerepository -->
+		<dependency>
+			<groupId>net.sf.flexjson</groupId>
+			<artifactId>flexjson</artifactId>
+			<version>2.1</version>
+
+		</dependency>
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<!-- for local in-project repositories -->
 
 		<dependency>
 			<groupId>charite</groupId>
 			<artifactId>ontologizer</artifactId>
 			<version>1.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>anova</groupId>
 			<artifactId>anova</artifactId>
@@ -548,23 +427,24 @@
 			<version>3.2-with-deps</version>
 		</dependency>
 
-
+		<!-- https://mvnrepository.com/artifact/org.vaadin.addons/easyuploads -->
 		<dependency>
-			<groupId>easyuploads</groupId>
+			<groupId>org.vaadin.addons</groupId>
 			<artifactId>easyuploads</artifactId>
-			<version>0.5.1</version>
+			<version>0.5.3</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.eclipse.persistence/eclipselink -->
 		<dependency>
-			<groupId>eclipselink</groupId>
+			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>
-			<version>2.3.2</version>
+			<version>2.4.2</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.jpa.modelgen.processor -->
 		<dependency>
-			<groupId>eclipselink-jpa-modelgen</groupId>
-			<artifactId>eclipselink-jpa-modelgen</artifactId>
-			<version>2.3.2.v20111125-r10461</version>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.jpa.modelgen.processor</artifactId>
+			<version>2.4.2</version>
 		</dependency>
 
 
@@ -589,11 +469,6 @@
 			<groupId>hierarchicalclustering</groupId>
 			<artifactId>hierarchicalclustering</artifactId>
 			<version>2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>httpcore</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>4.0</version>
 		</dependency>
 
 		<dependency>
@@ -637,9 +512,9 @@
 			<version>2.0.1</version>
 		</dependency>
 		<dependency>
-			<groupId>mysql-connector-java</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.18-bin</version>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>ostermillerutils</groupId>
@@ -685,11 +560,6 @@
 			<groupId>vprotovis</groupId>
 			<artifactId>vprotovis</artifactId>
 			<version>0.6</version>
-		</dependency>		
-		<dependency>
-			<groupId>gwtg3d</groupId>
-			<artifactId>gwtg3d</artifactId>
-			<version>0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jhlabs</groupId>
@@ -700,7 +570,7 @@
 		<dependency>
 			<groupId>org.springframework.ws</groupId>
 			<artifactId>spring-ws-core</artifactId>
-			<version>2.4.0.RELEASE</version>
+			<version>3.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>pbqdi</groupId>

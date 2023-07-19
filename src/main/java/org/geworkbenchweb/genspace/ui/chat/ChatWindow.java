@@ -206,7 +206,7 @@ public class ChatWindow extends Window implements Action.Handler{
 			m.setProperty("specialType", messageTypes.CHAT);
 			chat.sendMessage(m);
 		} catch (Exception e) {
-			login.getGenSpaceServerFactory().logger.warn("Error", e);
+			System.out.println("Error" + e);
 			this.cr.clearWindow(this.userKey);
 			return ;
 		}
