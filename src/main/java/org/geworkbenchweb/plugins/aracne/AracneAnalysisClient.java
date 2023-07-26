@@ -11,7 +11,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -45,9 +44,6 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 /**
  * 
  * ARACne Analysis client.
- * 
- * @author Nikhil Reddy
- * 
  */
 public class AracneAnalysisClient {
 
@@ -58,7 +54,6 @@ public class AracneAnalysisClient {
 	private static final String ARACNE_SERVICE_URL = GeworkbenchRoot.getAppProperty("aracne.clusterService.url");	
 	private static final String ARACNE_NAMESPACE = "http://www.geworkbench.org/service/aracne";
 
-	private static final String PREPROCESSING_ENDPOINT = "PreprocessRequest";
 	private static final String DISCOVERY_ENDPOINT = "DiscoveryRequest";
 
 	final private Long datasetId;
@@ -85,8 +80,6 @@ public class AracneAnalysisClient {
 
 		 // only for the purpose of dataset name
 		String datasetName = FacadeFactory.getFacade().find(DataSet.class, datasetId).getName();
-		
-		String algorithm = (String) params.get(AracneParameters.ALGORITHM);
 
 		List<String> markers = Arrays.asList( microarrays.markerLabels );
 
@@ -100,6 +93,7 @@ public class AracneAnalysisClient {
 	    	serviceOptions.setProperty( Constants.Configuration.ATTACHMENT_TEMP_DIR, System.getProperty("java.io.tmpdir") );
 	    	serviceOptions.setProperty( Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE );
 	    	serviceOptions.setProperty( Constants.Configuration.FILE_SIZE_THRESHOLD, "1024" );
+			//serviceOptions.setProperty(org.apache.axis2.kernel.http.HTTPConstants.SO_TIMEOUT, 600000); // try 10 minutes
 			// 50-hour timeout
 			serviceOptions.setTimeOutInMilliSeconds(180000000);
 
@@ -109,13 +103,7 @@ public class AracneAnalysisClient {
 			ref.setAddress(ARACNE_SERVICE_URL);
 			serviceClient.setTargetEPR(ref);
 
-			// the switch between pre-processing and main ARACNE
-			String mode = (String) params.get(AracneParameters.MODE);
-			if( mode.equals("Preprocessing") ) {
-				return preprocess(algorithm, datasetName, expFile, serviceClient);
-			} else {
-				return discovery(markers.size(), hubGeneList, datasetName, expFile, serviceClient);
-			}
+			return discovery(markers.size(), hubGeneList, datasetName, expFile, serviceClient);
 
 		} catch (AxisFault e) {
 			OMElement x = e.getDetail();
@@ -338,42 +326,7 @@ public class AracneAnalysisClient {
 
 		return AracneAnalysisClient.createNetwork(getEdges(handler), hubGeneList , prune, datasetId);
 	}
-	
-	/* Preprocessing */
-	private ConfigResult preprocess(String algorithm, String datasetName, File expFile, ServiceClient serviceClient) throws AxisFault{
 
-		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
-		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
-		OMElement request = omFactory.createOMElement(PREPROCESSING_ENDPOINT, namespace); 
-
-		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
-		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
-		omFactory.createOMElement("algorithm", namespace, request).setText(algorithm);
-		omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
-		
-		OMElement response = serviceClient.sendReceive(request);
-
-		OMElement nameElement = (OMElement)response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "name"));
-		resultName = nameElement.getText();
-		
-		ArrayList<Float> kernels = new ArrayList<Float>();
-		Iterator<?> elements = response.getChildrenWithName(new QName(ARACNE_NAMESPACE, "kernel"));
-		while(elements.hasNext()){
-			OMElement elem = (OMElement)elements.next();
-			kernels.add(Float.parseFloat(elem.getText()));
-		}
-		
-		ArrayList<Float> thresholds = new ArrayList<Float>();
-		elements = response.getChildrenWithName(new QName(ARACNE_NAMESPACE, "threshold"));
-		while(elements.hasNext()){
-			OMElement elem = (OMElement)elements.next();
-			thresholds.add(Float.parseFloat(elem.getText()));
-		}
-
-		ConfigResult output = new ConfigResult(kernels.toArray(new Float[0]), thresholds.toArray(new Float[0]));
-		return output;
-	}
-	
 	static private Network createNetwork(final List<Edge> aracneGraphEdges,
 			final List<String> hubGeneList, final boolean prune, final Long datasetId) {
 		Map<String, NetworkEdges> network = new HashMap<String, NetworkEdges>();
