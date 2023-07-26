@@ -20,9 +20,6 @@ import com.vaadin.ui.Component;
 
 /**
  * Central control of all Plug-ins. 
- * 
- * @author zji
- *
  */
 public class PluginRegistry {
 	
@@ -64,7 +61,6 @@ public class PluginRegistry {
 		resultIconMap.put(org.geworkbenchweb.pojos.AnovaResult.class, anovaIcon); // anova result
 		resultIconMap.put(org.geworkbenchweb.pojos.TTestResult.class, anovaIcon); // t-test result
 		resultIconMap.put(org.geworkbenchweb.pojos.MraResult.class, marinaIcon); // marina result
-		resultIconMap.put(org.geworkbenchweb.pojos.ConfigResult.class, marinaIcon); // aracne config result
 		resultIconMap.put(org.geworkbenchweb.pojos.MsViperResult.class, msViperIcon); // msviper result
 		resultIconMap.put(org.geworkbenchweb.pojos.GOResult.class, goIcon); // msviper result
 		

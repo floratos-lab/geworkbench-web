@@ -3,10 +3,6 @@ package org.geworkbenchweb.plugins.aracne;
 public class AracneParameters {
 	/* these are the texts of parameter keys */
 	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
-	public static String CONFIG		 	= 	"config";
-	public static String ALGORITHM 		= 	"algorithm";
-	public static String KERNEL_WIDTH	=	"width";
-	public static String WIDTH_VALUE 	= 	"widthValue";
 	public static String CORRECTION		= 	"correction";
 	public static String T_VALUE 		= 	"thresholdValue";
 	public static String T_TYPE 		= 	"thresholdType";
@@ -17,7 +13,4 @@ public class AracneParameters {
 	public static String BOOTS_NUM 		= 	"bootstrapNumber";
 	public static String CONSENSUS_THRESHOLD 		= 	"consensusThreshold";
 	public static String MERGEPS 		= 	"mergeProbeSets";
-	
-	/* mode */
-	public static String DISCOVERY = "Discovery";
 }

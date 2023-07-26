@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
-import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Network;
@@ -42,13 +40,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
-	private ComboBox algoBox = new ComboBox();
-	private ComboBox configBox = new ComboBox();
-	private ComboBox kernelWidth = new ComboBox();
 	private ComboBox thresholdType = new ComboBox();
 	private ComboBox dpiTolerance = new ComboBox();
 	private ComboBox dpiTargetList = new ComboBox();
-	private TextField widthValue = new TextField();
 	private TextField threshold = new TextField();
 	private ComboBox correction = new ComboBox();
 	private TextField tolerance = new TextField();
@@ -76,7 +70,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		setSpacing(true);
 		setImmediate(true);
 
-		final GridLayout gridLayout = new GridLayout(4, 10);
+		final GridLayout gridLayout = new GridLayout(4, 8);
 
 		gridLayout.setSpacing(true);
 		gridLayout.setImmediate(true);
@@ -85,51 +79,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		final GridLayout extraParameterLayout = initializeExtraParameterPanel();
 		extraParameterLayout.setVisible(true);
-
-		configBox.setCaption("Select Configuration" + QUESTION_MARK);
-		configBox.setDescription("Choose a custom parameter configuration node calculated using Preprocessing, or use default parameters");
-		configBox.setNullSelectionAllowed(false);
-		configBox.setImmediate(true);
-		configBox.addItem("Default");
-		configBox.select("Default");
-		configBox.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.CONFIG);
-				Object o = valueChangeEvent.getProperty().getValue();
-				if (o != null)
-					params.put(AracneParameters.CONFIG, o.toString());
-			}
-		});
-		configBox.setVisible(true);
-		
-		algoBox.setCaption("Select Algorithm" + QUESTION_MARK);
-		algoBox.setDescription("Choose <b>Adaptive Partitioning</b>, or the original but slower <b>Fixed Bandwidth</b> method");
-		algoBox.setImmediate(true);
-		algoBox.setNullSelectionAllowed(false);
-		algoBox.addItem(adaptivePartitioning);
-		algoBox.addItem(fixedBandwidth);
-		algoBox.select(adaptivePartitioning);
-		algoBox.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase(fixedBandwidth)) {
-					kernelWidth.setEnabled(true);
-					if (kernelWidth.getValue().toString().equalsIgnoreCase("Specify"))
-					    widthValue.setEnabled(true);
-				} else if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase(adaptivePartitioning)) {
-					kernelWidth.setEnabled(false);
-					widthValue.setEnabled(false);
-				}
-				params.remove(AracneParameters.ALGORITHM);
-				params.put(AracneParameters.ALGORITHM, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
 
 		submitButton = new Button("Submit", new Button.ClickListener() {
 
@@ -189,9 +138,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 		
-		gridLayout.addComponent(algoBox, 1, 0);
-		gridLayout.addComponent(configBox, 2, 0);
-		gridLayout.addComponent(extraParameterLayout, 0, 2, 2, 6);
+		gridLayout.addComponent(extraParameterLayout, 0, 0, 2, 6);
 		gridLayout.addComponent(submitButton, 0, 7);
 
 		addComponent(gridLayout);
@@ -228,10 +175,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		/**
 		 * Params default values
 		 */
-		params.put(AracneParameters.CONFIG, "Default");
-		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
-		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
-		params.put(AracneParameters.WIDTH_VALUE, "0.01");
 		params.put(AracneParameters.TOL_TYPE, "Apply");
 		params.put(AracneParameters.TOL_VALUE, "0.0");
 		params.put(AracneParameters.T_TYPE, "Mutual Info");
@@ -259,47 +202,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.valueOf(valueChangeEvent.getProperty().getValue()));
 			}
 		});
-		
-		widthValue.setCaption("Kernel Width Value" + QUESTION_MARK);
-		widthValue.setDescription("If specifying a kernel width for the Fixed Bandwidth method, enter here.");
-		widthValue.setValue("0.1");
-		widthValue.setEnabled(false);
-		widthValue.setNullSettingAllowed(false);
-		widthValue.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
 
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.WIDTH_VALUE);
-				params.put(AracneParameters.WIDTH_VALUE, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
-
-		kernelWidth.setCaption("Kernel Width Method" + QUESTION_MARK);
-		kernelWidth.setDescription("Used by the Fixed Bandwidth method to specify a Gaussian kernel width.  Choose <b>Inferred</b> to calculate a value from the data (using the Preprocessing result if available), or choose <b>Specify</b> and then enter a value in the adjacent text field");
-		kernelWidth.setImmediate(true);
-		kernelWidth.setNullSelectionAllowed(false);
-		kernelWidth.addItem("Inferred");
-		kernelWidth.addItem("Specify");
-		kernelWidth.select("Inferred");
-		kernelWidth.setEnabled(false);
-		kernelWidth.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-
-				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("Specify")) {
-					widthValue.setEnabled(true);
-				} else {
-					widthValue.setEnabled(false);
-				}
-				params.remove(AracneParameters.KERNEL_WIDTH);
-				params.put(AracneParameters.KERNEL_WIDTH, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
-		
+	
 		threshold.setCaption("Threshold Value" + QUESTION_MARK);
 		threshold.setDescription("Enter a P-value or Mutual Information threshold value");
 		threshold.setValue("0.01");
@@ -493,8 +397,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		layout.setImmediate(true);
 		
 		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
-		layout.addComponent(kernelWidth, 1, 1);
-		layout.addComponent(widthValue, 2, 1);
 		layout.addComponent(thresholdType, 0, 2);
 		layout.addComponent(threshold, 1, 2);
 		layout.addComponent(correction, 2, 2);
@@ -526,20 +428,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		hubGeneMarkerSetBox.setComponentError(null);
 
-		String alg = algoBox.getValue().toString();
-		String config = configBox.getItemCaption(configBox.getValue());
-		if (configBox.isEnabled()
-				&& ((alg.equalsIgnoreCase(adaptivePartitioning) && config
-						.contains("FB")) || (alg
-						.equalsIgnoreCase(fixedBandwidth) && config
-						.contains("AP")))) {
-			configBox
-					.setComponentError(new UserError(
-							"The selected configuration does not match the selected Algorithm."));
-			return false;
-		}
-		configBox.setComponentError(null);
-
 		float floatValue = -1;
 		try {
 			if (threshold.getValue() != null)
@@ -568,24 +456,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		}
 
 		threshold.setComponentError(null);
-
-		floatValue = -1;
-		try {
-			if (widthValue.getValue() != null)
-				floatValue = Float.parseFloat(widthValue.getValue().toString());
-		} catch (NumberFormatException e) {
-		}
-
-		if (((String) params.get(AracneParameters.KERNEL_WIDTH))
-				.equalsIgnoreCase("Specify")) {
-
-			if (floatValue < 0 || floatValue > 1) {
-				widthValue.setComponentError(new UserError(
-						"Kernel Width should between 0.0 and 1.0"));
-				return false;
-			}
-		}
-		widthValue.setComponentError(null);
 
 		floatValue = -1;
 		try {
@@ -666,19 +536,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				builder.append(gene + "\n");
 		}
 
-		if (configBox.isEnabled())
-				builder.append("Configuration - "
-						+ configBox.getItemCaption(configBox.getValue()) + "\n");
-		builder.append("Algorithm - "
-					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
-		if (kernelWidth.isEnabled() && !widthValue.isEnabled())
-				builder.append("Kernel Width - "
-						+ kernelWidth.getItemCaption(kernelWidth.getValue())
-						+ "\n");
-		else if (widthValue.isEnabled() && widthValue.isEnabled())
-				builder.append("Kernel Width - "
-						+ widthValue.getValue().toString() + "\n");
-
 		builder.append("Threshold Type - "
 					+ thresholdType.getItemCaption(thresholdType.getValue())
 					+ ": " + threshold.getValue().toString() + "\n");
@@ -750,23 +607,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getId(),
 					((SubSet) markerSubSets.get(m)).getName());
 		}
-
-		configBox.removeAllItems();
-		configBox.addItem("Default");
-		configBox.select("Default");
-		Map<String, Object> parameter = new HashMap<String, Object>();
-		parameter.put("dataSetId", dataSetId);
-		parameter.put("type", ConfigResult.class.getName());
-		List<ResultSet> list = FacadeFactory.getFacade().list(
-				"SELECT r FROM ResultSet AS r WHERE "
-						+ "r.parent=:dataSetId and "
-						+ "r.dataId is not null and " + "r.type=:type",
-				parameter);
-		for (ResultSet r : list) {
-			configBox.addItem(r.getDataId());
-			configBox.setItemCaption(r.getDataId(), r.getName());
-		}
-
 	}
 
 	@Override

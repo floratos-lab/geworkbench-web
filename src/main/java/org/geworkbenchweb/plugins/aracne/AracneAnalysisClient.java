@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.dataset.MicroarraySet;
-import org.geworkbenchweb.pojos.ConfigResult;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Network;
 import org.geworkbenchweb.pojos.NetworkEdges;
@@ -248,29 +247,6 @@ public class AracneAnalysisClient {
 		boolean prune = params.get(AracneParameters.MERGEPS).toString()
 				.equalsIgnoreCase("Yes");
 
-		String config = (String) params.get(AracneParameters.CONFIG);
-		String config_kernel = "", config_threshold = "";
-		if(!config.equals("Default")) {
-			Long id = Long.parseLong(config);
-			ConfigResult rslt = FacadeFactory.getFacade().find(ConfigResult.class, id);
-			if(rslt != null){
-				Float[] kernels = rslt.getKernel();
-				for(int i = 0; i < kernels.length; i++){
-					config_kernel += kernels[i];
-					if(i < kernels.length-1)
-						config_kernel += "\t";
-					else config_kernel += "\n";
-				}
-				Float[] thresholds = rslt.getThreshold();
-				for(int i = 0; i < thresholds.length; i++){
-					config_threshold += thresholds[i];
-					if(i < thresholds.length-1)
-						config_threshold += "\t";
-					else config_threshold += "\n";
-				}
-			}
-		}
-		
 		boolean isThresholdMI = ((String) params.get(AracneParameters.T_TYPE)).equalsIgnoreCase("Mutual Info");
 		boolean noCorrection = ((String) params.get(AracneParameters.CORRECTION)).equalsIgnoreCase("No Correction");
 		float threshold = Float.valueOf((String) params.get(AracneParameters.T_VALUE));
@@ -294,26 +270,19 @@ public class AracneAnalysisClient {
 		
 		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
-		omFactory.createOMElement("algorithm", namespace, request).setText((String) params.get(AracneParameters.ALGORITHM));
 		omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
 		omFactory.createOMElement("bootstrapNumber", namespace, request).setText( (String) params.get(AracneParameters.BOOTS_NUM) );
 		omFactory.createOMElement("consensusThreshold", namespace, request).setText( (String) params.get(AracneParameters.CONSENSUS_THRESHOLD) );
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
 		omFactory.createOMElement("dPITolerance", namespace, request).setText( (String) params.get(AracneParameters.TOL_VALUE) );
-		omFactory.createOMElement("kernelWidth", namespace, request).setText( (String) params.get(AracneParameters.WIDTH_VALUE) );
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
 		omFactory.createOMElement("targetGeneList", namespace, request).setText(toString(targetGeneList));
 		omFactory.createOMElement("isDPIToleranceSpecified", namespace, request).setText(
 						Boolean.toString( ((String) params.get(AracneParameters.TOL_TYPE)).equalsIgnoreCase("Apply") )
 				);
-		omFactory.createOMElement("isKernelWidthSpecified", namespace, request).setText(
-					Boolean.toString( ((String) params.get(AracneParameters.KERNEL_WIDTH)).equalsIgnoreCase("Specify") )
-				);
 		omFactory.createOMElement("isThresholdMI", namespace, request).setText(Boolean.toString(isThresholdMI));
 		omFactory.createOMElement("noCorrection", namespace, request).setText(Boolean.toString(noCorrection));
-		omFactory.createOMElement("configKernel", namespace, request).setText(config_kernel);
-		omFactory.createOMElement("configThreshold", namespace, request).setText(config_threshold);
 
 		OMElement response = serviceClient.sendReceive(request);
 		
