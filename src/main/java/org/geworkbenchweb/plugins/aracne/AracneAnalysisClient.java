@@ -301,7 +301,6 @@ public class AracneAnalysisClient {
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
 		omFactory.createOMElement("dPITolerance", namespace, request).setText( (String) params.get(AracneParameters.TOL_VALUE) );
 		omFactory.createOMElement("kernelWidth", namespace, request).setText( (String) params.get(AracneParameters.WIDTH_VALUE) );
-		omFactory.createOMElement("mode", namespace, request).setText( (String) params.get(AracneParameters.MODE) );
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
 		omFactory.createOMElement("targetGeneList", namespace, request).setText(toString(targetGeneList));

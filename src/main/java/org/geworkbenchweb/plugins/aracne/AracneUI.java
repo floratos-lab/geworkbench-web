@@ -42,7 +42,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
-	private ComboBox modeBox = new ComboBox();
 	private ComboBox algoBox = new ComboBox();
 	private ComboBox configBox = new ComboBox();
 	private ComboBox kernelWidth = new ComboBox();
@@ -85,33 +84,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		setDefaultParameters(params);
 
 		final GridLayout extraParameterLayout = initializeExtraParameterPanel();
-		extraParameterLayout.setVisible(false);
-		
-		modeBox.setCaption("Select Mode" + QUESTION_MARK);
-		modeBox.setDescription("<b>Preprocessing</b> mode calculates custom parameters for optimally determining P-value Threshold and Kernel Width (Fixed Bandwidth only) for the data set for use during a Discovery run, and saves them as a configuration node in the Workspace. No other parameter except Algorithm need be set to run Preprocessing. <br><br> <b>Discovery</b> mode calculates the mutual information between hub and target markers and can use a configuration node from a Preprocessing run (recommended) or use default parameters to determine the Threshold and Kernel Width parameters as needed. <br><br> <b>Complete mode</b> runs both Preprocessing and Discovery, but does not save a configuration node for future runs.");
-		modeBox.setNullSelectionAllowed(false);
-		modeBox.setImmediate(true);
-		//modeBox.addItem(AracneParameters.COMPLETE);
-		modeBox.addItem(AracneParameters.DISCOVERY);
-		modeBox.addItem(AracneParameters.PREPROCESSING);
-		modeBox.select(AracneParameters.PREPROCESSING);
-		modeBox.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.MODE);
-				params.put(AracneParameters.MODE, valueChangeEvent
-						.getProperty().getValue().toString());
-				if (params.get(AracneParameters.MODE).equals(
-						AracneParameters.DISCOVERY)) {
-					configBox.setVisible(true);
-					extraParameterLayout.setVisible(true);
-				} else {
-					configBox.setVisible(false);
-					extraParameterLayout.setVisible(false);
-				}
-			}
-		});
+		extraParameterLayout.setVisible(true);
 
 		configBox.setCaption("Select Configuration" + QUESTION_MARK);
 		configBox.setDescription("Choose a custom parameter configuration node calculated using Preprocessing, or use default parameters");
@@ -129,7 +102,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					params.put(AracneParameters.CONFIG, o.toString());
 			}
 		});
-		configBox.setVisible(false); // default mode: preprocessing
+		configBox.setVisible(true);
 		
 		algoBox.setCaption("Select Algorithm" + QUESTION_MARK);
 		algoBox.setDescription("Choose <b>Adaptive Partitioning</b>, or the original but slower <b>Fixed Bandwidth</b> method");
@@ -216,7 +189,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 		
-		gridLayout.addComponent(modeBox, 0, 0);
 		gridLayout.addComponent(algoBox, 1, 0);
 		gridLayout.addComponent(configBox, 2, 0);
 		gridLayout.addComponent(extraParameterLayout, 0, 2, 2, 6);
@@ -256,7 +228,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		/**
 		 * Params default values
 		 */
-		params.put(AracneParameters.MODE, AracneParameters.PREPROCESSING);
 		params.put(AracneParameters.CONFIG, "Default");
 		params.put(AracneParameters.ALGORITHM, "Adaptive Partitioning");
 		params.put(AracneParameters.KERNEL_WIDTH, "Inferred");
@@ -539,10 +510,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	}
 
 	private boolean validInputData(List<String> hubGeneList) {
-		if (params.get(AracneParameters.MODE).equals(
-				AracneParameters.PREPROCESSING)) {
-			return true;
-		}
 
 		if (hubGeneMarkerSetBox.getValue() == null
 				|| hubGeneMarkerSetBox.getValue().toString().trim().equals("")) {
@@ -699,44 +666,41 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				builder.append(gene + "\n");
 		}
 
-		String mode = modeBox.getItemCaption(modeBox.getValue());
-		builder.append("Mode - " + mode + "\n");
-		if (!mode.equalsIgnoreCase(AracneParameters.PREPROCESSING)) {
-			if (configBox.isEnabled())
+		if (configBox.isEnabled())
 				builder.append("Configuration - "
 						+ configBox.getItemCaption(configBox.getValue()) + "\n");
-			builder.append("Algorithm - "
+		builder.append("Algorithm - "
 					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
-			if (kernelWidth.isEnabled() && !widthValue.isEnabled())
+		if (kernelWidth.isEnabled() && !widthValue.isEnabled())
 				builder.append("Kernel Width - "
 						+ kernelWidth.getItemCaption(kernelWidth.getValue())
 						+ "\n");
-			else if (widthValue.isEnabled() && widthValue.isEnabled())
+		else if (widthValue.isEnabled() && widthValue.isEnabled())
 				builder.append("Kernel Width - "
 						+ widthValue.getValue().toString() + "\n");
 
-			builder.append("Threshold Type - "
+		builder.append("Threshold Type - "
 					+ thresholdType.getItemCaption(thresholdType.getValue())
 					+ ": " + threshold.getValue().toString() + "\n");
 
-			if (correction.isEnabled())
+		if (correction.isEnabled())
 				builder.append("Correction Type - "
 						+ correction.getItemCaption(correction.getValue())
 						+ "\n");
 
-			builder.append("DPI Tolerance - "
+		builder.append("DPI Tolerance - "
 					+ dpiTolerance.getItemCaption(dpiTolerance.getValue())
 					+ "  ");
-			if (tolerance.isEnabled())
+		if (tolerance.isEnabled())
 				builder.append(": " + tolerance.getValue() + "\n");
-			else
+		else
 				builder.append("\n");
 
-			builder.append("DPI Target List - "
+		builder.append("DPI Target List - "
 					+ dpiTargetList.getItemCaption(dpiTargetList.getValue())
 					+ "\n");
 
-			if (dpiTargetSetBox.isEnabled()
+		if (dpiTargetSetBox.isEnabled()
 					&& (dpiTargetSetBox.getValue() != null)) {
 				builder.append(" : "
 						+ dpiTargetSetBox.getItemCaption(dpiTargetSetBox
@@ -747,21 +711,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				targetGeneList = SubSetOperations.getMarkerData(subSetId);
 				for (String gene : targetGeneList)
 					builder.append(gene + "\n");
-			}
+		}
 
-			if (bootStrapNumber.booleanValue() == true) {
+		if (bootStrapNumber.booleanValue() == true) {
 				builder.append("100 Bootstrapping is checked, Consensus Threshold - "
 						+ consensusThreshold.getValue() + "\n");
-			} else
+		} else
 				builder.append("100 Bootstrapping is not checked\n");
 
-			builder.append("Merge multiple probesets - "
+		builder.append("Merge multiple probesets - "
 					+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
 					+ "\n");
-
-		} else
-			builder.append("Algorithm - "
-					+ algoBox.getItemCaption(algoBox.getValue()) + "\n");
 
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);
@@ -811,9 +771,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		if (params.get(AracneParameters.MODE).equals(
-				AracneParameters.PREPROCESSING))
-			return ConfigResult.class;
 		return Network.class;
 	}
 
