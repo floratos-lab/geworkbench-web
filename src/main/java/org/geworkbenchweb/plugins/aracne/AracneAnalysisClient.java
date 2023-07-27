@@ -257,7 +257,6 @@ public class AracneAnalysisClient {
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
 		omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
 		omFactory.createOMElement("bootstrapNumber", namespace, request).setText( (String) params.get(AracneParameters.BOOTS_NUM) );
-		omFactory.createOMElement("consensusThreshold", namespace, request).setText( (String) params.get(AracneParameters.CONSENSUS_THRESHOLD) );
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));

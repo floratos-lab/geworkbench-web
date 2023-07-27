@@ -43,7 +43,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox dpiFiltering = new ComboBox();
 	private TextField threshold = new TextField();
 	private CheckBox bootStrapNumber = new CheckBox();
-	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
 	private static final String defaultBootsNum = "100";
@@ -159,20 +158,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				resultSet, params, AracneUI.this);
 		   GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 	}
-	
-	
-	
+
 	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {
-		/**
-		 * Params default values
-		 */
 		params.put(AracneParameters.DPI_FILTERING, "Yes");
 		params.put(AracneParameters.P_VALUE, "0.01");
 		params.put(AracneParameters.BOOTS_NUM, "1");
-		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
 		params.put(AracneParameters.MERGEPS, "No");
 	}
-	
+
 	private GridLayout initializeExtraParameterPanel() {
 		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets" + QUESTION_MARK);
 		hubGeneMarkerSetBox.setDescription("Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
@@ -224,33 +217,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					params.put(AracneParameters.BOOTS_NUM, defaultBootsNum);
 				else
 					params.put(AracneParameters.BOOTS_NUM, "1");
-				try {
-					if (Integer.valueOf((String) params
-							.get(AracneParameters.BOOTS_NUM)) > 1)
-						consensusThreshold.setEnabled(true);
-					else
-						consensusThreshold.setEnabled(false);
-				} catch (NumberFormatException e) {
-					// do nothing, validate message will in validInputData()
-				}
 			}
 
-		});
-
-		consensusThreshold.setCaption("Consensus Threshold " + QUESTION_MARK);
-		consensusThreshold.setDescription("Set a consensus threshold for retaining network edges after ARACNe bootstrapping");
-		consensusThreshold.setImmediate(true);
-		consensusThreshold.setValue("1.e-6");
-		consensusThreshold.setEnabled(false);
-		consensusThreshold.setNullSettingAllowed(false);
-		consensusThreshold.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.CONSENSUS_THRESHOLD);
-				params.put(AracneParameters.CONSENSUS_THRESHOLD,
-						valueChangeEvent.getProperty().getValue().toString());
-			}
 		});
 
 		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
@@ -278,7 +246,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		layout.addComponent(threshold, 0, 2);
 		layout.addComponent(dpiFiltering, 0, 3);
 		layout.addComponent(bootStrapNumber, 0, 4);
-		layout.addComponent(consensusThreshold, 1, 4);
 		layout.addComponent(mergeProbeSets, 0, 5);
 		
 		return layout;
@@ -335,23 +302,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		bootStrapNumber.setComponentError(null);
 
-		floatValue = -1;
-		try {
-			if (consensusThreshold.getValue() != null)
-				floatValue = Float.parseFloat(consensusThreshold.getValue()
-						.toString());
-		} catch (NumberFormatException e) {
-		}
-
-		if (b > 1) {
-			if (floatValue <= 0 || floatValue > 1) {
-				consensusThreshold.setComponentError(new UserError(
-						"Consensus threshold is not valid."));
-				return false;
-
-			}
-		}
-		consensusThreshold.setComponentError(null);
 		submitButton.setComponentError(null);
 
 		return true;
@@ -378,8 +328,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					+ "  ");
 
 		if (bootStrapNumber.booleanValue() == true) {
-				builder.append("100 Bootstrapping is checked, Consensus Threshold - "
-						+ consensusThreshold.getValue() + "\n");
+				builder.append("100 Bootstrapping is checked\n");
 		} else
 				builder.append("100 Bootstrapping is not checked\n");
 

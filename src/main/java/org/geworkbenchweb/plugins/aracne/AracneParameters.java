@@ -6,6 +6,5 @@ public class AracneParameters {
 	public static String P_VALUE = "thresholdValue";
 	public static String DPI_FILTERING = "dpiFiltering";
 	public static String BOOTS_NUM = "bootstrapNumber";
-	public static String CONSENSUS_THRESHOLD = "consensusThreshold";
 	public static String MERGEPS = "mergeProbeSets";
 }
