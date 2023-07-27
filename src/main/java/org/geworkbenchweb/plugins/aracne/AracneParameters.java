@@ -3,9 +3,7 @@ package org.geworkbenchweb.plugins.aracne;
 public class AracneParameters {
 	/* these are the texts of parameter keys */
 	public static String HUB_MARKER_SET 	= 	"hubGeneMarkerSet";
-	public static String CORRECTION		= 	"correction";
-	public static String T_VALUE 		= 	"thresholdValue";
-	public static String T_TYPE 		= 	"thresholdType";
+	public static String P_VALUE 		= 	"thresholdValue";
 	public static String TOL_VALUE 		= 	"toleranceValue";
 	public static String TOL_TYPE 		= 	"toleranceType";
 	public static String DPI_LIST 		= 	"dpiTargetList";

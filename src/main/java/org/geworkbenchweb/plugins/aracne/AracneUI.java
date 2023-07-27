@@ -40,11 +40,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
-	private ComboBox thresholdType = new ComboBox();
 	private ComboBox dpiTolerance = new ComboBox();
 	private ComboBox dpiTargetList = new ComboBox();
 	private TextField threshold = new TextField();
-	private ComboBox correction = new ComboBox();
 	private TextField tolerance = new TextField();
 	private ComboBox dpiTargetSetBox = new ComboBox();
 	private CheckBox bootStrapNumber = new CheckBox();
@@ -52,8 +50,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
 	private static final String defaultBootsNum = "100";
-	private static final String adaptivePartitioning = "Adaptive Partitioning";
-	private static final String fixedBandwidth = "Fixed Bandwidth";
 	
 	private static String QUESTION_MARK = " \uFFFD";
 	
@@ -177,9 +173,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 */
 		params.put(AracneParameters.TOL_TYPE, "Apply");
 		params.put(AracneParameters.TOL_VALUE, "0.0");
-		params.put(AracneParameters.T_TYPE, "Mutual Info");
-		params.put(AracneParameters.T_VALUE, "0.01");
-		params.put(AracneParameters.CORRECTION, "No Correction");
+		params.put(AracneParameters.P_VALUE, "0.01");
 		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
 		params.put(AracneParameters.BOOTS_NUM, "1");
 		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
@@ -204,58 +198,18 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		});
 
 	
-		threshold.setCaption("Threshold Value" + QUESTION_MARK);
-		threshold.setDescription("Enter a P-value or Mutual Information threshold value");
+		threshold.setCaption("P-Value" + QUESTION_MARK);
+		threshold.setDescription("Enter a P-value");
 		threshold.setValue("0.01");
 		threshold.setNullSettingAllowed(false);
 		threshold.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.T_VALUE);
-				params.put(AracneParameters.T_VALUE, valueChangeEvent
+				params.remove(AracneParameters.P_VALUE);
+				params.put(AracneParameters.P_VALUE, valueChangeEvent
 						.getProperty().getValue().toString());
 			}
-		});
-
-		thresholdType.setCaption("Threshold Type" + QUESTION_MARK);
-		thresholdType.setDescription("Threshold for retaining edges calculated using ARACNe.  Choose to use a <b>P-value</b> threshold (calculated using the background model parameters determined during Preprocessing if a preprocessing configuration node was selected), or directly enter a <b>Mutual Information</b> threshold");
-		thresholdType.setImmediate(true);
-		thresholdType.setNullSelectionAllowed(false);
-		thresholdType.addItem("P-Value");
-		thresholdType.addItem("Mutual Info");
-		thresholdType.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("P-Value")) {
-					correction.setEnabled(true);
-				} else {
-					correction.setEnabled(false);
-				}
-				params.put(AracneParameters.T_TYPE, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
-		thresholdType.select("P-Value");
-		
-		correction.setCaption("Correction Type" + QUESTION_MARK);
-		correction.setDescription("Whether to use a <b>Bonferroni</b> multiple testing correction, or <b>No Correction</b>");
-		correction.setNullSelectionAllowed(false);
-		correction.addItem("No Correction");
-		correction.addItem("Bonferroni Correction");
-		correction.select("No Correction");
-		correction.setEnabled(true);
-		correction.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.remove(AracneParameters.CORRECTION);
-				params.put(AracneParameters.CORRECTION, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-
 		});
 
 		tolerance.setCaption("Tolerance Value" + QUESTION_MARK);
@@ -397,9 +351,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		layout.setImmediate(true);
 		
 		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
-		layout.addComponent(thresholdType, 0, 2);
-		layout.addComponent(threshold, 1, 2);
-		layout.addComponent(correction, 2, 2);
+		layout.addComponent(threshold, 0, 2);
 		layout.addComponent(dpiTolerance, 0, 3);
 		layout.addComponent(tolerance, 1, 3);
 		layout.addComponent(dpiTargetList, 0, 4);
@@ -435,24 +387,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		} catch (NumberFormatException e) {
 		}
 
-		if (((String) params.get(AracneParameters.T_TYPE))
-				.equalsIgnoreCase("Mutual Info")) {
-			if (floatValue < 0) {
-				threshold
-						.setComponentError(new UserError(
-								"Threshold Mutual Info. should be larger than or equal to zero."));
-				return false;
-			}
-		} else {
 
-			if (floatValue < 0 || floatValue > 1)
-
-			{
+		if (floatValue < 0 || floatValue > 1) {
 				threshold.setComponentError(new UserError(
 						"Threshold P-Value should be between 0.0 and 1.0"));
 				return false;
-			}
-
 		}
 
 		threshold.setComponentError(null);
@@ -536,14 +475,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				builder.append(gene + "\n");
 		}
 
-		builder.append("Threshold Type - "
-					+ thresholdType.getItemCaption(thresholdType.getValue())
-					+ ": " + threshold.getValue().toString() + "\n");
-
-		if (correction.isEnabled())
-				builder.append("Correction Type - "
-						+ correction.getItemCaption(correction.getValue())
-						+ "\n");
+		builder.append("P-value: " + threshold.getValue().toString() + "\n");
 
 		builder.append("DPI Tolerance - "
 					+ dpiTolerance.getItemCaption(dpiTolerance.getValue())

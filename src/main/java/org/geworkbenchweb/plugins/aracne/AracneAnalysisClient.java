@@ -247,12 +247,7 @@ public class AracneAnalysisClient {
 		boolean prune = params.get(AracneParameters.MERGEPS).toString()
 				.equalsIgnoreCase("Yes");
 
-		boolean isThresholdMI = ((String) params.get(AracneParameters.T_TYPE)).equalsIgnoreCase("Mutual Info");
-		boolean noCorrection = ((String) params.get(AracneParameters.CORRECTION)).equalsIgnoreCase("No Correction");
-		float threshold = Float.valueOf((String) params.get(AracneParameters.T_VALUE));
-		if(!isThresholdMI && !noCorrection){
-			threshold = threshold / (markerNumber * hubGeneList.size());
-		}
+		float threshold = Float.valueOf((String) params.get(AracneParameters.P_VALUE));
 		
 		List<String> targetGeneList = new ArrayList<String>();
 		if (!((String) params.get(AracneParameters.DPI_LIST))
@@ -281,8 +276,6 @@ public class AracneAnalysisClient {
 		omFactory.createOMElement("isDPIToleranceSpecified", namespace, request).setText(
 						Boolean.toString( ((String) params.get(AracneParameters.TOL_TYPE)).equalsIgnoreCase("Apply") )
 				);
-		omFactory.createOMElement("isThresholdMI", namespace, request).setText(Boolean.toString(isThresholdMI));
-		omFactory.createOMElement("noCorrection", namespace, request).setText(Boolean.toString(noCorrection));
 
 		OMElement response = serviceClient.sendReceive(request);
 		
