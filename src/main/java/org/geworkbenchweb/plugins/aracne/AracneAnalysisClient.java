@@ -47,10 +47,10 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 public class AracneAnalysisClient {
 
 	private static Log log = LogFactory.getLog(AracneAnalysisClient.class);
-	
+
 	private static final Random random = new Random();
 
-	private static final String ARACNE_SERVICE_URL = GeworkbenchRoot.getAppProperty("aracne.clusterService.url");	
+	private static final String ARACNE_SERVICE_URL = GeworkbenchRoot.getAppProperty("aracne.clusterService.url");
 	private static final String ARACNE_NAMESPACE = "http://www.geworkbench.org/service/aracne";
 
 	private static final String DISCOVERY_ENDPOINT = "DiscoveryRequest";
@@ -77,22 +77,24 @@ public class AracneAnalysisClient {
 			hubGeneList = SubSetOperations.getMarkerData(subSetId);
 		}
 
-		 // only for the purpose of dataset name
+		// only for the purpose of dataset name
 		String datasetName = FacadeFactory.getFacade().find(DataSet.class, datasetId).getName();
 
-		List<String> markers = Arrays.asList( microarrays.markerLabels );
+		List<String> markers = Arrays.asList(microarrays.markerLabels);
 
 		File expFile = exportExp(microarrays, hubGeneList, markers);
-		if(expFile == null || !expFile.exists())
+		if (expFile == null || !expFile.exists())
 			throw new RemoteException("Aracne exportExp error");
-		
+
 		try {
 			org.apache.axis2.client.Options serviceOptions = new org.apache.axis2.client.Options();
-	    	serviceOptions.setProperty( Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE );
-	    	serviceOptions.setProperty( Constants.Configuration.ATTACHMENT_TEMP_DIR, System.getProperty("java.io.tmpdir") );
-	    	serviceOptions.setProperty( Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE );
-	    	serviceOptions.setProperty( Constants.Configuration.FILE_SIZE_THRESHOLD, "1024" );
-			//serviceOptions.setProperty(org.apache.axis2.kernel.http.HTTPConstants.SO_TIMEOUT, 600000); // try 10 minutes
+			serviceOptions.setProperty(Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE);
+			serviceOptions.setProperty(Constants.Configuration.ATTACHMENT_TEMP_DIR,
+					System.getProperty("java.io.tmpdir"));
+			serviceOptions.setProperty(Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE);
+			serviceOptions.setProperty(Constants.Configuration.FILE_SIZE_THRESHOLD, "1024");
+			// serviceOptions.setProperty(org.apache.axis2.kernel.http.HTTPConstants.SO_TIMEOUT,
+			// 600000); // try 10 minutes
 			// 50-hour timeout
 			serviceOptions.setTimeOutInMilliSeconds(180000000);
 
@@ -116,28 +118,29 @@ public class AracneAnalysisClient {
 			log.debug("message: " + e.getMessage());
 			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
-			throw new RemoteException( "Aracne AxisFault: " + e.getMessage() + "\nfault action: " + e.getFaultAction()
-					+ "\nreason: " + e.getReason());			
+			throw new RemoteException("Aracne AxisFault: " + e.getMessage() + "\nfault action: " + e.getFaultAction()
+					+ "\nreason: " + e.getReason());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RemoteException( "Compute Aracne error: " + e.getMessage());
+			throw new RemoteException("Compute Aracne error: " + e.getMessage());
 		} finally {
-			if(!expFile.delete()) expFile.deleteOnExit();
+			if (!expFile.delete())
+				expFile.deleteOnExit();
 		}
-	} 
+	}
 
 	/* export the microarray data as a (temporary) .exp file */
 	private static File exportExp(final MicroarraySet microarrays,
 			final List<String> hubGeneList,
 			final List<String> selectedMarkerNames) {
-		
+
 		// get total SelectedArray Num
 		int totalSelectedArrayNum = microarrays.arrayNumber;
 
 		int[] selectedMarkerIndex = new int[selectedMarkerNames.size()];
 		int index = 0;
-		for(int i=0; i<microarrays.markerNumber; i++) {
-			if(selectedMarkerNames.contains( microarrays.markerLabels[i]) ) {
+		for (int i = 0; i < microarrays.markerNumber; i++) {
+			if (selectedMarkerNames.contains(microarrays.markerLabels[i])) {
 				selectedMarkerIndex[index] = i;
 				index++;
 			}
@@ -157,88 +160,105 @@ public class AracneAnalysisClient {
 		}
 
 		File tempdir = new File(GeworkbenchRoot.getBackendDataDirectory() + "/temp/");
-		if (!tempdir.exists() && !tempdir.mkdir()) return null;
-		File dataFile = new File(tempdir, "aracne_"+random.nextInt(Short.MAX_VALUE)+".exp");
+		if (!tempdir.exists() && !tempdir.mkdir())
+			return null;
+		File dataFile = new File(tempdir, "aracne_" + random.nextInt(Short.MAX_VALUE) + ".exp");
 		BufferedWriter bw = null;
-		try{
+		try {
 			bw = new BufferedWriter(new FileWriter(dataFile));
 			bw.write("AffyID\tAnnotation");
-			for(String arrayName : selectedArrayNames) bw.write("\t" + arrayName);
+			for (String arrayName : selectedArrayNames)
+				bw.write("\t" + arrayName);
 			bw.newLine();
-			
+
 			String[] markers = selectedMarkerNames.toArray(new String[0]);
-			for(int i = 0; i < markers.length; i++){
+			for (int i = 0; i < markers.length; i++) {
 				String markerName = markers[i];
 				bw.write(markerName + "\t" + markerName);
-				for(int j = 0; j < selectedArrayNames.length; j++) bw.write("\t" + A[j][i]);
+				for (int j = 0; j < selectedArrayNames.length; j++)
+					bw.write("\t" + A[j][i]);
 				bw.newLine();
 			}
 			bw.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}finally{
-			if(bw != null){
-				try{ bw.close(); }catch(Exception e){ e.printStackTrace(); }
+		} finally {
+			if (bw != null) {
+				try {
+					bw.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return dataFile;
 	}
 
-	/* convert a string list to one newline separated string */ 
+	/* convert a string list to one newline separated string */
 	private static String toString(List<String> list) {
-		if(list == null || list.size()==0) return "";
+		if (list == null || list.size() == 0)
+			return "";
 		StringBuilder sb = new StringBuilder();
-		for(String s : list) sb.append(s).append("\n");
+		for (String s : list)
+			sb.append(s).append("\n");
 		return sb.toString();
 	}
 
 	private static class Edge {
 		final String node1, node2;
 		final float weight;
-		
+
 		Edge(String node1, String node2, float wieght) {
 			this.node1 = node1;
 			this.node2 = node2;
 			this.weight = wieght;
 		}
 	}
-	
+
 	// read and parse the network result response from the web service
-	private static List<Edge> getEdges(DataHandler handler){
-		if(handler == null) return null;
+	private static List<Edge> getEdges(DataHandler handler) {
+		if (handler == null)
+			return null;
 		List<Edge> edges = new ArrayList<Edge>();
 		BufferedReader br = null;
-		try{
+		try {
 			br = new BufferedReader(new InputStreamReader(handler.getInputStream()));
 			String line = null;
-			while((line = br.readLine()) != null){
-				if (line.trim().equals("") || line.startsWith(">")) continue;
+			while ((line = br.readLine()) != null) {
+				if (line.trim().equals("") || line.startsWith(">"))
+					continue;
 				String[] toks = line.split("\t");
 				String node1 = toks[0];
 				int n = toks.length;
-				if(n % 2 == 0 || node1.trim().equals("")) continue;
-				for(int i = 1; i < n; i += 2){
+				if (n % 2 == 0 || node1.trim().equals(""))
+					continue;
+				for (int i = 1; i < n; i += 2) {
 					String node2 = toks[i];
-					if(node2.trim().equals("")) continue;
-					float weight = Float.parseFloat(toks[i+1]);
+					if (node2.trim().equals(""))
+						continue;
+					float weight = Float.parseFloat(toks[i + 1]);
 					edges.add(new Edge(node1, node2, weight));
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}finally{
-			if(br != null){
-				try{ br.close(); }catch(Exception e){ e.printStackTrace(); }
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-		}		
+		}
 		return edges;
 	}
 
-	String resultName = null; // TODO bad design: 1. typical 'side effect' pattern; 2. not consistent with other plugins
-	
-	/* Discovery */
+	String resultName = null; // TODO bad design: 1. typical 'side effect' pattern; 2. not consistent with
+								// other plugins
+
 	private Network discovery(final int markerNumber,
 			final List<String> hubGeneList, final String datasetName,
 			final File expFile, final ServiceClient serviceClient)
@@ -252,37 +272,39 @@ public class AracneAnalysisClient {
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
 		OMElement request = omFactory.createOMElement(DISCOVERY_ENDPOINT, namespace);
-		
+
 		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
 		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
 		omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
-		omFactory.createOMElement("bootstrapNumber", namespace, request).setText( (String) params.get(AracneParameters.BOOTS_NUM) );
+		omFactory.createOMElement("bootstrapNumber", namespace, request)
+				.setText((String) params.get(AracneParameters.BOOTS_NUM));
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
 		omFactory.createOMElement("isDPIFiltering", namespace, request).setText(
-						Boolean.toString( ((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes") )
-				);
+				Boolean.toString(((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes")));
 
 		OMElement response = serviceClient.sendReceive(request);
-		
-		OMElement nameElement = (OMElement)response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjName"));
-		resultName = nameElement.getText();
-		
-		OMElement fileElement = (OMElement)response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjFile"));
-		DataHandler handler = fileElement==null?null:(DataHandler)((OMText)fileElement.getFirstOMChild()).getDataHandler();
 
-		return AracneAnalysisClient.createNetwork(getEdges(handler), hubGeneList , prune, datasetId);
+		OMElement nameElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjName"));
+		resultName = nameElement.getText();
+
+		OMElement fileElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjFile"));
+		DataHandler handler = fileElement == null ? null
+				: (DataHandler) ((OMText) fileElement.getFirstOMChild()).getDataHandler();
+
+		return AracneAnalysisClient.createNetwork(getEdges(handler), hubGeneList, prune, datasetId);
 	}
 
 	static private Network createNetwork(final List<Edge> aracneGraphEdges,
 			final List<String> hubGeneList, final boolean prune, final Long datasetId) {
 		Map<String, NetworkEdges> network = new HashMap<String, NetworkEdges>();
-		if(aracneGraphEdges == null) return new Network(network);
-		
+		if (aracneGraphEdges == null)
+			return new Network(network);
+
 		if (aracneGraphEdges == null || aracneGraphEdges.size() == 0)
 			return new Network(network);
-		
+
 		final Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
 
 		Map<String, List<String>> node2s = new HashMap<String, List<String>>();
@@ -303,36 +325,38 @@ public class AracneAnalysisClient {
 				node1 = marker1;
 				node2 = marker2;
 			} else {
-				String geneName1 = map.get( marker1 );
+				String geneName1 = map.get(marker1);
 				if (geneName1.equals("---"))
 					geneName1 = marker1;
 				node1 = geneName1;
-				 
-				String geneName2 = map.get( marker2 );
+
+				String geneName2 = map.get(marker2);
 				if (geneName2.equals("---"))
 					geneName2 = marker2;
 				node2 = geneName2;
 			}
 			List<String> n2 = node2s.get(node1);
-			if(n2==null) {
+			if (n2 == null) {
 				n2 = new ArrayList<String>();
 				node2s.put(node1, n2);
 			}
 			n2.add(node2);
 			List<Double> w = weights.get(node1);
-			if(w==null) {
+			if (w == null) {
 				w = new ArrayList<Double>();
 				weights.put(node1, w);
 			}
-			w.add( new Double(edge.weight) );
+			w.add(Double.valueOf(edge.weight));
 			nEdge++;
 		}
-		for(String node1 : node2s.keySet()) {
+		for (String node1 : node2s.keySet()) {
 			List<String> n2 = node2s.get(node1);
 			List<Double> w = weights.get(node1);
 			String[] types = new String[w.size()];
-			for(int i=0; i<types.length; i++) { types[i] = "pd"; }
-			NetworkEdges edges = new NetworkEdges(n2, w, types); 
+			for (int i = 0; i < types.length; i++) {
+				types[i] = "pd";
+			}
+			NetworkEdges edges = new NetworkEdges(n2, w, types);
 			network.put(node1, edges);
 		}
 		log.debug("edge count " + nEdge);

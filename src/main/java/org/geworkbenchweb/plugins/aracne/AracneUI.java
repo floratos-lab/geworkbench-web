@@ -31,7 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
- 
+
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
 	private static final String defaultBootsNum = "100";
-	
+
 	private static String QUESTION_MARK = " \uFFFD";
 
 	public AracneUI() {
@@ -84,41 +84,36 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						subSetId = Long.parseLong((String) hubGeneMarkerSetBox
 								.getValue().toString().trim());
 						hubGeneList = SubSetOperations.getMarkerData(subSetId);
-					}
-					else
+					} else
 						hubGeneList = null;
-					
+
 					if (validInputData(hubGeneList)) {
 
 						DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
 						int arrayNum = DataSetOperations.getNumber("arrayNumber", dataset.getDataId());
-						if (arrayNum < 100)
-						{	   
-						    String theMessage = "ARACNe should not in general be run on less than 100 arrays. Do you want to continue?";
+						if (arrayNum < 100) {
+							String theMessage = "ARACNe should not in general be run on less than 100 arrays. Do you want to continue?";
 
-						    MessageBox mb = new MessageBox(getWindow(), "Warning", null,
-								theMessage, new MessageBox.ButtonConfig(
-										MessageBox.ButtonType.CUSTOM1, "Cancel"),
-								new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
-										"Continue"));
-						   
-						    mb.show(new MessageBox.EventListener() {
+							MessageBox mb = new MessageBox(getWindow(), "Warning", null,
+									theMessage, new MessageBox.ButtonConfig(
+											MessageBox.ButtonType.CUSTOM1, "Cancel"),
+									new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
+											"Continue"));
 
-							    private static final long serialVersionUID = 1L;
+							mb.show(new MessageBox.EventListener() {
 
-							  
-						     	@Override
-							    public void buttonClicked(ButtonType buttonType) {
-								   if (buttonType == ButtonType.CUSTOM1)
-									  return;
-								   else
-									  addPendingNode(hubGeneList);
-							    }
-						    });						   
-						}
-						else  
-						{ 
-							 addPendingNode(hubGeneList);
+								private static final long serialVersionUID = 1L;
+
+								@Override
+								public void buttonClicked(ButtonType buttonType) {
+									if (buttonType == ButtonType.CUSTOM1)
+										return;
+									else
+										addPendingNode(hubGeneList);
+								}
+							});
+						} else {
+							addPendingNode(hubGeneList);
 						}
 					}
 
@@ -127,7 +122,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				}
 			}
 		});
-		
+
 		gridLayout.addComponent(extraParameterLayout, 0, 0, 2, 5);
 		gridLayout.addComponent(submitButton, 0, 6);
 
@@ -135,28 +130,27 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	private void addPendingNode(List<String> hubGeneList)
-	{
-		  ResultSet resultSet = new ResultSet();
-		   java.sql.Timestamp timestamp = new java.sql.Timestamp(
+	private void addPendingNode(List<String> hubGeneList) {
+		ResultSet resultSet = new ResultSet();
+		java.sql.Timestamp timestamp = new java.sql.Timestamp(
 				System.currentTimeMillis());
-		   resultSet.setTimestamp(timestamp);
-		   String dataSetName = "Aracne - Pending";
-		   resultSet.setName(dataSetName);
-		   resultSet.setType(getResultType().getName());
-		   resultSet.setParent(dataSetId);
-		   resultSet.setOwner(SessionHandler.get().getId());
-		   FacadeFactory.getFacade().store(resultSet);
+		resultSet.setTimestamp(timestamp);
+		String dataSetName = "Aracne - Pending";
+		resultSet.setName(dataSetName);
+		resultSet.setType(getResultType().getName());
+		resultSet.setParent(dataSetId);
+		resultSet.setOwner(SessionHandler.get().getId());
+		FacadeFactory.getFacade().store(resultSet);
 
-		   generateHistoryString(resultSet.getId(), hubGeneList);
+		generateHistoryString(resultSet.getId(), hubGeneList);
 
-		   GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
+		GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
 				.getApplication();
-		   app.addNode(resultSet);
+		app.addNode(resultSet);
 
-		   AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
+		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, AracneUI.this);
-		   GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
 	}
 
 	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {
@@ -168,7 +162,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private GridLayout initializeExtraParameterPanel() {
 		hubGeneMarkerSetBox.setCaption("Hub Marker(s) From Sets" + QUESTION_MARK);
-		hubGeneMarkerSetBox.setDescription("Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
+		hubGeneMarkerSetBox.setDescription(
+				"Mutual information is calculated between each hub marker and all other selected markers (default All Markers)");
 		hubGeneMarkerSetBox.setTextInputAllowed(false);
 		hubGeneMarkerSetBox.setNullSelectionAllowed(false);
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
@@ -183,7 +178,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-	
 		threshold.setCaption("P-Value" + QUESTION_MARK);
 		threshold.setDescription("Enter a P-value");
 		threshold.setValue("0.01");
@@ -207,7 +201,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiFiltering.select("Yes");
 
 		bootStrapNumber.setCaption(defaultBootsNum + " rounds of Bootstrapping" + QUESTION_MARK);
-		bootStrapNumber.setDescription("If checked, run 100 rounds of ARACNe bootstrapping and generate a consensus network, otherwise perform a single run of ARACNe");
+		bootStrapNumber.setDescription(
+				"If checked, run 100 rounds of ARACNe bootstrapping and generate a consensus network, otherwise perform a single run of ARACNe");
 		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
@@ -222,7 +217,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		});
 
 		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
-		mergeProbeSets.setDescription("If Yes, summarize each particular gene-gene edge by the strongest connection between their individual probesets, when more than one probeset per gene is present in the network. Requires that an appropriate annotation file linking probesets to gene symbols was loaded along with the expression matrix.  The network is output in terms of gene symbols.");
+		mergeProbeSets.setDescription(
+				"If Yes, summarize each particular gene-gene edge by the strongest connection between their individual probesets, when more than one probeset per gene is present in the network. Requires that an appropriate annotation file linking probesets to gene symbols was loaded along with the expression matrix.  The network is output in terms of gene symbols.");
 		mergeProbeSets.addItem("Yes");
 		mergeProbeSets.addItem("No");
 		mergeProbeSets.select("No");
@@ -237,17 +233,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						.getProperty().getValue().toString());
 			}
 		});
-		
+
 		final GridLayout layout = new GridLayout(4, 6);
 		layout.setSpacing(true);
 		layout.setImmediate(true);
-		
+
 		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
 		layout.addComponent(threshold, 0, 2);
 		layout.addComponent(dpiFiltering, 0, 3);
 		layout.addComponent(bootStrapNumber, 0, 4);
 		layout.addComponent(mergeProbeSets, 0, 5);
-		
+
 		return layout;
 	}
 
@@ -275,11 +271,10 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		} catch (NumberFormatException e) {
 		}
 
-
 		if (floatValue < 0 || floatValue > 1) {
-				threshold.setComponentError(new UserError(
-						"Threshold P-Value should be between 0.0 and 1.0"));
-				return false;
+			threshold.setComponentError(new UserError(
+					"Threshold P-Value should be between 0.0 and 1.0"));
+			return false;
 		}
 
 		threshold.setComponentError(null);
@@ -316,7 +311,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		if (hubGeneList != null) {
 			builder.append("Hub Marker(s) from Sets - "
 					+ hubGeneMarkerSetBox.getItemCaption(hubGeneMarkerSetBox
-							.getValue()) + ": \n");
+							.getValue())
+					+ ": \n");
 			for (String gene : hubGeneList)
 				builder.append(gene + "\n");
 		}
@@ -324,17 +320,17 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		builder.append("P-value: " + threshold.getValue().toString() + "\n");
 
 		builder.append("DPI Tolerance - "
-					+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
-					+ "  ");
+				+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
+				+ "  ");
 
 		if (bootStrapNumber.booleanValue() == true) {
-				builder.append("100 Bootstrapping is checked\n");
+			builder.append("100 Bootstrapping is checked\n");
 		} else
-				builder.append("100 Bootstrapping is not checked\n");
+			builder.append("100 Bootstrapping is not checked\n");
 
 		builder.append("Merge multiple probesets - "
-					+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
-					+ "\n");
+				+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
+				+ "\n");
 
 		DataHistory his = new DataHistory();
 		his.setParent(resultSetId);
@@ -372,9 +368,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
 				resultId);
 		result.setDataId(output.getId());
-		if(output instanceof Network) { // FIXME binding two different types together horrible idea
-			Network n = (Network)output;
-			result.setDescription("# of nodes: "+n.getNodeNumber()+", # of edges: "+n.getEdgeNumber());
+		if (output instanceof Network) { // FIXME binding two different types together horrible idea
+			Network n = (Network) output;
+			result.setDescription("# of nodes: " + n.getNodeNumber() + ", # of edges: " + n.getEdgeNumber());
 		}
 		FacadeFactory.getFacade().store(result);
 
