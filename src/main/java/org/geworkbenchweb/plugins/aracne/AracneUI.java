@@ -319,7 +319,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		builder.append("P-value: " + threshold.getValue().toString() + "\n");
 
-		builder.append("DPI Tolerance - "
+		builder.append("DPI Filtering - "
 				+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
 				+ "  ");
 
@@ -351,6 +351,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					((SubSet) markerSubSets.get(m)).getId(),
 					((SubSet) markerSubSets.get(m)).getName());
 		}
+		if (markerSubSets.size() > 0)
+			hubGeneMarkerSetBox.select(((SubSet) (markerSubSets.get(0))).getId());
 	}
 
 	@Override
