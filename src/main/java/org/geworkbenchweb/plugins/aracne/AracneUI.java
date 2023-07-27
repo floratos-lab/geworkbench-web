@@ -40,10 +40,9 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
-	private ComboBox dpiTolerance = new ComboBox();
+	private ComboBox dpiFiltering = new ComboBox();
 	private ComboBox dpiTargetList = new ComboBox();
 	private TextField threshold = new TextField();
-	private TextField tolerance = new TextField();
 	private ComboBox dpiTargetSetBox = new ComboBox();
 	private CheckBox bootStrapNumber = new CheckBox();
 	private TextField consensusThreshold = new TextField();
@@ -52,8 +51,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private static final String defaultBootsNum = "100";
 	
 	private static String QUESTION_MARK = " \uFFFD";
-	
-	 
 
 	public AracneUI() {
 		this(0L);
@@ -171,8 +168,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		/**
 		 * Params default values
 		 */
-		params.put(AracneParameters.TOL_TYPE, "Apply");
-		params.put(AracneParameters.TOL_VALUE, "0.0");
+		params.put(AracneParameters.DPI_FILTERING, "Yes");
 		params.put(AracneParameters.P_VALUE, "0.01");
 		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
 		params.put(AracneParameters.BOOTS_NUM, "1");
@@ -212,43 +208,13 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 
-		tolerance.setCaption("Tolerance Value" + QUESTION_MARK);
-		tolerance.setDescription("Value for DPI Tolerance");
-		tolerance.setValue("0.0");
-		tolerance.setNullSettingAllowed(false);
-		tolerance.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.TOL_VALUE, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-
-		});
-
-		dpiTolerance.setCaption("DPI Tolerance" + QUESTION_MARK);
-		dpiTolerance.setDescription("Choose <b>Apply</b> to use the <b>Data Processing Inequality</b> to remove indirect connections between network nodes, otherwise choose <b>Do Not Apply</b>");
-		dpiTolerance.setImmediate(true);
-		dpiTolerance.setNullSelectionAllowed(false);
-		dpiTolerance.addItem("Apply");
-		dpiTolerance.addItem("Do Not Apply");
-		dpiTolerance.select("Apply");
-		dpiTolerance.addListener(new Property.ValueChangeListener() {
-
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-
-				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("Apply")) {
-					tolerance.setEnabled(true);
-				} else {
-					tolerance.setEnabled(false);
-				}
-				params.put(AracneParameters.TOL_TYPE, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
+		dpiFiltering.setCaption("DPI-based interaction filtering" + QUESTION_MARK);
+		dpiFiltering.setDescription("to run ARACNe with or without DPI filtering");
+		dpiFiltering.setImmediate(true);
+		dpiFiltering.setNullSelectionAllowed(false);
+		dpiFiltering.addItem("Yes");
+		dpiFiltering.addItem("No");
+		dpiFiltering.select("Yes");
 
 		dpiTargetSetBox.setCaption("DPI Target List Selection" + QUESTION_MARK);
 		dpiTargetSetBox.setDescription("Choose a marker set to protect from DPI removal");
@@ -352,8 +318,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		
 		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
 		layout.addComponent(threshold, 0, 2);
-		layout.addComponent(dpiTolerance, 0, 3);
-		layout.addComponent(tolerance, 1, 3);
+		layout.addComponent(dpiFiltering, 0, 3);
 		layout.addComponent(dpiTargetList, 0, 4);
 		layout.addComponent(dpiTargetSetBox, 1, 4);
 		layout.addComponent(bootStrapNumber, 0, 5);
@@ -397,23 +362,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		threshold.setComponentError(null);
 
 		floatValue = -1;
-		try {
-			if (tolerance.getValue() != null)
-				floatValue = Float.parseFloat(tolerance.getValue().toString());
-		} catch (NumberFormatException e) {
-		}
-
-		if (((String) params.get(AracneParameters.TOL_TYPE))
-				.equalsIgnoreCase("Apply")) {
-			if (floatValue < 0 || floatValue > 1) {
-				tolerance
-						.setComponentError(new UserError(
-								"DPI Tolerance should be a float number between 0.0 and 1.0."));
-				return false;
-			}
-
-		}
-		tolerance.setComponentError(null);
 
 		if (dpiTargetSetBox.isEnabled() && dpiTargetSetBox.getValue() == null) {
 			dpiTargetSetBox.setComponentError(new UserError(
@@ -478,12 +426,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		builder.append("P-value: " + threshold.getValue().toString() + "\n");
 
 		builder.append("DPI Tolerance - "
-					+ dpiTolerance.getItemCaption(dpiTolerance.getValue())
+					+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
 					+ "  ");
-		if (tolerance.isEnabled())
-				builder.append(": " + tolerance.getValue() + "\n");
-		else
-				builder.append("\n");
 
 		builder.append("DPI Target List - "
 					+ dpiTargetList.getItemCaption(dpiTargetList.getValue())

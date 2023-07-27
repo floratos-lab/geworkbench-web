@@ -269,12 +269,11 @@ public class AracneAnalysisClient {
 		omFactory.createOMElement("bootstrapNumber", namespace, request).setText( (String) params.get(AracneParameters.BOOTS_NUM) );
 		omFactory.createOMElement("consensusThreshold", namespace, request).setText( (String) params.get(AracneParameters.CONSENSUS_THRESHOLD) );
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
-		omFactory.createOMElement("dPITolerance", namespace, request).setText( (String) params.get(AracneParameters.TOL_VALUE) );
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
 		omFactory.createOMElement("targetGeneList", namespace, request).setText(toString(targetGeneList));
-		omFactory.createOMElement("isDPIToleranceSpecified", namespace, request).setText(
-						Boolean.toString( ((String) params.get(AracneParameters.TOL_TYPE)).equalsIgnoreCase("Apply") )
+		omFactory.createOMElement("isDPIFiltering", namespace, request).setText(
+						Boolean.toString( ((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes") )
 				);
 
 		OMElement response = serviceClient.sendReceive(request);
