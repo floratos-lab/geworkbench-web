@@ -41,9 +41,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox dpiFiltering = new ComboBox();
-	private ComboBox dpiTargetList = new ComboBox();
 	private TextField threshold = new TextField();
-	private ComboBox dpiTargetSetBox = new ComboBox();
 	private CheckBox bootStrapNumber = new CheckBox();
 	private TextField consensusThreshold = new TextField();
 	private ComboBox mergeProbeSets = new ComboBox();
@@ -131,8 +129,8 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 		
-		gridLayout.addComponent(extraParameterLayout, 0, 0, 2, 6);
-		gridLayout.addComponent(submitButton, 0, 7);
+		gridLayout.addComponent(extraParameterLayout, 0, 0, 2, 5);
+		gridLayout.addComponent(submitButton, 0, 6);
 
 		addComponent(gridLayout);
 
@@ -170,7 +168,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		 */
 		params.put(AracneParameters.DPI_FILTERING, "Yes");
 		params.put(AracneParameters.P_VALUE, "0.01");
-		params.put(AracneParameters.DPI_LIST, "Do Not Apply");
 		params.put(AracneParameters.BOOTS_NUM, "1");
 		params.put(AracneParameters.CONSENSUS_THRESHOLD, "1.e-6");
 		params.put(AracneParameters.MERGEPS, "No");
@@ -215,45 +212,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		dpiFiltering.addItem("Yes");
 		dpiFiltering.addItem("No");
 		dpiFiltering.select("Yes");
-
-		dpiTargetSetBox.setCaption("DPI Target List Selection" + QUESTION_MARK);
-		dpiTargetSetBox.setDescription("Choose a marker set to protect from DPI removal");
-		dpiTargetSetBox.setNullSelectionAllowed(false);
-		dpiTargetSetBox.setInputPrompt("Select Marker Set");
-		dpiTargetSetBox.setImmediate(true);
-		dpiTargetSetBox.setEnabled(false);
-
-		dpiTargetSetBox.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				params.put(AracneParameters.DPI_SET, String
-						.valueOf(valueChangeEvent.getProperty().getValue()));
-			}
-		});
-
-		dpiTargetList.setCaption("DPI Target List" + QUESTION_MARK);
-		dpiTargetList.setDescription("if <b>Apply</b> is chosen, allows a set of hub markers (e.g. transcription factors) to be given whose interactions will not be removed by use of the DPI, even if any such interaction is weaker than other network edges with which it forms a triangle");
-		dpiTargetList.setImmediate(true);
-		dpiTargetList.setNullSelectionAllowed(false);
-		dpiTargetList.addItem("From Sets");
-		dpiTargetList.addItem("Do Not Apply");
-		dpiTargetList.select("Do Not Apply");
-		dpiTargetList.addListener(new Property.ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
-				if (valueChangeEvent.getProperty().getValue().toString()
-						.equalsIgnoreCase("From Sets")) {
-					dpiTargetSetBox.setEnabled(true);
-				} else {
-					dpiTargetSetBox.setEnabled(false);
-				}
-				params.remove(AracneParameters.DPI_LIST);
-				params.put(AracneParameters.DPI_LIST, valueChangeEvent
-						.getProperty().getValue().toString());
-			}
-		});
 
 		bootStrapNumber.setCaption(defaultBootsNum + " rounds of Bootstrapping" + QUESTION_MARK);
 		bootStrapNumber.setDescription("If checked, run 100 rounds of ARACNe bootstrapping and generate a consensus network, otherwise perform a single run of ARACNe");
@@ -312,18 +270,16 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 		});
 		
-		final GridLayout layout = new GridLayout(4, 7);
+		final GridLayout layout = new GridLayout(4, 6);
 		layout.setSpacing(true);
 		layout.setImmediate(true);
 		
 		layout.addComponent(hubGeneMarkerSetBox, 0, 1);
 		layout.addComponent(threshold, 0, 2);
 		layout.addComponent(dpiFiltering, 0, 3);
-		layout.addComponent(dpiTargetList, 0, 4);
-		layout.addComponent(dpiTargetSetBox, 1, 4);
-		layout.addComponent(bootStrapNumber, 0, 5);
-		layout.addComponent(consensusThreshold, 1, 5);
-		layout.addComponent(mergeProbeSets, 0, 6);
+		layout.addComponent(bootStrapNumber, 0, 4);
+		layout.addComponent(consensusThreshold, 1, 4);
+		layout.addComponent(mergeProbeSets, 0, 5);
 		
 		return layout;
 	}
@@ -362,14 +318,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		threshold.setComponentError(null);
 
 		floatValue = -1;
-
-		if (dpiTargetSetBox.isEnabled() && dpiTargetSetBox.getValue() == null) {
-			dpiTargetSetBox.setComponentError(new UserError(
-					"Please select DPI Target set."));
-			return false;
-		}
-
-		dpiTargetSetBox.setComponentError(null);
 
 		int b = 0;
 		try {
@@ -429,23 +377,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 					+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
 					+ "  ");
 
-		builder.append("DPI Target List - "
-					+ dpiTargetList.getItemCaption(dpiTargetList.getValue())
-					+ "\n");
-
-		if (dpiTargetSetBox.isEnabled()
-					&& (dpiTargetSetBox.getValue() != null)) {
-				builder.append(" : "
-						+ dpiTargetSetBox.getItemCaption(dpiTargetSetBox
-								.getValue()) + "\n");
-				List<String> targetGeneList = null;
-				Long subSetId = Long.parseLong((String) dpiTargetSetBox
-						.getValue().toString().trim());
-				targetGeneList = SubSetOperations.getMarkerData(subSetId);
-				for (String gene : targetGeneList)
-					builder.append(gene + "\n");
-		}
-
 		if (bootStrapNumber.booleanValue() == true) {
 				builder.append("100 Bootstrapping is checked, Consensus Threshold - "
 						+ consensusThreshold.getValue() + "\n");
@@ -472,14 +403,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			hubGeneMarkerSetBox
 					.addItem(((SubSet) markerSubSets.get(m)).getId());
 			hubGeneMarkerSetBox.setItemCaption(
-					((SubSet) markerSubSets.get(m)).getId(),
-					((SubSet) markerSubSets.get(m)).getName());
-		}
-
-		dpiTargetSetBox.removeAllItems();
-		for (int m = 0; m < (markerSubSets).size(); m++) {
-			dpiTargetSetBox.addItem(((SubSet) markerSubSets.get(m)).getId());
-			dpiTargetSetBox.setItemCaption(
 					((SubSet) markerSubSets.get(m)).getId(),
 					((SubSet) markerSubSets.get(m)).getName());
 		}

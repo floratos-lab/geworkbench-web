@@ -248,16 +248,6 @@ public class AracneAnalysisClient {
 				.equalsIgnoreCase("Yes");
 
 		float threshold = Float.valueOf((String) params.get(AracneParameters.P_VALUE));
-		
-		List<String> targetGeneList = new ArrayList<String>();
-		if (!((String) params.get(AracneParameters.DPI_LIST))
-				.equalsIgnoreCase("Do Not Apply") && params
-				.get(AracneParameters.DPI_SET) != null) {
-			Long subSetId = Long.parseLong((String) params
-					.get(AracneParameters.DPI_SET));
-			targetGeneList = SubSetOperations.getMarkerData(subSetId);
-		}
-
 
 		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
 		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
@@ -271,7 +261,6 @@ public class AracneAnalysisClient {
 		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
 		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
 		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
-		omFactory.createOMElement("targetGeneList", namespace, request).setText(toString(targetGeneList));
 		omFactory.createOMElement("isDPIFiltering", namespace, request).setText(
 						Boolean.toString( ((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes") )
 				);
