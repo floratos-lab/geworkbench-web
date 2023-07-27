@@ -129,7 +129,7 @@ public class AracneAnalysisClient {
 		}
 	}
 
-	/* export the microarray data as a (temporary) .exp file */
+	/* export the microarray data as a temporary) gene expression file for aracne */
 	private static File exportExp(final MicroarraySet microarrays,
 			final List<String> hubGeneList,
 			final List<String> selectedMarkerNames) {
@@ -231,15 +231,11 @@ public class AracneAnalysisClient {
 				String[] toks = line.split("\t");
 				String node1 = toks[0];
 				int n = toks.length;
-				if (n % 2 == 0 || node1.trim().equals(""))
+				if (n != 4 || node1.trim().equals(""))
 					continue;
-				for (int i = 1; i < n; i += 2) {
-					String node2 = toks[i];
-					if (node2.trim().equals(""))
-						continue;
-					float weight = Float.parseFloat(toks[i + 1]);
-					edges.add(new Edge(node1, node2, weight));
-				}
+				String node2 = toks[1];
+				float weight = Float.parseFloat(toks[2]);
+				edges.add(new Edge(node1, node2, weight));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
