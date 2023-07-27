@@ -166,7 +166,7 @@ public class AracneAnalysisClient {
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(dataFile));
-			bw.write("AffyID\tAnnotation");
+			bw.write("gene");
 			for (String arrayName : selectedArrayNames)
 				bw.write("\t" + arrayName);
 			bw.newLine();
@@ -174,7 +174,7 @@ public class AracneAnalysisClient {
 			String[] markers = selectedMarkerNames.toArray(new String[0]);
 			for (int i = 0; i < markers.length; i++) {
 				String markerName = markers[i];
-				bw.write(markerName + "\t" + markerName);
+				bw.write(markerName);
 				for (int j = 0; j < selectedArrayNames.length; j++)
 					bw.write("\t" + A[j][i]);
 				bw.newLine();
