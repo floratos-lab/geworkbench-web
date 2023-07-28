@@ -215,6 +215,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			}
 
 		});
+		bootStrapNumber.setValue(true);
 
 		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
 		mergeProbeSets.setDescription(
