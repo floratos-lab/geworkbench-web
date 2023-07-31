@@ -539,7 +539,7 @@
 			<version>3.8-20120326</version>
 		</dependency>
 		<dependency>
-			<groupId>sessionguard</groupId>
+			<groupId>org.vaadin.addons</groupId>
 			<artifactId>sessionguard</artifactId>
 			<version>0.0.5</version>
 		</dependency>
