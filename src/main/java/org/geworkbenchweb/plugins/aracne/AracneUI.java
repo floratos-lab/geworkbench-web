@@ -23,7 +23,6 @@ import com.vaadin.data.Property;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
@@ -42,7 +41,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 	private ComboBox hubGeneMarkerSetBox = new ComboBox();
 	private ComboBox dpiFiltering = new ComboBox();
 	private TextField threshold = new TextField();
-	private CheckBox bootStrapNumber = new CheckBox();
+	private ComboBox bootStrapNumber = new ComboBox();
 	private ComboBox mergeProbeSets = new ComboBox();
 	private Button submitButton = null;
 	private static final String defaultBootsNum = "100";
@@ -202,20 +201,21 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		bootStrapNumber.setCaption(defaultBootsNum + " rounds of Bootstrapping" + QUESTION_MARK);
 		bootStrapNumber.setDescription(
-				"If checked, run 100 rounds of ARACNe bootstrapping and generate a consensus network, otherwise perform a single run of ARACNe");
+				"the number of rounds of ARACNe bootstrapping");
 		bootStrapNumber.setImmediate(true);
 		bootStrapNumber.addListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event) {
-				if (bootStrapNumber.booleanValue())
-					params.put(AracneParameters.BOOTS_NUM, defaultBootsNum);
-				else
-					params.put(AracneParameters.BOOTS_NUM, "1");
+				params.put(AracneParameters.BOOTS_NUM, (String)bootStrapNumber.getValue());
 			}
 
 		});
-		bootStrapNumber.setValue(true);
+		bootStrapNumber.addItem("10");
+		bootStrapNumber.addItem("20");
+		bootStrapNumber.addItem("50");
+		bootStrapNumber.addItem("100");
+		bootStrapNumber.select("100");
 
 		mergeProbeSets.setCaption("Merge multiple probesets" + QUESTION_MARK);
 		mergeProbeSets.setDescription(
@@ -324,10 +324,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 				+ dpiFiltering.getItemCaption(dpiFiltering.getValue())
 				+ "  ");
 
-		if (bootStrapNumber.booleanValue() == true) {
-			builder.append("100 Bootstrapping is checked\n");
-		} else
-			builder.append("100 Bootstrapping is not checked\n");
+		builder.append("Bootstrapping number " + bootStrapNumber.getValue() + "\n");
 
 		builder.append("Merge multiple probesets - "
 				+ mergeProbeSets.getItemCaption(mergeProbeSets.getValue())
