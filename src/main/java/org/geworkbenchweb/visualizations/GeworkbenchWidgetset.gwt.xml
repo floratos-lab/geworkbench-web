@@ -56,8 +56,4 @@
 
     <inherits name="org.vaadin.alump.fancylayouts.widgetset.FancyLayoutsWidgetset" />
 
-    <inherits name="org.vaadin.peter.multibutton.MultibuttonWidgetset" />
-
-    <inherits name="com.bibounde.vprotovis.gwt.VProtovisWidgetSet" />
-
 </module>

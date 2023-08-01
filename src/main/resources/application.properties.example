@@ -13,9 +13,6 @@ data.directory = geworkbench
 #public annotation file directory. this is under the user (app owner) home directory
 public.annotation.directory = public_annotations
 
-#genspace switch. set to "on" to turn genspace on
-genspace = off
-
 #send email from this email account to users who needs to confirm registration or forgot password/username
 mail.smtp.auth=true
 mail.smtp.host=smtp.gmail.com

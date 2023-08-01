@@ -10,10 +10,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.genspace.GenSpaceServerFactory;
-import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.genspace.chat.ChatReceiver;
-import org.geworkbenchweb.genspace.ui.GenspaceLayout;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -24,7 +20,6 @@ import org.geworkbenchweb.utils.WorkspaceUtils;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -38,7 +33,6 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -63,10 +57,8 @@ public class UMainToolBar extends MenuBar {
 	private Window chatMain;
 	private String username;
 	private String password;
-	private GenspaceLayout layout = null;
 
-	public UMainToolBar(final VisualPluginView pluginView,
-			final GenspaceLogger genSpaceLogger) {
+	public UMainToolBar(final VisualPluginView pluginView) {
 
 		this.pluginView = pluginView;
 		setImmediate(true);
@@ -336,81 +328,6 @@ public class UMainToolBar extends MenuBar {
 			}
 		});
 
-		/* Add an entry to genSpace */
-		if(GeworkbenchRoot.genespaceEnabled()) {
-		this.addItem("genSpace", new Command() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				if (GeworkbenchRoot.genespaceEnabled()) {
-					if (UMainToolBar.this.layout == null) {
-						ICEPush pusher = new ICEPush();
-						
-						UMainToolBar.this.layout = new GenspaceLayout(genSpaceLogger, pusher);
-						
-						if (!UMainToolBar.this.layout.getGenSpaceLogin_1().autoLogin(username, password)) {
-							UMainToolBar.this.layout.getGenSpaceLogin_1().authorizeLayout();
-						}
-					}
-					UMainToolBar.this.pluginView
-							.showGenSpace(UMainToolBar.this.layout);
-					genSpaceLogger.getGenSpaceLogin().setUIMainWindow(
-							getApplication().getMainWindow());
-
-				} else {
-					Window mainWindow = getApplication().getMainWindow();
-					Notification msg = new Notification(
-							"Genspace is not activated. Please contact the system administrator.",
-							Notification.TYPE_HUMANIZED_MESSAGE);
-					mainWindow.showNotification(msg);
-				}
-
-			}
-		});
-
-		this.addItem("Chat", new Command() {
-			private static final long serialVersionUID = 1L;
-
-			public void menuSelected(MenuItem selectedItem) {
-				final GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
-				final Window mainWindow = getApplication().getMainWindow();
-				if (GeworkbenchRoot.genespaceEnabled()) {
-					if (!genSpaceServerFactory.userLogin(username, password)) {
-						Notification errMsg = new Notification(
-								"Invalid username and/or password for Chatter",
-								Notification.TYPE_ERROR_MESSAGE);
-						mainWindow.showNotification(errMsg);
-					} else {
-						final ChatReceiver chatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
-						if (chatMain != null && chatMain.getWindow() != null) {
-							chatHandler.getRoster().reload();
-							chatMain.setVisible(true);
-							if (chatMain.getParent() == null) {
-								mainWindow.addWindow(chatMain);
-							}
-						} else {
-							// in case chatMain is null
-							chatMain = ChatReceiver.createChatMain(chatHandler);
-							if (chatHandler.getRoster() != null) {
-								chatHandler.getRoster().reload();
-							} else {
-								//For the case that roster disappear for no reason 
-								try {
-									chatHandler.reLogin();
-									chatMain = ChatReceiver.createChatMain(chatHandler);
-								} catch (Exception ex) {
-									ex.printStackTrace();
-								}
-							}
-							mainWindow.addWindow(chatMain);
-						}
-					}
-				}
-			}
-		});
-		}
-		
 		final MenuBar.MenuItem aboutItem = this.addItem("About", null);
 		buildAboutMenuItem(aboutItem);
 
@@ -420,11 +337,6 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				ChatReceiver tmpchatHandler = null;
-				if(genSpaceLogger!=null && genSpaceLogger.getGenSpaceLogin()!=null) {
-					tmpchatHandler = genSpaceLogger.getGenSpaceLogin().getChatHandler();
-				}
-				final ChatReceiver chatHandler = tmpchatHandler;
 
 				if (uploadPending()) {
 					MessageBox mb = new MessageBox(
@@ -445,11 +357,6 @@ public class UMainToolBar extends MenuBar {
 								if(uploadDataUI!=null)uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be allowed to be null or not
 								clearTabularView();
 
-								if (chatHandler != null) {
-									chatHandler.logout(username, true);
-									handleChatMain();
-								}
-
 								SessionHandler.logout();
 								getApplication().close();
 								UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
@@ -459,11 +366,6 @@ public class UMainToolBar extends MenuBar {
 					});
 				} else {
 					clearTabularView();
-
-					if (chatHandler != null) {
-						chatHandler.logout(username, true);
-						handleChatMain();
-					}
 
 					SessionHandler.logout();
 					getApplication().close();
@@ -481,9 +383,6 @@ public class UMainToolBar extends MenuBar {
 		/* list size must be 1 */
 		currentWorkspace = list.get(0).getWorkspace();
 		log.debug("current workspace ID " + currentWorkspace);
-
-		if(genSpaceLogger!=null && genSpaceLogger.getGenSpaceLogin()!=null)
-			genSpaceLogger.getGenSpaceLogin().setUMainToolBar(this);
 	}
 
 	private void buildAboutMenuItem(MenuItem aboutItem) {
@@ -573,17 +472,6 @@ public class UMainToolBar extends MenuBar {
 		return this.password;
 	}
 
-	public void initGenspaceLogin(GenspaceLogger genSpaceLogger) {
-		
-		if (!genSpaceLogger.getGenSpaceLogin().getGenSpaceServerFactory().userLogin(username, password)) {
-			return;
-		}
-		
-		ChatReceiver chatHandler = new ChatReceiver(genSpaceLogger.getGenSpaceLogin());
-		chatHandler.login(username, password);
-		genSpaceLogger.getGenSpaceLogin().setChatHandler(chatHandler);
-	}
-	
 	private void handleChatMain() {
 		if (chatMain != null) {
 			chatMain.removeAllComponents();

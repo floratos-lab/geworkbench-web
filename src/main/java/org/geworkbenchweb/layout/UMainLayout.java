@@ -8,8 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.DefaultListener;
-import org.geworkbenchweb.genspace.GenspaceLogger;
-import org.geworkbenchweb.genspace.ui.component.GenSpaceLogin_1;
 import org.geworkbenchweb.plugins.Visualizer;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -75,8 +73,6 @@ public class UMainLayout extends VerticalLayout {
 	final private Button removeSetButton = new Button();
 	
 	final private Button openSetButton = new Button(), saveSetButton = new Button();
-			
-	final private GenspaceLogger genspaceLogger = new GenspaceLogger();;
 
 	final private UMainToolBar mainToolBar;
 
@@ -95,14 +91,7 @@ public class UMainLayout extends VerticalLayout {
 		
 	public UMainLayout() throws Exception {
 
-		/*Enable genspace logger in geWorkbench*/
-		if(GeworkbenchRoot.genespaceEnabled()) {
-			GeworkbenchRoot.getBlackboard().addListener(genspaceLogger);
-			GenSpaceLogin_1 login = new GenSpaceLogin_1();
-			genspaceLogger.setGenSpaceLogin(login);
-		}
-		
-		this.mainToolBar = new UMainToolBar(pluginView, genspaceLogger);
+		this.mainToolBar = new UMainToolBar(pluginView);
 		setSizeFull();
 		setImmediate(true);
 		
@@ -469,10 +458,6 @@ public class UMainLayout extends VerticalLayout {
 	
 	public UMainToolBar getMainToolBar() {
 		return mainToolBar;
-	}
-	
-	public GenspaceLogger getGenSpaceLogger() {
-		return this.genspaceLogger;
 	}
 
 	public List<ResultSet> getTtestResult() {

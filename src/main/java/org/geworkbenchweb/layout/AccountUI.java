@@ -3,7 +3,6 @@ package org.geworkbenchweb.layout;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.geworkbenchweb.genspace.GenSpaceServerFactory;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -194,15 +193,7 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 			user.setEmail(emailStr);
 
 		FacadeFactory.getFacade().store(user);
-		
-		GenSpaceServerFactory genSpaceServerFactory = new GenSpaceServerFactory();
-		if(genSpaceServerFactory.userLogin(usernameStr, oldpasswdStr)) {
-			genSpaceServerFactory.getWrappedUser().setPasswordClearText(newpasswdStr);
-			genSpaceServerFactory.userUpdate();
-			UMainLayout uMainLayout = (UMainLayout)getApplication().getMainWindow().getContent();
-			uMainLayout.getMainToolBar().setUsername(usernameStr);
-			uMainLayout.getMainToolBar().setPassword(newpasswdStr);
-		}
+
 		return  "You have successfully updated your account.";
 	}
 	

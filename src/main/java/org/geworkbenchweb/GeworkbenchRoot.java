@@ -203,14 +203,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 				+ prop.getProperty("data.directory");
 	}
 
-	public static boolean genespaceEnabled() {
-		if(prop.getProperty("genspace").equals("on")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public static String getPublicAnnotationDirectory() {
 		return System.getProperty("user.home")
 				+ System.getProperty("file.separator")
