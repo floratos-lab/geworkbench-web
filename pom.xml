@@ -480,7 +480,7 @@
 		<dependency>
 			<groupId>org.icepush</groupId>
 			<artifactId>icepush</artifactId>
-			<version>4.3.0</version>
+			<version>3.3.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.icepush/icepush-gwt -->
 		<dependency>
