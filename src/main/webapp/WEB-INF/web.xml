@@ -46,15 +46,7 @@
         <servlet-name>ConfirmUserServlet</servlet-name>
         <url-pattern>/servlet/ConfirmUser</url-pattern>
     </servlet-mapping>
-	
-   
-  
-  
-  <listener>
-    <listener-class>
-  			org.geworkbenchweb.GeworkbenchContextListener
-  		</listener-class>
-  </listener>
+
   <servlet-mapping>
     <servlet-name>Geworkbench Application</servlet-name>
     <url-pattern>/*</url-pattern>

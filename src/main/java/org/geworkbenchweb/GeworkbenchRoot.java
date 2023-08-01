@@ -22,6 +22,7 @@ import org.geworkbenchweb.plugins.PluginRegistry;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.Application;
@@ -53,7 +54,16 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	
 	@Override
 	public void init() {
-		
+		if(FacadeFactory.getFacade()==null) {
+			try {
+				FacadeFactory.registerFacade("default", true);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+
 		Window mainWindow 	= 	new Window("geWorkbench");
 		mainWindow.setSizeFull();
 		setMainWindow(mainWindow);
@@ -229,9 +239,9 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			UMainLayout mainLayout = (UMainLayout) content;
 			boolean removed = GeworkbenchRoot.getBlackboard().removeListener(
 					mainLayout.getAnalysisListener());
-			log.debug("anaysis listener found and removed? " + removed);
+			log.debug("analysis listener found and removed? " + removed);
 		} else {
-			log.error("main winwdow content is not UMainLayout");
+			log.error("main window content is not UMainLayout");
 		}
 		try {
 			mainWindow.setContent(new UMainLayout());
