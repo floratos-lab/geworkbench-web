@@ -414,10 +414,11 @@
 			<version>2.2.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-digester3 -->
 		<dependency>
-			<groupId>commons-digester3</groupId>
+			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-digester3</artifactId>
-			<version>3.2-with-deps</version>
+			<version>3.2</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.vaadin.addons/easyuploads -->
