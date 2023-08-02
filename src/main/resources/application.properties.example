@@ -54,3 +54,6 @@ pbqdi.output.path=/opt/tomcat/cptac_project/test1/
 #source.script.directory=F:/cptac_project/test1/
 #pbqdi.error.file=F:/cptac_project/test1/error.txt
 html.location=C:/apache-tomcat-7.0.41/webapps/ROOT/
+
+# for exiting user account
+authentication.password.salt=NikhilReddyPodduturi

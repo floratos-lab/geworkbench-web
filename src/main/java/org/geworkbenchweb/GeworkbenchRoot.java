@@ -34,7 +34,6 @@ import com.vaadin.ui.Window;
 
 /**
  * This is the application entry point.
- * @author Nikhil Reddy
  */
 public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
 	
@@ -76,6 +75,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			e.printStackTrace();
 			return;
 		}
+		System.setProperty("authentication.password.salt", prop.getProperty("authentication.password.salt"));
 		
 		// make sure the back-end data directory is there
 		File dataDirectory = new File(getBackendDataDirectory());
