@@ -11,7 +11,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>6.8.18</vaadin.version>
 		<gwt.version>2.5.1</gwt.version>
-		<gwt.plugin.version>2.5.1</gwt.plugin.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
@@ -50,10 +49,11 @@
 				debugger can then be connected to port 8998. Note that e.g. a Jetty server 
 				should be running with the server side parts - use the goal jetty:run . -->
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
+				<groupId>net.ltgt.gwt.maven</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>${gwt.plugin.version}</version>
+				<version>1.0.1</version>
 				<configuration>
+					<moduleName>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</moduleName>
 					<!-- if you don't specify any modules, the plugin will find them -->
 					<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
 						</modules> -->
@@ -72,7 +72,6 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>resources</goal>
 							<goal>compile</goal>
 						</goals>
 					</execution>
@@ -348,19 +347,6 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-dev</artifactId>
 			<version>${gwt.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-			<classifier>sources</classifier>
 			<scope>provided</scope>
 		</dependency>
 
