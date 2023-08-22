@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections15.map.ListOrderedMap;
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -129,11 +129,11 @@ public class GeneOntologyTree {
 	private static final String KEY_RELATIONSHIP = "relationship";
 	private static final String KEY_NAMESPACE = "namespace";
 
-	private final ListOrderedMap<String, GOTerm> roots;
+	private final ListOrderedMap roots;
 	private final HashMap<Integer, GOTerm> terms;
 
 	private GeneOntologyTree() {
-		roots = new ListOrderedMap<String, GOTerm>();
+		roots = new ListOrderedMap();
 		terms = new HashMap<Integer, GOTerm>();
 
 		try {
@@ -278,7 +278,7 @@ public class GeneOntologyTree {
 	}
 
 	public GOTerm getRoot(int index) {
-		return roots.get(roots.get(index));
+		return (GOTerm)roots.get(roots.get(index));
 	}
 
 	public GOTerm getTerm(int id) {

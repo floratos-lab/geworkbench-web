@@ -197,11 +197,6 @@
 			<version>1.8.2</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.collections</groupId>
-			<artifactId>collections-generic</artifactId>
-			<version>4.01</version>
-		</dependency>
-		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>icepush</artifactId>
 			<version>0.2.1</version>

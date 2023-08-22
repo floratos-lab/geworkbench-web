@@ -38,7 +38,7 @@ public class GeWorkbenchExpFileParser {
 	
 	private final File expFile;
 	
-	GeWorkbenchExpFileParser(File expFile) {
+	public GeWorkbenchExpFileParser(File expFile) {
 		this.expFile = expFile;
 	}
 
