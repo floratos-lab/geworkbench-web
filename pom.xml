@@ -33,16 +33,6 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<url>${tomcatUrl}</url>
-					<server>${serverName}</server>
-				</configuration>
-			</plugin>
-
 			<!-- Compiles your custom GWT components with the GWT compiler -->
 			<!-- A hosted mode browser for client-side widget debugging can be run 
 				with the goal gwt:run after uncommenting the correct line below. A remote 
@@ -81,30 +71,6 @@
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
 				<version>1.0.2</version>
-			</plugin>
-
-			<!-- A simple Jetty test server at http://localhost:8080/geworkbenchweb 
-				can be launched with the Maven goal jetty:run and stopped with jetty:stop -->
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>maven-jetty-plugin</artifactId>
-				<version>6.1.24</version>
-				<configuration>
-					<stopPort>9966</stopPort>
-					<stopKey>geworkbench</stopKey>
-					<!-- Redeploy every x seconds if changes are detected, 0 for no automatic 
-						redeployment -->
-					<scanIntervalSeconds>0</scanIntervalSeconds>
-					<!-- make sure Jetty also finds the widgetset -->
-					<webAppConfig>
-						<contextPath>/geworkbench</contextPath>
-						<baseResource implementation="org.mortbay.resource.ResourceCollection">
-							<!-- Workaround for Maven/Jetty issue http://jira.codehaus.org/browse/JETTY-680 -->
-							<!-- <resources>src/main/webapp,${project.build.directory}/${project.build.finalName}</resources> -->
-							<resourcesAsCSV>src/main/webapp,${project.build.directory}/${project.build.finalName}</resourcesAsCSV>
-						</baseResource>
-					</webAppConfig>
-				</configuration>
 			</plugin>
 		</plugins>
 		<finalName>geworkbench</finalName>
