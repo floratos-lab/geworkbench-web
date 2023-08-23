@@ -13,7 +13,6 @@ import java.net.URLConnection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.ResultSet;
@@ -93,7 +92,7 @@ public class MarkusAnalysis {
 		resultSet.setTimestamp(timestamp);
 		String dataSetName 	=	results;
 		resultSet.setName(dataSetName);
-		resultSet.setType(MarkUsResultDataSet.class.getName());
+		resultSet.setType(MarkUsResult.class.getName());
 		resultSet.setParent(dataSetId);
 		resultSet.setOwner(sessionId);	
 		FacadeFactory.getFacade().store(resultSet);

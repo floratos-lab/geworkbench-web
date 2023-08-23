@@ -27,7 +27,6 @@ public class MarkusResultsUI extends VerticalLayout implements Visualizer {
 		ResultSet resultset = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		MarkUsResult markUsResult = FacadeFactory.getFacade().find(MarkUsResult.class, resultset.getDataId());
 		String results = markUsResult.getResult();
-		// bison MarkUsResultDataSet is ignored on purpose
 
 		Button refreshBtn = new Button("Refresh");
 		refreshBtn.setHeight("25px");

@@ -259,7 +259,7 @@
 		<uiClass>org.geworkbenchweb.plugins.msviper.results.MsViperResultsUI</uiClass>
 	</plugin>
 	</inputType>	
-	<inputType className="org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet">
+	<inputType className="org.geworkbenchweb.pojos.MarkUsResult">
 	<plugin>
 		<name>MarkUs Result Viewer</name>
 		<description>

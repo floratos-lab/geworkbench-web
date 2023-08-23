@@ -9,9 +9,9 @@ import java.text.StringCharacterIterator;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataSet;
+import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.PdbFileInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -599,7 +599,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 
 	@Override
 	public Class<?> getResultType() {
-		return MarkUsResultDataSet.class;
+		return MarkUsResult.class;
 	}
 	
 	// TODO this analysis does thing with a different work-flow (not fire AnalysisSubmissionEvent as other analysis plug-ins do)
