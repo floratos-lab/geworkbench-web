@@ -58,6 +58,13 @@ public class AracneAnalysisClient {
 	final private Long datasetId;
 	final private HashMap<Serializable, Serializable> params;
 
+	/*
+	 * WARN problematic design:
+	 * 1. typical 'side effect' pattern;
+	 * 2. not consistent with other plugins
+	 */
+	String resultName = null;
+
 	public AracneAnalysisClient(Long datasetId,
 			HashMap<Serializable, Serializable> params) {
 		this.params = params;
@@ -93,10 +100,6 @@ public class AracneAnalysisClient {
 					System.getProperty("java.io.tmpdir"));
 			serviceOptions.setProperty(Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE);
 			serviceOptions.setProperty(Constants.Configuration.FILE_SIZE_THRESHOLD, "1024");
-			// serviceOptions.setProperty(org.apache.axis2.kernel.http.HTTPConstants.SO_TIMEOUT,
-			// 600000); // try 10 minutes
-			// 50-hour timeout
-			serviceOptions.setTimeOutInMilliSeconds(180000000);
 
 			ServiceClient serviceClient = new ServiceClient();
 			serviceClient.setOptions(serviceOptions);
@@ -104,8 +107,36 @@ public class AracneAnalysisClient {
 			ref.setAddress(ARACNE_SERVICE_URL);
 			serviceClient.setTargetEPR(ref);
 
-			return discovery(markers.size(), hubGeneList, datasetName, expFile, serviceClient);
+			boolean prune = params.get(AracneParameters.MERGEPS).toString()
+					.equalsIgnoreCase("Yes");
 
+			float threshold = Float.valueOf((String) params.get(AracneParameters.P_VALUE));
+
+			OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
+			OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
+			OMElement request = omFactory.createOMElement(DISCOVERY_ENDPOINT, namespace);
+
+			OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
+			omFactory.createOMElement("expFile", namespace, request).addChild(textData);
+			omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
+			omFactory.createOMElement("bootstrapNumber", namespace, request)
+					.setText((String) params.get(AracneParameters.BOOTS_NUM));
+			omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
+			omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
+			omFactory.createOMElement("hubGeneList", namespace, request).setText(String.join("\n", hubGeneList));
+			omFactory.createOMElement("isDPIFiltering", namespace, request).setText(
+					Boolean.toString(((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes")));
+
+			OMElement response = serviceClient.sendReceive(request);
+
+			OMElement nameElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjName"));
+			resultName = nameElement.getText();
+
+			OMElement fileElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjFile"));
+			DataHandler handler = fileElement == null ? null
+					: (DataHandler) ((OMText) fileElement.getFirstOMChild()).getDataHandler();
+
+			return createNetwork(getEdges(handler), hubGeneList, prune);
 		} catch (AxisFault e) {
 			OMElement x = e.getDetail();
 			if (x != null)
@@ -195,16 +226,6 @@ public class AracneAnalysisClient {
 		return dataFile;
 	}
 
-	/* convert a string list to one newline separated string */
-	private static String toString(List<String> list) {
-		if (list == null || list.size() == 0)
-			return "";
-		StringBuilder sb = new StringBuilder();
-		for (String s : list)
-			sb.append(s).append("\n");
-		return sb.toString();
-	}
-
 	private static class Edge {
 		final String node1, node2;
 		final float weight;
@@ -252,48 +273,8 @@ public class AracneAnalysisClient {
 		return edges;
 	}
 
-	String resultName = null; // TODO bad design: 1. typical 'side effect' pattern; 2. not consistent with
-								// other plugins
-
-	private Network discovery(final int markerNumber,
-			final List<String> hubGeneList, final String datasetName,
-			final File expFile, final ServiceClient serviceClient)
-			throws AxisFault {
-
-		boolean prune = params.get(AracneParameters.MERGEPS).toString()
-				.equalsIgnoreCase("Yes");
-
-		float threshold = Float.valueOf((String) params.get(AracneParameters.P_VALUE));
-
-		OMFactory omFactory = OMAbstractFactory.getSOAP11Factory();
-		OMNamespace namespace = omFactory.createOMNamespace(ARACNE_NAMESPACE, null);
-		OMElement request = omFactory.createOMElement(DISCOVERY_ENDPOINT, namespace);
-
-		OMText textData = omFactory.createOMText(new DataHandler(new FileDataSource(expFile)), true);
-		omFactory.createOMElement("expFile", namespace, request).addChild(textData);
-		omFactory.createOMElement("dataSetName", namespace, request).setText(datasetName);
-		omFactory.createOMElement("bootstrapNumber", namespace, request)
-				.setText((String) params.get(AracneParameters.BOOTS_NUM));
-		omFactory.createOMElement("dataSetIdentifier", namespace, request).setText(datasetId.toString());
-		omFactory.createOMElement("threshold", namespace, request).setText(Float.toString(threshold));
-		omFactory.createOMElement("hubGeneList", namespace, request).setText(toString(hubGeneList));
-		omFactory.createOMElement("isDPIFiltering", namespace, request).setText(
-				Boolean.toString(((String) params.get(AracneParameters.DPI_FILTERING)).equalsIgnoreCase("Yes")));
-
-		OMElement response = serviceClient.sendReceive(request);
-
-		OMElement nameElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjName"));
-		resultName = nameElement.getText();
-
-		OMElement fileElement = (OMElement) response.getFirstChildWithName(new QName(ARACNE_NAMESPACE, "adjFile"));
-		DataHandler handler = fileElement == null ? null
-				: (DataHandler) ((OMText) fileElement.getFirstOMChild()).getDataHandler();
-
-		return AracneAnalysisClient.createNetwork(getEdges(handler), hubGeneList, prune, datasetId);
-	}
-
-	static private Network createNetwork(final List<Edge> aracneGraphEdges,
-			final List<String> hubGeneList, final boolean prune, final Long datasetId) {
+	private Network createNetwork(final List<Edge> aracneGraphEdges, final List<String> hubGeneList,
+			final boolean prune) {
 		Map<String, NetworkEdges> network = new HashMap<String, NetworkEdges>();
 		if (aracneGraphEdges == null)
 			return new Network(network);
@@ -358,5 +339,4 @@ public class AracneAnalysisClient {
 		log.debug("edge count " + nEdge);
 		return new Network(network);
 	}
-
 }
