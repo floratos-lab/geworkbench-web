@@ -39,8 +39,6 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
  * Main Menu Bar on the right-hand side of the application.
- * 
- * @author Nikhil
  */
 public class UMainToolBar extends MenuBar {
 
@@ -54,7 +52,6 @@ public class UMainToolBar extends MenuBar {
 									 * the practice of always querying db for
 									 * active workspace does not make sense
 									 */
-	private Window chatMain;
 	private String username;
 	private String password;
 
@@ -354,12 +351,15 @@ public class UMainToolBar extends MenuBar {
 						@Override
 						public void buttonClicked(ButtonType buttonType) {
 							if (buttonType.toString() == "YES") {
-								if(uploadDataUI!=null)uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be allowed to be null or not
+								if (uploadDataUI != null)
+									uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be
+																	// allowed to be null or not
 								clearTabularView();
 
 								SessionHandler.logout();
 								getApplication().close();
-								UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
+								UserActivityLog ual = new UserActivityLog(username,
+										UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
 								FacadeFactory.getFacade().store(ual);
 							}
 						}
@@ -369,7 +369,8 @@ public class UMainToolBar extends MenuBar {
 
 					SessionHandler.logout();
 					getApplication().close();
-					UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
+					UserActivityLog ual = new UserActivityLog(username,
+							UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
 					FacadeFactory.getFacade().store(ual);
 				}
 			}
@@ -392,14 +393,18 @@ public class UMainToolBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				/* the text is short so it seems better to have a message box, but the requirement specifies the main GUI area. */
-//				MessageBox mb = new MessageBox(getWindow(), "About", Icon.INFO,
-//						"Release number 1.0.0 beta", new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-//								"Ok"));
-//				mb.show();
+				/*
+				 * the text is short so it seems better to have a message box, but the
+				 * requirement specifies the main GUI area.
+				 */
+				// MessageBox mb = new MessageBox(getWindow(), "About", Icon.INFO,
+				// "Release number 1.0.0 beta", new
+				// MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
+				// "Ok"));
+				// mb.show();
 				pluginView.showAboutInfo();
 			}
-			
+
 		});
 		aboutItem.addItem("Quick Intro", new Command() {
 
@@ -409,7 +414,7 @@ public class UMainToolBar extends MenuBar {
 			public void menuSelected(MenuItem selectedItem) {
 				pluginView.showWeclomeScreen();
 			}
-			
+
 		});
 		aboutItem.addItem("Contact Us", new Command() {
 
@@ -419,14 +424,14 @@ public class UMainToolBar extends MenuBar {
 			public void menuSelected(MenuItem selectedItem) {
 				try {
 					String emailURL = "mailto:geworkbench@c2b2.columbia.edu?subject=user inquiry&body=Please feel free to contact us to report any problems encountered when using the application or to offer suggestions for functionality improvements. When reporting problems please describe the sequence of actions that led to the issue you are reporting in as much detail as possible, this will help us replicate it in our environment.";
-				    URL windowURL = new URL(emailURL);
-					    Window window = getApplication().getMainWindow();
-					    window.open(new ExternalResource(windowURL));
+					URL windowURL = new URL(emailURL);
+					Window window = getApplication().getMainWindow();
+					window.open(new ExternalResource(windowURL));
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 		});
 
 	}
@@ -470,14 +475,5 @@ public class UMainToolBar extends MenuBar {
 
 	public String getPassword() {
 		return this.password;
-	}
-
-	private void handleChatMain() {
-		if (chatMain != null) {
-			chatMain.removeAllComponents();
-			if (chatMain.getParent() != null)
-				getApplication().getMainWindow().removeWindow(chatMain);
-		}
-		chatMain = null;
 	}
 }
