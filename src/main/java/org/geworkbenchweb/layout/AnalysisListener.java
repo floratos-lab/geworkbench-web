@@ -7,8 +7,6 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisCompleteEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -22,9 +20,9 @@ import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 /**
- * Used to submit the analysis in geWorkbench and updates the data tree with result nodes once the 
+ * Used to submit the analysis in geWorkbench and updates the data tree with
+ * result nodes once the
  * analysis is complete in the background.
- * @author Nikhil
  */
 public class AnalysisListener implements AnalysisSubmissionEventListener {
 
@@ -58,7 +56,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
 							"Size Limit", MessageBox.Icon.INFO, e.getMessage(),
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show(new MessageBox.EventListener(){
+					mb.show(new MessageBox.EventListener() {
 
 						private static final long serialVersionUID = 737428008969387125L;
 
@@ -66,7 +64,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 						public void buttonClicked(ButtonType buttonType) {
 							uMainLayout.noSelection();
 						}
-						
+
 					});
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
@@ -74,25 +72,25 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					return;
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
+					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
+							"Analysis Problem", MessageBox.Icon.ERROR, msg,
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 					mb.show();
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
-					return;	
+					return;
 				} catch (IOException e) {
 					e.printStackTrace();
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,  
+					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
+							"Analysis Problem", MessageBox.Icon.ERROR, msg,
 							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 					mb.show();
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
-					return;	
+					return;
 				} catch (Exception e) {
 					// TODO this catch-all exception clause should not be used.
 					// when we still have it, it definitely should not continue from here
@@ -103,50 +101,51 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					return;
 				}
 
-				if (resultName.equalsIgnoreCase("UnAuthenticatedException"))
-				{
+				if (resultName.equalsIgnoreCase("UnAuthenticatedException")) {
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
-					return;	
+					return;
 				}
-				
+
 				final ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 				resultSet.setName(resultName);
 				FacadeFactory.getFacade().store(resultSet);
-				
+
 				UserActivityLog ual = new UserActivityLog(username,
 						UserActivityLog.ACTIVITY_TYPE.RESULT.toString(), resultName);
 				FacadeFactory.getFacade().store(ual);
-				
-				synchronized(uMainLayout.getApplication()) {
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(), 
-							"Analysis Completed", 
-							MessageBox.Icon.INFO, 
+
+				synchronized (uMainLayout.getApplication()) {
+					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
+							"Analysis Completed",
+							MessageBox.Icon.INFO,
 							"Analysis you submitted is now completed. " +
-									"Click on the node to see the results",  
-									new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+									"Click on the node to see the results",
+							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 					mb.show(new MessageBox.EventListener() {
 						private static final long serialVersionUID = 1L;
+
 						@Override
 						public void buttonClicked(ButtonType buttonType) {
-							/* Note that everything else in the run() method is in a thread different from the GUI thread (vaadin main thread),
-							 * so the blackboard is not available, until you get into this method,
-							 * where we are back in the main thread so we have access to the blackboard. */
-							AnalysisCompleteEvent analysisCompleleteEvent = new AnalysisCompleteEvent(
-									analysisUI.getClass().getName(), resultId);
-							log.debug("complelte event being fired: "+analysisCompleleteEvent.analysisClassName+" "+analysisCompleleteEvent.resultId);
-							GeworkbenchRoot.getBlackboard().fire(analysisCompleleteEvent);
-
-							/* TODO uMainLayout.addNode(resultSet) is implemented in a way that works properly only in GUI thread,
-							 * so we need to call this method here. Theoretically, this is not necessary. If the design is improved, 
-							 * this action could possibly be done in the background thread, and the confirmation dialog will no be necessary. */
-							/* In short, the AnalysisUI should be implemented separating the constructor and method attach() because only the
-							 * latter logically requires the GUI thread. In a background thread, getApplication() would return null, 
-							 * and SessionHandler.get() throws null pointer exception by appfoundation. */
+							/*
+							 * TODO uMainLayout.addNode(resultSet) is implemented in a way that works
+							 * properly only in GUI thread,
+							 * so we need to call this method here. Theoretically, this is not necessary. If
+							 * the design is improved,
+							 * this action could possibly be done in the background thread, and the
+							 * confirmation dialog will no be necessary.
+							 */
+							/*
+							 * In short, the AnalysisUI should be implemented separating the constructor and
+							 * method attach() because only the
+							 * latter logically requires the GUI thread. In a background thread,
+							 * getApplication() would return null,
+							 * and SessionHandler.get() throws null pointer exception by appfoundation.
+							 */
 							uMainLayout.addNode(resultSet);
 						}
-					});	
+					});
 				}
 				uMainLayout.push();
 			}

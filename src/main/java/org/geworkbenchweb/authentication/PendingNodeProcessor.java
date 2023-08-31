@@ -7,8 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisCompleteEvent;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -71,7 +69,7 @@ public class PendingNodeProcessor {
 							log.debug("one pending node removed");
 						}
 					}
-					log.debug("pending node count = "+pendingResultIds.size());
+					log.debug("pending node count = " + pendingResultIds.size());
 				}
 			}
 		};
@@ -88,37 +86,40 @@ public class PendingNodeProcessor {
 	}
 
 	/* this is based on the code copied from AnalysisListener */
-	/* this is mainly to force 'adding result node' invoked from GUI thread. That is really the limitation of current design */
+	/*
+	 * this is mainly to force 'adding result node' invoked from GUI thread. That is
+	 * really the limitation of current design
+	 */
 	private void addResultNode(final ResultSet resultSet) {
-		MessageBox mb = new MessageBox(mainLayout.getWindow(), 
-				"Analysis Completed", 
-				MessageBox.Icon.INFO, 
+		MessageBox mb = new MessageBox(mainLayout.getWindow(),
+				"Analysis Completed",
+				MessageBox.Icon.INFO,
 				"Analysis you submitted is now completed. " +
-						"Click on the node to see the results",  
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
+						"Click on the node to see the results",
+				new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 		mb.show(new MessageBox.EventListener() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void buttonClicked(ButtonType buttonType) {
-				/* Note that everything else in the run() method is in a thread different from the GUI thread (vaadin main thread),
-				 * so the blackboard is not available, until you get into this method,
-				 * where we are back in the main thread so we have access to the blackboard. */
-				AnalysisCompleteEvent analysisCompleleteEvent = new AnalysisCompleteEvent(
-						// FIXME the current design cannot catch the analysis name if the user logs out when the result is pending
-						// so the result type is used instead
-						resultSet.getType(), resultSet.getId());
-				log.debug("complelte event being fired: "+analysisCompleleteEvent.analysisClassName+" "+analysisCompleleteEvent.resultId);
-				GeworkbenchRoot.getBlackboard().fire(analysisCompleleteEvent);
-
-				/* TODO uMainLayout.addNode(resultSet) is implemented in a way that works properly only in GUI thread,
-				 * so we need to call this method here. Theoretically, this is not necessary. If the design is improved, 
-				 * this action could possibly be done in the background thread, and the confirmation dialog will no be necessary. */
-				/* In short, the AnalysisUI should be implemented separating the constructor and method attach() because only the
-				 * latter logically requires the GUI thread. In a background thread, getApplication() would return null, 
-				 * and SessionHandler.get() throws null pointer exception by appfoundation. */
+				/*
+				 * TODO uMainLayout.addNode(resultSet) is implemented in a way that works
+				 * properly only in GUI thread,
+				 * so we need to call this method here. Theoretically, this is not necessary. If
+				 * the design is improved,
+				 * this action could possibly be done in the background thread, and the
+				 * confirmation dialog will no be necessary.
+				 */
+				/*
+				 * In short, the AnalysisUI should be implemented separating the constructor and
+				 * method attach() because only the
+				 * latter logically requires the GUI thread. In a background thread,
+				 * getApplication() would return null,
+				 * and SessionHandler.get() throws null pointer exception by appfoundation.
+				 */
 				mainLayout.addNode(resultSet);
 			}
-		});	
+		});
 		mainLayout.push();
 	}
 }

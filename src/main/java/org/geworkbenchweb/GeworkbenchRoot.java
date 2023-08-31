@@ -1,5 +1,5 @@
 package org.geworkbenchweb;
- 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.authentication.UUserAuth;
-import org.geworkbenchweb.events.AnalysisCompleteEvent;
-import org.geworkbenchweb.events.AnalysisCompleteEventListener;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -36,24 +34,24 @@ import com.vaadin.ui.Window;
  * This is the application entry point.
  */
 public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
-	
+
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
-	
-	private static ThreadLocal<PluginRegistry> pluginRegistry		= 	new ThreadLocal<PluginRegistry>();
-	private static ThreadLocal<Blackboard> BLACKBOARD 				= 	new ThreadLocal<Blackboard>();
-	private static ThreadLocal<GeworkbenchRoot> currentApplication 	= 	new ThreadLocal<GeworkbenchRoot>();
-	
-	private final Blackboard blackboardInstance 		= 	new Blackboard();
-	
-	private static final String APP_THEME_NAME 			= 	"geworkbench";
-	private static final String PROPERTIES_FILE 		= 	"application.properties";
-	
+
+	private static ThreadLocal<PluginRegistry> pluginRegistry = new ThreadLocal<PluginRegistry>();
+	private static ThreadLocal<Blackboard> BLACKBOARD = new ThreadLocal<Blackboard>();
+	private static ThreadLocal<GeworkbenchRoot> currentApplication = new ThreadLocal<GeworkbenchRoot>();
+
+	private final Blackboard blackboardInstance = new Blackboard();
+
+	private static final String APP_THEME_NAME = "geworkbench";
+	private static final String PROPERTIES_FILE = "application.properties";
+
 	private static Properties prop = new Properties();
-	
+
 	@Override
 	public void init() {
-		if(FacadeFactory.getFacade()==null) {
+		if (FacadeFactory.getFacade() == null) {
 			try {
 				FacadeFactory.registerFacade("default", true);
 			} catch (InstantiationException e) {
@@ -63,27 +61,27 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			}
 		}
 
-		Window mainWindow 	= 	new Window("geWorkbench");
+		Window mainWindow = new Window("geWorkbench");
 		mainWindow.setSizeFull();
 		setMainWindow(mainWindow);
-		
+
 		try {
 			prop.load(getClass().getResourceAsStream(
 					"/" + PROPERTIES_FILE));
 		} catch (IOException e) {
-			mainWindow.addComponent(new Label("failed to read application properties file "+PROPERTIES_FILE));
+			mainWindow.addComponent(new Label("failed to read application properties file " + PROPERTIES_FILE));
 			e.printStackTrace();
 			return;
 		}
 		System.setProperty("authentication.password.salt", prop.getProperty("authentication.password.salt"));
-		
+
 		// make sure the back-end data directory is there
 		File dataDirectory = new File(getBackendDataDirectory());
 		boolean dataDirectoryExist = true;
-		if(!dataDirectory.exists()) {
+		if (!dataDirectory.exists()) {
 			dataDirectoryExist = dataDirectory.mkdir();
 		}
-		if(!dataDirectoryExist || !dataDirectory.isDirectory()) {
+		if (!dataDirectoryExist || !dataDirectory.isDirectory()) {
 			mainWindow.addComponent(new Label(
 					"Back-end data directory cannot be set up at "
 							+ getBackendDataDirectory() + "\nfull path "
@@ -92,27 +90,28 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 							+ dataDirectory.isDirectory()));
 			return;
 		}
-		
+
 		// checking the database connection - do nothing if database is OK
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default"); // persistence-unit name in the xml file
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("default"); // persistence-unit name in
+																							// the xml file
 		try {
 			EntityManager checkingEm = factory.createEntityManager();
 			checkingEm.close();
 		} catch (Exception e) {
-			mainWindow.addComponent(new Label("No database is set up to support this application: "+e.getMessage()));
+			mainWindow.addComponent(new Label("No database is set up to support this application: " + e.getMessage()));
 			e.printStackTrace();
 			return;
 		}
-		 
+
 		getContext().addTransactionListener(this);
 		BLACKBOARD.set(blackboardInstance);
-		
+
 		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
-		
+
 		registerAllEventsForApplication();
-		
-		User user 	= 	SessionHandler.get();
+
+		User user = SessionHandler.get();
 		if (user != null) {
 			try {
 				mainWindow.setContent(new UMainLayout());
@@ -120,10 +119,10 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 				mainWindow.setContent(new UUserAuth());
 			}
 		} else {
-			UUserAuth auth = new UUserAuth(); 
+			UUserAuth auth = new UUserAuth();
 			mainWindow.setContent(auth);
 		}
-		
+
 		GeneOntologyTree.getInstance();
 	}
 
@@ -138,16 +137,17 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	@Override
 	public void transactionEnd(Application application, Object transactionData) {
 		if (application == GeworkbenchRoot.this) {
-			// to avoid keeping an Application hanging, and mitigate the 
+			// to avoid keeping an Application hanging, and mitigate the
 			// possibility of user session crosstalk
 			BLACKBOARD.set(null);
 			currentApplication.set(null);
-            currentApplication.remove();
+			currentApplication.remove();
 		}
 	}
 
 	/**
 	 * Method supplies Blackboard instance to the entire Application
+	 * 
 	 * @return Blackboard Instance for the application
 	 */
 	public static Blackboard getBlackboard() {
@@ -158,15 +158,14 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
 	private void registerAllEventsForApplication() {
-		
+
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
-		getBlackboard().register(AnalysisCompleteEventListener.class, AnalysisCompleteEvent.class);
-	}	
+	}
 
 	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
 		PluginRegistry pr = pluginRegistry.get();
-		if(pr==null) {
+		if (pr == null) {
 			pr = new PluginRegistry();
 			pr.init();
 			pluginRegistry.set(pr);
@@ -177,26 +176,27 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	@Override
 	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
 		if (request != null) {
-			String requestURL= request.getRequestURL().toString();
-			if (requestURL.endsWith("geworkbench")){
-				try{
-					//bug fix #3264
-					response.sendRedirect(requestURL+"/");
-				}catch(IOException e){
+			String requestURL = request.getRequestURL().toString();
+			if (requestURL.endsWith("geworkbench")) {
+				try {
+					// bug fix #3264
+					response.sendRedirect(requestURL + "/");
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-	 	}
+		}
 	}
 
 	@Override
-	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {}
+	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+	}
 
 	/* it is a little better than passing over a private member directly */
 	public static String getAppProperty(String serviceUrlProperty) {
 		return prop.getProperty(serviceUrlProperty);
 	}
-	
+
 	public static String getBackendDataDirectory() {
 		return System.getProperty("user.home")
 				+ System.getProperty("file.separator")
@@ -208,7 +208,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 				+ System.getProperty("file.separator")
 				+ prop.getProperty("public.annotation.directory");
 	}
-	
+
 	public void addNode(Object node) {
 		Window w = getMainWindow();
 		ComponentContainer content = w.getContent();
