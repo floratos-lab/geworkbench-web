@@ -48,10 +48,6 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private static String QUESTION_MARK = " \uFFFD";
 
-	public AracneUI() {
-		this(0L);
-	}
-
 	public AracneUI(Long dataId) {
 
 		this.dataSetId = dataId;
