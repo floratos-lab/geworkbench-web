@@ -38,7 +38,11 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
 
-	private static ThreadLocal<PluginRegistry> pluginRegistry = new ThreadLocal<PluginRegistry>();
+	private static final PluginRegistry pluginRegistry = new PluginRegistry();
+	static {
+		pluginRegistry.init();
+	}
+
 	private static ThreadLocal<Blackboard> BLACKBOARD = new ThreadLocal<Blackboard>();
 	private static ThreadLocal<GeworkbenchRoot> currentApplication = new ThreadLocal<GeworkbenchRoot>();
 
@@ -162,15 +166,11 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}
 
-	// TODO verify when .get() returns null and code accordingly to be explicit
 	public static PluginRegistry getPluginRegistry() {
-		PluginRegistry pr = pluginRegistry.get();
-		if (pr == null) {
-			pr = new PluginRegistry();
-			pr.init();
-			pluginRegistry.set(pr);
+		if (pluginRegistry == null) {
+			log.error("PluginRegistry not initialized properly");
 		}
-		return pr;
+		return pluginRegistry;
 	}
 
 	@Override

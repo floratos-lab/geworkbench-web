@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins;
 
 import java.io.IOException;
@@ -22,7 +19,7 @@ import com.vaadin.ui.Component;
  */
 public class PluginRegistry {
 	
-	private Map<PluginEntry, AnalysisUI> analysisUIMap = new HashMap<PluginEntry, AnalysisUI>();
+	private Map<PluginEntry, Class<? extends AnalysisUI>> analysisUIMap = new HashMap<PluginEntry, Class<? extends AnalysisUI>>();
 	private Map<Class<?>, ThemeResource> iconMap = new HashMap<Class<?>, ThemeResource>();
 	private Map<Class<?>, Class<? extends DataTypeMenuPage>> uiMap = new HashMap<Class<?>, Class<? extends DataTypeMenuPage>>(); 
 	private Map<Class<?>, List<PluginEntry>> analysisMap = new HashMap<Class<?>, List<PluginEntry>>();
@@ -128,8 +125,8 @@ public class PluginRegistry {
 			for(PluginInfo info : entry.getPluginList()) {
 				PluginEntry pluginEntry = new PluginEntry(info.name, info.description);
 				entryList.add(pluginEntry);
-				Class<?> uiClass = Class.forName(info.uiClass);
-				analysisUIMap.put(pluginEntry, (AnalysisUI) uiClass.newInstance());
+				Class<? extends AnalysisUI> uiClass = (Class<? extends AnalysisUI>) Class.forName(info.uiClass);
+				analysisUIMap.put(pluginEntry, uiClass);
 			}
 			analysisMap.put(Class.forName(inputType), entryList);
 		}
@@ -155,7 +152,7 @@ public class PluginRegistry {
 			return new ArrayList<PluginEntry>(analysisUIMap.keySet());
 	}
 	
-	public AnalysisUI getUI(PluginEntry a) {
+	public Class<? extends AnalysisUI> getUI(PluginEntry a) {
 		return analysisUIMap.get(a);
 	}
 

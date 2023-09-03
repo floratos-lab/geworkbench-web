@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -56,16 +57,14 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 /**
  * Parameter panel for CNKB
  * 
- * @author Nikhil
- * 
  */
 public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	private static Log log = LogFactory.getLog(CNKBUI.class);
 	
 	private static final long serialVersionUID = -1221913812891134388L;
-	private static boolean multiSelectAllowed = GeworkbenchRoot.getAppProperty("cnkb.multi.select").equalsIgnoreCase("yes");
-	private static List<String> excludedInteractomes = Arrays.asList(GeworkbenchRoot.getAppProperty("cnkb.interactome.excluded").split(","));
-	private static String[] excludedPrefixes = GeworkbenchRoot.getAppProperty("cnkb.interactome.prefix.excluded").split(",");
+	private static boolean multiSelectAllowed;
+	private static List<String> excludedInteractomes;
+	private static String[] excludedPrefixes;
 
 	private ResultSet resultSet;
 
@@ -630,4 +629,18 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		return "CNKB";
 	}
 
+	private static final String PROPERTIES_FILE = "application.properties";
+	static { // this class should not depend on class GeworkbenchRoot being loaded first.
+		try {
+			Properties prop = new Properties();
+			prop.load(CNKBUI.class.getClassLoader().getResourceAsStream(
+					"/" + PROPERTIES_FILE));
+			multiSelectAllowed = prop.getProperty("cnkb.multi.select").equalsIgnoreCase("yes");
+			excludedInteractomes = Arrays.asList(prop.getProperty("cnkb.interactome.excluded").split(","));
+			excludedPrefixes = prop.getProperty("cnkb.interactome.prefix.excluded").split(",");
+		} catch (IOException e) {
+			log.error("failed to read application properties file " + PROPERTIES_FILE);
+			e.printStackTrace();
+		}
+	}
 }

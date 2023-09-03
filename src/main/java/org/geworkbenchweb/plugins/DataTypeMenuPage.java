@@ -54,7 +54,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 		Collections.sort(analysisList);
 		for(final PluginEntry analysis : analysisList) {
 		
-			final AnalysisUI analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
+			final Class<? extends AnalysisUI> analysisUI = GeworkbenchRoot.getPluginRegistry().getUI(analysis);
 			buildOneItem(analysisGroup, analysis, analysisUI);
 
 		}
@@ -86,21 +86,10 @@ public class DataTypeMenuPage extends VerticalLayout {
 		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
 
 			try {
-				final Visualizer visualizer = visualizerClass.getConstructor(
-						Long.class).newInstance((Long)null); // create a placeholder visualizer because the visualizers do not have set-dataset-Id method
-				buildOneItem(visualizerGroup, null,
-						visualizer);
+				buildOneItem(visualizerGroup, null, visualizerClass);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			}
 		}
@@ -118,18 +107,13 @@ public class DataTypeMenuPage extends VerticalLayout {
 	}
 	
 	private void showAnalysisParameterPanel(PluginEntry analysis,
-			AnalysisUI analysisUI, Long dataSetId) {
+			AnalysisUI analysisUI) {
 
 		if (analysisUI==null) {
 			log.debug("no analysis UI is chosen");
 			return; // do thing. reusing this makes it easier to implement Tools list
 		}
-		if (dataSetId==null) {
-			log.debug("no data set is chosen");
-			return; // do thing. reusing this makes it easier to implement Tools list
-		}
-		
-		analysisUI.setDataSetId(dataId);
+
 		if(visualPluginView instanceof VisualPluginView) {
 			visualPluginView.setContent(analysisUI, analysis.getName(), analysis.getDescription());
 		} else {
@@ -154,7 +138,7 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 	private void buildOneItem(VerticalLayout group,
 			final PluginEntry analysis,
-			final Object container) { //ComponentContainer
+			final Class<?> container) { //ComponentContainer class
 
 		final ItemLayout itemLayout = new ItemLayout();
 		final Button infoButton = new Button();
@@ -165,9 +149,9 @@ public class DataTypeMenuPage extends VerticalLayout {
 			pluginName = analysis.getName();
 			pluginDescription = analysis.getDescription();
 		} else {
-			Visualizer v = (Visualizer) container;
+			Class<Visualizer> v = (Class<Visualizer>) container;
 			PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
-					.getVisualizerPluginEntry(v.getClass());
+					.getVisualizerPluginEntry(v);
 			pluginName = plugin.getName();
 			pluginDescription = plugin.getDescription();
 		}
@@ -178,15 +162,18 @@ public class DataTypeMenuPage extends VerticalLayout {
 
 					@Override
 					public void buttonClick(ClickEvent event) {
-						if(container instanceof AnalysisUI) {
-							showAnalysisParameterPanel(analysis, (AnalysisUI)container, dataId);
-						} else if (container instanceof Visualizer) {
-							// a new instance (with actual data) is created because currently visualizer does not have set-dataset-ID method
-							Visualizer newVisualizer;
-							try {
-								newVisualizer = (Visualizer)container.getClass().getDeclaredConstructor(Long.class).newInstance(dataId);
+						try {
+							if(AnalysisUI.class.isAssignableFrom(container)) {
+								AnalysisUI parameterPanel = (AnalysisUI)container.getDeclaredConstructor(Long.class).newInstance(dataId);
+								showAnalysisParameterPanel(analysis, parameterPanel);
+							} else if (Visualizer.class.isAssignableFrom(container)) {
+								// a new instance (with actual data) is created because currently visualizer does not have set-dataset-ID method
+								Visualizer newVisualizer = (Visualizer)container.getDeclaredConstructor(Long.class).newInstance(dataId);
 								showVisualizer(newVisualizer);
-							} catch (IllegalArgumentException e) {
+							} else {
+								log.error("unknown view type "+container);
+							}
+						} catch (IllegalArgumentException e) {
 								e.printStackTrace();
 							} catch (SecurityException e) {
 								e.printStackTrace();
@@ -199,9 +186,6 @@ public class DataTypeMenuPage extends VerticalLayout {
 							} catch (NoSuchMethodException e) {
 								e.printStackTrace();
 							}
-						} else {
-							log.error("unkown view type "+container.getClass());
-						}
 					}
 				});
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);

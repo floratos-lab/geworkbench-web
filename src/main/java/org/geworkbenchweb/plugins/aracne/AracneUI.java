@@ -127,6 +127,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		addComponent(gridLayout);
 
+		setDataSetId(dataId);
 	}
 
 	private void addPendingNode(List<String> hubGeneList) {
