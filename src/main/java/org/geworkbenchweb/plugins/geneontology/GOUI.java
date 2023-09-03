@@ -45,10 +45,6 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 	private Long dataSetId;
 	private final HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	public GOUI() {
-		this(0L);
-	}
-
 	private final ComboBox referenceGene = new ComboBox("Reference Gene List");
 	private final ComboBox changedGene = new ComboBox("Changed Gene List (From Set)");
 	private final ComboBox cmbAnnotationFile = new ComboBox("Annotation File");

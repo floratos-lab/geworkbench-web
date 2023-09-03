@@ -24,7 +24,6 @@ import com.vaadin.ui.VerticalLayout;
  * 
  * This class handles Hierarchical Clustering parameter form and submits analysis.
  * No computation should be there in this class.
- * @author Nikhil Reddy
  *
  */
 public class HierarchicalClusteringUI extends VerticalLayout implements AnalysisUI {
@@ -43,11 +42,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 	private Long userId;
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>(); 
-	
-	public HierarchicalClusteringUI() {
-		this(0L);
-	}
-	
+
 	public HierarchicalClusteringUI(Long dataId) {
 		
 		this.dataSetId = dataId;
@@ -171,6 +166,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 		addComponent(clusterMetric);
 		addComponent(submitButton);
 		
+		setDataSetId(dataId);
 	}
 
 	private static int parseDistanceMetric(String d) {

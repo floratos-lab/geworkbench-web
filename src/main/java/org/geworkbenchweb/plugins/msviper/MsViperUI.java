@@ -101,11 +101,7 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 
 	protected Long dataSetId = null;
 	protected Long userId = null;
-	
-	public MsViperUI() {
-		this(0L);
-	}
-	
+
 	public MsViperUI(Long dataId){
 		this.dataSetId = dataId;		
 	    
