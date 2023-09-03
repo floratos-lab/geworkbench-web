@@ -11,14 +11,11 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 /* A connector from the existing pending nodes to the 'main layout' when the user logs in again,
  * so when it finishes during this session, the UI will update. */
 public class PendingNodeProcessor {
 
-	private static final long CHECKING_INTEVAL_IN_SECOND = 5;
+	private static final long CHECKING_INTERVAL_IN_SECOND = 5;
 
 	private static Log log = LogFactory.getLog(PendingNodeProcessor.class);
 
@@ -50,7 +47,7 @@ public class PendingNodeProcessor {
 				while (pendingResultIds != null && pendingResultIds.size() > 0) {
 
 					try {
-						TimeUnit.SECONDS.sleep(CHECKING_INTEVAL_IN_SECOND);
+						TimeUnit.SECONDS.sleep(CHECKING_INTERVAL_IN_SECOND);
 					} catch (InterruptedException e) {
 						// no-op
 						e.printStackTrace();
@@ -64,7 +61,8 @@ public class PendingNodeProcessor {
 
 						log.debug("checking pending node ...");
 						if (!isPending(result)) {
-							addResultNode(result);
+							mainLayout.addNode(result);
+							mainLayout.push();
 							pending.remove();
 							log.debug("one pending node removed");
 						}
@@ -83,43 +81,5 @@ public class PendingNodeProcessor {
 		} else {
 			return false;
 		}
-	}
-
-	/* this is based on the code copied from AnalysisListener */
-	/*
-	 * this is mainly to force 'adding result node' invoked from GUI thread. That is
-	 * really the limitation of current design
-	 */
-	private void addResultNode(final ResultSet resultSet) {
-		MessageBox mb = new MessageBox(mainLayout.getWindow(),
-				"Analysis Completed",
-				MessageBox.Icon.INFO,
-				"Analysis you submitted is now completed. " +
-						"Click on the node to see the results",
-				new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-		mb.show(new MessageBox.EventListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClicked(ButtonType buttonType) {
-				/*
-				 * TODO uMainLayout.addNode(resultSet) is implemented in a way that works
-				 * properly only in GUI thread,
-				 * so we need to call this method here. Theoretically, this is not necessary. If
-				 * the design is improved,
-				 * this action could possibly be done in the background thread, and the
-				 * confirmation dialog will no be necessary.
-				 */
-				/*
-				 * In short, the AnalysisUI should be implemented separating the constructor and
-				 * method attach() because only the
-				 * latter logically requires the GUI thread. In a background thread,
-				 * getApplication() would return null,
-				 * and SessionHandler.get() throws null pointer exception by appfoundation.
-				 */
-				mainLayout.addNode(resultSet);
-			}
-		});
-		mainLayout.push();
 	}
 }
