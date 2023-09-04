@@ -44,7 +44,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	}
 
 	private static ThreadLocal<Blackboard> BLACKBOARD = new ThreadLocal<Blackboard>();
-	private static ThreadLocal<GeworkbenchRoot> currentApplication = new ThreadLocal<GeworkbenchRoot>();
 
 	private final Blackboard blackboardInstance = new Blackboard();
 
@@ -134,7 +133,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 	public void transactionStart(Application application, Object transactionData) {
 		if (application == GeworkbenchRoot.this) {
 			BLACKBOARD.set(blackboardInstance);
-			currentApplication.set(this);
 		}
 	}
 
@@ -144,8 +142,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			// to avoid keeping an Application hanging, and mitigate the
 			// possibility of user session crosstalk
 			BLACKBOARD.set(null);
-			currentApplication.set(null);
-			currentApplication.remove();
 		}
 	}
 
