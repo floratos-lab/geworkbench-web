@@ -5,6 +5,7 @@ import java.util.Map;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.plugins.Tabular;
 import org.geworkbenchweb.pojos.AnovaResult;
+import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -34,17 +35,17 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	
 	final private Long datasetId;
 	final private Long parentDatasetId;
-	private Long userId;
+	final private Long userId;
 
 	public AnovaResultsUI(Long dataSetId) {
 		datasetId = dataSetId;		
 		if(dataSetId==null) {
 			anovaResultSet = null;
 			parentDatasetId = null;
+			userId = null;
 			return;
 		}
 		
-		userId = SessionHandler.get().getId();
 		
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long id = resultSet.getDataId();
@@ -52,9 +53,12 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		if(id==null) { // pending node
 			addComponent(new Label("Pending computation - ID "+ dataSetId));
 			anovaResultSet = null;
+			userId = null;
 			return;
 		}
 		anovaResultSet = FacadeFactory.getFacade().find(AnovaResult.class, id);
+		DataSet parent = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
+		userId = parent.getOwner();
 	
 		setSpacing(true);
 		setImmediate(true);

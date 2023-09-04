@@ -38,8 +38,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Builds the Parameter Form for Anova Analysis
- * 
- * @author Min You
  */
 public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
@@ -73,10 +71,6 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
-	public AnovaUI() {
-		this(0L);
-	}
-	
 	public AnovaUI(Long dataSetId) {
 		User user = SessionHandler.get();
 		if(user!=null)
@@ -275,6 +269,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		addComponent(new Label("   "));
 		addComponent(submitButton);
 
+		setDataSetId(dataSetId);
 	}
 
 	
