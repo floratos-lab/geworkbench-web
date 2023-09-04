@@ -12,7 +12,6 @@ import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.ObjectConversion;
 import org.geworkbenchweb.utils.PagedTableView;
 import org.geworkbenchweb.utils.PreferenceOperations;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.addon.tableexport.CsvExport;
@@ -28,30 +27,29 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 	private static final long serialVersionUID = 3115606230292029231L;
 
 	private PagedTableView dataTable;
-	private String searchStr;	
+	private String searchStr;
 
-	final private AnovaResult anovaResultSet; 
-    private AnovaTablePreferences anovaTablePref = new AnovaTablePreferences();
-	
+	final private AnovaResult anovaResultSet;
+	private AnovaTablePreferences anovaTablePref = new AnovaTablePreferences();
+
 	final private Long datasetId;
 	final private Long parentDatasetId;
 	final private Long userId;
 
 	public AnovaResultsUI(Long dataSetId) {
-		datasetId = dataSetId;		
-		if(dataSetId==null) {
+		datasetId = dataSetId;
+		if (dataSetId == null) {
 			anovaResultSet = null;
 			parentDatasetId = null;
 			userId = null;
 			return;
 		}
-		
-		
+
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long id = resultSet.getDataId();
 		parentDatasetId = resultSet.getParent();
-		if(id==null) { // pending node
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+		if (id == null) { // pending node
+			addComponent(new Label("Pending computation - ID " + dataSetId));
 			anovaResultSet = null;
 			userId = null;
 			return;
@@ -59,13 +57,12 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		anovaResultSet = FacadeFactory.getFacade().find(AnovaResult.class, id);
 		DataSet parent = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
 		userId = parent.getOwner();
-	
+
 		setSpacing(true);
 		setImmediate(true);
 		setSizeFull();
-		
-		/* Results Table Code */
 
+		/* Results Table Code */
 		dataTable = new PagedTableView() {
 
 			private static final long serialVersionUID = 9129226094428040540L;
@@ -85,58 +82,50 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			}
 		};
 
-		 
-		
 		dataTable.setSizeFull();
 		dataTable.setImmediate(true);
 		dataTable.setStyleName(Reindeer.TABLE_STRONG);
 		dataTable.setContainerDataSource(getIndexedContainer());
-		Object [] properties={"F-statistic"};
-		boolean [] ordering={false,true};		 
+		Object[] properties = { "F-statistic" };
+		boolean[] ordering = { false, true };
 		dataTable.sort(properties, ordering);
 		final MenuBar toolBar = new AnovaTableMenuSelector(this, "AnovaResultsUI");
-		
+
 		addComponent(toolBar);
 		addComponent(dataTable);
 		setExpandRatio(dataTable, 1);
-		
+
 		addComponent(dataTable.createControls());
-
 	}
-	
-	private void loadAnovaTablePreferences() {
 
-		Preference p = PreferenceOperations
-				.getData(datasetId,
-						Constants.DISPLAY_CONTROL,
-						userId);
-	 
+	private void loadAnovaTablePreferences() {
+		Preference p = PreferenceOperations.getData(datasetId, Constants.DISPLAY_CONTROL, userId);
+
 		if (p == null) {
 			anovaTablePref.reset();
 			return;
 		}
-		 
-		anovaTablePref = (AnovaTablePreferences) (ObjectConversion
-							.toObject(p.getValue()));
-					 
 
+		anovaTablePref = (AnovaTablePreferences) (ObjectConversion
+				.toObject(p.getValue()));
 	}
 
-	 private IndexedContainer getIndexedContainer() {
+	private IndexedContainer getIndexedContainer() {
 
-		loadAnovaTablePreferences();		 
+		loadAnovaTablePreferences();
 		String[] header;
 		IndexedContainer dataIn = new IndexedContainer();
 
 		int groupNum = anovaResultSet.getSelectedArraySetNames().length;
-		int meanStdStartAtIndex =  (anovaTablePref.selectMarker() ? 1 : 0) + (anovaTablePref.selectGeneSymbol() ? 1 : 0) +(anovaTablePref.selectFStat() ? 1 : 0) + (anovaTablePref.selectPVal() ? 1 : 0);
+		int meanStdStartAtIndex = (anovaTablePref.selectMarker() ? 1 : 0) + (anovaTablePref.selectGeneSymbol() ? 1 : 0)
+				+ (anovaTablePref.selectFStat() ? 1 : 0) + (anovaTablePref.selectPVal() ? 1 : 0);
 		header = new String[meanStdStartAtIndex + groupNum
 				* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))];
 		int fieldIndex = 0;
 		if (anovaTablePref.selectMarker())
-		   header[fieldIndex++] = "Marker";
+			header[fieldIndex++] = "Marker";
 		if (anovaTablePref.selectGeneSymbol())
-			   header[fieldIndex++] = "Gene Symbol";
+			header[fieldIndex++] = "Gene Symbol";
 		if (anovaTablePref.selectPVal()) {
 			header[fieldIndex++] = "P-Value";
 		}
@@ -146,24 +135,26 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		for (int cx = 0; cx < groupNum; cx++) {
 			if (anovaTablePref.selectMean()) {
 				header[meanStdStartAtIndex + cx
-						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0)) + 0] = anovaResultSet
-						.getSelectedArraySetNames()[cx] + "_Mean";
+						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
+						+ 0] = anovaResultSet
+								.getSelectedArraySetNames()[cx] + "_Mean";
 			}
 			if (anovaTablePref.selectStd()) {
 				header[meanStdStartAtIndex + cx
-						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0)) + (anovaTablePref.selectMean() ? 1 : 0)] = anovaResultSet
-						.getSelectedArraySetNames()[cx] + "_Std";
+						* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
+						+ (anovaTablePref.selectMean() ? 1 : 0)] = anovaResultSet
+								.getSelectedArraySetNames()[cx] + "_Std";
 			}
 		}
 
-		for (int i=0; i<header.length; i++) {
-			if (header[i].equals("Marker") || header[i].equals("Gene Symbol") )
+		for (int i = 0; i < header.length; i++) {
+			if (header[i].equals("Marker") || header[i].equals("Gene Symbol"))
 				dataIn.addContainerProperty(header[i], String.class, "");
 			else
 				dataIn.addContainerProperty(header[i], Float.class, "");
 
 		}
-		
+
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(parentDatasetId);
 		Map<String, String> map = DataSetOperations.getAnnotationMap(parentDatasetId);
 
@@ -175,21 +166,24 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 			String geneSymbol = map.get(markerLabel);
 			if (!isMatchSearch(markerLabel, geneSymbol))
 				continue;
-			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.p_value.ordinal()) && (result2DArray[0][cx] > anovaTablePref.getThresholdValue()))
-			    continue;
-			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.f_statistic.ordinal()) && (Float.parseFloat(String.format("%.2f", result2DArray[2][cx])) < anovaTablePref.getThresholdValue()))
-			    continue;
-			
+			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.p_value.ordinal())
+					&& (result2DArray[0][cx] > anovaTablePref.getThresholdValue()))
+				continue;
+			if ((anovaTablePref.getThresholdControl() == Constants.ThresholdDisplayControl.f_statistic.ordinal())
+					&& (Float.parseFloat(String.format("%.2f", result2DArray[2][cx])) < anovaTablePref
+							.getThresholdValue()))
+				continue;
+
 			Object id = dataIn.addItem();
 			fieldIndex = 0;
-		
+
 			if (anovaTablePref.selectMarker()) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(markerLabel);
 			}
 			if (anovaTablePref.selectGeneSymbol()) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(geneSymbol);
-			}	 
-			 
+			}
+
 			if (anovaTablePref.selectPVal()) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(
 						result2DArray[0][cx]);
@@ -203,7 +197,8 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 					dataIn.getContainerProperty(
 							id,
 							header[meanStdStartAtIndex + gc
-									* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0)) + 0])
+									* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
+									+ 0])
 							.setValue(result2DArray[3 + gc * 2][cx]);
 				}
 				if (anovaTablePref.selectStd()) {
@@ -211,8 +206,9 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 							id,
 							header[meanStdStartAtIndex + gc
 									* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
-									+ (anovaTablePref.selectMean() ? 1 : 0)]).setValue(
-							result2DArray[4 + gc * 2][cx]);
+									+ (anovaTablePref.selectMean() ? 1 : 0)])
+							.setValue(
+									result2DArray[4 + gc * 2][cx]);
 				}
 			}
 
@@ -220,31 +216,29 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 
 		return dataIn;
 	}
-	 
+
 	private boolean isMatchSearch(String markerLabel, String geneSymbol) {
-			if (searchStr == null || searchStr.trim().length() == 0)
-				return true;
+		if (searchStr == null || searchStr.trim().length() == 0)
+			return true;
 
-			boolean isMatch = false;	 
-			if (anovaTablePref.selectMarker() &&  anovaTablePref.selectGeneSymbol()) {
-				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())
-						|| (geneSymbol != null && geneSymbol.toUpperCase().contains(searchStr.toUpperCase())))
-					isMatch = true;
-			} else if (anovaTablePref.selectMarker()) {
-				if (markerLabel.toUpperCase().contains(searchStr.toUpperCase()))
-					isMatch = true;
+		boolean isMatch = false;
+		if (anovaTablePref.selectMarker() && anovaTablePref.selectGeneSymbol()) {
+			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase())
+					|| (geneSymbol != null && geneSymbol.toUpperCase().contains(searchStr.toUpperCase())))
+				isMatch = true;
+		} else if (anovaTablePref.selectMarker()) {
+			if (markerLabel.toUpperCase().contains(searchStr.toUpperCase()))
+				isMatch = true;
 
-			} else if (anovaTablePref.selectGeneSymbol()){
-				if (geneSymbol.toUpperCase()
-						.contains(searchStr.trim().toUpperCase()))
-					isMatch = true;
-			}
-			return isMatch;
+		} else if (anovaTablePref.selectGeneSymbol()) {
+			if (geneSymbol.toUpperCase()
+					.contains(searchStr.trim().toUpperCase()))
+				isMatch = true;
 		}
-	 
+		return isMatch;
+	}
 
-	public AnovaTablePreferences getAnovaTablePreferences()
-	{
+	public AnovaTablePreferences getAnovaTablePreferences() {
 		return this.anovaTablePref;
 	}
 
@@ -253,22 +247,19 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 		return datasetId;
 	}
 
-	@Override	 
-	public void setSearchStr(String search)
-	{
+	@Override
+	public void setSearchStr(String search) {
 		this.searchStr = search;
 	}
-	
+
 	@Override
 	public String getSearchStr() {
-		 
+
 		return this.searchStr;
 	}
 
-
 	@Override
 	public Long getUserId() {
-		 
 		return this.userId;
 	}
 
