@@ -23,8 +23,8 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
+import com.github.wolfie.blackboard.exception.DuplicateRegistrationException;
 import com.vaadin.Application;
-import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
@@ -33,7 +33,7 @@ import com.vaadin.ui.Window;
 /**
  * This is the application entry point.
  */
-public class GeworkbenchRoot extends Application implements TransactionListener, HttpServletRequestListener {
+public class GeworkbenchRoot extends Application implements HttpServletRequestListener {
 
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
@@ -43,9 +43,7 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		pluginRegistry.init();
 	}
 
-	private static ThreadLocal<Blackboard> BLACKBOARD = new ThreadLocal<Blackboard>();
-
-	private final Blackboard blackboardInstance = new Blackboard();
+	private static final Blackboard blackboardInstance = new Blackboard();
 
 	private static final String APP_THEME_NAME = "geworkbench";
 	private static final String PROPERTIES_FILE = "application.properties";
@@ -106,9 +104,6 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 			return;
 		}
 
-		getContext().addTransactionListener(this);
-		BLACKBOARD.set(blackboardInstance);
-
 		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
 
@@ -129,37 +124,25 @@ public class GeworkbenchRoot extends Application implements TransactionListener,
 		GeneOntologyTree.getInstance();
 	}
 
-	@Override
-	public void transactionStart(Application application, Object transactionData) {
-		if (application == GeworkbenchRoot.this) {
-			BLACKBOARD.set(blackboardInstance);
-		}
-	}
-
-	@Override
-	public void transactionEnd(Application application, Object transactionData) {
-		if (application == GeworkbenchRoot.this) {
-			// to avoid keeping an Application hanging, and mitigate the
-			// possibility of user session crosstalk
-			BLACKBOARD.set(null);
-		}
-	}
-
 	/**
 	 * Method supplies Blackboard instance to the entire Application
 	 * 
 	 * @return Blackboard Instance for the application
 	 */
 	public static Blackboard getBlackboard() {
-		return BLACKBOARD.get();
+		return blackboardInstance;
 	}
 
 	/**
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
 	private void registerAllEventsForApplication() {
-
-		getBlackboard().register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
+		try {
+			blackboardInstance.register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
+		} catch (DuplicateRegistrationException e) {
+			// no op. TODO blackboard does not need to be static;
+			// left as is to avoid more change for now
+		}
 	}
 
 	public static PluginRegistry getPluginRegistry() {
