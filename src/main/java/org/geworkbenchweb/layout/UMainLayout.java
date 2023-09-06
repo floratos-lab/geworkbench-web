@@ -257,7 +257,6 @@ public class UMainLayout extends VerticalLayout {
 		pluginView.showWeclomeScreen();
 
 		analysisListener = new AnalysisListener(this);
-		GeworkbenchRoot.getBlackboard().addListener(analysisListener);
 	} // end of the constructor.
 
 	private AnalysisListener analysisListener;

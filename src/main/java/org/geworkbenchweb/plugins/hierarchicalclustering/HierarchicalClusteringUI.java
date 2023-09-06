@@ -153,7 +153,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 									resultSet, params,
 									HierarchicalClusteringUI.this);
-					GeworkbenchRoot.getBlackboard().fire(analysisEvent);	
+					app.getBlackboard().fire(analysisEvent);	
 					
 				} catch (Exception e) {	
 					e.printStackTrace();

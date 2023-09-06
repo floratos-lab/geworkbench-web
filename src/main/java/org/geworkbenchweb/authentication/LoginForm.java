@@ -2,6 +2,7 @@ package org.geworkbenchweb.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.UserActivityLog;
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
@@ -34,6 +35,9 @@ public class LoginForm extends VerticalLayout {
 			throws InvalidCredentialsException, AccountLockedException, Exception {
 		User user = AuthenticationUtil.authenticate(username, password);
 		UMainLayout uMainLayout = new UMainLayout();
+		GeworkbenchRoot app = (GeworkbenchRoot) getApplication();
+		app.getBlackboard().addListener(uMainLayout.getAnalysisListener());
+
 		uMainLayout.getMainToolBar().setUsername(user.getUsername());
 		uMainLayout.getMainToolBar().setPassword(user.getPassword());
 

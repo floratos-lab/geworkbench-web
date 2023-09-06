@@ -308,7 +308,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				app.addNode(resultSet);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(resultSet, params, AnovaUI.this);
-				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+				app.getBlackboard().fire(analysisEvent);
 			}
 		}
 	}

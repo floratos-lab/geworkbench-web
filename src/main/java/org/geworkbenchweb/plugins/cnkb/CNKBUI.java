@@ -599,7 +599,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, CNKBUI.this);
-		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+		((GeworkbenchRoot)app).getBlackboard().fire(analysisEvent);
 
 	}
 

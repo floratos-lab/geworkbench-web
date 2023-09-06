@@ -678,7 +678,8 @@ public class MsViperUI extends VerticalLayout implements Upload.SucceededListene
 
 			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 					resultSet, params, MsViperUI.this);
-			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+			GeworkbenchRoot app = (GeworkbenchRoot) MsViperUI.this.getApplication();
+			app.getBlackboard().fire(analysisEvent);
 		}
 	}
 	

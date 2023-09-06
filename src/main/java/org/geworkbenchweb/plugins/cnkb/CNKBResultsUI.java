@@ -552,7 +552,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			 */
 			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 					resultSet, params, new NetworkCreation(parentId));
-			GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+			app.getBlackboard().fire(analysisEvent);
 		}
 	}
 

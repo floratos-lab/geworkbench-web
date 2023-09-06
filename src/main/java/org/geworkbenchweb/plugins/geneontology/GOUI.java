@@ -166,7 +166,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 						resultSet, params, GOUI.this);
-				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+				app.getBlackboard().fire(analysisEvent);
 			}
 		});
 

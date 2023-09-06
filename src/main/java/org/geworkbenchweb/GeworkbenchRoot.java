@@ -23,7 +23,6 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
-import com.github.wolfie.blackboard.exception.DuplicateRegistrationException;
 import com.vaadin.Application;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.ComponentContainer;
@@ -43,7 +42,7 @@ public class GeworkbenchRoot extends Application implements HttpServletRequestLi
 		pluginRegistry.init();
 	}
 
-	private static final Blackboard blackboardInstance = new Blackboard();
+	private final Blackboard blackboardInstance = new Blackboard();
 
 	private static final String APP_THEME_NAME = "geworkbench";
 	private static final String PROPERTIES_FILE = "application.properties";
@@ -112,7 +111,9 @@ public class GeworkbenchRoot extends Application implements HttpServletRequestLi
 		User user = SessionHandler.get();
 		if (user != null) {
 			try {
-				mainWindow.setContent(new UMainLayout());
+				UMainLayout uMainLayout = new UMainLayout();
+				blackboardInstance.addListener(uMainLayout.getAnalysisListener());
+				mainWindow.setContent(uMainLayout);
 			} catch (Exception e) {
 				mainWindow.setContent(new UUserAuth());
 			}
@@ -124,12 +125,7 @@ public class GeworkbenchRoot extends Application implements HttpServletRequestLi
 		GeneOntologyTree.getInstance();
 	}
 
-	/**
-	 * Method supplies Blackboard instance to the entire Application
-	 * 
-	 * @return Blackboard Instance for the application
-	 */
-	public static Blackboard getBlackboard() {
+	public Blackboard getBlackboard() {
 		return blackboardInstance;
 	}
 
@@ -137,12 +133,7 @@ public class GeworkbenchRoot extends Application implements HttpServletRequestLi
 	 * All the Events in geWorkbench Application are strictly registered here.
 	 */
 	private void registerAllEventsForApplication() {
-		try {
-			blackboardInstance.register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
-		} catch (DuplicateRegistrationException e) {
-			// no op. TODO blackboard does not need to be static;
-			// left as is to avoid more change for now
-		}
+		blackboardInstance.register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}
 
 	public static PluginRegistry getPluginRegistry() {
@@ -202,20 +193,22 @@ public class GeworkbenchRoot extends Application implements HttpServletRequestLi
 	public void createNewMainLayout() {
 		Window mainWindow = getMainWindow();
 		if (mainWindow == null) {
-			log.error("null main winwdow");
+			log.error("null main window");
 			return;
 		}
 		ComponentContainer content = mainWindow.getContent();
 		if (content instanceof UMainLayout) {
 			UMainLayout mainLayout = (UMainLayout) content;
-			boolean removed = GeworkbenchRoot.getBlackboard().removeListener(
+			boolean removed = blackboardInstance.removeListener(
 					mainLayout.getAnalysisListener());
 			log.debug("analysis listener found and removed? " + removed);
 		} else {
 			log.error("main window content is not UMainLayout");
 		}
 		try {
-			mainWindow.setContent(new UMainLayout());
+			UMainLayout uMainLayout = new UMainLayout();
+			blackboardInstance.addListener(uMainLayout.getAnalysisListener());
+			mainWindow.setContent(uMainLayout);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

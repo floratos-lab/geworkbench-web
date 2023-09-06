@@ -146,7 +146,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, AracneUI.this);
-		GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+		app.getBlackboard().fire(analysisEvent);
 	}
 
 	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {

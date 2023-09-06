@@ -142,7 +142,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 						resultSet, params, TTestUI.this);
-				GeworkbenchRoot.getBlackboard().fire(analysisEvent);
+				app.getBlackboard().fire(analysisEvent);
 
 			}
 		});
