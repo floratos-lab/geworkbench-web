@@ -145,19 +145,11 @@ public class MsViperAnalysisClient {
 					datasetName, networkFname, serviceClient);
 
 		} catch (AxisFault e) {
-			OMElement x = e.getDetail();
-			if (x != null)
-				log.debug(x);
-			Throwable y = e.getCause();
-			while (y != null) {
-				y.printStackTrace();
-				y = y.getCause();
-			}
 			log.debug("message: " + e.getMessage());
-			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
+			log.debug(e);
 			throw new RemoteException("MsViper AxisFault: " + e.getMessage()
-					+ "\nfault action: " + e.getFaultAction() + "\nreason: "
+					+ "\nreason: "
 					+ e.getReason());
 		} catch (Exception e) {
 			e.printStackTrace();
