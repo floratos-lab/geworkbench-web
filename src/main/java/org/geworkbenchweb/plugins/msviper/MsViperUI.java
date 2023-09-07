@@ -651,13 +651,13 @@ public class MsViperUI extends VerticalLayout
 
 			param.setNetwork(networkTF.getValue().toString().trim());
 			param.setGesfilter(limitBox.booleanValue());
-			param.setMinAllowedRegulonSize(new Integer(minAllowedRegulonTF.getValue().toString().trim()));
+			param.setMinAllowedRegulonSize(Integer.valueOf(minAllowedRegulonTF.getValue().toString().trim()));
 			param.setBootstrapping(bootstrapBox.booleanValue());
 			param.setMethod(ogBootstrap.getValue().toString().toLowerCase());
 			if (param.getMethod().equalsIgnoreCase("average"))
 				param.setMethod("mean");
 			param.setShadow(shadowBox.booleanValue());
-			param.setShadowValue(new Float(shadowValue.getValue().toString().trim()));
+			param.setShadowValue(Float.valueOf(shadowValue.getValue().toString().trim()));
 
 			GeworkbenchRoot app = (GeworkbenchRoot) MsViperUI.this.getApplication();
 			ResultSet resultSet = storePendingResultSet();

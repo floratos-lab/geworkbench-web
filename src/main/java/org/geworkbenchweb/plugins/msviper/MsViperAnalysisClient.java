@@ -53,8 +53,6 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
  * 
  * MsViper Analysis client.
  * 
- * @author Min You
- * 
  */
 public class MsViperAnalysisClient {
 
@@ -282,17 +280,14 @@ public class MsViperAnalysisClient {
 		omFactory.createOMElement("gesFilter", namespace, request).setText(
 				param.getGesFilter().toString().toUpperCase());
 		omFactory.createOMElement("minAllowedRegulonSize", namespace, request)
-				.setText(
-						new Integer(param.getMinAllowedRegulonSize())
-								.toString());
+				.setText(param.getMinAllowedRegulonSize().toString());
 		omFactory.createOMElement("bootstrapping", namespace, request).setText(
 				param.getBootstrapping().toString().toUpperCase());
 		omFactory.createOMElement("method", namespace, request).setText(
 				param.getMethod());
 		omFactory.createOMElement("shadow", namespace, request).setText(
 				param.getShadow().toString().toUpperCase());
-		omFactory.createOMElement("shadowValue", namespace, request).setText(
-				new Float(param.getShadowValue()).toString());
+		omFactory.createOMElement("shadowValue", namespace, request).setText(Float.toString(param.getShadowValue()));
 
 		OMElement response = serviceClient.sendReceive(request);
 
@@ -441,7 +436,7 @@ public class MsViperAnalysisClient {
 				String[] toks = line.trim().split("\t");
 				String regulon = toks[0].trim();
 				sMap.put(regulon.substring(1, regulon.length() - 1),
-						new Double(toks[1].trim()));
+						Double.valueOf(toks[1].trim()));
 
 			}
 
@@ -495,7 +490,8 @@ public class MsViperAnalysisClient {
 
 			if ( resultList == null || resultList.size() == 0)
 				return null;
-			String[][] results = new String[resultList.size()][row.length];
+			int size = row==null ? 0: row.length;
+			String[][] results = new String[resultList.size()][size];
 			for (int i = 0; i < resultList.size(); i++)
 				for (int j = 0; j < resultList.get(i).length; j++)
 					results[i][j] = resultList.get(i)[j];
@@ -655,8 +651,8 @@ public class MsViperAnalysisClient {
 		// sort genes by value
 		Collections.sort(genes, new Comparator<String>() {
 			public int compare(String m1, String m2) {
-				return new Double(Math.abs(values.get(m2)))
-						.compareTo(new Double(Math.abs(values.get(m1))));
+				return Double.valueOf(Math.abs(values.get(m2)))
+						.compareTo(Double.valueOf(Math.abs(values.get(m1))));
 			}
 		});
 		msViperResult.setMaxVal(values.get(genes.get(0)));
@@ -775,7 +771,7 @@ public class MsViperAnalysisClient {
 	private double[] convertToDouble(float[] inData) {
 		double[] outData = new double[inData.length];
 		for (int i = 0; i < inData.length; i++)
-			outData[i] = new Double(inData[i]);
+			outData[i] = (double)inData[i];
 		return outData;
 
 	}
