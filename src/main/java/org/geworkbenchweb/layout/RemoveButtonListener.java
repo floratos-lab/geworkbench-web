@@ -163,15 +163,17 @@ public class RemoveButtonListener implements ClickListener {
 						ResultSet result = FacadeFactory.getFacade().find(ResultSet.class, dataId);
 						FacadeFactory.getFacade().delete(result);
 						Long resultDataId = result.getDataId();
-						String dataType = result.getType();
-						try {
-							Class<? extends AbstractPojo> resultClazz = (Class<? extends AbstractPojo>) Class
-									.forName(dataType);
-							AbstractPojo resultData = FacadeFactory.getFacade().find(resultClazz, resultDataId);
-							FacadeFactory.getFacade().delete(resultData);
-						} catch (ClassNotFoundException e) {
-							e.printStackTrace();
-							log.error("result data not removed due to ClassNotFoundException " + e);
+						if (resultDataId != null) {
+							String dataType = result.getType();
+							try {
+								Class<? extends AbstractPojo> resultClazz = (Class<? extends AbstractPojo>) Class
+										.forName(dataType);
+								AbstractPojo resultData = FacadeFactory.getFacade().find(resultClazz, resultDataId);
+								FacadeFactory.getFacade().delete(resultData);
+							} catch (ClassNotFoundException e) {
+								e.printStackTrace();
+								log.error("result data not removed due to ClassNotFoundException " + e);
+							}
 						}
 					}
 
