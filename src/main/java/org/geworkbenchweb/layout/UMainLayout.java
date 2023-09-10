@@ -352,6 +352,39 @@ public class UMainLayout extends VerticalLayout {
 		return b;
 	}
 
+	public boolean updateNode(ResultSet res) {
+		Long resultSetId = res.getId();
+		Item item = navigationTree.getItem(resultSetId);
+		if (item == null) {
+			// what are such ResultSet?
+			log.warn("null item for ID " + resultSetId + " " + res.getName());
+			return false;
+		}
+		String currentNodeName = item.getItemProperty("Name").getValue().toString();
+		String resultName = res.getName();
+		// if(currentNodeName.contains("Pending") && !resultName.contains("Pending")){
+		if (!currentNodeName.equals(resultName)) {
+			item.getItemProperty("Name").setValue(resultName);
+			String type = res.getType();
+			item.getItemProperty("Type").setValue(type);
+			try {
+				Class<?> visualizerClass = Class.forName(type);
+				ThemeResource icon = GeworkbenchRoot.getPluginRegistry().getResultIcon(visualizerClass);
+				item.getItemProperty("Icon").setValue(icon);
+				Object currentSelected = navigationTree.getValue();
+				if (currentSelected != null && currentSelected.equals(resultSetId)) {
+					List<Class<? extends Visualizer>> resultUiClass = GeworkbenchRoot.getPluginRegistry()
+							.getResultUI(visualizerClass);
+					pluginView.setContentUpdatingCache(resultUiClass.get(0), resultSetId);
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			return true;
+		}
+		return false;
+	}
+
 	// this may need to be public if we don't use event listener to trigger it.
 	private void addResultSetNode(ResultSet res) {
 		navigationTree.setChildrenAllowed(res.getParent(), true);
