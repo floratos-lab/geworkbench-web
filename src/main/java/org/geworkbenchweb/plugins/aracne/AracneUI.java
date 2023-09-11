@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -33,6 +35,7 @@ import de.steinwedel.vaadin.MessageBox.ButtonType;
 
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
+	private final Log log = LogFactory.getLog(AracneUI.class);
 	private static final long serialVersionUID = 1L;
 
 	private Long dataSetId;
@@ -361,9 +364,13 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 			throws IOException, Exception {
 		AracneAnalysisClient analyze = new AracneAnalysisClient(dataSetId, params);
 		AbstractPojo output = analyze.execute();
-		FacadeFactory.getFacade().store(output);
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
 				resultId);
+		if (result==null) { // if the pending node is deleted by the user
+			log.debug("Job is cancelled. resultId=" + resultId);
+			return null;
+		}
+		FacadeFactory.getFacade().store(output);
 		result.setDataId(output.getId());
 		if (output instanceof Network) { // FIXME binding two different types together horrible idea
 			Network n = (Network) output;

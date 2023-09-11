@@ -52,6 +52,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				String resultName = null;
 				try {
 					resultName = analysisUI.execute(resultId, params, userId);
+					if (resultName == null)
+						return;
 				} catch (OverLimitException e) {
 					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
 							"Size Limit", MessageBox.Icon.INFO, e.getMessage(),
@@ -110,6 +112,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 				final ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 				resultSet.setName(resultName);
+				// REVIEW this should have been done in AnalysisUI.execute so it is not necessary here.
+				// If it is indeed taken care of in every implementation, it should be removed.
 				FacadeFactory.getFacade().store(resultSet);
 
 				UserActivityLog ual = new UserActivityLog(username,
