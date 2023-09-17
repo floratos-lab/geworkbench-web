@@ -1,8 +1,8 @@
-anova.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService
-ttest.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/TTestService 
-hierClusterService.webService.url=http://afdev.c2b2.columbia.edu:9090/axis2/services/HierClusterService  
-aracne.clusterService.url=http://afdev.c2b2.columbia.edu:9090/aracne-server/services
-msviper.clusterService.url=http://afdev.c2b2.columbia.edu:9090/msviper-server/services
+anova.webService.url=http://192.168.0.0:8080/axis2/services/AnovaService
+ttest.webService.url=http://192.168.0.0:8080/axis2/services/TTestService 
+hierClusterService.webService.url=http://192.168.0.0:8080/axis2/services/HierClusterService  
+aracne.clusterService.url=http://192.168.0.0:8080/aracne-service/services
+msviper.clusterService.url=http://192.168.0.0:8080/msviper-service/services
  
 # Soft Limit on Cytoscape Objects (nodes + edges)
 limit.cytoscape.objects=2000
@@ -47,7 +47,7 @@ build.version=${pom.version}
 cnkb.url=http://34.74.237.111:8080/cnkb/InteractionsServlet
 
 #pbqdi
-pbdqi.service.url=http://localhost:8080/pbqdi
+pbdqi.service.url=http://192.168.0.0:8080/pbqdi
 #r.path=F:/Program Files/R/R-3.3.1/bin/
 pbqdi.output.path=/opt/tomcat/cptac_project/test1/
 #pbqdi.working.directory=F:/cptac_project/pbqdi/runs/
