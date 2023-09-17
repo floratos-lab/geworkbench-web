@@ -39,7 +39,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
-
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.DataSet;
 import org.geworkbenchweb.pojos.DataSetAnnotation;
@@ -109,7 +108,7 @@ public class MsViperAnalysisClient {
 		File target = convertNetWork(source, tempdirPath + File.separator + networkFname);
 		if (target == null || !target.exists())
 			throw new RemoteException("msViper convertNetWork error");
-		
+
 		File expFile = exportExp(microarray, tempdir, datasetName);
 		if (expFile == null || !expFile.exists())
 			throw new RemoteException("msViper exportExp error");
@@ -139,10 +138,8 @@ public class MsViperAnalysisClient {
 			ref.setAddress(MSVIPER_SERVICE_URL);
 			serviceClient.setTargetEPR(ref);
 
-			return executeMsViper(tempdirPath + File.separator + datasetName,
-					tempdir + File.separator + PHENOTYPE_FILE, tempdirPath
-							+ File.separator + networkFname, params,
-					datasetName, networkFname, serviceClient);
+			return executeMsViper(tempdirPath + File.separator + datasetName, tempdir + File.separator + PHENOTYPE_FILE,
+					tempdirPath + File.separator + networkFname, params, datasetName, networkFname, serviceClient);
 
 		} catch (AxisFault e) {
 			log.debug("message: " + e.getMessage());
@@ -268,7 +265,7 @@ public class MsViperAnalysisClient {
 		omFactory.createOMElement("controlGroups", namespace, request).setText(
 				param.getControlGroups());
 		omFactory.createOMElement("networkFileName", namespace, request)
-				.setText(convertToAlphaNumeric(networkFname.substring(0, networkFname.length()-4))+".adj");
+				.setText(convertToAlphaNumeric(networkFname.substring(0, networkFname.length() - 4)) + ".adj");
 		omFactory.createOMElement("gesFilter", namespace, request).setText(
 				param.getGesFilter().toString().toUpperCase());
 		omFactory.createOMElement("minAllowedRegulonSize", namespace, request)
@@ -286,12 +283,10 @@ public class MsViperAnalysisClient {
 		OMElement logElement = (OMElement) response
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE, "log"));
 		String errlog = logElement.getText();
-		if (errlog != null && errlog.length() > 0)
-		{
-			if (errlog.contains("was killed"))
-				throw new Exception(errlog + ". A possible reason could be that one or more hub genes in the network have too few regulon genes. ");
-			else
-				throw new Exception(errlog);
+		if (errlog != null && errlog.length() > 0) {
+			// A possible reason could be that one or more hub genes in the network have too
+			// few regulon genes.
+			throw new Exception(errlog);
 		}
 		OMElement nameElement = (OMElement) response
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE,
@@ -334,7 +329,7 @@ public class MsViperAnalysisClient {
 		DataHandler mrsSighandler = mrsSigfileElement == null ? null
 				: (DataHandler) ((OMText) mrsSigfileElement.getFirstOMChild())
 						.getDataHandler();
-		
+
 		OMElement shadowResultElement = (OMElement) response
 				.getFirstChildWithName(new QName(MSVIPER_NAMESPACE,
 						"shadowResultFile"));
@@ -360,12 +355,11 @@ public class MsViperAnalysisClient {
 		result.setRegulons(getGenelistMap(regulonsHandler, mrs));
 		sortMrRanks(result.getMrs_signatures(), result);
 		result.setBarcodes(getBarcodeMap(result, this.datasetId));
-		if (params.getShadow())
-		{
+		if (params.getShadow()) {
 			result.setShadow_pairs(getShadowPairMap(shadowPairhandler));
 			result.setShadowResult(getMrsResult(shadowResulthandler));
 		}
-		 
+
 		return result;
 	}
 
@@ -380,13 +374,10 @@ public class MsViperAnalysisClient {
 		fileElement.addChild(textData);
 		;
 	}
-	
-	private String convertToAlphaNumeric(String value)
-	{
+
+	private String convertToAlphaNumeric(String value) {
 		return value.trim().replaceAll("[^A-Za-z0-9]", "_");
 	}
-	
-	
 
 	// TODO there will be easier ways to copy files in Java 7
 	static int copyFile(String source, String dest) throws IOException {
@@ -480,9 +471,9 @@ public class MsViperAnalysisClient {
 
 			}
 
-			if ( resultList == null || resultList.size() == 0)
+			if (resultList == null || resultList.size() == 0)
 				return null;
-			int size = row==null ? 0: row.length;
+			int size = row == null ? 0 : row.length;
 			String[][] results = new String[resultList.size()][size];
 			for (int i = 0; i < resultList.size(); i++)
 				for (int j = 0; j < resultList.get(i).length; j++)
@@ -763,7 +754,7 @@ public class MsViperAnalysisClient {
 	private double[] convertToDouble(float[] inData) {
 		double[] outData = new double[inData.length];
 		for (int i = 0; i < inData.length; i++)
-			outData[i] = (double)inData[i];
+			outData[i] = (double) inData[i];
 		return outData;
 
 	}
@@ -772,7 +763,7 @@ public class MsViperAnalysisClient {
 			int totalMarkerNumber, ArrayList<HashMap<Integer, Integer>> lm,
 			int[] maxcopy) {
 		int arrayIndex = spearmanCor > 0 ? 0 : 1;
-		int position = (int) 400 * rank / totalMarkerNumber;	 
+		int position = (int) 400 * rank / totalMarkerNumber;
 		HashMap<Integer, Integer> hm = lm.get(arrayIndex);
 		Integer copy = hm.get(position);
 		copy = copy == null ? 1 : (copy + 1);
