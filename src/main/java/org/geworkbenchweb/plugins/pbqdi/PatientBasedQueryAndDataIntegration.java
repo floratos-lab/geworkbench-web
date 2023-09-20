@@ -13,31 +13,31 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.service.PbqdiEndpoint;
+import org.geworkbench.service.pbqdi.schema.PbqdiRequest;
+import org.geworkbench.service.pbqdi.schema.PbqdiResponse;
+import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
+import org.geworkbenchweb.pojos.PbqdiResult;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.plugins.citrus.CitrusDatabase;
-
-import org.geworkbench.service.pbqdi.schema.PbqdiRequest;
-import org.geworkbench.service.pbqdi.schema.PbqdiResponse;
-import org.geworkbench.service.PbqdiEndpoint;
-
-import org.geworkbenchweb.pojos.PbqdiResult;
+import org.vaadin.appfoundation.authentication.SessionHandler;
+import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -51,8 +51,6 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.appfoundation.authentication.SessionHandler;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -73,7 +71,6 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     private final String SERVICE_URL = GeworkbenchRoot.getAppProperty("pbdqi.service.url");
     private final String OUTPUT_PATH = GeworkbenchRoot.getAppProperty("pbqdi.output.path");
-    private final String BASE_WORKING_DIRECTORY = GeworkbenchRoot.getAppProperty("pbqdi.working.directory");
     private final String HTML_LOCATION = GeworkbenchRoot.getAppProperty("html.location");
     private String sampleFile = null;
 
@@ -83,13 +80,13 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private final Long owner;
 
     public PatientBasedQueryAndDataIntegration() {
+        owner = SessionHandler.get().getId();
         try {
             db = new CitrusDatabase();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("PatientBasedQueryAndDataIntegration failed to be created due to Exception " + e.getMessage());
+            return;
         }
-
-        owner = SessionHandler.get().getId();
 
         upload.setReceiver(new Receiver() {
 
@@ -166,7 +163,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             String RESULT_OPTION = GeworkbenchRoot.getAppProperty("result.option");
             if ("random".equalsIgnoreCase(RESULT_OPTION)) { // // random data in place of result
                 log.warn("'random result' test feature disabled");
-            } else if ("existing".equalsIgnoreCase(RESULT_OPTION)) { // we may want to bypass the R computation for testing
+            } else if ("existing".equalsIgnoreCase(RESULT_OPTION)) { // we may want to bypass the R computation for
+                                                                     // testing
                 log.warn("'existing result' test feature disabled");
             } else { // submit PBQDI web service request
                 PbqdiRequest request = new PbqdiRequest();
@@ -177,20 +175,21 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     BufferedReader br = new BufferedReader(new FileReader(sampleFile));
                     StringBuffer sb = new StringBuffer();
                     String line = br.readLine();
-                    while(line!=null) {
+                    while (line != null) {
                         sb.append(line).append('\n');
                         line = br.readLine();
                     }
                     br.close();
                     request.setFileContent(sb.toString());
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
                 }
 
                 QName qname = new QName(PbqdiEndpoint.NAMESPACE_URI, PbqdiEndpoint.REQUEST_LOCAL_NAME);
-                JAXBElement<PbqdiRequest> requestElement = new JAXBElement<PbqdiRequest>(qname, PbqdiRequest.class, request);
+                JAXBElement<PbqdiRequest> requestElement = new JAXBElement<PbqdiRequest>(qname, PbqdiRequest.class,
+                        request);
 
                 Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
                 marshaller.setContextPath("org.geworkbench.service.pbqdi.schema");
@@ -201,15 +200,17 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     template.setMarshaller(marshaller);
                     template.setUnmarshaller(marshaller);
 
-                    PbqdiResponse response = (PbqdiResponse)template.marshalSendAndReceive(SERVICE_URL, requestElement);
+                    PbqdiResponse response = (PbqdiResponse) template.marshalSendAndReceive(SERVICE_URL,
+                            requestElement);
                     String classAssignmentsResult = response.getClassAssignment();
-                    if(classAssignmentsResult==null) {
-                        PatientBasedQueryAndDataIntegration.this.processError("PBQDI web service failed: classAssignmentsResult==null");
+                    if (classAssignmentsResult == null) {
+                        PatientBasedQueryAndDataIntegration.this
+                                .processError("PBQDI web service failed: classAssignmentsResult==null");
                         return;
                     }
                     Map<String, Integer> classAssignments = parseClassAssignments(classAssignmentsResult);
 
-                    String resultPath = HTML_LOCATION + DrugReport.RESULT_PATH + jobId +"/";
+                    String resultPath = HTML_LOCATION + DrugReport.RESULT_PATH + jobId + "/";
                     Files.createDirectories(FileSystems.getDefault().getPath(resultPath));
 
                     DataHandler resultPackage = response.getResultPackage();
@@ -218,17 +219,16 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
                     InputStream inputStream = resultPackage.getInputStream();
                     ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-                    while( (entry = zipInputStream.getNextEntry())!=null ) {
+                    while ((entry = zipInputStream.getNextEntry()) != null) {
                         String s = String.format("Entry: %s len %d added %TD",
-                                    entry.getName(), entry.getSize(),
-                                    new java.util.Date(entry.getTime()));
+                                entry.getName(), entry.getSize(),
+                                new java.util.Date(entry.getTime()));
                         System.out.println(s);
 
                         String outpath = resultPath + entry.getName();
                         FileOutputStream outputFileStream = new FileOutputStream(outpath);
                         int len = 0;
-                        while ((len = zipInputStream.read(buffer)) > 0)
-                        {
+                        while ((len = zipInputStream.read(buffer)) > 0) {
                             outputFileStream.write(buffer, 0, len);
                         }
                         outputFileStream.close();
@@ -236,18 +236,19 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     zipInputStream.close();
                     inputStream.close();
 
-                    String sampleFileName = sampleFile.substring(sampleFile.lastIndexOf("/")+1, sampleFile.lastIndexOf(".txt"));
+                    String sampleFileName = sampleFile.substring(sampleFile.lastIndexOf("/") + 1,
+                            sampleFile.lastIndexOf(".txt"));
                     PbqdiResult result = new PbqdiResult(owner, tumorType, sampleFileName, jobId, classAssignments);
                     FacadeFactory.getFacade().store(result);
                     storedResults.addItem(result);
-                    storedResults.setItemCaption(result, result.getSampleFileName()+": Job ID "+result.getJobId());
+                    storedResults.setItemCaption(result, result.getSampleFileName() + ": Job ID " + result.getJobId());
 
                     v = new ResultView(result);
-                } catch(SOAPException e) {
+                } catch (SOAPException e) {
                     e.printStackTrace();
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
@@ -266,7 +267,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     private static Map<String, Integer> parseClassAssignments(String classAssignmentsResult) {
         Map<String, Integer> classAssignments = new HashMap<String, Integer>();
         String[] s = classAssignmentsResult.split("\n");
-        for(String x : s) {
+        for (String x : s) {
             String[] f = x.split("\t");
             classAssignments.put(f[0].trim(), Integer.parseInt(f[1]));
         }
@@ -313,22 +314,23 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("owner", owner);
         List<PbqdiResult> results = FacadeFactory.getFacade()
-            .list("Select p from PbqdiResult as p where p.owner=:owner", param);
-        //if(results.size()<=0) return;
+                .list("Select p from PbqdiResult as p where p.owner=:owner", param);
+        // if(results.size()<=0) return;
 
         storedResults.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
         storedResults.removeAllItems();
-        for(PbqdiResult x : results) {
+        for (PbqdiResult x : results) {
             storedResults.addItem(x);
-            storedResults.setItemCaption(x, x.getSampleFileName()+": Job ID "+x.getJobId());
+            storedResults.setItemCaption(x, x.getSampleFileName() + ": Job ID " + x.getJobId());
         }
         storedResults.setRows(7);
         storedResults.setNullSelectionAllowed(false);
         storedResults.setImmediate(true);
         storedResults.addListener(new Property.ValueChangeListener() {
             static final long serialVersionUID = 1L;
+
             public void valueChange(ValueChangeEvent event) {
-                PbqdiResult selection = (PbqdiResult)event.getProperty().getValue();
+                PbqdiResult selection = (PbqdiResult) event.getProperty().getValue();
                 Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
                 try {
                     mainWindow.addWindow(new ResultView(selection));
@@ -336,7 +338,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                         indicator.setVisible(false);
                         analyzeButton.setEnabled(true);
                     }
-                } catch(IOException e) {
+                } catch (IOException e) {
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                 }
             }

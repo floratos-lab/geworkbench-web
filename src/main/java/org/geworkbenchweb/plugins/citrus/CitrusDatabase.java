@@ -22,17 +22,17 @@ import org.geworkbenchweb.GeworkbenchRoot;
 public class CitrusDatabase {
 
 	private static Log log = LogFactory.getLog(CitrusDatabase.class);
-	
+
 	final private String DB_URL = "jdbc:mysql://" + GeworkbenchRoot.getAppProperty("citrus.db.url") + "/"
 			+ GeworkbenchRoot.getAppProperty("citrus.db.database");
 	final private String USER = GeworkbenchRoot.getAppProperty("citrus.db.username");
 	final private String PASS = GeworkbenchRoot.getAppProperty("citrus.db.password");
-	
+
 	private Map<String, Integer> cancerIds = new TreeMap<String, Integer>();
 	private Map<String, String> cancerTypes = new HashMap<String, String>();
-	
+
 	public CitrusDatabase() throws Exception {
-		
+
 		Connection conn = null;
 		Statement stmt = null;
 		try {
@@ -52,7 +52,8 @@ public class CitrusDatabase {
 			stmt.close();
 			conn.close();
 		} catch (SQLException se) {
-			se.printStackTrace();
+			log.error("SQLException: " + se.getMessage());
+			throw se;
 		} finally {
 			try {
 				if (stmt != null)
@@ -71,11 +72,11 @@ public class CitrusDatabase {
 		return cancerIds.keySet().toArray(new String[cancerIds.size()]);
 	}
 
-    public String getCancerType(String cancerTypeName) {
-        return cancerTypes.get(cancerTypeName);
-    }
+	public String getCancerType(String cancerTypeName) {
+		return cancerTypes.get(cancerTypeName);
+	}
 
-    public Set<GeneChoice> getTF(String cancerType) {
+	public Set<GeneChoice> getTF(String cancerType) {
 		Set<GeneChoice> list = new TreeSet<GeneChoice>();
 
 		Connection conn = null;
@@ -114,7 +115,7 @@ public class CitrusDatabase {
 		}
 		return list;
 	}
-	
+
 	public static class Alteration {
 		public String eventType;
 		public String modulatorSymbol;
@@ -132,7 +133,7 @@ public class CitrusDatabase {
 
 		@Override
 		public int compareTo(Viper o) {
-			return (int) Math.signum(o.value-value); // sort descending on purpose
+			return (int) Math.signum(o.value - value); // sort descending on purpose
 		}
 	}
 
@@ -145,7 +146,7 @@ public class CitrusDatabase {
 		String sql = "SELECT type, eventtypes.id, genes.symbol, associations.modulator_id, preppi, cindy, pvalue"
 				+ " FROM associations JOIN genes on genes.entrez_id=associations.modulator_id"
 				+ " JOIN eventtypes on eventtypes.id=associations.event_type_id WHERE cancer_type_id=" + cancerTypeId
-				+ " AND gene_id=" + tf + " ORDER BY pvalue LIMIT "+n;
+				+ " AND gene_id=" + tf + " ORDER BY pvalue LIMIT " + n;
 		log.debug(sql);
 
 		Connection conn = null;
@@ -185,7 +186,7 @@ public class CitrusDatabase {
 		}
 		return list.toArray(new Alteration[list.size()]);
 	}
-	
+
 	public Viper[] getViperValues(String cancerTypeName, int tf) {
 		List<Viper> list = new ArrayList<Viper>();
 

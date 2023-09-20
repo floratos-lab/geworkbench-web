@@ -14,36 +14,35 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import de.steinwedel.vaadin.MessageBox;
+import de.steinwedel.vaadin.MessageBox.ButtonType;
+
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 	private static final long serialVersionUID = -713233350568178L;
 	private static Log log = LogFactory.getLog(GeneBasedQueryAndDataIntegration.class);
-	
+
 	final private ComboBox cancerTypeComboBox = new ComboBox("TCGA cancer type");
 	final private ComboBox geneSymbolComboBox = new ComboBox("Gene symbol (N / P_min)");
 	final private TextField throttle = new TextField("Number of events to return");
 	final private CitrusDiagram citrusDiagram = new CitrusDiagram();
 	final private Button runButton = new Button("Run Citrus");
-	
+
 	private Set<GeneChoice> geneSymbols = null;
 
 	private CitrusDatabase db = null;
-	
+
 	public GeneBasedQueryAndDataIntegration() {
 		try {
 			db = new CitrusDatabase();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("GeneBasedQueryAndDataIntegration failed to be created due to Exception " + e.getMessage());
 		}
 	}
 
@@ -55,18 +54,18 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		public void buttonClick(ClickEvent event) {
 			String cancerType = (String) cancerTypeComboBox.getValue();
 			GeneChoice geneSymbol = (GeneChoice) geneSymbolComboBox.getValue();
-			if(geneSymbol==null) {
+			if (geneSymbol == null) {
 				log.debug("null gene ID");
 				return;
 			}
 			int geneId = geneSymbol.id;
-			String str = (String)throttle.getValue();
+			String str = (String) throttle.getValue();
 			int n = geneSymbol.count;
 			try {
 				n = Integer.parseInt(str);
-			} catch(NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				String msg = "You need to enter an integer number for the number of genomic events.";
-				MessageBox mb = new MessageBox(GeneBasedQueryAndDataIntegration.this.getWindow(), 
+				MessageBox mb = new MessageBox(GeneBasedQueryAndDataIntegration.this.getWindow(),
 						"Invalid number", MessageBox.Icon.ERROR, msg,
 						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
 				mb.show();
@@ -91,18 +90,18 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			int m = viper.length;
 			String[] samples = new String[m];
 			String[] nes = new String[m];
-			for(int i=0; i<m; i++) {
+			for (int i = 0; i < m; i++) {
 				samples[i] = viper[i].sample;
-				nes[i] = String.valueOf( viper[i].value );
+				nes[i] = String.valueOf(viper[i].value);
 			}
 			citrusDiagram.setCitrusData(labels, samples, presence, preppi, cindy, pvalue, nes);
 		}
 	};
-	
+
 	private void setTFComboBox(String cancerType) {
 		geneSymbolComboBox.removeAllItems();
 		geneSymbols = db.getTF(cancerType);
-		if(geneSymbols==null) {
+		if (geneSymbols == null) {
 			log.debug("null gene symbol list");
 			return;
 		}
@@ -117,7 +116,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		super.attach();
 
 		HorizontalLayout commandPanel = new HorizontalLayout();
-        HorizontalLayout slider = new HorizontalLayout();
+		HorizontalLayout slider = new HorizontalLayout();
 
 		this.setSpacing(true);
 		this.addComponent(commandPanel);
@@ -149,14 +148,14 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Object geneChoice = geneSymbolComboBox.getValue();
-				if(geneChoice!=null) {
-					throttle.setValue(""+((GeneChoice)geneChoice).count);
+				if (geneChoice != null) {
+					throttle.setValue("" + ((GeneChoice) geneChoice).count);
 				}
 			}
 
 		});
 		geneSymbolComboBox.setImmediate(true);
-		
+
 		runButton.addListener(clickListener);
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);
@@ -167,18 +166,18 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 		final Slider sliderX = new Slider("Horizontal zooming");
 		sliderX.setWidth("90%");
-        sliderX.setMin(0);
-        sliderX.setMax(100);
-        sliderX.setImmediate(true);
-        sliderX.addListener(new ValueChangeListener() {
+		sliderX.setMin(0);
+		sliderX.setMax(100);
+		sliderX.setImmediate(true);
+		sliderX.addListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = 1207635009715936238L;
 
 			public void valueChange(ValueChangeEvent event) {
-				Double x = (Double)event.getProperty().getValue();
+				Double x = (Double) event.getProperty().getValue();
 				citrusDiagram.zoomX(x);
-            }
-        });
+			}
+		});
 		final Slider sliderY = new Slider("Vertical zooming");
 		sliderY.setWidth("90%");
 		sliderY.setMin(0);
@@ -189,15 +188,15 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 			private static final long serialVersionUID = 5944261985038099756L;
 
 			public void valueChange(ValueChangeEvent event) {
-				Double y = (Double)event.getProperty().getValue();
+				Double y = (Double) event.getProperty().getValue();
 				citrusDiagram.zoomY(y);
-            }
-        });
+			}
+		});
 
 		slider.setWidth("90%");
 		slider.setMargin(true);
 		slider.setSpacing(true);
-        slider.addComponent(sliderX);
-        slider.addComponent(sliderY);
+		slider.addComponent(sliderX);
+		slider.addComponent(sliderY);
 	}
 }
