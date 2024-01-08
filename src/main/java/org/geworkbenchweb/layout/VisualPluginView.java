@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.geworkbenchweb.plugins.tools.ToolsUI;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
@@ -12,40 +13,36 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
-/**
- * ViusalPluginView sets the visualplugin to the main layout.
- * @author Nikhil Reddy
- */
 public class VisualPluginView extends HorizontalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-	/** Contians 
-	 * key1 - plugin 
-	 * key2 - dataSetId of plugin 
-	 * value - layout of the plugin 
-	 * */
+	/**
+	 * key1 - plugin
+	 * key2 - dataSetId of plugin
+	 * value - layout of the plugin
+	 */
 	private MultiKeyMap pluginCache = new MultiKeyMap();
-	
+
 	public VisualPluginView() {
 		setImmediate(true);
 	}
-	
+
 	public void setContent(Component content) {
 		removeAllComponents();
 		setSizeFull();
 		addComponent(content);
 	}
-	
+
 	public void setContentUsingCache(Class<? extends Component> resultUiClass, Long dataSetId) {
 		Object object = pluginCache.get(resultUiClass, dataSetId);
-		if(object!=null) {
-			setContent((Component)object);
+		if (object != null) {
+			setContent((Component) object);
 		} else {
 			setContentUpdatingCache(resultUiClass, dataSetId);
 		}
 	}
-	
+
 	public void setContentUpdatingCache(Class<? extends Component> resultUiClass, Long dataSetId) {
 		try {
 			Component resultUI = resultUiClass.getDeclaredConstructor(Long.class).newInstance(dataSetId);
@@ -65,12 +62,13 @@ public class VisualPluginView extends HorizontalLayout {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 *  Set the content of this panel. Generic version.
+	 * Set the content of this panel. Generic version.
 	 * 
-	 * Eventually this may not be necessary if we only handle one type, namely DataTypeUI
-	 * */
+	 * Eventually this may not be necessary if we only handle one type, namely
+	 * DataTypeUI
+	 */
 	@SuppressWarnings("deprecation")
 	public void setContent(ComponentContainer content, String titleText, String description) {
 		removeAllComponents();
@@ -82,16 +80,15 @@ public class VisualPluginView extends HorizontalLayout {
 		pluginLayout.setSpacing(true);
 		pluginLayout.setMargin(true);
 		pluginLayout.setStyleName("sample-view");
-		
+
 		VerticalLayout left = new VerticalLayout();
 		left.setWidth("100%");
 		left.setSpacing(true);
 		left.setMargin(false);
-		
+
 		VerticalLayout rightLayout = new VerticalLayout();
 		Panel right = new Panel(rightLayout);
-		rightLayout.setMargin(true, false, false, false);
-		right.setStyleName(Panel.STYLE_LIGHT);
+		rightLayout.setMargin(new MarginInfo(true, false, false, false));
 		right.addStyleName("feature-info");
 		right.setWidth("319px");
 
@@ -103,29 +100,30 @@ public class VisualPluginView extends HorizontalLayout {
 		title.setStyleName("title");
 		controls.addComponent(title);
 		controls.setExpandRatio(title, 1);
-		
+
 		pluginLayout.addComponent(left);
 		pluginLayout.setExpandRatio(left, 1);
 		pluginLayout.addComponent(right);
-		
+
 		left.setSizeFull();
 		left.addComponent(controls);
 		Panel panel = new Panel();
 		panel.setSizeFull();
-		panel.addComponent(content);
+		panel.setContent(content);
 		left.addComponent(panel);
 		left.setExpandRatio(panel, 1);
 		right.setCaption("Description");
 		if (description != null && description != "") {
 			final Label l = new Label(
 					"<div class=\"outer-deco\"><div class=\"deco\"><span class=\"deco\"></span>"
-							+ description + "</div></div>", Label.CONTENT_XHTML);
-			right.addComponent(l);
+							+ description + "</div></div>",
+					Label.CONTENT_XHTML);
+			right.setContent(l);
 		}
 		pluginLayout.setSizeFull();
 		this.addComponent(pluginLayout);
 	}
-	
+
 	public void showToolList() {
 		ToolsUI toolList = ToolsUI.createInstance(this);
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
@@ -135,7 +133,7 @@ public class VisualPluginView extends HorizontalLayout {
 		ToolsUI toolList = ToolsUI.createStandaloneInstance(this);
 		setContent(toolList, toolList.getTitle(), toolList.getDescription());
 	}
-	
+
 	public void showWeclomeScreen() {
 		removeAllComponents();
 		setSizeUndefined();
