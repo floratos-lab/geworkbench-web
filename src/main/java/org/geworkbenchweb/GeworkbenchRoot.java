@@ -23,14 +23,18 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
+import com.vaadin.annotations.Theme;;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 /**
  * This is the application entry point.
  */
-public class GeworkbenchRoot {
+@Theme("geworkbench")
+public class GeworkbenchRoot extends UI {
 
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
@@ -42,13 +46,12 @@ public class GeworkbenchRoot {
 
 	private final Blackboard blackboardInstance = new Blackboard();
 
-	private static final String APP_THEME_NAME = "geworkbench";
 	private static final String PROPERTIES_FILE = "application.properties";
 
 	private static Properties prop = new Properties();
 
 	@Override
-	public void init() {
+	public void init(VaadinRequest request) {
 		if (FacadeFactory.getFacade() == null) {
 			try {
 				FacadeFactory.registerFacade("default", true);
@@ -101,7 +104,6 @@ public class GeworkbenchRoot {
 			return;
 		}
 
-		setTheme(APP_THEME_NAME);
 		SessionHandler.initialize(this);
 
 		registerAllEventsForApplication();
