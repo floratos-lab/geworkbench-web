@@ -10,16 +10,12 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.terminal.DownloadStream;
+import com.vaadin.server.ClassResource;
+import com.vaadin.server.DownloadStream;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-/**
- * @author zji
- * 
- */
 public class QuickIntro extends VerticalLayout {
 
 	private static final long serialVersionUID = -85557624336918038L;

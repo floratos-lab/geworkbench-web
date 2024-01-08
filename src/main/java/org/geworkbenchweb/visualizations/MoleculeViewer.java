@@ -1,10 +1,9 @@
 package org.geworkbenchweb.visualizations;
 
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
 
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VMoleculeViewer.class)
 public class MoleculeViewer extends AbstractComponent {
 
 	private static final long serialVersionUID = 4600493722698214718L;

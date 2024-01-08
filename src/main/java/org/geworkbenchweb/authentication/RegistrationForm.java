@@ -22,9 +22,7 @@ import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.ThemeResource;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -43,10 +41,6 @@ import com.vaadin.ui.themes.Reindeer;
 import nl.captcha.Captcha;
  
 
-/**
- * @author zji
- * 
- */
 public class RegistrationForm extends VerticalLayout {
 
 	private static final long serialVersionUID = 6837549393946888607L;

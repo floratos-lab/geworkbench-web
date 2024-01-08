@@ -15,13 +15,14 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
  
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.Paintable;
+import com.vaadin.client.UIDL;
 
 /**
  * Client side code for Dendrogram widget.
  */
+@com.vaadin.shared.ui.Connect(org.geworkbenchweb.visualizations.Dendrogram.class)
 public final class VDendrogram extends Composite implements Paintable {
 
 	/* two variables to communicate back to the server side*/

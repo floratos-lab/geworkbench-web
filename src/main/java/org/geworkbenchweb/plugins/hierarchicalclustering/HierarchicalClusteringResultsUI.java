@@ -16,7 +16,7 @@ import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;

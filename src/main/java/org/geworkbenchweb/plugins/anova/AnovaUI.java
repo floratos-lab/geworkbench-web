@@ -24,7 +24,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.terminal.UserError;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;

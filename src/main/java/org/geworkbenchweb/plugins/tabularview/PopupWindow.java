@@ -1,6 +1,6 @@
 package org.geworkbenchweb.plugins.tabularview;
  
-import com.vaadin.terminal.ExternalResource; 
+import com.vaadin.server.ExternalResource; 
 import com.vaadin.ui.Component; 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;

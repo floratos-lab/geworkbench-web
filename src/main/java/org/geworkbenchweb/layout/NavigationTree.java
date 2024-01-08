@@ -21,8 +21,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar;
@@ -32,8 +32,6 @@ import com.vaadin.ui.Tree;
 /**
  * 
  * Main navigation tree of the workspace.
- * 
- * @author zji
  * 
  */
 public class NavigationTree extends Tree {

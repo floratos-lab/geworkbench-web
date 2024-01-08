@@ -19,9 +19,8 @@ import org.geworkbenchweb.visualizations.Cytoscape;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
-import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Resource;
+import com.vaadin.server.FileResource;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;

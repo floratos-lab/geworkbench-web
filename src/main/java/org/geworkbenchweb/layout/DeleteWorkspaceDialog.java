@@ -17,7 +17,6 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -25,6 +24,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseListener;
 
 import de.steinwedel.vaadin.MessageBox;
 import de.steinwedel.vaadin.MessageBox.ButtonType;
@@ -194,7 +194,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			newDefaultWorksapce.setName(defaultWorkspaceName);
 			FacadeFactory.getFacade().store(newDefaultWorksapce);
 			/* Step 3: set the new default workspace as the current */
-			switchWorkspace(app, newDefaultWorksapce.getId());
+			switchWorkspace(newDefaultWorksapce.getId());
 			/* Step 4: delete all the selected workspaces */
 			for (Long id : toBeDelectedId) {
 				DataSetOperations.deleteWorkspace(id);
@@ -212,7 +212,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			/* Step 2: choose a new current workspace */
 			if(notSelected.size()==1) { /* it must be least one */
 				/* set the only unselected as the current */
-				switchWorkspace(app, notSelected.iterator().next());
+				switchWorkspace(notSelected.iterator().next());
 				/* Step 3: otherwise, just delete all selected (because the current workspace will not be changed */
 				for (Long id : toBeDelectedId) {
 					DataSetOperations.deleteWorkspace(id);
@@ -231,7 +231,7 @@ public class DeleteWorkspaceDialog extends Window implements
 		}
 	}
 	
-	private static void switchWorkspace(final Application app, Long wsid) {
+	private static void switchWorkspace(Long wsid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("owner", SessionHandler.get().getId());
 		List<AbstractPojo> activeWorkspace = FacadeFactory
@@ -247,11 +247,7 @@ public class DeleteWorkspaceDialog extends Window implements
 		FacadeFactory.getFacade().store(active);
 		
 		/* switch GUI to the newly selected workspace */
-		if(app instanceof GeworkbenchRoot) {
-			((GeworkbenchRoot) app).createNewMainLayout();
-		} else {
-			log.error("application is not GeworkbenchRoot: "+app);
-		}
+		// FIXME no more com.vaadin.Application in vaadin 7
 	}
 
 	private void chooseNewCurrent(final Set<Long> notSelected,
@@ -277,9 +273,6 @@ public class DeleteWorkspaceDialog extends Window implements
 			}
 		}
 
-		final Application app = getApplication();
-		final Window mainWindow = app.getMainWindow();
-
 		final Window chooseDialog = new Window("Choose New Current Workspace");
 		chooseDialog.setModal(true);
 		chooseDialog.setDraggable(false);
@@ -292,7 +285,7 @@ public class DeleteWorkspaceDialog extends Window implements
 
 			@Override
 			public void windowClose(CloseEvent e) {
-				switchWorkspace(app, newCurrentWorkspace);
+				switchWorkspace(newCurrentWorkspace);
 				for (Long id : toBeDelectedId) {
 					DataSetOperations.deleteWorkspace(id);
 				}

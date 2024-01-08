@@ -1,10 +1,9 @@
 package org.geworkbenchweb.visualizations;
 
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
 
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VCitrusDiagram.class)
 public class CitrusDiagram extends AbstractComponent {
 
 	private static final long serialVersionUID = 2073659992756579843L;

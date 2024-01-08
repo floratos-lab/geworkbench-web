@@ -1,7 +1,7 @@
 package org.geworkbenchweb.layout;
 
 import com.vaadin.data.Property;
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;

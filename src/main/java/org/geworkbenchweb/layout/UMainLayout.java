@@ -17,7 +17,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;

@@ -23,8 +23,6 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
-import com.vaadin.Application;
-import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Window;
@@ -32,7 +30,7 @@ import com.vaadin.ui.Window;
 /**
  * This is the application entry point.
  */
-public class GeworkbenchRoot extends Application implements HttpServletRequestListener {
+public class GeworkbenchRoot {
 
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);

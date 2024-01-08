@@ -28,13 +28,12 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Resource; 
+import com.vaadin.server.FileResource;
+import com.vaadin.server.Resource; 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar; 
 import com.vaadin.ui.PopupView;
@@ -45,8 +44,6 @@ import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Displays Tabular View for Microarray Data.  
- * 
- * @author Nikhil
  */
 public class TabularViewUI extends VerticalLayout implements Tabular {
 

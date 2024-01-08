@@ -32,11 +32,8 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -69,7 +66,6 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	private ResultSet resultSet;
 
 	User user = null;
-	Application app = null;
 
 	HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 
@@ -343,15 +339,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
 
-		// this part must be called from front end
-		app = getApplication();
-		if(app==null) { // this should not happens after the code was moved to the front end
-			log.error("getApplication() returns null");
-			return;
-		}
-		ApplicationContext cntxt = app.getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
-		session = wcntxt.getHttpSession();
+		// FIXME - original way of getting session in vaadin must to done differently
+		//session = wcntxt.getHttpSession();
 	}
 
 	private void generateHistoryString() {
@@ -561,7 +550,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 				session.setAttribute(CNKBParameters.CNKB_USERINFO, userName
 						+ ":" + passwd);
 				submitCnkbEvent(dataSetId);
-				app.getMainWindow().removeWindow(dialog);
+				// FIXME - redo in vaadin 7 way
+				//app.getMainWindow().removeWindow(dialog);
 
 			}
 		});
@@ -577,7 +567,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		form.addComponent(submit);
 
 		dialog.addComponent(form);
-		app.getMainWindow().addWindow(dialog);
+		// FIXME - redo in vaadin 7 way
+		//app.getMainWindow().addWindow(dialog);
 
 	}
 
@@ -595,11 +586,13 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 
 		generateHistoryString();
 	 
-	    ((GeworkbenchRoot)app).addNode(resultSet);
+		// FIXME - redo in vaadin 7 way
+	    //((GeworkbenchRoot)app).addNode(resultSet);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
 				resultSet, params, CNKBUI.this);
-		((GeworkbenchRoot)app).getBlackboard().fire(analysisEvent);
+		// FIXME - redo in vaadin 7 way
+		//((GeworkbenchRoot)app).getBlackboard().fire(analysisEvent);
 
 	}
 

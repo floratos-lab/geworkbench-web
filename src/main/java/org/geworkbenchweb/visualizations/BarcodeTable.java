@@ -2,8 +2,8 @@ package org.geworkbenchweb.visualizations;
  
 import java.util.Map; 
 import java.util.List;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget; 
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget; 
 import com.vaadin.ui.AbstractComponent;
 
 import flexjson.JSONSerializer;
@@ -11,7 +11,6 @@ import flexjson.JSONSerializer;
 /**
  * Server side component for the VCytoscape widget.
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VBarcodeTable.class)
 public class BarcodeTable extends AbstractComponent {
 	 
 	private static final long serialVersionUID = -2119963715440692055L;

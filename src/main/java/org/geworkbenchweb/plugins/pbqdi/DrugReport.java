@@ -2,7 +2,7 @@ package org.geworkbenchweb.plugins.pbqdi;
 
 import java.io.File;
 
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Window;

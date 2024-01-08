@@ -9,7 +9,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.8.18</vaadin.version>
+		<vaadin.version>7.0.7</vaadin.version>
 		<gwt.version>2.5.1</gwt.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -91,11 +91,20 @@
 	</repositories>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-server -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin</artifactId>
-			<version>${vaadin.version}</version>
+			<artifactId>vaadin-server</artifactId>
+			<version>7.0.7</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client</artifactId>
+			<version>7.0.7</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-api</artifactId>
@@ -370,10 +379,11 @@
 			<version>2.7.13</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.vaadin.alump.fancylayouts/fancylayouts-addon -->
 		<dependency>
-			<groupId>FancyLayouts</groupId>
-			<artifactId>FancyLayouts</artifactId>
-			<version>0.2.1</version>
+			<groupId>org.vaadin.alump.fancylayouts</groupId>
+			<artifactId>fancylayouts-addon</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -460,6 +470,18 @@
 			<groupId>org.springframework.ws</groupId>
 			<artifactId>spring-ws-core</artifactId>
 			<version>3.1.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+		<dependency>			<!-- for package javax.xml.bind for PatientBasedQueryAndDataIntegration -->
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api -->
+		<dependency>			<!-- for package javax.xml.soap for PatientBasedQueryAndDataIntegration -->
+			<groupId>javax.xml.soap</groupId>
+			<artifactId>javax.xml.soap-api</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>pbqdi</groupId>

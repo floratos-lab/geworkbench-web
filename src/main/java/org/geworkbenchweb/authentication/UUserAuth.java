@@ -8,8 +8,8 @@ import java.io.InputStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.terminal.DownloadStream;
+import com.vaadin.server.ClassResource;
+import com.vaadin.server.DownloadStream;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -21,8 +21,6 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Authentication and Registration are handled here.
  *
- * @author Nikhil
- * @version $Id$
  */
 public class UUserAuth extends VerticalLayout {
 

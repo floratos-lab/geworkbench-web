@@ -5,7 +5,7 @@ import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;

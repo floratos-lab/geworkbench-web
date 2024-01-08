@@ -20,8 +20,8 @@ import com.invient.vaadin.charts.InvientCharts.ChartZoomListener;
 import com.invient.vaadin.charts.InvientCharts.Series;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.terminal.StreamResource;
-import com.vaadin.terminal.StreamResource.StreamSource;
+import com.vaadin.server.StreamResource;
+import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Table;
 

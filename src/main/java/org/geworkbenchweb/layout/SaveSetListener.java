@@ -11,9 +11,8 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.Application;
-import com.vaadin.terminal.DownloadStream;
-import com.vaadin.terminal.FileResource;
+import com.vaadin.server.DownloadStream;
+import com.vaadin.server.FileResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 

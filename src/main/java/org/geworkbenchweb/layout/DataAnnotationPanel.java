@@ -5,16 +5,11 @@ package org.geworkbenchweb.layout;
 
 import org.vaadin.alump.fancylayouts.FancyCssLayout;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 
-/**
- * @author zji
- * @version $Id$
- *
- */
 /* ATTENTION: please be aware of our over-use of the word 'annotation'!
  * 'annotation' here refers to the additional information of the dataset, e.g. user comment, history, experimental info, etc.,
  * NOT the annotation for the microaaray dataset, e.g. the AffyMatrix annotation*/

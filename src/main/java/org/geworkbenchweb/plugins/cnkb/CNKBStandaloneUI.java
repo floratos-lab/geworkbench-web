@@ -19,10 +19,7 @@ import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.cnkb.CNKBUI.InteractomeAndVersion;
 import org.geworkbenchweb.pojos.CNKBResultSet;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComponentContainer;

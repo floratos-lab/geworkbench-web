@@ -7,10 +7,11 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.Paintable;
+import com.vaadin.client.UIDL;
 
+@com.vaadin.shared.ui.Connect(org.geworkbenchweb.visualizations.CitrusDiagram.class)
 public class VCitrusDiagram extends Widget implements Paintable {
 
 	private Element placeholder = DOM.createDiv();

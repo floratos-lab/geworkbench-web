@@ -41,14 +41,13 @@ import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
 import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
-import com.vaadin.Application;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.terminal.ExternalResource;
-import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.Sizeable;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.FileResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -190,9 +189,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 					mb.show();
 					return;
 				}
-				final Application app = getApplication();
 				String filename = "network_" + System.currentTimeMillis() + ".sif";
-				downloadFile(network.toSIF(), filename, app);
+				downloadFile(network.toSIF(), filename);
 			}
 		}).setStyleName("plugin");
 		export.addItem("Export interactions to ADJ", new Command() {
@@ -209,9 +207,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 					mb.show();
 					return;
 				}
-				final Application app = getApplication();
 				String filename = "network_" + System.currentTimeMillis() + ".adj";
-				downloadFile(network.toString(), filename, app);
+				downloadFile(network.toString(), filename);
 			}
 		}).setStyleName("plugin");
 		menuBar.addItem("Help", new Command() {
@@ -248,7 +245,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	}
 
-	private static void downloadFile(final String content, final String filename, final Application app) {
+	private static void downloadFile(final String content, final String filename) {
 		String dir = GeworkbenchRoot.getBackendDataDirectory() + System.getProperty("file.separator")
 				+ SessionHandler.get().getUsername() + System.getProperty("file.separator") + "export";
 		if (!new File(dir).exists())
@@ -263,7 +260,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			e.printStackTrace();
 		}
 		Resource resource = new FileResource(file, app);
-		app.getMainWindow().open(resource);
+		// FIXME - no more com.vaadin.Application in vaadin 7
+		//app.getMainWindow().open(resource);
 	}
 
 	/* this version for 'orphan' result */

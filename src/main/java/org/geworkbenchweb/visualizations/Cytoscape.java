@@ -1,13 +1,12 @@
 package org.geworkbenchweb.visualizations;
 
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
 
 /**
  * Server side component for the VCytoscape widget.
  */
-@com.vaadin.ui.ClientWidget(org.geworkbenchweb.visualizations.client.ui.VCytoscape.class)
 public class Cytoscape extends AbstractComponent {
 
 	private static final long serialVersionUID = -6368440900242204532L;

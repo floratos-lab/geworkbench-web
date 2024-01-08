@@ -1,8 +1,8 @@
 package org.geworkbenchweb.visualizations.client.ui;
 
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.Paintable;
+import com.vaadin.client.UIDL;
  
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Widget;
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
+@com.vaadin.shared.ui.Connect(org.geworkbenchweb.visualizations.BarcodeTable.class)
 public class VBarcodeTable extends Widget implements Paintable {
 
 	 

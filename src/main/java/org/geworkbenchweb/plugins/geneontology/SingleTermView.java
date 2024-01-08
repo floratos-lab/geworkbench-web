@@ -12,7 +12,7 @@ import org.geworkbenchweb.utils.GeneOntologyTree;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;

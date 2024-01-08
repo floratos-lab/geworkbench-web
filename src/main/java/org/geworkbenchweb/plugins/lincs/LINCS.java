@@ -1,6 +1,6 @@
 package org.geworkbenchweb.plugins.lincs;
 
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Embedded;
 
 public class LINCS extends Embedded {

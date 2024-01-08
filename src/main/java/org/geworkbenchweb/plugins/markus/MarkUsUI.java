@@ -15,7 +15,7 @@ import org.geworkbenchweb.pojos.MarkUsResult;
 import org.geworkbenchweb.pojos.PdbFileInfo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.vaadin.terminal.UserError;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;

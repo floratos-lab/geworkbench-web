@@ -294,9 +294,9 @@ public class ExcelExport extends TableExport {
             if (null == mimeType) {
                 setMimeType(EXCEL_MIME_TYPE);
             }
-            final boolean success =
-                    super.sendConvertedFileToUser(getTable().getApplication(), tempFile,
-                            exportFileName);
+            final boolean success = false; // FIXME - this must be done differently in vaadin 7.
+                    //super.sendConvertedFileToUser(getTable().getApplication(), tempFile,
+                    //        exportFileName);
             return success;
         } catch (final IOException e) {
             LOGGER.warning("Converting to XLS failed with IOException " + e);
@@ -387,7 +387,7 @@ public class ExcelExport extends TableExport {
                     propId).toString()));
             headerCell.setCellStyle(getColumnHeaderStyle(row, col));
 
-            final String vaadinAlignment = this.getTable().getColumnAlignment(propId);
+            final String vaadinAlignment = null; //this.getTable().getColumnAlignment(propId); // FIXME - this must be done differently in vaadin 7.
             final Short poiAlignment = vaadinAlignmentToCellAlignment(vaadinAlignment);
             CellUtil.setAlignment(headerCell, workbook, poiAlignment);
         }
@@ -535,7 +535,7 @@ public class ExcelExport extends TableExport {
             sheetCell = sheetRow.createCell(col);
             final CellStyle cs = getCellStyle(rootItemId, row, col, false);
             sheetCell.setCellStyle(cs);
-            final String vaadinAlignment = this.getTable().getColumnAlignment(propId);
+            final String vaadinAlignment = null; // this.getTable().getColumnAlignment(propId); // FIXME - this must be done differently in vaadin 7.
             final Short poiAlignment = vaadinAlignmentToCellAlignment(vaadinAlignment);
             CellUtil.setAlignment(sheetCell, workbook, poiAlignment);
             if (null != value) {
@@ -700,7 +700,7 @@ public class ExcelExport extends TableExport {
             final Object propId = getPropIds().get(col);
             cell = totalsRow.createCell(col);
             cell.setCellStyle(getCellStyle(currentRow, startRow, col, true));
-            final String vaadinAlignment = this.getTable().getColumnAlignment(propId);
+            final String vaadinAlignment = null; // this.getTable().getColumnAlignment(propId); // FIXME - this must be done differently in vaadin 7.
             final Short poiAlignment = vaadinAlignmentToCellAlignment(vaadinAlignment);
             CellUtil.setAlignment(cell, workbook, poiAlignment);
             final Class<?> propType = getPropertyType(propId);
