@@ -29,9 +29,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 /* this used to be AracneResultsUI, but is in fact used by both ARACNe result and CNKB result. */
 public class NetworkViewer extends VerticalLayout implements Visualizer {
 

@@ -30,9 +30,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.VerticalLayout;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.Icon;
-
 public class AccountUI extends VerticalLayout implements ClickListener {
 	private static final long serialVersionUID = -3984441409433266815L;
 

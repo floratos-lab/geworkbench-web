@@ -36,9 +36,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class UploadDataUI extends VerticalLayout implements Button.ClickListener {
 
 	private static final long serialVersionUID = 8042523201401300804L;

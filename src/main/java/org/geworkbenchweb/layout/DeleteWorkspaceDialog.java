@@ -26,10 +26,6 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseListener;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-import de.steinwedel.vaadin.MessageBox.EventListener;
-
 public class DeleteWorkspaceDialog extends Window implements
 		Button.ClickListener {
 

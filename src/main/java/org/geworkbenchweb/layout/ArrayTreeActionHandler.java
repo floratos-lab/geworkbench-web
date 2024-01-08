@@ -19,12 +19,6 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
- 
-
-
 public class ArrayTreeActionHandler extends  TreeActionHandler {
    
 	private static final long serialVersionUID = 3110032354356936881L;

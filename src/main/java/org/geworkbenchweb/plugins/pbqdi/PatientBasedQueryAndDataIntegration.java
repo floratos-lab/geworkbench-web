@@ -52,9 +52,6 @@ import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
     private static Log log = LogFactory.getLog(PatientBasedQueryAndDataIntegration.class);

@@ -27,9 +27,6 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class OpenSetWindow extends Window {
 
 	private static final long serialVersionUID = 3780041096719367174L;

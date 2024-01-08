@@ -61,8 +61,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * This class displays CNKB results in a Table and also a graph
@@ -183,10 +182,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if (network == null) {
-					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
-							"There is no interaction to create a network. ",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
 					return;
 				}
 				String filename = "network_" + System.currentTimeMillis() + ".sif";
@@ -201,10 +197,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if (network == null) {
-					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO,
-							"There is no interaction to create a network. ",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
 					return;
 				}
 				String filename = "network_" + System.currentTimeMillis() + ".adj";
@@ -502,11 +495,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			if (hits == null || getInteractionTotalNum(
 					cnkbResultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
 
-				MessageBox mb = new MessageBox(getWindow(), "Warning",
-						MessageBox.Icon.INFO,
-						"There is no interaction to create a network. ",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+				MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
 				return;
 			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();

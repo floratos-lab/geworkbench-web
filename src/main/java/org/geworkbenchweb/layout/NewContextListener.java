@@ -10,9 +10,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class NewContextListener implements Button.ClickListener {
 
 	private static final long serialVersionUID = -8562473729337703324L;

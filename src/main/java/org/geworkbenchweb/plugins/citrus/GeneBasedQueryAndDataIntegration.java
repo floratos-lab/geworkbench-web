@@ -20,9 +20,6 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 	private static final long serialVersionUID = -713233350568178L;

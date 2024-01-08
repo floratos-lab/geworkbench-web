@@ -33,9 +33,6 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 /**
  * Main Menu Bar on the right-hand side of the application.
  */

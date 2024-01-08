@@ -20,12 +20,6 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
- 
-
-
 public class MarkerTreeActionHandler extends  TreeActionHandler {
   
 	private static final long serialVersionUID = -4045595188160846115L;

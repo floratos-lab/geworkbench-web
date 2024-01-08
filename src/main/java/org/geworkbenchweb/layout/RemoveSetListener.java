@@ -15,9 +15,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Tree;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class RemoveSetListener implements Button.ClickListener {
 
 	private static final long serialVersionUID = 6829997098780053442L;

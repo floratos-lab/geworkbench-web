@@ -62,9 +62,6 @@ import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 3900963160275267233L;

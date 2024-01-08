@@ -72,7 +72,7 @@
 	</build>
 
 	<repositories>
-		<repository>			<!-- for icepush, appfoundation, and easyuploads -->
+		<repository>			<!-- for icepush, and easyuploads -->
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
@@ -346,10 +346,11 @@
 			<version>2.5</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.vaadin.addons/appfoundation -->
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>appfoundation</artifactId>
-			<version>1.3.5</version>
+			<version>2.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -426,9 +427,9 @@
 			<version>2.0.3.v201010191057</version>
 		</dependency>
 		<dependency>
-			<groupId>org.vaadin.addons</groupId>
+			<groupId>de.steinwedel.vaadin.addon</groupId>
 			<artifactId>messagebox</artifactId>
-			<version>1.1.1</version>
+			<version>3.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>ostermillerutils</groupId>

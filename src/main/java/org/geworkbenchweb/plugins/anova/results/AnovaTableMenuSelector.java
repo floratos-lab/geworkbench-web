@@ -20,9 +20,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class AnovaTableMenuSelector extends TableMenuSelector {
 
 	private static final long serialVersionUID = 1809903375550657533L;

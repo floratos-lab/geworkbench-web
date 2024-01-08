@@ -16,9 +16,6 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class TabularMenuSelector extends TableMenuSelector {
 
 	public TabularMenuSelector(Tabular tabular, String tabularName) {

@@ -16,9 +16,6 @@ import org.geworkbenchweb.utils.OverLimitException;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 /**
  * Used to submit the analysis in geWorkbench and updates the data tree with
  * result nodes once the

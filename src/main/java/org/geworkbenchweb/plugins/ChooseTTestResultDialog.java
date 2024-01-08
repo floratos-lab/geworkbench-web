@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins;
 
 import java.util.List;
@@ -19,13 +16,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
-/**
- * @author zji
- *
- */
 public class ChooseTTestResultDialog extends Window {
 
 	private static final long serialVersionUID = -4712749272144439069L;

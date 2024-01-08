@@ -30,9 +30,6 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 	private final Log log = LogFactory.getLog(AracneUI.class);

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.layout;
 
 import org.apache.commons.logging.Log;
@@ -18,13 +15,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.Icon;
-
-/**
- * @author zji
- * 
- */
 public class RenameHandler implements Handler {
 
 	private static Log log = LogFactory.getLog(RenameHandler.class);

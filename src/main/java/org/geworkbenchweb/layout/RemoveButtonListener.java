@@ -23,9 +23,6 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class RemoveButtonListener implements ClickListener {
 
 	private static final long serialVersionUID = -6293811142891534701L;

@@ -48,9 +48,6 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
-import de.steinwedel.vaadin.MessageBox;
-import de.steinwedel.vaadin.MessageBox.ButtonType;
-
 public class MsViperUI extends VerticalLayout
 		implements Upload.SucceededListener, Upload.FailedListener, Upload.Receiver, AnalysisUI {
 
