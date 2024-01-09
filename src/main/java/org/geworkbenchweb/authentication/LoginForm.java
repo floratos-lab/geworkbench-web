@@ -22,6 +22,7 @@ import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
@@ -31,17 +32,17 @@ public class LoginForm extends VerticalLayout {
 	private static Log log = LogFactory.getLog(LoginForm.class);
 
 	/* try to log in geWorkbench. throw exceptions when it fails. */
-	private void login(final String username, final String password) 
+	private void login(final String username, final String password)
 			throws InvalidCredentialsException, AccountLockedException, Exception {
 		User user = AuthenticationUtil.authenticate(username, password);
 		UMainLayout uMainLayout = new UMainLayout();
-		GeworkbenchRoot app = (GeworkbenchRoot) getApplication();
+		GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 		app.getBlackboard().addListener(uMainLayout.getAnalysisListener());
 
 		uMainLayout.getMainToolBar().setUsername(user.getUsername());
 		uMainLayout.getMainToolBar().setPassword(user.getPassword());
 
-		getApplication().getMainWindow().setContent(uMainLayout);
+		UI.getCurrent().setContent(uMainLayout);
 		new PendingNodeProcessor(uMainLayout).start();
 	}
 
@@ -64,24 +65,24 @@ public class LoginForm extends VerticalLayout {
 		Button login = new Button("Login", new ClickListener() {
 
 			private static final long serialVersionUID = -5577423546946890721L;
-			
+
 			public void buttonClick(ClickEvent event) {
 
 				String username = (String) usernameField.getValue();
 				String password = (String) passwordField.getValue();
 				String status = "unknown";
 
-				try {	
+				try {
 					login(username, password);
 					status = "success";
 				} catch (InvalidCredentialsException e) {
 					status = "fail_2";
 					feedbackLabel.setValue("Either username or password was wrong");
-				} catch (AccountLockedException e) {						 
+				} catch (AccountLockedException e) {
 					feedbackLabel.setValue("The given account has been locked.");
 					status = "fail_3";
 				} catch (Exception e) {
-					if(e.getMessage()==null) { /* this may happen due to library code */
+					if (e.getMessage() == null) { /* this may happen due to library code */
 						feedbackLabel.setValue("Undocumened exception happened.");
 						e.printStackTrace();
 					} else {
@@ -90,7 +91,8 @@ public class LoginForm extends VerticalLayout {
 					status = "fail_4";
 				}
 
-				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(), status);
+				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(),
+						status);
 				FacadeFactory.getFacade().store(ual);
 			}
 		});
@@ -100,13 +102,13 @@ public class LoginForm extends VerticalLayout {
 		Button forgotPasswd = new Button("Forgot password?");
 		forgotPasswd.setStyleName(BaseTheme.BUTTON_LINK);
 		forgotPasswd.setDescription("Reset Password for geWorkbench Account");
-		forgotPasswd.addListener(new ForgotListener(forgotPasswd));
-		
+		forgotPasswd.addClickListener(new ForgotListener(forgotPasswd));
+
 		Button forgotUsername = new Button("Forgot username?");
 		forgotUsername.setStyleName(BaseTheme.BUTTON_LINK);
 		forgotUsername.setDescription("Find Username for geWorkbench Account");
-		forgotUsername.addListener(new ForgotListener(forgotUsername));
-		
+		forgotUsername.addClickListener(new ForgotListener(forgotUsername));
+
 		this.addComponent(image);
 		this.setComponentAlignment(image, Alignment.MIDDLE_CENTER);
 		this.addComponent(usernameField);
