@@ -10,6 +10,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class DisplayOptionCommand implements Command {
@@ -66,7 +68,7 @@ public class DisplayOptionCommand implements Command {
 
 		if (parent == null)
 			return; // parent should never be null
-		final Window mainWindow = parent.getApplication().getMainWindow();
+		final UI mainWindow = UI.getCurrent();
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
 
@@ -83,8 +85,10 @@ public class DisplayOptionCommand implements Command {
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(displayOption);
-		nameWindow.addComponent(submit);
+		VerticalLayout layout = new VerticalLayout();
+		layout.addComponent(displayOption);
+		layout.addComponent(submit);
+		nameWindow.setContent(layout);
 		mainWindow.addWindow(nameWindow);
 	}
 
