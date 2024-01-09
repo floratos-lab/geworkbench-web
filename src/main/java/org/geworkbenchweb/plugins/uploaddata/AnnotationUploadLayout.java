@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins.uploaddata;
 
 import java.io.File;
@@ -19,7 +16,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.VerticalLayout; 
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 
@@ -36,13 +33,15 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 	final private Tree annotChoices = createAnnotChoices();
 	final private ComboBox annotTypes;
 	final private FileUploadLayout annotUploadLayout;
-	 // Id for the caption property
-	final private static  Object CAPTION_PROPERTY = "caption";
+	// Id for the caption property
+	final private static Object CAPTION_PROPERTY = "caption";
 
 	public static enum Anno {
 		NO("No annotation"), NEW("Load new annotation"), PUBLIC(
-				"Public annotation files"), PRIVATE("Private annotations files"), DELETE(
+				"Public annotation files"),
+		PRIVATE("Private annotations files"), DELETE(
 				"Delete private annotation files");
+
 		private String value;
 
 		Anno(String v) {
@@ -65,7 +64,7 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 		atypes.add(AnnotationType.values()[1]);
 		annotTypes = new ComboBox("Choose annotation file type", atypes);
 		annotTypes.setNullSelectionAllowed(false);
-		annotTypes.setWidth(200, 0);
+		annotTypes.setWidth(200, Unit.PIXELS);
 		annotTypes.setValue(AnnotationType.values()[0]);
 		annotTypes.setVisible(false);
 
@@ -117,12 +116,12 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 	private Tree createAnnotChoices() {
 		final Tree annotChoices = new Tree("Choose annotation");
 		annotChoices.addContainerProperty(CAPTION_PROPERTY, String.class, "");
-		annotChoices.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		annotChoices.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 		annotChoices.setItemCaptionPropertyId(CAPTION_PROPERTY);
 		annotChoices.setNullSelectionAllowed(false);
-		annotChoices.setWidth(290, 0);
+		annotChoices.setWidth(290, Unit.PIXELS);
 		annotChoices.setImmediate(true);
-		annotChoices.addListener(new ItemClickListener() {
+		annotChoices.addItemClickListener(new ItemClickListener() {
 			private static final long serialVersionUID = 8744518843208040408L;
 
 			public void itemClick(ItemClickEvent event) {
@@ -152,7 +151,7 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 		annotChoices.setChildrenAllowed(Anno.NEW, false);
 
 		annotChoices.addItem(Anno.PUBLIC).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PUBLIC);
-		Map<String, Object> params = new HashMap<String, Object>();		 
+		Map<String, Object> params = new HashMap<String, Object>();
 		List<Annotation> annots = FacadeFactory
 				.getFacade()
 				.list("select a from Annotation a  where a.owner is NULL   order by a.name, a.id desc", params);
@@ -162,15 +161,15 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 			if (aname.equals(preAnnoName))
 				continue;
 			Long aId = a.getId();
-			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);		 		 
+			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);
 			annotChoices.setParent(aId, Anno.PUBLIC);
 			annotChoices.setChildrenAllowed(aId, false);
-			preAnnoName=aname;
+			preAnnoName = aname;
 		}
-	
-		annotChoices.addItem(Anno.PRIVATE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PRIVATE);	 
+
+		annotChoices.addItem(Anno.PRIVATE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PRIVATE);
 		params = new HashMap<String, Object>();
-		params.put("owner", SessionHandler.get().getId());	 
+		params.put("owner", SessionHandler.get().getId());
 		annots = FacadeFactory
 				.getFacade()
 				.list("Select a from Annotation as a where a.owner=:owner order by a.name, a.id desc",
@@ -181,15 +180,17 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 			if (aname.equals(preAnnoName))
 				continue;
 			Long aId = a.getId();
-			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);		 		 
+			annotChoices.addItem(aId).getItemProperty(CAPTION_PROPERTY).setValue(aname);
 			annotChoices.setParent(aId, Anno.PRIVATE);
 			annotChoices.setChildrenAllowed(aId, false);
-			preAnnoName=aname;
+			preAnnoName = aname;
 		}
 		if (annots.isEmpty())
 			annotChoices.setChildrenAllowed(Anno.PRIVATE, false);
 
-		annotChoices.addItem(Anno.DELETE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.DELETE);;;
+		annotChoices.addItem(Anno.DELETE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.DELETE);
+		;
+		;
 		annotChoices.setChildrenAllowed(Anno.DELETE, false);
 
 		annotChoices.setValue(Anno.NO);
