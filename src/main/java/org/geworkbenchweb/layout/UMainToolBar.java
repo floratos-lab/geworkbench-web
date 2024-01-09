@@ -23,7 +23,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.ExternalResource;
-import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.server.Page;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -31,7 +31,10 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * Main Menu Bar on the right-hand side of the application.
@@ -65,12 +68,8 @@ public class UMainToolBar extends MenuBar {
 					@Override
 					public void menuSelected(MenuItem selectedItem) {
 						if (uploadPending()) {
-							MessageBox mb = new MessageBox(getWindow(),
-									"Upload in progress", MessageBox.Icon.INFO,
-									"Data upload is in progress. ",
-									new MessageBox.ButtonConfig(ButtonType.OK,
-											"Ok"));
-							mb.show();
+							MessageBox.createInfo().withCaption("Upload in progress")
+									.withMessage("Data upload is in progress.").withOkButton().open();
 						} else {
 							uploadDataUI = new UploadDataUI();
 							UMainToolBar.this.pluginView.setContent(
@@ -150,19 +149,12 @@ public class UMainToolBar extends MenuBar {
 								active.setWorkspace(workspace.getId());
 								FacadeFactory.getFacade().store(active);
 
-								getApplication().getMainWindow().removeWindow(
-										newWorkspace);
+								UI.getCurrent().removeWindow(newWorkspace);
 								try {
-									MessageBox mb = new MessageBox(
-											getWindow(),
-											"New Workspace",
-											MessageBox.Icon.INFO,
-											"New Workspace is created and set as Active Workspace",
-											new MessageBox.ButtonConfig(
-													ButtonType.OK, "Ok"));
-
-									mb.show();
-									Application app = getApplication();
+									MessageBox.createInfo().withCaption("New Workspace")
+											.withMessage("New Workspace is created and set as Active Workspace.")
+											.withOkButton().open();
+									UI app = UI.getCurrent();
 									if (app instanceof GeworkbenchRoot) {
 										((GeworkbenchRoot) app)
 												.createNewMainLayout();
@@ -184,8 +176,8 @@ public class UMainToolBar extends MenuBar {
 				workspaceForm.addComponent(name);
 				workspaceForm.addComponent(submit);
 
-				newWorkspace.addComponent(workspaceForm);
-				getApplication().getMainWindow().addWindow(newWorkspace);
+				newWorkspace.setContent(workspaceForm);
+				UI.getCurrent().addWindow(newWorkspace);
 
 			}
 		});
@@ -200,8 +192,6 @@ public class UMainToolBar extends MenuBar {
 
 				final Window workspaceTable = new Window("Switch Workspace");
 
-				((AbstractOrderedLayout) workspaceTable.getLayout())
-						.setSpacing(true);
 				workspaceTable.setModal(true);
 				workspaceTable.setClosable(true);
 				workspaceTable.setDraggable(false);
@@ -233,25 +223,9 @@ public class UMainToolBar extends MenuBar {
 
 							@Override
 							public void valueChange(final ValueChangeEvent event) {
-
-								MessageBox mb = new MessageBox(getWindow(),
-										"Switch Workspace",
-										MessageBox.Icon.INFO,
-										"Activating selected workspace",
-										new MessageBox.ButtonConfig(
-												ButtonType.CANCEL, "Cancel"),
-										new MessageBox.ButtonConfig(
-												ButtonType.OK, "Ok"));
-
-								mb.show(new MessageBox.EventListener() {
-
-									private static final long serialVersionUID = 1L;
-
-									@Override
-									public void buttonClicked(
-											ButtonType buttonType) {
-
-										if (buttonType == ButtonType.OK) {
+								MessageBox.createInfo().withCaption("Switch Workspace")
+										.withMessage("Activating selected workspace").withCancelButton()
+										.withOkButton(() -> {
 											Map<String, Object> param = new HashMap<String, Object>();
 											param.put("owner", SessionHandler
 													.get().getId());
@@ -274,10 +248,8 @@ public class UMainToolBar extends MenuBar {
 											FacadeFactory.getFacade().store(
 													active);
 
-											getApplication().getMainWindow()
-													.removeWindow(
-															workspaceTable);
-											Application app = getApplication();
+											UI.getCurrent().removeWindow(workspaceTable);
+											UI app = UI.getCurrent();
 											if (app instanceof GeworkbenchRoot) {
 												((GeworkbenchRoot) app)
 														.createNewMainLayout();
@@ -285,14 +257,12 @@ public class UMainToolBar extends MenuBar {
 												log.error("application is not GeworkbenchRoot: "
 														+ app);
 											}
-										}
-									}
-								});
+										}).open();
 							}
 
 						});
-				workspaceTable.addComponent(workspaceSelect);
-				getApplication().getMainWindow().addWindow(workspaceTable);
+				workspaceTable.setContent(workspaceSelect);
+				UI.getCurrent().addWindow(workspaceTable);
 			}
 		});
 
@@ -304,9 +274,7 @@ public class UMainToolBar extends MenuBar {
 			public void menuSelected(MenuItem selectedItem) {
 				DeleteWorkspaceDialog dialog = new DeleteWorkspaceDialog(
 						"Delete Workspace", UMainToolBar.this);
-				Application app = getApplication();
-				Window mainWindow = app.getMainWindow();
-				mainWindow.addWindow(dialog);
+				UI.getCurrent().addWindow(dialog);
 			}
 		});
 
@@ -332,39 +300,25 @@ public class UMainToolBar extends MenuBar {
 			public void menuSelected(MenuItem selectedItem) {
 
 				if (uploadPending()) {
-					MessageBox mb = new MessageBox(
-							getWindow(),
-							"Logout confirmation",
-							MessageBox.Icon.QUESTION,
-							"File upload is in progress. Logging out will cancel it. Do you really want to log out?",
-							new MessageBox.ButtonConfig(
-									MessageBox.ButtonType.YES, "Yes"),
-							new MessageBox.ButtonConfig(
-									MessageBox.ButtonType.NO, "No"));
-					mb.show(new MessageBox.EventListener() {
-						private static final long serialVersionUID = -7400025137319016325L;
-
-						@Override
-						public void buttonClicked(ButtonType buttonType) {
-							if (buttonType.toString() == "YES") {
+					MessageBox.createInfo().withCaption("Logout confirmation").withMessage(
+							"File upload is in progress. Logging out will cancel it. Do you really want to log out?")
+							.withYesButton(() -> {
 								if (uploadDataUI != null)
 									uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be
 																	// allowed to be null or not
 								clearTabularView();
 
 								SessionHandler.logout();
-								getApplication().close();
+								UI.getCurrent().close();
 								UserActivityLog ual = new UserActivityLog(username,
 										UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
 								FacadeFactory.getFacade().store(ual);
-							}
-						}
-					});
+							}).withNoButton().open();
 				} else {
 					clearTabularView();
 
 					SessionHandler.logout();
-					getApplication().close();
+					UI.getCurrent().close();
 					UserActivityLog ual = new UserActivityLog(username,
 							UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
 					FacadeFactory.getFacade().store(ual);
@@ -421,8 +375,7 @@ public class UMainToolBar extends MenuBar {
 				try {
 					String emailURL = "mailto:geworkbench@c2b2.columbia.edu?subject=user inquiry&body=Please feel free to contact us to report any problems encountered when using the application or to offer suggestions for functionality improvements. When reporting problems please describe the sequence of actions that led to the issue you are reporting in as much detail as possible, this will help us replicate it in our environment.";
 					URL windowURL = new URL(emailURL);
-					Window window = getApplication().getMainWindow();
-					window.open(new ExternalResource(windowURL));
+					Page.getCurrent().open(new ExternalResource(windowURL), "_blank", false);
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
@@ -433,7 +386,7 @@ public class UMainToolBar extends MenuBar {
 	}
 
 	private void clearTabularView() {
-		Iterator<Component> it = pluginView.getComponentIterator();
+		Iterator<Component> it = pluginView.iterator();
 		while (it.hasNext()) {
 			Component c = it.next();
 			if (c instanceof TabularViewUI) {
