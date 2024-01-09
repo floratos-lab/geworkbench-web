@@ -44,8 +44,8 @@ import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
@@ -56,9 +56,9 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
 import de.steinwedel.messagebox.MessageBox;
@@ -182,7 +182,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if (network == null) {
-					MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
+					MessageBox.createInfo().withCaption("Warning")
+							.withMessage("There is no interaction to create a network.").withOkButton().open();
 					return;
 				}
 				String filename = "network_" + System.currentTimeMillis() + ".sif";
@@ -197,7 +198,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			public void menuSelected(MenuItem selectedItem) {
 				Network network = createInMemoryNetwork(parentId, cnkbResult);
 				if (network == null) {
-					MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
+					MessageBox.createInfo().withCaption("Warning")
+							.withMessage("There is no interaction to create a network.").withOkButton().open();
 					return;
 				}
 				String filename = "network_" + System.currentTimeMillis() + ".adj";
@@ -210,8 +212,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				getWindow().open(new ExternalResource(
-						"http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase_web"),
+				Page.getCurrent().open(
+						"http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase_web",
 						"_blank");
 			}
 
@@ -252,9 +254,12 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Resource resource = new FileResource(file, app);
-		// FIXME - no more com.vaadin.Application in vaadin 7
-		//app.getMainWindow().open(resource);
+		Resource resource = new FileResource(file);
+		Page.getCurrent().open(resource, "_blank", false);
+		/* alternative approaches to be considered */
+		// FileDownloader fileDownloader = new FileDownloader(resource);
+		// fileDownloader.extend(target));
+		// Link link = new Link("download network file", resource);
 	}
 
 	/* this version for 'orphan' result */
@@ -495,7 +500,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			if (hits == null || getInteractionTotalNum(
 					cnkbResultSet.getCellularNetworkPreference().getSelectedConfidenceType()) == 0) {
 
-				MessageBox.createInfo().withCaption("Warning").withMessage("There is no interaction to create a network.").withOkButton().open();
+				MessageBox.createInfo().withCaption("Warning")
+						.withMessage("There is no interaction to create a network.").withOkButton().open();
 				return;
 			}
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
@@ -506,8 +512,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				System.out.println(network);
 
 				// direct show the orphan result
-				Window w = getApplication().getMainWindow();
-				ComponentContainer content = w.getContent();
+				Component content = (ComponentContainer) UI.getCurrent().getContent();
 				if (content instanceof UMainLayout) {
 					UMainLayout m = (UMainLayout) content;
 					m.setPluginViewContent(new NetworkViewer(network));
@@ -529,8 +534,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 			generateHistoryString(datasetId, hits.get(0).getThreshold(), resultSet);
 
-			GeworkbenchRoot app = (GeworkbenchRoot) CNKBResultsUI.this
-					.getApplication();
+			GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 			app.addNode(resultSet);
 
 			/*
