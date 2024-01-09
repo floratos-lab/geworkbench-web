@@ -16,6 +16,8 @@ import org.geworkbenchweb.utils.OverLimitException;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import de.steinwedel.messagebox.MessageBox;
+
 /**
  * Used to submit the analysis in geWorkbench and updates the data tree with
  * result nodes once the
@@ -52,29 +54,16 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 					if (resultName == null)
 						return;
 				} catch (OverLimitException e) {
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
-							"Size Limit", MessageBox.Icon.INFO, e.getMessage(),
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show(new MessageBox.EventListener() {
-
-						private static final long serialVersionUID = 737428008969387125L;
-
-						@Override
-						public void buttonClicked(ButtonType buttonType) {
-							uMainLayout.noSelection();
-						}
-
-					});
+					MessageBox.createInfo().withCaption("Size Limit").withMessage(e.getMessage()).withOkButton(() -> {
+						uMainLayout.noSelection();
+					}).open();
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
 					return;
 				} catch (RemoteException e) { // this may happen for marina analysis
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createInfo().withCaption("Analysis Problem").withMessage(msg).withOkButton().open();
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
@@ -82,10 +71,7 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				} catch (IOException e) {
 					e.printStackTrace();
 					String msg = e.getMessage().replaceAll("\n", "<br>");
-					MessageBox mb = new MessageBox(uMainLayout.getWindow(),
-							"Analysis Problem", MessageBox.Icon.ERROR, msg,
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createInfo().withCaption("Analysis Problem").withMessage(msg).withOkButton().open();
 					ResultSet resultSet = event.getResultSet();
 					FacadeFactory.getFacade().delete(resultSet);
 					uMainLayout.removeItem(resultSet.getId());
@@ -109,7 +95,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 
 				final ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, resultId);
 				resultSet.setName(resultName);
-				// REVIEW this should have been done in AnalysisUI.execute so it is not necessary here.
+				// REVIEW this should have been done in AnalysisUI.execute so it is not
+				// necessary here.
 				// If it is indeed taken care of in every implementation, it should be removed.
 				FacadeFactory.getFacade().store(resultSet);
 
