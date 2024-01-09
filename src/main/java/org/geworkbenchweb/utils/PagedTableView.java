@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jensjansson.pagedtable.PagedTableContainer;
-
 import com.vaadin.data.Container;
-import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -18,12 +18,11 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.Reindeer;
 
- 
 public class PagedTableView extends Table {
     private static final long serialVersionUID = 6881455780158545828L;
 
     private int pageLength;
-    
+
     public interface PageChangeListener {
         public void pageChanged(PagedTableChangeEvent event);
     }
@@ -57,14 +56,14 @@ public class PagedTableView extends Table {
         super(null);
         setPageLength(25);
         addStyleName("pagedtable");
-        
-		 setSizeFull();
-		 setImmediate(true);
+
+        setSizeFull();
+        setImmediate(true);
     }
 
     public HorizontalLayout createControls() {
         Label itemsPerPageLabel = new Label("Items per page:");
-         
+
         final ComboBox itemsPerPageSelect = new ComboBox();
 
         itemsPerPageSelect.addItem("5");
@@ -76,7 +75,7 @@ public class PagedTableView extends Table {
         itemsPerPageSelect.setImmediate(true);
         itemsPerPageSelect.setNullSelectionAllowed(false);
         itemsPerPageSelect.setWidth("50px");
-        itemsPerPageSelect.addListener(new ValueChangeListener() {
+        itemsPerPageSelect.addValueChangeListener(new ValueChangeListener() {
             private static final long serialVersionUID = -2255853716069800092L;
 
             public void valueChange(
@@ -85,18 +84,18 @@ public class PagedTableView extends Table {
                         .getProperty().getValue())));
             }
         });
-        itemsPerPageSelect.select("25");       
-        
-        Label pageLabel = new Label("Page:&nbsp;", Label.CONTENT_XHTML);
+        itemsPerPageSelect.select("25");
+
+        Label pageLabel = new Label("Page:&nbsp;", ContentMode.HTML);
         final TextField currentPageTextField = new TextField();
         currentPageTextField.setValue(String.valueOf(getCurrentPage()));
-        currentPageTextField.addValidator(new IntegerValidator(null));
-        Label separatorLabel = new Label("&nbsp;/&nbsp;", Label.CONTENT_XHTML);
+        currentPageTextField.addValidator(new IntegerRangeValidator(null, null, null));
+        Label separatorLabel = new Label("&nbsp;/&nbsp;", ContentMode.HTML);
         final Label totalPagesLabel = new Label(
-                String.valueOf(getTotalAmountOfPages()), Label.CONTENT_XHTML);
+                String.valueOf(getTotalAmountOfPages()), ContentMode.HTML);
         currentPageTextField.setStyleName(Reindeer.TEXTFIELD_SMALL);
         currentPageTextField.setImmediate(true);
-        currentPageTextField.addListener(new ValueChangeListener() {
+        currentPageTextField.addValueChangeListener(new ValueChangeListener() {
             private static final long serialVersionUID = -2255853716069800092L;
 
             public void valueChange(
@@ -214,7 +213,7 @@ public class PagedTableView extends Table {
                 last.setEnabled(container.getStartIndex() < container
                         .getRealSize() - getPageLength());
                 currentPageTextField.setValue(String.valueOf(getCurrentPage()));
-                totalPagesLabel.setValue(getTotalAmountOfPages());
+                totalPagesLabel.setValue(String.valueOf(getTotalAmountOfPages()));
                 itemsPerPageSelect.setValue(String.valueOf(getPageLength()));
             }
         });
@@ -345,11 +344,10 @@ public class PagedTableView extends Table {
             boolean alwaysRecalculateColumnWidths) {
         this.alwaysRecalculateColumnWidths = alwaysRecalculateColumnWidths;
     }
-    
+
     @Override
-    public int getPageLength()
-    {
-    	return pageLength;
+    public int getPageLength() {
+        return pageLength;
     }
 
 }
