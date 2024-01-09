@@ -30,8 +30,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.validator.DoubleValidator;
-import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.data.validator.DoubleRangeValidator;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -42,11 +42,14 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class MsViperUI extends VerticalLayout
 		implements Upload.SucceededListener, Upload.FailedListener, Upload.Receiver, AnalysisUI {
@@ -105,8 +108,8 @@ public class MsViperUI extends VerticalLayout
 		final Upload upload = new Upload("", this);
 		upload.setButtonCaption("Upload");
 		upload.setDescription("Available network format is ARACNe adjacency matrix (.adj)");
-		upload.addListener((Upload.SucceededListener) this);
-		upload.addListener((Upload.FailedListener) this);
+		upload.addSucceededListener((Upload.SucceededListener) this);
+		upload.addFailedListener((Upload.FailedListener) this);
 
 		arraymap = new HashMap<String, String>();
 		caseSelect = new MicroarraySetSelect(dataSetId, SessionHandler.get().getId(), "ViperUI", this, "Case",
@@ -127,7 +130,7 @@ public class MsViperUI extends VerticalLayout
 				"MARINa requires an interaction network. Choose whether to use an existing network node from the Workspace, or upload the network from a file. ");
 		ogNetwork.setImmediate(true);
 		ogNetwork.select(uploadNetworkFile);
-		ogNetwork.addListener(new ValueChangeListener() {
+		ogNetwork.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -6950089065248041770L;
 
 			public void valueChange(ValueChangeEvent e) {
@@ -149,7 +152,7 @@ public class MsViperUI extends VerticalLayout
 		networkNodes.setDescription("Select a network node from those available in the Workspace");
 		networkNodes.setImmediate(true);
 		networkNodes.setEnabled(false);
-		networkNodes.addListener(new ValueChangeListener() {
+		networkNodes.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -6950089065248041770L;
 
 			public void valueChange(ValueChangeEvent e) {
@@ -218,7 +221,7 @@ public class MsViperUI extends VerticalLayout
 
 		minAllowedRegulonTF.setValue("25");
 		minAllowedRegulonTF.setNullSettingAllowed(false);
-		minAllowedRegulonTF.addValidator(new PositiveIntValidator("Please enter a positive integer."));
+		minAllowedRegulonTF.addValidator(new IntegerRangeValidator("Please enter a positive integer.", 1, null));
 
 		h1.addComponent(minAllowedRegulonTF);
 		h1.setCaption("Minimum allowed regulon size" + "  " + QUESTION_MARK);
@@ -230,7 +233,7 @@ public class MsViperUI extends VerticalLayout
 		limitBox.setImmediate(true);
 		limitBox.setValue(true);
 		limitBox.setDescription("Limit gene expression signature to genes in interactome.");
-		limitBox.addListener(new ValueChangeListener() {
+		limitBox.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 4274487651959112682L;
 
 			public void valueChange(ValueChangeEvent e) {
@@ -248,11 +251,11 @@ public class MsViperUI extends VerticalLayout
 
 		bootstrapBox.setImmediate(true);
 		bootstrapBox.setDescription("Bootstrapping (not normally needed).");
-		bootstrapBox.addListener(new ValueChangeListener() {
+		bootstrapBox.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 4998585092911587369L;
 
 			public void valueChange(ValueChangeEvent event) {
-				if (bootstrapBox.booleanValue())
+				if (bootstrapBox.getValue())
 					ogBootstrap.setEnabled(true);
 				else
 					ogBootstrap.setEnabled(false);
@@ -266,7 +269,7 @@ public class MsViperUI extends VerticalLayout
 		ogBootstrap.setImmediate(true);
 		ogBootstrap.select(average);
 		ogBootstrap.setEnabled(false);
-		ogBootstrap.addListener(new ValueChangeListener() {
+		ogBootstrap.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -6431988302489281253L;
 
 			public void valueChange(ValueChangeEvent e) {
@@ -285,22 +288,23 @@ public class MsViperUI extends VerticalLayout
 		ogShadow.setImmediate(true);
 		ogShadow.select(topMasterRegulators);
 		ogShadow.setEnabled(false);
-		ogShadow.addListener(new ValueChangeListener() {
+		ogShadow.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -8023653010092356915L;
 
 			public void valueChange(ValueChangeEvent e) {
 				shadowValue.removeAllValidators();
 				if (e.getProperty().getValue().equals(topMasterRegulators)) {
-					shadowValue.setValue(25);
-					shadowValue.addValidator(new PositiveIntValidator("Please enter a positive integer."));
+					shadowValue.setValue(String.valueOf(25));
+					shadowValue.addValidator(new IntegerRangeValidator("Please enter a positive integer.", 0, null));
 				} else {
-					shadowValue.setValue(0.01);
-					shadowValue.addValidator(new PvalueValidator("P value must be in the range of 0 to 1"));
+					shadowValue.setValue(String.valueOf(0.01));
+					shadowValue
+							.addValidator(new DoubleRangeValidator("P value must be in the range of 0 to 1", 0d, 1d));
 				}
 			}
 		});
 		ogShadow.setStyleName("viper");
-		shadowValue.setValue(25);
+		shadowValue.setValue(String.valueOf(25));
 		shadowValue.setEnabled(false);
 		f3.setImmediate(true);
 		f3.addComponent(shadowValue);
@@ -308,12 +312,12 @@ public class MsViperUI extends VerticalLayout
 
 		shadowBox.setImmediate(true);
 		shadowBox.setDescription("Shadow Analysis.");
-		shadowBox.addListener(new ValueChangeListener() {
+		shadowBox.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 4740368605255326886L;
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				if (shadowBox.booleanValue()) {
+				if (shadowBox.getValue()) {
 					createReport.setEnabled(true);
 					ogShadow.setEnabled(true);
 					shadowValue.setEnabled(true);
@@ -381,12 +385,8 @@ public class MsViperUI extends VerticalLayout
 
 		generateHistoryString(resultSet.getId());
 
-		GeworkbenchRoot app = (GeworkbenchRoot) MsViperUI.this.getApplication();
+		GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 		app.addNode(resultSet);
-		// only after the previous line, this.getApplication() always returns null. (app
-		// is still the correct object) WHY?
-		log.debug("BEFORE:" + app);
-		log.debug("AFTER:" + this.getApplication());
 
 		return resultSet;
 	}
@@ -488,10 +488,7 @@ public class MsViperUI extends VerticalLayout
 		networkTF.setEnabled(false);
 		submitButton.setEnabled(false);
 		if (msg != null) {
-			MessageBox mb = new MessageBox(getWindow(),
-					"Network Problem", MessageBox.Icon.ERROR, msg,
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.createError().withCaption("Network Problem").withMessage(msg).withOkButton().open();
 		}
 	}
 
@@ -499,54 +496,6 @@ public class MsViperUI extends VerticalLayout
 		networkTF.setEnabled(true);
 		if (caseSelect.isTextFieldEnabled() && controlSelect.isTextFieldEnabled())
 			submitButton.setEnabled(true);
-	}
-
-	public class PositiveIntValidator extends IntegerValidator {
-		private static final long serialVersionUID = -8205632597275359667L;
-		private int max = 0;
-
-		public PositiveIntValidator(String message) {
-			super(message);
-		}
-
-		public PositiveIntValidator(String message, int max) {
-			this(message);
-			this.max = max;
-		}
-
-		protected boolean isValidString(String value) {
-			try {
-				int n = Integer.parseInt(value);
-				if (n <= 0)
-					return false;
-				if (max > 0 && n > max)
-					return false;
-			} catch (Exception e) {
-				return false;
-			}
-			submitButton.setComponentError(null);
-			return true;
-		}
-	}
-
-	public class PvalueValidator extends DoubleValidator {
-		private static final long serialVersionUID = -815490638929041408L;
-
-		public PvalueValidator(String errorMessage) {
-			super(errorMessage);
-		}
-
-		protected boolean isValidString(String value) {
-			try {
-				double n = Double.parseDouble(value);
-				if (n < 0 || n > 1)
-					return false;
-			} catch (Exception e) {
-				return false;
-			}
-			submitButton.setComponentError(null);
-			return true;
-		}
 	}
 
 	// FIXME most of the null checkings should be designed out of the process
@@ -640,23 +589,21 @@ public class MsViperUI extends VerticalLayout
 		public void buttonClick(ClickEvent event) {
 			String warnMsg = validInputClassData(caseSelect.getArraySet(), controlSelect.getArraySet());
 			if (warnMsg != null) {
-				MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.INFO, warnMsg,
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+				MessageBox.createInfo().withCaption("Warning").withMessage(warnMsg).withOkButton().open();
 				return;
 			}
 
 			param.setNetwork(networkTF.getValue().toString().trim());
-			param.setGesfilter(limitBox.booleanValue());
+			param.setGesfilter(limitBox.getValue());
 			param.setMinAllowedRegulonSize(Integer.valueOf(minAllowedRegulonTF.getValue().toString().trim()));
-			param.setBootstrapping(bootstrapBox.booleanValue());
+			param.setBootstrapping(bootstrapBox.getValue());
 			param.setMethod(ogBootstrap.getValue().toString().toLowerCase());
 			if (param.getMethod().equalsIgnoreCase("average"))
 				param.setMethod("mean");
-			param.setShadow(shadowBox.booleanValue());
+			param.setShadow(shadowBox.getValue());
 			param.setShadowValue(Float.valueOf(shadowValue.getValue().toString().trim()));
 
-			GeworkbenchRoot app = (GeworkbenchRoot) MsViperUI.this.getApplication();
+			GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 			ResultSet resultSet = storePendingResultSet();
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 			params.put("bean", param);
