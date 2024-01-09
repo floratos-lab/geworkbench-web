@@ -1,11 +1,12 @@
 package org.geworkbenchweb.plugins.pbqdi;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.geworkbenchweb.pojos.PbqdiResult;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -19,10 +20,9 @@ import com.vaadin.ui.Embedded;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-
-import org.geworkbenchweb.pojos.PbqdiResult;
 
 public class ResultView extends Window {
 
@@ -55,7 +55,8 @@ public class ResultView extends Window {
         Map<Integer, List<String>> summary = new HashMap<Integer, List<String>>();
         for (String sampleName : subtypes.keySet()) {
             Integer subtype = subtypes.get(sampleName);
-            if(subtype==null) throw new IOException("Null subtype for sample name "+sampleName);
+            if (subtype == null)
+                throw new IOException("Null subtype for sample name " + sampleName);
             Item item = container.addItem(sampleName);
             item.getItemProperty(COLUMN_SAMPLE_NAME).setValue(sampleName);
             item.getItemProperty(COLUMN_SUBTYPE).setValue(subtype);
@@ -72,15 +73,14 @@ public class ResultView extends Window {
         resultTable.setSizeFull();
 
         Button reportButton = new Button("Drug Prediction Report");
-        reportButton.addListener(new ClickListener() {
+        reportButton.addClickListener(new ClickListener() {
 
             private static final long serialVersionUID = 345938285589568581L;
 
             @Override
             public void buttonClick(ClickEvent event) {
-                Window mainWindow = ResultView.this.getApplication().getMainWindow();
                 DrugReport v = new DrugReport(tumorType, jobId, htmlReport);
-                mainWindow.addWindow(v);
+                UI.getCurrent().addWindow(v);
             }
 
         });
@@ -97,7 +97,7 @@ public class ResultView extends Window {
         samplePerSubtype.setPageLength(summary.size());
         samplePerSubtype.setSizeFull();
 
-        image = new Embedded(null, new ExternalResource("/kaplan_images/"+tumorType+"_km.png"));
+        image = new Embedded(null, new ExternalResource("/kaplan_images/" + tumorType + "_km.png"));
         image.setSizeFull();
 
         HorizontalLayout layout = new HorizontalLayout();
@@ -127,7 +127,7 @@ public class ResultView extends Window {
         rightSide.addComponent(image);
         layout.addComponent(leftSide);
         layout.addComponent(rightSide);
-        this.addComponent(layout);
+        this.setContent(layout);
 
         this.setWidth("75%");
     }
