@@ -12,6 +12,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 public abstract class TreeActionHandler implements Handler {
@@ -26,11 +27,10 @@ public abstract class TreeActionHandler implements Handler {
 	static final Action[] ACTIONS = new Action[] { ACTION_ADD_SET,
 			ACTION_FILTER, ACTION_REMOVE_FILTER };
 
-	 
 	final long dataSetId;
 
 	public TreeActionHandler(long dataSetId) {
-	 
+
 		this.dataSetId = dataSetId;
 	}
 
@@ -45,7 +45,6 @@ public abstract class TreeActionHandler implements Handler {
 		final Window nameWindow = new Window();
 		// nameWindow.setModal(true);
 		nameWindow.setClosable(true);
-		((AbstractOrderedLayout) nameWindow.getLayout()).setSpacing(true);
 		nameWindow.setWidth("300px");
 		nameWindow.setHeight("120px");
 		nameWindow.setResizable(false);
@@ -98,8 +97,8 @@ public abstract class TreeActionHandler implements Handler {
 			}
 		});
 
-		nameWindow.addComponent(search);
-		sender.getApplication().getMainWindow().addWindow(nameWindow);
+		nameWindow.setContent(search);
+		UI.getCurrent().addWindow(nameWindow);
 		nameWindow.center();
 	}
 
@@ -107,13 +106,12 @@ public abstract class TreeActionHandler implements Handler {
 		HierarchicalContainer hc = ((HierarchicalContainer) sender
 				.getContainerDataSource());
 		hc.removeAllContainerFilters();
-		  String label = sender.getDescription();
-	        
-	        Item mainItem =  hc.getItem(label);
-	        if (mainItem != null)        
-	             mainItem.getItemProperty("Labels").setValue(label + " [" + (hc.getItemIds().size()-1) + "]");
-	         
-	        
+		String label = sender.getDescription();
+
+		Item mainItem = hc.getItem(label);
+		if (mainItem != null)
+			mainItem.getItemProperty("Labels").setValue(label + " [" + (hc.getItemIds().size() - 1) + "]");
+
 	}
 
 }
