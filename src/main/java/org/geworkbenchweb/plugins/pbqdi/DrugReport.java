@@ -4,7 +4,7 @@ import java.io.File;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Embedded;
+import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Window;
 
 public class DrugReport extends Window {
@@ -18,11 +18,11 @@ public class DrugReport extends Window {
         this.setCaption("Columbia/CPTAC Patient Sample Drug Report");
         this.setImmediate(true);
 
-        Embedded e = new Embedded(null, new ExternalResource(RESULT_PATH + jobId + File.separator + htmlReport));
-        e.setType(Embedded.TYPE_BROWSER);
+        BrowserFrame e = new BrowserFrame(null,
+                new ExternalResource(RESULT_PATH + jobId + File.separator + htmlReport));
         e.setWidth("100%");
         e.setHeight("600px");
-        this.addComponent(e);
+        this.setContent(e);
 
         this.setWidth("75%");
     }
