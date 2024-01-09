@@ -18,6 +18,7 @@ import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -31,6 +32,7 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.NativeButton;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
@@ -129,7 +131,7 @@ public class UMainLayout extends VerticalLayout {
 		openSetButton.setVisible(false);
 		saveSetButton.setVisible(false);
 
-		annotButton.addListener(new Button.ClickListener() {
+		annotButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -177,22 +179,22 @@ public class UMainLayout extends VerticalLayout {
 		workspaceViewMenuItem.setEnabled(false);
 
 		/* Deletes the data set and its dependencies from DB */
-		removeButton.addListener(new RemoveButtonListener(this));
+		removeButton.addClickListener(new RemoveButtonListener(this));
 
 		/* Deletes selected subset from the datatree. */
-		removeSetButton.addListener(new RemoveSetListener(this));
+		removeSetButton.addClickListener(new RemoveSetListener(this));
 
-		openSetButton.addListener(new Button.ClickListener() {
+		openSetButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -5166425513891423653L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
 				Long dataSetId = navigationTree.geDataSetId();
-				getWindow().addWindow(new OpenSetWindow(dataSetId, setViewLayout));
+				UI.getCurrent().addWindow(new OpenSetWindow(dataSetId, setViewLayout));
 			}
 		});
 
-		saveSetButton.addListener(new SaveSetListener(this));
+		saveSetButton.addClickListener(new SaveSetListener(this));
 
 		navigationPanel = createTopNavigationPanel();
 		addComponent(navigationPanel);
@@ -205,7 +207,7 @@ public class UMainLayout extends VerticalLayout {
 		topBar.setComponentAlignment(logo, Alignment.MIDDLE_LEFT);
 
 		Label userName = new Label("<span style=color:white>User name: "
-				+ user.getName() + "</span>", Label.CONTENT_XHTML);
+				+ user.getName() + "</span>", ContentMode.HTML);
 		Long wsid = mainToolBar.getCurrentWorkspace();
 		Workspace current = FacadeFactory.getFacade().find(Workspace.class,
 				wsid);
@@ -213,7 +215,7 @@ public class UMainLayout extends VerticalLayout {
 			throw new Exception("no current workspace for ID=" + wsid);
 		}
 		Label workspaceName = new Label("<span style=color:white>Workspace: "
-				+ current.getName() + "</span>", Label.CONTENT_XHTML);
+				+ current.getName() + "</span>", ContentMode.HTML);
 		topBar.addComponent(userName);
 		topBar.addComponent(workspaceName);
 		topBar.setComponentAlignment(userName, Alignment.MIDDLE_CENTER);
@@ -237,11 +239,11 @@ public class UMainLayout extends VerticalLayout {
 
 		navigationTree.setItemCaptionPropertyId("Name");
 		navigationTree.setItemIconPropertyId("Icon");
-		navigationTree.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+		navigationTree.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
 
 		leftMainLayout.addComponent(navigationTree);
 		mainSplit.setFirstComponent(leftMainLayout);
-		mainSplit.setSplitPosition(275, HorizontalSplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(275, HorizontalSplitPanel.Unit.PIXELS);
 		mainSplit.setSecondComponent(pluginView);
 
 		HorizontalLayout quicknav = new HorizontalLayout();
@@ -331,7 +333,7 @@ public class UMainLayout extends VerticalLayout {
 		b.setStyleName("tree-switch");
 		b.addStyleName("down");
 		b.setDescription("Toggle sample tree visibility");
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
@@ -342,13 +344,13 @@ public class UMainLayout extends VerticalLayout {
 					mainSplit.setLocked(true);
 				} else {
 					b.addStyleName("down");
-					mainSplit.setSplitPosition(250, HorizontalSplitPanel.UNITS_PIXELS);
+					mainSplit.setSplitPosition(250, HorizontalSplitPanel.Unit.PIXELS);
 					mainSplit.setLocked(false);
 					navigationTree.setVisible(true);
 				}
 			}
 		});
-		mainSplit.setSplitPosition(250, HorizontalSplitPanel.UNITS_PIXELS);
+		mainSplit.setSplitPosition(250, HorizontalSplitPanel.Unit.PIXELS);
 		return b;
 	}
 
