@@ -15,12 +15,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Tree;
 
+import de.steinwedel.messagebox.MessageBox;
+
 public class RemoveSetListener implements Button.ClickListener {
 
 	private static final long serialVersionUID = 6829997098780053442L;
 
 	final UMainLayout mainLayout;
-	
+
 	RemoveSetListener(final UMainLayout mainLayout) {
 		this.mainLayout = mainLayout;
 	}
@@ -29,7 +31,7 @@ public class RemoveSetListener implements Button.ClickListener {
 	public void buttonClick(ClickEvent event) {
 		SetViewLayout setViewLayout = mainLayout.getSetViewLayout();
 		Long selectedSetId = setViewLayout.getSelectedSetId();
-		
+
 		try {
 			if (selectedSetId != null) {
 
@@ -51,7 +53,7 @@ public class RemoveSetListener implements Button.ClickListener {
 
 				if (subSets.get(0).getType().equalsIgnoreCase(SubSet.SET_TYPE_MICROARRAY)) {
 					Tree arraySetTree = setViewLayout.getArraySetTree();
-					if (arraySetTree .hasChildren(selectedSetId)) {
+					if (arraySetTree.hasChildren(selectedSetId)) {
 						Collection<?> children = arraySetTree
 								.getChildren(selectedSetId);
 						LinkedList<String> children2 = new LinkedList<String>();
@@ -88,10 +90,8 @@ public class RemoveSetListener implements Button.ClickListener {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			MessageBox mb = new MessageBox(setViewLayout.getWindow(), "Warning",
-					MessageBox.Icon.INFO, "Please select SubSet to delete",
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.createInfo().withCaption("Warning").withMessage("Please select SubSet to delete.").withOkButton()
+					.open();
 		}
 	}
 
