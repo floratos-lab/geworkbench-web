@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.authentication;
 
 import java.util.Random;
@@ -22,6 +19,7 @@ import org.vaadin.appfoundation.authentication.util.UserUtil;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -34,19 +32,18 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 import nl.captcha.Captcha;
- 
 
 public class RegistrationForm extends VerticalLayout {
 
 	private static final long serialVersionUID = 6837549393946888607L;
 
-	private static final String EMAIL_PATTERN = 
-			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	private Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
 	private Log log = LogFactory.getLog(RegistrationForm.class);
@@ -63,7 +60,7 @@ public class RegistrationForm extends VerticalLayout {
 		final TextField realName = new TextField("Real name");
 		final TextField email = new TextField("Email address");
 		final TextField captchaCode = new TextField("Enter the code above");
-		
+
 		FormLayout layout = new FormLayout();
 
 		username.setWidth("145px");
@@ -77,11 +74,11 @@ public class RegistrationForm extends VerticalLayout {
 		registrationPanel.setWidth("350px");
 
 		ThemeResource resource = new ThemeResource("img/geWorkbench.png");
-		Embedded image = new Embedded("", resource);		
+		Embedded image = new Embedded("", resource);
 
 		ThemeResource resourceCaptcha = new ThemeResource("img/simpleCaptcha.jpg");
 		Embedded imageCaptcha = new Embedded("", resourceCaptcha);
-		imageCaptcha.setImmediate(true);		
+		imageCaptcha.setImmediate(true);
 		imageCaptcha.setWidth("145px");
 		imageCaptcha.setHeight("30px");
 
@@ -91,7 +88,7 @@ public class RegistrationForm extends VerticalLayout {
 		realName.setNullRepresentation("");
 		email.setNullRepresentation("");
 		captchaCode.setNullRepresentation("");
-		
+
 		layout.setSpacing(true);
 		layout.addComponent(feedbackLabel);
 		layout.addComponent(username);
@@ -108,7 +105,7 @@ public class RegistrationForm extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
+
 				Boolean resetPassword = false;
 				try {
 					register(username, password, verifyPassword, realName,
@@ -126,29 +123,28 @@ public class RegistrationForm extends VerticalLayout {
 							.setValue("Username is too short, it needs to be at least "
 									+ UserUtil.getMinUsernameLength()
 									+ " characters long");
-					resetPassword =true;
+					resetPassword = true;
 
 				} catch (PasswordsDoNotMatchException e) {
 
 					feedbackLabel.setValue("Password verification has failed");
-					resetPassword =true;
+					resetPassword = true;
 
 				} catch (UsernameExistsException e) {
 
 					feedbackLabel
 							.setValue("The chosen username already exists, please pick another one");
-					resetPassword =true;
+					resetPassword = true;
 
 				} catch (PasswordRequirementException e) {
 					feedbackLabel
 							.setValue("Password does not meet the set requirements");
-					resetPassword =true;
+					resetPassword = true;
 				}
 
-				if ( resetPassword )
-				{
-					password.setValue(null);				
-				    verifyPassword.setValue(null);
+				if (resetPassword) {
+					password.setValue(null);
+					verifyPassword.setValue(null);
 				}
 
 			}
@@ -164,19 +160,19 @@ public class RegistrationForm extends VerticalLayout {
 		Button backtoLogin = new Button("Back to Login Page");
 		backtoLogin.setStyleName(BaseTheme.BUTTON_LINK);
 		backtoLogin.setDescription("Go Back to the Login Page");
-		backtoLogin.addListener(new ClickListener() {
+		backtoLogin.addClickListener(new ClickListener() {
 
 			private static final long serialVersionUID = -4747422973711586108L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				getApplication().close();
+				UI.getCurrent().close();
 			}
-			
+
 		});
 		layout.addComponent(backtoLogin);
 		layout.setComponentAlignment(backtoLogin, Alignment.MIDDLE_CENTER);
-		registrationPanel.addComponent(layout);
+		registrationPanel.setContent(layout);
 
 		this.setSizeFull();
 		this.addComponent(image);
@@ -193,47 +189,43 @@ public class RegistrationForm extends VerticalLayout {
 		final String usernameText = (String) username.getValue();
 		final String passwordText = (String) password.getValue();
 		final String captchaText = (String) captchaCode.getValue();
-		
-		ApplicationContext cntxt = getApplication().getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
-	   
-	    Captcha captcha =  (Captcha)wcntxt.getHttpSession().getAttribute(Captcha.NAME);
-	    if (!captcha.isCorrect(captchaText))
-        {
-	    	feedbackLabel
-			.setValue("Captcha code does not match");	
-	    	getApplication().getMainWindow().executeJavaScript("window.location.reload();");
-	    	 
-	    	return;
-        }
-	    if(email.getValue() == null || ! emailPattern.matcher(email.getValue().toString()).matches()) 
-	    {
-	    	feedbackLabel.setValue("Email address is invalid");	
+
+		Captcha captcha = (Captcha) UI.getCurrent().getSession().getAttribute(Captcha.NAME);
+		if (!captcha.isCorrect(captchaText)) {
+			feedbackLabel
+					.setValue("Captcha code does not match");
+			UI.getCurrent().getPage().getJavaScript().execute("window.location.reload();");
+
 			return;
-	    }
+		}
+		if (email.getValue() == null || !emailPattern.matcher(email.getValue().toString()).matches()) {
+			feedbackLabel.setValue("Email address is invalid");
+			return;
+		}
 		log.debug("before registering a new user");
 		User user = UserUtil.registerUser(usernameText, passwordText,
 				(String) verifyPassword.getValue());
-		
+
 		log.debug("user object is created");
 
 		user.setName((String) realName.getValue());
 		user.setEmail((String) email.getValue());
 		user.setAccountLocked(true);
 		Random random = new Random();
-		user.setReasonForLockedAccount(new Integer(random.nextInt()).toString() + "(waiting for confirmation from user)");
-		if(emailPattern.matcher(user.getEmail()).matches()){
+		user.setReasonForLockedAccount(
+				Integer.valueOf(random.nextInt()).toString() + "(waiting for confirmation from user)");
+		if (emailPattern.matcher(user.getEmail()).matches()) {
 			try {
 				sendMail(user);
 			} catch (MessagingException e) {
-		    	feedbackLabel.setValue("System error in sending email. Please contact geWorkbench support team.");	
+				feedbackLabel.setValue("System error in sending email. Please contact geWorkbench support team.");
 				return;
 			}
-		}		
+		}
 
 		FacadeFactory.getFacade().store(user);
 		log.debug("user object is stored");
-		
+
 		/* Creating default workspace */
 		Workspace workspace = new Workspace();
 		workspace.setOwner(user.getId());
@@ -245,23 +237,22 @@ public class RegistrationForm extends VerticalLayout {
 		active.setOwner(user.getId());
 		active.setWorkspace(workspace.getId());
 		FacadeFactory.getFacade().store(active);
-		
 
-		String confirmPage = this.getApplication().getURL().toString() + "VAADIN/pages/confirm.html";
-		getApplication().close();
-		
-		getApplication().setLogoutURL(confirmPage);
-		 
+		String confirmPage = Page.getCurrent().getLocation().toString() + "VAADIN/pages/confirm.html";
+		UI.getCurrent().close();
+
+		Page.getCurrent().setLocation(confirmPage);
 	}
-	
-	private void sendMail(User user) throws MessagingException{
+
+	private void sendMail(User user) throws MessagingException {
 		String title = "Registration Confirmation for Your geWorkbench Account";
 		String realName = user.getName();
-		if(realName.length() == 0) realName = "Guest";
-		String hrefStr = this.getApplication().getURL().toString() 
+		if (realName.length() == 0)
+			realName = "Guest";
+		String hrefStr = Page.getCurrent().getLocation().toString()
 				+ "servlet/ConfirmUser?userID=" + user.getId()
 				+ "&key=" + user.getReasonForLockedAccount().split("\\(")[0];
-		String content = "<font face=\"Monogram\">Welcome " + realName +"!<p>"
+		String content = "<font face=\"Monogram\">Welcome " + realName + "!<p>"
 				+ "Thanks for signing up with geWorkbench-web!"
 				+ "<p>Here is your geWorkbench account information: "
 				+ "<p>User name: " + user.getUsername()
