@@ -12,6 +12,7 @@ import org.geworkbenchweb.pojos.DataSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -23,16 +24,16 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 
 	public SimplePDBViewer(Long dataSetId) {
 		super("Simple PDB Viewer"); // this label text is overwritten if the file name is available
-		
+
 		this.dataId = dataSetId;
 		if (dataId == null)
 			return;
 
 		this.setSizeFull();
 		VerticalLayout layout = (VerticalLayout) this.getContent();
-        layout.setMargin(true);
-        layout.setSpacing(true);
-        
+		layout.setMargin(true);
+		layout.setSpacing(true);
+
 		final String DATASETS = "data";
 		final String SLASH = "/";
 
@@ -62,8 +63,8 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 
 		super.setCaption("PDB file name: " + filename);
 		Label content = new Label(sb.toString());
-		content.setContentMode(Label.CONTENT_PREFORMATTED);
-		addComponent(content);
+		content.setContentMode(ContentMode.PREFORMATTED);
+		setContent(content);
 	}
 
 	@Override
