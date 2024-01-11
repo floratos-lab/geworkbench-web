@@ -14,13 +14,12 @@ public class CitrusDiagram extends AbstractComponent {
 	private Integer[] cindy = new Integer[0];
 	private String[] pvalue = new String[0];
 	private String[] nes = new String[0];
-	
+
 	private boolean zoom = false;
 	private double xzoom = 0, yzoom = 0;
 
-	@Override
+	// FIXME this should be replaced by vaadin 7 communication mechanism
 	public void paintContent(PaintTarget target) throws PaintException {
-		super.paintContent(target);
 
 		target.addAttribute("alteration", alteration);
 		target.addAttribute("samples", samples);
@@ -29,7 +28,7 @@ public class CitrusDiagram extends AbstractComponent {
 		target.addAttribute("cindy", cindy);
 		target.addAttribute("pvalue", pvalue);
 		target.addAttribute("nes", nes);
-		
+
 		target.addAttribute("zoom", zoom);
 		target.addAttribute("xzoom", xzoom);
 		target.addAttribute("yzoom", yzoom);
