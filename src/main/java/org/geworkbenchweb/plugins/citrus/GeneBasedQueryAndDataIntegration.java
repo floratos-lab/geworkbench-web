@@ -20,6 +20,8 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import de.steinwedel.messagebox.MessageBox;
+
 public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 
 	private static final long serialVersionUID = -713233350568178L;
@@ -62,10 +64,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 				n = Integer.parseInt(str);
 			} catch (NumberFormatException e) {
 				String msg = "You need to enter an integer number for the number of genomic events.";
-				MessageBox mb = new MessageBox(GeneBasedQueryAndDataIntegration.this.getWindow(),
-						"Invalid number", MessageBox.Icon.ERROR, msg,
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+				MessageBox.createError().withCaption("Invalid number").withMessage(msg).withOkButton().open();
 				return;
 			}
 			Alteration[] alteration = db.getAlterations(cancerType, geneId, n);
@@ -126,7 +125,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		for (String s : cancerTypes)
 			cancerTypeComboBox.addItem(s);
 		cancerTypeComboBox.setNullSelectionAllowed(false);
-		cancerTypeComboBox.addListener(new ValueChangeListener() {
+		cancerTypeComboBox.addValueChangeListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = 246976645556960310L;
 
@@ -138,7 +137,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		});
 		cancerTypeComboBox.setImmediate(true);
 
-		geneSymbolComboBox.addListener(new ValueChangeListener() {
+		geneSymbolComboBox.addValueChangeListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = -9162948770952403543L;
 
@@ -153,7 +152,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		});
 		geneSymbolComboBox.setImmediate(true);
 
-		runButton.addListener(clickListener);
+		runButton.addClickListener(clickListener);
 		commandPanel.setSpacing(true);
 		commandPanel.addComponent(cancerTypeComboBox);
 		commandPanel.addComponent(geneSymbolComboBox);
@@ -166,7 +165,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		sliderX.setMin(0);
 		sliderX.setMax(100);
 		sliderX.setImmediate(true);
-		sliderX.addListener(new ValueChangeListener() {
+		sliderX.addValueChangeListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = 1207635009715936238L;
 
@@ -180,7 +179,7 @@ public class GeneBasedQueryAndDataIntegration extends VerticalLayout {
 		sliderY.setMin(0);
 		sliderY.setMax(100);
 		sliderY.setImmediate(true);
-		sliderY.addListener(new ValueChangeListener() {
+		sliderY.addValueChangeListener(new ValueChangeListener() {
 
 			private static final long serialVersionUID = 5944261985038099756L;
 

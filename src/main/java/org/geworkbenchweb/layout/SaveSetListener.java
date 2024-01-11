@@ -13,6 +13,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.server.DownloadStream;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 
@@ -21,19 +22,19 @@ public class SaveSetListener implements Button.ClickListener {
 	private static final long serialVersionUID = -5239131481750155527L;
 
 	final private UMainLayout mainLayout;
-	
+
 	SaveSetListener(final UMainLayout mainLayout) {
 		this.mainLayout = mainLayout;
 	}
-	
+
 	@Override
 	public void buttonClick(ClickEvent event) {
 		SetViewLayout setViewLayout = mainLayout.getSetViewLayout();
-		if(setViewLayout==null) return;
-		
+		if (setViewLayout == null)
+			return;
+
 		final Long selectedSetId = setViewLayout.getSelectedSetId();
-		final Application application = mainLayout.getApplication();
-		
+
 		if (selectedSetId == null)
 			return;
 		final SubSet subSet = FacadeFactory.getFacade().find(SubSet.class,
@@ -47,8 +48,7 @@ public class SaveSetListener implements Button.ClickListener {
 		String savefname = saveSetDir + subSet.getName() + ".csv";
 		saveSetToFile(savefname, subSet);
 
-		FileResource resource = new FileResource(new File(savefname),
-				application) {
+		FileResource resource = new FileResource(new File(savefname)) {
 			private static final long serialVersionUID = -4237233790958289183L;
 
 			public DownloadStream getStream() {
@@ -66,24 +66,25 @@ public class SaveSetListener implements Button.ClickListener {
 				}
 			}
 		};
-		application.getMainWindow().open(resource);
+		Page.getCurrent().open(resource, "_blank", false);
 
 	}
 
-	private static void saveSetToFile(String savefname, SubSet subSet){
+	private static void saveSetToFile(String savefname, SubSet subSet) {
 		BufferedWriter bw = null;
-		try{
+		try {
 			bw = new BufferedWriter(new FileWriter(savefname));
-			for (String name : subSet.getPositions()){
+			for (String name : subSet.getPositions()) {
 				bw.write(name);
 				bw.newLine();
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			try{ 
-				if (bw!=null) bw.close(); 
-			}catch(Exception e){
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
