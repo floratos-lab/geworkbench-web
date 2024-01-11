@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
 import org.geworkbenchweb.pojos.Workspace;
 import org.geworkbenchweb.utils.DataSetOperations;
@@ -23,8 +22,11 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.CloseListener;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class DeleteWorkspaceDialog extends Window implements
 		Button.ClickListener {
@@ -71,104 +73,76 @@ public class DeleteWorkspaceDialog extends Window implements
 					.getName());
 		}
 
-		this.addComponent(workspaceSelect);
+		VerticalLayout layout = new VerticalLayout();
+		layout.addComponent(workspaceSelect);
 		Button deleteButton = new Button("Delete");
-		deleteButton.addListener(this);
-		this.addComponent(deleteButton);
+		deleteButton.addClickListener(this);
+		layout.addComponent(deleteButton);
+		this.setContent(layout);
 	}
 
 	@Override
 	public void buttonClick(ClickEvent event) {
 		final Object selected = workspaceSelect.getValue();
 
-		Application app = DeleteWorkspaceDialog.this.getApplication();
-		final Window mainWindow = app.getMainWindow();
+		final UI mainWindow = UI.getCurrent();
 
 		if (!(selected instanceof Set)) { /* not expected case */
 			log.error("wrong type returned by ListSelect.getValue(): "
 					+ selected);
-			MessageBox mb = new MessageBox(mainWindow,
-					"Error in selecting workspaces", MessageBox.Icon.INFO,
-					"Please select the workspace to be deleted.",
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.createInfo().withCaption("Error in selecting workspaces")
+					.withMessage("Please select the workspace to be deleted.").withOkButton().open();
 			return;
 		}
 
 		@SuppressWarnings("unchecked")
 		final Set<Long> toBeDeletedId = (Set<Long>) selected;
 		if (toBeDeletedId.size() == 0) {
-			MessageBox mb = new MessageBox(mainWindow, "No workspace selected",
-					MessageBox.Icon.INFO,
-					"No worspace selected to be be deleted.",
-					new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.createInfo().withCaption("No workspace selected")
+					.withMessage("No workspace selected to be deleted.").withOkButton().open();
 			return;
 		}
 
-		/* If the current workspace is selected to be deleted, give the user the chance to cancel. */
+		/*
+		 * If the current workspace is selected to be deleted, give the user the chance
+		 * to cancel.
+		 */
 		Long currentWorkspace = uMainToolBar.getCurrentWorkspace();
 		if (toBeDeletedId.contains(currentWorkspace)) {
-			MessageBox mb = new MessageBox(mainWindow, "Current workspace selected",
-					MessageBox.Icon.QUESTION,
-					"You are deleting the currently open workspace. Do you want to continue?",
-					new MessageBox.ButtonConfig(ButtonType.YES, "Yes"),
-					new MessageBox.ButtonConfig(ButtonType.NO, "No"));
-			EventListener listener = new EventListener() {
-
-				private static final long serialVersionUID = 5532787363755213673L;
-
-				@Override
-				public void buttonClicked(ButtonType buttonType) {
-					if(buttonType==ButtonType.YES) {
-						confirmDeletingWorkspace(mainWindow, toBeDeletedId);
-					} else {
+			MessageBox.createQuestion().withCaption("Current workspace selected")
+					.withMessage("You are deleting the currently open workspace. Do you want to continue?")
+					.withYesButton(() -> {
+						confirmDeletingWorkspace(toBeDeletedId);
+					}).withNoButton(() -> {
 						/* at this point, the "delete workspace" dialog should be closed. */
 						mainWindow.removeWindow(DeleteWorkspaceDialog.this);
-					}
-				}
-				
-			};
-			mb.show(listener);
+					}).open();
 			return;
 		}
-		confirmDeletingWorkspace(mainWindow, toBeDeletedId);
+		confirmDeletingWorkspace(toBeDeletedId);
 	}
-	
-	/** Confirm to delete workspace after the user confirms to delete the current workspace,
-	 * or the current workspace is not selected to be deleted. */
-	private void confirmDeletingWorkspace(final Window mainWindow, final Set<Long> toBeDeletedId) {
-		MessageBox mb = new MessageBox(mainWindow, "Deleting workspace",
-				MessageBox.Icon.INFO,
-				"You are deleting one or more workspaces. Proceed?",
-				new MessageBox.ButtonConfig(ButtonType.OK, "Ok"),
-				new MessageBox.ButtonConfig(ButtonType.CANCEL, "Cancel"));
-		mb.show(new MessageBox.EventListener() {
 
-			private static final long serialVersionUID = 5532787363755213673L;
-
-			@Override
-			public void buttonClicked(ButtonType buttonType) {
-				if (buttonType == ButtonType.OK) {
+	/**
+	 * Confirm to delete workspace after the user confirms to delete the current
+	 * workspace,
+	 * or the current workspace is not selected to be deleted.
+	 */
+	private void confirmDeletingWorkspace(final Set<Long> toBeDeletedId) {
+		MessageBox.createInfo().withCaption("Deleting workspace")
+				.withMessage("\"You are deleting one or more workspaces. Proceed?").withOkButton(() -> {
 					delete(toBeDeletedId);
-					Application app = getApplication();
-					Window mainWindow = app.getMainWindow();
-					mainWindow.removeWindow(DeleteWorkspaceDialog.this);
-				}
-			}
-
-		});
+					UI.getCurrent().removeWindow(DeleteWorkspaceDialog.this);
+				}).withCancelButton().open();
 	}
 
 	private transient Long newCurrentWorkspace = 0L;
 
 	private void delete(Set<Long> toBeDelectedId) {
-		final Application app = getApplication();
-		
+
 		final String defaultWorkspaceName = "Default Workspace";
 		Long currentWorkspace = uMainToolBar.getCurrentWorkspace();
 		int totalNumber = workspaceSelect.size(); /* the totally number of workspace of this user */
-		if (toBeDelectedId.size()==totalNumber) {
+		if (toBeDelectedId.size() == totalNumber) {
 			Long userId = SessionHandler.get().getId();
 			/* Step 1: if there is workspace named "Default Workspace", rename them first */
 			Map<String, Object> param = new HashMap<String, Object>();
@@ -179,8 +153,8 @@ public class DeleteWorkspaceDialog extends Window implements
 					.list("Select p from Workspace as p where p.owner=:owner and p.name=:name",
 							param);
 			int counter = 1;
-			for(Workspace w : workspaces) {
-				w.setName(defaultWorkspaceName+"."+counter);
+			for (Workspace w : workspaces) {
+				w.setName(defaultWorkspaceName + "." + counter);
 				FacadeFactory.getFacade().store(w);
 				counter++;
 			}
@@ -197,19 +171,22 @@ public class DeleteWorkspaceDialog extends Window implements
 			}
 		} else if (toBeDelectedId.contains(currentWorkspace)) {
 			/* Step 1: find the workspaces that are not selected */
-			Set<Long> notSelected  = new HashSet<Long>();
+			Set<Long> notSelected = new HashSet<Long>();
 			List<Workspace> spaces = WorkspaceUtils.getAvailableWorkspaces();
-			for(Workspace w : spaces) {
+			for (Workspace w : spaces) {
 				Long id = w.getId();
-				if( !toBeDelectedId.contains(id) ) {
+				if (!toBeDelectedId.contains(id)) {
 					notSelected.add(id);
 				}
 			}
 			/* Step 2: choose a new current workspace */
-			if(notSelected.size()==1) { /* it must be least one */
+			if (notSelected.size() == 1) { /* it must be least one */
 				/* set the only unselected as the current */
 				switchWorkspace(notSelected.iterator().next());
-				/* Step 3: otherwise, just delete all selected (because the current workspace will not be changed */
+				/*
+				 * Step 3: otherwise, just delete all selected (because the current workspace
+				 * will not be changed
+				 */
 				for (Long id : toBeDelectedId) {
 					DataSetOperations.deleteWorkspace(id);
 				}
@@ -226,7 +203,7 @@ public class DeleteWorkspaceDialog extends Window implements
 			}
 		}
 	}
-	
+
 	private static void switchWorkspace(Long wsid) {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("owner", SessionHandler.get().getId());
@@ -236,12 +213,12 @@ public class DeleteWorkspaceDialog extends Window implements
 						param);
 		FacadeFactory.getFacade().delete(
 				(ActiveWorkspace) activeWorkspace.get(0));
-		
+
 		ActiveWorkspace active = new ActiveWorkspace();
 		active.setOwner(SessionHandler.get().getId());
 		active.setWorkspace(wsid);
 		FacadeFactory.getFacade().store(active);
-		
+
 		/* switch GUI to the newly selected workspace */
 		// FIXME no more com.vaadin.Application in vaadin 7
 	}
@@ -259,11 +236,11 @@ public class DeleteWorkspaceDialog extends Window implements
 
 		java.sql.Timestamp t = new java.sql.Timestamp(0);
 		newCurrentWorkspace = 0L;
-		for(Long id : notSelected) {
+		for (Long id : notSelected) {
 			Workspace w = FacadeFactory.getFacade().find(Workspace.class, id);
 			workspaceRemained.addItem(w);
 			workspaceRemained.setItemCaption(w, w.getName());
-			if(w.getTimestamp().after(t)) { /* remember the latest one in case the user does not select */
+			if (w.getTimestamp().after(t)) { /* remember the latest one in case the user does not select */
 				t = w.getTimestamp();
 				newCurrentWorkspace = w.getId();
 			}
@@ -274,8 +251,8 @@ public class DeleteWorkspaceDialog extends Window implements
 		chooseDialog.setDraggable(false);
 		chooseDialog.setResizable(false);
 		chooseDialog.setWidth("300px");
-		
-		chooseDialog.addListener(new CloseListener() {
+
+		chooseDialog.addCloseListener(new CloseListener() {
 
 			private static final long serialVersionUID = -7856367679710164681L;
 
@@ -286,11 +263,11 @@ public class DeleteWorkspaceDialog extends Window implements
 					DataSetOperations.deleteWorkspace(id);
 				}
 			}
-			
+
 		});
 
-		chooseDialog.addComponent(workspaceRemained);
-		
+		chooseDialog.setContent(workspaceRemained);
+
 		FormLayout workspaceForm = new FormLayout();
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
@@ -301,14 +278,14 @@ public class DeleteWorkspaceDialog extends Window implements
 			public void buttonClick(ClickEvent event) {
 
 				Object selected = workspaceRemained.getValue();
-				if(! (selected instanceof Workspace)) {
-					log.error("Selected item is not a workspace: "+selected);
+				if (!(selected instanceof Workspace)) {
+					log.error("Selected item is not a workspace: " + selected);
 					return;
 				}
-				Workspace ncws = (Workspace)selected;
+				Workspace ncws = (Workspace) selected;
 				newCurrentWorkspace = ncws.getId();
 
-				mainWindow.removeWindow(chooseDialog);
+				UI.getCurrent().removeWindow(chooseDialog);
 			}
 		});
 
@@ -316,12 +293,12 @@ public class DeleteWorkspaceDialog extends Window implements
 		workspaceForm.setImmediate(true);
 		workspaceForm.setSpacing(true);
 		workspaceForm.addComponent(new Label(
-				"Plase choose the workspace to switch to after the current workspace '"
+				"Please choose the workspace to switch to after the current workspace '"
 						+ currentWorkspaceName
 						+ "' is deleted."));
 		workspaceForm.addComponent(submit);
 
-		chooseDialog.addComponent(workspaceForm);
-		mainWindow.addWindow(chooseDialog);
+		chooseDialog.setContent(workspaceForm);
+		UI.getCurrent().addWindow(chooseDialog);
 	}
 }
