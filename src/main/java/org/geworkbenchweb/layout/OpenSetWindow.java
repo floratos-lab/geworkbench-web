@@ -24,13 +24,16 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class OpenSetWindow extends Window {
 
 	private static final long serialVersionUID = 3780041096719367174L;
-	
+
 	OpenSetWindow(final Long dataSetId, final SetViewLayout setViewLayout) {
 		super("Open Set");
 
@@ -57,7 +60,7 @@ public class OpenSetWindow extends Window {
 		vlayout.addComponent(markerGroup);
 		markerGroup.setVisible(false);
 
-		setGroup.addListener(new Property.ValueChangeListener() {
+		setGroup.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 2481194620858021204L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -72,9 +75,7 @@ public class OpenSetWindow extends Window {
 			private static final long serialVersionUID = -212174451849906591L;
 
 			protected void updateDisplay() {
-				Window pWindow = OpenSetWindow.this.getParent();
-				if (pWindow != null)
-					pWindow.removeWindow(OpenSetWindow.this);
+				UI.getCurrent().removeWindow(OpenSetWindow.this);
 				String filename = getLastFileName();
 				byte[] bytes = (byte[]) getValue();
 
@@ -82,14 +83,12 @@ public class OpenSetWindow extends Window {
 					if (setGroup.getValue().equals("Array Set")) {
 						loadSubSet("Array", filename, bytes, dataSetId, setViewLayout.getArraySetTree(), null);
 					} else {
-						loadSubSet("Marker", filename, bytes, dataSetId, setViewLayout.getMarkerSetTree(), (String) markerGroup.getValue());
+						loadSubSet("Marker", filename, bytes, dataSetId, setViewLayout.getMarkerSetTree(),
+								(String) markerGroup.getValue());
 					}
 				} else {
-					MessageBox mb = new MessageBox(pWindow,
-							"File Format Error", MessageBox.Icon.WARN, filename
-									+ " is not a CSV file",
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createWarning().withCaption("File Format Error").withMessage(filename
+							+ " is not a CSV file").withOkButton().open();
 				}
 			}
 		};
@@ -98,20 +97,21 @@ public class OpenSetWindow extends Window {
 		vlayout.addComponent(openFile);
 	}
 
-	private static void loadSubSet(String setType, String filename, byte[] bytes, long datasetId, Tree tree, String markerType) {
+	private static void loadSubSet(String setType, String filename, byte[] bytes, long datasetId, Tree tree,
+			String markerType) {
 
 		filename = getUniqueSetName(setType, filename, datasetId);
-		
+
 		ArrayList<String> selectedNames = getSelectedNames(bytes);
 		ArrayList<String> panel = getPanel(setType, markerType, datasetId, selectedNames);
 
 		int missing = selectedNames.size() - panel.size();
-		showWarning(setType, missing, tree.getApplication().getMainWindow());
+		showWarning(setType, missing);
 
 		storeSubSet(setType, panel, filename, datasetId, tree);
 	}
 
-	private static String getUniqueSetName(String setType, String filename, Long datasetId){
+	private static String getUniqueSetName(String setType, String filename, Long datasetId) {
 
 		if (filename.toLowerCase().endsWith(".csv")) {
 			filename = filename.substring(0, filename.length() - 4);
@@ -124,13 +124,13 @@ public class OpenSetWindow extends Window {
 		else
 			subsets = SubSetOperations.getMarkerSets(datasetId);
 		for (Object arrayset : subsets) {
-			nameSet.add(((SubSet)arrayset).getName());
+			nameSet.add(((SubSet) arrayset).getName());
 		}
 		filename = Util.getUniqueName(filename, nameSet);
 		return filename;
 	}
 
-	private static ArrayList<String> getSelectedNames(byte[] bytes){
+	private static ArrayList<String> getSelectedNames(byte[] bytes) {
 
 		ArrayList<String> selectedNames = new ArrayList<String>();
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
@@ -157,90 +157,89 @@ public class OpenSetWindow extends Window {
 		return selectedNames;
 	}
 
-	private static ArrayList<String> getPanel(String setType, String markerType, Long datasetId, ArrayList<String> selectedNames){
+	private static ArrayList<String> getPanel(String setType, String markerType, Long datasetId,
+			ArrayList<String> selectedNames) {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, datasetId);
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
-		
+
 		ArrayList<String> panel = new ArrayList<String>();
-		if(microarray==null) return panel;
-		
+		if (microarray == null)
+			return panel;
+
 		String[] arrayLabels = microarray.getArrayLabels();
 		String[] markerLabels = microarray.getMarkerLabels();
 
-		if (setType.equals("Array")){
+		if (setType.equals("Array")) {
 			for (String arrayLabel : arrayLabels) {
-				if(selectedNames.contains(arrayLabel)) 
+				if (selectedNames.contains(arrayLabel))
 					panel.add(arrayLabel);
 			}
-		}else if (markerType.equals("Marker ID")){
-			for (String markerLabel : markerLabels){
+		} else if (markerType.equals("Marker ID")) {
+			for (String markerLabel : markerLabels) {
 				if (selectedNames.contains(markerLabel))
 					panel.add(markerLabel);
 			}
-		}else if (markerType.equals("Gene Symbol")){
+		} else if (markerType.equals("Gene Symbol")) {
 			Map<String, String> map = DataSetOperations.getAnnotationMap(datasetId);
-			for(String markerLabel : markerLabels) {
-				if(!map.containsKey(markerLabel)) continue;
+			for (String markerLabel : markerLabels) {
+				if (!map.containsKey(markerLabel))
+					continue;
 				String geneName = map.get(markerLabel);
-				if(selectedNames.contains(geneName))
+				if (selectedNames.contains(geneName))
 					panel.add(markerLabel);
-				else if (geneName.contains(" /// ")){
-					for (String gname : geneName.split(" /// ")){
-						if (selectedNames.contains(gname)){
+				else if (geneName.contains(" /// ")) {
+					for (String gname : geneName.split(" /// ")) {
+						if (selectedNames.contains(gname)) {
 							panel.add(markerLabel);
 							break;
 						}
 					}
-				} 
+				}
 			}
 		}
 		return panel;
 	}
 
-	private static void showWarning(String setType, int missing, Window pWindow){
-		if(missing > 0) {
-			if (missing == 1){
-				MessageBox mb = new MessageBox(
-						pWindow,
-						setType+" Not Found",
-						MessageBox.Icon.WARN,
-						missing + " "+setType.toLowerCase()+" listed in the CSV file is not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
-			}else{
-				MessageBox mb = new MessageBox(
-						pWindow,
-						setType+" Not Found",
-						MessageBox.Icon.WARN,
-						missing + " "+setType.toLowerCase()+"s listed in the CSV file are not present in the dataset.  Skipped.",
-						new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-				mb.show();
+	private static void showWarning(String setType, int missing) {
+		if (missing > 0) {
+			if (missing == 1) {
+				MessageBox.createInfo().withCaption(setType + " Not Found")
+						.withMessage(missing + " " + setType.toLowerCase()
+								+ " listed in the CSV file is not present in the dataset. Skipped.")
+						.withOkButton().open();
+			} else {
+				MessageBox.createInfo().withCaption(setType + " Not Found")
+						.withMessage(missing + " " + setType.toLowerCase()
+								+ "s listed in the CSV file are not present in the dataset. Skipped.")
+						.withOkButton().open();
 			}
 		}
 	}
 
-	private static void storeSubSet(String setType, ArrayList<String> panel, String setname, Long datasetId, Tree tree){
+	private static void storeSubSet(String setType, ArrayList<String> panel, String setname, Long datasetId,
+			Tree tree) {
 		Long subSetId = 0l;
 		String parentSet = "";
-		if (setType.equals("Array")){
+		if (setType.equals("Array")) {
 			subSetId = SubSetOperations.storeArraySetInCurrentContext(panel, setname, datasetId);
 			parentSet = "arraySets";
-		}else{
+		} else {
 			subSetId = SubSetOperations.storeMarkerSetInCurrentContext(panel, setname, datasetId);
 			parentSet = "MarkerSets";
 		}
 
 		tree.addItem(subSetId);
 		tree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(setname);
-		tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(setname + " [" + panel.size() + "]");
+		tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME)
+				.setValue(setname + " [" + panel.size() + "]");
 		tree.setParent(subSetId, parentSet);
 		tree.setChildrenAllowed(subSetId, true);
-		for(int j=0; j<panel.size(); j++) {
-			tree.addItem(panel.get(j)+subSetId);
-			tree.getContainerProperty(panel.get(j)+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(panel.get(j));
-			tree.setParent(panel.get(j)+subSetId, subSetId);
-			tree.setChildrenAllowed(panel.get(j)+subSetId, false);
+		for (int j = 0; j < panel.size(); j++) {
+			tree.addItem(panel.get(j) + subSetId);
+			tree.getContainerProperty(panel.get(j) + subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(panel.get(j));
+			tree.setParent(panel.get(j) + subSetId, subSetId);
+			tree.setChildrenAllowed(panel.get(j) + subSetId, false);
 		}
 	}
 }

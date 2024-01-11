@@ -18,6 +18,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class SetTreeHandler implements Handler {
@@ -42,18 +44,19 @@ public class SetTreeHandler implements Handler {
 			log.warn("unexpected sender: " + sender);
 			return null;
 		}
-		if(target==null) return null;
+		if (target == null)
+			return null;
 		if (target instanceof Long) {
 			return actions;
-		} else if (target instanceof String ) {
-			if(setTree.hasChildren(target)) {
+		} else if (target instanceof String) {
+			if (setTree.hasChildren(target)) {
 				// System.out.println(setTree.getChildren(target).size());
 				return null;
 			}
 			// only if it is string and has no child, it is the leaf node that we can delete
 			return new Action[] { DELETE };
 		} else {
-			log.debug("unexpected target type: " + target+" "+target.getClass().getName());
+			log.debug("unexpected target type: " + target + " " + target.getClass().getName());
 			return null;
 		}
 	}
@@ -67,10 +70,11 @@ public class SetTreeHandler implements Handler {
 		if (target instanceof Long) {
 			Long itemId = (Long) target;
 			rename(itemId);
-		} else if(target instanceof String && !setTree.hasChildren(target)) {
+		} else if (target instanceof String && !setTree.hasChildren(target)) {
 			Long subsetId = (Long) setTree.getParent(target);
 			// target is where you right-click, not what we want to delete
-			// instead, the selection is what we want to delete (because we want to support multi-selection
+			// instead, the selection is what we want to delete (because we want to support
+			// multi-selection
 			@SuppressWarnings("unchecked")
 			Set<String> selected = (Set<String>) setTree.getValue();
 			List<String> namesToBeDeleted = new ArrayList<String>();
@@ -82,7 +86,7 @@ public class SetTreeHandler implements Handler {
 			}
 			Item subsetItem = setTree.getItem(subsetId);
 			Collection<?> children = setTree.getChildren(subsetId);
-			if(children!=null && children.size()>0) {
+			if (children != null && children.size() > 0) {
 				String subsetName = (String) subsetItem.getItemProperty(SetViewLayout.SUBSET_NAME).getValue();
 				subsetItem.getItemProperty(SetViewLayout.SET_DISPLAY_NAME)
 						.setValue(subsetName + " [" + setTree.getChildren(subsetId).size() + "]");
@@ -96,7 +100,7 @@ public class SetTreeHandler implements Handler {
 				FacadeFactory.getFacade().delete(subset);
 			}
 		} else {
-			log.error("unexpected target of action " + target+" "+target.getClass().getName());
+			log.error("unexpected target of action " + target + " " + target.getClass().getName());
 			return;
 		}
 	}
@@ -105,7 +109,7 @@ public class SetTreeHandler implements Handler {
 		final SubSet labelSet = FacadeFactory.getFacade().find(SubSet.class,
 				itemId);
 		if (labelSet == null) {
-			log.warn("itemId not supported for renaming: "+itemId);
+			log.warn("itemId not supported for renaming: " + itemId);
 			return;
 		}
 
@@ -137,16 +141,16 @@ public class SetTreeHandler implements Handler {
 
 				int size = labelSet.getPositions().size();
 				item.getItemProperty(SetViewLayout.SUBSET_NAME).setValue(newName);
-				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName+" ["+size+"]");
+				item.getItemProperty(SetViewLayout.SET_DISPLAY_NAME).setValue(newName + " [" + size + "]");
 
-				setTree.getApplication().getMainWindow()
-						.removeWindow(dialog);
+				UI.getCurrent().removeWindow(dialog);
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		dialog.addComponent(newName);
-		dialog.addComponent(submit);
-		setTree.getApplication().getMainWindow().addWindow(dialog);
-
+		VerticalLayout layout = new VerticalLayout();
+		layout.addComponent(newName);
+		layout.addComponent(submit);
+		dialog.setContent(layout);
+		UI.getCurrent().addWindow(dialog);
 	}
 }
