@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.layout.UMainLayout;
@@ -20,17 +18,21 @@ import org.geworkbenchweb.plugins.cnkb.CNKBUI.InteractomeAndVersion;
 import org.geworkbenchweb.pojos.CNKBResultSet;
 
 import com.vaadin.data.Property;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * User interface for 'standalone' CNKB.
@@ -61,7 +63,8 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		try {
 			List<String> interactonList = interactionsConnection.getDatasetAndInteractioCount();
 			for (String interactome : interactonList) {
-				if(CNKBUI.isExcludedInteractome(interactome)) continue;
+				if (CNKBUI.isExcludedInteractome(interactome))
+					continue;
 				List<VersionDescriptor> versionList = interactionsConnection
 						.getVersionDescriptor(interactome.split(" \\(")[0].trim());
 				for (VersionDescriptor v : versionList) {
@@ -85,7 +88,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 		interactomeBox = new ListSelect("Select Interactome:");
 		interactomeBox.setRows(4);
-		interactomeBox.setColumns(25);
+		interactomeBox.setWidth("25em");
 		interactomeBox.setImmediate(true);
 		interactomeBox.setNullSelectionAllowed(false);
 		interactomeBox.setMultiSelect(true);
@@ -93,7 +96,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 			interactomeBox.addItem(interactomeList.get(j));
 		}
 
-		interactomeBox.addListener(new Property.ValueChangeListener() {
+		interactomeBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -136,28 +139,27 @@ public class CNKBStandaloneUI extends VerticalLayout {
 					warningMesaage = "Please select at least one gene.";
 				if (interactomeBox.getValue() == null)
 					warningMesaage = "Please select interactome.";
-				
+
 				Set<CNKBUI.InteractomeAndVersion> interactomes = null;
 				Object obj = interactomeBox.getValue();
-				if (obj == null || !(obj instanceof Set<?>) ) { // this never happens for multi-select
-					warningMesaage="Please select interactome.";
+				if (obj == null || !(obj instanceof Set<?>)) { // this never happens for multi-select
+					warningMesaage = "Please select interactome.";
 				} else {
 					interactomes = (Set<CNKBUI.InteractomeAndVersion>) obj;
-					if(interactomes.size()==0) {
-						warningMesaage="Please select interactome.";
-					} else if (interactomes.size()>1) {
-						for(CNKBUI.InteractomeAndVersion a : interactomes) {
-							if(!a.interactome.startsWith("aracne_") && !a.interactome.startsWith("cindy_")) {
-								warningMesaage=a.interactome+" cannot be part of the multiple selection of interactomes.";
+					if (interactomes.size() == 0) {
+						warningMesaage = "Please select interactome.";
+					} else if (interactomes.size() > 1) {
+						for (CNKBUI.InteractomeAndVersion a : interactomes) {
+							if (!a.interactome.startsWith("aracne_") && !a.interactome.startsWith("cindy_")) {
+								warningMesaage = a.interactome
+										+ " cannot be part of the multiple selection of interactomes.";
 							}
 						}
 					}
 				}
-				
+
 				if (warningMesaage != null) {
-					MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.WARN, warningMesaage,
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createWarning().withCaption("Warning").withMessage(warningMesaage).withOkButton().open();
 					return;
 				}
 
@@ -167,10 +169,12 @@ public class CNKBStandaloneUI extends VerticalLayout {
 				String version = null; /* only one version is allowed even if multiple interactome is selected. */
 				StringBuilder sb = new StringBuilder();
 				int i = 0;
-				for(CNKBUI.InteractomeAndVersion a : interactomes) {
-					if(i>0) sb.append("|");
+				for (CNKBUI.InteractomeAndVersion a : interactomes) {
+					if (i > 0)
+						sb.append("|");
 					sb.append(a.interactome);
-					if(version==null) version = a.version.getVersion();
+					if (version == null)
+						version = a.version.getVersion();
 					i++;
 				}
 				params.put(CNKBParameters.INTERACTOME, sb.toString());
@@ -195,15 +199,7 @@ public class CNKBStandaloneUI extends VerticalLayout {
 
 	// TODO review both input and output
 	private void queryCNKB(final Map<Serializable, Serializable> params) {
-		// this part about session must be called from front end
-		Application app = getApplication();
-		if (app == null) { // this should never happens
-			log.error("getApplication() returns null");
-			return;
-		}
-		ApplicationContext cntxt = app.getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext) cntxt;
-		HttpSession session = wcntxt.getHttpSession();
+		VaadinSession session = UI.getCurrent().getSession();
 		if (session == null) {
 			log.error("cannot get session properly");
 			return;
@@ -218,8 +214,8 @@ public class CNKBStandaloneUI extends VerticalLayout {
 			System.out.println(result);
 
 			// direct show the orphan result
-			Window w = getApplication().getMainWindow();
-			ComponentContainer content = w.getContent();
+			UI w = UI.getCurrent();
+			Component content = w.getContent();
 			if (content instanceof UMainLayout) {
 				UMainLayout m = (UMainLayout) content;
 				m.setPluginViewContent(new CNKBResultsUI(result));
@@ -236,13 +232,10 @@ public class CNKBStandaloneUI extends VerticalLayout {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void creatAuthenticationDialog(final Map<Serializable, Serializable> params) {
-		final Application app = getApplication();
-		ApplicationContext cntxt = app.getContext();
-		WebApplicationContext wcntxt = (WebApplicationContext)cntxt;
-		final HttpSession session = wcntxt.getHttpSession();
-		
+		final VaadinSession session = UI.getCurrent().getSession();
+
 		final Window dialog = new Window("Authentication");
 
 		dialog.setModal(true);
@@ -263,12 +256,11 @@ public class CNKBStandaloneUI extends VerticalLayout {
 			public void buttonClick(ClickEvent event) {
 				String userName = usertf.getValue().toString().trim();
 				String passwd = passwordtf.getValue().toString().trim();
-			 
+
 				session.setAttribute(CNKBParameters.CNKB_USERINFO, userName
 						+ ":" + passwd);
 				queryCNKB(params);
-				app.getMainWindow().removeWindow(dialog);
-
+				UI.getCurrent().removeWindow(dialog);
 			}
 		});
 
@@ -282,21 +274,22 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		form.addComponent(passwordtf);
 		form.addComponent(submit);
 
-		dialog.addComponent(form);
-		app.getMainWindow().addWindow(dialog);
+		dialog.setContent(form);
+		UI.getCurrent().addWindow(dialog);
 	}
-	
+
 	/**
 	 * Main function of this class: query the CNKB db for the interactions.
 	 * Difference from the original version: no session part; no annotation
 	 * part; no entrez ID option
 	 */
-	static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, final String userInfo, final Long parentId)
+	static CNKBResultSet getInteractions(Map<Serializable, Serializable> params, final String userInfo,
+			final Long parentId)
 			throws UnAuthenticatedException, ConnectException, SocketTimeoutException, IOException {
 
 		String[] allInteractiomesSelected = ((String) params.get(CNKBParameters.INTERACTOME)).split("\\|");
-		for(int i=0; i<allInteractiomesSelected.length; i++) {
-			allInteractiomesSelected[i] = allInteractiomesSelected[i].split("\\(")[0].trim();	
+		for (int i = 0; i < allInteractiomesSelected.length; i++) {
+			allInteractiomesSelected[i] = allInteractiomesSelected[i].split("\\(")[0].trim();
 		}
 
 		String version = (String) params.get(CNKBParameters.VERSION);
@@ -306,57 +299,61 @@ public class CNKBStandaloneUI extends VerticalLayout {
 		CNKBServletClient cnkb = new CNKBServletClient();
 
 		String interactomeName = "multiple interactomes";
-		if(allInteractiomesSelected.length==1) interactomeName = allInteractiomesSelected[0] + version;
+		if (allInteractiomesSelected.length == 1)
+			interactomeName = allInteractiomesSelected[0] + version;
 		CellularNetworkPreference cnkbPref = new CellularNetworkPreference("Throttle Graph (" + interactomeName + ")");
-		List<String> interactionTypes = cnkb.getInteractionTypesByInteractomeVersion(allInteractiomesSelected[0], version);
+		List<String> interactionTypes = cnkb.getInteractionTypesByInteractomeVersion(allInteractiomesSelected[0],
+				version);
 		cnkbPref.getDisplaySelectedInteractionTypes().addAll(interactionTypes);
 
 		Vector<CellularNetWorkElementInformation> hits = new Vector<CellularNetWorkElementInformation>();
 		for (String context : allInteractiomesSelected) {
-		for (String geneSymbol : geneSymbols) {
+			for (String geneSymbol : geneSymbols) {
 
-			// GO stuff
-			int[] mf = new int[0];
-			int[] bp = new int[0];
+				// GO stuff
+				int[] mf = new int[0];
+				int[] bp = new int[0];
 
-			List<InteractionDetail> interactionDetails = cnkb.getInteractionsByGeneSymbol(geneSymbol, context, version,
-					userInfo);
-			CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(geneSymbol, context+" "+version, mf, bp,
-					interactionDetails);
-			hits.addElement(element);
+				List<InteractionDetail> interactionDetails = cnkb.getInteractionsByGeneSymbol(geneSymbol, context,
+						version,
+						userInfo);
+				CellularNetWorkElementInformation element = new CellularNetWorkElementInformation(geneSymbol,
+						context + " " + version, mf, bp,
+						interactionDetails);
+				hits.addElement(element);
 
-			/*
-			 * FIXME update preference. this is inherited from the earlier code.
-			 * I don't think it does the correct thing considering this is
-			 * repeated in this loop of all markers.
-			 */
-			if (interactionDetails != null && interactionDetails.size() > 0) {
+				/*
+				 * FIXME update preference. this is inherited from the earlier code.
+				 * I don't think it does the correct thing considering this is
+				 * repeated in this loop of all markers.
+				 */
+				if (interactionDetails != null && interactionDetails.size() > 0) {
 
-				for (InteractionDetail detail : interactionDetails) {
-					List<Short> typeIdList = detail.getConfidenceTypes();
-					for (int j = 0; j < typeIdList.size(); j++) {
-						Short typeId = typeIdList.get(j);
-						Double maxConfidenceValue = cnkbPref.getMaxConfidenceValue(typeId);
-						double confidenceValue = detail.getConfidenceValue(typeId);
-						if (maxConfidenceValue == null)
-							cnkbPref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
-						else {
-							if (maxConfidenceValue < confidenceValue) {
-								cnkbPref.getMaxConfidenceValueMap().put(typeId, new Double(confidenceValue));
+					for (InteractionDetail detail : interactionDetails) {
+						List<Short> typeIdList = detail.getConfidenceTypes();
+						for (int j = 0; j < typeIdList.size(); j++) {
+							Short typeId = typeIdList.get(j);
+							Double maxConfidenceValue = cnkbPref.getMaxConfidenceValue(typeId);
+							double confidenceValue = detail.getConfidenceValue(typeId);
+							if (maxConfidenceValue == null)
+								cnkbPref.getMaxConfidenceValueMap().put(typeId, Double.valueOf(confidenceValue));
+							else {
+								if (maxConfidenceValue < confidenceValue) {
+									cnkbPref.getMaxConfidenceValueMap().put(typeId, Double.valueOf(confidenceValue));
+								}
 							}
+							if (!cnkbPref.getConfidenceTypeList().contains(typeId))
+								cnkbPref.getConfidenceTypeList().add(typeId);
 						}
-						if (!cnkbPref.getConfidenceTypeList().contains(typeId))
-							cnkbPref.getConfidenceTypeList().add(typeId);
-					}
 
+					}
+					if (cnkbPref.getSelectedConfidenceType() == null
+							|| cnkbPref.getSelectedConfidenceType().shortValue() == 0) {
+						// use first one as default value.
+						cnkbPref.setSelectedConfidenceType(cnkbPref.getConfidenceTypeList().get(0));
+					}
 				}
-				if (cnkbPref.getSelectedConfidenceType() == null
-						|| cnkbPref.getSelectedConfidenceType().shortValue() == 0) {
-					// use first one as default value.
-					cnkbPref.setSelectedConfidenceType(cnkbPref.getConfidenceTypeList().get(0));
-				}
-			}
-		} /* end of the loop of all markers */
+			} /* end of the loop of all markers */
 		} /* end of the loop of all interactomes */
 
 		// null ID for orphan result without parent

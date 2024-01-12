@@ -11,6 +11,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -24,7 +25,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	public void attach() {
 		geneEntry.setMultiSelect(true);
 		geneEntry.setRows(4);
-		geneEntry.setColumns(15);
+		geneEntry.setWidth("15em");
 		geneEntry.setImmediate(true);
 
 		setSpacing(true);
@@ -55,7 +56,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	private Button createAddGeneButton() {
 		final String title = "Add Gene";
 		Button b = new Button(title);
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4929628014095090196L;
 
@@ -76,7 +77,7 @@ public class DirectGeneEntry extends VerticalLayout {
 				geneSymbol.setInputPrompt("Please enter gene symbol");
 				geneSymbol.setImmediate(true);
 
-				final Window mainWindow = DirectGeneEntry.this.getApplication().getMainWindow();
+				final UI mainWindow = UI.getCurrent();
 				Button submit = new Button(title, new Button.ClickListener() {
 
 					private static final long serialVersionUID = 1L;
@@ -91,8 +92,10 @@ public class DirectGeneEntry extends VerticalLayout {
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
-				geneDialog.addComponent(geneSymbol);
-				geneDialog.addComponent(submit);
+				VerticalLayout layout = new VerticalLayout();
+				geneDialog.setContent(layout);
+				layout.addComponent(geneSymbol);
+				layout.addComponent(submit);
 				mainWindow.addWindow(geneDialog);
 			}
 		});
@@ -102,7 +105,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	private Button createDeleteGeneButton() {
 		final String title = "Delete Gene";
 		Button b = new Button(title);
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4929628014095090196L;
 
@@ -120,7 +123,7 @@ public class DirectGeneEntry extends VerticalLayout {
 	private Button createClearListButton() {
 		final String title = "Clear List";
 		Button b = new Button(title);
-		b.addListener(new Button.ClickListener() {
+		b.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4929628014095090196L;
 
@@ -141,7 +144,7 @@ public class DirectGeneEntry extends VerticalLayout {
 				String value = (String) this.getValue();
 				String[] genes = value.split("\\s");
 				for (String g : genes) {
-					if(g.length()>0) {
+					if (g.length() > 0) {
 						geneEntry.addItem(g);
 					}
 				}
