@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,9 +18,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.SetViewLayout;
 import org.geworkbenchweb.layout.UMainLayout;
-import org.geworkbenchweb.plugins.Visualizer; 
-import org.geworkbenchweb.plugins.msviper.ExcelExport; 
- 
+import org.geworkbenchweb.plugins.Visualizer;
+import org.geworkbenchweb.plugins.msviper.ExcelExport;
 import org.geworkbenchweb.pojos.MsViperResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -33,62 +32,61 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener; 
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.AbstractOrderedLayout;  
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.OptionGroup; 
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Tree;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.Table.HeaderClickEvent;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.HeaderClickEvent;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = 3900963160275267233L;
 	private static Log log = LogFactory.getLog(MsViperResultsUI.class);
-	
-	
-	
 
 	private static final String SYMBOL = "Symbol";
 	private static final String PROBEID = "Probe Id";
 	private static final String[] geneOptions = { PROBEID, SYMBOL };
- 
+
 	final private Long datasetId;
 
 	final String[] columnNames = { "MR Marker", "MR Gene Symbol",
 			"Markers in Regulon", "NES", "absNES", "P-Value", "FDR",
 			"NumLedge", "Shadow Pairs" };
 
-	public MsViperResultsUI(Long dataSetId)  
-	{
+	public MsViperResultsUI(Long dataSetId) {
 		this.datasetId = dataSetId;
 		if (dataSetId == null)
 			return;
-		
-	    setSpacing(true); 
-		setImmediate(true);		
-		
+
+		setSpacing(true);
+		setImmediate(true);
+
 		final ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class,
 				dataSetId);
 		Long id = resultSet.getDataId();
@@ -96,43 +94,44 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 			addComponent(new Label("Pending computation - ID " + dataSetId));
 			return;
 		}
-		
+
 		final MsViperResult msViperResult = FacadeFactory.getFacade().find(
-				MsViperResult.class, id);		
-	 
-		
-		TabSheet tabs = new TabSheet();	
+				MsViperResult.class, id);
+
+		TabSheet tabs = new TabSheet();
 		tabs.setHeight("100%");
-		 
+
 		tabs.addTab(getMsViperResultTab(dataSetId, resultSet, msViperResult), "Activity", null);
-	 
-		if (msViperResult.getShadowResult() != null)		 
+
+		if (msViperResult.getShadowResult() != null)
 			tabs.addTab(getShadowResultTab(dataSetId, resultSet, msViperResult), "Shadow", null);
-		 
+
 		addComponent(tabs);
-		
+
 	}
-	
-	public VerticalLayout getMsViperResultTab(Long dataSetId, final ResultSet resultSet, final MsViperResult msViperResult) {
-		
+
+	public VerticalLayout getMsViperResultTab(Long dataSetId, final ResultSet resultSet,
+			final MsViperResult msViperResult) {
+
 		VerticalLayout tab = new VerticalLayout();
-		
+
 		final TextField barHeigh = new TextField();
 		final TextField graphForTop = new TextField();
 		final VerticalSplitPanel splitPanel = new VerticalSplitPanel();
-		final Table mraTable = new Table();		 
-		 
-	
+		final Table mraTable = new Table();
+
 		GridLayout gridLayout1 = new GridLayout(8, 1);
 
 		final OptionGroup genePresent = new OptionGroup("", Arrays.asList(geneOptions));
 		genePresent.select(PROBEID);
 
-		genePresent.addListener(new Property.ValueChangeListener() {
+		genePresent.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -6950089065248041770L;
 
 			public void valueChange(Property.ValueChangeEvent e) {
-				updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(), barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable, splitPanel);
+				updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
+						barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+						splitPanel);
 			}
 		});
 
@@ -144,36 +143,40 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 
 		graphForTop.setWidth("50px");
 		graphForTop.setCaption("Graphs for top");
-		graphForTop.setValue(10);
-		final PositiveIntValidator v = new PositiveIntValidator(
-				"Please enter a positive integer.");
+		graphForTop.setValue("10");
+		final IntegerRangeValidator v = new IntegerRangeValidator(
+				"Please enter a positive integer.", 0, null);
 		// graphForTop.addValidator(v);
+
 		graphForTop.setImmediate(true);
 
 		f1.addComponent(graphForTop);
 		f1.setImmediate(true);
 
-		graphForTop.addListener(new Property.ValueChangeListener() {
+		graphForTop.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1048639156493298177L;
 
 			public void valueChange(Property.ValueChangeEvent e) {
-				if (v.isValidString(graphForTop.getValue().toString()))
-					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(), barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable, splitPanel);
+				if (v.isValid(graphForTop.getValue().toString()))
+					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
+							barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+							splitPanel);
 			}
 		});
-		
-		
+
 		barHeigh.setWidth("50px");
 		barHeigh.setCaption("Bar Height");
-		barHeigh.setValue(15);
+		barHeigh.setValue("15");
 		// barHeigh.addValidator(v);
 		barHeigh.setImmediate(true);
-		barHeigh.addListener(new ValueChangeListener() {
+		barHeigh.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(ValueChangeEvent event) {
-				if (v.isValidString(barHeigh.getValue().toString()))
-					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(), barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable, splitPanel);
+				if (v.isValid(barHeigh.getValue().toString()))
+					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
+							barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+							splitPanel);
 			}
 		});
 
@@ -197,7 +200,6 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 
 		}).setStyleName("plugin");
 
-	
 		gridLayout1.addComponent(menuBar);
 		gridLayout1.addComponent(genePresent);
 		gridLayout1.addComponent(f1);
@@ -205,17 +207,15 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		gridLayout1.setSpacing(true);
 		gridLayout1.setImmediate(true);
 
-		//splitPanel.setHeight("100%");		 
-		splitPanel.setHeight(500, Sizeable.UNITS_PIXELS);
-		splitPanel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
+		// splitPanel.setHeight("100%");
+		splitPanel.setHeight(500, Unit.PIXELS);
+		splitPanel.setSplitPosition(250, Unit.PIXELS);
 		splitPanel.setStyleName("small");
 		splitPanel.setLocked(false);
 		splitPanel.setImmediate(true);
 
-	 
 		mraTable.setContainerDataSource(getIndexedContainer(msViperResult,
-				 genePresent.getValue().toString(), false));
-		 
+				genePresent.getValue().toString(), false));
 
 		mraTable.setSizeFull();
 		mraTable.setImmediate(true);
@@ -223,19 +223,20 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		mraTable.setColumnCollapsingAllowed(true);
 		mraTable.setSelectable(true);
 
-		mraTable.addListener(new Table.HeaderClickListener() {
+		mraTable.addHeaderClickListener(new Table.HeaderClickListener() {
 
 			private static final long serialVersionUID = 1900035484003253359L;
 
 			public void headerClick(HeaderClickEvent event) {
-				updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(), barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable, splitPanel);
+				updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
+						barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+						splitPanel);
 			}
 
 		});
 
 		splitPanel.setFirstComponent(mraTable);
-		if (msViperResult.getLeadingEdges() != null)
-		{
+		if (msViperResult.getLeadingEdges() != null) {
 			menuBar.addItem("Export all targets", new Command() {
 
 				private static final long serialVersionUID = -4510368918141762449L;
@@ -253,16 +254,13 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
 					Object id = mraTable.getValue();
-					if(id == null)
-					{
+					if (id == null) {
 						String msg = "Please select a row to add targets to set.";
-						MessageBox mb = new MessageBox(getWindow(), 
-								"Please select a row", MessageBox.Icon.INFO, msg, 
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();
+						MessageBox.createInfo().withCaption("Please select a row").withMessage(msg).withOkButton()
+								.open();
 						return;
 					}
-					Item item= mraTable.getItem(mraTable.getValue());
+					Item item = mraTable.getItem(mraTable.getValue());
 					String mr = item.getItemProperty(columnNames[0]).getValue()
 							.toString();
 					addMarkerSet("Add Markers to Set", resultSet.getParent(), msViperResult.getRegulons().get(mr));
@@ -270,9 +268,10 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 
 			}).setStyleName("plugin");
 
-			updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(), barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable, splitPanel);
-		}
-		else {
+			updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
+					barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+					splitPanel);
+		} else {
 			menuBar.addItem("Export all shadow pairs", new Command() {
 
 				private static final long serialVersionUID = -4510368918141762449L;
@@ -294,22 +293,21 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		tab.setExpandRatio(splitPanel, 1);
 		tab.setSpacing(true);
 		tab.setImmediate(true);
-		 
-		 
+
 		return tab;
-		
+
 	}
-	
-	
-public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultSet, final MsViperResult msViperResult) {
-		
-		VerticalLayout tab = new VerticalLayout();		
-	 
+
+	public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultSet,
+			final MsViperResult msViperResult) {
+
+		VerticalLayout tab = new VerticalLayout();
+
 		final VerticalSplitPanel splitPanel = new VerticalSplitPanel();
-		final Table mraTable = new Table();		 
-	
+		final Table mraTable = new Table();
+
 		GridLayout gridLayout1 = new GridLayout(8, 1);
-		 
+
 		MenuBar menuBar = new MenuBar();
 		menuBar.setStyleName("transparent");
 		menuBar.addItem("Export table", new Command() {
@@ -327,20 +325,17 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 
 		}).setStyleName("plugin");
 
-	
 		gridLayout1.addComponent(menuBar);
-		 
+
 		gridLayout1.setSpacing(true);
 		gridLayout1.setImmediate(true);
 
-		
-		splitPanel.setHeight(500, Sizeable.UNITS_PIXELS);
-		splitPanel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
+		splitPanel.setHeight(500, Unit.PIXELS);
+		splitPanel.setSplitPosition(250, Unit.PIXELS);
 		splitPanel.setStyleName("small");
 		splitPanel.setLocked(false);
 
-	 
-		mraTable.setContainerDataSource(getIndexedContainer(msViperResult, null, true));		 
+		mraTable.setContainerDataSource(getIndexedContainer(msViperResult, null, true));
 
 		mraTable.setSizeFull();
 		mraTable.setImmediate(true);
@@ -348,34 +343,28 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		mraTable.setColumnCollapsingAllowed(true);
 		mraTable.setSelectable(true);
 
-		 
-
 		splitPanel.setFirstComponent(mraTable);
-	 
-			menuBar.addItem("Export all shadow pairs", new Command() {
 
-				private static final long serialVersionUID = -4510368918141762449L;
+		menuBar.addItem("Export all shadow pairs", new Command() {
 
-				@Override
-				public void menuSelected(MenuItem selectedItem) {
-					downloadAllShadowPairs(msViperResult);
-				}
+			private static final long serialVersionUID = -4510368918141762449L;
 
-			}).setStyleName("plugin");
-			 
-		 
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				downloadAllShadowPairs(msViperResult);
+			}
 
-			tab.setSizeFull();
-			tab.addComponent(gridLayout1);
-			tab.addComponent(splitPanel);			 
-			tab.setSpacing(true);
-			tab.setImmediate(true);
-		
+		}).setStyleName("plugin");
+
+		tab.setSizeFull();
+		tab.addComponent(gridLayout1);
+		tab.addComponent(splitPanel);
+		tab.setSpacing(true);
+		tab.setImmediate(true);
+
 		return tab;
-		
+
 	}
-	
-	
 
 	@Override
 	public Long getDatasetId() {
@@ -384,52 +373,49 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 
 	IndexedContainer getIndexedContainer(final MsViperResult result,
 			String present, final boolean isShadowTable) {
-		
+
 		String[][] rdata = null;
 		final Map<String, List<String>> shadowPairs = result.getShadow_pairs();
 		final Map<String, List<String>> leadingEdges = result.getLeadingEdges();
-		
-		if(isShadowTable == true)		 
-			rdata = result.getShadowResult();	 
+
+		if (isShadowTable == true)
+			rdata = result.getShadowResult();
 		else
-			rdata= result.getMrsResult();
-		
+			rdata = result.getMrsResult();
+
 		IndexedContainer dataIn = new IndexedContainer() {
-          
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
-            public Collection<?> getSortableContainerPropertyIds() {
-                // Default implementation allows sorting only if the property
-                // type can be cast to Comparable
-                return getContainerPropertyIds();
-            }
-        };
-        
-        dataIn.setItemSorter(new DefaultItemSorter(new Comparator<Object>() {
+			public Collection<?> getSortableContainerPropertyIds() {
+				// Default implementation allows sorting only if the property
+				// type can be cast to Comparable
+				return getContainerPropertyIds();
+			}
+		};
 
-            public int compare(Object o1, Object o2) {
-                if (o1 instanceof Button && o2 instanceof Button) {
-                    String caption1 = ((Button) o1).getCaption();
-                    String caption2 = ((Button) o2).getCaption();
-                    return caption1.compareTo(caption2);
+		dataIn.setItemSorter(new DefaultItemSorter(new Comparator<Object>() {
 
-                } 
-                else if (o1 instanceof String && o2 instanceof String) {
-                    return ((String) o1).compareTo(
-                            ((String) o2));
-                }else if (o1 instanceof Integer && o2 instanceof Integer) {
-                    return ((Integer) o1).compareTo(
-                            (Integer) o2);
-                }
-                else if (o1 instanceof Double && o2 instanceof Double) {
-                    return ((Double) o1).compareTo(
-                            (Double) o2);
-                }
-                else
-                	return 0;
-            }
-        }));
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof Button && o2 instanceof Button) {
+					String caption1 = ((Button) o1).getCaption();
+					String caption2 = ((Button) o2).getCaption();
+					return caption1.compareTo(caption2);
+
+				} else if (o1 instanceof String && o2 instanceof String) {
+					return ((String) o1).compareTo(
+							((String) o2));
+				} else if (o1 instanceof Integer && o2 instanceof Integer) {
+					return ((Integer) o1).compareTo(
+							(Integer) o2);
+				} else if (o1 instanceof Double && o2 instanceof Double) {
+					return ((Double) o1).compareTo(
+							(Double) o2);
+				} else
+					return 0;
+			}
+		}));
 
 		for (String col : columnNames) {
 			if (col.equals("MR Marker") || col.equals("MR Gene Symbol"))
@@ -444,7 +430,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 					dataIn.addContainerProperty(col, Button.class, null);
 			} else
 				dataIn.addContainerProperty(col, Double.class, null);
-		}		
+		}
 
 		// Button[] buttonArray = new Button[rdata.length];
 		for (int i = 0; i < rdata.length; i++) {
@@ -470,7 +456,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 					item.getItemProperty(columnNames[7]).setValue(detailsField);
 				}
 
-			} else  {
+			} else {
 				List<String> m = shadowPairs.get(rdata[i][0]);
 				if (m == null) {
 					detailsField = new Button("0");
@@ -485,7 +471,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 			}
 			detailsField.setStyleName(Reindeer.BUTTON_LINK);
 			detailsField.setData(rdata[i][0]);
-			detailsField.addListener(new Button.ClickListener() {
+			detailsField.addClickListener(new Button.ClickListener() {
 
 				private static final long serialVersionUID = 1L;
 
@@ -505,7 +491,8 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 
 	}
 
-	private List<Regulator> getRegulators(MsViperResult msViperResult, final String genePresentStr,  Table mraTable, int n) {
+	private List<Regulator> getRegulators(MsViperResult msViperResult, final String genePresentStr, Table mraTable,
+			int n) {
 
 		List<Regulator> regulators = new ArrayList<Regulator>();
 		Map<String, Double> mrs_signatures = msViperResult.getMrs_signatures();
@@ -520,9 +507,9 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 			Item item = mraTable.getItem(id);
 			String mr = item.getItemProperty(columnNames[0]).getValue()
 					.toString();
-			double nes = new Double(item.getItemProperty(columnNames[3])
+			double nes = Double.valueOf(item.getItemProperty(columnNames[3])
 					.getValue().toString());
-			double pvalue = new Double(item.getItemProperty(columnNames[5])
+			double pvalue = Double.valueOf(item.getItemProperty(columnNames[5])
 					.getValue().toString());
 			String daColor = calculateColor(maxAbsNes, nes);
 			String deColor = calculateColor(maxAbsSig, mrs_signatures.get(mr));
@@ -546,7 +533,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		if (allBarcodeMap == null || allBarcodeMap.size() == 0)
 			return null;
 		Map<String, List<Barcode>> showBarcodeMap = new HashMap<String, List<Barcode>>();
-		//String present = genePresent.getValue().toString();
+		// String present = genePresent.getValue().toString();
 
 		int count = 1;
 		for (Object id : mraTable.getItemIds()) {
@@ -575,7 +562,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		double maxNes;
 		List<Double> nesList = new ArrayList<Double>();
 		for (int i = 0; i < rdata.length; i++)
-			nesList.add(Math.abs(new Double(rdata[i][3])));
+			nesList.add(Math.abs(Double.valueOf(rdata[i][3])));
 		Collections.sort(nesList);
 		maxNes = nesList.get(nesList.size() - 1);
 
@@ -605,26 +592,27 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 					+ ")";
 	}
 
-	private void updateBarcodeTable(final MsViperResult msViperResult, final String graphForTopStr, final String barHeighStr, final String genePresentStr, final Table mraTable, final VerticalSplitPanel splitPanel) {
+	private void updateBarcodeTable(final MsViperResult msViperResult, final String graphForTopStr,
+			final String barHeighStr, final String genePresentStr, final Table mraTable,
+			final VerticalSplitPanel splitPanel) {
 
-		PositiveIntValidator v = new PositiveIntValidator("");		 
-		if (!(v.isValidString(graphForTopStr) && v.isValidString(barHeighStr)))
+		IntegerRangeValidator v = new IntegerRangeValidator("", 0, null);
+		if (!(v.isValid(graphForTopStr) && v.isValid(barHeighStr)))
 			return;
 
-		List<Regulator> regulators = getRegulators(msViperResult, genePresentStr, mraTable, new Integer(
+		List<Regulator> regulators = getRegulators(msViperResult, genePresentStr, mraTable, Integer.valueOf(
 				graphForTopStr));
 		Map<String, List<Barcode>> barcodeMap = getBarcodeMap(msViperResult, mraTable, genePresentStr,
-				new Integer(graphForTopStr));
-		
+				Integer.valueOf(graphForTopStr));
+
 		if (splitPanel.getSecondComponent() != null)
 			splitPanel.removeComponent(splitPanel.getSecondComponent());
- 
-		if ( barcodeMap == null )
-		{	
+
+		if (barcodeMap == null) {
 			return;
 		}
 		BarcodeTable barcodeTable = new BarcodeTable(regulators, barcodeMap,
-				new Integer(barHeighStr));
+				Integer.valueOf(barHeighStr));
 		barcodeTable.setImmediate(true);
 		barcodeTable.setSizeFull();
 
@@ -633,35 +621,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		splitPanel.setSecondComponent(barcodeTable);
 	}
 
-	public class PositiveIntValidator extends IntegerValidator {
-		private static final long serialVersionUID = -8205632597275359667L;
-		private int max = 0;
-
-		public PositiveIntValidator(String message) {
-			super(message);
-		}
-
-		public PositiveIntValidator(String message, int max) {
-			this(message);
-			this.max = max;
-		}
-
-		protected boolean isValidString(String value) {
-			try {
-				int n = Integer.parseInt(value);
-				if (n <= 0)
-					return false;
-				if (max > 0 && n > max)
-					return false;
-			} catch (Exception e) {
-				return false;
-			}
-			return true;
-		}
-	}
-
 	private void downloadAllTargets(Table mraTable, MsViperResult msViperResult) {
-		final Application app = getApplication();
 		String dir = GeworkbenchRoot.getBackendDataDirectory() + File.separator
 				+ SessionHandler.get().getUsername() + File.separator
 				+ "export" + File.separator + "msviper";
@@ -681,8 +641,8 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 				Item item = mraTable.getItem(id);
 				String mrMarker = item.getItemProperty(columnNames[0])
 						.getValue().toString();
-				if( k > 0)
-				   pw.println("");
+				if (k > 0)
+					pw.println("");
 				pw.println(mrMarker);
 				List<String> targetList = regulons.get(mrMarker);
 				if (targetList == null || targetList.size() == 0)
@@ -691,7 +651,7 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 					pw.println(targetList.get(i) + ", "
 							+ mrs_signatures.get(targetList.get(i)));
 				}
-				
+
 				k++;
 
 			}
@@ -699,12 +659,11 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Resource resource = new FileResource(file, app);
-		app.getMainWindow().open(resource);
+		Resource resource = new FileResource(file);
+		Page.getCurrent().open(resource, "_blank", false);
 	}
 
 	private void downloadAllShadowPairs(MsViperResult msViperResult) {
-		final Application app = getApplication();
 		String dir = GeworkbenchRoot.getBackendDataDirectory() + File.separator
 				+ SessionHandler.get().getUsername() + File.separator
 				+ "export" + File.separator + "msviper";
@@ -714,24 +673,24 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		final File file = new File(dir, "allShadowPairs_"
 				+ System.currentTimeMillis() + ".csv");
 		try {
-			Map<String, List<String>> pairMap = msViperResult.getShadow_pairs();					 
+			Map<String, List<String>> pairMap = msViperResult.getShadow_pairs();
 			PrintWriter pw = new PrintWriter(new FileWriter(file));
-			 
-			for (String key : pairMap.keySet()) {			 
+
+			for (String key : pairMap.keySet()) {
 				List<String> pairList = pairMap.get(key);
 				for (int i = 0; i < pairList.size(); i++) {
 					pw.println(pairList.get(i) + ", "
-							+  key);
-				}		 
+							+ key);
+				}
 			}
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Resource resource = new FileResource(file, app);
-		app.getMainWindow().open(resource);
+		Resource resource = new FileResource(file);
+		Page.getCurrent().open(resource, "_blank", false);
 	}
-	
+
 	private void getLedgeExportWindow(String mr, final MsViperResult result) {
 		List<String> ledgeList = result.getLeadingEdges().get(mr);
 		if (ledgeList != null && ledgeList.size() > 0) {
@@ -751,9 +710,8 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 			dialog.openPairDialog();
 		}
 	}
-	
-	 
-	public void addMarkerSet(final String caption, final Long parentId, final List<String> targetList) {		 
+
+	public void addMarkerSet(final String caption, final Long parentId, final List<String> targetList) {
 		final Window nameWindow = new Window();
 		nameWindow.setModal(true);
 		nameWindow.setClosable(true);
@@ -767,26 +725,25 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 		final TextField setName = new TextField();
 		setName.setInputPrompt("Please enter set name");
 		setName.setImmediate(true);
-		
-		final Window mainWindow = this.getApplication().getMainWindow();
-		
+
+		final UI mainWindow = UI.getCurrent();
 		Button submit = new Button("Submit", new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				
+
 				UMainLayout mainLayout = null;
-				ComponentContainer content = mainWindow.getContent();
-				if(content instanceof UMainLayout) {
-					mainLayout = (UMainLayout)content;
+				Component content = mainWindow.getContent();
+				if (content instanceof UMainLayout) {
+					mainLayout = (UMainLayout) content;
 				} else {
 					log.error("unable to get UMainLayout");
 					return;
 				}
 				SetViewLayout setViewLayout = mainLayout.getSetViewLayout();
-				
+
 				String newSetName = (String) setName.getValue();
 
 				try {
@@ -795,42 +752,44 @@ public VerticalLayout getShadowResultTab(Long dataSetId, final ResultSet resultS
 					String parentSet = null;
 					Tree tree = null;
 
-					if(setName.getValue() != null) {
-						 
-							items = (ArrayList<String>) targetList;
-							subSetId = SubSetOperations.storeMarkerSetInCurrentContext(items, newSetName, parentId);
-							parentSet = "MarkerSets";
-							if(setViewLayout!=null) {
-								tree = setViewLayout.getMarkerSetTree();
-							}
-						 
+					if (setName.getValue() != null) {
+
+						items = (ArrayList<String>) targetList;
+						subSetId = SubSetOperations.storeMarkerSetInCurrentContext(items, newSetName, parentId);
+						parentSet = "MarkerSets";
+						if (setViewLayout != null) {
+							tree = setViewLayout.getMarkerSetTree();
+						}
+
 						mainWindow.removeWindow(nameWindow);
 					}
-					
-					if(tree!=null) { /* set view instead of workspace view */
+
+					if (tree != null) { /* set view instead of workspace view */
 						tree.addItem(subSetId);
 						tree.getContainerProperty(subSetId, SetViewLayout.SUBSET_NAME).setValue(newSetName);
-						tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(newSetName + " [" + items.size() + "]");
+						tree.getContainerProperty(subSetId, SetViewLayout.SET_DISPLAY_NAME)
+								.setValue(newSetName + " [" + items.size() + "]");
 						tree.setParent(subSetId, parentSet);
 						tree.setChildrenAllowed(subSetId, true);
-						for(int j=0; j<items.size(); j++) {
-							String itemLabel = items.get(j); 
-							tree.addItem(itemLabel+subSetId);
-							tree.getContainerProperty(itemLabel+subSetId, SetViewLayout.SET_DISPLAY_NAME).setValue(itemLabel);
-							tree.setParent(itemLabel+subSetId, subSetId);
-							tree.setChildrenAllowed(itemLabel+subSetId, false);
+						for (int j = 0; j < items.size(); j++) {
+							String itemLabel = items.get(j);
+							tree.addItem(itemLabel + subSetId);
+							tree.getContainerProperty(itemLabel + subSetId, SetViewLayout.SET_DISPLAY_NAME)
+									.setValue(itemLabel);
+							tree.setParent(itemLabel + subSetId, subSetId);
+							tree.setChildrenAllowed(itemLabel + subSetId, false);
 						}
 					}
-				} catch(Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		nameWindow.addComponent(setName);
-		nameWindow.addComponent(submit);
+		VerticalLayout layout = new VerticalLayout();
+		nameWindow.setContent(layout);
+		layout.addComponent(setName);
+		layout.addComponent(submit);
 		mainWindow.addWindow(nameWindow);
 	}
-
-
 }

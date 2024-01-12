@@ -5,23 +5,25 @@ import org.geworkbenchweb.utils.SubSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class NewContextListener implements Button.ClickListener {
 
 	private static final long serialVersionUID = -8562473729337703324L;
 
-	final private SetViewLayout setViewLayout;
 	final private Long dataSetId;
 	final private ComboBox contextSelector;
 	final private String categoryLabel; /* either "maker" or "microarray" */
 
 	NewContextListener(final SetViewLayout setViewLayout, final Long dataSetId,
 			final ComboBox contextSelector, final String categoryLabel) {
-		this.setViewLayout = setViewLayout;
 		this.dataSetId = dataSetId;
 		this.contextSelector = contextSelector;
 		this.categoryLabel = categoryLabel;
@@ -29,8 +31,7 @@ public class NewContextListener implements Button.ClickListener {
 
 	@Override
 	public void buttonClick(ClickEvent event) {
-		final Window mainWindow = setViewLayout.getApplication()
-				.getMainWindow();
+		final UI mainWindow = UI.getCurrent();
 
 		final Window nameWindow = new Window();
 		nameWindow.setModal(true);
@@ -45,8 +46,10 @@ public class NewContextListener implements Button.ClickListener {
 		contextName.setInputPrompt("Please enter " + categoryLabel
 				+ "set context name");
 		contextName.setImmediate(true);
-		nameWindow.addComponent(contextName);
-		nameWindow.addComponent(new Button("Ok", new Button.ClickListener() {
+		VerticalLayout layout = new VerticalLayout();
+		nameWindow.setContent(layout);
+		layout.addComponent(contextName);
+		layout.addComponent(new Button("Ok", new Button.ClickListener() {
 			private static final long serialVersionUID = 634733324392150366L;
 
 			public void buttonClick(ClickEvent event) {
@@ -54,13 +57,8 @@ public class NewContextListener implements Button.ClickListener {
 				for (Context context : SubSetOperations
 						.getMarkerContexts(dataSetId)) {
 					if (context.getName().equals(name)) {
-						MessageBox mb = new MessageBox(
-								mainWindow,
-								"Warning",
-								MessageBox.Icon.WARN,
-								"Name already exists",
-								new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-						mb.show();
+						MessageBox.createWarning().withCaption("Warning").withMessage("Name already exists")
+								.withOkButton().open();
 						return;
 					}
 				}
