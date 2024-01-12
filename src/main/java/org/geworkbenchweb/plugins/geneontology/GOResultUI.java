@@ -27,6 +27,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -38,79 +39,81 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 
-public class GOResultUI  extends VerticalLayout implements Visualizer {
+public class GOResultUI extends VerticalLayout implements Visualizer {
 
 	private static Log log = LogFactory.getLog(GOResultUI.class);
-			
+
 	private static final long serialVersionUID = 1781213075723503210L;
 
 	final private Long datasetId;
 
-	private static final String[] namespaces = {"All", "Molecular Function", "Biological Process", "Cellular Component"};
-	
+	private static final String[] namespaces = { "All", "Molecular Function", "Biological Process",
+			"Cellular Component" };
+
 	public GOResultUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null) {
+		if (dataSetId == null) {
 			log.debug("dataset ID is null");
 			return;
 		}
-		
+
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		Long id = resultSet.getDataId();
-		if(id==null) { // pending node
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+		if (id == null) { // pending node
+			addComponent(new Label("Pending computation - ID " + dataSetId));
 			return;
 		}
 		GOResult result = FacadeFactory.getFacade().find(GOResult.class, id);
 
 		final SingleTermView singleTermView = new SingleTermView();
 
-		final Table table= new Table();
+		final Table table = new Table();
 		table.setSelectable(true);
 		table.setImmediate(true);
 
 		final GenePanel genePanel = new GenePanel(table, result, resultSet.getParent());
-		
+
 		final IndexedContainer c = new IndexedContainer();
 		fillContainer(c, result);
 		table.setContainerDataSource(c);
-		table.addListener(new Table.ValueChangeListener() {
+		table.addValueChangeListener(new Table.ValueChangeListener() {
 			private static final long serialVersionUID = -1643400715266392213L;
 
 			public void valueChange(ValueChangeEvent event) {
-				Integer goId = (Integer)event.getProperty().getValue();
-				if(goId==null) return; // unselect
+				Integer goId = (Integer) event.getProperty().getValue();
+				if (goId == null)
+					return; // unselect
 				genePanel.update(goId);
 				singleTermView.updateDataSource(goId);
-            }
+			}
 		});
 		table.setSizeFull();
-		
+
 		this.setSizeFull();
-		
+
 		final VerticalSplitPanel mainLayout = new VerticalSplitPanel();
-		
-		OptionGroup namespaceSelect = new OptionGroup("GO subontology (Namespaces)", Arrays.asList(namespaces ));
+
+		OptionGroup namespaceSelect = new OptionGroup("GO subontology (Namespaces)", Arrays.asList(namespaces));
 		namespaceSelect.setValue(namespaces[0]);
 		namespaceSelect.addStyleName("horizontal");
 		namespaceSelect.setImmediate(true);
-		namespaceSelect.addListener(new Property.ValueChangeListener() {
+		namespaceSelect.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -4086755829181855195L;
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				c.removeAllContainerFilters();
-				String ns = (String)event.getProperty().getValue();
-				if(!ns.equalsIgnoreCase("All")) {
-					Filter filter = new SimpleStringFilter(HEADER_NAMESPACE, ns.substring(0,1), true, true);
+				String ns = (String) event.getProperty().getValue();
+				if (!ns.equalsIgnoreCase("All")) {
+					Filter filter = new SimpleStringFilter(HEADER_NAMESPACE, ns.substring(0, 1), true, true);
 					c.addContainerFilter(filter);
 				}
 			}
-			
+
 		});
-		
-		MenuBar menuBar =  new MenuBar();
+
+		MenuBar menuBar = new MenuBar();
 		menuBar.setStyleName("transparent");
 		menuBar.addItem("Export", new Command() {
 
@@ -128,8 +131,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 					list.add(OutputRow.getInstance(item));
 				}
 				Collections.sort(list);
-				
-				final Application app = getApplication();
+
 				String dir = GeworkbenchRoot.getBackendDataDirectory()
 						+ System.getProperty("file.separator")
 						+ SessionHandler.get().getUsername()
@@ -156,17 +158,17 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 					if (pw != null)
 						pw.close();
 				}
-				Resource resource = new FileResource(file, app);
-				app.getMainWindow().open(resource);
+				Resource resource = new FileResource(file);
+				Page.getCurrent().open(resource, "_blank", false);
 			}
 		}).setStyleName("plugin");
-		
+
 		VerticalLayout topLayout = new VerticalLayout();
 		topLayout.setSpacing(true);
 		topLayout.addComponent(menuBar);
 		topLayout.addComponent(namespaceSelect);
 		topLayout.addComponent(table);
-		
+
 		final HorizontalSplitPanel bottomLayout = new HorizontalSplitPanel();
 		bottomLayout.addComponent(genePanel);
 		bottomLayout.addComponent(singleTermView);
@@ -175,7 +177,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		mainLayout.addComponent(bottomLayout);
 		addComponent(mainLayout);
 	}
-	
+
 	static final String HEADER_ID = "GO:ID";
 	static final String HEADER_NAME = "Name";
 	static final String HEADER_NAMESPACE = "Namespace";
@@ -183,7 +185,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 	static final String HEADER_ADJUSTED_P_VALUE = "Adjusted P-value";
 	static final String HEADER_POPULATION_COUNT = "Population count";
 	static final String HEADER_STUDY_COUNT = "Study count";
-	
+
 	private static void fillContainer(IndexedContainer container,
 			GOResult result) {
 		container.addContainerProperty(HEADER_ID, Integer.class, null);
@@ -207,7 +209,7 @@ public class GOResultUI  extends VerticalLayout implements Visualizer {
 		}
 		container.sort(new Object[] { HEADER_ADJUSTED_P_VALUE }, new boolean[] { true });
 	}
-	
+
 	@Override
 	public Long getDatasetId() {
 		return datasetId;

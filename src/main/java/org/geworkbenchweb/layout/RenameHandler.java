@@ -13,7 +13,11 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class RenameHandler implements Handler {
 
@@ -36,7 +40,8 @@ public class RenameHandler implements Handler {
 			log.warn("unexpected sender: " + sender);
 			return null;
 		}
-		if(target==null) return null;
+		if (target == null)
+			return null;
 		if (!(target instanceof Long)) {
 			log.debug("unexpected target type: " + target);
 			return null;
@@ -65,7 +70,7 @@ public class RenameHandler implements Handler {
 		if (data == null) {
 			result = FacadeFactory.getFacade().find(ResultSet.class, itemId);
 			if (result == null) {
-				log.warn("itemId not supported for renaming: "+itemId);
+				log.warn("itemId not supported for renaming: " + itemId);
 				return;
 			}
 		} else {
@@ -82,26 +87,23 @@ public class RenameHandler implements Handler {
 		dialog.setImmediate(true);
 
 		final Item item = navigationTree.getItem(itemId);
-		
+
 		String oldName = item.getItemProperty("Name").getValue().toString();
 		if (oldName.contains("Pending")) {
-			MessageBox mb = new MessageBox(navigationTree.getWindow(),
-					"Pending node cannot be renamed.", Icon.ERROR,
-					"You cannot rename a pending node.",
-					new MessageBox.ButtonConfig(MessageBox.ButtonType.OK, "OK"));
-			mb.show();
+			MessageBox.createError().withCaption("Pending node cannot be renamed.")
+					.withMessage("You cannot rename a pending node.").withOkButton().open();
 			return;
 		}
 		final TextField newName = new TextField();
-		
-		//Changes made by Shakun on 08.Oct.2015
-		//Commented the following line
-		//newName.setInputPrompt(oldName);
-		
-		//Instead, added these 2 lines
+
+		// Changes made by Shakun on 08.Oct.2015
+		// Commented the following line
+		// newName.setInputPrompt(oldName);
+
+		// Instead, added these 2 lines
 		newName.setValue(oldName);
 		newName.setCursorPosition(oldName.length());
-		
+
 		newName.setImmediate(true);
 
 		Button submit = new Button("Submit", new Button.ClickListener() {
@@ -114,23 +116,28 @@ public class RenameHandler implements Handler {
 					return;
 
 				if (data != null) {
-					data.setName(newName.toString());
+					data.setName(newName.getValue());
 					FacadeFactory.getFacade().store(data);
-				} else {
-					result.setName(newName.toString());
+				} else if (result != null) {
+					result.setName(newName.getValue());
 					FacadeFactory.getFacade().store(result);
+				} else {
+					log.error("unexpected case of null data and null result");
+					return;
 				}
 
 				item.getItemProperty("Name").setValue(newName);
 
-				navigationTree.getApplication().getMainWindow()
+				UI.getCurrent()
 						.removeWindow(dialog);
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		dialog.addComponent(newName);
-		dialog.addComponent(submit);
-		navigationTree.getApplication().getMainWindow().addWindow(dialog);
+		VerticalLayout layout = new VerticalLayout();
+		dialog.setContent(layout);
+		layout.addComponent(newName);
+		layout.addComponent(submit);
+		UI.getCurrent().addWindow(dialog);
 
 	}
 }

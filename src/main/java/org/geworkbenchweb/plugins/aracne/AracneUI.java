@@ -28,7 +28,10 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class AracneUI extends VerticalLayout implements AnalysisUI {
 
@@ -88,25 +91,14 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 						int arrayNum = DataSetOperations.getNumber("arrayNumber", dataset.getDataId());
 						if (arrayNum < 100) {
 							String theMessage = "ARACNe should not in general be run on less than 100 arrays. Do you want to continue?";
+							Button continuedButton = new Button("Continue");
+							Runnable r = () -> {
+								addPendingNode(hubGeneList);
+							};
+							continuedButton.setData(r);
+							MessageBox.createInfo().withCaption("Warning").withMessage(theMessage).withCancelButton()
+									.withButton(continuedButton).open();
 
-							MessageBox mb = new MessageBox(getWindow(), "Warning", null,
-									theMessage, new MessageBox.ButtonConfig(
-											MessageBox.ButtonType.CUSTOM1, "Cancel"),
-									new MessageBox.ButtonConfig(MessageBox.ButtonType.CUSTOM2,
-											"Continue"));
-
-							mb.show(new MessageBox.EventListener() {
-
-								private static final long serialVersionUID = 1L;
-
-								@Override
-								public void buttonClicked(ButtonType buttonType) {
-									if (buttonType == ButtonType.CUSTOM1)
-										return;
-									else
-										addPendingNode(hubGeneList);
-								}
-							});
 						} else {
 							addPendingNode(hubGeneList);
 						}
@@ -140,8 +132,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 
 		generateHistoryString(resultSet.getId(), hubGeneList);
 
-		GeworkbenchRoot app = (GeworkbenchRoot) AracneUI.this
-				.getApplication();
+		GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 		app.addNode(resultSet);
 
 		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
@@ -165,7 +156,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		hubGeneMarkerSetBox.setInputPrompt("Select Marker Set");
 		hubGeneMarkerSetBox.setImmediate(true);
 
-		hubGeneMarkerSetBox.addListener(new Property.ValueChangeListener() {
+		hubGeneMarkerSetBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -178,7 +169,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		threshold.setDescription("Enter a P-value");
 		threshold.setValue("0.01");
 		threshold.setNullSettingAllowed(false);
-		threshold.addListener(new Property.ValueChangeListener() {
+		threshold.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -200,11 +191,11 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		bootStrapNumber.setDescription(
 				"the number of rounds of ARACNe bootstrapping");
 		bootStrapNumber.setImmediate(true);
-		bootStrapNumber.addListener(new Property.ValueChangeListener() {
+		bootStrapNumber.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent event) {
-				params.put(AracneParameters.BOOTS_NUM, (String)bootStrapNumber.getValue());
+				params.put(AracneParameters.BOOTS_NUM, (String) bootStrapNumber.getValue());
 			}
 
 		});
@@ -222,7 +213,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		mergeProbeSets.select("No");
 		mergeProbeSets.setNullSelectionAllowed(false);
 		mergeProbeSets.setImmediate(true);
-		mergeProbeSets.addListener(new Property.ValueChangeListener() {
+		mergeProbeSets.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -363,7 +354,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		AbstractPojo output = analyze.execute();
 		ResultSet result = FacadeFactory.getFacade().find(ResultSet.class,
 				resultId);
-		if (result==null) { // if the pending node is deleted by the user
+		if (result == null) { // if the pending node is deleted by the user
 			log.debug("Job is cancelled. resultId=" + resultId);
 			return null;
 		}
