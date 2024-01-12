@@ -9,12 +9,15 @@ import org.geworkbenchweb.pojos.Preference;
 import org.geworkbenchweb.utils.PreferenceOperations;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class TabularMenuSelector extends TableMenuSelector {
 
@@ -31,14 +34,11 @@ public class TabularMenuSelector extends TableMenuSelector {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				final Window displayPrefWindow = new Window();
 				displayPrefWindow.setModal(true);
 				displayPrefWindow.setClosable(true);
-				((AbstractOrderedLayout) displayPrefWindow.getLayout())
-						.setSpacing(true);
 				displayPrefWindow.setWidth("300px");
 				displayPrefWindow.setHeight("200px");
 				displayPrefWindow.setResizable(false);
@@ -56,7 +56,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 				og.setItemCaption(Constants.MarkerDisplayControl.both.ordinal(), "Both");
 				og.select(((TabularViewUI) parent).getTabViewPreferences().getMarkerDisplayControl());
 
-				final Window mainWindow = getApplication().getMainWindow();
+				final UI mainWindow = UI.getCurrent();
 
 				Button submit = new Button("Submit", new Button.ClickListener() {
 
@@ -85,8 +85,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
-				displayPrefWindow.addComponent(og);
-				displayPrefWindow.addComponent(submit);
+				VerticalLayout layout = new VerticalLayout();
+				displayPrefWindow.setContent(layout);
+				layout.addComponent(og);
+				layout.addComponent(submit);
 				mainWindow.addWindow(displayPrefWindow);
 			}
 		});
@@ -95,14 +97,11 @@ public class TabularMenuSelector extends TableMenuSelector {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				final Window displayPrefWindow = new Window();
 				displayPrefWindow.setModal(true);
 				displayPrefWindow.setClosable(true);
-				((AbstractOrderedLayout) displayPrefWindow.getLayout())
-						.setSpacing(true);
 				displayPrefWindow.setWidth("300px");
 				displayPrefWindow.setHeight("150px");
 				displayPrefWindow.setResizable(false);
@@ -119,7 +118,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 
 				og.select(((TabularViewUI) parent).getTabViewPreferences().getAnnotationDisplayControl());
 
-				final Window mainWindow = getApplication().getMainWindow();
+				final UI mainWindow = UI.getCurrent();
 
 				Button submit = new Button("Submit", new Button.ClickListener() {
 
@@ -147,8 +146,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 					}
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
-				displayPrefWindow.addComponent(og);
-				displayPrefWindow.addComponent(submit);
+				VerticalLayout layout = new VerticalLayout();
+				displayPrefWindow.setContent(layout);
+				layout.addComponent(og);
+				layout.addComponent(submit);
 				mainWindow.addWindow(displayPrefWindow);
 			}
 		});
@@ -157,13 +158,11 @@ public class TabularMenuSelector extends TableMenuSelector {
 
 			private static final long serialVersionUID = 1L;
 
-			@SuppressWarnings("deprecation")
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				final Window displayPrefWindow = new Window();
 				displayPrefWindow.setModal(true);
 				displayPrefWindow.setClosable(true);
-				((AbstractOrderedLayout) displayPrefWindow.getLayout()).setSpacing(true);
 				displayPrefWindow.setWidth("300px");
 				displayPrefWindow.setHeight("200px");
 				displayPrefWindow.setResizable(false);
@@ -173,9 +172,10 @@ public class TabularMenuSelector extends TableMenuSelector {
 				final TextField precision;
 				precision = new TextField();
 				precision.setCaption("Precision");
-				precision.setValue(((TabularViewUI) parent).getTabViewPreferences().getNumberPrecisionControl());
+				precision.setValue(
+						String.valueOf(((TabularViewUI) parent).getTabViewPreferences().getNumberPrecisionControl()));
 
-				final Window mainWindow = getApplication().getMainWindow();
+				final UI mainWindow = UI.getCurrent();
 
 				Button submit = new Button("Submit",
 						new Button.ClickListener() {
@@ -196,7 +196,7 @@ public class TabularMenuSelector extends TableMenuSelector {
 												parent.getUserId());
 
 									((TabularViewUI) parent)
-											.setPrecisonNumber(Integer.valueOf(value.toString().trim()));
+											.setPrecisionNumber(Integer.valueOf(value.toString().trim()));
 									parent.resetDataSource();
 									((TabularViewUI) parent).getTabViewPreferences()
 											.setNumberPrecisionControl(Integer.valueOf(value.toString().trim()));
@@ -204,19 +204,18 @@ public class TabularMenuSelector extends TableMenuSelector {
 											.removeWindow(displayPrefWindow);
 
 								} catch (NumberFormatException nfe) {
-									MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.WARN,
-											"Please enter a number. ",
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
-
+									MessageBox.createWarning().withCaption("Warning")
+											.withMessage("Please enter a number.").withOkButton().open();
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
 						});
 				submit.setClickShortcut(KeyCode.ENTER);
-				displayPrefWindow.addComponent(precision);
-				displayPrefWindow.addComponent(submit);
+				VerticalLayout layout = new VerticalLayout();
+				displayPrefWindow.setContent(layout);
+				layout.addComponent(precision);
+				layout.addComponent(submit);
 				mainWindow.addWindow(displayPrefWindow);
 			}
 		});
