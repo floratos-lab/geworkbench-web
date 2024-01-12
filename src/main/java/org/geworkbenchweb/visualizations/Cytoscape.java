@@ -2,6 +2,7 @@ package org.geworkbenchweb.visualizations;
 
 import com.vaadin.server.PaintException;
 import com.vaadin.server.PaintTarget;
+import com.vaadin.server.VariableOwner;
 import com.vaadin.ui.AbstractComponent;
 
 /**
@@ -17,15 +18,18 @@ public class Cytoscape extends AbstractComponent {
 	private String layoutName = "concentric"; // default
 
 	// FIXME this should be replaced by vaadin 7 communication mechanism
+	VariableOwner temporary = null;
+
+	// FIXME this should be replaced by vaadin 7 communication mechanism
 	public void paintContent(PaintTarget target) throws PaintException {
 
 		target.addAttribute("layoutName", layoutName);
 
-		target.addVariable(this, "nodes", getNodes());
-		target.addVariable(this, "edges", getEdges());
+		target.addVariable(temporary, "nodes", getNodes());
+		target.addVariable(temporary, "edges", getEdges());
 
 		if (colors != null)
-			target.addVariable(this, "colors", colors);
+			target.addVariable(temporary, "colors", colors);
 	}
 
 	public void setNodes(String[] nodes) {
