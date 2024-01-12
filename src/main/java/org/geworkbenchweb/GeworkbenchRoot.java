@@ -7,8 +7,6 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,12 +21,11 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.github.wolfie.blackboard.Blackboard;
+import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.annotations.Theme;;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
 
 /**
  * This is the application entry point.
@@ -62,15 +59,11 @@ public class GeworkbenchRoot extends UI {
 			}
 		}
 
-		Window mainWindow = new Window("geWorkbench");
-		mainWindow.setSizeFull();
-		setMainWindow(mainWindow);
-
 		try {
 			prop.load(getClass().getResourceAsStream(
 					"/" + PROPERTIES_FILE));
 		} catch (IOException e) {
-			mainWindow.addComponent(new Label("failed to read application properties file " + PROPERTIES_FILE));
+			setContent(new Label("failed to read application properties file " + PROPERTIES_FILE));
 			e.printStackTrace();
 			return;
 		}
@@ -83,7 +76,7 @@ public class GeworkbenchRoot extends UI {
 			dataDirectoryExist = dataDirectory.mkdir();
 		}
 		if (!dataDirectoryExist || !dataDirectory.isDirectory()) {
-			mainWindow.addComponent(new Label(
+			setContent(new Label(
 					"Back-end data directory cannot be set up at "
 							+ getBackendDataDirectory() + "\nfull path "
 							+ dataDirectory.getAbsolutePath() + " exist?"
@@ -99,7 +92,7 @@ public class GeworkbenchRoot extends UI {
 			EntityManager checkingEm = factory.createEntityManager();
 			checkingEm.close();
 		} catch (Exception e) {
-			mainWindow.addComponent(new Label("No database is set up to support this application: " + e.getMessage()));
+			setContent(new Label("No database is set up to support this application: " + e.getMessage()));
 			e.printStackTrace();
 			return;
 		}
@@ -113,13 +106,13 @@ public class GeworkbenchRoot extends UI {
 			try {
 				UMainLayout uMainLayout = new UMainLayout();
 				blackboardInstance.addListener(uMainLayout.getAnalysisListener());
-				mainWindow.setContent(uMainLayout);
+				setContent(uMainLayout);
 			} catch (Exception e) {
-				mainWindow.setContent(new UUserAuth());
+				setContent(new UUserAuth());
 			}
 		} else {
 			UUserAuth auth = new UUserAuth();
-			mainWindow.setContent(auth);
+			setContent(auth);
 		}
 
 		GeneOntologyTree.getInstance();
@@ -143,25 +136,6 @@ public class GeworkbenchRoot extends UI {
 		return pluginRegistry;
 	}
 
-	@Override
-	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
-		if (request != null) {
-			String requestURL = request.getRequestURL().toString();
-			if (requestURL.endsWith("geworkbench")) {
-				try {
-					// bug fix #3264
-					response.sendRedirect(requestURL + "/");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
-	}
-
 	/* it is a little better than passing over a private member directly */
 	public static String getAppProperty(String serviceUrlProperty) {
 		return prop.getProperty(serviceUrlProperty);
@@ -180,8 +154,7 @@ public class GeworkbenchRoot extends UI {
 	}
 
 	public void addNode(Object node) {
-		Window w = getMainWindow();
-		ComponentContainer content = w.getContent();
+		Component content = getContent();
 		if (content instanceof UMainLayout) {
 			((UMainLayout) content).addNode(node);
 		} else {
@@ -191,12 +164,7 @@ public class GeworkbenchRoot extends UI {
 
 	/* create new layout and make sure the old listener is removed first */
 	public void createNewMainLayout() {
-		Window mainWindow = getMainWindow();
-		if (mainWindow == null) {
-			log.error("null main window");
-			return;
-		}
-		ComponentContainer content = mainWindow.getContent();
+		Component content = getContent();
 		if (content instanceof UMainLayout) {
 			UMainLayout mainLayout = (UMainLayout) content;
 			boolean removed = blackboardInstance.removeListener(
@@ -208,7 +176,7 @@ public class GeworkbenchRoot extends UI {
 		try {
 			UMainLayout uMainLayout = new UMainLayout();
 			blackboardInstance.addListener(uMainLayout.getAnalysisListener());
-			mainWindow.setContent(uMainLayout);
+			setContent(uMainLayout);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
