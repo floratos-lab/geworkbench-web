@@ -10,6 +10,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 public abstract class TableMenuSelector extends MenuBar {
@@ -43,7 +44,7 @@ public abstract class TableMenuSelector extends MenuBar {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				Window filterWindow = createFilterWindow();
-				getApplication().getMainWindow().addWindow(filterWindow);
+				UI.getCurrent().addWindow(filterWindow);
 			}
 		});
 		filterItem.setStyleName("plugin");
@@ -122,7 +123,7 @@ public abstract class TableMenuSelector extends MenuBar {
 		if (searchString != null && !searchString.isEmpty()) {
 			textField.setValue(searchString);
 		}
-		textField.addListener(new TextChangeListener() {
+		textField.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = 1048639156493298177L;
 
 			public void textChange(TextChangeEvent event) {
@@ -153,8 +154,8 @@ public abstract class TableMenuSelector extends MenuBar {
 		searchWindow.setCaption("Search");
 		searchWindow.setImmediate(true);
 
-		searchWindow.addComponent(search);
-		getApplication().getMainWindow().addWindow(searchWindow);
+		searchWindow.setContent(search);
+		UI.getCurrent().addWindow(searchWindow);
 		searchWindow.center();
 	}
 
