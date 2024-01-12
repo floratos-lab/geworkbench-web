@@ -9,10 +9,11 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
 import org.geworkbenchweb.dataset.MicroarraySet;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.plugins.hierarchicalclustering.SubsetCommand.SetType;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.DataSetOperations;
+import org.geworkbenchweb.utils.SubsetCommand;
+import org.geworkbenchweb.utils.SubsetCommand.SetType;
 import org.geworkbenchweb.visualizations.Dendrogram;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
@@ -184,10 +185,21 @@ public class HierarchicalClusteringResultsUI extends VerticalSplitPanel implemen
 
 		Long parentId = resultSet.getParent();
 		MenuBar.MenuItem saveM = toolBar.addItem("Save Markers",
-				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId, dendrogram));
+				new SubsetCommand("Add Markers to Set", this, SetType.MARKER, parentId) {
+					@Override
+					protected List<String> getItems() {
+						return (ArrayList<String>) dendrogram.getSelectedMarkerLabels();
+					}
+				});
 
 		MenuBar.MenuItem saveP = toolBar.addItem("Save Phenotypes",
-				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId, dendrogram));
+				new SubsetCommand("Add Phenotypes to Set", this, SetType.MICROARRAY, parentId) {
+					@Override
+					protected List<String> getItems() {
+						return (ArrayList<String>) dendrogram.getSelectedArrayLabels();
+					}
+
+				});
 
 		MenuBar.MenuItem export = toolBar.addItem("Export Image", new Command() {
 

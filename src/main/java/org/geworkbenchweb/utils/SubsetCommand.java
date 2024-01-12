@@ -24,10 +24,6 @@ import com.vaadin.ui.Window;
  * 
  * Command to create subset.
  */
-/*
- * TODO This is based on a class in hierarchical clustering package. That one
- * probably would be better to be merged with this.
- */
 public abstract class SubsetCommand implements Command {
 
 	protected abstract List<String> getItems(); /*
