@@ -22,35 +22,34 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class NetworkDialog {
 	private Log log = LogFactory.getLog(NetworkDialog.class);
 	private MsViperUI ui;
 
-	private Window mainWindow;
 	private Window loadDialog;
 	private ComboBox formatBox;
 	private ComboBox presentBox;
 	private int correlationCol = 3;
 	private String selectedRepresentedBy = AdjacencyMatrixDataSet.PROBESET_ID;
-	private HashMap<String, String> interactionTypeMap = null;	 
+	private HashMap<String, String> interactionTypeMap = null;
 	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
 	private String marina5colformat = "marina 5-column format";
-	
-	private final String networkName;
-	
-	/* This is not only a visual clue, but crucial to trigger the UI update. */
-	final ProgressIndicator indicator =
-	        new ProgressIndicator(new Float(0.0));
 
-	public NetworkDialog(MsViperUI ui, String networkName){
+	private final String networkName;
+
+	/* This is not only a visual clue, but crucial to trigger the UI update. */
+	final ProgressIndicator indicator = new ProgressIndicator(new Float(0.0));
+
+	public NetworkDialog(MsViperUI ui, String networkName) {
 		this.ui = ui;
-		this.mainWindow = ui.getApplication().getMainWindow();
 		this.networkName = networkName;
 	}
 
-	public void openDialog(){
+	public void openDialog() {
 		loadDialog = new Window();
 		loadDialog.setCaption("Load Interaction Network");
 
@@ -58,9 +57,9 @@ public class NetworkDialog {
 		formatBox.setSizeFull();
 		formatBox.setNullSelectionAllowed(false);
 		formatBox.addItem(AdjacencyMatrixDataSet.ADJ_FORMART);
-		//formatBox.addItem(AdjacencyMatrixDataSet.SIF_FORMART);
-		//formatBox.addItem(marina5colformat);
-	 
+		// formatBox.addItem(AdjacencyMatrixDataSet.SIF_FORMART);
+		// formatBox.addItem(marina5colformat);
+
 		presentBox = new ComboBox("Node Represented By");
 		presentBox.setSizeFull();
 		presentBox.setNullSelectionAllowed(false);
@@ -71,8 +70,9 @@ public class NetworkDialog {
 
 		final Button continueButton = new Button("Continue");
 		final Button cancelButton = new Button("Cancel");
-		formatBox.addListener(new Property.ValueChangeListener(){
+		formatBox.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -7717934520937460169L;
+
 			public void valueChange(ValueChangeEvent event) {
 				if (formatBox.getValue().toString().equals(
 						AdjacencyMatrixDataSet.ADJ_FORMART)) {
@@ -102,24 +102,24 @@ public class NetworkDialog {
 		else if (networkName.toLowerCase().contains("5col"))
 			formatBox.setValue(marina5colformat);
 		else
-			formatBox.setValue(AdjacencyMatrixDataSet.ADJ_FORMART);  
-		
-	 
+			formatBox.setValue(AdjacencyMatrixDataSet.ADJ_FORMART);
 
-		continueButton.addListener(new ClickListener(){
+		continueButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = -5207079864397027215L;
+
 			public void buttonClick(ClickEvent event) {
 				final WorkThread thread = new WorkThread();
 				thread.start();
-				
+
 				indicator.setVisible(true);
 				continueButton.setVisible(false);
 			}
 		});
-		cancelButton.addListener(new ClickListener(){
+		cancelButton.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1940630593562212467L;
+
 			public void buttonClick(ClickEvent event) {
-				mainWindow.removeWindow(loadDialog);
+				UI.getCurrent().removeWindow(loadDialog);
 				ui.networkNotLoaded(null);
 			}
 		});
@@ -128,33 +128,36 @@ public class NetworkDialog {
 		bar.setSpacing(true);
 		bar.addComponent(cancelButton);
 		bar.addComponent(continueButton);
-		
+
 		Form loadform = new Form();
 		loadform.getLayout().addComponent(formatBox);
 		loadform.getLayout().addComponent(presentBox);
-		
+
 		indicator.setSizeFull();
 		indicator.setVisible(false);
-		
-		loadDialog.addComponent(loadform);
-		loadDialog.addComponent(indicator);
-		loadDialog.addComponent(bar);
+
+		VerticalLayout layout = new VerticalLayout();
+		loadDialog.setContent(layout);
+		layout.addComponent(loadform);
+		layout.addComponent(indicator);
+		layout.addComponent(bar);
 		loadDialog.setWidth("340px");
 		loadDialog.setModal(true);
 		loadDialog.setVisible(true);
-		mainWindow.addWindow(loadDialog);
+		UI.getCurrent().addWindow(loadDialog);
 	}
-	
+
 	private class WorkThread extends Thread {
-		
+
 		public void run() {
 
 			selectedFormat = formatBox.getValue().toString();
 			selectedRepresentedBy = presentBox.getValue().toString();
 
-			if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkName.toLowerCase().endsWith(".sif"))
+			if ((selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)
+					&& !networkName.toLowerCase().endsWith(".sif"))
 					|| (networkName.toLowerCase().endsWith(".sif") && !selectedFormat
-							.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) ){
+							.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))) {
 				ui.networkNotLoaded("The network format selected does not match that of the file.");
 				return;
 			}
@@ -162,41 +165,44 @@ public class NetworkDialog {
 			if (selectedFormat.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) {
 				interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
 			}
-			
+
 			String uploadedFile = GeworkbenchRoot.getBackendDataDirectory()
-					+ File.separator + "networks" + File.separator + "msViper" + File.separator + ui.userId  + File.separator + ui.dataSetId + File.separator + networkName;
-			if (!selectedFormat.equals(marina5colformat)){
+					+ File.separator + "networks" + File.separator + "msViper" + File.separator + ui.userId
+					+ File.separator + ui.dataSetId + File.separator + networkName;
+			if (!selectedFormat.equals(marina5colformat)) {
 				try {
 					NetworkCreator networkCreator = new NetworkCreator(ui, indicator);
 					AdjacencyMatrix matrix = networkCreator.parseAdjacencyMatrix(uploadedFile,
 							interactionTypeMap, selectedFormat,
 							selectedRepresentedBy);
-					 
-					if(matrix.getNodeNumber()==0) {
+
+					if (matrix.getNodeNumber() == 0) {
 						ui.networkNotLoaded("zero node in the network");
-					} else {						 
+					} else {
 						ui.networkLoaded();
 					}
 				} catch (InputFileFormatException e1) {
-					log.error(e1.getMessage());					
+					log.error(e1.getMessage());
 					ui.networkNotLoaded(e1.getMessage());
-				}   
-			} else if(!is5colnetwork(uploadedFile)) {
-					ui.networkNotLoaded("The network file is not 5-column format as claimed.");
-			} else { /* the case of 5-columned file */				 				 
-					ui.networkLoaded();				 
+				}
+			} else if (!is5colnetwork(uploadedFile)) {
+				ui.networkNotLoaded("The network file is not 5-column format as claimed.");
+			} else { /* the case of 5-columned file */
+				ui.networkLoaded();
 			}
-			
-			mainWindow.removeWindow(loadDialog);
+
+			UI.getCurrent().removeWindow(loadDialog);
 		}
 	}
-	
+
 	/**
-	 * Test if the network is in 5-column format, and if all correlation cols are positive.
+	 * Test if the network is in 5-column format, and if all correlation cols are
+	 * positive.
+	 * 
 	 * @return if the network is in 5-column format
 	 */
 	private boolean is5colnetwork(String networkFile) {
-		
+
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(networkFile));
@@ -229,11 +235,11 @@ public class NetworkDialog {
 		return true;
 	}
 
-	private boolean isDouble(String s){
-		try{
+	private boolean isDouble(String s) {
+		try {
 			Double.parseDouble(s);
 			return true;
-		}catch(NumberFormatException e){
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}

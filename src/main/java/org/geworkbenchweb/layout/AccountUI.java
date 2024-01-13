@@ -20,15 +20,17 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.themes.Reindeer;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class AccountUI extends VerticalLayout implements ClickListener {
 	private static final long serialVersionUID = -3984441409433266815L;
@@ -45,7 +47,7 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 	final private Button updateButton = new Button("Update Account");
 	final private FormLayout layout = new FormLayout();
 
-	public AccountUI(){
+	public AccountUI() {
 		username.setWidth("145px");
 		realName.setWidth("145px");
 		email.setWidth("145px");
@@ -62,26 +64,27 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 		oldpassword.setNullRepresentation("");
 		newpassword.setNullRepresentation("");
 		verifyPassword.setNullRepresentation("");
-		
+
 		User user = SessionHandler.get();
 		username.setValue(user.getUsername());
 		realName.setValue(user.getName());
 		email.setValue(user.getEmail());
 
 		updateButton.setImmediate(true);
-		updateButton.addListener(this);
+		updateButton.addClickListener(this);
 		updateButton.setClickShortcut(KeyCode.ENTER);
 
 		newpassword.setVisible(false);
 		verifyPassword.setVisible(false);
 		changePassword.setImmediate(true);
-		changePassword.addListener(new ValueChangeListener(){
+		changePassword.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -4598771538357581782L;
+
 			public void valueChange(ValueChangeEvent event) {
-				if((Boolean)event.getProperty().getValue()){
+				if ((Boolean) event.getProperty().getValue()) {
 					newpassword.setVisible(true);
 					verifyPassword.setVisible(true);
-				}else{
+				} else {
 					newpassword.setVisible(false);
 					verifyPassword.setVisible(false);
 				}
@@ -102,7 +105,7 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 		this.setSizeFull();
 		this.addComponent(accountPanel);
 		this.setComponentAlignment(accountPanel, Alignment.TOP_CENTER);
-		
+
 	}
 
 	@Override
@@ -127,16 +130,13 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 			message = "Current password is incorrect";
 		}
 
-		MessageBox mb = new MessageBox(getWindow(), "Account Update Status", Icon.INFO,
-				message, new MessageBox.ButtonConfig(MessageBox.ButtonType.OK,
-						"Ok"));
-		mb.show();
+		MessageBox.createInfo().withCaption("Account Update Status").withMessage(message).withOkButton().open();
 
 		oldpassword.setValue(null);
 		newpassword.setValue(null);
 		verifyPassword.setValue(null);
 	}
-	
+
 	private String update(TextField username, PasswordField oldpassword,
 			PasswordField newpassword, PasswordField verifyPassword,
 			TextField realName, TextField email)
@@ -144,33 +144,36 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 			PasswordsDoNotMatchException, UsernameExistsException,
 			PasswordRequirementException, InvalidCredentialsException {
 
-		String usernameStr  = (String)username.getValue();
-		String oldpasswdStr = (String)oldpassword.getValue();
-		String newpasswdStr = (String)newpassword.getValue();
-		String verpasswdStr = (String)verifyPassword.getValue();
-		String realnameStr  = (String)realName.getValue();
-		String emailStr     = (String)email.getValue();
+		String usernameStr = (String) username.getValue();
+		String oldpasswdStr = (String) oldpassword.getValue();
+		String newpasswdStr = (String) newpassword.getValue();
+		String verpasswdStr = (String) verifyPassword.getValue();
+		String realnameStr = (String) realName.getValue();
+		String emailStr = (String) email.getValue();
 
 		User user = SessionHandler.get();
-		
-		if(usernameStr.equals(user.getUsername())
+
+		if (usernameStr.equals(user.getUsername())
 				&& realnameStr.equals(user.getName())
 				&& emailStr.equals(user.getEmail())
-				&& !changePassword.booleanValue())
+				&& !changePassword.getValue())
 			return "You haven't changed any account information.";
-		
-		if(empty(oldpasswdStr)) return "Please enter current password.";
 
-		if (!PasswordUtil.verifyPassword(user, oldpasswdStr)) 
+		if (empty(oldpasswdStr))
+			return "Please enter current password.";
+
+		if (!PasswordUtil.verifyPassword(user, oldpasswdStr))
 			throw new InvalidCredentialsException();
 
-		if(changePassword.booleanValue()){
-			if(empty(newpasswdStr)) return "Please enter new password.";
-			if(empty(verpasswdStr)) return "Please verifiy new password.";
+		if (changePassword.getValue()) {
+			if (empty(newpasswdStr))
+				return "Please enter new password.";
+			if (empty(verpasswdStr))
+				return "Please verifiy new password.";
 			UserUtil.changePassword(user, oldpasswdStr, newpasswdStr, verpasswdStr);
 		}
 
-		if(!usernameStr.equals(user.getUsername())){
+		if (!usernameStr.equals(user.getUsername())) {
 			if (usernameStr.length() < UserUtil.getMinUsernameLength())
 				throw new TooShortUsernameException();
 
@@ -191,11 +194,11 @@ public class AccountUI extends VerticalLayout implements ClickListener {
 
 		FacadeFactory.getFacade().store(user);
 
-		return  "You have successfully updated your account.";
+		return "You have successfully updated your account.";
 	}
-	
-	private boolean empty(String s){
+
+	private boolean empty(String s) {
 		return s == null || s.length() == 0;
 	}
-	
+
 }

@@ -29,7 +29,10 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+
+import de.steinwedel.messagebox.MessageBox;
 
 /**
  * t-Test Analysis for microarray dataset
@@ -86,13 +89,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				String[] selectedControlSets = caseControlSelector.getSelectedControlSet();
 				String warnMsg = validInputData(selectedCaseSets, selectedControlSets);
 				if (warnMsg != null) {
-					MessageBox mb = new MessageBox(getWindow(),
-
-							"Warning",
-							MessageBox.Icon.INFO,
-							warnMsg,
-							new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-					mb.show();
+					MessageBox.createInfo().withCaption("Warning").withMessage(warnMsg).withOkButton().open();
 					return;
 				}
 
@@ -133,8 +130,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 				generateHistoryString(resultSet.getId());
 
-				GeworkbenchRoot app = (GeworkbenchRoot) TTestUI.this
-						.getApplication();
+				GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 				app.addNode(resultSet);
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
@@ -173,7 +169,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		pValue.addItem("permutation");
 		pValue.select("t-distribution");
 		pValue.setImmediate(true);
-		pValue.addListener(new Property.ValueChangeListener() {
+		pValue.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -244,7 +240,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		correctionMethod.addItem("Adjusted Bonferroni Correction");
 		correctionMethod.select("Just alpha (no-correction)");
 		correctionMethod.setImmediate(true);
-		correctionMethod.addListener(new Property.ValueChangeListener() {
+		correctionMethod.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -267,7 +263,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 		stepMethod.addItem("minP");
 		stepMethod.setImmediate(true);
 		stepMethod.setEnabled(false);
-		stepMethod.addListener(new Property.ValueChangeListener() {
+		stepMethod.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 

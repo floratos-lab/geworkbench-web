@@ -38,6 +38,8 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -46,11 +48,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.ProgressIndicator;
-import com.vaadin.ui.Select;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
 
@@ -62,7 +65,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     final private Upload upload = new Upload();
     final private SampleFoundPanel sampleFound = new SampleFoundPanel();
     final private Button analyzeButton = new Button("Analyze");
-    final ProgressIndicator indicator = new ProgressIndicator(new Float(0.0));
+    final ProgressIndicator indicator = new ProgressIndicator(Float.valueOf(0.0f));
 
     private CitrusDatabase db = null;
 
@@ -106,7 +109,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
             }
 
         });
-        upload.addListener(new Upload.SucceededListener() {
+        upload.addSucceededListener(new Upload.SucceededListener() {
 
             private static final long serialVersionUID = 1492448712654675230L;
 
@@ -128,7 +131,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 sampleFound.setVisible(true);
             }
         });
-        analyzeButton.addListener(new ClickListener() {
+        analyzeButton.addClickListener(new ClickListener() {
 
             private static final long serialVersionUID = 3057721104002229089L;
 
@@ -250,11 +253,11 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                     PatientBasedQueryAndDataIntegration.this.processError(e.getMessage());
                     return;
                 }
-            } // end of web servive request
+            } // end of web service request
 
-            Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+            UI mainWindow = UI.getCurrent();
             mainWindow.addWindow(v);
-            synchronized (getApplication()) {
+            synchronized (mainWindow) {
                 indicator.setVisible(false);
                 analyzeButton.setEnabled(true);
             }
@@ -272,11 +275,8 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
     }
 
     private void processError(String message) {
-        Window mainWindow = getApplication().getMainWindow();
-        MessageBox mb = new MessageBox(mainWindow, "Analysis Problem", MessageBox.Icon.ERROR, message,
-                new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-        mb.show();
-        synchronized (getApplication()) {
+        MessageBox.createError().withCaption("Analysis Problem").withMessage(message).withOkButton().open();
+        synchronized (UI.getCurrent()) {
             indicator.setVisible(false);
             analyzeButton.setEnabled(true);
         }
@@ -314,7 +314,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
                 .list("Select p from PbqdiResult as p where p.owner=:owner", param);
         // if(results.size()<=0) return;
 
-        storedResults.setItemCaptionMode(Select.ITEM_CAPTION_MODE_EXPLICIT);
+        storedResults.setItemCaptionMode(ItemCaptionMode.EXPLICIT);
         storedResults.removeAllItems();
         for (PbqdiResult x : results) {
             storedResults.addItem(x);
@@ -323,15 +323,15 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         storedResults.setRows(7);
         storedResults.setNullSelectionAllowed(false);
         storedResults.setImmediate(true);
-        storedResults.addListener(new Property.ValueChangeListener() {
+        storedResults.addValueChangeListener(new Property.ValueChangeListener() {
             static final long serialVersionUID = 1L;
 
             public void valueChange(ValueChangeEvent event) {
                 PbqdiResult selection = (PbqdiResult) event.getProperty().getValue();
-                Window mainWindow = PatientBasedQueryAndDataIntegration.this.getApplication().getMainWindow();
+                UI mainWindow = UI.getCurrent();
                 try {
                     mainWindow.addWindow(new ResultView(selection));
-                    synchronized (getApplication()) {
+                    synchronized (mainWindow) {
                         indicator.setVisible(false);
                         analyzeButton.setEnabled(true);
                     }
@@ -344,7 +344,7 @@ public class PatientBasedQueryAndDataIntegration extends VerticalLayout {
         HorizontalLayout titlePanel = new HorizontalLayout();
         titlePanel.setWidth("100%");
         titlePanel.setStyleName("feature-controls");
-        Label title = new Label("<span>Results of previous runs</span>", Label.CONTENT_XHTML);
+        Label title = new Label("<span>Results of previous runs</span>", ContentMode.HTML);
         title.setStyleName("title");
         titlePanel.addComponent(title);
         titlePanel.setExpandRatio(title, 1);

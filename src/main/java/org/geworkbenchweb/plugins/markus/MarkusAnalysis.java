@@ -19,6 +19,8 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.ui.UI;
+
 public class MarkusAnalysis {
 
 	private static Log log = LogFactory.getLog(MarkusAnalysis.class);
@@ -33,12 +35,12 @@ public class MarkusAnalysis {
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
 
 	public MarkusAnalysis(String pdbFilename, MarkUsUI form, Long dataSetId) {
-		this.mcp	 = form;
+		this.mcp = form;
 		this.dataSetId = dataSetId;
 		this.pdbFilename = pdbFilename;
 	}
-	
-	void execute(){
+
+	void execute() {
 
 		final String DATASETS = "data";
 		final String SLASH = "/";
@@ -54,22 +56,24 @@ public class MarkusAnalysis {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		log.info("uploaded file: "+tmpfile);
+		log.info("uploaded file: " + tmpfile);
 
 		String str = generateMarkusInput(pdbFilename, tmpfile);
-		String results = MarkusAnalysis.submitJob(str);			
+		String results = MarkusAnalysis.submitJob(str);
 
-		if(results==null) return;
-			
+		if (results == null)
+			return;
+
 		String impossibleResult = results.toLowerCase();
 		if (impossibleResult.contains("error")
-				|| results.equals("cancelled") || results.equals("na")) return;
+				|| results.equals("cancelled") || results.equals("na"))
+			return;
 
 		// start waiting for this job's results
 		String url = browseUrl + results;
 		UrlStatus urlstat = checkUrlStatus(url);
 		log.info("URL status: " + urlstat + " " + url);
-		while(urlstat != UrlStatus.FINISHED) {
+		while (urlstat != UrlStatus.FINISHED) {
 			try {
 				Thread.sleep(30000L);
 			} catch (InterruptedException e) {
@@ -81,30 +85,30 @@ public class MarkusAnalysis {
 		getResultSet(results);
 	}
 
-	void getResultSet(String results){
+	void getResultSet(String results) {
 		MarkUsResult musresult = new MarkUsResult(results);
 		FacadeFactory.getFacade().store(musresult);
 		Long dataId = musresult.getId();
-		
-		ResultSet resultSet = 	new ResultSet();
+
+		ResultSet resultSet = new ResultSet();
 		resultSet.setDataId(dataId);
-		java.sql.Timestamp timestamp =	new java.sql.Timestamp(System.currentTimeMillis());
+		java.sql.Timestamp timestamp = new java.sql.Timestamp(System.currentTimeMillis());
 		resultSet.setTimestamp(timestamp);
-		String dataSetName 	=	results;
+		String dataSetName = results;
 		resultSet.setName(dataSetName);
 		resultSet.setType(MarkUsResult.class.getName());
 		resultSet.setParent(dataSetId);
-		resultSet.setOwner(sessionId);	
+		resultSet.setOwner(sessionId);
 		FacadeFactory.getFacade().store(resultSet);
-		
-		GeworkbenchRoot app = (GeworkbenchRoot) mcp.getApplication();
+
+		GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 		app.addNode(resultSet);
 	}
-	
-    public static java.lang.String submitJob(java.lang.String string) {
-    	HttpURLConnection conn = null;
-    	BufferedReader in = null;
-        String process_id = "na";
+
+	public static java.lang.String submitJob(java.lang.String string) {
+		HttpURLConnection conn = null;
+		BufferedReader in = null;
+		String process_id = "na";
 		try {
 			URL url = new URL(MARKUS_RESULT_URL);
 			conn = (HttpURLConnection) url.openConnection();
@@ -131,30 +135,32 @@ public class MarkusAnalysis {
 				in = new BufferedReader(new InputStreamReader(
 						dat));
 
-				String line = null; int i=-1; int j = -1;
-				while ((line = in.readLine()) != null)
-				{
-					if ((i = line.indexOf("pdb_id=")) > -1 && (j = line.indexOf("\">")) > -1)
-				    {
-						process_id = line.substring(i+7, j);
-				    }
+				String line = null;
+				int i = -1;
+				int j = -1;
+				while ((line = in.readLine()) != null) {
+					if ((i = line.indexOf("pdb_id=")) > -1 && (j = line.indexOf("\">")) > -1) {
+						process_id = line.substring(i + 7, j);
+					}
 				}
 				in.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if(conn != null) conn.disconnect();
+			if (conn != null)
+				conn.disconnect();
 			try {
-				if(in != null) in.close(); 
+				if (in != null)
+					in.close();
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
 			conn = null;
 		}
-        log.info("SubmitJob "+process_id);
-        return process_id;
-    }
+		log.info("SubmitJob " + process_id);
+		return process_id;
+	}
 
 	private java.lang.String uploadFile(File pdbfile) {
 		HttpURLConnection conn = null;
@@ -194,22 +200,23 @@ public class MarkusAnalysis {
 			if (contenttype.toLowerCase().startsWith("text")) {
 				in = new BufferedReader(new InputStreamReader(
 						dat));
-				String line = null; int i=-1, j=-1;
-				while ((line = in.readLine()) != null)
-				{
-				    if ((i = line.indexOf("name=\"tmpfile\" value=\"")) > -1)
-				    {
-					j = line.indexOf(".pdb");
-					tmpfile = line.substring(i+22, j+4);
-				    }
+				String line = null;
+				int i = -1, j = -1;
+				while ((line = in.readLine()) != null) {
+					if ((i = line.indexOf("name=\"tmpfile\" value=\"")) > -1) {
+						j = line.indexOf(".pdb");
+						tmpfile = line.substring(i + 22, j + 4);
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if(conn != null) conn.disconnect();
+			if (conn != null)
+				conn.disconnect();
 			try {
-				if(in != null) in.close(); 
+				if (in != null)
+					in.close();
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
@@ -217,39 +224,41 @@ public class MarkusAnalysis {
 		}
 		return tmpfile;
 	}
-	
-    private static enum UrlStatus {FINISHED, PENDING, NO_RECORD}
-    /** Check the status of given URL */
-    static private UrlStatus checkUrlStatus(String url)
-    {
-    	BufferedReader br = null;
-    	try{
-    	    URLConnection uc = new URL(url).openConnection();
-    	    if (((HttpURLConnection)uc).getResponseCode() == 404)
-    	    	return UrlStatus.NO_RECORD;
-    	    
-    	    br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-    	    String tmp = null;
-    	    while((tmp = br.readLine()) != null) {
-    	    	if (tmp.indexOf("functional annotation is pending") > -1) {
-    	    		br.close();
-    	    		return UrlStatus.PENDING;
-    	    	}
-    	    }
-    	}catch (IOException e){
-    	    e.printStackTrace();
-    	    try {
-    			if(br != null) br.close();
-    		} catch (IOException e1) { // no action intentionally
-    			e1.printStackTrace();
-    		}
-    	    return UrlStatus.NO_RECORD;
-    	}
-    	return UrlStatus.FINISHED;
-    }
 
-	private String generateMarkusInput(String pdbfilename, String tmpfile)
-	{
+	private static enum UrlStatus {
+		FINISHED, PENDING, NO_RECORD
+	}
+
+	/** Check the status of given URL */
+	static private UrlStatus checkUrlStatus(String url) {
+		BufferedReader br = null;
+		try {
+			URLConnection uc = new URL(url).openConnection();
+			if (((HttpURLConnection) uc).getResponseCode() == 404)
+				return UrlStatus.NO_RECORD;
+
+			br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+			String tmp = null;
+			while ((tmp = br.readLine()) != null) {
+				if (tmp.indexOf("functional annotation is pending") > -1) {
+					br.close();
+					return UrlStatus.PENDING;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException e1) { // no action intentionally
+				e1.printStackTrace();
+			}
+			return UrlStatus.NO_RECORD;
+		}
+		return UrlStatus.FINISHED;
+	}
+
+	private String generateMarkusInput(String pdbfilename, String tmpfile) {
 		StringBuilder cfgcommand = new StringBuilder();
 
 		if (mcp.getdaliValue())
@@ -272,7 +281,7 @@ public class MarkusAnalysis {
 		}
 		if (mcp.getkeyValue())
 			cfgcommand.append(" privateKey=1");
-		
+
 		String chain = mcp.getChain();
 
 		cfgcommand
@@ -301,9 +310,12 @@ public class MarkusAnalysis {
 				.append(
 						" C1=PFAM C1T=Pfam C2=BLAST C2T=e@1.0e-3%20identity%200.8 C2E=0.001 C2I=3 C2P=80 C2MSA=Muscle")
 				.append(" chain_ids=").append(chain).append(" chains=").append(
-						chain).append(" email=").append(mcp.getEmail(false)).append(
-						" infile=").append(pdbfilename).append(
-						" submit=Mark%20Us").append(" title=").append(mcp.getTitle(false))
+						chain)
+				.append(" email=").append(mcp.getEmail(false)).append(
+						" infile=")
+				.append(pdbfilename).append(
+						" submit=Mark%20Us")
+				.append(" title=").append(mcp.getTitle(false))
 				.append(" tmpfile=").append(tmpfile)
 				.append("\r\n--AaB03x--\r\n");
 		String cfgstr = cfgcommand.toString();

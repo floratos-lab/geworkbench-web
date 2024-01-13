@@ -17,8 +17,12 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class AnovaTableMenuSelector extends TableMenuSelector {
 
@@ -116,8 +120,7 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 				gridLayout.addComponent(checkbox5, 0, 3);
 				gridLayout.addComponent(checkbox6, 1, 3);
 
-				final Window mainWindow = getApplication()
-						.getMainWindow();
+				final UI mainWindow = UI.getCurrent();
 
 				Button submit = new Button("Submit",
 						new Button.ClickListener() {
@@ -157,9 +160,10 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 						});
 				submit.setClickShortcut(KeyCode.ENTER);
 
-				displayPrefWindow.addComponent(gridLayout);
-
-				displayPrefWindow.addComponent(submit);
+				VerticalLayout layout = new VerticalLayout();
+				displayPrefWindow.setContent(layout);
+				layout.addComponent(gridLayout);
+				layout.addComponent(submit);
 				mainWindow.addWindow(displayPrefWindow);
 			}
 		});
@@ -195,16 +199,16 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 		og.select(thresholdControl);
 
 		final TextField threshold = new TextField();
-		threshold.setWidth(200, UNITS_PIXELS);
+		threshold.setWidth(200, Unit.PIXELS);
 		threshold.setImmediate(true);
 		if (thresholdControl == Constants.ThresholdDisplayControl.show_all.ordinal())
 			threshold.setEnabled(false);
 		else {
 			threshold.setEnabled(true);
-			threshold.setValue(thresholdValue);
+			threshold.setValue(String.valueOf(thresholdValue));
 		}
 
-		og.addListener(new Property.ValueChangeListener() {
+		og.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -224,8 +228,6 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 
 			}
 		});
-		final Window mainWindow = getApplication()
-				.getMainWindow();
 
 		Button submit = new Button("Submit",
 				new Button.ClickListener() {
@@ -244,20 +246,18 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 							else if (thresholdControl == Constants.ThresholdDisplayControl.p_value.ordinal()) {
 								Float value = getPvalThreshold(threshold.getValue());
 								if (value == null) {
-									MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.WARN,
-											"Please enter a number between 0 and 1 for P-value threshold.",
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
+									MessageBox.createWarning().withCaption("Warning")
+											.withMessage("Please enter a number between 0 and 1 for P-value threshold.")
+											.withOkButton().open();
 									return;
 								}
 								anovaTablePreferences.setThresholdValue(value);
 							} else {
 								Float value = getFStatThreshold(threshold.getValue());
 								if (value == null) {
-									MessageBox mb = new MessageBox(getWindow(), "Warning", MessageBox.Icon.WARN,
-											"Please enter non-negative number for F-statistic threshold.",
-											new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-									mb.show();
+									MessageBox.createWarning().withCaption("Warning")
+											.withMessage("Please enter non-negative number for F-statistic threshold.")
+											.withOkButton().open();
 									return;
 								}
 								anovaTablePreferences.setThresholdValue(value);
@@ -274,16 +274,18 @@ public class AnovaTableMenuSelector extends TableMenuSelector {
 
 							parent.resetDataSource();
 
-							mainWindow.removeWindow(filterWindow);
+							UI.getCurrent().removeWindow(filterWindow);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
 				});
 		submit.setClickShortcut(KeyCode.ENTER);
-		filterWindow.addComponent(og);
-		filterWindow.addComponent(threshold);
-		filterWindow.addComponent(submit);
+		VerticalLayout layout = new VerticalLayout();
+		filterWindow.setContent(layout);
+		layout.addComponent(og);
+		layout.addComponent(threshold);
+		layout.addComponent(submit);
 
 		return filterWindow;
 	}

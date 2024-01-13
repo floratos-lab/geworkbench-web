@@ -14,7 +14,11 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import de.steinwedel.messagebox.MessageBox;
 
 public class ChooseTTestResultDialog extends Window {
 
@@ -25,19 +29,18 @@ public class ChooseTTestResultDialog extends Window {
 
 	public void display(NetworkViewer networkViewer) {
 		this.networkViewer = networkViewer;
-		Window mainWindow = networkViewer.getApplication().getMainWindow();
+		UI mainWindow = UI.getCurrent();
 		if (mainWindow == null) {
-			MessageBox mb = new MessageBox(getWindow(), "No main window", MessageBox.Icon.ERROR,
-					"Unexpected case of no main window.", new MessageBox.ButtonConfig(ButtonType.OK, "Ok"));
-			mb.show();
+			MessageBox.createError().withCaption("No main window").withMessage("Unexpected case of no main window.")
+					.withOkButton().open();
 			return;
 		}
 		mainWindow.addWindow(this);
-		
-		UMainLayout uMainLayout = (UMainLayout)mainWindow.getContent();
+
+		UMainLayout uMainLayout = (UMainLayout) mainWindow.getContent();
 		List<ResultSet> resultSets = uMainLayout.getTtestResult();
 		tTestResultSelect.removeAllItems();
-		for(ResultSet r : resultSets) {
+		for (ResultSet r : resultSets) {
 			tTestResultSelect.addItem(r);
 			tTestResultSelect.setItemCaption(r, r.getName());
 		}
@@ -53,7 +56,7 @@ public class ChooseTTestResultDialog extends Window {
 		this.setResizable(true);
 		this.setCaption("Select t-test result");
 		this.setImmediate(true);
-		
+
 		tTestResultSelect.setImmediate(true);
 		tTestResultSelect.setNullSelectionAllowed(false);
 		tTestResultSelect.setRows(5);
@@ -65,7 +68,7 @@ public class ChooseTTestResultDialog extends Window {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				Window mainWindow = ChooseTTestResultDialog.this.getApplication().getMainWindow();
+				UI mainWindow = UI.getCurrent();
 				mainWindow.removeWindow(ChooseTTestResultDialog.this);
 				Object choice = tTestResultSelect.getValue();
 				if (networkViewer != null && choice != null) {
@@ -84,7 +87,9 @@ public class ChooseTTestResultDialog extends Window {
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		this.addComponent(tTestResultSelect);
-		this.addComponent(submit);
+		VerticalLayout layout = new VerticalLayout();
+		this.setContent(layout);
+		layout.addComponent(tTestResultSelect);
+		layout.addComponent(submit);
 	}
 };

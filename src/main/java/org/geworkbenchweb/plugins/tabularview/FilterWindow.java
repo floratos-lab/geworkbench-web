@@ -14,12 +14,13 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class FilterWindow extends Window {
 
@@ -72,9 +73,9 @@ public class FilterWindow extends Window {
 			selectedArraySet = tabViewPreferences.getArrayFilter()
 					.getSelectedSet();
 		setSelection(arraySetSelect, selectedArraySet, "All Arrays");
-		
+
 		Button submit = new Button("Submit");
-		submit.addListener(new Button.ClickListener() {
+		submit.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = -4799561372701936132L;
 
@@ -84,7 +85,7 @@ public class FilterWindow extends Window {
 			}
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
-		
+
 		GridLayout gridLayout1 = new GridLayout(2, 4);
 		gridLayout1.setSpacing(true);
 		gridLayout1.setImmediate(true);
@@ -102,19 +103,19 @@ public class FilterWindow extends Window {
 		setResizable(false);
 		setCaption("Filter Setting");
 		setImmediate(true);
-		addComponent(gridLayout1);
+		setContent(gridLayout1);
 	}
 
 	static private ListSelect createSetSelect(String caption) {
 		ListSelect listSelect = new ListSelect(caption);
 		listSelect.setMultiSelect(true);
 		listSelect.setRows(5);
-		listSelect.setColumns(15);
+		listSelect.setWidth("15em");
 		listSelect.setImmediate(true);
 
 		return listSelect;
 	}
-	
+
 	/* This needs to be called AFTER the items are added. */
 	static private void setSelection(ListSelect listSelect, Long[] selectedSet,
 			String allSelected) {
@@ -129,7 +130,7 @@ public class FilterWindow extends Window {
 			}
 		}
 	}
-	
+
 	static private ComboBox createContextCombo(String caption, List<Context> contexts,
 			Context selectedtArrayContext, final ListSelect listSelect,
 			final String allSelected) {
@@ -138,7 +139,7 @@ public class FilterWindow extends Window {
 		contextCB.setImmediate(true);
 		contextCB.setNullSelectionAllowed(false);
 
-		contextCB.addListener(new Property.ValueChangeListener() {
+		contextCB.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 5667499645414167736L;
 
 			public void valueChange(ValueChangeEvent event) {
@@ -160,7 +161,7 @@ public class FilterWindow extends Window {
 				}
 			}
 		});
-		
+
 		for (Context c : contexts) {
 			contextCB.addItem(c);
 			if (selectedtArrayContext != null
@@ -171,7 +172,7 @@ public class FilterWindow extends Window {
 
 		return contextCB;
 	}
-	
+
 	private void filter(final Tabular parent) {
 		try {
 			Long datasetId = parent.getDatasetId();
@@ -204,25 +205,25 @@ public class FilterWindow extends Window {
 			parent.setSearchStr(null);
 			parent.resetDataSource();
 
-			getApplication().getMainWindow().removeWindow(this);
+			UI.getCurrent().removeWindow(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	static private Long[] getSelectedSet(ListSelect listSelect) {
 		Object object = listSelect.getValue();
 		if (object instanceof Set<?>) {
 			Set<?> set = (Set<?>) object;
 			if (set.size() == 0)
 				return null;
-			
+
 			/* special case of 'all selected' */
 			Object first = set.iterator().next();
-			if(first instanceof String) {
-				return new Long[]{0L};
+			if (first instanceof String) {
+				return new Long[] { 0L };
 			}
-			
+
 			return set.toArray(new Long[0]);
 		} else {
 			return null;
