@@ -39,9 +39,9 @@
 				debugger can then be connected to port 8998. Note that e.g. a Jetty server 
 				should be running with the server side parts - use the goal jetty:run . -->
 			<plugin>
-				<groupId>net.ltgt.gwt.maven</groupId>
-				<artifactId>gwt-maven-plugin</artifactId>
-				<version>1.0.1</version>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>7.6.8</version>
 				<configuration>
 					<moduleName>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</moduleName>
 					<!-- if you don't specify any modules, the plugin will find them -->
@@ -103,6 +103,15 @@
 			<artifactId>vaadin-client</artifactId>
 			<version>7.0.7</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client-compiler -->
+		<!-- without this, compile stills works, just with a warning -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client-compiler</artifactId>
+			<version>7.0.7</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
