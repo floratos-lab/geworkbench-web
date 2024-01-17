@@ -5,11 +5,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
+import com.vaadin.ui.UI;
 
 /* A connector from the existing pending nodes to the 'main layout' when the user logs in again,
  * so when it finishes during this session, the UI will update. */
@@ -56,7 +59,8 @@ public class PendingNodeProcessor {
 							pending++;
 						}
 					}
-					mainLayout.push();
+					GeworkbenchRoot ui = (GeworkbenchRoot)UI.getCurrent();
+					ui.push();
 					log.debug("total result sets of this user: " + count);
 					log.debug("updated nodes: " + updated);
 					log.debug("pending nodes: " + pending);

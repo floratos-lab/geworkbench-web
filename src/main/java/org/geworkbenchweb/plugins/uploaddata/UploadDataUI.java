@@ -255,7 +255,8 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 							}).open();
 					addButton.setEnabled(true);
 				}
-				mainLayout.push();
+				GeworkbenchRoot ui = (GeworkbenchRoot)UI.getCurrent();
+				ui.push();
 			}
 		};
 		// start processing in the background thread

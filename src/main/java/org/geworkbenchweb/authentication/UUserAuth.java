@@ -78,9 +78,10 @@ public class UUserAuth extends VerticalLayout {
 		 * getApplication()
 		 */
 		Panel aboutPanel = new Panel("About geWorkbench");
-		aboutPanel.setStyleName("xpanel");
+		VerticalLayout aboutWindowLayout = new VerticalLayout();
+		aboutWindowLayout.setStyleName("xpanel");
 
-		VerticalLayout aboutWindowLayout = (VerticalLayout) aboutPanel.getContent();
+		aboutWindowLayout.addComponent(aboutPanel);
 		aboutWindowLayout.setMargin(true);
 		aboutWindowLayout.setSpacing(true);
 
@@ -109,9 +110,9 @@ public class UUserAuth extends VerticalLayout {
 		aboutWindowLayout.addComponent(closeMessageButton);
 		aboutWindowLayout.setComponentAlignment(closeMessageButton, Alignment.TOP_RIGHT);
 
-		aboutPanel.setWidth("50%");
-		loginForm.addComponent(aboutPanel);
-		loginForm.setComponentAlignment(aboutPanel, Alignment.MIDDLE_CENTER);
+		aboutWindowLayout.setWidth("50%");
+		loginForm.addComponent(aboutWindowLayout);
+		loginForm.setComponentAlignment(aboutWindowLayout, Alignment.MIDDLE_CENTER);
 
 		log.debug("about message is attached");
 	}

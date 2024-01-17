@@ -14,7 +14,6 @@ import org.geworkbenchweb.pojos.Workspace;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.vaadin.data.Item;
 import com.vaadin.server.ThemeResource;
@@ -59,8 +58,6 @@ public class UMainLayout extends VerticalLayout {
 
 	final private CssLayout leftMainLayout = new CssLayout();
 
-	final private ICEPush pusher;
-
 	final private MenuBar toolBar = new MenuBar();
 
 	final private DataAnnotationPanel annotationPanel = new DataAnnotationPanel();;
@@ -84,18 +81,11 @@ public class UMainLayout extends VerticalLayout {
 
 	private SetViewLayout setViewLayout;
 
-	public void push() {
-		pusher.push();
-	}
-
 	public UMainLayout() throws Exception {
 
 		this.mainToolBar = new UMainToolBar(pluginView);
 		setSizeFull();
 		setImmediate(true);
-
-		pusher = new ICEPush();
-		addComponent(pusher);
 
 		HorizontalLayout topBar = new HorizontalLayout();
 
@@ -320,7 +310,8 @@ public class UMainLayout extends VerticalLayout {
 
 	public void removeItem(Long itemId) {
 		navigationTree.removeItem(itemId);
-		pusher.push();
+		GeworkbenchRoot ui = (GeworkbenchRoot)UI.getCurrent();
+				ui.push();
 	}
 
 	/**

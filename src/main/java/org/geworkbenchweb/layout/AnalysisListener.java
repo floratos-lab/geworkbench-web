@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent;
 import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.plugins.AnalysisUI;
@@ -15,6 +16,8 @@ import org.geworkbenchweb.pojos.UserActivityLog;
 import org.geworkbenchweb.utils.OverLimitException;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+
+import com.vaadin.ui.UI;
 
 import de.steinwedel.messagebox.MessageBox;
 
@@ -105,7 +108,8 @@ public class AnalysisListener implements AnalysisSubmissionEventListener {
 				FacadeFactory.getFacade().store(ual);
 
 				uMainLayout.addNode(resultSet);
-				uMainLayout.push();
+				GeworkbenchRoot ui = (GeworkbenchRoot)UI.getCurrent();
+				ui.push();
 			}
 		};
 		analysisThread.start();

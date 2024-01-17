@@ -18,7 +18,7 @@
     <init-param>
       <description>
   		Vaadin application class to start</description>
-      <param-name>application</param-name>
+      <param-name>UI</param-name>
       <param-value>org.geworkbenchweb.GeworkbenchRoot</param-value>
     </init-param>
     <init-param>
