@@ -1,5 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>geworkbench</groupId>
 	<artifactId>geworkbench</artifactId>
@@ -47,11 +48,14 @@
 					<!-- if you don't specify any modules, the plugin will find them -->
 					<!-- <modules> <module>org.geworkbenchweb.gwt.ColorPickerWidgetSet</module> 
 						</modules> -->
-					<webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
+					<webappDirectory>
+						${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
 					<!-- On Mac running Snow Leopard, add "-d32" -->
 					<!-- This causes error messages (but build works) in phase "package": 
 						two processes would use the same debug port -->
-					<!--extraJvmArgs>-Xmx512M -Xss1024k -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
+					<!--extraJvmArgs>-Xmx512M
+					-Xss1024k -Xdebug
+					-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
 					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
 					<runTarget>geworkbench</runTarget>
 					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
@@ -103,6 +107,12 @@
 			<artifactId>vaadin-client</artifactId>
 			<version>7.0.7</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-themes -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-themes</artifactId>
+			<version>7.0.7</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client-compiler -->
