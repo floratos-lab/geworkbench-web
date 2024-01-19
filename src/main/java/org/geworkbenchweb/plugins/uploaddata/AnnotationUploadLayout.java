@@ -13,12 +13,12 @@ import org.geworkbenchweb.pojos.Annotation;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 
 /**
  * GUI area to support uploading of affymatrix annotation file.
@@ -144,13 +144,13 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 			}
 		});
 
-		annotChoices.addItem(Anno.NO).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NO);
+		annotChoices.addItem(Anno.NO).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NO.toString());
 		annotChoices.setChildrenAllowed(Anno.NO, false);
 
-		annotChoices.addItem(Anno.NEW).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NEW);
+		annotChoices.addItem(Anno.NEW).getItemProperty(CAPTION_PROPERTY).setValue(Anno.NEW.toString());
 		annotChoices.setChildrenAllowed(Anno.NEW, false);
 
-		annotChoices.addItem(Anno.PUBLIC).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PUBLIC);
+		annotChoices.addItem(Anno.PUBLIC).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PUBLIC.toString());
 		Map<String, Object> params = new HashMap<String, Object>();
 		List<Annotation> annots = FacadeFactory
 				.getFacade()
@@ -167,7 +167,7 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 			preAnnoName = aname;
 		}
 
-		annotChoices.addItem(Anno.PRIVATE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PRIVATE);
+		annotChoices.addItem(Anno.PRIVATE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.PRIVATE.toString());
 		params = new HashMap<String, Object>();
 		params.put("owner", SessionHandler.get().getId());
 		annots = FacadeFactory
@@ -188,12 +188,10 @@ public class AnnotationUploadLayout extends com.vaadin.ui.HorizontalLayout {
 		if (annots.isEmpty())
 			annotChoices.setChildrenAllowed(Anno.PRIVATE, false);
 
-		annotChoices.addItem(Anno.DELETE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.DELETE);
-		;
-		;
+		annotChoices.addItem(Anno.DELETE).getItemProperty(CAPTION_PROPERTY).setValue(Anno.DELETE.toString());
 		annotChoices.setChildrenAllowed(Anno.DELETE, false);
 
-		annotChoices.setValue(Anno.NO);
+		annotChoices.setValue(Anno.NO.toString());
 		return annotChoices;
 	}
 
