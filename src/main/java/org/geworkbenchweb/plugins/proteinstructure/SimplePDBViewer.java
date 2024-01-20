@@ -30,7 +30,7 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 			return;
 
 		this.setSizeFull();
-		VerticalLayout layout = (VerticalLayout) this.getContent();
+		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(true);
 		layout.setSpacing(true);
 
@@ -64,7 +64,8 @@ public class SimplePDBViewer extends Panel implements Visualizer {
 		super.setCaption("PDB file name: " + filename);
 		Label content = new Label(sb.toString());
 		content.setContentMode(ContentMode.PREFORMATTED);
-		setContent(content);
+		layout.addComponent(content);
+		setContent(layout);
 	}
 
 	@Override
