@@ -37,7 +37,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * Builds the Parameter Form for Anova Analysis
+ * Analysis UI of ANOVA Analysis
  */
 public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
@@ -91,6 +91,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		gridLayout2.setImmediate(true);
 
 		setSpacing(true);
+		setMargin(true);
 		setImmediate(true);
 
 		markerArraySelector = new MarkerArraySelector(dataSetId, userId,
@@ -113,7 +114,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		pValEstCbx.setItemCaption(PValueEstimation.permutation.ordinal(), "Permutation");
 		pValEstCbx.select(PValueEstimation.fdistribution.ordinal());
 
-		pValEstCbx.addListener(new Property.ValueChangeListener() {
+		pValEstCbx.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
