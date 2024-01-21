@@ -56,6 +56,7 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		this.dataSetId = dataId;
 
 		setSpacing(true);
+		setMargin(true);
 		setImmediate(true);
 
 		final GridLayout gridLayout = new GridLayout(4, 8);

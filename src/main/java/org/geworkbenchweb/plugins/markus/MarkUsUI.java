@@ -77,6 +77,7 @@ public class MarkUsUI extends VerticalLayout implements AnalysisUI {
 
 		setImmediate(true);
 		setSpacing(true);
+		setMargin(true);
 
 		Accordion tabs = new Accordion();
 

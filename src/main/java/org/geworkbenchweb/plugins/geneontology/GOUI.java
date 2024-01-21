@@ -31,7 +31,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -58,6 +58,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 	public GOUI(Long dataId) {
 
 		setSpacing(true);
+		setMargin(true);
 		setImmediate(true);
 		setDefaultParameters(params);
 
@@ -69,8 +70,8 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		String[] allGenes = geneMap.values().toArray(new String[geneMap.size()]);
 		params.put(PARAM_REFERENCE_GENE_LIST, allGenes);
 
-		changedGene.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_EXPLICIT_DEFAULTS_ID);
-		changedGene.addListener(new Property.ValueChangeListener() {
+		changedGene.setItemCaptionMode(ItemCaptionMode.EXPLICIT_DEFAULTS_ID);
+		changedGene.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -332132852289677807L;
 			private Long oldValue = null;
@@ -94,7 +95,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 
 		cmbAnnotationFile.setImmediate(true);
 		params.put(PARAM_ASSOCIATION_FILE, (String) cmbAnnotationFile.getValue());
-		cmbAnnotationFile.addListener(new Property.ValueChangeListener() {
+		cmbAnnotationFile.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -332132852289677807L;
 
@@ -109,7 +110,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		});
 
 		calculationName.setValue(calculationMethodName[3]);
-		calculationName.addListener(new Property.ValueChangeListener() {
+		calculationName.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 5935627057320534374L;
 
@@ -125,7 +126,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		});
 
 		correctionName.setValue(correctionMethodName[4]);
-		correctionName.addListener(new Property.ValueChangeListener() {
+		correctionName.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = 5935627057320534374L;
 
@@ -288,7 +289,7 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 				|| ((String) params.get(PARAM_ASSOCIATION_FILE)).trim()
 						.length() == 0) {
 			cmbAnnotationFile.setComponentError(new UserError(
-					"No associatation file is selected"));
+					"No association file is selected"));
 			return false;
 		}
 		return true;

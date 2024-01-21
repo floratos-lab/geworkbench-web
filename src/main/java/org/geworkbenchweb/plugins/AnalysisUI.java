@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.plugins;
 
 import java.io.IOException;
@@ -10,20 +7,19 @@ import java.util.HashMap;
 import com.vaadin.ui.ComponentContainer;
 
 /**
- * The parameter UI for an analysis plug-in.
- * 
- * @author zji
- *
+ * UI for an analysis plug-in.
  */
 public interface AnalysisUI extends ComponentContainer {
 	/**
-	 * Set the current dataset Id and update the parameter options that depend on it.
+	 * Set the current dataset Id and update the parameter options that depend on
+	 * it.
 	 * 
 	 * @param dataId
 	 */
 	void setDataSetId(Long dataId);
-	
-	// TODO this eventually (or conceptually) should be part of Analysis, not AnalysisUI
+
+	// TODO this eventually (or conceptually) should be part of Analysis, not
+	// AnalysisUI
 	Class<?> getResultType();
 
 	// TODO return String is not the best idea

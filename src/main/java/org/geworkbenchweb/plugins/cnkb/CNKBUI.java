@@ -52,7 +52,7 @@ import com.vaadin.ui.themes.Reindeer;
 import de.steinwedel.messagebox.MessageBox;
 
 /**
- * Parameter panel for CNKB
+ * UI for CNKB
  * 
  */
 public class CNKBUI extends VerticalLayout implements AnalysisUI {
@@ -75,8 +75,8 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 	public CNKBUI(Long dataSetId) {
 		this.dataSetId = dataSetId;
 		this.setSpacing(true);
+		this.setMargin(true);
 		this.setImmediate(true);
-
 	}
 
 	static class InteractomeAndVersion {

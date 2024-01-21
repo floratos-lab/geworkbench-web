@@ -23,9 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * 
- * This class handles Hierarchical Clustering parameter form and submits
- * analysis.
- * No computation should be there in this class.
+ * UI for Hierarchical Clustering analysis.
  *
  */
 public class HierarchicalClusteringUI extends VerticalLayout implements AnalysisUI {
@@ -53,6 +51,7 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 			userId = user.getId();
 
 		setImmediate(true);
+		setMargin(true);
 		setSpacing(true);
 
 		markerArraySelector = new MarkerArraySelector(dataSetId, userId, "HierarchicalClusteringUI");

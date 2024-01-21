@@ -345,6 +345,7 @@ public class MsViperUI extends VerticalLayout
 		addComponent(submitButton);
 
 		this.setSpacing(true);
+		this.setMargin(true);
 		this.setImmediate(true);
 	}
 

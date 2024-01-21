@@ -35,7 +35,7 @@ import com.vaadin.ui.VerticalLayout;
 import de.steinwedel.messagebox.MessageBox;
 
 /**
- * t-Test Analysis for microarray dataset
+ * UI of t-Test Analysis for microarray dataset
  */
 public class TTestUI extends VerticalLayout implements AnalysisUI {
 
@@ -71,6 +71,7 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 		this.dataSetId = dId;
 		setSpacing(true);
+		setMargin(true);
 		setImmediate(true);
 		tabs = new Accordion();
 		caseControlSelector = new CaseControlSelector(dataSetId, "TTestUI");
