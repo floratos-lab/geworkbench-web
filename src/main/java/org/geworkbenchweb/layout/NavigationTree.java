@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.layout;
 
 import java.lang.reflect.InvocationTargetException;
@@ -63,7 +60,7 @@ public class NavigationTree extends Tree {
 		this.setContainerDataSource(getDataContainer(userId, pendingIcon));
 		this.setSelectable(true);
 		this.setMultiSelect(false);
-		this.addListener(new Tree.ValueChangeListener() {
+		this.addValueChangeListener(new Tree.ValueChangeListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -72,12 +69,12 @@ public class NavigationTree extends Tree {
 					com.vaadin.data.Property.ValueChangeEvent event) {
 
 				Object itemId = event.getProperty().getValue();
-				if(itemId==null && dataSetId!=null) {
-					// being selected before unselecting, force it selected. mantis issue 3702					 
-					ResultSet resultSet =  FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
-				    DataSet dataSet =  FacadeFactory.getFacade().find(DataSet.class, dataSetId);					
+				if (itemId == null && dataSetId != null) {
+					// being selected before unselecting, force it selected. mantis issue 3702
+					ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
+					DataSet dataSet = FacadeFactory.getFacade().find(DataSet.class, dataSetId);
 					if (resultSet != null || dataSet != null)
-					    NavigationTree.this.select(dataSetId);
+						NavigationTree.this.select(dataSetId);
 					return;
 				}
 				if (!(itemId instanceof Long)) {
@@ -103,7 +100,7 @@ public class NavigationTree extends Tree {
 				dataSetId = (Long) itemId;
 				annotationPanel.setDatasetId(dataSetId);
 
-				if(className==null) { /* This is intended for pending data node only. */
+				if (className == null) { /* This is intended for pending data node only. */
 					return; /* No action if a pending data node is clicked on. */
 				}
 
@@ -132,7 +129,7 @@ public class NavigationTree extends Tree {
 					if (uiComponentClass != null) {
 						/*
 						 * "not result" - menu page. For now, we only expect
-						 * CSMcrioarraySet and CSProteinStructure
+						 * CSMicroarraySet and CSProteinStructure
 						 */
 						DataTypeMenuPage dataUI = uiComponentClass
 								.getDeclaredConstructor(Long.class)
@@ -144,7 +141,7 @@ public class NavigationTree extends Tree {
 						/*
 						 * "is result" - visualizer
 						 */
-						if(resultUiClass.size()==1) {
+						if (resultUiClass.size() == 1) {
 							pluginView.setContentUsingCache(resultUiClass.get(0),
 									dataSetId);
 						} else { /* show a menu page similar to the one for input data type */
@@ -222,8 +219,8 @@ public class NavigationTree extends Tree {
 			Item subItem = dataSets.addItem(dataId);
 			subItem.getItemProperty("Name").setValue(id);
 			String className = ((DataSet) data.get(i)).getType();
-			if(className==null) { // this may happen for corrupted data node/workspace
-				log.error("error in showing data node: name '"+id+"' description '"+description+"'");
+			if (className == null) { // this may happen for corrupted data node/workspace
+				log.error("error in showing data node: name '" + id + "' description '" + description + "'");
 				continue;
 			}
 			subItem.getItemProperty("Type").setValue(className);
@@ -250,7 +247,7 @@ public class NavigationTree extends Tree {
 			}
 
 			for (int j = 0; j < results.size(); j++) {
-				ResultSet resultSet = ((ResultSet) results.get(j)); 
+				ResultSet resultSet = ((ResultSet) results.get(j));
 				String subId = resultSet.getName();
 				Long subSetId = resultSet.getId();
 				String type = resultSet.getType();
