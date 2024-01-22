@@ -11,13 +11,6 @@ import org.geworkbenchweb.pojos.TTestResult;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.ChartResetZoomEvent;
-import com.invient.vaadin.charts.InvientCharts.ChartResetZoomListener;
-import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
-import com.invient.vaadin.charts.InvientCharts.ChartZoomEvent;
-import com.invient.vaadin.charts.InvientCharts.ChartZoomListener;
-import com.invient.vaadin.charts.InvientCharts.Series;
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.server.Page;
@@ -32,16 +25,18 @@ public class ChartMenuBar extends MenuBar {
 	private static final String excelDoubleFormat = "0.00000000000000";
 	private MenuItem exportItem;
 	private MenuItem resetZoomItem;
-	private InvientCharts chart;
+	private Object chart; // FIXME re-design for vaadin
 	private String chartTitle;
 	private TTestResultsUI tTestResultsUI;
 
-	public ChartMenuBar(final InvientCharts chart, TTestResultsUI tTestResultsUI) {
+	// FIXME re-design for vaadin
+	public ChartMenuBar(final Object chart, TTestResultsUI tTestResultsUI) {
 		setImmediate(true);
 		setStyleName("transparent");
 
 		this.tTestResultsUI = tTestResultsUI;
 		this.chart = chart;
+		/*
 		chartTitle = chart.getConfig().getTitle().getText();
 		chartTitle = chartTitle.replaceAll(" ", "_");
 
@@ -63,6 +58,7 @@ public class ChartMenuBar extends MenuBar {
 				}
 			});
 		}
+		*/
 
 		exportItem = this.addItem("Export", null, null);
 		exportItem.setStyleName("plugin");
@@ -114,7 +110,9 @@ public class ChartMenuBar extends MenuBar {
 		resetZoomItem.setEnabled(false);
 	}
 
+	// FIXME re-design for vaadin 7
 	public void exportPlot() {
+		/*
 		chart.addListener(new InvientCharts.ChartSVGAvailableListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -132,6 +130,7 @@ public class ChartMenuBar extends MenuBar {
 				Page.getCurrent().open(svgResource, "_blank", false);
 			}
 		});
+		*/
 	};
 
 	public void exportData(String format) {
@@ -179,12 +178,15 @@ public class ChartMenuBar extends MenuBar {
 		tTestResultsUI.removeComponent(table);
 	}
 
+	// FIXME re-design for vaadin 7
 	public void resetZoom() {
+		/*
 		for (Series series : chart.getAllSeries()) {
 			series.show();
 		}
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put("event", "chartResetZoom");
 		chart.changeVariables(chart, variables);
+		*/
 	};
 }

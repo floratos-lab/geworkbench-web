@@ -28,19 +28,6 @@ import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.ChartSVGAvailableEvent;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.Grid;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.Margin;
-import com.invient.vaadin.charts.InvientChartsConfig.LineConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -81,7 +68,8 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
-	protected InvientCharts plot;
+	// FIXME re-design for vaadin 7
+	protected Component plot;
 
 	Table dataTable;
 	private Map<String, String> confidentTypeMap = null;
@@ -268,12 +256,13 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		init(cnkbResult, null);
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * This method draws the Throttle Graph using Invient Charts Add-on.
+	 * Draws the Throttle Graph.
 	 * 
 	 */
-	protected InvientCharts drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
-
+	protected Component drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
+		/*
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setMargin(new Margin());
 		chartConfig.getGeneralChartConfig().getMargin().setRight(30);
@@ -316,7 +305,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 		numberXAxis.setMin(minX);
 
-		/* Tooltip formatter */
+		// Tooltip formatter
 		if (maxConfidenceValue != null && maxConfidenceValue <= 1)
 			chartConfig.getTooltip().setFormatterJsFunc(
 					"function() { "
@@ -344,14 +333,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		}
 
 		return chart;
+		*/
+		return null;
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * Method is used to calculate the graph points for Protein-Protein
-	 * Interactions
+	 * Calculate the graph points for Protein-Protein Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getDistribution(String interactionType, double smallestIncrement) {
-
+	private LinkedHashSet<?> getDistribution(String interactionType, double smallestIncrement) {
+		/*
 		XYSeries seriesData = new XYSeries(interactionType);
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
 		Double x = null;
@@ -378,13 +369,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			x = x + smallestIncrement;
 		}
 		return points;
+		*/
+		return null;
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * Method is used to calculate the graph points for all Interactions
+	 * Calculate the graph points for all Interactions
 	 */
-	private LinkedHashSet<DecimalPoint> getTotalDistribution(XYSeries seriesData, double smallestIncrement) {
-
+	private LinkedHashSet<?> getTotalDistribution(Object seriesData, double smallestIncrement) {
+		/*
 		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
 
 		Double x = null;
@@ -410,12 +404,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			x = x + smallestIncrement;
 		}
 		return points;
+		*/
+		return null;
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * Called to Export SVG of the Throttle Graph
+	 * Export SVG of the Throttle Graph
 	 */
 	public void plotExportSVG() {
+		/*
 		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -426,14 +424,16 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 				System.out.println(chartSVGAvailableEvent.getSVG());
 			}
 		});
+		*/
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * Used to print the Throttle Graph of the CNKB Component
+	 * Print the Throttle Graph of the CNKB Component
 	 */
 	public void plotPrint() {
 
-		plot.print();
+		//plot.print();
 
 	}
 
@@ -665,7 +665,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	protected void updatePlot(CNKBResultSet resultSet, double minX, double maxX) {
 		throttlePanel.replaceComponent(plot, drawPlot(resultSet, minX, maxX));
-		plot = (InvientCharts) throttlePanel.getFirstComponent();
+		//plot = (InvientCharts) throttlePanel.getFirstComponent(); // FIXME re-design for vaadin 7
 	}
 
 	@Override

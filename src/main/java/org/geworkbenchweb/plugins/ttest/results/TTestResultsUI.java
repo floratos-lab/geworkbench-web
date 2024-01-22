@@ -12,28 +12,12 @@ import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.invient.vaadin.charts.Color.RGB;
-import com.invient.vaadin.charts.InvientCharts;
-import com.invient.vaadin.charts.InvientCharts.DecimalPoint;
-import com.invient.vaadin.charts.InvientCharts.SeriesType;
-import com.invient.vaadin.charts.InvientCharts.XYSeries;
-import com.invient.vaadin.charts.InvientChartsConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.AxisBase.AxisTitle;
-import com.invient.vaadin.charts.InvientChartsConfig.GeneralChartConfig.ZoomType;
-import com.invient.vaadin.charts.InvientChartsConfig.MarkerState;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberXAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.NumberYAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.PointConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.ScatterConfig;
-import com.invient.vaadin.charts.InvientChartsConfig.SymbolMarker;
-import com.invient.vaadin.charts.InvientChartsConfig.XAxis;
-import com.invient.vaadin.charts.InvientChartsConfig.YAxis;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Visualization for TTest Results is done in this class.
- * @author Nikhil
+ * Visualization of TTest Results.
  */
 
 public class TTestResultsUI extends VerticalLayout implements Visualizer {
@@ -67,17 +51,18 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		InvientCharts chart = drawPlot();
+		Component chart = drawPlot(); // FIXME re-design for vaadin 7
 		addComponent(new ChartMenuBar(chart, this));
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
 
+	// FIXME re-design for vaadin 7
 	/**
-	 * This method draws the Volcano plot using Invient Charts Add-on.
+	 * Draws the Volcano plot.
 	 */
-	private InvientCharts drawPlot() {
-
+	private Component drawPlot() {
+		/*
 		InvientChartsConfig chartConfig = new InvientChartsConfig();
 		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
 		chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
@@ -136,7 +121,7 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		if(significantIndex==null) significantIndex = new int[0]; // prevent the null pointer exception
 		double minX = Double.MAX_VALUE;
 		double maxX = -Double.MAX_VALUE;
-		/* Logic in this loop is copied from geWorkbench(swing) volcano plot*/
+		// Logic in this loop is copied from geWorkbench(swing) volcano plot
 		for (int i = 0; i < significantIndex.length; i++) {
 			
 			int index = significantIndex[i];
@@ -194,6 +179,8 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		}
 		series.setSeriesPoints(newPoints);
 		chart.addSeries(series);
+		*/
+		Component chart = new Label("place holder");
 		return chart;
 	}
 
