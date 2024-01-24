@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>geworkbench</groupId>
 	<artifactId>geworkbench</artifactId>
@@ -54,8 +53,7 @@
 					<!-- This causes error messages (but build works) in phase "package": 
 						two processes would use the same debug port -->
 					<!--extraJvmArgs>-Xmx512M
-					-Xss1024k -Xdebug
-					-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
+					-Xss1024k -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8998</extraJvmArgs -->
 					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
 					<runTarget>geworkbench</runTarget>
 					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
@@ -479,6 +477,11 @@
 			<groupId>com.jhlabs</groupId>
 			<artifactId>imaging</artifactId>
 			<version>01012005</version>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.highcharts</groupId>
+			<artifactId>highcharts</artifactId>
+			<version>1.1</version>
 		</dependency>
 
 		<dependency>

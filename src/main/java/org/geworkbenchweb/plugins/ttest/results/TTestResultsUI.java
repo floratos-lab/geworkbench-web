@@ -1,7 +1,6 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
 import java.awt.Color;
-import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,15 +10,14 @@ import org.geworkbenchweb.pojos.MicroarrayDataset;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+import org.vaadin.highcharts.HighChart;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * Visualization of TTest Results.
  */
-
 public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
 	private static final long serialVersionUID = -6720344403076533166L;
@@ -29,117 +27,68 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 
 	final private Long datasetId;
 	final protected Long parentDatasetId;
-	
+
 	public TTestResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
-		if(dataSetId==null || dataSetId==0) {
+		if (dataSetId == null || dataSetId == 0) {
 			tTestResultSet = null;
 			parentDatasetId = null;
 			return;
 		}
 
 		setImmediate(true);
-		setSizeFull();	
+		setSizeFull();
 
 		ResultSet resultSet = FacadeFactory.getFacade().find(ResultSet.class, dataSetId);
 		parentDatasetId = resultSet.getParent();
 		Long id = resultSet.getDataId();
-		if(id==null) { // pending node
-			addComponent(new Label("Pending computation - ID "+ dataSetId));
+		if (id == null) { // pending node
+			addComponent(new Label("Pending computation - ID " + dataSetId));
 			tTestResultSet = null;
 			return;
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		Component chart = drawPlot(); // FIXME re-design for vaadin 7
+		HighChart chart = drawPlot();
 		addComponent(new ChartMenuBar(chart, this));
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
 
-	// FIXME re-design for vaadin 7
 	/**
 	 * Draws the Volcano plot.
 	 */
-	private Component drawPlot() {
-		/*
-		InvientChartsConfig chartConfig = new InvientChartsConfig();
-		chartConfig.getGeneralChartConfig().setType(SeriesType.SCATTER);
-		chartConfig.getGeneralChartConfig().setZoomType(ZoomType.XY);
-
-		chartConfig.getTitle().setText(
-				"T-Test");
-
-		chartConfig.getTooltip().setFormatterJsFunc(
-				"function() {"
-						+ " return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; "
-						+ "}");
-
-		NumberXAxis xAxis = new NumberXAxis();
-		xAxis.setTitle(new AxisTitle("Fold Change Log2(ratio)"));
-		xAxis.setStartOnTick(true);
-		xAxis.setEndOnTick(true);
-		xAxis.setShowLastLabel(true);
-		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
-		xAxesSet.add(xAxis);
-		chartConfig.setXAxes(xAxesSet);
-
-		NumberYAxis yAxis = new NumberYAxis();
-		yAxis.setTitle(new AxisTitle("Significance(-Log10)"));
-		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
-		yAxesSet.add(yAxis);
-		chartConfig.setYAxes(yAxesSet);
-
-		ScatterConfig scatterCfg = new ScatterConfig();
-
-		SymbolMarker marker = new SymbolMarker(5);
-		scatterCfg.setMarker(marker);
-		marker.setHoverState(new MarkerState());
-		marker.getHoverState().setEnabled(true);
-		marker.getHoverState().setLineColor(new RGB(100, 100, 100));
-		chartConfig.addSeriesConfig(scatterCfg);
-
-		InvientCharts chart = new InvientCharts(chartConfig);
-		chart.setWidth("100%");
-		chart.setHeight("100%");
-
-		ScatterConfig sCfg = new ScatterConfig();
-		XYSeries series = new XYSeries("Significant Markers", sCfg);
-		
-		double minPlotValue 		= 	Double.MAX_VALUE;
-		double maxPlotValue 		= 	Double.MIN_VALUE;
-
-		LinkedHashSet<DecimalPoint> points 	= 	new LinkedHashSet<DecimalPoint>();
-
+	private HighChart drawPlot() {
 		DataSet dataset = FacadeFactory.getFacade().find(DataSet.class, parentDatasetId);
 		Long id = dataset.getDataId();
 		MicroarrayDataset microarray = FacadeFactory.getFacade().find(MicroarrayDataset.class, id);
 		String[] markerLabels = microarray.getMarkerLabels();
 
-		log.debug("t-test result ID "+tTestResultSet.getId());
+		log.debug("t-test result ID " + tTestResultSet.getId());
 		int[] significantIndex = tTestResultSet.getSignificantIndex();
-		if(significantIndex==null) significantIndex = new int[0]; // prevent the null pointer exception
-		double minX = Double.MAX_VALUE;
-		double maxX = -Double.MAX_VALUE;
+		if (significantIndex == null)
+			significantIndex = new int[0]; // prevent the null pointer exception
+
+		double minPlotValue = Double.MAX_VALUE;
+		double maxPlotValue = Double.MIN_VALUE;
+		double[] x = new double[significantIndex.length];
+		double[] y = new double[significantIndex.length];
+		String[] name = new String[significantIndex.length];
 		// Logic in this loop is copied from geWorkbench(swing) volcano plot
 		for (int i = 0; i < significantIndex.length; i++) {
-			
 			int index = significantIndex[i];
-			String mark 	= 	markerLabels[index];
-			double sigValue 	= 	tTestResultSet.getpValue()[index];
-		
-			if (sigValue >= 0.0 && sigValue < 4.9E-45  ) {
+			String mark = markerLabels[index];
+			double sigValue = tTestResultSet.getpValue()[index];
+
+			if (sigValue >= 0.0 && sigValue < 4.9E-45) {
 				sigValue = 4.9E-45;
-			} 
-			else if (sigValue < 0) {
-				//log.debug("Significance less than 0, (" + sigValue + ") setting to 1 for the moment.");
+			} else if (sigValue < 0) {
+				// log.debug("Significance less than 0, (" + sigValue + ") setting to 1 for the
+				// moment.");
 				sigValue = 1;
 			}
 
 			double xVal = tTestResultSet.getFoldChange()[index];
-			if(xVal>maxX)maxX = xVal;
-			if(xVal<minX)minX = xVal;
-
 			if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
 				double yVal = -Math.log10(sigValue);
 				double plotVal = Math.abs(xVal) * Math.abs(yVal);
@@ -149,38 +98,45 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 				if (plotVal > maxPlotValue) {
 					maxPlotValue = plotVal;
 				}
-				DecimalPoint a = new DecimalPoint(series, xVal, yVal);
-				a.setName(mark);
-				points.add(a);
+				x[i] = xVal;
+				y[i] = yVal;
+				name[i] = mark;
 			} else {
-				//log.debug("Marker " + i + " was infinite or NaN.");
+				// log.debug("Marker " + i + " was infinite or NaN.");
+			}
+		}
+		GMTColorPalette.ColorRange[] range = {
+				new GMTColorPalette.ColorRange(minPlotValue, Color.BLUE.brighter(), maxPlotValue - (maxPlotValue / 3),
+						Color.BLUE),
+				new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue,
+						Color.RED) };
+		GMTColorPalette colormap = new GMTColorPalette(range);
+		// round two: colors have to be calculated in the second round because we need
+		// the minimum value and maximum value from the first round
+		StringBuffer data = new StringBuffer("data: [");
+		for (int i = 0; i < significantIndex.length; i++) {
+			if (name[i] != null) {
+				Color aC = colormap.getColor(Math.abs(x[i]) * Math.abs(y[i]));
+				String colorString = String.format("#%02X%02X%02X", aC.getRed(), aC.getGreen(), aC.getBlue());
+				data.append("{x:" + x[i] + ",y:" + y[i] + ",name:'" + name[i] + "',color:'" + colorString
+						+ "',marker:{radius:5}},");
 			}
 
 		}
-		xAxis.setMin(minX-0.1);
-		xAxis.setMax(maxX+0.1);
-		
-		GMTColorPalette.ColorRange[] range = {new GMTColorPalette.ColorRange(minPlotValue, Color.BLUE.brighter(), maxPlotValue - (maxPlotValue / 3), Color.BLUE),
-                new GMTColorPalette.ColorRange(maxPlotValue - (maxPlotValue / 3), Color.BLUE, maxPlotValue, Color.RED)};
-		GMTColorPalette colormap = new GMTColorPalette(range);
+		data.append("]");
 
-		LinkedHashSet<DecimalPoint> newPoints = new LinkedHashSet<DecimalPoint>();
-		for(int i=0; i<points.size(); i++) {
-			
-			DecimalPoint a =  (DecimalPoint) (points.toArray())[i] ;
-			Color aC = colormap.getColor(Math.abs(a.getX()) * Math.abs(a.getY()));
-			
-			SymbolMarker pMarker = new SymbolMarker(5);
-			pMarker.setFillColor(new RGB(aC.getRed(), aC.getGreen(), aC.getBlue()));
-
-			PointConfig aCfg = new PointConfig(pMarker);
-			a.setConfig(aCfg);
-			newPoints.add(a);
-		}
-		series.setSeriesPoints(newPoints);
-		chart.addSeries(series);
-		*/
-		Component chart = new Label("place holder");
+		HighChart chart = new HighChart();
+		chart.setSizeFull();
+		String chartConfig = "chart: { type: 'scatter', zoomType: 'xy'}";
+		String title = "T-Test";
+		String tooltip = "tooltip: { formatter: function() { return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; } }";
+		String xAxis = "xAxis: { title: {text: 'Fold Change Log2(ratio)'}, startOnTick: true, endOnTick: true }";
+		String yAxis = "yAxis: { title: {text: 'Significance(-Log10)'} }";
+		String options = "plotOptions: {series: {marker: {radius: 5, states: {hover: {lineColor: '#646464'} } } } }";
+		String hcjs = String.format(
+				"var options = { title: { text: '%s' }, series: [{ name: 'Significant Markers', %s}], %s, %s, %s, %s, %s };",
+				title, data.toString(), chartConfig, tooltip, xAxis, yAxis, options);
+		chart.setHcjs(hcjs);
 		return chart;
 	}
 
