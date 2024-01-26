@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -27,6 +26,7 @@ import org.geworkbenchweb.utils.DataSetOperations;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
+import org.vaadin.highcharts.HighChart;
 
 import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
@@ -34,7 +34,6 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.FileResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -51,7 +50,7 @@ import com.vaadin.ui.themes.Reindeer;
 import de.steinwedel.messagebox.MessageBox;
 
 /**
- * This class displays CNKB results in a Table and also a graph
+ * Visualization of CNKB results: a plot on the top and a table on the bottom.
  */
 public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
@@ -68,8 +67,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	private Map<String, List<Double>> ConfidentDataMap = new HashMap<String, List<Double>>();
 
-	// FIXME re-design for vaadin 7
-	protected Component plot;
+	protected HighChart plot;
 
 	Table dataTable;
 	private Map<String, String> confidentTypeMap = null;
@@ -108,7 +106,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 		tabPanel = new VerticalSplitPanel();
 		tabPanel.setSizeFull();
-		tabPanel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
+		tabPanel.setSplitPosition(250, Unit.PIXELS);
 		tabPanel.setStyleName("small");
 		tabPanel.setLocked(false);
 
@@ -214,7 +212,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		slider.setStyleName("small");
 		throttlePanel = new VerticalSplitPanel();
 		throttlePanel.setSizeFull();
-		throttlePanel.setSplitPosition(200, Sizeable.UNITS_PIXELS);
+		throttlePanel.setSplitPosition(200, Unit.PIXELS);
 		throttlePanel.setStyleName("small");
 		throttlePanel.setLocked(false);
 		throttlePanel.setFirstComponent(plot);
@@ -256,95 +254,68 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		init(cnkbResult, null);
 	}
 
-	// FIXME re-design for vaadin 7
 	/**
 	 * Draws the Throttle Graph.
 	 * 
 	 */
-	protected Component drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
-		/*
-		InvientChartsConfig chartConfig = new InvientChartsConfig();
-		chartConfig.getGeneralChartConfig().setMargin(new Margin());
-		chartConfig.getGeneralChartConfig().getMargin().setRight(30);
-		chartConfig.getTitle().setText(resultSet.getCellularNetworkPreference().getTitle());
-
-		NumberXAxis numberXAxis = new NumberXAxis();
+	protected HighChart drawPlot(CNKBResultSet resultSet, double minX, double maxX) {
+		if (confidentTypeMap == null) {
+			log.error("CNKB server connection error");
+			return null;
+		}
 		Short confidenceType = resultSet.getCellularNetworkPreference().getSelectedConfidenceType();
 		String axisTile = null;
 		if (confidenceType != null)
 			axisTile = confidentTypeMap.get(confidenceType.toString());
-		if (axisTile != null)
-			numberXAxis.setTitle(new AxisTitle(axisTile));
-		else
-			numberXAxis.setTitle(new AxisTitle("Likelihood"));
-		numberXAxis.setMinPadding(0.05);
-		LinkedHashSet<XAxis> xAxesSet = new LinkedHashSet<InvientChartsConfig.XAxis>();
-		xAxesSet.add(numberXAxis);
-		chartConfig.setXAxes(xAxesSet);
-
-		NumberYAxis numberYAxis = new NumberYAxis();
-		numberYAxis.setGrid(new Grid());
-		numberYAxis.getGrid().setLineWidth(1);
-		numberYAxis.setMin(0d);
-
-		numberYAxis.setTitle(new AxisTitle("# Interactions"));
-		LinkedHashSet<YAxis> yAxesSet = new LinkedHashSet<InvientChartsConfig.YAxis>();
-		yAxesSet.add(numberYAxis);
-		chartConfig.setYAxes(yAxesSet);
-		chartConfig.getTooltip().setEnabled(true);
-		// Series data label formatter
-		LineConfig lineCfg = new LineConfig();
-		chartConfig.addSeriesConfig(lineCfg);
+		if (axisTile == null)
+			axisTile = "Likelihood";
 
 		double smallestIncrement = 0.01d;
+		String xAxisMax = "";
 		Double maxConfidenceValue = resultSet.getCellularNetworkPreference().getMaxConfidenceValue(confidenceType);
 		if (maxConfidenceValue != null && maxConfidenceValue > 1) {
 			smallestIncrement = maxX / 100;
-		} else
-			numberXAxis.setMax(maxX);
-
-		numberXAxis.setMin(minX);
-
-		// Tooltip formatter
-		if (maxConfidenceValue != null && maxConfidenceValue <= 1)
-			chartConfig.getTooltip().setFormatterJsFunc(
-					"function() { "
-							+ " return '<b>' + this.series.name + '</b><br/>' +  "
-							+ "Math.round(((this.x)*100))/100 + ' '+ "
-							+ "' to 1 - ' + " + "this.y + ' interactions'" + "}");
-
-		else // this need to be fixed. Don't know how to pass maxX to function
-			chartConfig.getTooltip().setFormatterJsFunc(
-					"function() { "
-							+ " return '<b>' + this.series.name + '</b><br/>' +  "
-							+ "Math.round(((this.x)*100))/100 + ' to max value - '+ "
-							+ "this.y + ' interactions'" + "}");
-
-		InvientCharts chart = new InvientCharts(chartConfig);
-		chart.setHeight("100%");
-		XYSeries seriesData = new XYSeries("Total Distribution");
-		seriesData.setSeriesPoints(getTotalDistribution(seriesData, smallestIncrement));
-		chart.addSeries(seriesData);
-
-		for (String interactionType : ConfidentDataMap.keySet()) {
-			seriesData = new XYSeries(interactionType);
-			seriesData.setSeriesPoints(getDistribution(interactionType, smallestIncrement));
-			chart.addSeries(seriesData);
+		} else {
+			xAxisMax = ", max:" + maxX;
 		}
 
+		String tooltip = "tooltip: { formatter: function() { return ";
+		if (maxConfidenceValue != null && maxConfidenceValue <= 1) {
+			tooltip += "'<b>' + this.series.name + '</b><br/>' +  Math.round(((this.x)*100))/100 + ' '+ ' to 1 - ' + this.y + ' interactions'";
+		} else {
+			tooltip += "'<b>' + this.series.name + '</b><br/>' +  Math.round(((this.x)*100))/100 + ' to max value - '+ this.y + ' interactions'";
+		}
+		tooltip += "} }";
+
+		String series_for_total = getTotalDistribution(smallestIncrement);
+
+		StringBuffer series_for_types = new StringBuffer();
+		for (String interactionType : ConfidentDataMap.keySet()) {
+			series_for_types.append("{name:'" + interactionType + "', data:"
+					+ getDistribution(interactionType, smallestIncrement) + "},");
+		}
+
+		HighChart chart = new HighChart();
+		chart.setSizeFull();
+		String chartConfig = "chart: { marginRight: 30 }";
+		String title = resultSet.getCellularNetworkPreference().getTitle();
+		String xAxis = "xAxis: { title: {text: '" + axisTile + "'}, minPadding: 0.05, min:" + minX + xAxisMax + " }";
+		String yAxis = "yAxis: { title: {text: '# Interactions'}, gridLineWidth: 1, min: 0 }";
+		String options = "plotOptions: {series: {marker: {radius: 5, states: {hover: {lineColor: '#646464'} } } } }";
+		String hcjs = String.format(
+				"var options = { title: { text: '%s' }, series: [{ name: 'Total Distribution', %s}," +
+						series_for_types.toString()
+						+ "], %s, %s, %s, %s, %s };",
+				title, series_for_total, chartConfig, tooltip, xAxis, yAxis, options);
+		chart.setHcjs(hcjs);
 		return chart;
-		*/
-		return null;
 	}
 
-	// FIXME re-design for vaadin 7
 	/**
 	 * Calculate the graph points for Protein-Protein Interactions
 	 */
-	private LinkedHashSet<?> getDistribution(String interactionType, double smallestIncrement) {
-		/*
-		XYSeries seriesData = new XYSeries(interactionType);
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+	private String getDistribution(String interactionType, double smallestIncrement) {
+		StringBuffer points = new StringBuffer("[");
 		Double x = null;
 		Double y = null;
 		int[] distribution = new int[101];
@@ -365,21 +336,17 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		x = 0.0;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
+			points.append("[" + x + "," + y + "],");
 			x = x + smallestIncrement;
 		}
-		return points;
-		*/
-		return null;
+		return points.append("]").toString();
 	}
 
-	// FIXME re-design for vaadin 7
 	/**
 	 * Calculate the graph points for all Interactions
 	 */
-	private LinkedHashSet<?> getTotalDistribution(Object seriesData, double smallestIncrement) {
-		/*
-		LinkedHashSet<DecimalPoint> points = new LinkedHashSet<DecimalPoint>();
+	private String getTotalDistribution(double smallestIncrement) {
+		StringBuffer points = new StringBuffer("data: [");
 
 		Double x = null;
 		Double y = null;
@@ -400,41 +367,10 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 		x = 0.0d;
 		for (int j = 0; j < distribution.length; j++) {
 			y = (double) (distribution[j]);
-			points.add(new DecimalPoint(seriesData, x, y));
+			points.append("[" + x + "," + y + "],");
 			x = x + smallestIncrement;
 		}
-		return points;
-		*/
-		return null;
-	}
-
-	// FIXME re-design for vaadin 7
-	/**
-	 * Export SVG of the Throttle Graph
-	 */
-	public void plotExportSVG() {
-		/*
-		plot.addListener(new InvientCharts.ChartSVGAvailableListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void svgAvailable(
-					ChartSVGAvailableEvent chartSVGAvailableEvent) {
-
-				System.out.println(chartSVGAvailableEvent.getSVG());
-			}
-		});
-		*/
-	}
-
-	// FIXME re-design for vaadin 7
-	/**
-	 * Print the Throttle Graph of the CNKB Component
-	 */
-	public void plotPrint() {
-
-		//plot.print();
-
+		return points.append("]").toString();
 	}
 
 	private static Network createInMemoryNetwork(final Long parentId, final CNKBResultSet cnkbResultSet) {
@@ -665,7 +601,7 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 
 	protected void updatePlot(CNKBResultSet resultSet, double minX, double maxX) {
 		throttlePanel.replaceComponent(plot, drawPlot(resultSet, minX, maxX));
-		//plot = (InvientCharts) throttlePanel.getFirstComponent(); // FIXME re-design for vaadin 7
+		plot = (HighChart) throttlePanel.getFirstComponent();
 	}
 
 	@Override
