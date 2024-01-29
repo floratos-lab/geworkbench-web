@@ -62,6 +62,7 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 
 	@Override
 	public void attach() {
+		super.attach();
 		final MenuBar toolBar = new MenuBar();
 		toolBar.setStyleName("transparent");
 
@@ -77,7 +78,7 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				m.set3DRepresentation(selectedItem.getText());
+				m.getState().representation = selectedItem.getText();
 			}
 
 		};
@@ -139,7 +140,7 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				m.setResidueColorType(selectedItem.getText().toLowerCase());
+				m.getState().colorType = selectedItem.getText().toLowerCase();
 			}
 
 		};
@@ -151,6 +152,7 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 
 		this.addComponent(toolBar);
 		this.addComponent(m);
+		setExpandRatio(m, 1);
 	}
 
 	private final String OPTION_DISPLAY_ATOMS = "Display Atoms";
@@ -166,31 +168,31 @@ public class PDBViewer extends VerticalLayout implements Visualizer {
 	private void updateDisplay(MoleculeViewer m, String option, boolean checked) {
 		switch (option) {
 			case OPTION_DISPLAY_ATOMS:
-				m.setDisplayAtoms(checked);
+				m.getState().atoms = checked;
 				break;
 			case OPTION_DISPLAY_BONDS:
-				m.setDisplayBonds(checked);
+				m.getState().bonds = checked;
 				break;
 			case OPTION_DISPLAY_LABELS:
-				m.setDisplayLabels(checked);
+				m.getState().labels = checked;
 				break;
 			case OPTION_DISPLAY_RIBBON:
-				m.setDisplayRibbon(checked);
+				m.getState().ribbon = checked;
 				break;
 			case OPTION_DISPLAY_BACKBONE:
-				m.setDisplayBackbone(checked);
+				m.getState().backbone = checked;
 				break;
 			case OPTION_DISPLAY_PIPE_PLANK:
-				m.setDisplayPipe(checked);
+				m.getState().pipe = checked;
 				break;
 			case OPTION_CARTOONIZE:
-				m.setCartoonize(checked);
+				m.getState().cartoonize =checked;
 				break;
 			case OPTION_COLOR_BY_CHAIN:
-				m.setColorByChain(checked);
+				m.getState().colorByChain = checked;
 				break;
 			case OPTION_COLOR_BY_RESIDUE:
-				m.setColorByResidue(checked);
+				m.getState().colorByResidue = checked;
 				break;
 			default:
 				Notification.show("not implemented option: " + option);

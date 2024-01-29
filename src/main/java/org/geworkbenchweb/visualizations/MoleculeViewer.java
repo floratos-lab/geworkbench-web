@@ -1,105 +1,18 @@
 package org.geworkbenchweb.visualizations;
 
-import com.vaadin.server.PaintException;
-import com.vaadin.server.PaintTarget;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.annotations.JavaScript;
+import com.vaadin.ui.AbstractJavaScriptComponent;
 
-public class MoleculeViewer extends AbstractComponent {
+@JavaScript({ "https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js", "ChemDoodleWeb.js",
+		"molecule_viewer.js" })
+public class MoleculeViewer extends AbstractJavaScriptComponent {
 
-	private static final long serialVersionUID = 4600493722698214718L;
-
-	final private String pdbcontent;
-	private String representation = null;
-	private boolean atoms = false;
-	private boolean bonds = false;
-	private boolean labels = false;
-	private boolean ribbon = true;
-	private boolean backbone = false;
-	private boolean pipe = false;
-	private boolean cartoonize = true;
-	private boolean colorByChain = false;
-	private boolean colorByResidue = false;
-
-	private String colorType = "amino";
+	@Override
+	public MoleculeViewerState getState() {
+		return (MoleculeViewerState) super.getState();
+	}
 
 	public MoleculeViewer(String pdbcontent) {
-		this.pdbcontent = pdbcontent;
-	}
-
-	public void set3DRepresentation(String representation) {
-		this.representation = representation;
-		requestRepaint();
-	}
-
-	// FIXME this should be replaced by vaadin 7 communication mechanism
-	public void paintContent(PaintTarget target) throws PaintException {
-
-		if (representation == null)
-			representation = "van der Waals Spheres";
-
-		target.addAttribute("pdbcontent", pdbcontent);
-		target.addAttribute("representation", representation);
-
-		target.addAttribute("displayAtoms", atoms);
-		target.addAttribute("displayBonds", bonds);
-		target.addAttribute("displayLabels", labels);
-		target.addAttribute("displayRibbon", ribbon);
-		target.addAttribute("displayBackbone", backbone);
-		target.addAttribute("displayPipe", pipe);
-		target.addAttribute("cartoonize", cartoonize);
-		target.addAttribute("colorByChain", colorByChain);
-		target.addAttribute("colorByResidue", colorByResidue);
-
-		target.addAttribute("colorType", colorType);
-	}
-
-	public void setDisplayAtoms(boolean checked) {
-		this.atoms = checked;
-		requestRepaint();
-	}
-
-	public void setDisplayBonds(boolean checked) {
-		this.bonds = checked;
-		requestRepaint();
-	}
-
-	public void setDisplayLabels(boolean checked) {
-		this.labels = checked;
-		requestRepaint();
-	}
-
-	public void setDisplayRibbon(boolean checked) {
-		this.ribbon = checked;
-		requestRepaint();
-	}
-
-	public void setDisplayBackbone(boolean checked) {
-		this.backbone = checked;
-		requestRepaint();
-	}
-
-	public void setDisplayPipe(boolean checked) {
-		this.pipe = checked;
-		requestRepaint();
-	}
-
-	public void setCartoonize(boolean checked) {
-		this.cartoonize = checked;
-		requestRepaint();
-	}
-
-	public void setColorByChain(boolean checked) {
-		this.colorByChain = checked;
-		requestRepaint();
-	}
-
-	public void setColorByResidue(boolean checked) {
-		this.colorByResidue = checked;
-		requestRepaint();
-	}
-
-	public void setResidueColorType(String colorType) {
-		this.colorType = colorType;
-		requestRepaint();
+		getState().pdb_content = pdbcontent;
 	}
 }

@@ -1,10 +1,33 @@
-var $molecule_viewer = {}; /* module namespace */
+window.org_geworkbenchweb_visualizations_MoleculeViewer = function () {
+	this.onStateChange = function () {
+		$molecule_viewer.set3DRepresentation(this.getState().representation)
+		$molecule_viewer.setDisplayAtoms(this.getState().atoms)
+		$molecule_viewer.setDisplayBonds(this.getState().bonds)
+		$molecule_viewer.setDisplayLabels(this.getState().labels)
+		$molecule_viewer.setDisplayRibbon(this.getState().ribbon)
+		$molecule_viewer.setDisplayBackbone(this.getState().backbone)
+		$molecule_viewer.setDisplayPipe(this.getState().pipe)
+		$molecule_viewer.setCartoonize(this.getState().cartoonize)
+		$molecule_viewer.setColorByChain(this.getState().colorByChain)
 
-$molecule_viewer.create = function(id, pdb_content, representation) {
-	var div = document.getElementById(id);
-	
+		$molecule_viewer.setColorType(this.getState().colorType)
+		$molecule_viewer.setColorByResidue(this.getState().colorByResidue)
+
+		$molecule_viewer.repaint()
+	}
+
+	$molecule_viewer.create(this.getElement(), this.getState().pdb_content, this.getState().representation)
+}
+
+const $molecule_viewer = {
+	repaint: function () {
+		this.display3d.repaint();
+	}
+}
+
+$molecule_viewer.create = function (div, pdb_content, representation) {
 	$(div).empty();
-	
+
 	var c = document.createElement('CANVAS');
 	c.id = 'display3d';
 	var w = $(div).parents('div.v-verticallayout').width();
@@ -13,12 +36,12 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 	div.appendChild(c);
 
 	this.display3d = new ChemDoodle.TransformCanvas3D('display3d', w, h);
-	if(this.display3d['gl']==null) {
+	if (this.display3d['gl'] == null) {
 		var x = document.createElement('div');
 		x.innerHTML = 'Your browser is not fully supported for this molecule viewer. Please try other browsers to enjoy better visualization.';
 		div.insertBefore(x, c);
-		
-		this.display3d = new ChemDoodle.TransformCanvas('display3d', w, h-50, true);
+
+		this.display3d = new ChemDoodle.TransformCanvas('display3d', w, h - 50, true);
 		this.display3d.specs.atoms_circles_2D = true;
 		this.display3d.specs.atoms_useJMOLColors = true;
 		this.display3d.specs.bonds_useJMOLColors = true;
@@ -39,61 +62,50 @@ $molecule_viewer.create = function(id, pdb_content, representation) {
 
 $molecule_viewer.colorType = 'amino';
 
-$molecule_viewer.set3DRepresentation = function(representation) {
+$molecule_viewer.set3DRepresentation = function (representation) {
 	this.display3d.specs.set3DRepresentation(representation);
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayAtoms = function(displayAtoms) {
+$molecule_viewer.setDisplayAtoms = function (displayAtoms) {
 	this.display3d.specs.macro_displayAtoms = displayAtoms;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayBonds = function(displayBonds) {
+$molecule_viewer.setDisplayBonds = function (displayBonds) {
 	this.display3d.specs.macro_displayBonds = displayBonds;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayLabels = function(displayLabels) {
+$molecule_viewer.setDisplayLabels = function (displayLabels) {
 	this.display3d.specs.atoms_displayLabels_3D = displayLabels;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayRibbon = function(displayRibbon) {
+$molecule_viewer.setDisplayRibbon = function (displayRibbon) {
 	this.display3d.specs.proteins_displayRibbon = displayRibbon;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayBackbone = function(displayBackbone) {
+$molecule_viewer.setDisplayBackbone = function (displayBackbone) {
 	this.display3d.specs.proteins_displayBackbone = displayBackbone;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setDisplayPipe = function(displayPipe) {
+$molecule_viewer.setDisplayPipe = function (displayPipe) {
 	this.display3d.specs.proteins_displayPipePlank = displayPipe;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setCartoonize = function(cartoonize) {
+$molecule_viewer.setCartoonize = function (cartoonize) {
 	this.display3d.specs.proteins_ribbonCartoonize = cartoonize;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setColorByChain = function(colorByChain) {
+$molecule_viewer.setColorByChain = function (colorByChain) {
 	this.display3d.specs.macro_colorByChain = colorByChain;
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setColorByResidue = function(colorByResidue) {
-	if(colorByResidue) {
+$molecule_viewer.setColorByResidue = function (colorByResidue) {
+	if (colorByResidue) {
 		this.display3d.specs.proteins_residueColor = $molecule_viewer.colorType;
 	} else {
 		this.display3d.specs.proteins_residueColor = 'none';
 	}
-	this.display3d.repaint();
 };
 
-$molecule_viewer.setColorType = function(colorType) {
+$molecule_viewer.setColorType = function (colorType) {
 	this.display3d.specs.proteins_residueColor = $molecule_viewer.colorType = colorType;
-	this.display3d.repaint();
 };
