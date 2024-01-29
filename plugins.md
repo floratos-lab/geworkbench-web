@@ -41,7 +41,7 @@ the second group, called 'standalone', is only presented via the geWorkbench use
 2. citrus diagram
 3. cytoscape
 4. dendrogram
-5. molecular viewer
+5. molecular viewer - re-done for vaadin 7
 
 ### barcode table
 This is part of MsViper result viewer. MsViper is a synonym of marina.
@@ -50,7 +50,7 @@ This is part of MsViper result viewer. MsViper is a synonym of marina.
 Part of GeneBasedQueryAndDataIntegration (TCGA Driver-Gene Inference).
 
 ### cytoscape
-Part of Networkviwer.
+Part of NetworkViewer.
 
 ### dendrogram
 Used in hierarchical clustering result viewer. References from HierarchicalClusteringResultUI, DisplayOptionCommand, and SubsetCommand.
