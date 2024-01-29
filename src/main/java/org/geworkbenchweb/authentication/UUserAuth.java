@@ -73,15 +73,11 @@ public class UUserAuth extends VerticalLayout {
 	public void attach() {
 		super.attach();
 
-		/*
-		 * this needs to be done from attach() instead of constructor because it needs
-		 * getApplication()
-		 */
 		Panel aboutPanel = new Panel("About geWorkbench");
 		VerticalLayout aboutWindowLayout = new VerticalLayout();
-		aboutWindowLayout.setStyleName("xpanel");
+		aboutPanel.setContent(aboutWindowLayout);
+		aboutPanel.setStyleName("xpanel");
 
-		aboutWindowLayout.addComponent(aboutPanel);
 		aboutWindowLayout.setMargin(true);
 		aboutWindowLayout.setSpacing(true);
 
@@ -105,14 +101,14 @@ public class UUserAuth extends VerticalLayout {
 
 		aboutMessage.setValue(text);
 		aboutMessage.setContentMode(ContentMode.HTML);
-		aboutPanel.setContent(aboutMessage);
+		aboutWindowLayout.addComponent(aboutMessage);
 
 		aboutWindowLayout.addComponent(closeMessageButton);
 		aboutWindowLayout.setComponentAlignment(closeMessageButton, Alignment.TOP_RIGHT);
 
-		aboutWindowLayout.setWidth("50%");
-		loginForm.addComponent(aboutWindowLayout);
-		loginForm.setComponentAlignment(aboutWindowLayout, Alignment.MIDDLE_CENTER);
+		aboutPanel.setWidth("50%");
+		loginForm.addComponent(aboutPanel);
+		loginForm.setComponentAlignment(aboutPanel, Alignment.MIDDLE_CENTER);
 
 		log.debug("about message is attached");
 	}
