@@ -248,7 +248,6 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				cy.setLayout(selectedItem.getText());
-				cy.requestRepaint();
 			}
 
 		};
