@@ -10,7 +10,6 @@ import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ListSelect;
@@ -50,7 +49,6 @@ public class ChooseTTestResultDialog extends Window {
 
 		this.setModal(true);
 		this.setClosable(true);
-		((AbstractOrderedLayout) this.getContent()).setSpacing(true);
 		this.setWidth("250px");
 		this.setHeight("200px");
 		this.setResizable(true);
@@ -88,6 +86,7 @@ public class ChooseTTestResultDialog extends Window {
 		});
 		submit.setClickShortcut(KeyCode.ENTER);
 		VerticalLayout layout = new VerticalLayout();
+		layout.setSpacing(true);
 		this.setContent(layout);
 		layout.addComponent(tTestResultSelect);
 		layout.addComponent(submit);

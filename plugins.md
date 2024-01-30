@@ -15,7 +15,7 @@ the second group, called 'standalone', is only presented via the geWorkbench use
 7. marina: on
 8. markus: not fully functioning
 
-## list of visualiztion plug-ins
+## list of visualization plug-ins
 1. anova result: on
 2. aracne result: on
 3. cnkb result: on
@@ -35,11 +35,11 @@ the second group, called 'standalone', is only presented via the geWorkbench use
 3. pbqdi: not fully functioning
 4. TCGA Driver-Gene Inference: on
 
-## customized widgets
+## customized visualization/widgets
 
 1. barcode table
 2. citrus diagram
-3. cytoscape
+3. cytoscape - re-done for vaadin 7
 4. dendrogram
 5. molecular viewer - re-done for vaadin 7
 

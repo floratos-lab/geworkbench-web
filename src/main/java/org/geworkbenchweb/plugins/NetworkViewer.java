@@ -96,6 +96,8 @@ public class NetworkViewer extends VerticalLayout implements Visualizer {
 
 	@Override
 	public void attach() {
+		super.attach();
+
 		this.removeAllComponents();
 
 		if (networkResult == null) {

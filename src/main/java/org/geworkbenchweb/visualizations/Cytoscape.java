@@ -1,68 +1,31 @@
 package org.geworkbenchweb.visualizations;
 
-import com.vaadin.server.PaintException;
-import com.vaadin.server.PaintTarget;
-import com.vaadin.server.VariableOwner;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.annotations.JavaScript;
+import com.vaadin.ui.AbstractJavaScriptComponent;
 
-/**
- * Server side component for the VCytoscape widget.
- */
-public class Cytoscape extends AbstractComponent {
+@JavaScript({ "https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js", "cytoscape.min.js",
+		"jquery.contextMenu.min.js", "network_viewer.js" })
+public class Cytoscape extends AbstractJavaScriptComponent {
 
-	private static final long serialVersionUID = -6368440900242204532L;
-
-	private String[] nodes;
-	private String[] edges;
-
-	private String layoutName = "concentric"; // default
-
-	// FIXME this should be replaced by vaadin 7 communication mechanism
-	VariableOwner temporary = null;
-
-	// FIXME this should be replaced by vaadin 7 communication mechanism
-	public void paintContent(PaintTarget target) throws PaintException {
-
-		target.addAttribute("layoutName", layoutName);
-
-		target.addVariable(temporary, "nodes", getNodes());
-		target.addVariable(temporary, "edges", getEdges());
-
-		if (colors != null)
-			target.addVariable(temporary, "colors", colors);
+	@Override
+	public CytoscapeState getState() {
+		return (CytoscapeState) super.getState();
 	}
 
 	public void setNodes(String[] nodes) {
-		this.nodes = nodes;
-		requestRepaint();
-	}
-
-	public String[] getNodes() {
-
-		return nodes;
-
+		getState().nodes = nodes;
 	}
 
 	public void setEdges(String[] edges) {
-		this.edges = edges;
-		requestRepaint();
-	}
-
-	public String[] getEdges() {
-
-		return edges;
-
+		getState().edges = edges;
 	}
 
 	public void setLayout(String layoutName) {
-		this.layoutName = layoutName;
+		getState().layoutName = layoutName;
 	}
 
-	private String[] colors = null;
-
 	public void setColor(String[] colors) {
-		this.colors = colors;
-		requestRepaint();
+		getState().colors = colors;
 	}
 
 }
