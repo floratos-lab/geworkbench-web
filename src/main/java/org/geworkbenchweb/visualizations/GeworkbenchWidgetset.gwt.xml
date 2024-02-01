@@ -10,9 +10,6 @@
 
    	<script src="js/msviper.js" />
 
-	<!--  interaction color mosaic -->
-	<script src="js/interaction_color_mosaic.js" />
-
 	<!--  citrus diagram -->
 	<script src="js/d3.v3.min.js" />
 	<script src="js/citrus_diagram.js" />
