@@ -1,3 +1,14 @@
+window.org_geworkbenchweb_visualizations_CitrusDiagram = function () {
+	this.onStateChange = function () {
+		if(this.getState().zoom) {
+			$citrus_diagram.rescale(this.getState().xzoom, this.getState().yzoom)
+		} else {
+			$citrus_diagram.create(this.getElement(), this.getState().alteration, this.getState().samples, this.getState().presence,
+			 this.getState().preppi, this.getState().cindy, this.getState().pvalue, this.getState().nes)
+		}
+	}	
+}
+
 var $citrus_diagram = {}; /* module namespace */
 
 // external size
@@ -9,11 +20,10 @@ $citrus_diagram.x_scale = 1;
 $citrus_diagram.y_scale_coef = 0;
 $citrus_diagram.y_scale = 1;
 
-$citrus_diagram.create = function(id, alteration, samples, presence, preppi, cindy, pvalue, nes) {
-	var div = document.getElementById(id);
+$citrus_diagram.create = function(div, alteration, samples, presence, preppi, cindy, pvalue, nes) {
 	$(div).empty();
 
-	var svg = d3.select("div#"+id)
+	var svg = d3.select(div)
 		.style("background-color", "#F2F2F2")
 		.append("svg")
         .attr({"viewBox":"0 0 "+$citrus_diagram.width+" "+$citrus_diagram.height,
