@@ -3,7 +3,7 @@ package org.geworkbenchweb.visualizations;
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.ui.AbstractJavaScriptComponent;
 
-@JavaScript({ "https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js", "d3.v3.min.js", "citrus_diagram.js" })
+@JavaScript({ "d3.v3.min.js", "citrus_diagram.js" })
 public class CitrusDiagram extends AbstractJavaScriptComponent {
 
 	@Override

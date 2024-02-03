@@ -21,7 +21,7 @@ $citrus_diagram.y_scale_coef = 0;
 $citrus_diagram.y_scale = 1;
 
 $citrus_diagram.create = function(div, alteration, samples, presence, preppi, cindy, pvalue, nes) {
-	$(div).empty();
+	div.textContent = ""
 
 	var svg = d3.select(div)
 		.style("background-color", "#F2F2F2")
