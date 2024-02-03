@@ -437,12 +437,12 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 			Item item = dataIn.addItem(i);
 			item.getItemProperty(columnNames[0]).setValue(rdata[i][0]);
 			item.getItemProperty(columnNames[1]).setValue(rdata[i][1]);
-			item.getItemProperty(columnNames[2]).setValue(rdata[i][2]);
-			item.getItemProperty(columnNames[3]).setValue(rdata[i][3]);
+			item.getItemProperty(columnNames[2]).setValue(Integer.valueOf(rdata[i][2]));
+			item.getItemProperty(columnNames[3]).setValue(Double.valueOf(rdata[i][3]));
 			item.getItemProperty(columnNames[4]).setValue(
-					Math.abs(new Double(rdata[i][3])));
-			item.getItemProperty(columnNames[5]).setValue(rdata[i][4]);
-			item.getItemProperty(columnNames[6]).setValue(rdata[i][5]);
+					Math.abs(Double.valueOf(rdata[i][3])));
+			item.getItemProperty(columnNames[5]).setValue(Double.valueOf(rdata[i][4]));
+			item.getItemProperty(columnNames[6]).setValue(Double.valueOf(rdata[i][5]));
 			Button detailsField = null;
 			if (!isShadowTable) {
 				List<String> m = leadingEdges.get(rdata[i][0]);
