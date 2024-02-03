@@ -37,7 +37,7 @@ the second group, called 'standalone', is only presented via the geWorkbench use
 
 ## customized visualization/widgets
 
-1. barcode table
+1. barcode table - re-done for vaadin 7
 2. citrus diagram - re-done for vaadin 7
 3. cytoscape - re-done for vaadin 7
 4. dendrogram

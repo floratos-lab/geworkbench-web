@@ -8,8 +8,6 @@
     
     <inherits name="org.vaadin.easyuploads.EasyuploadsWidgetset" />
 
-   	<script src="js/msviper.js" />
-
     <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />

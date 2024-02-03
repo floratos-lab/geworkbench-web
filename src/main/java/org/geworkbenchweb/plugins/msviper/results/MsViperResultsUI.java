@@ -144,9 +144,7 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		graphForTop.setWidth("50px");
 		graphForTop.setCaption("Graphs for top");
 		graphForTop.setValue("10");
-		final IntegerRangeValidator v = new IntegerRangeValidator(
-				"Please enter a positive integer.", 0, null);
-		// graphForTop.addValidator(v);
+		graphForTop.setConverter(Integer.class);
 
 		graphForTop.setImmediate(true);
 
@@ -156,27 +154,37 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 		graphForTop.addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = 1048639156493298177L;
 
-			public void valueChange(Property.ValueChangeEvent e) {
-				if (v.isValid(graphForTop.getValue().toString()))
-					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
-							barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+			public void valueChange(Property.ValueChangeEvent event) {
+				try {
+					Object graph_for_top = graphForTop.getConvertedValue();
+					Object bar_height = barHeigh.getConvertedValue();
+					updateBarcodeTable(msViperResult, graph_for_top.toString(),
+							bar_height.toString(), genePresent.getValue().toString().trim(), mraTable,
 							splitPanel);
+				} catch (com.vaadin.data.util.converter.Converter.ConversionException e) {
+					// no-op
+				}
 			}
 		});
 
 		barHeigh.setWidth("50px");
 		barHeigh.setCaption("Bar Height");
 		barHeigh.setValue("15");
-		// barHeigh.addValidator(v);
+		barHeigh.setConverter(Integer.class);
 		barHeigh.setImmediate(true);
 		barHeigh.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = 1L;
 
 			public void valueChange(ValueChangeEvent event) {
-				if (v.isValid(barHeigh.getValue().toString()))
-					updateBarcodeTable(msViperResult, graphForTop.getValue().toString().trim(),
-							barHeigh.getValue().toString().trim(), genePresent.getValue().toString().trim(), mraTable,
+				try {
+					Object graph_for_top = graphForTop.getConvertedValue();
+					Object bar_height = barHeigh.getConvertedValue();
+					updateBarcodeTable(msViperResult, graph_for_top.toString(),
+							bar_height.toString(), genePresent.getValue().toString().trim(), mraTable,
 							splitPanel);
+				} catch (com.vaadin.data.util.converter.Converter.ConversionException e) {
+					// no-op
+				}
 			}
 		});
 
@@ -596,9 +604,14 @@ public class MsViperResultsUI extends VerticalLayout implements Visualizer {
 			final String barHeighStr, final String genePresentStr, final Table mraTable,
 			final VerticalSplitPanel splitPanel) {
 
-		IntegerRangeValidator v = new IntegerRangeValidator("", 0, null);
-		if (!(v.isValid(graphForTopStr) && v.isValid(barHeighStr)))
+		try {
+			IntegerRangeValidator v = new IntegerRangeValidator("", 0, null);
+			v.validate(Integer.valueOf(graphForTopStr));
+			v.validate(Integer.valueOf(barHeighStr));
+		} catch (com.vaadin.data.Validator.InvalidValueException e) {
+			e.printStackTrace();
 			return;
+		}
 
 		List<Regulator> regulators = getRegulators(msViperResult, genePresentStr, mraTable, Integer.valueOf(
 				graphForTopStr));
