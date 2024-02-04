@@ -5,7 +5,6 @@ import org.vaadin.easyuploads.UploadField.FieldType;
 import org.vaadin.easyuploads.UploadField.StorageMode;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
@@ -66,7 +65,6 @@ public class DirectGeneEntry extends VerticalLayout {
 				final Window geneDialog = new Window();
 				geneDialog.setModal(true);
 				geneDialog.setClosable(true);
-				((AbstractOrderedLayout) geneDialog.getContent()).setSpacing(true);
 				geneDialog.setWidth("300px");
 				geneDialog.setHeight("150px");
 				geneDialog.setResizable(false);
@@ -93,6 +91,7 @@ public class DirectGeneEntry extends VerticalLayout {
 				});
 				submit.setClickShortcut(KeyCode.ENTER);
 				VerticalLayout layout = new VerticalLayout();
+				layout.setSpacing(true);
 				geneDialog.setContent(layout);
 				layout.addComponent(geneSymbol);
 				layout.addComponent(submit);

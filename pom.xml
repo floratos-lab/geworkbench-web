@@ -383,11 +383,10 @@
 			<version>3.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.vaadin.addons/easyuploads -->
 		<dependency>
-			<groupId>org.vaadin.addons</groupId>
+			<groupId>org.vaadin.addon</groupId>
 			<artifactId>easyuploads</artifactId>
-			<version>0.5.3</version>
+			<version>7.4.10</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.eclipse.persistence/eclipselink -->
