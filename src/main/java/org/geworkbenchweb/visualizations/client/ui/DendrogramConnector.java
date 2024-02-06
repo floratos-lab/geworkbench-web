@@ -55,7 +55,6 @@ public class DendrogramConnector extends AbstractComponentConnector {
         widget.markerPos = state.markerPos;
 
         if (state.requestExportImage) {
-            state.requestExportImage = false; // FIXME this does NOT work
             // this does not show in eclipse workspace browser somehow
             Canvas offline = widget.createOfflineImage(exportImageCellWidth, exportImageCellHeight, markerNumber,
                     arrayCluster, markerCluster);
@@ -67,6 +66,8 @@ public class DendrogramConnector extends AbstractComponentConnector {
             else
                 Window.open(dataUrl, "dendrogram_snapshot", "");
 
+            DendrogramServerRpc rpc = getRpcProxy(DendrogramServerRpc.class);
+            rpc.resetExportStatus();
         } else
             widget.createOnlineImage(markerNumber, arrayCluster, markerCluster);
     }

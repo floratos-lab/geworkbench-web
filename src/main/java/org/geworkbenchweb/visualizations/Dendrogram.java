@@ -3,6 +3,7 @@ package org.geworkbenchweb.visualizations;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.geworkbenchweb.visualizations.client.ui.DendrogramServerRpc;
 import org.geworkbenchweb.visualizations.client.ui.DendrogramState;
 
 import com.vaadin.ui.AbstractComponent;
@@ -40,6 +41,8 @@ public class Dendrogram extends AbstractComponent {
 		// this is the upper limit because on the client side the space is smaller by
 		// excluding microarray dendrogram and microarray labels
 		getState().paintableMarkers = Math.min(markerNumber, MAX_HEIGHT / getState().cellHeight);
+
+		registerRpc(rpc);
 	}
 
 	final private int MAX_HEIGHT = 10000;
@@ -107,4 +110,11 @@ public class Dendrogram extends AbstractComponent {
 		}
 		getState().requestExportImage = true;
 	}
+
+	private DendrogramServerRpc rpc = new DendrogramServerRpc() {
+		@Override
+		public void resetExportStatus() {
+			getState().requestExportImage = false;
+		}
+	};
 }
