@@ -11,19 +11,14 @@ import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
- 
 import com.vaadin.client.ApplicationConnection;
-import com.vaadin.client.Paintable;
-import com.vaadin.client.UIDL;
 
 /**
  * Client side code for Dendrogram widget.
  */
-@com.vaadin.shared.ui.Connect(org.geworkbenchweb.visualizations.Dendrogram.class)
-public final class VDendrogram extends Composite implements Paintable {
+public final class VDendrogram extends Composite {
 
 	/* two variables to communicate back to the server side*/
 	/** The client side widget identifier */
@@ -35,7 +30,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	/* GUI elements */
 	private final AbsolutePanel panel = new AbsolutePanel();
 	
-	private final Canvas heatmapCanvas = Canvas.createIfSupported();
+	final Canvas heatmapCanvas = Canvas.createIfSupported();
 	private final Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
 	private final Canvas markerDendrogramCanvas = Canvas.createIfSupported();
 	private final Canvas arrayLabelCanvas = Canvas.createIfSupported();
@@ -44,7 +39,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	private final Canvas downArrowCanvas, upArrowCanvas;
 	
 	/* the status variables that are needed even without communication with server side */
-	private int firstMarker = 0;
+	int firstMarker = 0;
 	// the following variables are necessary to be member variables only to handle the last 'page'
 	//private int markerNumber = 0; 
 	private int paintableMarkers = 0; // the number of row we may want to draw. that should cover [yIndex1, yIndex2]
@@ -56,12 +51,12 @@ public final class VDendrogram extends Composite implements Paintable {
     private int markerClusterHeight = 0;
     
 	/* variables from server side. they are also part of status */
-	private int arrayNumber;
-	private int cellWidth;
-    private int cellHeight;
-	private String[] arrayLabels;
-	private String[] markerLabels;
-	private int[] colors; // the actual color data in the form of a one-dimensional array	 
+	int arrayNumber;
+	int cellWidth;
+    int cellHeight;
+	String[] arrayLabels;
+	String[] markerLabels;
+	int[] colors; // the actual color data in the form of a one-dimensional array	 
 	
     /* constants */
     final static private int MAX_WIDTH = 15000;
@@ -71,15 +66,13 @@ public final class VDendrogram extends Composite implements Paintable {
 	final static private int deltaH = 5; // the increment of the dendrogram height
 
 	/* support part selection of dendrogram*/
-	private int xIndex1;
-	private int xIndex2;
-	private int yIndex1;
-	private int yIndex2;
+	int xIndex1;
+	int xIndex2;
+	int yIndex1;
+	int yIndex2;
 	
-	//20.07.2016
-	private String arrayPos; //Can be Bottom or Top also
-	private String markerPos; //Can be Right or Left also
-	///
+	String arrayPos; //Can be Bottom or Top also
+	String markerPos; //Can be Right or Left also
 	
     private ClusterHandler microarrayClusterHandler = new ClusterHandler() {
 
@@ -146,72 +139,7 @@ public final class VDendrogram extends Composite implements Paintable {
 		arrayDendrogramCanvas.addClickHandler(microarrayClusterHandler);
 		markerDendrogramCanvas.addClickHandler(markerClusterHandler);
 	}
-    
-    /**
-     * Called whenever an update is received from the server 
-     */
-	@Override
-	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-		
-		if (client.updateComponent(this, uidl, true)) {
-			return;
-		}
 
-		this.client = client;
-		paintableId = uidl.getId();
-
-		if (heatmapCanvas == null) {
-            // "Sorry, your browser doesn't support the HTML5 Canvas element";
-            return;
-		}
-
-		// the difference between Attribute and Variable: in general, if not to be changed here (in client), use attribute
-		// see https://vaadin.com/forum/-/message_boards/view_message/192733
-		arrayNumber = uidl.getIntAttribute("arrayNumber");
-		int markerNumber = uidl.getIntAttribute("markerNumber"); // TODO how much use of this on server side?
-		String arrayCluster = uidl.getStringAttribute("arrayCluster");
-		String markerCluster = uidl.getStringAttribute("markerCluster");
-		colors = uidl.getIntArrayAttribute("colors"); // this could be partial data if firstMarker>0
-		arrayLabels = uidl.getStringArrayAttribute("arrayLabels");
-		markerLabels = uidl.getStringArrayAttribute("markerLabels");
-		
-		cellWidth = uidl.getIntAttribute("cellWidth");
-		cellHeight = uidl.getIntAttribute("cellHeight");
-		int exportImageCellWidth = uidl.getIntAttribute("exportImageCellWidth");
-		int exportImageCellHeight = uidl.getIntAttribute("exportImageCellHeight");
-	 
-		firstMarker = uidl.getIntVariable("firstMarker");
-
-		xIndex1 = uidl.getIntVariable("arrayIndex1");
-		xIndex2 = uidl.getIntVariable("arrayIndex2");
-		yIndex1 = uidl.getIntVariable("markerIndex1");
-		yIndex2 = uidl.getIntVariable("markerIndex2");	 
-		
-		//20.07.2016
-		arrayPos = uidl.getStringVariable("arrayPos");
-		markerPos = uidl.getStringVariable("markerPos");
-		///
-
-		if(uidl.getBooleanVariable("exportImage")) {
-			// this does not show in eclipse workspace browser somehow		 
-			Canvas offline = createOfflineImage(exportImageCellWidth, exportImageCellHeight, markerNumber, arrayCluster, markerCluster);
-			// use the fixed window name so the window is reused for this functionality
-			String dataUrl = offline.toDataUrl("image/png");		 
-			
-			if (isIEBrowser())
-			    openCanvasImage(dataUrl);
-			else
-		        Window.open(dataUrl, "dendrogram_snapshot", "");
-		     
-		    
-			//	client.updateVariable(paintableId, "imageUrl", heatmapCanvas.toDataUrl("image/png"), true);
-		}
-		else
-			createOnlineImage(markerNumber, arrayCluster, markerCluster);
-		
-	}
-	
-	
 	public native void alert(String s)/*-{
 	    alert(s);
 
@@ -243,7 +171,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	    return navigator.userAgent.toLowerCase();
 	}-*/;
 	
-    private void createOnlineImage(int markerNumber, String arrayCluster, String markerCluster) {
+    void createOnlineImage(int markerNumber, String arrayCluster, String markerCluster) {
     	
     	ClusterParser parser = new ClusterParser();
 		ClusterNode microarrayDendrogramRoot = parser.parse(arrayCluster, cellWidth, xIndex1);
@@ -265,7 +193,7 @@ public final class VDendrogram extends Composite implements Paintable {
 	}
     
 	
-	private Canvas createOfflineImage(int offlineCellWidth, int offlineCellHeight, int markerNumber, String arrayCluster, String markerCluster) {
+	Canvas createOfflineImage(int offlineCellWidth, int offlineCellHeight, int markerNumber, String arrayCluster, String markerCluster) {
 		
 		Canvas heatmapCanvas = Canvas.createIfSupported();
 		Canvas arrayDendrogramCanvas = Canvas.createIfSupported();
