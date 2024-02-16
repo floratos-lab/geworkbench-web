@@ -9,7 +9,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.0.7</vaadin.version>
+		<vaadin.version>7.7.17</vaadin.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
@@ -83,20 +83,20 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
-			<version>7.0.7</version>
+			<version>${vaadin.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client</artifactId>
-			<version>7.0.7</version>
+			<version>${vaadin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-themes -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
-			<version>7.0.7</version>
+			<version>${vaadin.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client-compiler -->
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiler</artifactId>
-			<version>7.0.7</version>
+			<version>${vaadin.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
