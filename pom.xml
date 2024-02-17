@@ -398,11 +398,6 @@
 			<version>1_04_03_for_kaffe</version>
 		</dependency>
 		<dependency>
-			<groupId>PagedTable</groupId>
-			<artifactId>PagedTable</artifactId>
-			<version>0.6.3</version>
-		</dependency>
-		<dependency>
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.8-20120326</version>
@@ -431,6 +426,11 @@
 			<groupId>org.vaadin.highcharts</groupId>
 			<artifactId>highcharts</artifactId>
 			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>pagedtable</artifactId>
+			<version>0.6.5</version>
 		</dependency>
 
 		<dependency>

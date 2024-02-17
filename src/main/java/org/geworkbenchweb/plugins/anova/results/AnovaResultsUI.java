@@ -186,11 +186,11 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 
 			if (anovaTablePref.selectPVal()) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(
-						result2DArray[0][cx]);
+						(float) result2DArray[0][cx]);
 			}
 			if (anovaTablePref.selectFStat()) {
 				dataIn.getContainerProperty(id, header[fieldIndex++]).setValue(
-						result2DArray[2][cx]);
+						(float) result2DArray[2][cx]);
 			}
 			for (int gc = 0; gc < groupNum; gc++) {
 				if (anovaTablePref.selectMean()) {
@@ -199,7 +199,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 							header[meanStdStartAtIndex + gc
 									* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
 									+ 0])
-							.setValue(result2DArray[3 + gc * 2][cx]);
+							.setValue((float) result2DArray[3 + gc * 2][cx]);
 				}
 				if (anovaTablePref.selectStd()) {
 					dataIn.getContainerProperty(
@@ -207,8 +207,7 @@ public class AnovaResultsUI extends VerticalLayout implements Tabular {
 							header[meanStdStartAtIndex + gc
 									* ((anovaTablePref.selectMean() ? 1 : 0) + (anovaTablePref.selectStd() ? 1 : 0))
 									+ (anovaTablePref.selectMean() ? 1 : 0)])
-							.setValue(
-									result2DArray[4 + gc * 2][cx]);
+							.setValue((float) result2DArray[4 + gc * 2][cx]);
 				}
 			}
 
