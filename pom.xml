@@ -60,7 +60,7 @@
 	</build>
 
 	<repositories>
-		<repository>			<!-- for icepush, and easyuploads -->
+		<repository>
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
@@ -71,10 +71,6 @@
 		<repository>			<!-- this is for jhlabs (a stealthy dependency of captcha )-->
 			<id>dev.lutece.paris.fr</id>
 			<url>https://dev.lutece.paris.fr/nexus/content/repositories/maven_repository</url>
-		</repository>
-		<repository>			<!-- for icepush-gwt -->
-			<id>genesis.ugent.be</id>
-			<url>https://genesis.ugent.be/maven2/</url>
 		</repository>
 	</repositories>
 
@@ -96,6 +92,11 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
 
@@ -207,11 +208,6 @@
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>axis2-transport-local</artifactId>
 			<version>1.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>icepush</artifactId>
-			<version>0.5.6</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -386,18 +382,6 @@
 			<version>2.5</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.icepush/icepush -->
-		<dependency>
-			<groupId>org.icepush</groupId>
-			<artifactId>icepush</artifactId>
-			<version>3.3.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.icepush/icepush-gwt -->
-		<dependency>
-			<groupId>org.icepush</groupId>
-			<artifactId>icepush-gwt</artifactId>
-			<version>2.0.0-A3</version>
-		</dependency>
 		<dependency>
 			<groupId>interactions</groupId>
 			<artifactId>interactions</artifactId>

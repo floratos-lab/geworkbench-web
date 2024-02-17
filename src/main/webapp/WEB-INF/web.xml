@@ -14,7 +14,7 @@
 
   <servlet>
     <servlet-name>Geworkbench Application</servlet-name>
-    <servlet-class>org.vaadin.artur.icepush.ICEPushServlet</servlet-class>
+    <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
     <init-param>
       <description>
   		Vaadin application class to start</description>
@@ -27,6 +27,17 @@
       <param-name>widgetset</param-name>
       <param-value>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</param-value>
     </init-param>
+    <!-- next parameter is only to surpress a possibly harmless error.
+    also, likely no longer needed for vaadin 8. see https://github.com/vaadin/framework/issues/10327 -->
+    <init-param>
+      <param-name>org.atmosphere.cpr.asyncSupport</param-name>
+      <param-value>org.atmosphere.container.JSR356AsyncSupport</param-value>
+    </init-param>
+    <!-- without the previous parameter, we might need the next one to suppress another possibly harmless error. -->
+    <!-- see https://stackoverflow.com/questions/47676122/a-filter-or-servlet-of-the-current-chain-does-not-support-asynchronous-operation -->
+    <!--
+    <async-supported>true</async-supported>
+    -->
   </servlet>
   
 	<servlet>

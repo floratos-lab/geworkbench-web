@@ -9,8 +9,6 @@
 
     <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
 
-    <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
-
     <inherits name="org.vaadin.alump.fancylayouts.gwt.FancyLayoutsWidgetset" />
 
 </module>

@@ -19,11 +19,12 @@ import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
-import org.vaadin.artur.icepush.ICEPush;
 
 import com.github.wolfie.blackboard.Blackboard;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -32,15 +33,11 @@ import com.vaadin.ui.UI;
  * This is the application entry point.
  */
 @Theme("geworkbench")
+@Push(PushMode.MANUAL)
 public class GeworkbenchRoot extends UI {
 
 	private static final long serialVersionUID = 6853924772669700361L;
 	private static Log log = LogFactory.getLog(GeworkbenchRoot.class);
-
-	private ICEPush pusher = new ICEPush();
-	public void push() {
-		pusher.push();
-	}
 
 	private static final PluginRegistry pluginRegistry = new PluginRegistry();
 	static {
@@ -64,8 +61,6 @@ public class GeworkbenchRoot extends UI {
 				e.printStackTrace();
 			}
 		}
-
-		pusher.extend(this);
 
 		try {
 			prop.load(getClass().getResourceAsStream(
