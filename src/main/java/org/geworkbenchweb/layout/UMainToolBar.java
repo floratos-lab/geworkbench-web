@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
+import org.geworkbenchweb.authentication.UUserAuth;
 import org.geworkbenchweb.plugins.tabularview.TabularViewUI;
 import org.geworkbenchweb.plugins.uploaddata.UploadDataUI;
 import org.geworkbenchweb.pojos.ActiveWorkspace;
@@ -306,22 +307,10 @@ public class UMainToolBar extends MenuBar {
 								if (uploadDataUI != null)
 									uploadDataUI.cancelUpload(); // TODO this needs to be reviewed: whether it should be
 																	// allowed to be null or not
-								clearTabularView();
-
-								SessionHandler.logout();
-								UI.getCurrent().close();
-								UserActivityLog ual = new UserActivityLog(username,
-										UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
-								FacadeFactory.getFacade().store(ual);
+								logout();
 							}).withNoButton().open();
 				} else {
-					clearTabularView();
-
-					SessionHandler.logout();
-					UI.getCurrent().close();
-					UserActivityLog ual = new UserActivityLog(username,
-							UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
-					FacadeFactory.getFacade().store(ual);
+					logout();
 				}
 			}
 		});
@@ -385,7 +374,8 @@ public class UMainToolBar extends MenuBar {
 
 	}
 
-	private void clearTabularView() {
+	private void logout() {
+		// clearTabularView. TODO review: why is this necessary?
 		Iterator<Component> it = pluginView.iterator();
 		while (it.hasNext()) {
 			Component c = it.next();
@@ -393,6 +383,11 @@ public class UMainToolBar extends MenuBar {
 				((TabularViewUI) c).clearTable();
 			}
 		}
+
+		SessionHandler.logout();
+		UI.getCurrent().setContent(new UUserAuth());
+		UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_OUT.toString(), null);
+		FacadeFactory.getFacade().store(ual);
 	}
 
 	private boolean uploadPending() {
