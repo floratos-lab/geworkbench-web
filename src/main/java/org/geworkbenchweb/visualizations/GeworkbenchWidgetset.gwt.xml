@@ -7,8 +7,6 @@
 
     <inherits name="com.vaadin.addon.tableexport.widgetset.Tableexport_for_vaadinWidgetset" />
 
-    <inherits name="com.github.wolfie.sessionguard.SessionguardWidgetset" />
-
     <inherits name="org.vaadin.alump.fancylayouts.gwt.FancyLayoutsWidgetset" />
 
 </module>

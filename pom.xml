@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>7.6.8</version>
+				<version>${vaadin.version}</version>
 				<configuration>
 					<moduleName>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</moduleName>
 					<webappDirectory>
@@ -401,11 +401,6 @@
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.8-20120326</version>
-		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>sessionguard</artifactId>
-			<version>0.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>TableExport</groupId>
