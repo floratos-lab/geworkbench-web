@@ -101,6 +101,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 		addComponent(fileCombo);
 
 		setSpacing(true);
+		setMargin(true);
 		addComponent(dataUploadLayout);
 
 		addComponent(new Label("<hr/>", ContentMode.HTML));
@@ -255,7 +256,7 @@ public class UploadDataUI extends VerticalLayout implements Button.ClickListener
 							}).open();
 					addButton.setEnabled(true);
 				}
-				GeworkbenchRoot ui = (GeworkbenchRoot)UI.getCurrent();
+				GeworkbenchRoot ui = (GeworkbenchRoot) UI.getCurrent();
 				ui.push();
 			}
 		};

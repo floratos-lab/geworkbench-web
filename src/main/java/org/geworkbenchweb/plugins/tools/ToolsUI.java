@@ -14,6 +14,7 @@ import org.geworkbenchweb.plugins.PluginEntry;
 import org.geworkbenchweb.plugins.Visualizer;
 
 import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -24,29 +25,32 @@ import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * List of all plug-ins regardless of data type. 
-*/
+ * List of all plug-ins regardless of data type.
+ */
 public class ToolsUI extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
-	/* For so-called 'stand-alone' tools only. 
-	 * ATTENTION: They are not really stand-alone, just do not take any datasets as input. */
+
+	/*
+	 * For so-called 'stand-alone' tools only.
+	 * ATTENTION: They are not really stand-alone, just do not take any datasets as
+	 * input.
+	 */
 	static public ToolsUI createStandaloneInstance(final VisualPluginView pluginView) {
 		ToolsUI inst = new ToolsUI("Standalone Tools", "The list of 'standalone' tools.", pluginView);
 		inst.addStandaloneSection();
 		return inst;
 	}
-	
+
 	static public ToolsUI createInstance(final VisualPluginView pluginView) {
 		ToolsUI inst = new ToolsUI("All Tools", "The list of all the available tools.", pluginView);
 
 		inst.setSpacing(true);
-		
+
 		// first part: analysis
 		Label analysisLabel = new Label("Analyses Available");
 		analysisLabel.setStyleName(Reindeer.LABEL_H2);
-		analysisLabel.setContentMode(Label.CONTENT_PREFORMATTED);
+		analysisLabel.setContentMode(ContentMode.PREFORMATTED);
 		inst.addComponent(analysisLabel);
 
 		VerticalLayout analysisGroup = new VerticalLayout();
@@ -54,11 +58,11 @@ public class ToolsUI extends VerticalLayout {
 		// loop through all analysis plug-ins
 		List<PluginEntry> analysisList = GeworkbenchRoot.getPluginRegistry().getAnalysisList(null);
 		Collections.sort(analysisList);
-		for(final PluginEntry analysis : analysisList) {
-			analysisGroup.addComponent( inst.buildToolItem(analysis, null) );
+		for (final PluginEntry analysis : analysisList) {
+			analysisGroup.addComponent(inst.buildToolItem(analysis, null));
 		}
 		inst.addComponent(analysisGroup);
-		
+
 		// second part: visualizations
 		Class<? extends Visualizer>[] visualizers = GeworkbenchRoot.getPluginRegistry().getVisualizers(null);
 		Arrays.sort(visualizers, new Comparator<Class<? extends Visualizer>>() {
@@ -70,23 +74,23 @@ public class ToolsUI extends VerticalLayout {
 
 				return v1.getName().compareTo(v2.getName());
 			}
-			
+
 		});
-		
+
 		Label vis = new Label("Visualizations Available");
 		vis.setStyleName(Reindeer.LABEL_H2);
-		vis.setContentMode(Label.CONTENT_PREFORMATTED);
+		vis.setContentMode(ContentMode.PREFORMATTED);
 		inst.addComponent(vis);
-		
+
 		VerticalLayout visualizerGroup = new VerticalLayout();
 		visualizerGroup.setMargin(true);
 		// loop through all visualizer plug-ins
-		for(final Class<? extends Visualizer> visualizerClass : visualizers) {
+		for (final Class<? extends Visualizer> visualizerClass : visualizers) {
 
 			try {
 				PluginEntry plugin = GeworkbenchRoot.getPluginRegistry()
 						.getVisualizerPluginEntry(visualizerClass);
-				visualizerGroup.addComponent( inst.buildToolItem(plugin, null) );
+				visualizerGroup.addComponent(inst.buildToolItem(plugin, null));
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
@@ -94,25 +98,31 @@ public class ToolsUI extends VerticalLayout {
 			}
 		}
 		inst.addComponent(visualizerGroup);
-		
+
 		inst.addStandaloneSection();
-		
+
 		return inst;
 	}
-	
-	public String getTitle() { return title; }
+
+	public String getTitle() {
+		return title;
+	}
 
 	private void addStandaloneSection() {
 		Label label2 = new Label("Stand-alone Tools");
 		label2.setStyleName(Reindeer.LABEL_H2);
-		label2.setContentMode(Label.CONTENT_PREFORMATTED);
+		label2.setContentMode(ContentMode.PREFORMATTED);
 		this.addComponent(label2);
-		
-		/* This should be designed in a more general way, but for now LINCS and CNKB are the only things here and they are not even similar. */
+
+		/*
+		 * This should be designed in a more general way, but for now LINCS and CNKB are
+		 * the only things here and they are not even similar.
+		 */
 		VerticalLayout standaloneGroup = new VerticalLayout();
 		standaloneGroup.setMargin(true);
-		Map<PluginEntry, Class<? extends Component> > plugins = GeworkbenchRoot.getPluginRegistry().getStandalonePlugins();
-		for(PluginEntry entry : new TreeSet<>(plugins.keySet()) ) {
+		Map<PluginEntry, Class<? extends Component>> plugins = GeworkbenchRoot.getPluginRegistry()
+				.getStandalonePlugins();
+		for (PluginEntry entry : new TreeSet<>(plugins.keySet())) {
 			Component content;
 			try {
 				content = plugins.get(entry).newInstance();
@@ -121,11 +131,11 @@ public class ToolsUI extends VerticalLayout {
 				continue;
 			}
 			Component item = buildToolItem(entry, content);
-			standaloneGroup.addComponent(item );
+			standaloneGroup.addComponent(item);
 		}
 		this.addComponent(standaloneGroup);
 	}
-	
+
 	private final ThemeResource ICON = new ThemeResource(
 			"../custom/icons/icon_info.gif");
 	private final ThemeResource CancelIcon = new ThemeResource(
@@ -144,7 +154,7 @@ public class ToolsUI extends VerticalLayout {
 		Button toolButton = new Button(pluginName);
 		toolButton.setStyleName(Reindeer.BUTTON_LINK);
 		if (content != null) {
-			toolButton.addListener(new Button.ClickListener() {
+			toolButton.addClickListener(new Button.ClickListener() {
 
 				private static final long serialVersionUID = 1L;
 
@@ -161,7 +171,7 @@ public class ToolsUI extends VerticalLayout {
 			toolButton.addStyleName("nolink");
 		}
 
-		infoButton.addListener(new Button.ClickListener() {
+		infoButton.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -172,7 +182,7 @@ public class ToolsUI extends VerticalLayout {
 				itemLayout.addDescription(pluginDescription);
 			}
 		});
-		cancelButton.addListener(new Button.ClickListener() {
+		cancelButton.addClickListener(new Button.ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -197,10 +207,11 @@ public class ToolsUI extends VerticalLayout {
 
 	private ToolsUI(String title, String description, final VisualPluginView pluginView) {
 		this.title = title;
-		this.setDescription( description );
+		this.setDescription(description);
 		this.pluginView = pluginView;
+		setMargin(true);
 	}
-	
+
 	private final VisualPluginView pluginView;
 	private final String title;
 }
