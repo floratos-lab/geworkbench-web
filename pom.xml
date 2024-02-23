@@ -37,16 +37,6 @@
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
 				<version>${vaadin.version}</version>
-				<configuration>
-					<moduleName>org.geworkbenchweb.visualizations.GeworkbenchWidgetset</moduleName>
-					<webappDirectory>
-						${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
-					<runTarget>geworkbench</runTarget>
-					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-					<noServer>true</noServer>
-					<port>8080</port>
-					<compileReport>false</compileReport>
-				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -81,13 +71,6 @@
 			<artifactId>vaadin-server</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client -->
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-client</artifactId>
-			<version>${vaadin.version}</version>
-			<scope>provided</scope>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-themes -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -101,12 +84,11 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-client-compiler -->
-		<!-- without this, compile stills works, just with a warning -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client-compiler</artifactId>
 			<version>${vaadin.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
