@@ -33,11 +33,7 @@
       <param-name>org.atmosphere.cpr.asyncSupport</param-name>
       <param-value>org.atmosphere.container.JSR356AsyncSupport</param-value>
     </init-param>
-    <!-- without the previous parameter, we might need the next one to suppress another possibly harmless error. -->
-    <!-- see https://stackoverflow.com/questions/47676122/a-filter-or-servlet-of-the-current-chain-does-not-support-asynchronous-operation -->
-    <!--
     <async-supported>true</async-supported>
-    -->
   </servlet>
   
 	<servlet>
