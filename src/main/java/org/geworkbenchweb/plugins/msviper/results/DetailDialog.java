@@ -3,8 +3,7 @@ package org.geworkbenchweb.plugins.msviper.results;
 import java.util.List;
 import java.util.Map;
 
-import org.geworkbenchweb.plugins.msviper.ExcelExport;
-
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.Button;

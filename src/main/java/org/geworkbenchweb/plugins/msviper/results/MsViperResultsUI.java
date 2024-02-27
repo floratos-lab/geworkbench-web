@@ -19,7 +19,6 @@ import org.geworkbenchweb.GeworkbenchRoot;
 import org.geworkbenchweb.layout.SetViewLayout;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.Visualizer;
-import org.geworkbenchweb.plugins.msviper.ExcelExport;
 import org.geworkbenchweb.pojos.MsViperResult;
 import org.geworkbenchweb.pojos.ResultSet;
 import org.geworkbenchweb.utils.SubSetOperations;
@@ -29,6 +28,7 @@ import org.geworkbenchweb.visualizations.Regulator;
 import org.vaadin.appfoundation.authentication.SessionHandler;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
+import com.vaadin.addon.tableexport.ExcelExport;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
