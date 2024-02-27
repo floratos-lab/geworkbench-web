@@ -379,15 +379,11 @@
 			<artifactId>messagebox</artifactId>
 			<version>3.0.19</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.ostermiller/utils -->
 		<dependency>
-			<groupId>ostermillerutils</groupId>
-			<artifactId>ostermillerutils</artifactId>
-			<version>1_04_03_for_kaffe</version>
-		</dependency>
-		<dependency>
-			<groupId>poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>3.8-20120326</version>
+			<groupId>org.ostermiller</groupId>
+			<artifactId>utils</artifactId>
+			<version>1.07.00</version>
 		</dependency>
 		<dependency>
 			<groupId>ttest</groupId>
