@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.geworkbenchweb.annotation;
 
 import java.io.BufferedInputStream;
@@ -13,51 +10,43 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import org.geworkbenchweb.dataset.InputFileFormatException; 
 import org.geworkbench.util.AnnotationInformationManager.AnnotationType;
- 
+import org.geworkbenchweb.dataset.InputFileFormatException;
+
 import com.Ostermiller.util.CSVParser;
 import com.Ostermiller.util.LabeledCSVParser;
 
 /**
- * Actual parser of affy annotation.
- * 
- * This used to be in class AnnotationParser, whose main role is no longer parsing but the name stuck.
- * 
- * @author zji
- * @version $Id$
- *
+ * Parser of affy annotation.
  */
 public abstract class AffyAnnotationParser {
 
 	// this supports the complete unfinished parsing
 	protected transient LabeledCSVParser parser;
-	
+
 	transient String affyId;
-	 
-	public Map<String, AnnotationFields> parse(final File file, boolean ignoreDuplicate) throws InputFileFormatException {
+
+	public Map<String, AnnotationFields> parse(final File file, boolean ignoreDuplicate)
+			throws InputFileFormatException {
 
 		Map<String, AnnotationFields> markerAnnotation = new HashMap<String, AnnotationFields>();
 
-		BufferedInputStream bis = null;
-		 
-		try {
-			bis = new BufferedInputStream(new FileInputStream(file));
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
 
 			CSVParser cvsParser = new CSVParser(bis);
 
 			cvsParser.setCommentStart("#;!");
 
-			parser = new LabeledCSVParser(cvsParser);			
-		 
-			while (parser.getLine() != null) {				
+			parser = new LabeledCSVParser(cvsParser);
+
+			while (parser.getLine() != null) {
 				AnnotationFields fields = parseOneLine();
-				if (affyId == null)
-				{
-					//JOptionPane.showMessageDialog(null, "Your annotation file does not have correct format. \nPlease make sure you select correct annotation file type.", "Error", JOptionPane.ERROR_MESSAGE); 
+				if (affyId == null) {
+					// JOptionPane.showMessageDialog(null, "Your annotation file does not have
+					// correct format. \nPlease make sure you select correct annotation file type.",
+					// "Error", JOptionPane.ERROR_MESSAGE);
 					throw new InputFileFormatException(
 							"your annotation file does not have correct format. ");
-									 
 				}
 				if (!ignoreDuplicate && markerAnnotation.containsKey(affyId)) {
 					String[] options = { "Skip duplicate",
@@ -86,25 +75,17 @@ public abstract class AffyAnnotationParser {
 				} else {
 					markerAnnotation.put(affyId, fields);
 				}
-				 
 			}
 			// all fine.
-		} catch (FileNotFoundException e) {			 
+		} catch (FileNotFoundException e) {
 			throw new InputFileFormatException("your annotation file does not exist");
-		 
 		} catch (IOException e) {
 			throw new InputFileFormatException("your annotation file does not have correct format.");
-		} finally {
-			try {
-				bis.close();
-				 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 		return markerAnnotation;
 	}
-	 
-    abstract AnnotationFields parseOneLine(); 
-    abstract AnnotationType getAnnotationType();
+
+	abstract AnnotationFields parseOneLine();
+
+	abstract AnnotationType getAnnotationType();
 }
