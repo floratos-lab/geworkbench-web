@@ -37,11 +37,15 @@ the second group, called 'standalone', is only presented via the geWorkbench use
 
 ## customized visualization/widgets
 
-1. barcode table - re-done for vaadin 7
-2. citrus diagram - re-done for vaadin 7
-3. cytoscape - re-done for vaadin 7
-4. dendrogram - re-done for vaadin 7
-5. molecular viewer - re-done for vaadin 7
+Depending on the level of customization, we can group the visualization into three categories: [A] fully customized widgets, [B] abstract JavaScript component, and [C] addons.
+
+1. barcode table - [B]
+2. citrus diagram - [B]
+3. cytoscape - [B]
+4. dendrogram - [A]
+5. molecular viewer - [B]
+6. t test result viewer - [C] (highchart)
+7. cnkb result viwer - [C] (highchart)
 
 ### barcode table
 This is part of MsViper result viewer. MsViper is a synonym of marina.
