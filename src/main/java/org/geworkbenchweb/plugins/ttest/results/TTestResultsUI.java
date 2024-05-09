@@ -12,6 +12,8 @@ import org.geworkbenchweb.pojos.TTestResult;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import org.vaadin.highcharts.HighChart;
 
+import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.JavaScriptFunction;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -28,11 +30,16 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 	final private Long datasetId;
 	final protected Long parentDatasetId;
 
+	final private ChartMenuBar chartMenuBar;
+	final private HighChart chart;
+
 	public TTestResultsUI(Long dataSetId) {
 		datasetId = dataSetId;
 		if (dataSetId == null || dataSetId == 0) {
 			tTestResultSet = null;
 			parentDatasetId = null;
+			chartMenuBar = null;
+			chart = null;
 			return;
 		}
 
@@ -45,12 +52,15 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		if (id == null) { // pending node
 			addComponent(new Label("Pending computation - ID " + dataSetId));
 			tTestResultSet = null;
+			chartMenuBar = null;
+			chart = null;
 			return;
 		}
 		tTestResultSet = FacadeFactory.getFacade().find(TTestResult.class, id);
 
-		HighChart chart = drawPlot();
-		addComponent(new ChartMenuBar(chart, this));
+		chart = drawPlot();
+		chartMenuBar = new ChartMenuBar(this);
+		addComponent(chartMenuBar);
 		addComponent(chart);
 		setExpandRatio(chart, 1);
 	}
@@ -125,9 +135,27 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 		}
 		data.append("]");
 
-		HighChart chart = new HighChart();
+		/* It is better to add the function in connector instead of global,
+		but we need a little more change regarding highchart addon for that. */
+		JavaScript.getCurrent().addFunction("enableReset", (JavaScriptFunction) args -> {
+				// args is elemental.json.impl.JreJsonArray
+				System.out.println("args: " + args.asString() + "; length: " + args.length());
+				if(args.getBoolean(0)) // is there not a reset button?
+					chartMenuBar.disableReset();
+				else
+					chartMenuBar.enableReset();
+		  });
+		HighChart chart = new HighChart() {{
+			/* a better approach. see the comment above */
+			/*
+			addFunction("function1", (JavaScriptFunction) args -> {
+				System.out.println("function1 called from client side .......");
+			});
+			registerRpc(rpc);
+			*/
+		}};
 		chart.setSizeFull();
-		String chartConfig = "chart: { type: 'scatter', zoomType: 'xy'}";
+		String chartConfig = "chart: { type: 'scatter', zoomType: 'xy', events: {redraw: function (event) { enableReset(this.resetZoomButton===undefined); console.debug(this); console.debug(event); } } }";
 		String title = "T-Test";
 		String tooltip = "tooltip: { formatter: function() { return '' + this.point.name + ', ' +  this.x + ', ' + this.y + ''; } }";
 		String xAxis = "xAxis: { title: {text: 'Fold Change Log2(ratio)'}, startOnTick: true, endOnTick: true }";
@@ -143,5 +171,10 @@ public class TTestResultsUI extends VerticalLayout implements Visualizer {
 	@Override
 	public Long getDatasetId() {
 		return datasetId;
+	}
+
+	public void resetZoom() {
+		chartMenuBar.disableReset();
+		chart.markAsDirty(); // force repaint
 	}
 }

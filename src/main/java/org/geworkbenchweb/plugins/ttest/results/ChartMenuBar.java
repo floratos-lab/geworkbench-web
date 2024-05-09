@@ -25,40 +25,15 @@ public class ChartMenuBar extends MenuBar {
 	private static final String excelDoubleFormat = "0.00000000000000";
 	private MenuItem exportItem;
 	private MenuItem resetZoomItem;
-	private Object chart; // FIXME re-design for vaadin
 	private String chartTitle;
 	private TTestResultsUI tTestResultsUI;
 
 	// FIXME re-design for vaadin
-	public ChartMenuBar(final Object chart, TTestResultsUI tTestResultsUI) {
+	public ChartMenuBar(TTestResultsUI tTestResultsUI) {
 		setImmediate(true);
 		setStyleName("transparent");
 
 		this.tTestResultsUI = tTestResultsUI;
-		this.chart = chart;
-		/*
-		chartTitle = chart.getConfig().getTitle().getText();
-		chartTitle = chartTitle.replaceAll(" ", "_");
-
-		if (chart.getConfig().getGeneralChartConfig().getZoomType() != null) {
-			chart.addListener(new ChartZoomListener() {
-				private static final long serialVersionUID = 7797202131662773606L;
-
-				@Override
-				public void chartZoom(ChartZoomEvent chartZoomEvent) {
-					resetZoomItem.setEnabled(true);
-				}
-			});
-			chart.addListener(new ChartResetZoomListener() {
-				private static final long serialVersionUID = 7797202131662773606L;
-
-				@Override
-				public void chartResetZoom(ChartResetZoomEvent chartResetZoomEvent) {
-					resetZoomItem.setEnabled(false);
-				}
-			});
-		}
-		*/
 
 		exportItem = this.addItem("Export", null, null);
 		exportItem.setStyleName("plugin");
@@ -102,8 +77,7 @@ public class ChartMenuBar extends MenuBar {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				resetZoom();
-
+				tTestResultsUI.resetZoom();
 			}
 		});
 		resetZoomItem.setStyleName("plugin");
@@ -178,15 +152,11 @@ public class ChartMenuBar extends MenuBar {
 		tTestResultsUI.removeComponent(table);
 	}
 
-	// FIXME re-design for vaadin 7
-	public void resetZoom() {
-		/*
-		for (Series series : chart.getAllSeries()) {
-			series.show();
-		}
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put("event", "chartResetZoom");
-		chart.changeVariables(chart, variables);
-		*/
+	public void enableReset() {
+		resetZoomItem.setEnabled(true);
+	}
+
+	public void disableReset() {
+		resetZoomItem.setEnabled(false);
 	};
 }
