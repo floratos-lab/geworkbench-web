@@ -1,8 +1,5 @@
 package org.geworkbenchweb.plugins.ttest.results;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.geworkbenchweb.pojos.DataSet;
@@ -13,9 +10,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.addon.tableexport.CsvExport;
 import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.server.Page;
-import com.vaadin.server.StreamResource;
-import com.vaadin.server.StreamResource.StreamSource;
+import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Table;
 
@@ -25,10 +20,9 @@ public class ChartMenuBar extends MenuBar {
 	private static final String excelDoubleFormat = "0.00000000000000";
 	private MenuItem exportItem;
 	private MenuItem resetZoomItem;
-	private String chartTitle;
+	final private String chartTitle = "T-Test";
 	private TTestResultsUI tTestResultsUI;
 
-	// FIXME re-design for vaadin
 	public ChartMenuBar(TTestResultsUI tTestResultsUI) {
 		setImmediate(true);
 		setStyleName("transparent");
@@ -84,27 +78,19 @@ public class ChartMenuBar extends MenuBar {
 		resetZoomItem.setEnabled(false);
 	}
 
-	// FIXME re-design for vaadin 7
 	public void exportPlot() {
-		/*
-		chart.addListener(new InvientCharts.ChartSVGAvailableListener() {
-			private static final long serialVersionUID = 1L;
-
-			public void svgAvailable(final ChartSVGAvailableEvent chartSVGAvailableEvent) {
-				StreamResource svgResource = new StreamResource(
-						new StreamSource() {
-							private static final long serialVersionUID = 4459384346468205801L;
-
-							@Override
-							public InputStream getStream() {
-								return new ByteArrayInputStream(chartSVGAvailableEvent.getSVG().getBytes());
-							}
-						},
-						chartTitle + ".svg");
-				Page.getCurrent().open(svgResource, "_blank", false);
-			}
-		});
-		*/
+		JavaScript.getCurrent().execute("const svg=document.getElementsByTagName('svg')[0];" +
+				"svg.setAttribute(\"xmlns\", \"http://www.w3.org/2000/svg\");" +
+				"const svgData = svg.outerHTML;" + //
+				"const preface = '<?xml version=\"1.0\" standalone=\"no\"?>\\r\\n';" +
+				"const svgBlob = new Blob([preface, svgData], {type:\"image/svg+xml;charset=utf-8\"});" +
+				"const svgUrl = URL.createObjectURL(svgBlob);" +
+				"const downloadLink = document.createElement(\"a\");" +
+				"downloadLink.href = svgUrl;" +
+				"downloadLink.download = '" + chartTitle + "';" +
+				"document.body.appendChild(downloadLink);" +
+				"downloadLink.click();" +
+				"document.body.removeChild(downloadLink);");
 	};
 
 	public void exportData(String format) {
