@@ -8,7 +8,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -26,6 +27,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -136,9 +138,12 @@ public class AracneUI extends VerticalLayout implements AnalysisUI {
 		GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 		app.addNode(resultSet);
 
-		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-				resultSet, params, AracneUI.this);
-		app.getBlackboard().fire(analysisEvent);
+		Component content = UI.getCurrent().getContent();
+		if (content instanceof UMainLayout) {
+			new AnalysisSubmission((UMainLayout)content).submit(params, this, resultSet);
+		} else {
+			log.error("THIS SHOULD NEVER HAPPEN.");
+		}
 	}
 
 	private static void setDefaultParameters(HashMap<Serializable, Serializable> params) {
