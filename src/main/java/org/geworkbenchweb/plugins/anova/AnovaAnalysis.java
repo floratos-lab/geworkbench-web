@@ -24,29 +24,26 @@ import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.utils.DataSetOperations;
 import org.geworkbenchweb.utils.SubSetOperations;
 
- 
 /**
  * 
  * This class submits Anova Analysis from web application
- * 
- * @author Min You
  * 
  */
 public class AnovaAnalysis {
 
 	private static Log log = LogFactory.getLog(AnovaAnalysis.class);
-	
-	private static final String DEFAULT_WEB_SERVICES_URL = "http://afdev.c2b2.columbia.edu:9090/axis2/services/AnovaService";
-	private static final String  ANOVA_WEBSERVICE_URL = "anova.webService.url";
-	 
+
+	private static final String DEFAULT_WEB_SERVICES_URL = "http://localhost:8080/axis2/services/AnovaService";
+	private static final String ANOVA_WEBSERVICE_URL = "anova.webService.url";
+
 	private static String url = null;
-	
+
 	private Long dataSetId = null;
 	private AnovaUI paramForm = null;
 	private List<String> selectedMarkers = null;
 	private String[] selectedArraySetNames = null;
 	int[] selectedMarkerIndex;
-	
+
 	public AnovaAnalysis(Long dataSetId, AnovaUI paramForm) {
 		this.dataSetId = dataSetId;
 		this.paramForm = paramForm;
@@ -60,21 +57,20 @@ public class AnovaAnalysis {
 		int[] featuresIndexes = output.getFeaturesIndexes();
 		List<String> significantMarkerNames = new ArrayList<String>();
 		int[] significantMarkerIndexs = new int[featuresIndexes.length];
-		
+
 		for (int i = 0; i < featuresIndexes.length; i++) {
 			String item = selectedMarkers.get(featuresIndexes[i]);
 			significantMarkerNames.add(item);
-			significantMarkerIndexs[i]=selectedMarkerIndex[featuresIndexes[i]];
+			significantMarkerIndexs[i] = selectedMarkerIndex[featuresIndexes[i]];
 		}
-		 
+
 		output.setFeaturesIndexes(significantMarkerIndexs);
 		AnovaResult anovaResultSet = new AnovaResult(output, selectedArraySetNames);
 
-		if (significantMarkerNames.size() > 0)
-		{
+		if (significantMarkerNames.size() > 0) {
 			java.util.Collections.sort(significantMarkerNames);
 			SubSetOperations.storeSignificance(significantMarkerNames, paramForm.getDataSetId(), paramForm.getUserId());
-		}		
+		}
 		return anovaResultSet;
 	}
 
@@ -84,18 +80,17 @@ public class AnovaAnalysis {
 		RPCServiceClient serviceClient;
 
 		try {
-			
 			getWebServiceUrl();
-			
+
 			serviceClient = new RPCServiceClient();
 
 			Options options = serviceClient.getOptions();
 
-			long soTimeout =  24 * 60 * 60 * 1000; // 24 hours
+			long soTimeout = 24 * 60 * 60 * 1000; // 24 hours
 			options.setTimeOutInMilliSeconds(soTimeout);
-		 
+
 			EndpointReference targetEPR = new EndpointReference(url);
-					 
+
 			options.setTo(targetEPR);
 
 			// notice that that namespace is in the required form
@@ -126,24 +121,21 @@ public class AnovaAnalysis {
 			log.debug("fault action: " + e.getFaultAction());
 			log.debug("reason: " + e.getReason());
 			e.printStackTrace();
-			
-			throw new RemoteException( "Anova AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
+
+			throw new RemoteException("Anova AxisFault:" + e.getMessage() + " fault action: " + e.getFaultAction()
 					+ " reason: " + e.getReason());
-			
-			 
-		}
-		catch (Exception e) {
-			throw new RemoteException( "Compute Anova error:" + e.getMessage());
+
+		} catch (Exception e) {
+			throw new RemoteException("Compute Anova error:" + e.getMessage());
 		}
 
-		 
 	}
 
 	private AnovaInput getAnovaInput() {
 		String[] selectedMarkerSet = null;
 		String[] selectedArraySet = null;
 		List<String> tempSelectedMarkers;
-		
+
 		@SuppressWarnings("unused")
 		String GroupAndChipsString = "";
 
@@ -151,26 +143,26 @@ public class AnovaAnalysis {
 
 		MicroarraySet microarrays = DataSetOperations.getMicroarraySet(dataSetId);
 		if (selectedMarkerSet == null) {
-			tempSelectedMarkers = Arrays.asList( microarrays.markerLabels );
+			tempSelectedMarkers = Arrays.asList(microarrays.markerLabels);
 		} else {
 			tempSelectedMarkers = new ArrayList<String>();
 			for (int i = 0; i < selectedMarkerSet.length; i++) {
 				List<String> temp = SubSetOperations.getMarkerData(Long.parseLong(selectedMarkerSet[i].trim()));
-				for(int m=0; m<temp.size(); m++) {
+				for (int m = 0; m < temp.size(); m++) {
 					String temp1 = ((temp.get(m)).split("\\s+"))[0].trim();
 					tempSelectedMarkers.add(temp1);
 				}
-				 
-			} 
+
+			}
 		}
 
 		selectedMarkerIndex = new int[tempSelectedMarkers.size()];
 		selectedMarkers = new ArrayList<String>();
 		int index = 0;
-		for(int i=0; i<microarrays.markerNumber; i++) {
-			if(tempSelectedMarkers.contains( microarrays.markerLabels[i]) ) {
+		for (int i = 0; i < microarrays.markerNumber; i++) {
+			if (tempSelectedMarkers.contains(microarrays.markerLabels[i])) {
 				selectedMarkerIndex[index] = i;
-				selectedMarkers.add( microarrays.markerLabels[i]);
+				selectedMarkers.add(microarrays.markerLabels[i]);
 				index++;
 			}
 		}
@@ -195,11 +187,11 @@ public class AnovaAnalysis {
 		for (int i = 0; i < numSelectedGroups; i++) {
 			List<String> arrayPositions = SubSetOperations.getArrayData(Long
 					.parseLong(selectedArraySet[i].trim()));
-			
+
 			int[] selectedArrayIndex = new int[arrayPositions.size()];
 			int arrayIndex = 0;
-			for(int x=0; x<microarrays.arrayNumber; x++) {
-				if(arrayPositions.contains( microarrays.arrayLabels[x]) ) {
+			for (int x = 0; x < microarrays.arrayNumber; x++) {
+				if (arrayPositions.contains(microarrays.arrayLabels[x])) {
 					selectedArrayIndex[arrayIndex] = x;
 					arrayIndex++;
 				}
@@ -251,20 +243,16 @@ public class AnovaAnalysis {
 		}
 		return output;
 	}
-	
-	 
-	
-	private void getWebServiceUrl()
-	{
-		if (url == null || url.trim().equals(""))
-		{
-			 		
-				url  = GeworkbenchRoot.getAppProperty(ANOVA_WEBSERVICE_URL);
-				if (url == null || url.trim().equals(""))
-					url = DEFAULT_WEB_SERVICES_URL;
-				
-		}		
-		 
+
+	private void getWebServiceUrl() {
+		if (url == null || url.trim().equals("")) {
+
+			url = GeworkbenchRoot.getAppProperty(ANOVA_WEBSERVICE_URL);
+			if (url == null || url.trim().equals(""))
+				url = DEFAULT_WEB_SERVICES_URL;
+
+		}
+
 	}
-	
+
 }
