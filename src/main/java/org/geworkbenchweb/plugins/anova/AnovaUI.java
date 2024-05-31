@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -21,6 +23,8 @@ import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.StringToDoubleConverter;
+import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.DoubleRangeValidator;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.server.UserError;
@@ -42,6 +46,8 @@ import com.vaadin.ui.themes.Reindeer;
 public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = -738580934848570913L;
+
+	private static Log log = LogFactory.getLog(AnovaUI.class);
 
 	private final MarkerArraySelector markerArraySelector;
 	private Label pValEstLabel;
@@ -159,6 +165,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		permNumber.setDescription(permutationsTooltip);
 		permNumber.setNullSettingAllowed(false);
 		permNumber.setEnabled(false);
+		permNumber.setConverter(new StringToIntegerConverter());
 		permNumber.setRequired(true);
 		permNumber.addValidator(new IntegerRangeValidator("Not an integer", null, null));
 
@@ -168,8 +175,9 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 		pValThreshold = new TextField();
 		pValThreshold.setDescription(pvalueThresholdTooltip);
 		pValThreshold.setValue("0.05");
-		permNumber.setRequired(true);
-		permNumber.addValidator(new DoubleRangeValidator("Not a double", null, null));
+		pValThreshold.setConverter(new StringToDoubleConverter());
+		pValThreshold.setRequired(true);
+		pValThreshold.addValidator(new DoubleRangeValidator("Not a double", null, null));
 
 		pValCorrectionLabel = new Label(
 				"P-value Corrections And False Discovery Control " + QUESTION_MARK + " -----------------------------");
@@ -305,6 +313,8 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(resultSet, params, AnovaUI.this);
 				app.getBlackboard().fire(analysisEvent);
+			} else {
+				log.warn("validInputData() failed from AnovaUI");
 			}
 		}
 	}
@@ -361,8 +371,12 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 	public float getFalseSignificantGenesLimit() {
 		if (!falseSignificantGenesLimit.isVisible())
 			return 0;
-		return Float.parseFloat(falseSignificantGenesLimit.getValue().toString().trim());
-
+		try {
+			return Float.parseFloat(falseSignificantGenesLimit.getValue().toString().trim());
+		} catch (NumberFormatException e) {
+			log.warn("NumberFormatException from " + falseSignificantGenesLimit);
+			return 0;
+		}
 	}
 
 	public int getTotalSelectedArrayNum() {
@@ -371,7 +385,7 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 
 	}
 
-	public boolean validInputData() {
+	private boolean validInputData() {
 
 		String[] selectedArraySet = null;
 
