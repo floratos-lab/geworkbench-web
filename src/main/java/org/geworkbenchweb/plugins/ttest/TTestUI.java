@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -26,6 +29,7 @@ import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
@@ -40,6 +44,8 @@ import de.steinwedel.messagebox.MessageBox;
 public class TTestUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 1L;
+
+	private static Log log = LogFactory.getLog(TTestUI.class);
 
 	private Long dataSetId;
 
@@ -134,10 +140,12 @@ public class TTestUI extends VerticalLayout implements AnalysisUI {
 				GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 				app.addNode(resultSet);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-						resultSet, params, TTestUI.this);
-				app.getBlackboard().fire(analysisEvent);
-
+				Component content = UI.getCurrent().getContent();
+				if (content instanceof UMainLayout) {
+					new AnalysisSubmission((UMainLayout)content).submit(params, TTestUI.this, resultSet);
+				} else {
+					log.error("THIS SHOULD NEVER HAPPEN.");
+				}
 			}
 		});
 

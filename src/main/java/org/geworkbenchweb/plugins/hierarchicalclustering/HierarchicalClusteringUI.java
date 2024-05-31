@@ -3,8 +3,11 @@ package org.geworkbenchweb.plugins.hierarchicalclustering;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.HierarchicalClusteringResult;
@@ -18,6 +21,7 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -29,6 +33,8 @@ import com.vaadin.ui.VerticalLayout;
 public class HierarchicalClusteringUI extends VerticalLayout implements AnalysisUI {
 
 	private static final long serialVersionUID = 988711785863720384L;
+
+	private static Log log = LogFactory.getLog(HierarchicalClusteringUI.class);
 
 	private String clustMethod = "Single Linkage";
 
@@ -152,11 +158,12 @@ public class HierarchicalClusteringUI extends VerticalLayout implements Analysis
 					GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 					app.addNode(resultSet);
 
-					AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-							resultSet, params,
-							HierarchicalClusteringUI.this);
-					app.getBlackboard().fire(analysisEvent);
-
+					Component content = UI.getCurrent().getContent();
+					if (content instanceof UMainLayout) {
+						new AnalysisSubmission((UMainLayout)content).submit(params, HierarchicalClusteringUI.this, resultSet);
+					} else {
+						log.error("THIS SHOULD NEVER HAPPEN.");
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

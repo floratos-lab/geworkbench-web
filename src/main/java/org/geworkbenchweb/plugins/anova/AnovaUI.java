@@ -11,7 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.anova.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.PValueEstimation;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.AnovaResult;
 import org.geworkbenchweb.pojos.DataHistory;
@@ -32,6 +33,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
@@ -311,8 +313,12 @@ public class AnovaUI extends VerticalLayout implements AnalysisUI {
 				GeworkbenchRoot app = (GeworkbenchRoot) UI.getCurrent();
 				app.addNode(resultSet);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(resultSet, params, AnovaUI.this);
-				app.getBlackboard().fire(analysisEvent);
+				Component content = UI.getCurrent().getContent();
+				if (content instanceof UMainLayout) {
+					new AnalysisSubmission((UMainLayout)content).submit(params, AnovaUI.this, resultSet);
+				} else {
+					log.error("THIS SHOULD NEVER HAPPEN.");
+				}
 			} else {
 				log.warn("validInputData() failed from AnovaUI");
 			}
