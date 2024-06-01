@@ -94,7 +94,8 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		});
 
 		cmbAnnotationFile.setImmediate(true);
-		params.put(PARAM_ASSOCIATION_FILE, (String) cmbAnnotationFile.getValue());
+		params.put(PARAM_ASSOCIATION_FILE,
+				annotation_path + System.getProperty("file.separator") + cmbAnnotationFile.getValue());
 		cmbAnnotationFile.addValueChangeListener(new Property.ValueChangeListener() {
 
 			private static final long serialVersionUID = -332132852289677807L;
@@ -104,7 +105,8 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 				Object newValue = event.getProperty().getValue();
 				String oldValue = (String) params.get(PARAM_ASSOCIATION_FILE);
 				if (newValue != null && !((String) newValue).equals(oldValue)) {
-					params.put(PARAM_ASSOCIATION_FILE, (String) newValue);
+					params.put(PARAM_ASSOCIATION_FILE,
+							annotation_path + System.getProperty("file.separator") + newValue);
 				}
 			}
 		});
@@ -186,29 +188,34 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 		populateAnnotationFiles(cmbAnnotationFile, username);
 	}
 
+	private static String annotation_path = "";
+
 	private static void populateAnnotationFiles(ComboBox cmbAnnotationFile, String username) {
 		cmbAnnotationFile.removeAllItems();
-		String dirName = GeworkbenchRoot.getBackendDataDirectory()
+		annotation_path = GeworkbenchRoot.getBackendDataDirectory()
 				+ System.getProperty("file.separator")
 				+ username
 				+ System.getProperty("file.separator") + "annotation";
-		File dir = new File(dirName);
+		File dir = new File(annotation_path);
 		if (!dir.isDirectory()) {
-			log.error(dirName + " is not directory.");
+			log.error(annotation_path + " is not directory.");
 			return;
 		}
 		if (dir.listFiles() == null || dir.listFiles().length <= 0) {
-			log.error(dirName + " is empty.");
+			log.error(annotation_path + " is empty.");
 			return;
 		}
 		for (File f : dir.listFiles()) {
-			String fullpath = f.getAbsolutePath();
-			if (!fullpath.endsWith(".csv"))
+			String filename = f.getName();
+			if (!filename.endsWith(".csv"))
 				continue;
-			cmbAnnotationFile.addItem(fullpath);
+			cmbAnnotationFile.addItem(filename);
 			if (cmbAnnotationFile.getValue() == null) {
-				cmbAnnotationFile.setValue(fullpath);
+				cmbAnnotationFile.setValue(filename);
 			}
+		}
+		if (cmbAnnotationFile.size() == 0) {
+			log.error("not annotation file with csv extension");
 		}
 	}
 
