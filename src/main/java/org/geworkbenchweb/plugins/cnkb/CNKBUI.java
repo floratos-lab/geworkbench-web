@@ -13,8 +13,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
@@ -34,6 +32,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -349,8 +348,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		addComponent(submitButton);
 		markerSelector.setData(dataSetId, user.getId());
 
-		// FIXME - original way of getting session in vaadin must to done differently
-		// session = wcntxt.getHttpSession();
+		session = VaadinSession.getCurrent();
 	}
 
 	private void generateHistoryString() {
@@ -400,7 +398,7 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		return CNKBResultSet.class;
 	}
 
-	private HttpSession session = null;
+	private VaadinSession session = null;
 
 	/**
 	 * Main function of this class: query the CNKB db for the interactions.
