@@ -16,7 +16,8 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
@@ -36,6 +37,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -601,10 +603,12 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		UI app = UI.getCurrent();
 		((GeworkbenchRoot) app).addNode(resultSet);
 
-		AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-				resultSet, params, CNKBUI.this);
-		((GeworkbenchRoot) app).getBlackboard().fire(analysisEvent);
-
+		Component content = UI.getCurrent().getContent();
+			if (content instanceof UMainLayout) {
+				new AnalysisSubmission((UMainLayout)content).submit(params, CNKBUI.this, resultSet);
+			} else {
+				log.error("THIS SHOULD NEVER HAPPEN.");
+			}
 	}
 
 	@Override

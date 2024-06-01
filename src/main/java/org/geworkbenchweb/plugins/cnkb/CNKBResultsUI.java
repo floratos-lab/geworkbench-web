@@ -14,7 +14,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.NetworkViewer;
 import org.geworkbenchweb.plugins.Visualizer;
@@ -477,9 +477,12 @@ public class CNKBResultsUI extends VerticalLayout implements Visualizer {
 			 * this is a special case of the work flow: NetworkCreation uses the interface
 			 * method execute but ignore the DataSet argument.
 			 */
-			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-					resultSet, params, new NetworkCreation(parentId));
-			app.getBlackboard().fire(analysisEvent);
+			Component content = UI.getCurrent().getContent();
+			if (content instanceof UMainLayout) {
+				new AnalysisSubmission((UMainLayout)content).submit(params, new NetworkCreation(parentId), resultSet);
+			} else {
+				log.error("THIS SHOULD NEVER HAPPEN.");
+			}
 		}
 	}
 
