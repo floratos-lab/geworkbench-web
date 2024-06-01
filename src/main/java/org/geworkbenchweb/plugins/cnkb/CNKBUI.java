@@ -604,11 +604,11 @@ public class CNKBUI extends VerticalLayout implements AnalysisUI {
 		((GeworkbenchRoot) app).addNode(resultSet);
 
 		Component content = UI.getCurrent().getContent();
-			if (content instanceof UMainLayout) {
-				new AnalysisSubmission((UMainLayout)content).submit(params, CNKBUI.this, resultSet);
-			} else {
-				log.error("THIS SHOULD NEVER HAPPEN.");
-			}
+		if (content instanceof UMainLayout) {
+			new AnalysisSubmission((UMainLayout) content).submit(params, CNKBUI.this, resultSet);
+		} else {
+			log.error("THIS SHOULD NEVER HAPPEN.");
+		}
 	}
 
 	@Override

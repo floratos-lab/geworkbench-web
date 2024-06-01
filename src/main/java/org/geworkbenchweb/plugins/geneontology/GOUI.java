@@ -14,7 +14,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.Annotation;
 import org.geworkbenchweb.pojos.AnnotationEntry;
@@ -35,6 +36,8 @@ import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class GOUI extends VerticalLayout implements AnalysisUI {
@@ -167,9 +170,12 @@ public class GOUI extends VerticalLayout implements AnalysisUI {
 						.getUI();
 				app.addNode(resultSet);
 
-				AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-						resultSet, params, GOUI.this);
-				app.getBlackboard().fire(analysisEvent);
+				Component content = UI.getCurrent().getContent();
+				if (content instanceof UMainLayout) {
+					new AnalysisSubmission((UMainLayout) content).submit(params, GOUI.this, resultSet);
+				} else {
+					log.error("THIS SHOULD NEVER HAPPEN.");
+				}
 			}
 		});
 
