@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.pojos.UserActivityLog;
-import org.vaadin.alump.fancylayouts.FancyCssLayout;
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.authentication.exceptions.AccountLockedException;
 import org.vaadin.appfoundation.authentication.exceptions.InvalidCredentialsException;
@@ -72,6 +71,7 @@ public class LoginForm extends VerticalLayout {
 				try {
 					login(username, password);
 					status = "success";
+					log.debug(username + "logged in");
 				} catch (InvalidCredentialsException e) {
 					status = "fail_2";
 					feedbackLabel.setValue("Either username or password was wrong");
@@ -80,12 +80,12 @@ public class LoginForm extends VerticalLayout {
 					status = "fail_3";
 				} catch (Exception e) {
 					if (e.getMessage() == null) { /* this may happen due to library code */
-						feedbackLabel.setValue("Undocumened exception happened.");
+						feedbackLabel.setValue("Undocumented exception happened.");
 						e.printStackTrace();
 					} else {
 						feedbackLabel.setValue(e.getMessage());
 					}
-					status = "fail_4";
+					status = "fail:generic exception";
 				}
 
 				UserActivityLog ual = new UserActivityLog(username, UserActivityLog.ACTIVITY_TYPE.LOG_IN.toString(),
@@ -127,12 +127,5 @@ public class LoginForm extends VerticalLayout {
 		this.addComponent(feedbackLabel);
 		this.setComponentAlignment(feedbackLabel, Alignment.MIDDLE_CENTER);
 		feedbackLabel.setWidth("50%");
-
-		final FancyCssLayout cssLayout = new FancyCssLayout();
-		cssLayout.setSlideEnabled(true);
-		cssLayout.setWidth("700px");
-
-		this.addComponent(cssLayout);
-		this.setComponentAlignment(cssLayout, Alignment.TOP_CENTER);
 	}
 }

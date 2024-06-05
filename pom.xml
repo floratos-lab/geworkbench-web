@@ -339,12 +339,6 @@
 			<version>2.7.13</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.vaadin.alump.fancylayouts/fancylayouts-addon -->
-		<dependency>
-			<groupId>org.vaadin.alump.fancylayouts</groupId>
-			<artifactId>fancylayouts-addon</artifactId>
-			<version>1.0.1</version>
-		</dependency>
 		<dependency>
 			<groupId>com.vaadin.addon</groupId>
 			<artifactId>tableexport-for-vaadin</artifactId>

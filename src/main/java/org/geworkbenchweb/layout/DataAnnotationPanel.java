@@ -1,16 +1,15 @@
 package org.geworkbenchweb.layout;
 
-import org.vaadin.alump.fancylayouts.FancyCssLayout;
-
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 
 /* ATTENTION: please be aware of our over-use of the word 'annotation'!
  * 'annotation' here refers to the additional information of the dataset, e.g. user comment, history, experimental info, etc.,
  * NOT the annotation for the microarray dataset, e.g. the AffyMatrix annotation*/
-public class DataAnnotationPanel extends FancyCssLayout {
+public class DataAnnotationPanel extends VerticalLayout {
 
 	private static final long serialVersionUID = 825425207503421000L;
 
@@ -20,8 +19,6 @@ public class DataAnnotationPanel extends FancyCssLayout {
 	private Long datasetId;
 
 	DataAnnotationPanel() {
-
-		setSlideEnabled(true);
 
 		setHeight("250px");
 		setWidth("100%");
