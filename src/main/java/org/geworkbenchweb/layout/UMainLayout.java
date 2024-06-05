@@ -247,15 +247,7 @@ public class UMainLayout extends VerticalLayout {
 		this.addComponent(annotationPanel); // invisible until a dataset ID is set
 
 		pluginView.showWeclomeScreen();
-
-		analysisListener = new AnalysisListener(this);
 	} // end of the constructor.
-
-	private AnalysisListener analysisListener;
-
-	public AnalysisListener getAnalysisListener() {
-		return analysisListener;
-	}
 
 	/*
 	 * This locks GUI except for the plugin view panel.

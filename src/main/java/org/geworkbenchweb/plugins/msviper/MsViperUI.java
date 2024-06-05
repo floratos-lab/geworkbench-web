@@ -14,7 +14,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.GeworkbenchRoot;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
+import org.geworkbenchweb.layout.AnalysisSubmission;
+import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.AnalysisUI;
 import org.geworkbenchweb.pojos.DataHistory;
 import org.geworkbenchweb.pojos.DataSet;
@@ -37,6 +38,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -609,10 +611,12 @@ public class MsViperUI extends VerticalLayout
 			HashMap<Serializable, Serializable> params = new HashMap<Serializable, Serializable>();
 			params.put("bean", param);
 
-			AnalysisSubmissionEvent analysisEvent = new AnalysisSubmissionEvent(
-					resultSet, params, MsViperUI.this);
-
-			app.getBlackboard().fire(analysisEvent);
+			Component content = UI.getCurrent().getContent();
+			if (content instanceof UMainLayout) {
+				new AnalysisSubmission((UMainLayout) content).submit(params, MsViperUI.this, resultSet);
+			} else {
+				log.error("THIS SHOULD NEVER HAPPEN.");
+			}
 		}
 	}
 

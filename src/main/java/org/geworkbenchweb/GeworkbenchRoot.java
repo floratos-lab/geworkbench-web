@@ -11,16 +11,12 @@ import javax.persistence.Persistence;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbenchweb.authentication.UUserAuth;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent;
-import org.geworkbenchweb.events.AnalysisSubmissionEvent.AnalysisSubmissionEventListener;
 import org.geworkbenchweb.layout.UMainLayout;
 import org.geworkbenchweb.plugins.PluginRegistry;
 import org.geworkbenchweb.utils.GeneOntologyTree;
 import org.vaadin.appfoundation.authentication.SessionHandler;
-import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 
-import com.github.wolfie.blackboard.Blackboard;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
@@ -45,8 +41,6 @@ public class GeworkbenchRoot extends UI {
 	static {
 		pluginRegistry.init();
 	}
-
-	private final Blackboard blackboardInstance = new Blackboard();
 
 	private static final String PROPERTIES_FILE = "application.properties";
 
@@ -104,34 +98,10 @@ public class GeworkbenchRoot extends UI {
 
 		SessionHandler.initialize(this);
 
-		registerAllEventsForApplication();
-
-		User user = SessionHandler.get();
-		if (user != null) {
-			try {
-				UMainLayout uMainLayout = new UMainLayout();
-				blackboardInstance.addListener(uMainLayout.getAnalysisListener());
-				setContent(uMainLayout);
-			} catch (Exception e) {
-				setContent(new UUserAuth());
-			}
-		} else {
-			UUserAuth auth = new UUserAuth();
-			setContent(auth);
-		}
+		UUserAuth auth = new UUserAuth();
+		setContent(auth);
 
 		GeneOntologyTree.getInstance();
-	}
-
-	public Blackboard getBlackboard() {
-		return blackboardInstance;
-	}
-
-	/**
-	 * All the Events in geWorkbench Application are strictly registered here.
-	 */
-	private void registerAllEventsForApplication() {
-		blackboardInstance.register(AnalysisSubmissionEventListener.class, AnalysisSubmissionEvent.class);
 	}
 
 	public static PluginRegistry getPluginRegistry() {
@@ -167,20 +137,9 @@ public class GeworkbenchRoot extends UI {
 		}
 	}
 
-	/* create new layout and make sure the old listener is removed first */
 	public void createNewMainLayout() {
-		Component content = getContent();
-		if (content instanceof UMainLayout) {
-			UMainLayout mainLayout = (UMainLayout) content;
-			boolean removed = blackboardInstance.removeListener(
-					mainLayout.getAnalysisListener());
-			log.debug("analysis listener found and removed? " + removed);
-		} else {
-			log.error("main window content is not UMainLayout");
-		}
 		try {
 			UMainLayout uMainLayout = new UMainLayout();
-			blackboardInstance.addListener(uMainLayout.getAnalysisListener());
 			setContent(uMainLayout);
 		} catch (Exception e) {
 			e.printStackTrace();
