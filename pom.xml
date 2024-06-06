@@ -228,11 +228,6 @@
 			<version>2.2</version>
 		</dependency>
 		<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jcommon</artifactId>
-			<version>1.0.5</version>
-		</dependency>
-		<dependency>
 			<groupId>org.jrobin</groupId>
 			<artifactId>jrobin</artifactId>
 			<version>1.5.9</version>
