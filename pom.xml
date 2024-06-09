@@ -58,9 +58,9 @@
 			<id>in-project</id>
 			<url>file://${project.basedir}/repo/lib</url>
 		</repository>
-		<repository>			<!-- this is for jhlabs (a stealthy dependency of captcha )-->
-			<id>dev.lutece.paris.fr</id>
-			<url>https://dev.lutece.paris.fr/nexus/content/repositories/maven_repository</url>
+		<repository> <!-- only for simplecaptcha -->
+			<id>everit.biz</id>
+			<url>https://repository.everit.biz/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 
@@ -249,9 +249,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.liferay</groupId>
+			<groupId>nl.captcha</groupId>
 			<artifactId>nl.captcha.simplecaptcha</artifactId>
-			<version>1.1.1</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
@@ -351,11 +351,6 @@
 			<groupId>ttest</groupId>
 			<artifactId>ttest</artifactId>
 			<version>2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>com.jhlabs</groupId>
-			<artifactId>imaging</artifactId>
-			<version>01012005</version>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.highcharts</groupId>
