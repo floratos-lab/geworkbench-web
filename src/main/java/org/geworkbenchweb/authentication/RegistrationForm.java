@@ -21,6 +21,7 @@ import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -190,7 +191,7 @@ public class RegistrationForm extends VerticalLayout {
 		final String passwordText = (String) password.getValue();
 		final String captchaText = (String) captchaCode.getValue();
 
-		Captcha captcha = (Captcha) UI.getCurrent().getSession().getAttribute(Captcha.NAME);
+		Captcha captcha = (Captcha) VaadinService.getCurrentRequest().getWrappedSession().getAttribute(Captcha.NAME);
 		if (!captcha.isCorrect(captchaText)) {
 			feedbackLabel
 					.setValue("Captcha code does not match");
