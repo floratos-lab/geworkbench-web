@@ -78,6 +78,10 @@ public class LoginForm extends VerticalLayout {
 				} catch (AccountLockedException e) {
 					feedbackLabel.setValue("The given account has been locked.");
 					status = "fail_3";
+				} catch (javax.persistence.PersistenceException e) {
+					feedbackLabel.setValue("PersistenceException caught. Please consult geworkbench log.");
+					log.warn(e.getMessage());
+					return; // do no try to log
 				} catch (Exception e) {
 					if (e.getMessage() == null) { /* this may happen due to library code */
 						feedbackLabel.setValue("Undocumented exception happened.");
