@@ -4,6 +4,11 @@ package org.geworkbenchweb.admin;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
 import org.vaadin.appfoundation.authentication.data.User;
 import org.vaadin.appfoundation.persistence.data.AbstractPojo;
 import org.vaadin.appfoundation.persistence.facade.FacadeFactory;
@@ -44,7 +49,18 @@ public class Admin {
     }
 
     public static void main(String[] args) {
-        long id = findUserId(args[0]);
-        unlock(id);
+        if (args.length == 1) { // feature (1) unlock user account
+            long id = findUserId(args[0]);
+            unlock(id);
+        } else { // feature (2) list all accounts
+            // intentionally not using appfoundation
+            EntityManagerFactory factory = Persistence.createEntityManagerFactory("default");
+            EntityManager em = factory.createEntityManager();
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+            for (User user : query.getResultList()) {
+                System.out.println(user.getUsername() + "|" + user.getEmail() + "|" + user.getName() + "|"
+                        + user.isAccountLocked() + "|" + user.getReasonForLockedAccount());
+            }
+        }
     }
 }
