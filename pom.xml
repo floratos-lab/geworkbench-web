@@ -357,22 +357,18 @@
 			<version>0.6.5</version>
 		</dependency>
 
+		<!-- the following dependencies are for PatientBasedQueryAndDataIntegration -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
 		<dependency>
 			<groupId>org.springframework.ws</groupId>
 			<artifactId>spring-ws-core</artifactId>
-			<version>3.1.6</version>
+			<version>3.1.8</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-		<dependency>			<!-- for package javax.xml.bind for PatientBasedQueryAndDataIntegration -->
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api -->
-		<dependency>			<!-- for package javax.xml.soap for PatientBasedQueryAndDataIntegration -->
-			<groupId>javax.xml.soap</groupId>
-			<artifactId>javax.xml.soap-api</artifactId>
-			<version>1.4.0</version>
+		<!-- https://mvnrepository.com/artifact/jakarta.xml.soap/jakarta.xml.soap-api -->
+		<dependency>
+			<groupId>jakarta.xml.soap</groupId>
+			<artifactId>jakarta.xml.soap-api</artifactId>
+			<version>1.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>pbqdi</groupId>
